@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/ScrollView01"
+	android:layout_height="wrap_content"
+	android:layout_width="fill_parent">
+	
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+	<!-- <include layout="@layout/header" /> -->
+	
+	<TextView android:id="@+id/MountainPassName"
+		android:text="Mountain Pass Name"
+		android:textStyle="bold"
+		android:textColor="#017359"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+        android:paddingTop="5sp"
+        android:paddingRight="5sp"
+        android:paddingBottom="10sp"
+        android:paddingLeft="5dp"
+		/>			
+
+	<TextView
+	    android:id="@+id/heading_WeatherCondition"
+	    android:text="Weather:"
+	    android:textStyle="bold"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+		android:paddingLeft="5dp"
+	    android:paddingRight="5sp"
+	    />    
+
+	<TextView
+    	android:id="@+id/WeatherCondition"
+    	android:text="weather condition text"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        android:paddingRight="5sp"
+        android:paddingBottom="5sp"
+    	/>
+
+	<TableLayout 
+	    xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_height="wrap_content" 
+	    android:layout_width="fill_parent">
+
+	    <TableRow> 
+			<TextView
+			    android:id="@+id/heading_TemperatureInFahrenheit"
+			    android:text="Temperature:"
+			    android:textStyle="bold"
+			    android:width="105px"
+         		android:paddingLeft="5dp"
+         		android:paddingRight="5sp"
+         		android:paddingBottom="5sp"
+			    />
+			<TextView
+			    android:id="@+id/TemperatureInFahrenheit"
+			    android:text="temperature"
+			    android:layout_width="fill_parent"
+			    android:paddingLeft="5dp"
+         		android:paddingRight="5sp"
+         		android:paddingBottom="5sp"
+			    />
+	    </TableRow>
+	    <TableRow>
+			<TextView
+			    android:id="@+id/heading_ElevationInFeet"
+			    android:text="Elevation:"
+			    android:textStyle="bold"
+			    android:width="105px"
+		        android:paddingLeft="5dp"
+		        android:paddingRight="5sp"
+		        android:paddingBottom="5sp"
+			    />    
+		
+			<TextView
+			    android:id="@+id/ElevationInFeet"
+			    android:text="elevation"
+			    android:layout_width="fill_parent"
+		        android:paddingLeft="5dp"
+		        android:paddingRight="5sp"
+		        android:paddingBottom="5sp"
+			    />	    
+	    </TableRow>
+
+    </TableLayout>
+
+	<TextView
+	    android:id="@+id/heading_RoadCondition"
+	    android:text="Conditions:"
+	    android:textStyle="bold"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+		android:paddingLeft="5dp"
+	    android:paddingRight="5sp"
+	    />    
+
+	<TextView
+    	android:id="@+id/RoadCondition"
+    	android:text="road condition text"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        android:paddingRight="5sp"
+        android:paddingBottom="5sp"
+    	/>
+    
+	<TextView
+	    android:id="@+id/heading_RestrictionOneTravelDirection"
+	    android:text="Restrictions NSEW"
+	    android:textStyle="bold"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+		android:paddingLeft="5dp"
+	    android:paddingRight="5sp"
+	    />    
+
+	<TextView
+    	android:id="@+id/RestrictionOneText"
+    	android:text="restriction text"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        android:paddingRight="5sp"
+        android:paddingBottom="5sp"
+    	/>	  
+
+	<TextView
+	    android:id="@+id/heading_RestrictionTwoTravelDirection"
+	    android:text="Restrictions NSEW"
+	    android:textStyle="bold"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+		android:paddingLeft="5dp"
+	    android:paddingRight="5sp"
+	    />    
+
+	<TextView
+    	android:id="@+id/RestrictionTwoText"
+    	android:text="restriction text"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        android:paddingRight="5sp"
+        android:paddingBottom="5sp"
+    	/>
+
+</LinearLayout>
+</ScrollView>

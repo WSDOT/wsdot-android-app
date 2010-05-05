@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="gov.wa.wsdot.android.wsdot"
+      android:versionCode="7"
+      android:versionName="1.3.2">
+
+    <application
+    	android:icon="@drawable/icon"
+    	android:label="@string/app_name"
+   		android:debuggable="false"
+   		android:theme="@android:style/Theme.Light">
+
+        <activity
+        	android:name=".WSDOT"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+   		<activity android:name="News" />
+   		<activity android:name="NewsItemDetails" />
+   		<activity android:name="Blog" />
+   		<activity android:name="BlogItemDetails" />
+   		<activity android:name="Twitter" />
+   		<activity android:name="TwitterItemDetails" />
+   		<activity android:name="Photos" />
+   		<activity android:name="PhotoItemDetails" />
+   		<activity android:name="About" />
+   		<activity android:name="SmallTraffic" />
+   		<activity android:name="TrafficTravel" />
+   		<activity android:name="MountainPassConditions" />
+   		<activity android:name="MountainPassItemDetails" />
+   		<activity android:name="MountainPassItemTabs" />
+   		<activity android:name="MountainPassItemCamera" />
+   		<activity android:name="MountainPassItemMap" />
+   		<activity android:name="SeattleTrafficTabs" />
+   		<activity android:name="SeattleTrafficAlerts" />
+   		<activity android:name="SeattleTrafficMap" />
+   		<activity android:name="SeattleTrafficTravelTimes" />
+   		<activity android:name="TacomaTrafficMap" />
+   		<activity android:name="EditPreferences" />
+   		<activity android:name="OlympiaTrafficMap" />
+
+   		<uses-library android:name="com.google.android.maps" />
+
+    </application>
+
+    <uses-sdk android:minSdkVersion="3" />
+	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+</manifest> 
