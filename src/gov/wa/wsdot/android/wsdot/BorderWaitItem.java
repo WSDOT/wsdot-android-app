@@ -18,24 +18,34 @@
 
 package gov.wa.wsdot.android.wsdot;
 
-import android.os.Bundle;
-import android.widget.TextView;
+public class BorderWaitItem {
+	private String title;
+	private Integer route;
+	private String wait;
+	private String pubDate;
 
-public class TrafficTravel extends MainMenu {
-	
-	@Override
-	void prepareMenu() {
-		addMenuItem("Mountain Passes", MountainPassConditions.class);
-		addMenuItem("Seattle Area", SeattleTrafficTabs.class);
-		addMenuItem("Small Traffic Site", SmallTraffic.class);
-		addMenuItem("Tacoma", TacomaTrafficMap.class);
-		addMenuItem("Olympia", OlympiaTrafficMap.class);
-		addMenuItem("Canadian Border", BorderWait.class);
+	public String getTitle() {
+		return title;
 	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		((TextView)findViewById(R.id.sub_section)).setText("Traffic & Travel");
+	public void setTitle(String title) {
+		this.title = title;
+	}	
+	public Integer getRoute() {
+		return route;
 	}
-} 
+	public void setRoute(Integer route) {
+		this.route = route;
+	}
+	public String getWait() {
+		return wait;
+	}
+	public void setWait(String wait) {
+		this.wait = wait;
+	}	
+	public String getPubDate() {
+		return pubDate;
+	}
+	public void setPubDate(String pubDate) {
+		this.pubDate = pubDate;
+	}
+}

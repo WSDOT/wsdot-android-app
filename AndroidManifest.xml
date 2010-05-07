@@ -41,6 +41,7 @@
    		<activity android:name="TacomaTrafficMap" />
    		<activity android:name="EditPreferences" />
    		<activity android:name="OlympiaTrafficMap" />
+   		<activity android:name="BorderWait" />
 
    		<uses-library android:name="com.google.android.maps" />
 
