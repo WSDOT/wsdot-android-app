@@ -42,6 +42,8 @@
    		<activity android:name="EditPreferences" />
    		<activity android:name="OlympiaTrafficMap" />
    		<activity android:name="BorderWait" />
+   		<activity android:name="SpokaneTrafficMap" />
+   		<activity android:name="VancouverTrafficMap" />
 
    		<uses-library android:name="com.google.android.maps" />
 
