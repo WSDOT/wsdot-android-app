@@ -49,13 +49,11 @@ public class SeattleTrafficTabs extends TabActivity {
 	    					.setContent(intent);
 	    tabHost.addTab(spec);
 
-	    /*
 	    intent = new Intent().setClass(this, SeattleTrafficTravelTimes.class);
 	    spec = tabHost.newTabSpec("times")
 						.setIndicator("Times", res.getDrawable(R.drawable.ic_tab_seattle_traveltimes))
 						.setContent(intent);
 	    tabHost.addTab(spec);
-	    */
 
 	    tabHost.setCurrentTabByTag("map");
 	}

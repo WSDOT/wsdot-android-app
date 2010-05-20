@@ -18,26 +18,20 @@
 
 package gov.wa.wsdot.android.wsdot;
 
-import android.os.Bundle;
-import android.widget.TextView;
+public class TravelTimesItem {
+	private String title;
+	private String currentTime;
 
-public class TrafficTravel extends MainMenu {
-	
-	@Override
-	void prepareMenu() {
-		addMenuItem("Mountain Passes", MountainPassConditions.class);
-		addMenuItem("Seattle Area", SeattleTrafficTabs.class);
-		addMenuItem("Small Traffic Site", SmallTraffic.class);
-		addMenuItem("Tacoma", TacomaTrafficMap.class);
-		addMenuItem("Olympia", OlympiaTrafficMap.class);
-		addMenuItem("Canadian Border", BorderWait.class);
-		addMenuItem("Spokane", SpokaneTrafficMap.class);
-		addMenuItem("Vancouver", VancouverTrafficMap.class);
+	public String getTitle() {
+		return title;
 	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		((TextView)findViewById(R.id.sub_section)).setText("Traffic & Travel");
+	public void setTitle(String title) {
+		this.title = title;
+	}	
+	public String getCurrentTime() {
+		return currentTime;
 	}
-} 
+	public void setCurrentTime(String currentTime) {
+		this.currentTime = currentTime;
+	}
+}
