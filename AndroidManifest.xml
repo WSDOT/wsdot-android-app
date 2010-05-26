@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="gov.wa.wsdot.android.wsdot"
-      android:versionCode="9"
-      android:versionName="1.3.5">
+      android:versionCode="10"
+      android:versionName="1.3.6">
 
     <application
     	android:icon="@drawable/icon"
@@ -18,32 +18,32 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-   		<activity android:name="News" />
+   		<activity android:name="News" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="NewsItemDetails" />
-   		<activity android:name="Blog" />
+   		<activity android:name="Blog" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="BlogItemDetails" />
-   		<activity android:name="Twitter" />
+   		<activity android:name="Twitter" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="TwitterItemDetails" />
-   		<activity android:name="Photos" />
+   		<activity android:name="Photos" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="PhotoItemDetails" />
    		<activity android:name="About" />
    		<activity android:name="SmallTraffic" />
    		<activity android:name="TrafficTravel" />
-   		<activity android:name="MountainPassConditions" />
+   		<activity android:name="MountainPassConditions" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="MountainPassItemDetails" />
-   		<activity android:name="MountainPassItemTabs" />
+   		<activity android:name="MountainPassItemTabs" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="MountainPassItemCamera" />
    		<activity android:name="MountainPassItemMap" />
-   		<activity android:name="SeattleTrafficTabs" />
+   		<activity android:name="SeattleTrafficTabs" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="SeattleTrafficAlerts" />
    		<activity android:name="SeattleTrafficMap" />
    		<activity android:name="SeattleTrafficTravelTimes" />
-   		<activity android:name="TacomaTrafficMap" />
+   		<activity android:name="TacomaTrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="EditPreferences" />
-   		<activity android:name="OlympiaTrafficMap" />
-   		<activity android:name="BorderWait" />
-   		<activity android:name="SpokaneTrafficMap" />
-   		<activity android:name="VancouverTrafficMap" />
+   		<activity android:name="OlympiaTrafficMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="BorderWait" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="SpokaneTrafficMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="VancouverTrafficMap" android:configChanges="orientation|keyboardHidden" />
 
    		<uses-library android:name="com.google.android.maps" />
 
