@@ -83,7 +83,9 @@ public class MountainPassItemCamera extends Activity {
 		   	BufferedInputStream in;
 	        BufferedOutputStream out;      
 	        
-	    	for (int i=0; i < remoteImages.size(); i++) {
+	    	for (int i=0; i < remoteImages.size(); i++) {   		
+	    		final Drawable image;
+	    		Bitmap bitmap = null;
 	            try {
 	                in = new BufferedInputStream(new URL(remoteImages.get(i)).openStream(), IO_BUFFER_SIZE);
 	                final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
@@ -91,13 +93,15 @@ public class MountainPassItemCamera extends Activity {
 	                copy(in, out);
 	                out.flush();
 	                final byte[] data = dataStream.toByteArray();
-	                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);                        
-	                final Drawable image = new BitmapDrawable(bitmap);
-	                bitmapImages.add(image);
-	                publishProgress(1);
+	                bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 	    	    } catch (Exception e) {
 	    	        Log.e(DEBUG_TAG, "Error retrieving camera images", e);
-	    	    }    		
+	    	        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.camera_offline);
+	    	    } finally {
+	    	    	image = new BitmapDrawable(bitmap);
+	    	    	bitmapImages.add(image);
+	    	    	publishProgress(1);
+	    	    }
 	    	}
 			return null;
 		}
