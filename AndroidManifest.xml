@@ -44,6 +44,9 @@
    		<activity android:name="BorderWait" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="SpokaneTrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="VancouverTrafficMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="Ferries" />
+   		<activity android:name="FerrySchedule" />
+   		<activity android:name="VesselWatch" />
 
    		<uses-library android:name="com.google.android.maps" />
 
