@@ -21,17 +21,24 @@ package gov.wa.wsdot.android.wsdot;
 import android.os.Bundle;
 import android.widget.TextView;
 
-public class Ferries extends MainMenu {
+public class VesselWatch extends MainMenu {
 	
 	@Override
 	void prepareMenu() {
-		//addMenuItem("Ferry Schedule", FerrySchedule.class);
-		addMenuItem("Vessel Watch", VesselWatch.class);
+		addMenuItem("Anacortes / San Juan Islands / Sidney B.C.", VesselWatchMap.class);
+		addMenuItem("San Juan Islands Inter-Island", VesselWatchMap.class);
+		addMenuItem("Port Townsend / Keystone", VesselWatchMap.class);
+		addMenuItem("Mukilteo / Clinton", VesselWatchMap.class);
+		addMenuItem("Edmonds / Kingston", VesselWatchMap.class);
+		addMenuItem("Seattle / Bainbridge", VesselWatchMap.class);
+		addMenuItem("Seattle", VesselWatchMap.class);
+		addMenuItem("Fauntleroy / Vashon / Southworth", VesselWatchMap.class);
+		addMenuItem("Point Defiance / Tahlequah", VesselWatchMap.class);
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		((TextView)findViewById(R.id.sub_section)).setText("Ferries");
+		((TextView)findViewById(R.id.sub_section)).setText("Ferries Vessel Watch");
 	}
 } 
