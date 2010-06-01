@@ -47,7 +47,7 @@
    		<activity android:name="Ferries" />
    		<!--<activity android:name="FerrySchedule" />-->
    		<activity android:name="VesselWatch" />
-   		<activity android:name="VesselWatchMap" />
+   		<activity android:name="VesselWatchMap" android:configChanges="orientation|keyboardHidden" />
 
    		<uses-library android:name="com.google.android.maps" />
 
