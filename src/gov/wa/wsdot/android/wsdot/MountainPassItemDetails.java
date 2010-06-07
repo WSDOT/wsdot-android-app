@@ -40,7 +40,7 @@ public class MountainPassItemDetails extends Activity {
 		if (temperatureInFahrenheit.equals("null")) {
 			temperatureInFahrenheit = "Not available";
 		} else {
-			temperatureInFahrenheit = temperatureInFahrenheit + "¡F";
+			temperatureInFahrenheit = temperatureInFahrenheit + "\u00b0F";
 		}
 	
 		((TextView)findViewById(R.id.MountainPassName)).setText(b.getString("MountainPassName"));
