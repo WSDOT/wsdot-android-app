@@ -25,15 +25,15 @@ public class VesselWatch extends MainMenu {
 	
 	@Override
 	void prepareMenu() {
-		addMenuItem("Anacortes / San Juan Islands / Sidney B.C.", VesselWatchMap.class);
-		addMenuItem("San Juan Islands Inter-Island", VesselWatchMap.class);
-		addMenuItem("Port Townsend / Keystone", VesselWatchMap.class);
-		addMenuItem("Mukilteo / Clinton", VesselWatchMap.class);
-		addMenuItem("Edmonds / Kingston", VesselWatchMap.class);
-		addMenuItem("Seattle / Bainbridge", VesselWatchMap.class);
-		addMenuItem("Seattle", VesselWatchMap.class);
-		addMenuItem("Fauntleroy / Vashon / Southworth", VesselWatchMap.class);
-		addMenuItem("Point Defiance / Tahlequah", VesselWatchMap.class);
+		addMenuItem("Anacortes / San Juan Islands / Sidney B.C.", AnacortesVesselWatchMap.class);
+		addMenuItem("San Juan Islands Inter-Island", SanJuanIslandsVesselWatchMap.class);
+		addMenuItem("Port Townsend / Keystone", PortTownsendVesselWatchMap.class);
+		addMenuItem("Mukilteo / Clinton", MukilteoVesselWatchMap.class);
+		addMenuItem("Edmonds / Kingston", EdmondsVesselWatchMap.class);
+		addMenuItem("Seattle / Bainbridge", SeattleBainbridgeVesselWatchMap.class);
+		addMenuItem("Seattle", SeattleVesselWatchMap.class);
+		addMenuItem("Fauntleroy / Vashon / Southworth", FauntleroyVesselWatchMap.class);
+		addMenuItem("Point Defiance / Tahlequah", PointDefianceVesselWatchMap.class);
 	}
 
 	@Override

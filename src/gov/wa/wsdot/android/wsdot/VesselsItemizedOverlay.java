@@ -24,6 +24,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
@@ -44,6 +47,7 @@ public class VesselsItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	
 	public void addOverlay(OverlayItem overlay) {
 	    mOverlays.add(overlay);
+	    setLastFocusedIndex(-1);
 	    populate();
 	}
 	
@@ -60,15 +64,30 @@ public class VesselsItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	@Override
 	protected boolean onTap(int index) {
 		OverlayItem item = mOverlays.get(index);
-		AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
-		dialog.setMessage(item.getSnippet());  
-		dialog.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View layout = inflater.inflate(R.layout.vesselwatch_dialog, null);
+		((TextView)layout.findViewById(R.id.VesselName)).setText(item.getTitle());
+		((TextView)layout.findViewById(R.id.VesselDetails)).setText(item.getSnippet());
+		
+		builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				dialog.cancel();
 			}
 		});
 
-		dialog.show();
+		builder.setView(layout);
+		AlertDialog alertDialog = builder.create();
+		alertDialog.show();		
+		
 		return true;
+	}
+
+	@Override
+	protected boolean hitTest(OverlayItem item, Drawable marker, int hitX, int hitY) {
+		if (hitX > -12 && hitX < 12	&& hitY < 4 && hitY > -28) {
+			return true;
+		}
+		return false;
 	}
 }

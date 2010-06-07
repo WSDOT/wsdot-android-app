@@ -47,7 +47,15 @@
    		<activity android:name="Ferries" />
    		<!--<activity android:name="FerrySchedule" />-->
    		<activity android:name="VesselWatch" />
-   		<activity android:name="VesselWatchMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="AnacortesVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="SanJuanIslandsVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="PortTownsendVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="MukilteoVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="EdmondsVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="SeattleBainbridgeVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="SeattleVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="FauntleroyVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="PointDefianceVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
 
    		<uses-library android:name="com.google.android.maps" />
 

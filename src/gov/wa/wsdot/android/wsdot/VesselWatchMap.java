@@ -30,6 +30,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -41,17 +43,16 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
-public class VesselWatchMap extends MapActivity {
+public abstract class VesselWatchMap extends MapActivity {
 
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "VesselWatchMap";
@@ -60,32 +61,39 @@ public class VesselWatchMap extends MapActivity {
 	private Drawable drawable;
 	VesselsItemizedOverlay vesselsItemizedOverlay;
 	MapView map = null;
+	private Handler handler = new Handler();
+	private Timer timer = new Timer();
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         // Setup the unique latitude, longitude and zoom level
-        //prepareMap();
-        
-		super.setContentView(R.layout.map);
-		((TextView)findViewById(R.id.sub_section)).setText("Ferries Vessel Watch");
-		
-		Double latitude = 47.5990;
-        Double longitude = -122.3350;
-        map = (MapView) findViewById(R.id.mapview);
-        map.setSatellite(false);
-        final MapController mapControl = map.getController();
-        mapControl.setZoom(12);
-        map.setBuiltInZoomControls(true);
-        map.setTraffic(false);
-        GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
-        mapControl.animateTo(newPoint);
-        
-        new GetFerryLocations().execute();
+        prepareMap();
+        // Schedule the map to update every 30 seconds
+        timer.schedule(new MyTimerTask(), 0, 30000);
     }
 	
-	//abstract void prepareMap();
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		timer.cancel();
+	}
 
+	abstract void prepareMap();
+
+    public class MyTimerTask extends TimerTask {
+        private Runnable runnable = new Runnable() {
+            public void run() {
+                new GetFerryLocations().execute();
+            }
+        };
+
+        public void run() {
+            handler.post(runnable);
+        }
+    }
+	
 	private class GetFerryLocations extends AsyncTask<String, Void, String> {
 		private final ProgressDialog dialog = new ProgressDialog(VesselWatchMap.this);
 
@@ -108,6 +116,7 @@ public class VesselWatchMap extends MapActivity {
 				in.close();
 				
 		        mapOverlays = map.getOverlays();
+		        mapOverlays.clear();
 				JSONObject obj = new JSONObject(jsonFile);
 				JSONArray items = obj.getJSONArray("vessellist");
 				vesselWatchItems = new ArrayList<VesselWatchItem>();
@@ -119,8 +128,17 @@ public class VesselWatchMap extends MapActivity {
 					if (item.getString("inservice").equalsIgnoreCase("false")) {
 						continue;
 					}
+					
+					String nextDeparture = item.getString("nextdep");
+					if (nextDeparture.equals("")) nextDeparture = "available when at dock";
+					
 					i.setName(item.getString("name"));
 					i.setRoute(item.getString("route"));
+					i.setLastDock(item.getString("lastdock"));
+					i.setNextDep(nextDeparture);
+					i.setHead(item.getInt("head"));
+					i.setHeadTxt(item.getString("headtxt"));
+					i.setSpeed(item.getDouble("speed"));
 					i.setLat(item.getDouble("lat"));
 					i.setLon(item.getDouble("lon"));
 					
@@ -128,7 +146,7 @@ public class VesselWatchMap extends MapActivity {
 					drawable = loadImageFromNetwork("http://www.wsdot.wa.gov/ferries/vesselwatch/" + item.getString("icon"));
 			        vesselsItemizedOverlay = new VesselsItemizedOverlay(drawable, VesselWatchMap.this);				
 					GeoPoint point = new GeoPoint((int)(i.getLat() * 1E6), (int)(i.getLon() * 1E6));
-					OverlayItem overlayitem = new OverlayItem(point, "", i.getName());
+					OverlayItem overlayitem = new OverlayItem(point, i.getName(), "Route: " + i.getRoute() + "\nLast Dock: " + i.getLastDock() + "\nNext Departure: " + i.getNextDep() + "\nHeading: " + i.getHead().toString() + "\u00b0 " + i.getHeadTxt() + "\nSpeed: " + i.getSpeed().toString() + " knots");
 					vesselsItemizedOverlay.addOverlay(overlayitem);
 					mapOverlays.add(vesselsItemizedOverlay);
 				}
@@ -144,6 +162,7 @@ public class VesselWatchMap extends MapActivity {
 			if (this.dialog.isShowing()) {
 				this.dialog.dismiss();
 			}
+			map.postInvalidate();
 		}
 	}
 	
