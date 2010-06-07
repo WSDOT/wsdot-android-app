@@ -21,24 +21,24 @@ package gov.wa.wsdot.android.wsdot;
 import android.os.Bundle;
 import android.widget.TextView;
 
-public class TrafficTravel extends MainMenu {
+public class VesselWatch extends MainMenu {
 	
 	@Override
 	void prepareMenu() {
-		addMenuItem("Mountain Passes", MountainPassConditions.class);
-		addMenuItem("Seattle Area", SeattleTrafficTabs.class);
-		addMenuItem("Small Traffic Site", SmallTraffic.class);
-		addMenuItem("Tacoma", TacomaTrafficMap.class);
-		addMenuItem("Olympia", OlympiaTrafficMap.class);
-		addMenuItem("Canadian Border", BorderWait.class);
-		addMenuItem("Spokane", SpokaneTrafficMap.class);
-		addMenuItem("Vancouver", VancouverTrafficMap.class);
-		addMenuItem("Ferries", Ferries.class);
+		addMenuItem("Anacortes / San Juan Islands / Sidney B.C.", AnacortesVesselWatchMap.class);
+		addMenuItem("San Juan Islands Inter-Island", SanJuanIslandsVesselWatchMap.class);
+		addMenuItem("Port Townsend / Keystone", PortTownsendVesselWatchMap.class);
+		addMenuItem("Mukilteo / Clinton", MukilteoVesselWatchMap.class);
+		addMenuItem("Edmonds / Kingston", EdmondsVesselWatchMap.class);
+		addMenuItem("Seattle / Bainbridge", SeattleBainbridgeVesselWatchMap.class);
+		addMenuItem("Seattle", SeattleVesselWatchMap.class);
+		addMenuItem("Fauntleroy / Vashon / Southworth", FauntleroyVesselWatchMap.class);
+		addMenuItem("Point Defiance / Tahlequah", PointDefianceVesselWatchMap.class);
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		((TextView)findViewById(R.id.sub_section)).setText("Traffic & Travel");
+		((TextView)findViewById(R.id.sub_section)).setText("Ferries Vessel Watch");
 	}
 } 

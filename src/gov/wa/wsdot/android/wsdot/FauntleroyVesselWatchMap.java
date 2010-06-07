@@ -18,27 +18,27 @@
 
 package gov.wa.wsdot.android.wsdot;
 
-import android.os.Bundle;
 import android.widget.TextView;
 
-public class TrafficTravel extends MainMenu {
-	
-	@Override
-	void prepareMenu() {
-		addMenuItem("Mountain Passes", MountainPassConditions.class);
-		addMenuItem("Seattle Area", SeattleTrafficTabs.class);
-		addMenuItem("Small Traffic Site", SmallTraffic.class);
-		addMenuItem("Tacoma", TacomaTrafficMap.class);
-		addMenuItem("Olympia", OlympiaTrafficMap.class);
-		addMenuItem("Canadian Border", BorderWait.class);
-		addMenuItem("Spokane", SpokaneTrafficMap.class);
-		addMenuItem("Vancouver", VancouverTrafficMap.class);
-		addMenuItem("Ferries", Ferries.class);
-	}
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.MapController;
+import com.google.android.maps.MapView;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		((TextView)findViewById(R.id.sub_section)).setText("Traffic & Travel");
+public class FauntleroyVesselWatchMap extends VesselWatchMap {
+		
+	void prepareMap() {
+		super.setContentView(R.layout.map);
+		((TextView)findViewById(R.id.sub_section)).setText("Ferries Vessel Watch");
+
+		Double latitude = 47.513625;
+        Double longitude = -122.450820;
+        map = (MapView) findViewById(R.id.mapview);
+        map.setSatellite(false);
+        final MapController mapControl = map.getController();
+        mapControl.setZoom(13);
+        map.setBuiltInZoomControls(true);
+        map.setTraffic(false);
+        GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
+        mapControl.animateTo(newPoint);
 	}
-} 
+}
