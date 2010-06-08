@@ -44,6 +44,7 @@ public class AlertsItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	
 	public void addOverlay(OverlayItem overlay) {
 	    mOverlays.add(overlay);
+	    setLastFocusedIndex(-1);
 	    populate();
 	}
 	
@@ -71,4 +72,12 @@ public class AlertsItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 		dialog.show();
 		return true;
 	}
+	
+	@Override
+	protected boolean hitTest(OverlayItem item, Drawable marker, int hitX, int hitY) {
+		if (hitX > -13 && hitX < 13	&& hitY < 4 && hitY > -29) {
+			return true;
+		}
+		return false;
+	}	
 }

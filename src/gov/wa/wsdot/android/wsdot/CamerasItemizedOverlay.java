@@ -62,6 +62,7 @@ public class CamerasItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	
 	public void addOverlay(OverlayItem overlay) {
 	    mOverlays.add(overlay);
+	    setLastFocusedIndex(-1);
 	    populate();
 	}
 	
@@ -82,6 +83,14 @@ public class CamerasItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 
 		return true;
 	}
+
+	@Override
+	protected boolean hitTest(OverlayItem item, Drawable marker, int hitX, int hitY) {
+		if (hitX > -11 && hitX < 11	&& hitY < 4 && hitY > -25) {
+			return true;
+		}
+		return false;
+	}	
 	
 	private class GetCameraImage extends AsyncTask<String, Void, Drawable> {
 		private final ProgressDialog dialog = new ProgressDialog(mContext);

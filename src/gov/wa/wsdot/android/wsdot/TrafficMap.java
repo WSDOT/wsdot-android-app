@@ -202,6 +202,7 @@ public abstract class TrafficMap extends MapActivity {
 			if (this.dialog.isShowing()) {
 				this.dialog.dismiss();
 			}
+			map.postInvalidate();
 		}
 	}
 
