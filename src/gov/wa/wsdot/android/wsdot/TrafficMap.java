@@ -144,6 +144,7 @@ public abstract class TrafficMap extends MapActivity {
 			if (this.dialog.isShowing()) {
 				this.dialog.dismiss();
 			}
+			map.invalidate();
 			if (showCameras) {
 				new GetCameras().execute();	
 			}
@@ -202,7 +203,7 @@ public abstract class TrafficMap extends MapActivity {
 			if (this.dialog.isShowing()) {
 				this.dialog.dismiss();
 			}
-			map.postInvalidate();
+			map.invalidate();
 		}
 	}
 
