@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="gov.wa.wsdot.android.wsdot"
-      android:versionCode="14"
-      android:versionName="1.4.2">
+      android:versionCode="15"
+      android:versionName="1.4.3">
 
     <application
     	android:icon="@drawable/icon"
@@ -45,7 +45,6 @@
    		<activity android:name="SpokaneTrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="VancouverTrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="Ferries" />
-   		<!--<activity android:name="FerrySchedule" />-->
    		<activity android:name="VesselWatch" />
    		<activity android:name="AnacortesVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="SanJuanIslandsVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
