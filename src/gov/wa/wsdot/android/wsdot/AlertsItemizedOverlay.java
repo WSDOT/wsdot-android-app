@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
 import com.google.android.maps.ItemizedOverlay;
@@ -32,6 +33,9 @@ public class AlertsItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
 	Context mContext;
+	private Rect touchableBounds = new Rect();
+    private static final int MIN_TOUCHABLE_WIDTH  = 50;
+    private static final int MIN_TOUCHABLE_HEIGHT = 50;	
 	
 	public AlertsItemizedOverlay(Drawable defaultMarker) {
 		super(boundCenterBottom(defaultMarker));
@@ -75,9 +79,18 @@ public class AlertsItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	
 	@Override
 	protected boolean hitTest(OverlayItem item, Drawable marker, int hitX, int hitY) {
-		if (hitX > -13 && hitX < 13	&& hitY < 4 && hitY > -29) {
-			return true;
-		}
-		return false;
+        Rect bounds = marker.getBounds();
+        int width = bounds.width();
+        int height = bounds.height();
+        int centerX = bounds.centerX();
+        int centerY = bounds.centerY();
+        int touchWidth = Math.max(MIN_TOUCHABLE_WIDTH, width);
+        int touchLeft = centerX - touchWidth / 2;
+        int touchHeight = Math.max(MIN_TOUCHABLE_HEIGHT, height);
+        int touchTop = centerY - touchHeight / 2;
+
+        touchableBounds.set(touchLeft, touchTop, touchLeft + touchWidth, touchTop + touchHeight);
+
+        return touchableBounds.contains(hitX, hitY); 
 	}	
 }

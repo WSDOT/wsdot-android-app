@@ -33,6 +33,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -50,6 +51,9 @@ public class CamerasItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	Context mContext;
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "CamerasItemizedOverlay";
+	private Rect touchableBounds = new Rect();
+    private static final int MIN_TOUCHABLE_WIDTH  = 50;
+    private static final int MIN_TOUCHABLE_HEIGHT = 50; 	
 	
 	public CamerasItemizedOverlay(Drawable defaultMarker) {
 		super(boundCenterBottom(defaultMarker));
@@ -86,10 +90,19 @@ public class CamerasItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 
 	@Override
 	protected boolean hitTest(OverlayItem item, Drawable marker, int hitX, int hitY) {
-		if (hitX > -11 && hitX < 11	&& hitY < 4 && hitY > -25) {
-			return true;
-		}
-		return false;
+        Rect bounds = marker.getBounds();
+        int width = bounds.width();
+        int height = bounds.height();
+        int centerX = bounds.centerX();
+        int centerY = bounds.centerY();
+        int touchWidth = Math.max(MIN_TOUCHABLE_WIDTH, width);
+        int touchLeft = centerX - touchWidth / 2;
+        int touchHeight = Math.max(MIN_TOUCHABLE_HEIGHT, height);
+        int touchTop = centerY - touchHeight / 2;
+
+        touchableBounds.set(touchLeft, touchTop, touchLeft + touchWidth, touchTop + touchHeight);
+
+        return touchableBounds.contains(hitX, hitY); 
 	}	
 	
 	private class GetCameraImage extends AsyncTask<String, Void, Drawable> {
