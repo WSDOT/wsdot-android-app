@@ -37,8 +37,8 @@ public class About extends Activity {
 				"transportation systems vital to our taxpayers and communities.</p>" +
 				"<p>The WSDOT mobile app was created to make it easier for you to know the latest " +
 				"about Washington's transportation system.</p>" +
-				"<p>Questions, comments or suggestions should be directed to the WSDOT " +
-				"Communications Office, <a href=\"mailto:webhelp@wsdot.wa.gov\">webhelp@wsdot.wa.gov</a>, " +
+				"<p>Questions, comments or suggestions should be directed to the <a href=\"mailto:webfeedback@wsdot.wa.gov\">WSDOT " +
+				"Communications Office</a>, " +
 				"<a href=\"tel:3607057079\">360-705-7079</a>.</p>";
 		
 		webview = (WebView)findViewById(R.id.about_webview);
