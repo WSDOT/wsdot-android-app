@@ -18,6 +18,9 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -36,9 +39,10 @@ public class RouteAlertsItemDetails extends Activity {
 		Bundle b = getIntent().getExtras();
 		
 		String alertFullTitle = b.getString("AlertFullTitle");
+		String alertPublishDate = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(new Date(Long.parseLong(b.getString("AlertPublishDate"))));
 		String alertDescription = b.getString("AlertDescription");
 		String alertFullText = b.getString("AlertFullText");
-		String html_content = "<h3>"+ alertFullTitle + "</h3>" + "<p><b>" + alertDescription + "</b></p><p>" + alertFullText + "</p>";
+		String html_content = "<h3>"+ alertFullTitle + "</h3>" + "<p>" + alertPublishDate + "</p><p><b>" + alertDescription + "</b></p><p>" + alertFullText + "</p>";
 
 		webview = (WebView)findViewById(R.id.webview);
 		webview.getSettings().setJavaScriptEnabled(true);

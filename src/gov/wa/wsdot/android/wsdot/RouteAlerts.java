@@ -95,7 +95,7 @@ public class RouteAlerts extends ListActivity {
 						JSONObject alert = alerts.getJSONObject(k);
 						a = new FerriesRouteAlertItem();
 						a.setBulletinID(alert.getInt("BulletinID"));
-						a.setPublishDate(alert.getString("PublishDate"));
+						a.setPublishDate(alert.getString("PublishDate").substring(6, 19));
 						a.setAlertDescription(alert.getString("AlertDescription"));
 						a.setAlertFullTitle(alert.getString("AlertFullTitle"));
 						
