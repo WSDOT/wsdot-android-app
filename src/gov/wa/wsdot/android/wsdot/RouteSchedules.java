@@ -18,11 +18,14 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.zip.GZIPInputStream;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import android.app.ListActivity;
@@ -69,9 +72,14 @@ public class RouteSchedules extends ListActivity {
 		@Override
 		protected String doInBackground(String... params) {
 			try {
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/WSFRouteSchedules.js");
+				URL url = new URL("http://data.wsdot.wa.gov/mobile/WSFRouteSchedules.js.gz");
 				URLConnection urlConn = url.openConnection();
-				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+				
+				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
+                GZIPInputStream gzin = new GZIPInputStream(bis);
+                InputStreamReader is = new InputStreamReader(gzin);
+                BufferedReader in = new BufferedReader(is);
+				
 				String jsonFile = "";
 				String line;
 				
