@@ -45,6 +45,13 @@
    		<activity android:name="SpokaneTrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="VancouverTrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="Ferries" />
+   		<activity android:name="RouteAlerts" />
+   		<activity android:name="RouteAlertsItems" />
+   		<activity android:name="RouteAlertsItemDetails" />
+   		<activity android:name="RouteSchedules" />
+   		<activity android:name="RouteSchedulesDays" />
+   		<activity android:name="RouteSchedulesDaySailings" />
+   		<activity android:name="RouteScheduleDayDepartures" />
    		<activity android:name="VesselWatch" />
    		<activity android:name="AnacortesVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="SanJuanIslandsVesselWatchMap" android:configChanges="orientation|keyboardHidden" />
