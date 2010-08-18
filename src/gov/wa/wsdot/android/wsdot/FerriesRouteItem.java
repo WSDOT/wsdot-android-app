@@ -29,6 +29,7 @@ public class FerriesRouteItem implements Serializable {
 	private Integer routeID;
 	private String description;
 	private ArrayList<FerriesRouteAlertItem> routeAlert = new ArrayList<FerriesRouteAlertItem>();
+	private ArrayList<FerriesScheduleDateItem> scheduleDate = new ArrayList<FerriesScheduleDateItem>();
 
 	public Integer getRouteID() {
 		return routeID;
@@ -49,5 +50,12 @@ public class FerriesRouteItem implements Serializable {
 	}
 	public void setFerriesRouteAlertItem(FerriesRouteAlertItem routeAlert) {
 		this.routeAlert.add(routeAlert);
+	}
+	
+	public ArrayList<FerriesScheduleDateItem> getFerriesScheduleDateItem() {
+		return scheduleDate;
+	}
+	public void setFerriesScheduleDateItem(FerriesScheduleDateItem scheduleDate) {
+		this.scheduleDate.add(scheduleDate);
 	}
 }

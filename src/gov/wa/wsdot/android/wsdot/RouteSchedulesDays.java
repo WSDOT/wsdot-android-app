@@ -21,13 +21,14 @@ package gov.wa.wsdot.android.wsdot;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,10 +38,11 @@ import android.widget.TextView;
 
 public class RouteSchedulesDays extends ListActivity {
 
+	private static final String DEBUG_TAG = "RouteSchedulesDays";
 	private FerriesRouteItem routeItems;
-	private ArrayList<Date> date = null;
+	private ArrayList<FerriesScheduleDateItem> scheduleDateItems = null;
 	private DaysOfWeekAdapter adapter;
-	private Runnable viewSchedules;
+	DateFormat dateFormat = new SimpleDateFormat("EEEE");
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -49,62 +51,71 @@ public class RouteSchedulesDays extends ListActivity {
 		routeItems = (FerriesRouteItem)getIntent().getSerializableExtra("routeItems");
 		setContentView(R.layout.main);
 		((TextView)findViewById(R.id.sub_section)).setText("Ferries Route Schedules");
-		date = new ArrayList<Date>();
-        this.adapter = new DaysOfWeekAdapter(this, android.R.layout.simple_list_item_1, date);
+		scheduleDateItems = new ArrayList<FerriesScheduleDateItem>();
+        this.adapter = new DaysOfWeekAdapter(this, android.R.layout.simple_list_item_1, scheduleDateItems);
         setListAdapter(this.adapter);
-
-        viewSchedules = new Runnable() {
-        	public void run() {
-        		getDates();
-        	}
-        };
-        
-        Thread thread = new Thread(null, viewSchedules, "RouteSchedulesBackground");
-        thread.start();
+        new GetDates().execute();
 	}
 
-    private Runnable returnRes = new Runnable() {
-        public void run() {
-            if (date != null && date.size() > 0) {
+    private class GetDates extends AsyncTask<String, Integer, String> {
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+		}
+    	
+		@Override
+		protected void onProgressUpdate(Integer... progress) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		protected String doInBackground(String... params) {
+	    	int numDates = routeItems.getFerriesScheduleDateItem().size();
+	    	scheduleDateItems = new ArrayList<FerriesScheduleDateItem>();
+			
+	    	try {   		
+				for (int i=0; i<numDates; i++) {
+					FerriesScheduleDateItem scheduleDateItem = new FerriesScheduleDateItem();
+					scheduleDateItem.setDate(routeItems.getFerriesScheduleDateItem().get(i).getDate());
+					for (int j=0; j<routeItems.getFerriesScheduleDateItem().get(i).getFerriesTerminalItem().size(); j++) {
+						scheduleDateItem.setFerriesTerminalItem(routeItems.getFerriesScheduleDateItem().get(i).getFerriesTerminalItem().get(j));
+					}
+					scheduleDateItems.add(scheduleDateItem);
+				}
+			} catch (Exception e) {
+				Log.e(DEBUG_TAG, "Error adding dates", e);
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+            if (scheduleDateItems != null && scheduleDateItems.size() > 0) {
                 adapter.notifyDataSetChanged();
-                for(int i=0;i<date.size();i++)
-                	adapter.add(date.get(i));
+                for(int i=0;i<scheduleDateItems.size();i++)
+                	adapter.add(scheduleDateItems.get(i));
             }
             adapter.notifyDataSetChanged();
-        }
-    };
-
-    private void getDates() {
-    	Calendar cal = Calendar.getInstance();
-        date = new ArrayList<Date>();
-		
-		for (int i=0; i<7; i++)
-		{
-			date.add(cal.getTime());
-			cal.add(Calendar.DATE, 1);
-		}
-		runOnUiThread(returnRes);
-    }
+		}   
+    }	
 	
-    /*
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
+		
 		Bundle b = new Bundle();
-		Intent intent = new Intent(this, RouteAlertsItemDetails.class);
-		b.putString("AlertFullTitle", routeAlertItems.get(position).getAlertFullTitle());
-		b.putString("AlertPublishDate", routeAlertItems.get(position).getPublishDate());
-		b.putString("AlertDescription", routeAlertItems.get(position).getAlertDescription());
-		b.putString("AlertFullText", routeAlertItems.get(position).getAlertFullText());
+		Intent intent = new Intent(this, RouteSchedulesDaySailings.class);
+		b.putSerializable("scheduleDateItems", scheduleDateItems.get(position));
+		b.putString("DayOfWeek", dateFormat.format(new Date(Long.parseLong(scheduleDateItems.get(position).getDate()))));
 		intent.putExtras(b);
 		startActivity(intent);		
 	}
-	*/
 
-	private class DaysOfWeekAdapter extends ArrayAdapter<Date> {
-        private ArrayList<Date> items;
+	private class DaysOfWeekAdapter extends ArrayAdapter<FerriesScheduleDateItem> {
+        private ArrayList<FerriesScheduleDateItem> items;
 
-        public DaysOfWeekAdapter(Context context, int textViewResourceId, ArrayList<Date> items) {
+        public DaysOfWeekAdapter(Context context, int textViewResourceId, ArrayList<FerriesScheduleDateItem> items) {
 	        super(context, textViewResourceId, items);
 	        this.items = items;
         }
@@ -112,18 +123,16 @@ public class RouteSchedulesDays extends ListActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 	        View v = convertView;
-	        String strDateFormat = "EEEE";
-	        SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
 	        
 	        if (v == null) {
 	            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	            v = vi.inflate(android.R.layout.simple_list_item_1, null);
 	        }
-	        Date o = items.get(position);
+	        FerriesScheduleDateItem o = items.get(position);
 	        if (o != null) {
 	            TextView tt = (TextView) v.findViewById(android.R.id.text1);
 	            if(tt != null) {
-	            	tt.setText(sdf.format(o.getTime()));
+	            	tt.setText(dateFormat.format(new Date(Long.parseLong(o.getDate()))));
 	            }
 	        }
 	        return v;
