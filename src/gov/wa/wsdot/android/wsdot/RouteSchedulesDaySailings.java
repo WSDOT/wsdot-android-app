@@ -21,7 +21,6 @@ package gov.wa.wsdot.android.wsdot;
 import java.util.ArrayList;
 
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -40,15 +39,12 @@ public class RouteSchedulesDaySailings extends ListActivity {
 	private FerriesScheduleDateItem scheduleDateItems;
 	private ArrayList<FerriesTerminalItem> terminalItems = null;
 	private SailingsAdapter adapter;
-	private String dayOfWeek;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		Bundle b = getIntent().getExtras();
 		scheduleDateItems = (FerriesScheduleDateItem)getIntent().getSerializableExtra("scheduleDateItems");
-		dayOfWeek = b.getString("DayOfWeek");
 		setContentView(R.layout.main);
 		((TextView)findViewById(R.id.sub_section)).setText("Ferries Route Schedules");
 		terminalItems = new ArrayList<FerriesTerminalItem>();
@@ -58,14 +54,10 @@ public class RouteSchedulesDaySailings extends ListActivity {
 	}
 	
     private class GetTerminals extends AsyncTask<String, Integer, String> {
-    	private final ProgressDialog dialog = new ProgressDialog(RouteSchedulesDaySailings.this);
 
 		@Override
 		protected void onPreExecute() {
-	        this.dialog.setMessage("Retrieving scheduled sailings for " + dayOfWeek);
-	        this.dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-	        this.dialog.setCancelable(true);
-	        this.dialog.show();
+			// TODO Auto-generated method stub
 		}
     	
 		@Override
@@ -103,10 +95,7 @@ public class RouteSchedulesDaySailings extends ListActivity {
 		}
 
 		@Override
-		protected void onPostExecute(String result) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}			
+		protected void onPostExecute(String result) {			
             if (terminalItems != null && terminalItems.size() > 0) {
                 adapter.notifyDataSetChanged();
                 for(int i=0;i<terminalItems.size();i++)

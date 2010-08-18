@@ -107,7 +107,6 @@ public class RouteSchedulesDays extends ListActivity {
 		Bundle b = new Bundle();
 		Intent intent = new Intent(this, RouteSchedulesDaySailings.class);
 		b.putSerializable("scheduleDateItems", scheduleDateItems.get(position));
-		b.putString("DayOfWeek", dateFormat.format(new Date(Long.parseLong(scheduleDateItems.get(position).getDate()))));
 		intent.putExtras(b);
 		startActivity(intent);		
 	}
