@@ -27,7 +27,6 @@
    		<activity android:name="Photos" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="PhotoItemDetails" />
    		<activity android:name="About" />
-   		<activity android:name="SmallTraffic" />
    		<activity android:name="TrafficTravel" />
    		<activity android:name="MountainPassConditions" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="MountainPassItemDetails" />

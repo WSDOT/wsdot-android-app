@@ -27,7 +27,6 @@ public class TrafficTravel extends MainMenu {
 	void prepareMenu() {
 		addMenuItem("Mountain Passes", MountainPassConditions.class);
 		addMenuItem("Seattle Area", SeattleTrafficTabs.class);
-		addMenuItem("Small Traffic Site", SmallTraffic.class);
 		addMenuItem("Tacoma", TacomaTrafficMap.class);
 		addMenuItem("Olympia", OlympiaTrafficMap.class);
 		addMenuItem("Canadian Border", BorderWait.class);
