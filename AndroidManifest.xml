@@ -11,13 +11,15 @@
    		android:theme="@android:style/Theme.Light">
 
         <activity
-        	android:name=".WSDOT"
-            android:label="@string/app_name">
+        	android:name=".SplashScreen"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="WSDOT" />
    		<activity android:name="News" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="NewsItemDetails" />
    		<activity android:name="Blog" android:configChanges="orientation|keyboardHidden" />
@@ -44,10 +46,10 @@
    		<activity android:name="SpokaneTrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="VancouverTrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="Ferries" />
-   		<activity android:name="RouteAlerts" />
+   		<activity android:name="RouteAlerts" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="RouteAlertsItems" />
    		<activity android:name="RouteAlertsItemDetails" />
-   		<activity android:name="RouteSchedules" />
+   		<activity android:name="RouteSchedules" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="RouteSchedulesDays" />
    		<activity android:name="RouteSchedulesDaySailings" />
    		<activity android:name="RouteScheduleDayDepartures" />
