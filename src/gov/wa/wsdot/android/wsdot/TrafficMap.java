@@ -56,10 +56,10 @@ public abstract class TrafficMap extends MapActivity {
 	private ArrayList<CameraItem> cameraItems = null;
 	private List<Overlay> mapOverlays;
 	private Drawable drawable;
-	AlertsItemizedOverlay alertsItemizedOverlay;
-	CamerasItemizedOverlay camerasItemizedOverlay;
+	private AlertsItemizedOverlay alertsItemizedOverlay;
+	private CamerasItemizedOverlay camerasItemizedOverlay;
 	private HashMap<Integer, String[]> eventCategories = new HashMap<Integer, String[]>();
-	MapView map = null;
+	protected MapView map = null;
 	boolean showCameras;
 	
 	public void onCreate(Bundle savedInstanceState) {
@@ -144,9 +144,10 @@ public abstract class TrafficMap extends MapActivity {
 			if (this.dialog.isShowing()) {
 				this.dialog.dismiss();
 			}
-			map.invalidate();
 			if (showCameras) {
 				new GetCameras().execute();	
+			} else {
+				map.invalidate();
 			}
 		}
 	}
@@ -162,18 +163,18 @@ public abstract class TrafficMap extends MapActivity {
 		
 		@Override
 		protected String doInBackground(String... params) {
-			cameraItems = new ArrayList<CameraItem>();
-			CameraItem i = null;
-			
 			try {
 				InputStream is = getResources().openRawResource(R.raw.cameras);
 				byte [] buffer = new byte[is.available()];
 				while (is.read(buffer) != -1);
+				
+		        mapOverlays = map.getOverlays();
 				String jsonFile = new String(buffer);
 				JSONObject obj = new JSONObject(jsonFile);
 				JSONObject result = obj.getJSONObject("cameras");
 				JSONArray items = result.getJSONArray("items");
-		        mapOverlays = map.getOverlays();
+				cameraItems = new ArrayList<CameraItem>();
+				CameraItem i = null;
 				
 				for (int j=0; j < items.length(); j++) {
 					i = new CameraItem();

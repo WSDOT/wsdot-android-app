@@ -34,11 +34,11 @@ public class SpokaneTrafficMap extends TrafficMap {
         Double longitude = -117.425995;
         map = (MapView) findViewById(R.id.mapview);
         map.setSatellite(false);
-        final MapController mapControl = map.getController();
-        mapControl.setZoom(12);
         map.setBuiltInZoomControls(true);
         map.setTraffic(true);
         GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
-        mapControl.animateTo(newPoint);
+        final MapController mapControl = map.getController();
+        mapControl.setZoom(12);
+        mapControl.setCenter(newPoint);
 	}
 }

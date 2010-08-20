@@ -34,11 +34,11 @@ public class OlympiaTrafficMap extends TrafficMap {
         Double longitude = -122.899933;
         map = (MapView) findViewById(R.id.mapview);
         map.setSatellite(false);
-        final MapController mapControl = map.getController();
-        mapControl.setZoom(13);
         map.setBuiltInZoomControls(true);
         map.setTraffic(true);
         GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
-        mapControl.animateTo(newPoint);
+        final MapController mapControl = map.getController();
+        mapControl.setZoom(13);
+        mapControl.setCenter(newPoint);
 	}
 }
