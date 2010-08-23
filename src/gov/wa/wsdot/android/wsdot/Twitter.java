@@ -18,14 +18,19 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -44,13 +49,15 @@ public class Twitter extends ListActivity {
 	private static final String DEBUG_TAG = "Twitter";
 	private ArrayList<TwitterItem> twitterItems = null;
 	private TwitterItemAdapter adapter;
+	DateFormat parseDateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy"); //e.g. Mon Aug 23 17:46:24 +0000 2010
+	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.twitter);
         twitterItems = new ArrayList<TwitterItem>();
-        this.adapter = new TwitterItemAdapter(this, R.layout.row, twitterItems);
+        this.adapter = new TwitterItemAdapter(this, R.layout.news_item, twitterItems);
         ((TextView)findViewById(R.id.sub_section)).setText("Tweets");
         setListAdapter(this.adapter);
         new GetTwitterItems().execute();
@@ -90,97 +97,38 @@ public class Twitter extends ListActivity {
 	    	Pattern pattern = Pattern.compile(patternStr);
 	    	
 			try {
-				URL text = new URL("http://twitter.com/statuses/user_timeline/14124059.rss");
-				XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-				XmlPullParser parser = factory.newPullParser();
-				parser.setInput(text.openStream(), null);
-				int parserEvent = parser.getEventType();
-				String tag;
-				String title;
-				String tmpTitle;
-				String pubDate;
-				String link;
-				String description;
-				String tmpDescription;
-				boolean inTitle = false;
-				boolean inPubDate = false;
-				boolean inLink = false;
-				boolean inDescription = false;
-				boolean inItem = false;
+				URL url = new URL("http://twitter.com/statuses/user_timeline/14124059.json");
+				URLConnection urlConn = url.openConnection();
+				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+				String jsonFile = "";
+				String line;
+				
+				while ((line = in.readLine()) != null)
+					jsonFile += line;
+				in.close();
+				
+				JSONArray items = new JSONArray(jsonFile);
+				String d;			
 				twitterItems = new ArrayList<TwitterItem>();
 				TwitterItem i = null;
 				
-				while (parserEvent != XmlPullParser.END_DOCUMENT) {
-					switch(parserEvent) {
-					case XmlPullParser.TEXT:
-						if (inItem & inTitle) {
-							tmpTitle = parser.getText();
-							title = tmpTitle.replace("wsdot: ", "");
-							i.setTitle(title);
-						}
-						if (inItem & inPubDate) {
-							pubDate = parser.getText();
-							i.setPubDate(pubDate);
-						}
-						if (inItem & inLink) {
-							link = parser.getText();
-							i.setLink(link);
-						}
-						if (inItem & inDescription) {
-							tmpDescription = parser.getText();
-							description = tmpDescription.replace("wsdot: ", "");
-		                	Matcher matcher = pattern.matcher(description);
-		                	boolean matchFound = matcher.find();
-		                	if (matchFound) {
-		                		String textLink = matcher.group();
-		                		String hyperLink = "<a href=\"" + textLink + "\">" + textLink + "</a>";
-		                		description = matcher.replaceFirst(hyperLink);
-		                	}
-							i.setDescription(description);
-						}
-						break;
-					case XmlPullParser.END_TAG:
-						tag = parser.getName();
-						if (tag.compareTo("item") == 0) {
-							inItem = false;
-							twitterItems.add(i);
-							publishProgress(1);
-						}
-						if (tag.compareTo("title") == 0) {
-							inTitle = false;
-						}
-						if (tag.compareTo("pubDate") == 0) {
-							inPubDate = false;
-						}
-						if (tag.compareTo("link") == 0) {
-							inLink = false;
-						}
-						if (tag.compareTo("description") == 0) {
-							inDescription = false;
-						}
-						break;
-					case XmlPullParser.START_TAG:
-						tag = parser.getName();
-						if (tag.compareTo("item") == 0) {
-							inItem = true;
-							i = new TwitterItem();
-						}
-						if (tag.compareTo("title") == 0) {
-							inTitle = true;
-						}
-						if (tag.compareTo("pubDate") == 0) {
-							inPubDate = true;
-						}
-						if (tag.compareTo("link") == 0) {
-							inLink = true;
-						}					
-						if (tag.compareTo("description") == 0) {
-							inDescription = true;
-						}
-						break;
-					}
-					parserEvent = parser.next();
-				}
+				for (int j=0; j < items.length(); j++) {
+					JSONObject item = items.getJSONObject(j);
+					i = new TwitterItem();
+					d = item.getString("text");
+                	Matcher matcher = pattern.matcher(d);
+                	boolean matchFound = matcher.find();
+                	if (matchFound) {
+                		String textLink = matcher.group();
+                		String hyperLink = "<a href=\"" + textLink + "\">" + textLink + "</a>";
+                		d = matcher.replaceFirst(hyperLink);
+                	}
+					i.setTitle(item.getString("text"));
+					i.setPubDate(item.getString("created_at"));
+					i.setDescription(d);
+					twitterItems.add(i);
+					publishProgress(1);
+				}				
 			} catch (Exception e) {
 				Log.e(DEBUG_TAG, "Error in network call", e);
 			}
@@ -224,7 +172,12 @@ public class Twitter extends ListActivity {
                       tt.setText(o.getTitle());
                 }
                 if(bt != null){
-                      bt.setText(o.getPubDate());
+	            	try {
+	            		Date date = parseDateFormat.parse(o.getPubDate());
+	            		bt.setText(displayDateFormat.format(date));
+	            	} catch (Exception e) {
+	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            	}
                 }
 	        }
 	        return v;
