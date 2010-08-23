@@ -19,7 +19,10 @@
 package gov.wa.wsdot.android.wsdot;
 
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -42,6 +45,8 @@ public class Blog extends ListActivity {
 	private static final String DEBUG_TAG = "Blog";
 	private ArrayList<BlogItem> blogItems = null;
 	private BlogItemAdapter adapter;
+	DateFormat parseDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSz"); //e.g. 2010-08-20T10:11:00.000-07:00
+	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -210,7 +215,12 @@ public class Blog extends ListActivity {
 	            	tt.setText(o.getTitle());
 	            }
 	            if(bt != null){
-	            	bt.setText(o.getPublished());
+	            	try {
+	            		Date date = parseDateFormat.parse(o.getPublished());
+	            		bt.setText(displayDateFormat.format(date));
+	            	} catch (Exception e) {
+	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            	}
 	            }
 	        }
 	        return v;

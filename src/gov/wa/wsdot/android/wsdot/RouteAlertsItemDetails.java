@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.app.Activity;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 
 public class RouteAlertsItemDetails extends Activity {
 	WebView webview;
+	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +38,10 @@ public class RouteAlertsItemDetails extends Activity {
 		setContentView(R.layout.webview);
 		((TextView)findViewById(R.id.sub_section)).setText("Ferries Route Alerts");
 
-		Bundle b = getIntent().getExtras();
-		
-		String alertFullTitle = b.getString("AlertFullTitle");
-		String alertPublishDate = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(new Date(Long.parseLong(b.getString("AlertPublishDate"))));
+		Bundle b = getIntent().getExtras();		
+		String alertFullTitle = b.getString("AlertFullTitle");		
+		Date date = new Date(Long.parseLong(b.getString("AlertPublishDate")));
+		String alertPublishDate = displayDateFormat.format(date);
 		String alertDescription = b.getString("AlertDescription");
 		String alertFullText = b.getString("AlertFullText");
 		String html_content = "<h3>"+ alertFullTitle + "</h3>" + "<p>" + alertPublishDate + "</p><p><b>" + alertDescription + "</b></p><p>" + alertFullText + "</p>";

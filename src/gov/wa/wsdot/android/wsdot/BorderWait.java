@@ -54,7 +54,7 @@ public class BorderWait extends ListActivity {
         setContentView(R.layout.news);
         ((TextView)findViewById(R.id.sub_section)).setText("Northbound Wait Times");
         borderWaitItems = new ArrayList<BorderWaitItem>();
-        this.adapter = new BorderWaitItemAdapter(this, R.layout.news_item, borderWaitItems);
+        this.adapter = new BorderWaitItemAdapter(this, R.layout.row, borderWaitItems);
         setListAdapter(this.adapter);
         
         routeImage.put(5, R.drawable.i5);

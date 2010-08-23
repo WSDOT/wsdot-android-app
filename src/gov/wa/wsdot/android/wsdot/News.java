@@ -22,7 +22,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,6 +47,8 @@ public class News extends ListActivity {
 	private static final String DEBUG_TAG = "News";
 	private ArrayList<NewsItem> newsItems = null;
 	private NewsItemAdapter adapter;
+	DateFormat parseDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
+	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -158,7 +163,12 @@ public class News extends ListActivity {
 	            	tt.setText(o.getTitle());
 	            }
 	            if(bt != null) {
-	            	bt.setText(o.getPubDate());
+	            	try {
+	            		Date date = parseDateFormat.parse(o.getPubDate());
+	            		bt.setText(displayDateFormat.format(date));
+	            	} catch (Exception e) {
+	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            	}
 	            }
 	        }
 	        return v;

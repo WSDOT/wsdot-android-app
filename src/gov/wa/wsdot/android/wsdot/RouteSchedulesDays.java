@@ -43,6 +43,7 @@ public class RouteSchedulesDays extends ListActivity {
 	private ArrayList<FerriesScheduleDateItem> scheduleDateItems = null;
 	private DaysOfWeekAdapter adapter;
 	DateFormat dateFormat = new SimpleDateFormat("EEEE");
+	DateFormat subTitleDateFormat = new SimpleDateFormat("MMMM d");
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +53,7 @@ public class RouteSchedulesDays extends ListActivity {
 		setContentView(R.layout.main);
 		((TextView)findViewById(R.id.sub_section)).setText("Ferries Route Schedules");
 		scheduleDateItems = new ArrayList<FerriesScheduleDateItem>();
-        this.adapter = new DaysOfWeekAdapter(this, android.R.layout.simple_list_item_1, scheduleDateItems);
+        this.adapter = new DaysOfWeekAdapter(this, android.R.layout.simple_list_item_2, scheduleDateItems);
         setListAdapter(this.adapter);
         new GetDates().execute();
 	}
@@ -125,13 +126,22 @@ public class RouteSchedulesDays extends ListActivity {
 	        
 	        if (v == null) {
 	            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	            v = vi.inflate(android.R.layout.simple_list_item_1, null);
+	            v = vi.inflate(android.R.layout.simple_list_item_2, null);
 	        }
 	        FerriesScheduleDateItem o = items.get(position);
 	        if (o != null) {
 	            TextView tt = (TextView) v.findViewById(android.R.id.text1);
+	            TextView bt = (TextView) v.findViewById(android.R.id.text2);
 	            if(tt != null) {
 	            	tt.setText(dateFormat.format(new Date(Long.parseLong(o.getDate()))));
+	            }
+	            if (bt != null) {
+	            	try {
+	            		Date date = new Date(Long.parseLong(o.getDate()));
+	            		bt.setText(subTitleDateFormat.format(date));
+	            	} catch (Exception e) {
+	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            	}
 	            }
 	        }
 	        return v;

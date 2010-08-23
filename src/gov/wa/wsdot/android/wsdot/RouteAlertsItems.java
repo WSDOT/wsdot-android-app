@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -26,6 +27,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,10 +37,12 @@ import android.widget.TextView;
 
 public class RouteAlertsItems extends ListActivity {
 
+	private static final String DEBUG_TAG = "RouteAlertItems";
 	private FerriesRouteItem routeItems;
 	private ArrayList<FerriesRouteAlertItem> routeAlertItems = null;
 	private AlertItemAdapter adapter;
 	private Runnable viewAlerts;
+	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -124,7 +128,13 @@ public class RouteAlertsItems extends ListActivity {
 	            	tt.setText(o.getAlertFullTitle());
 	            }
 	            if(bt != null) {
-	            	bt.setText(DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(new Date(Long.parseLong(o.getPublishDate()))));
+	            	try {
+	            		Date date = new Date(Long.parseLong(o.getPublishDate()));
+	            		bt.setText(displayDateFormat.format(date));
+	            	} catch (Exception e) {
+	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            	}	            	
+	            	
 	            }
 	        }
 	        return v;
