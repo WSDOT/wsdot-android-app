@@ -54,10 +54,10 @@ public abstract class TrafficMap extends MapActivity {
 	private static final String DEBUG_TAG = "TrafficMap";
 	private ArrayList<HighwayAlertsItem> highwayAlertsItems = null;
 	private ArrayList<CameraItem> cameraItems = null;
-	private List<Overlay> mapOverlays;
+	private List<Overlay> mapOverlays = null;
 	private Drawable drawable;
-	private AlertsItemizedOverlay alertsItemizedOverlay;
-	private CamerasItemizedOverlay camerasItemizedOverlay;
+	private AlertsItemizedOverlay alertsItemizedOverlay = null;
+	private CamerasItemizedOverlay camerasItemizedOverlay = null;
 	private HashMap<Integer, String[]> eventCategories = new HashMap<Integer, String[]>();
 	protected MapView map = null;
 	boolean showCameras;
