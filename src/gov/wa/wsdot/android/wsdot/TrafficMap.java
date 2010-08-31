@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -52,8 +51,8 @@ import android.util.Log;
 public abstract class TrafficMap extends MapActivity {
 	
 	private static final String DEBUG_TAG = "TrafficMap";
-	private ArrayList<HighwayAlertsItem> highwayAlertsItems = null;
-	private ArrayList<CameraItem> cameraItems = null;
+	//private ArrayList<HighwayAlertsItem> highwayAlertsItems = null;
+	//private ArrayList<CameraItem> cameraItems = null;
 	private List<Overlay> mapOverlays = null;
 	private Drawable drawable;
 	private AlertsItemizedOverlay alertsItemizedOverlay = null;
@@ -71,9 +70,13 @@ public abstract class TrafficMap extends MapActivity {
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
- 
-        buildEventCategories();
-        new GetTrafficAlerts().execute();       
+
+        if (mapOverlays != null) {
+        	mapOverlays = null;
+        }
+        
+        buildEventCategories();       
+       	new GetTrafficAlerts().execute();
     }
 	
 	abstract void prepareMap();
@@ -90,13 +93,20 @@ public abstract class TrafficMap extends MapActivity {
 		private final ProgressDialog dialog = new ProgressDialog(TrafficMap.this);
 
 		@Override
-		protected void onPreExecute() {
-			this.dialog.setMessage("Retrieving latest traffic alerts ...");
+		protected void onPreExecute() {			
+			if (showCameras) {
+				this.dialog.setMessage("Retrieving latest traffic alerts and camera locations ...");	
+			} else {
+				this.dialog.setMessage("Retrieving latest traffic alerts ...");
+			}
+
 			this.dialog.show();
 		}
 		
 		@Override
 		protected String doInBackground(String... params) {
+	        mapOverlays = map.getOverlays();
+	        
 			try {
 				URL url = new URL("http://data.wsdot.wa.gov/mobile/HighwayAlerts.js");
 				URLConnection urlConn = url.openConnection();
@@ -107,11 +117,9 @@ public abstract class TrafficMap extends MapActivity {
 					jsonFile += line;
 				in.close();
 				
-		        mapOverlays = map.getOverlays();
 				JSONObject obj = new JSONObject(jsonFile);
 				JSONObject result = obj.getJSONObject("alerts");
 				JSONArray items = result.getJSONArray("items");
-				highwayAlertsItems = new ArrayList<HighwayAlertsItem>();
 				HighwayAlertsItem i = null;
 				
 				for (int j=0; j < items.length(); j++) {
@@ -124,7 +132,6 @@ public abstract class TrafficMap extends MapActivity {
 					JSONObject startRoadwayLocation = item.getJSONObject("StartRoadwayLocation");
 					i.setStartLatitude(startRoadwayLocation.getDouble("Latitude"));
 					i.setStartLongitude(startRoadwayLocation.getDouble("Longitude"));
-					highwayAlertsItems.add(i);
 			        drawable = getResources().getDrawable(i.getCategoryIcon());
 			        alertsItemizedOverlay = new AlertsItemizedOverlay(drawable, TrafficMap.this);				
 					GeoPoint point = new GeoPoint((int)(i.getStartLatitude() * 1E6), (int)(i.getStartLongitude() * 1E6));
@@ -136,66 +143,39 @@ public abstract class TrafficMap extends MapActivity {
 			} catch (Exception e) {
 				Log.e(DEBUG_TAG, "Error in network call", e);
 			}
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(String result) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}
+			
 			if (showCameras) {
-				new GetCameras().execute();	
-			} else {
-				map.invalidate();
+				try {
+					InputStream is = getResources().openRawResource(R.raw.cameras);
+					byte [] buffer = new byte[is.available()];
+					while (is.read(buffer) != -1);
+					
+					String jsonFile = new String(buffer);
+					JSONObject obj = new JSONObject(jsonFile);
+					JSONObject result = obj.getJSONObject("cameras");
+					JSONArray items = result.getJSONArray("items");
+					CameraItem i = null;
+					
+					for (int j=0; j < items.length(); j++) {
+						i = new CameraItem();
+						JSONObject item = items.getJSONObject(j);
+				        drawable = getResources().getDrawable(R.drawable.camera);
+				        camerasItemizedOverlay = new CamerasItemizedOverlay(drawable, TrafficMap.this);      
+				        i.setTitle(item.getString("title"));
+				        i.setImageUrl(item.getString("url"));
+				        i.setLatitude(item.getDouble("lat"));
+				        i.setLongitude(item.getDouble("lon"));
+						GeoPoint point = new GeoPoint((int)(i.getLatitude() * 1E6), (int)(i.getLongitude() * 1E6));
+						OverlayItem overlayitem = new OverlayItem(point, i.getTitle(), i.getImageUrl());
+						camerasItemizedOverlay.addOverlay(overlayitem);
+						mapOverlays.add(camerasItemizedOverlay);
+					}
+
+				} catch (Exception e) {
+					Log.e(DEBUG_TAG, "Error in network call", e);
+				}				
 			}
-		}
-	}
-
-	private class GetCameras extends AsyncTask<String, Void, String> {
-		private final ProgressDialog dialog = new ProgressDialog(TrafficMap.this);
-
-		@Override
-		protected void onPreExecute() {
-			this.dialog.setMessage("Setting up camera locations ...");
-			this.dialog.show();
-		}
-		
-		@Override
-		protected String doInBackground(String... params) {
-			try {
-				InputStream is = getResources().openRawResource(R.raw.cameras);
-				byte [] buffer = new byte[is.available()];
-				while (is.read(buffer) != -1);
-				
-		        mapOverlays = map.getOverlays();
-				String jsonFile = new String(buffer);
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject result = obj.getJSONObject("cameras");
-				JSONArray items = result.getJSONArray("items");
-				cameraItems = new ArrayList<CameraItem>();
-				CameraItem i = null;
-				
-				for (int j=0; j < items.length(); j++) {
-					i = new CameraItem();
-					JSONObject item = items.getJSONObject(j);
-			        drawable = getResources().getDrawable(R.drawable.camera);
-			        camerasItemizedOverlay = new CamerasItemizedOverlay(drawable, TrafficMap.this);      
-			        i.setTitle(item.getString("title"));
-			        i.setImageUrl(item.getString("url"));
-			        i.setLatitude(item.getDouble("lat"));
-			        i.setLongitude(item.getDouble("lon"));
-					GeoPoint point = new GeoPoint((int)(i.getLatitude() * 1E6), (int)(i.getLongitude() * 1E6));
-					OverlayItem overlayitem = new OverlayItem(point, i.getTitle(), i.getImageUrl());
-					camerasItemizedOverlay.addOverlay(overlayitem);
-					mapOverlays.add(camerasItemizedOverlay);
-					cameraItems.add(i);
-					Log.i(DEBUG_TAG, item.getString("title"));
-				}
-
-			} catch (Exception e) {
-				Log.e(DEBUG_TAG, "Error in network call", e);
-			}
+			
 			return null;
 		}
 		
