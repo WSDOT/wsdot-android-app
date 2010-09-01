@@ -43,7 +43,7 @@ public class MountainPassItemMap extends MapActivity {
         mapControl.setZoom(12);
         map.setBuiltInZoomControls(true);
         GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
-        mapControl.animateTo(newPoint);
+        mapControl.setCenter(newPoint);
         
         MapView.LayoutParams mapMarkerParams = new MapView.LayoutParams(
                 LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 
