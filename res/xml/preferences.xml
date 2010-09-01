@@ -6,6 +6,12 @@
             android:title="Show Cameras"
             android:defaultValue="true"
             android:summary="Display traffic cameras on map" />
+            
+        <CheckBoxPreference
+        	android:key="KEY_SHOW_MARKER_SHADOWS"
+            android:title="Show Shadows"
+            android:defaultValue="true"
+            android:summary="Display shadows behind markers on map" />
 
 	</PreferenceCategory>
   
