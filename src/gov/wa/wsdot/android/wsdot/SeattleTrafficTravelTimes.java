@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,6 +40,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class SeattleTrafficTravelTimes extends ListActivity {
@@ -51,7 +53,8 @@ public class SeattleTrafficTravelTimes extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.seattle_incidents);
+        setContentView(R.layout.main);
+        ((TextView)findViewById(R.id.sub_section)).setText("Seattle Area Travel Times");
         travelTimesItems = new ArrayList<TravelTimesItem>();
         this.adapter = new TravelTimesItemAdapter(this, R.layout.traveltimes_item, travelTimesItems);
         setListAdapter(this.adapter);
@@ -104,10 +107,13 @@ public class SeattleTrafficTravelTimes extends ListActivity {
 					JSONObject item = items.getJSONObject(j);
 					i = new TravelTimesItem();
 					i.setTitle(item.getString("title"));
-					i.setCurrentTime(Integer.toString(item.getInt("current")) + " min");
+					i.setCurrentTime(Integer.toString(item.getInt("current")));
+					i.setAverageTime(Integer.toString(item.getInt("average")));
+					i.setDistance(item.getString("distance") + " miles");
+					i.setRouteID(item.getString("routeid"));
 					travelTimesItems.add(i);
 					publishProgress(1);
-				}			
+				}
 
 			} catch (Exception e) {
 				Log.e(DEBUG_TAG, "Error in network call", e);
@@ -128,7 +134,19 @@ public class SeattleTrafficTravelTimes extends ListActivity {
             adapter.notifyDataSetChanged();
 		}   
     }
-    
+
+	@Override
+	protected void onListItemClick(ListView l, View v, final int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		/*
+		Bundle b = new Bundle();
+		Intent intent = new Intent(this, RouteAlertsItems.class);
+		b.putSerializable("routeItems", routeItems.get(position));
+		intent.putExtras(b);
+		startActivity(intent);
+		*/
+	}
+	
 	private class TravelTimesItemAdapter extends ArrayAdapter<TravelTimesItem> {
         private ArrayList<TravelTimesItem> items;
 
@@ -144,15 +162,36 @@ public class SeattleTrafficTravelTimes extends ListActivity {
 	            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	            v = vi.inflate(R.layout.traveltimes_item, null);
 	        }
+	        
 	        TravelTimesItem o = items.get(position);
 	        if (o != null) {
-	            TextView tt = (TextView) v.findViewById(R.id.toptext);
-	            TextView bt = (TextView) v.findViewById(R.id.bottomtext);
-	            if (tt != null) {
-	            	tt.setText(o.getTitle());
+	            TextView description = (TextView) v.findViewById(R.id.route_description);
+	            TextView distance = (TextView) v.findViewById(R.id.distance);
+	            TextView average = (TextView) v.findViewById(R.id.average);
+	            TextView current = (TextView) v.findViewById(R.id.current);
+	            
+	            if (description != null) {
+	            	description.setText(o.getTitle());
 	            }
-	            if(bt != null) {
-            		bt.setText(o.getCurrentTime());
+	            if (distance != null) {
+            		distance.setText(o.getDistance());
+	            }
+	            if (average != null) {
+	            	if (Integer.parseInt(o.getAverageTime()) == 0) {
+	            		average.setText("Not Available");
+	            	} else {
+	            		average.setText(o.getAverageTime() + " min");
+	            	}
+	            }
+	            if (current != null) {
+	            	if (Integer.parseInt(o.getCurrentTime()) < Integer.parseInt(o.getAverageTime())) {
+	            		current.setTextColor(0xFF017359);
+	            	} else if (Integer.parseInt(o.getCurrentTime()) > Integer.parseInt(o.getAverageTime()) && (Integer.parseInt(o.getAverageTime()) != 0)) {
+	            		current.setTextColor(Color.RED);
+	            	} else {
+	            		current.setTextColor(Color.BLUE);
+	            	}
+	            	current.setText(o.getCurrentTime() + " min");
 	            }
 	        }
 	        return v;

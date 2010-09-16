@@ -45,6 +45,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -56,25 +57,35 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-
+import android.widget.TextView;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.OverlayItem;
 
-public abstract class TrafficMap extends MapActivity {
+public class TrafficMap extends MapActivity {
 	
 	private static final String DEBUG_TAG = "TrafficMap";
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private HashMap<Integer, String[]> eventCategories = new HashMap<Integer, String[]>();
 	protected MapView map = null;
+	protected MapController mapController = null;
 	private AlertsOverlay alerts = null;
 	private CamerasOverlay cameras = null;
 	boolean showCameras;
 	boolean showShadows;
+	private MyLocationOverlay myLocationOverlay;
+	
+	static final private int MENU_ITEM_SEATTLE_ALERTS = Menu.FIRST;
+	static final private int MENU_ITEM_TRAVEL_TIMES = Menu.FIRST + 1;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -82,6 +93,16 @@ public abstract class TrafficMap extends MapActivity {
         
         // Setup the unique latitude, longitude and zoom level
         prepareMap();
+        
+		myLocationOverlay = new MyLocationOverlay(this, map);
+		map.getOverlays().add(myLocationOverlay);
+		
+		// Will be executed as soon as we have a location fix
+        myLocationOverlay.runOnFirstFix(new Runnable() {
+            public void run() {
+            	map.getController().animateTo(myLocationOverlay.getMyLocation());
+            }
+        });
         
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -92,8 +113,138 @@ public abstract class TrafficMap extends MapActivity {
         new OverlayTask().execute();
     }
 	
-	abstract void prepareMap();
+	public void prepareMap() {
+		setContentView(R.layout.map);
+		((TextView)findViewById(R.id.sub_section)).setText("Traffic Near You");	
+        map = (MapView) findViewById(R.id.mapview);
+        map.setSatellite(false);
+        map.setBuiltInZoomControls(true);
+        map.setTraffic(true);
+	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		myLocationOverlay.enableMyLocation();
+
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		myLocationOverlay.disableMyLocation();
+
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		menu.clear();
+		
+		GeoPoint p = map.getMapCenter();
+		
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.traffic_menu, menu);
+
+	    /**
+	     * Code below needs to check if current location is within a lat/lon bounding box surrounding
+	     * the Seattle area.
+	     */
+		if ((p.getLatitudeE6() == (int)(47.5990*1E6)) && (p.getLongitudeE6() == (int)(-122.3350*1E6))) {
+			menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts").setIcon(R.drawable.ic_menu_notifications);
+		    menu.add(0, MENU_ITEM_TRAVEL_TIMES, menu.size(), "Travel Times").setIcon(R.drawable.ic_menu_recent_history);
+		}
+	    
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+
+	    case R.id.my_location:
+	    	((TextView)findViewById(R.id.sub_section)).setText("Traffic Near You");	
+	    	map.getController().setCenter(myLocationOverlay.getMyLocation());
+	        return true;
+	    case R.id.goto_bellingham:
+	    	goToLocation("Bellingham Traffic", 48.756302,-122.46151, 12);
+	    	return true;	        
+	    case R.id.goto_chehalis:
+	    	goToLocation("Chelalis Traffic", 46.635529, -122.937698, 13);
+	    	return true;
+	    case R.id.goto_hoodcanal:
+	    	goToLocation("Hood Canal Traffic", 47.85268,-122.628365, 13);
+	    	return true;
+	    case R.id.goto_mtvernon:
+	    	goToLocation("Mt Vernon Traffic", 48.420657,-122.334824, 13);
+	    	return true;
+	    case R.id.goto_stanwood:
+	    	goToLocation("Stanwood Traffic", 48.22959, -122.34581, 13);
+	    	return true;
+	    case R.id.goto_monroe:
+	    	goToLocation("Monroe Traffic", 47.859476, -121.972446, 14);
+	    	return true;
+	    case R.id.goto_sultan:
+	    	goToLocation("Sultan Traffic", 47.86034, -121.812286, 14);
+	    	return true;
+	    case R.id.goto_olympia:
+	    	goToLocation("Olympia Traffic", 47.021461, -122.899933, 13);
+	        return true;	    	    	
+	    case R.id.goto_seattle:
+	    	goToLocation("Seattle Area Traffic", 47.5990, -122.3350, 12);
+	        return true;
+	    case R.id.goto_spokane:
+	    	goToLocation("Spokane Area Traffic", 47.658566, -117.425995, 12);
+	        return true;	        
+	    case R.id.goto_tacoma:
+	    	goToLocation("Tacoma Traffic", 47.206275, -122.46254, 12);
+	        return true;	        
+	    case R.id.goto_vancouver:
+	    	goToLocation("Vancouver Area Traffic", 45.639968, -122.610512, 12);
+	        return true;
+	    case R.id.goto_wenatchee:
+	    	goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 13);
+	        return true;	        
+	    //case R.id.my_places:
+	    //	myPlaces();
+	    //	return true;
+	    case MENU_ITEM_SEATTLE_ALERTS:
+	    	Intent alertsIntent = new Intent(this, SeattleTrafficAlerts.class);
+	    	startActivity(alertsIntent);
+	    	return true;
+	    case MENU_ITEM_TRAVEL_TIMES:
+	    	Intent timesIntent = new Intent(this, SeattleTrafficTravelTimes.class);
+	    	startActivity(timesIntent);
+	    	return true;
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
+	}
+	
+	public void goToLocation(String title, double latitude, double longitude, int zoomLevel) {	
+        GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
+        map.getController().setZoom(zoomLevel);
+        map.getController().setCenter(newPoint);
+        ((TextView)findViewById(R.id.sub_section)).setText(title);
+	}
+
+	/*
+	public void myPlaces() {
+		final CharSequence[] items = {"Seattle", "Tacoma", "Wenatchee"};
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("My Places");
+
+		builder.setItems(items, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int item) {
+				Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
+			}
+		});
+	
+		AlertDialog alert = builder.create();
+		alert.show();		
+	}
+	*/	
+	
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
@@ -203,12 +354,31 @@ public abstract class TrafficMap extends MapActivity {
 		public CamerasOverlay() {
 			super(null);	
 			
-			try {
-				InputStream is = getResources().openRawResource(R.raw.cameras);
-				byte [] buffer = new byte[is.available()];
-				while (is.read(buffer) != -1);
+			try {				
+				/**
+				 * Rather than reading a local static file, lets try reading
+				 * a compressed file and perhaps caching it instead.
+				 * 
+				 * InputStream is = getResources().openRawResource(R.raw.cameras);
+				 * byte [] buffer = new byte[is.available()];
+				 * while (is.read(buffer) != -1);
+				 *
+				 * String jsonFile = new String(buffer);
+				*/
+				URL url = new URL("http://data.wsdot.wa.gov/mobile/Cameras.js.gz");
+				URLConnection urlConn = url.openConnection();
 				
-				String jsonFile = new String(buffer);
+				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
+                GZIPInputStream gzin = new GZIPInputStream(bis);
+                InputStreamReader is = new InputStreamReader(gzin);
+                BufferedReader in = new BufferedReader(is);
+				
+				String jsonFile = "";
+				String line;
+				while ((line = in.readLine()) != null)
+					jsonFile += line;
+				in.close();
+				
 				JSONObject obj = new JSONObject(jsonFile);
 				JSONObject result = obj.getJSONObject("cameras");
 				JSONArray items = result.getJSONArray("items");

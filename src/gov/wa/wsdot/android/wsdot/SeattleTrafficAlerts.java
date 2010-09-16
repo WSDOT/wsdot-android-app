@@ -53,7 +53,8 @@ public class SeattleTrafficAlerts extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.seattle_incidents);
+        setContentView(R.layout.main);
+        ((TextView)findViewById(R.id.sub_section)).setText("Seattle Area Alerts");
         seattleIncidentItems = new Stack<SeattleIncidentItem>();      
         this.adapter = new SeattleIncidentItemAdapter(this, R.layout.seattle_incident_item, seattleIncidentItems);
         setListAdapter(this.adapter);

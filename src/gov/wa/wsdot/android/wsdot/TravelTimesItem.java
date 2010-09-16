@@ -21,6 +21,9 @@ package gov.wa.wsdot.android.wsdot;
 public class TravelTimesItem {
 	private String title;
 	private String currentTime;
+	private String averageTime;
+	private String distance;
+	private String routeID;
 
 	public String getTitle() {
 		return title;
@@ -28,10 +31,32 @@ public class TravelTimesItem {
 	public void setTitle(String title) {
 		this.title = title;
 	}	
+
 	public String getCurrentTime() {
 		return currentTime;
 	}
 	public void setCurrentTime(String currentTime) {
 		this.currentTime = currentTime;
+	}
+	
+	public String getAverageTime() {
+		return averageTime;
+	}
+	public void setAverageTime(String averageTime) {
+		this.averageTime = averageTime;
+	}
+	
+	public String getDistance() {
+		return distance;
+	}
+	public void setDistance(String distance) {
+		this.distance = distance;
+	}
+	
+	public String getRouteID() {
+		return routeID;
+	}
+	public void setRouteID(String routeID) {
+		this.routeID = routeID;
 	}
 }

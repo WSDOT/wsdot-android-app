@@ -35,16 +35,11 @@
    		<activity android:name="MountainPassItemTabs" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="MountainPassItemCamera" />
    		<activity android:name="MountainPassItemMap" />
-   		<activity android:name="SeattleTrafficTabs" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="SeattleTrafficAlerts" />
-   		<activity android:name="SeattleTrafficMap" />
-   		<activity android:name="SeattleTrafficTravelTimes" />
-   		<activity android:name="TacomaTrafficMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="TrafficMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="SeattleTrafficAlerts" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="SeattleTrafficTravelTimes" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="EditPreferences" />
-   		<activity android:name="OlympiaTrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="BorderWait" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="SpokaneTrafficMap" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="VancouverTrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="Ferries" />
    		<activity android:name="RouteAlerts" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="RouteAlertsItems" />
@@ -70,4 +65,5 @@
 
     <uses-sdk android:minSdkVersion="3" />
 	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 </manifest> 

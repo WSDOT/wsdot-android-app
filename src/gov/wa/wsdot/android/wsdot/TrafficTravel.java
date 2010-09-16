@@ -26,13 +26,10 @@ public class TrafficTravel extends MainMenu {
 	@Override
 	void prepareMenu() {
 		addMenuItem("Mountain Passes", MountainPassConditions.class);
-		addMenuItem("Seattle Area", SeattleTrafficTabs.class);
-		addMenuItem("Tacoma", TacomaTrafficMap.class);
-		addMenuItem("Olympia", OlympiaTrafficMap.class);
 		addMenuItem("Canadian Border", BorderWait.class);
-		addMenuItem("Spokane", SpokaneTrafficMap.class);
-		addMenuItem("Vancouver", VancouverTrafficMap.class);
 		addMenuItem("Ferries", Ferries.class);
+		addMenuItem("Traffic Map", TrafficMap.class);
+		addMenuItem("Seattle Travel Times", SeattleTrafficTravelTimes.class); // Temporary menu item for testing
 	}
 
 	@Override
