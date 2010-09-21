@@ -63,6 +63,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapActivity;
@@ -83,6 +84,7 @@ public class TrafficMap extends MapActivity {
 	boolean showCameras;
 	boolean showShadows;
 	private MyLocationOverlay myLocationOverlay;
+	private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
 	
 	static final private int MENU_ITEM_SEATTLE_ALERTS = Menu.FIRST;
 	static final private int MENU_ITEM_TRAVEL_TIMES = Menu.FIRST + 1;
@@ -93,6 +95,7 @@ public class TrafficMap extends MapActivity {
         
         // Setup the unique latitude, longitude and zoom level
         prepareMap();
+        prepareBoundingBox();
         
 		myLocationOverlay = new MyLocationOverlay(this, map);
 		map.getOverlays().add(myLocationOverlay);
@@ -113,6 +116,30 @@ public class TrafficMap extends MapActivity {
         new OverlayTask().execute();
     }
 	
+	public void prepareBoundingBox() {
+		LatLonItem ll = null;
+		
+		ll = new LatLonItem();
+		ll.setLatitude(48.01749);
+		ll.setLongitude(-122.46185);
+		seattleArea.add(ll);
+
+		ll = new LatLonItem();
+		ll.setLatitude(48.01565);
+		ll.setLongitude(-121.86584);
+		seattleArea.add(ll);
+		
+		ll = new LatLonItem();
+		ll.setLatitude(47.27737);
+		ll.setLongitude(-121.86310);
+		seattleArea.add(ll);
+		
+		ll = new LatLonItem();
+		ll.setLatitude(47.28109);
+		ll.setLongitude(-122.45911);
+		seattleArea.add(ll);
+	}
+	
 	public void prepareMap() {
 		setContentView(R.layout.map);
 		((TextView)findViewById(R.id.sub_section)).setText("Traffic Near You");	
@@ -120,6 +147,7 @@ public class TrafficMap extends MapActivity {
         map.setSatellite(false);
         map.setBuiltInZoomControls(true);
         map.setTraffic(true);
+        map.getController().setZoom(13);
 	}
 
 	@Override
@@ -138,26 +166,23 @@ public class TrafficMap extends MapActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
 		menu.clear();
-		
 		GeoPoint p = map.getMapCenter();
-		
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.traffic_menu, menu);
 
 	    /**
-	     * Code below needs to check if current location is within a lat/lon bounding box surrounding
-	     * the Seattle area.
+	     * Ceck if current location is within a lat/lon bounding box surrounding
+	     * the greater Seattle area.
 	     */
-		if ((p.getLatitudeE6() == (int)(47.5990*1E6)) && (p.getLongitudeE6() == (int)(-122.3350*1E6))) {
+		if (inPolygon(seattleArea, p.getLatitudeE6(), p.getLongitudeE6())) {
 			menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts").setIcon(R.drawable.ic_menu_notifications);
 		    menu.add(0, MENU_ITEM_TRAVEL_TIMES, menu.size(), "Travel Times").setIcon(R.drawable.ic_menu_recent_history);
 		}
 	    
-		return true;
+		return super.onPrepareOptionsMenu(menu);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
@@ -228,6 +253,30 @@ public class TrafficMap extends MapActivity {
         ((TextView)findViewById(R.id.sub_section)).setText(title);
 	}
 
+	/**
+	 * Iterate through collection of LatLon objects in arrayList and see
+	 * if passed latitude and longitude point is within the collection.
+	 */	
+	public boolean inPolygon(ArrayList<LatLonItem> points, int latitude, int longitude) {	
+		int j = points.size() - 1;
+		double lat = (double)(latitude / 1E6);
+		double lon = (double)(longitude / 1E6);		
+		boolean inPoly = false;
+		
+		for (int i = 0; i < points.size(); i++) {
+			if ( (points.get(i).getLongitude() < lon && points.get(j).getLongitude() >= lon) || 
+					(points.get(j).getLongitude() < lon && points.get(i).getLongitude() >= lon) ) {
+						if ( points.get(i).getLatitude() + (lon - points.get(i).getLongitude()) / 
+								(points.get(j).getLongitude() - points.get(i).getLongitude()) * 
+									(points.get(j).getLatitude() - points.get(i).getLatitude()) < lat ) {
+										inPoly = !inPoly;
+						}
+			}
+			j = i;
+		}
+		return inPoly;
+	}	
+	
 	/*
 	public void myPlaces() {
 		final CharSequence[] items = {"Seattle", "Tacoma", "Wenatchee"};
