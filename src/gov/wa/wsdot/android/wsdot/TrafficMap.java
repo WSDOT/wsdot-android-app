@@ -172,7 +172,7 @@ public class TrafficMap extends MapActivity {
 	    inflater.inflate(R.menu.traffic_menu, menu);
 
 	    /**
-	     * Ceck if current location is within a lat/lon bounding box surrounding
+	     * Check if current location is within a lat/lon bounding box surrounding
 	     * the greater Seattle area.
 	     */
 		if (inPolygon(seattleArea, p.getLatitudeE6(), p.getLongitudeE6())) {
