@@ -29,7 +29,6 @@ public class TrafficTravel extends MainMenu {
 		addMenuItem("Canadian Border", BorderWait.class);
 		addMenuItem("Ferries", Ferries.class);
 		addMenuItem("Traffic Map", TrafficMap.class);
-		addMenuItem("Seattle Travel Times", SeattleTrafficTravelTimes.class); // Temporary menu item for testing
 	}
 
 	@Override
