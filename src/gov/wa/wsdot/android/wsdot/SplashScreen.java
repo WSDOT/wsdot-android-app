@@ -36,6 +36,6 @@ public class SplashScreen extends Activity {
 				SplashScreen.this.startActivity(intent);
 				SplashScreen.this.finish();
 			}
-		}, 3000); // 3 seconds
+		}, 2000); // 2 seconds
 	}
 }
