@@ -117,27 +117,10 @@ public class TrafficMap extends MapActivity {
     }
 	
 	public void prepareBoundingBox() {
-		LatLonItem ll = null;
-		
-		ll = new LatLonItem();
-		ll.setLatitude(48.01749);
-		ll.setLongitude(-122.46185);
-		seattleArea.add(ll);
-
-		ll = new LatLonItem();
-		ll.setLatitude(48.01565);
-		ll.setLongitude(-121.86584);
-		seattleArea.add(ll);
-		
-		ll = new LatLonItem();
-		ll.setLatitude(47.27737);
-		ll.setLongitude(-121.86310);
-		seattleArea.add(ll);
-		
-		ll = new LatLonItem();
-		ll.setLatitude(47.28109);
-		ll.setLongitude(-122.45911);
-		seattleArea.add(ll);
+		seattleArea.add(new LatLonItem(48.01749, -122.46185));
+		seattleArea.add(new LatLonItem(48.01565, -121.86584));
+		seattleArea.add(new LatLonItem(47.27737, -121.86310));
+		seattleArea.add(new LatLonItem(47.28109, -122.45911));
 	}
 	
 	public void prepareMap() {
