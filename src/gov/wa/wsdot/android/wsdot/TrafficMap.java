@@ -47,6 +47,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.DialogInterface.OnCancelListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -553,11 +554,21 @@ public class TrafficMap extends MapActivity {
 	
 	private class GetCameraImage extends AsyncTask<String, Void, Drawable> {
 		private final ProgressDialog dialog = new ProgressDialog(TrafficMap.this);
+		private boolean cancelled = false;
 
 		protected void onPreExecute() {
 			this.dialog.setMessage("Retrieving camera image ...");
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }				
+			});
 			this.dialog.show();
 		}
+
+	    protected void onCancelled() {
+	        cancelled = true;
+	    }	
 		
 		protected Drawable doInBackground(String... params) {
 			return loadImageFromNetwork(params[0]);
@@ -567,26 +578,28 @@ public class TrafficMap extends MapActivity {
 			if (this.dialog.isShowing()) {
 				this.dialog.dismiss();
 			}
-			AlertDialog.Builder builder = new AlertDialog.Builder(TrafficMap.this);
-			LayoutInflater inflater = (LayoutInflater) TrafficMap.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View layout = inflater.inflate(R.layout.camera_dialog, null);
-			ImageView image = (ImageView) layout.findViewById(R.id.image);
-			
-			if (image.equals(null)) {
-				image.setImageResource(R.drawable.camera_offline);
-			} else {
-				image.setImageDrawable(result);				
-			}	
-
-			builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					dialog.cancel();
-				}
-			});
-
-			builder.setView(layout);
-			AlertDialog alertDialog = builder.create();
-			alertDialog.show();			
+			if (!cancelled) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(TrafficMap.this);
+				LayoutInflater inflater = (LayoutInflater) TrafficMap.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				View layout = inflater.inflate(R.layout.camera_dialog, null);
+				ImageView image = (ImageView) layout.findViewById(R.id.image);
+				
+				if (image.equals(null)) {
+					image.setImageResource(R.drawable.camera_offline);
+				} else {
+					image.setImageDrawable(result);				
+				}	
+	
+				builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+					}
+				});
+	
+				builder.setView(layout);
+				AlertDialog alertDialog = builder.create();
+				alertDialog.show();
+			}
 		}
 	}
 	
