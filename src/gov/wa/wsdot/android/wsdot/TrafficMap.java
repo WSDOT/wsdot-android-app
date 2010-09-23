@@ -70,7 +70,6 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.OverlayItem;
 
 public class TrafficMap extends MapActivity {
@@ -84,7 +83,7 @@ public class TrafficMap extends MapActivity {
 	private CamerasOverlay cameras = null;
 	boolean showCameras;
 	boolean showShadows;
-	private MyLocationOverlay myLocationOverlay;
+	private FixedMyLocationOverlay myLocationOverlay;
 	private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
 	
 	static final private int MENU_ITEM_SEATTLE_ALERTS = Menu.FIRST;
@@ -98,7 +97,17 @@ public class TrafficMap extends MapActivity {
         prepareMap();
         prepareBoundingBox();
         
-		myLocationOverlay = new MyLocationOverlay(this, map);
+        /**
+         * Using an extended version of MyLocationOverlay class because it has been
+         * reported the Motorola Droid X phones throw an exception when they try to
+         * draw the dot showing the location of the device.
+         * 
+         * See this post titled, "Android applications that use the MyLocationOverlay
+         * class crash on the new Droid X"
+         * 
+         * http://dimitar.me/applications-that-use-the-mylocationoverlay-class-crash-on-the-new-droid-x/
+         */
+		myLocationOverlay = new FixedMyLocationOverlay(this, map);
 		map.getOverlays().add(myLocationOverlay);
 		
 		// Will be executed as soon as we have a location fix
