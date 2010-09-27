@@ -181,8 +181,12 @@ public class TrafficMap extends MapActivity {
 	    switch (item.getItemId()) {
 
 	    case R.id.my_location:
-	    	((TextView)findViewById(R.id.sub_section)).setText("Traffic Near You");	
-	    	map.getController().setCenter(myLocationOverlay.getMyLocation());
+	    	((TextView)findViewById(R.id.sub_section)).setText("Traffic Near You");
+	        myLocationOverlay.runOnFirstFix(new Runnable() {
+	            public void run() {	    	
+	            	map.getController().animateTo(myLocationOverlay.getMyLocation());
+	            }
+	        });
 	        return true;
 	    case R.id.goto_bellingham:
 	    	goToLocation("Bellingham Traffic", 48.756302,-122.46151, 12);
