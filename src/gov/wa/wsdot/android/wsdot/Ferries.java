@@ -27,7 +27,7 @@ public class Ferries extends MainMenu {
 	void prepareMenu() {
 		addMenuItem("Route Alerts", RouteAlerts.class);
 		addMenuItem("Route Schedules", RouteSchedules.class);
-		addMenuItem("Vessel Watch", VesselWatch.class);
+		addMenuItem("Vessel Watch", VesselWatchMap.class);
 	}
 
 	@Override
