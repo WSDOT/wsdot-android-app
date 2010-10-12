@@ -76,7 +76,7 @@ public class VesselWatchMap extends MapActivity {
 	private static final String DEBUG_TAG = "VesselWatchMap";
 	private MapView map = null;
 	private Handler handler = new Handler();
-	private Timer timer = new Timer();
+	private Timer timer;
 	private boolean customTitleSupported;
 	private ProgressBar titleProgressBar;
 	private boolean firstRun = true;
@@ -147,6 +147,7 @@ public class VesselWatchMap extends MapActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		timer = new Timer();
 		timer.schedule(new MyTimerTask(), 0, 30000); // Schedule vessels to update every 30 seconds
 		myLocationOverlay.enableMyLocation();
 	}
