@@ -269,10 +269,17 @@ public class VesselWatchMap extends MapActivity {
 					
 					int nearest = (item.getInt("head") + 30 / 2) / 30 * 30; // round heading to nearest 30 degrees
 					ferryIcon = ferryIcons.get(nearest);
+					String route = item.getString("route");
+					String lastDock = item.getString("lastdock");
+					String arrivingTerminal = item.getString("aterm");
+					
+					if (route == "") route = "Not available";
+					if (lastDock == "") lastDock = "Not available";
+					if (arrivingTerminal == "") arrivingTerminal = "Not available";
 					
 					vesselItems.add(new VesselItem(getPoint(item.getDouble("lat"), item.getDouble("lon")),
 							item.getString("name"),
-							"Route: " + item.getString("route") + "\nLast Dock: " + item.getString("lastdock") + "\nArriving Terminal: " + item.getString("aterm") + "\nHeading: " + Integer.toString(item.getInt("head")) + "\u00b0 " + item.getString("headtxt") + "\nSpeed: " + Double.toString(item.getDouble("speed")) + " knots",
+							"Route: " + route + "\nLast Dock: " + lastDock + "\nArriving Terminal: " + arrivingTerminal + "\nHeading: " + Integer.toString(item.getInt("head")) + "\u00b0 " + item.getString("headtxt") + "\nSpeed: " + Double.toString(item.getDouble("speed")) + " knots",
 							getMarker(ferryIcon)));
 				}
 				
