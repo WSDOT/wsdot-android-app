@@ -25,6 +25,7 @@ public class VesselWatchItem {
 	private String name;
 	private String route;
 	private String lastdock;
+	private String arrivingTerminal;
 	private String nextdep;
 	private Double lat;
 	private Double lon;
@@ -63,6 +64,12 @@ public class VesselWatchItem {
 	}
 	public void setLastDock(String lastdock) {
 		this.lastdock = lastdock; 
+	}
+	public String getArrivingTerminal() {
+		return arrivingTerminal;
+	}
+	public void setArrivingTerminal(String arrivingTerminal) {
+		this.arrivingTerminal = arrivingTerminal;
 	}
 	public String getNextDep() {
 		return nextdep;

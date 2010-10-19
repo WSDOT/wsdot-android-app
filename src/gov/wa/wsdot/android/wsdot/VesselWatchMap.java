@@ -246,7 +246,7 @@ public class VesselWatchMap extends MapActivity {
 			ferryIcons.put(300, R.drawable.ferry_300);
 			ferryIcons.put(330, R.drawable.ferry_330);
 			ferryIcons.put(360, R.drawable.ferry_360);
-			
+						
 			try {
 				URL url = new URL("http://www.wsdot.wa.gov/ferries/vesselwatch/Vessels.ashx");
 				URLConnection urlConn = url.openConnection();
@@ -267,14 +267,12 @@ public class VesselWatchMap extends MapActivity {
 						continue;
 					}
 					
-					String nextDeparture = item.getString("nextdep");
-					if (nextDeparture.equals("")) nextDeparture = "available when at dock";
 					int nearest = (item.getInt("head") + 30 / 2) / 30 * 30; // round heading to nearest 30 degrees
 					ferryIcon = ferryIcons.get(nearest);
 					
 					vesselItems.add(new VesselItem(getPoint(item.getDouble("lat"), item.getDouble("lon")),
 							item.getString("name"),
-							"Route: " + item.getString("route") + "\nLast Dock: " + item.getString("lastdock") + "\nNext Departure: " + nextDeparture + "\nHeading: " + Integer.toString(item.getInt("head")) + "\u00b0 " + item.getString("headtxt") + "\nSpeed: " + Double.toString(item.getDouble("speed")) + " knots",
+							"Route: " + item.getString("route") + "\nLast Dock: " + item.getString("lastdock") + "\nArriving Terminal: " + item.getString("aterm") + "\nHeading: " + Integer.toString(item.getInt("head")) + "\u00b0 " + item.getString("headtxt") + "\nSpeed: " + Double.toString(item.getDouble("speed")) + " knots",
 							getMarker(ferryIcon)));
 				}
 				
@@ -555,12 +553,14 @@ public class VesselWatchMap extends MapActivity {
 		public void onPreExecute() {
 			if (vessels != null) {
 				map.getOverlays().remove(vessels);
+				map.invalidate();
 				vessels = null;
 			}
 			
 			if (firstRun) {
 				if (cameras != null) {
 					map.getOverlays().remove(cameras);
+					map.invalidate();
 					cameras = null;
 				}
 				if (showCameras) {
