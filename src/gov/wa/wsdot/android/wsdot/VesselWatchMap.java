@@ -560,7 +560,6 @@ public class VesselWatchMap extends MapActivity {
 		public void onPreExecute() {
 			if (vessels != null) {
 				map.getOverlays().remove(vessels);
-				map.invalidate();
 				vessels = null;
 			}
 			
