@@ -98,6 +98,7 @@ public class MountainPassConditions extends ListActivity {
 		Bundle b = new Bundle();
 		Intent intent = new Intent(this, MountainPassItemTabs.class);
 		b.putString("MountainPassName", mountainPassItems.get(position).getMountainPassName());
+		b.putString("DateUpdated", mountainPassItems.get(position).getDateUpdated());
 		b.putString("TemperatureInFahrenheit", mountainPassItems.get(position).getTemperatureInFahrenheit());
 		b.putString("ElevationInFeet", mountainPassItems.get(position).getElevationInFeet());
 		b.putString("RoadCondition", mountainPassItems.get(position).getRoadCondition());

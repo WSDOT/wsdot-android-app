@@ -18,11 +18,19 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 public class MountainPassItemDetails extends Activity {
+	private static final String DEBUG_TAG = "MountainPassItemDetails";
+	DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m"); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
+	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +50,26 @@ public class MountainPassItemDetails extends Activity {
 		} else {
 			temperatureInFahrenheit = temperatureInFahrenheit + "\u00b0F";
 		}
-	
+
+		String tempDate = b.getString("DateUpdated");
+		try {
+			tempDate = tempDate.replace("[", "");
+			tempDate = tempDate.replace("]", "");
+			
+			String[] a = tempDate.split(",");
+			StringBuilder result = new StringBuilder();
+			for (int i=0; i < 5; i++) {
+				result.append(a[i]);
+				result.append(",");
+			}
+			tempDate = result.toString().trim();
+			tempDate = tempDate.substring(0, tempDate.length()-1);
+			Date date = parseDateFormat.parse(tempDate);
+			((TextView)findViewById(R.id.DateUpdated)).setText(displayDateFormat.format(date));
+		} catch (Exception e) {
+			Log.e(DEBUG_TAG, "Error parsing date: " + tempDate, e);
+		}
+		
 		((TextView)findViewById(R.id.MountainPassName)).setText(b.getString("MountainPassName"));
 		((TextView)findViewById(R.id.WeatherCondition)).setText(weatherCondition);
 		((TextView)findViewById(R.id.TemperatureInFahrenheit)).setText(temperatureInFahrenheit);

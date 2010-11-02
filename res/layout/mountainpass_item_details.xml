@@ -14,6 +14,7 @@
 	
 	<TextView android:id="@+id/MountainPassName"
 		android:text="Mountain Pass Name"
+		android:textSize="16sp"
 		android:textStyle="bold"
 		android:textColor="#017359"
 		android:layout_width="fill_parent"
@@ -22,6 +23,15 @@
         android:paddingRight="5sp"
         android:paddingBottom="10sp"
         android:paddingLeft="5dp"
+		/>
+		
+	<TextView android:id="@+id/DateUpdated"
+		android:text="Date Last Updated"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        android:paddingRight="5sp"
+        android:paddingBottom="15sp"		
 		/>			
 
 	<TextView
