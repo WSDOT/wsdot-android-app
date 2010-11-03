@@ -7,7 +7,8 @@
 	
 	<include layout="@layout/header" />
     
-	<GridView xmlns:android="http://schemas.android.com/apk/res/android" 
+	<GridView xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layoutAnimation="@anim/layout_wave_scale" 
 	    android:id="@+id/gridview"
 	    android:layout_width="fill_parent" 
 	    android:layout_height="fill_parent"

@@ -20,17 +20,21 @@ package gov.wa.wsdot.android.wsdot;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -55,7 +59,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Gallery.LayoutParams;
 
 public class Photos extends Activity {
-
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "Photos";
     ArrayList<Drawable> bitmapImages = new ArrayList<Drawable>();
@@ -91,112 +94,62 @@ public class Photos extends Activity {
 		protected String doInBackground(String... params) {
 	    	String patternStr = "http://farm.*jpg";
 	    	Pattern pattern = Pattern.compile(patternStr);
-	    	BufferedInputStream in;
+	    	BufferedInputStream ins;
 	        BufferedOutputStream out;
+	    	String content;
+	    	String tmpContent;
 	    	
 	        try {
-	            URL text = new URL("http://api.flickr.com/services/feeds/photos_public.gne?id=7821771@N05&amp;lang=en-us&amp;format=atom");
-	            XmlPullParserFactory parserCreator = XmlPullParserFactory.newInstance();
-	            XmlPullParser parser = parserCreator.newPullParser();
-	            parser.setInput(text.openStream(), null);
-	            int parserEvent = parser.getEventType();
-				String tag;
-				String title;
-				String published;
-				String link;
-				String content;
-				boolean inTitle = false;
-				boolean inPublished = false;
-				boolean inLink = false;
-				boolean inContent = false;
-				boolean inEntry = false;
+				URL url = new URL("http://data.wsdot.wa.gov/mobile/FlickrPhotos.js.gz");
+				URLConnection urlConn = url.openConnection();
+				
+				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
+                GZIPInputStream gzin = new GZIPInputStream(bis);
+                InputStreamReader is = new InputStreamReader(gzin);
+                BufferedReader in = new BufferedReader(is);
+				
+				String jsonFile = "";
+				String line;
+				while ((line = in.readLine()) != null)
+					jsonFile += line;
+				in.close();
+				
+				JSONObject obj = new JSONObject(jsonFile);
+				JSONArray items = obj.getJSONArray("items");
 				photoItems = new ArrayList<PhotoItem>();
 				PhotoItem i = null;
-	            
-	            while (parserEvent != XmlPullParser.END_DOCUMENT) {
-	                switch (parserEvent) {
-	                case XmlPullParser.TEXT:
-						if (inEntry & inTitle) {
-							title = parser.getText();
-							i.setTitle(title);
-						}
-						if (inEntry & inPublished) {
-							published = parser.getText();
-							i.setPublished(published);
-						}
-						if (inEntry & inLink) {
-							link = parser.getText();
-							i.setLink(link);
-						}
-	                    if (inEntry & inContent) {
-	                    	String tmpContent = parser.getText();
-	                    	content = tmpContent.replace("<p><a href=\"http://www.flickr.com/people/wsdot/\">WSDOT</a> posted a photo:</p>", "");
-							i.setContent(content);                  
-		                	Matcher matcher = pattern.matcher(content);
-		                	boolean matchFound = matcher.find();
+				
+				for (int j=0; j < items.length(); j++) {
+					JSONObject item = items.getJSONObject(j);
+					i = new PhotoItem();
+					i.setTitle(item.getString("title"));
+					i.setLink(item.getString("link"));
+					i.setPublished(item.getString("published"));
+					tmpContent = item.getString("description");
+					content = tmpContent.replace("<p><a href=\"http://www.flickr.com/people/wsdot/\">WSDOT</a> posted a photo:</p>", "");
+					i.setContent(content);
+                	Matcher matcher = pattern.matcher(content);
+                	boolean matchFound = matcher.find();
 
-		                	if (matchFound) {
-		                		String tmpString = matcher.group();
-		                		String imageSrc = tmpString.replace("_m", "_s"); // We want the small 75x75 images
-		                		remoteImages.add(imageSrc);
-	                            in = new BufferedInputStream(new URL(imageSrc).openStream(), IO_BUFFER_SIZE);
-	                            final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-	                            out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
-	                            copy(in, out);
-	                            out.flush();
-	                            final byte[] data = dataStream.toByteArray();
-	                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);                        
-		                        final Drawable image = new BitmapDrawable(bitmap);
-		                        bitmapImages.add(image);
-		                	}
-	                    }
-	                    break;
-
-	                case XmlPullParser.END_TAG:
-						tag = parser.getName();
-						if (tag.compareTo("entry") == 0) {
-							inEntry = false;
-							photoItems.add(i);
-							publishProgress(1);
-						}
-						if (tag.compareTo("title") == 0) {
-							inTitle = false;
-						}
-						if (tag.compareTo("published") == 0) {
-							inPublished = false;
-						}
-						if (tag.compareTo("link") == 0) {
-							inLink = false;
-						}
-						if (tag.compareTo("content") == 0) {
-							inContent = false;
-						}
-	                    break;
-
-	                case XmlPullParser.START_TAG:
-						tag = parser.getName();
-						if (tag.compareTo("entry") == 0) {
-							inEntry = true;
-							i = new PhotoItem();
-						}
-						if (tag.compareTo("title") == 0) {
-							inTitle = true;
-						}
-						if (tag.compareTo("published") == 0) {
-							inPublished = true;
-						}
-						if (tag.compareTo("link") == 0) {
-							inLink = true;
-						}					
-						if (tag.compareTo("content") == 0) {
-							inContent = true;
-						}
-						break;
-	                }
-	                parserEvent = parser.next();
-	            }
+                	if (matchFound) {
+                		String tmpString = matcher.group();
+                		String imageSrc = tmpString.replace("_m", "_s"); // We want the small 75x75 images
+                		remoteImages.add(imageSrc);
+                        ins = new BufferedInputStream(new URL(imageSrc).openStream(), IO_BUFFER_SIZE);
+                        final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
+                        out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
+                        copy(ins, out);
+                        out.flush();
+                        final byte[] data = dataStream.toByteArray();
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);                        
+                        final Drawable image = new BitmapDrawable(bitmap);
+                        bitmapImages.add(image);
+                	}
+					photoItems.add(i);
+					publishProgress(1);
+				}
 	        } catch (Exception e) {
-	            Log.e(DEBUG_TAG, "Error parsing Flickr RSS feed", e);
+	            Log.e(DEBUG_TAG, "Error parsing Flickr JSON feed", e);
 	        }
 			return null;
 		}
