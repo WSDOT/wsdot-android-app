@@ -51,7 +51,7 @@ public class Blog extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.blog);
+        setContentView(R.layout.main);
         ((TextView)findViewById(R.id.sub_section)).setText("Blog");
         blogItems = new ArrayList<BlogItem>();
         this.adapter = new BlogItemAdapter(this, R.layout.news_item, blogItems);

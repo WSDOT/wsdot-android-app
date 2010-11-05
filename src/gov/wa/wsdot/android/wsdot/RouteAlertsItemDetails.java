@@ -49,7 +49,7 @@ public class RouteAlertsItemDetails extends Activity {
 		webview = (WebView)findViewById(R.id.webview);
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.getSettings().setPluginsEnabled(true);
-		webview.loadData(html_content, "text/html", "utf-8");
+		webview.loadDataWithBaseURL(null, html_content, "text/html", "utf-8", null);
 	}
 	
 	@Override

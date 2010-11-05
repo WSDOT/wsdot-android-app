@@ -51,7 +51,7 @@ public class BorderWait extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.news);
+        setContentView(R.layout.main);
         ((TextView)findViewById(R.id.sub_section)).setText("Northbound Wait Times");
         borderWaitItems = new ArrayList<BorderWaitItem>();
         this.adapter = new BorderWaitItemAdapter(this, R.layout.row, borderWaitItems);

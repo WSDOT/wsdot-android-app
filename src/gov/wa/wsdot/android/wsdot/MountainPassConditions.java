@@ -61,7 +61,7 @@ public class MountainPassConditions extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.news);
+        setContentView(R.layout.main);
         ((TextView)findViewById(R.id.sub_section)).setText("Mountain Passes");
         mountainPassItems = new ArrayList<MountainPassItem>();
         this.adapter = new MountainPassItemAdapter(this, R.layout.row, mountainPassItems);

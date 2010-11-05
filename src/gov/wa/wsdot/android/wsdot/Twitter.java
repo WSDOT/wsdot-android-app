@@ -49,13 +49,11 @@ public class Twitter extends ListActivity {
 	private static final String DEBUG_TAG = "Twitter";
 	private ArrayList<TwitterItem> twitterItems = null;
 	private TwitterItemAdapter adapter;
-	DateFormat parseDateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy"); //e.g. Mon Aug 23 17:46:24 +0000 2010
-	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.twitter);
+        setContentView(R.layout.main);
         twitterItems = new ArrayList<TwitterItem>();
         this.adapter = new TwitterItemAdapter(this, R.layout.news_item, twitterItems);
         ((TextView)findViewById(R.id.sub_section)).setText("Tweets");
@@ -70,6 +68,7 @@ public class Twitter extends ListActivity {
 		Intent intent = new Intent(this, TwitterItemDetails.class);
 		b.putString("description", twitterItems.get(position).getDescription());
 		b.putString("link", twitterItems.get(position).getLink());
+		b.putString("publishDate", twitterItems.get(position).getPubDate());
 		intent.putExtras(b);
 		startActivity(intent);
 	}
@@ -95,6 +94,8 @@ public class Twitter extends ListActivity {
 		protected String doInBackground(String... params) {
 	    	String patternStr = "(http://[A-Za-z0-9./]+)"; // Find bit.ly addresses
 	    	Pattern pattern = Pattern.compile(patternStr);
+	    	DateFormat parseDateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy"); //e.g. Mon Aug 23 17:46:24 +0000 2010
+	    	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	    	
 			try {
 				URL url = new URL("http://twitter.com/statuses/user_timeline/14124059.json");
@@ -124,8 +125,16 @@ public class Twitter extends ListActivity {
                 		d = matcher.replaceFirst(hyperLink);
                 	}
 					i.setTitle(item.getString("text"));
-					i.setPubDate(item.getString("created_at"));
 					i.setDescription(d);
+					
+	            	try {
+	            		Date date = parseDateFormat.parse(item.getString("created_at"));
+	            		i.setPubDate(displayDateFormat.format(date));
+	            	} catch (Exception e) {
+	            		i.setPubDate("");
+	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            	}
+					
 					twitterItems.add(i);
 					publishProgress(1);
 				}				
@@ -169,15 +178,10 @@ public class Twitter extends ListActivity {
                 TextView tt = (TextView) v.findViewById(R.id.toptext);
                 TextView bt = (TextView) v.findViewById(R.id.bottomtext);
                 if (tt != null) {
-                      tt.setText(o.getTitle());
+                	tt.setText(o.getTitle());
                 }
-                if(bt != null){
-	            	try {
-	            		Date date = parseDateFormat.parse(o.getPubDate());
-	            		bt.setText(displayDateFormat.format(date));
-	            	} catch (Exception e) {
-	            		Log.e(DEBUG_TAG, "Error parsing date", e);
-	            	}
+                if(bt != null) {
+	        		bt.setText(o.getPubDate());
                 }
 	        }
 	        return v;

@@ -47,13 +47,11 @@ public class News extends ListActivity {
 	private static final String DEBUG_TAG = "News";
 	private ArrayList<NewsItem> newsItems = null;
 	private NewsItemAdapter adapter;
-	DateFormat parseDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
-	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.news);
+        setContentView(R.layout.main);
         ((TextView)findViewById(R.id.sub_section)).setText("News");
         newsItems = new ArrayList<NewsItem>();
         this.adapter = new NewsItemAdapter(this, R.layout.news_item, newsItems);
@@ -80,6 +78,9 @@ public class News extends ListActivity {
 
 		@Override
 		protected String doInBackground(String... params) {
+			DateFormat parseDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
+			DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+			
 			try {
 				URL url = new URL("http://data.wsdot.wa.gov/mobile/News.js");
 				URLConnection urlConn = url.openConnection();
@@ -103,7 +104,15 @@ public class News extends ListActivity {
 					i.setTitle(item.getString("title"));
 					i.setDescription(item.getString("description"));
 					i.setLink(item.getString("link"));
-					i.setPubDate(item.getString("pubdate"));
+					
+	            	try {
+	            		Date date = parseDateFormat.parse(item.getString("pubdate"));
+	            		i.setPubDate(displayDateFormat.format(date));
+	            	} catch (Exception e) {
+	            		i.setPubDate("");
+	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            	}				
+					
 					newsItems.add(i);
 					publishProgress(1);
 				}			
@@ -136,6 +145,7 @@ public class News extends ListActivity {
 		b.putString("heading", newsItems.get(position).getTitle());
 		b.putString("description", newsItems.get(position).getDescription());
 		b.putString("link", newsItems.get(position).getLink());
+		b.putString("publishDate", newsItems.get(position).getPubDate());
 		intent.putExtras(b);
 		startActivity(intent);
 	}    
@@ -163,12 +173,7 @@ public class News extends ListActivity {
 	            	tt.setText(o.getTitle());
 	            }
 	            if(bt != null) {
-	            	try {
-	            		Date date = parseDateFormat.parse(o.getPubDate());
-	            		bt.setText(displayDateFormat.format(date));
-	            	} catch (Exception e) {
-	            		Log.e(DEBUG_TAG, "Error parsing date", e);
-	            	}
+	            	bt.setText(o.getPubDate());
 	            }
 	        }
 	        return v;

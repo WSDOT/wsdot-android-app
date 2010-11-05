@@ -30,21 +30,28 @@ public class About extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.about);
+		setContentView(R.layout.webview);
 		((TextView)findViewById(R.id.sub_section)).setText("About");
-		String html_content = "<p>The mission of the Washington State Department of Transportation " +
+		
+		webview = (WebView)findViewById(R.id.webview);
+		webview.getSettings().setJavaScriptEnabled(true);
+		webview.getSettings().setPluginsEnabled(true);
+		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);
+	}
+	
+	private String formatText()	{
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("<p>The mission of the Washington State Department of Transportation " +
 				"is to keep people and business moving by operating and improving the state's " +
 				"transportation systems vital to our taxpayers and communities.</p>" +
 				"<p>The WSDOT mobile app was created to make it easier for you to know the latest " +
 				"about Washington's transportation system.</p>" +
-				"<p>Questions, comments or suggestions should be directed to the <a href=\"mailto:webfeedback@wsdot.wa.gov\">WSDOT " +
-				"Communications Office</a>, " +
-				"<a href=\"tel:3607057079\">360-705-7079</a>.</p>";
-		
-		webview = (WebView)findViewById(R.id.about_webview);
-		webview.getSettings().setJavaScriptEnabled(true);
-		webview.getSettings().setPluginsEnabled(true);
-		webview.loadData(html_content, "text/html", "utf-8");
+				"<p>Questions, comments or suggestions can be e-mailed to the <a href=\"mailto:webfeedback@wsdot.wa.gov\">WSDOT " +
+				"Communications Office</a> or give us a call at " +
+				"<a href=\"tel:3607057079\">360-705-7079</a>.</p>");
+			
+		return sb.toString();
 	}
 	
 	@Override

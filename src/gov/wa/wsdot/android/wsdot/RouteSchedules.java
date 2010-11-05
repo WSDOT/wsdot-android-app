@@ -50,7 +50,7 @@ public class RouteSchedules extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.news);
+        setContentView(R.layout.main);
         ((TextView)findViewById(R.id.sub_section)).setText("Ferries Route Schedules");
         routeItems = new ArrayList<FerriesRouteItem>();
         this.adapter = new RouteItemAdapter(this, android.R.layout.simple_list_item_1, routeItems);

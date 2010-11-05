@@ -30,16 +30,27 @@ public class TwitterItemDetails extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.twitter_item_details);
+		setContentView(R.layout.webview);
 		((TextView)findViewById(R.id.sub_section)).setText("Tweets");
+		
 		Bundle b = getIntent().getExtras();
 		
-		String html_content = b.getString("description");
-		webview = (WebView)findViewById(R.id.twitter_webview);
+		webview = (WebView)findViewById(R.id.webview);
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.getSettings().setPluginsEnabled(true);
-		webview.loadData(html_content, "text/html", "utf-8");
+		webview.loadDataWithBaseURL(null, formatText(b), "text/html", "utf-8", null);
 	}
+	
+	private String formatText(Bundle b)	{
+		StringBuilder sb = new StringBuilder();
+		String publishDate = b.getString("publishDate");
+		String description = b.getString("description");
+		
+		sb.append("<p>" + publishDate + "</p>");
+		sb.append("<p>"+ description +"</p>");
+			
+		return sb.toString();
+	}	
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
