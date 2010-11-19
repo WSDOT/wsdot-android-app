@@ -95,6 +95,7 @@ public class SeattleTrafficAlerts extends ListActivity {
 	        blockingCategory.add(6); // Disabled vehicle
 	        blockingCategory.add(10); // Water over roadway
 	        blockingCategory.add(11); // Obstruction
+	        blockingCategory.add(30); // Fallen tree
 	        
 	        constructionCategory.add(7); // Closures
 	        constructionCategory.add(8); // Road work
@@ -108,6 +109,7 @@ public class SeattleTrafficAlerts extends ListActivity {
 	        specialCategory.add(15); // Special event
 	        specialCategory.add(16); // Restriction
 	        specialCategory.add(17); // Flammable restriction
+	        specialCategory.add(29); // Huskies game
 	        
 			try {
 				URL url = new URL("http://data.wsdot.wa.gov/mobile/SeattleIncidents.js");
