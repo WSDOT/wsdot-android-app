@@ -297,7 +297,7 @@ public class TrafficMap extends MapActivity {
 	}	
 	
 	private void buildEventCategories() {
-		String[] event_construction = {"construction"};
+		String[] event_construction = {"construction", "maintenance"};
 		String[] event_closure = {"closure"};
 		
 		eventCategories.put(R.drawable.closed, event_closure);
