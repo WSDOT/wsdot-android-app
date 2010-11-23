@@ -130,7 +130,7 @@ public class MountainPassConditions extends ListActivity {
 		@Override
 		protected String doInBackground(String... params) {
 			try {
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/MountainPassConditionsBeta.js.gz");
+				URL url = new URL("http://data.wsdot.wa.gov/mobile/MountainPassConditions.js.gz");
 				URLConnection urlConn = url.openConnection();
 				
 				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
