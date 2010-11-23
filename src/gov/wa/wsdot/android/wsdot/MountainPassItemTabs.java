@@ -28,8 +28,14 @@ import android.widget.TabHost;
 import android.widget.TextView;
 
 public class MountainPassItemTabs extends TabActivity {
+	
+	private ArrayList<CameraItem> cameraItems;
+	
+	@SuppressWarnings("unchecked")
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
+
 	    setContentView(R.layout.tabs);
 	    ((TextView)findViewById(R.id.sub_section)).setText("Mountain Passes");
 	    Resources res = getResources();
@@ -46,28 +52,22 @@ public class MountainPassItemTabs extends TabActivity {
 	    				.setContent(intent);
 	    tabHost.addTab(spec);
 
-	    Bundle b1 = getIntent().getExtras();
-	    ArrayList<String> cameraUrls = new ArrayList<String>(b1.getStringArrayList("Cameras"));
-
+	    cameraItems = (ArrayList<CameraItem>)getIntent().getSerializableExtra("Cameras");
+	    Bundle b2 = getIntent().getExtras();
+	    
 	    // If there are no cameras for this pass, do not show the camera tab
-	    if (cameraUrls.isEmpty()) {
+	    if (cameraItems.isEmpty()) {
 	    } else {
-		    intent = new Intent().setClass(this, MountainPassItemCamera.class);
-		    intent.putExtras(b1);
+		    intent = new Intent().setClass(this, MountainPassItemMap.class);
+		    
+		    b2.putSerializable("Cameras", cameraItems);
+		    intent.putExtras(b2);
 		    spec = tabHost.newTabSpec("cameras")
 		    				.setIndicator("Cameras", res.getDrawable(R.drawable.ic_tab_passes_camera))
 		    				.setContent(intent);
 		    tabHost.addTab(spec);
 	    }
-
-	    Bundle b2 = getIntent().getExtras();
-	    intent = new Intent().setClass(this, MountainPassItemMap.class);
-	    intent.putExtras(b2);
-	    spec = tabHost.newTabSpec("map")
-	    				.setIndicator("Map", res.getDrawable(R.drawable.ic_tab_passes_map))
-	    				.setContent(intent);
-	    tabHost.addTab(spec);
-
+	    
 	    tabHost.setCurrentTabByTag("info");
 	}
 }

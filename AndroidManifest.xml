@@ -33,7 +33,6 @@
    		<activity android:name="MountainPassConditions" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="MountainPassItemDetails" />
    		<activity android:name="MountainPassItemTabs" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="MountainPassItemCamera" />
    		<activity android:name="MountainPassItemMap" />
    		<activity android:name="TrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="SeattleTrafficAlerts" android:configChanges="orientation|keyboardHidden" />

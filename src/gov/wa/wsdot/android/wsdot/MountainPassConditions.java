@@ -110,7 +110,7 @@ public class MountainPassConditions extends ListActivity {
 		b.putString("Latitude", mountainPassItems.get(position).getLatitude());
 		b.putString("Longitude", mountainPassItems.get(position).getLongitude());
 		b.putInt("WeatherIcon", mountainPassItems.get(position).getWeatherIcon());
-		b.putStringArrayList("Cameras", mountainPassItems.get(position).getCameraUrls());
+		b.putSerializable("Cameras", mountainPassItems.get(position).getCameraItem());
 		intent.putExtras(b);
 		startActivity(intent);
 	}
@@ -130,7 +130,7 @@ public class MountainPassConditions extends ListActivity {
 		@Override
 		protected String doInBackground(String... params) {
 			try {
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/MountainPassConditions.js.gz");
+				URL url = new URL("http://data.wsdot.wa.gov/mobile/MountainPassConditionsBeta.js.gz");
 				URLConnection urlConn = url.openConnection();
 				
 				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
@@ -150,10 +150,10 @@ public class MountainPassConditions extends ListActivity {
 				String weatherCondition;
 				mountainPassItems = new ArrayList<MountainPassItem>();
 				MountainPassItem i = null;
+				CameraItem c = null;
 				
 				for (int j=0; j < passConditions.length(); j++) {
 					JSONObject pass = passConditions.getJSONObject(j);
-					ArrayList<String> urls = new ArrayList<String>();
 					i = new MountainPassItem();
 					weatherCondition = pass.getString("WeatherCondition");
 					Integer weather_image = getWeatherImage(weatherPhrases, weatherCondition);
@@ -161,9 +161,14 @@ public class MountainPassConditions extends ListActivity {
 					
 					JSONArray cameras = pass.getJSONArray("Cameras");
 					for (int k=0; k < cameras.length(); k++) {
-						urls.add(cameras.getString(k));
+						JSONObject camera = cameras.getJSONObject(k);
+						c = new CameraItem();
+						c.setTitle(camera.getString("title"));
+						c.setImageUrl(camera.getString("url"));
+						c.setLatitude(camera.getDouble("lat"));
+						c.setLongitude(camera.getDouble("lon"));
+						i.setCameraItem(c);
 					}
-					i.setCameraUrls(urls);				
 					i.setWeatherCondition(weatherCondition);
 					i.setElevationInFeet(pass.getString("ElevationInFeet"));
 					i.setTravelAdvisoryActive(pass.getString("TravelAdvisoryActive"));

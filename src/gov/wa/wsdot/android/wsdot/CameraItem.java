@@ -18,9 +18,15 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import java.io.Serializable;
+
 import android.graphics.drawable.Drawable;
 
-public class CameraItem {
+public class CameraItem implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6303369840501629538L;
 	private String title;
 	private String imageUrl;
 	private String roadName;

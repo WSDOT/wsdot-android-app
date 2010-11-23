@@ -18,10 +18,14 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class MountainPassItem {
-
+public class MountainPassItem implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6136235109640235027L;
 	private String weatherCondition;
 	private String elevationInFeet;
 	private String travelAdvisoryActive;
@@ -37,7 +41,7 @@ public class MountainPassItem {
 	private String restrictionTwoText;
 	private String restrictionTwoTravelDirection;
 	private Integer weatherIcon;
-	private ArrayList<String> cameraUrls;
+	private ArrayList<CameraItem> camera = new ArrayList<CameraItem>();
 	
 	public String getWeatherCondition() {
 		return weatherCondition;
@@ -129,10 +133,10 @@ public class MountainPassItem {
 	public void setWeatherIcon(Integer weatherIcon) {
 		this.weatherIcon = weatherIcon;
 	}
-	public ArrayList<String> getCameraUrls() {
-		return cameraUrls;
+	public ArrayList<CameraItem> getCameraItem() {
+		return camera;
 	}
-	public void setCameraUrls(ArrayList<String> cameraUrls) {
-		this.cameraUrls = cameraUrls;
+	public void setCameraItem(CameraItem camera) {
+		this.camera.add(camera);
 	}
 }
