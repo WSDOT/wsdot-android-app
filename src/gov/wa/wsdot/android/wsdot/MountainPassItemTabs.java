@@ -55,19 +55,24 @@ public class MountainPassItemTabs extends TabActivity {
 	    cameraItems = (ArrayList<CameraItem>)getIntent().getSerializableExtra("Cameras");
 	    Bundle b2 = getIntent().getExtras();
 	    
-	    // If there are no cameras for this pass, do not show the camera tab
+	    // If there are no cameras for this pass, do not show the camera or map tabs
 	    if (cameraItems.isEmpty()) {
 	    } else {
-		    intent = new Intent().setClass(this, MountainPassItemMap.class);
-		    
+		    intent = new Intent().setClass(this, MountainPassItemCamera.class);	    
 		    b2.putSerializable("Cameras", cameraItems);
 		    intent.putExtras(b2);
 		    spec = tabHost.newTabSpec("cameras")
 		    				.setIndicator("Cameras", res.getDrawable(R.drawable.ic_tab_passes_camera))
 		    				.setContent(intent);
 		    tabHost.addTab(spec);
-	    }
-	    
+	    	
+	    	intent = new Intent().setClass(this, MountainPassItemMap.class);	    
+		    intent.putExtras(b2);
+		    spec = tabHost.newTabSpec("map")
+		    				.setIndicator("Map", res.getDrawable(R.drawable.ic_tab_passes_map))
+		    				.setContent(intent);
+		    tabHost.addTab(spec);
+	    }    
 	    tabHost.setCurrentTabByTag("info");
 	}
 }

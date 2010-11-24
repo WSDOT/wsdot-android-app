@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="gov.wa.wsdot.android.wsdot"
-      android:versionCode="23"
-      android:versionName="1.5.7">
+      android:versionCode="24"
+      android:versionName="1.5.8">
 
     <application
 	 	android:icon="@drawable/icon"
@@ -33,6 +33,7 @@
    		<activity android:name="MountainPassConditions" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="MountainPassItemDetails" />
    		<activity android:name="MountainPassItemTabs" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="MountainPassItemCamera" android:configChanges="orientation|keyboardHidden" />   		
    		<activity android:name="MountainPassItemMap" />
    		<activity android:name="TrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="SeattleTrafficAlerts" android:configChanges="orientation|keyboardHidden" />
