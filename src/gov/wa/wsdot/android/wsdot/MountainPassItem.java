@@ -42,6 +42,7 @@ public class MountainPassItem implements Serializable {
 	private String restrictionTwoTravelDirection;
 	private Integer weatherIcon;
 	private ArrayList<CameraItem> camera = new ArrayList<CameraItem>();
+	private ArrayList<ForecastItem> forecast = new ArrayList<ForecastItem>();
 	
 	public String getWeatherCondition() {
 		return weatherCondition;
@@ -139,4 +140,10 @@ public class MountainPassItem implements Serializable {
 	public void setCameraItem(CameraItem camera) {
 		this.camera.add(camera);
 	}
+	public ArrayList<ForecastItem> getForecastItem() {
+		return forecast;
+	}
+	public void setForecastItem(ForecastItem forecast) {
+		this.forecast.add(forecast);
+	}	
 }

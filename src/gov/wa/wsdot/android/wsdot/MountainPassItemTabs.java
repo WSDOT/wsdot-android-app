@@ -30,6 +30,7 @@ import android.widget.TextView;
 public class MountainPassItemTabs extends TabActivity {
 	
 	private ArrayList<CameraItem> cameraItems;
+	private ArrayList<ForecastItem> forecastItems;
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -53,26 +54,39 @@ public class MountainPassItemTabs extends TabActivity {
 	    tabHost.addTab(spec);
 
 	    cameraItems = (ArrayList<CameraItem>)getIntent().getSerializableExtra("Cameras");
-	    Bundle b2 = getIntent().getExtras();
-	    
+	    forecastItems = (ArrayList<ForecastItem>)getIntent().getSerializableExtra("Forecasts");
+	        
 	    // If there are no cameras for this pass, do not show the camera or map tabs
 	    if (cameraItems.isEmpty()) {
 	    } else {
 		    intent = new Intent().setClass(this, MountainPassItemCamera.class);	    
-		    b2.putSerializable("Cameras", cameraItems);
-		    intent.putExtras(b2);
+		    b.putSerializable("Cameras", cameraItems);
+		    intent.putExtras(b);
 		    spec = tabHost.newTabSpec("cameras")
 		    				.setIndicator("Cameras", res.getDrawable(R.drawable.ic_tab_passes_camera))
 		    				.setContent(intent);
 		    tabHost.addTab(spec);
 	    	
 	    	intent = new Intent().setClass(this, MountainPassItemMap.class);	    
-		    intent.putExtras(b2);
+		    intent.putExtras(b);
 		    spec = tabHost.newTabSpec("map")
 		    				.setIndicator("Map", res.getDrawable(R.drawable.ic_tab_passes_map))
 		    				.setContent(intent);
 		    tabHost.addTab(spec);
-	    }    
+	    }
+	    
+	    // If there is no forecast for this pass, do not show the tab
+	    if (forecastItems.isEmpty()) {
+	    } else {
+		    intent = new Intent().setClass(this, MountainPassItemForecast.class);	    
+		    b.putSerializable("Forecasts", forecastItems);
+		    intent.putExtras(b);
+		    spec = tabHost.newTabSpec("forecast")
+		    				.setIndicator("Forecast", res.getDrawable(R.drawable.ic_tab_passes_forecast))
+		    				.setContent(intent);
+		    tabHost.addTab(spec);
+	    }
+	    
 	    tabHost.setCurrentTabByTag("info");
 	}
 }

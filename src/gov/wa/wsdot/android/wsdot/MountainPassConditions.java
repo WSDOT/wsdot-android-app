@@ -34,6 +34,7 @@ import java.util.zip.GZIPInputStream;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -44,7 +45,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -54,7 +54,6 @@ public class MountainPassConditions extends ListActivity {
 	private static final String DEBUG_TAG = "MountainPassConditions";
 	private ArrayList<MountainPassItem> mountainPassItems = null;
 	private MountainPassItemAdapter adapter;
-	WebView webview;
 
 	private HashMap<Integer, String[]> weatherPhrases = new HashMap<Integer, String[]>();
 	
@@ -111,6 +110,7 @@ public class MountainPassConditions extends ListActivity {
 		b.putString("Longitude", mountainPassItems.get(position).getLongitude());
 		b.putInt("WeatherIcon", mountainPassItems.get(position).getWeatherIcon());
 		b.putSerializable("Cameras", mountainPassItems.get(position).getCameraItem());
+		b.putSerializable("Forecasts", mountainPassItems.get(position).getForecastItem());
 		intent.putExtras(b);
 		startActivity(intent);
 	}
@@ -151,6 +151,7 @@ public class MountainPassConditions extends ListActivity {
 				mountainPassItems = new ArrayList<MountainPassItem>();
 				MountainPassItem i = null;
 				CameraItem c = null;
+				ForecastItem f = null;
 				
 				for (int j=0; j < passConditions.length(); j++) {
 					JSONObject pass = passConditions.getJSONObject(j);
@@ -169,6 +170,16 @@ public class MountainPassConditions extends ListActivity {
 						c.setLongitude(camera.getDouble("lon"));
 						i.setCameraItem(c);
 					}
+					
+					JSONArray forecasts = pass.getJSONArray("Forecast");
+					for (int l=0; l < forecasts.length(); l++) {
+						JSONObject forecast = forecasts.getJSONObject(l);
+						f = new ForecastItem();
+						f.setDay(forecast.getString("Day"));
+						f.setForecastText(forecast.getString("ForecastText"));
+						i.setForecastItem(f);
+					}
+					
 					i.setWeatherCondition(weatherCondition);
 					i.setElevationInFeet(pass.getString("ElevationInFeet"));
 					i.setTravelAdvisoryActive(pass.getString("TravelAdvisoryActive"));
