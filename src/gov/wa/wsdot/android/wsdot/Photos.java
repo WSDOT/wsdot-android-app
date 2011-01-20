@@ -201,13 +201,23 @@ public class Photos extends Activity {
         	context = c;       	
         }
 
-        public int getCount() { return remoteImages.size(); }
-        public Object getItem(int position) { return position; }
-        public long getItemId(int position) { return position; }
+        public int getCount() {
+        	return remoteImages.size();
+        }
+        
+        public Object getItem(int position) {
+        	return null;
+        }
+        
+        public long getItemId(int position) {
+        	return 0;
+        }
+        
         public View getView(int position, View convertView, ViewGroup parent) {
-            ImageView imageView = new ImageView(context);
+            ImageView imageView;
 
             if (convertView == null) {
+            	imageView = new ImageView(context);
                 imageView.setLayoutParams(new GridView.LayoutParams(75, 75));
                 imageView.setPadding(5, 5, 5, 5);
             } else {
