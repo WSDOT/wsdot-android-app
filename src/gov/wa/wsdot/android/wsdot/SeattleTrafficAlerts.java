@@ -25,6 +25,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -37,27 +38,35 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 public class SeattleTrafficAlerts extends ListActivity {
 	private static final String DEBUG_TAG = "SeattleIncidents";
 	private Stack<SeattleIncidentItem> seattleIncidentItems = null;
-	private SeattleIncidentItemAdapter adapter;
+	//private SeattleIncidentItemAdapter adapter;
     private Stack<String> blocking = null;
     private Stack<String> construction = null;
     private Stack<String> special = null;
     private Stack<String> closed = null;
     private Stack<String> amberalert = null;
-		
+	
+    private MyCustomAdapter adapter;
+
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         ((TextView)findViewById(R.id.sub_section)).setText("Seattle Area Alerts");
         seattleIncidentItems = new Stack<SeattleIncidentItem>();      
-        this.adapter = new SeattleIncidentItemAdapter(this, R.layout.seattle_incident_item, seattleIncidentItems);
-        setListAdapter(this.adapter);
+        
+        //this.adapter = new SeattleIncidentItemAdapter(this, R.layout.seattle_incident_item, seattleIncidentItems);
+        //setListAdapter(this.adapter);
+        
+        adapter = new MyCustomAdapter();
+        setListAdapter(adapter);
+        
         new GetSeattleIncidentItems().execute();
     }
     
@@ -139,6 +148,7 @@ public class SeattleTrafficAlerts extends ListActivity {
 					// Check if Traffic Management Center is closed
 					if (i.getCategory().equals(27)) {
 						closed.push(i.getDescription());
+						break; // TSMC is closed so stop here
 					}
 					// Check if there is an active amber alert
 					else if (i.getCategory().equals(24)) {
@@ -155,8 +165,8 @@ public class SeattleTrafficAlerts extends ListActivity {
 	                }								
 					seattleIncidentItems.push(i);
 					publishProgress(1);
-				}			
-
+				}
+				
 			} catch (Exception e) {
 				Log.e(DEBUG_TAG, "Error in network call", e);
 			}
@@ -168,43 +178,128 @@ public class SeattleTrafficAlerts extends ListActivity {
 			if (this.dialog.isShowing()) {
 				this.dialog.dismiss();
 			}
-            if (seattleIncidentItems != null && seattleIncidentItems.size() > 0) {
-            	adapter.notifyDataSetChanged();
-                while (!seattleIncidentItems.empty()) {
-                	adapter.add(seattleIncidentItems.pop());                	
-                }
-            }
-            adapter.notifyDataSetChanged();
+			if (amberalert != null && amberalert.size() != 0) {
+				adapter.addSeparatorItem("Amber Alert");
+				while (!amberalert.empty()) {
+					adapter.addItem(amberalert.pop());
+				}
+			}
+			if (closed != null && closed.size() == 0) {
+				adapter.addSeparatorItem("Blocking Incidents");				
+				if (blocking.empty()) {
+					adapter.addItem("None reported");
+				} else {
+					while (!blocking.empty()) {
+						adapter.addItem(blocking.pop());
+					}					
+				}
+				adapter.addSeparatorItem("Construction Closures");
+				if (construction.empty()) {
+					adapter.addItem("None reported");
+				} else {
+					while (!construction.empty()) {
+						adapter.addItem(construction.pop());
+					}					
+				}
+				adapter.addSeparatorItem("Special Events");
+				if (special.empty()) {
+					adapter.addItem("None reported");
+				} else {
+					while (!special.empty()) {
+						adapter.addItem(special.pop());
+					}					
+				}
+			} else {
+				adapter.addItem(closed.pop());
+			}
+			adapter.notifyDataSetChanged();
 		}   
     }   
 	
-	private class SeattleIncidentItemAdapter extends ArrayAdapter<SeattleIncidentItem> {
-		private Stack<SeattleIncidentItem> items;
-
-        public SeattleIncidentItemAdapter(Context context, int textViewResourceId, Stack<SeattleIncidentItem> items) {
-        	super(context, textViewResourceId, items);
-        	this.items = items;
+    private class MyCustomAdapter extends BaseAdapter {
+ 
+        private static final int TYPE_ITEM = 0;
+        private static final int TYPE_SEPARATOR = 1;
+        private static final int TYPE_MAX_COUNT = TYPE_SEPARATOR + 1;
+ 
+        private ArrayList<String> mData = new ArrayList<String>();
+        private LayoutInflater mInflater;
+ 
+        private TreeSet<Integer> mSeparatorsSet = new TreeSet<Integer>();
+ 
+        public MyCustomAdapter() {
+            mInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
-
+ 
+        public void addItem(final String item) {
+            mData.add(item);
+            notifyDataSetChanged();
+        }
+ 
+        public void addSeparatorItem(final String item) {
+            mData.add(item);
+            // save separator position
+            mSeparatorsSet.add(mData.size() - 1);
+            notifyDataSetChanged();
+        }
+ 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View v = convertView;
-            if (v == null) {
-                LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                v = vi.inflate(R.layout.seattle_incident_item, null);
-            }
-            SeattleIncidentItem o = items.get(position);
-            if (o != null) {
-                TextView tt = (TextView) v.findViewById(R.id.title);
-                TextView bt = (TextView) v.findViewById(R.id.description);
-                if (tt != null) {
-                      tt.setText(o.getTitle());
-                }
-                if(bt != null) {
-                    bt.setText(o.getDescription());
-                }                        
-            }
-            return v;
+        public int getItemViewType(int position) {
+            return mSeparatorsSet.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
         }
-	}
+        
+        @SuppressWarnings("unused")
+		public boolean areAllItemsSelectable() {
+        	return false;
+        } 
+ 
+        public boolean isEnabled(int position) {  
+        	return (getItemViewType(position) != TYPE_SEPARATOR);  
+        }          
+        
+        @Override
+        public int getViewTypeCount() {
+            return TYPE_MAX_COUNT;
+        }
+ 
+        public int getCount() {
+            return mData.size();
+        }
+ 
+        public String getItem(int position) {
+            return mData.get(position);
+        }
+ 
+        public long getItemId(int position) {
+            return position;
+        }
+ 
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder = null;
+            int type = getItemViewType(position);
+            if (convertView == null) {
+                holder = new ViewHolder();
+                switch (type) {
+                    case TYPE_ITEM:
+                        convertView = mInflater.inflate(R.layout.seattle_incident_item, null);
+                        holder.textView = (TextView)convertView.findViewById(R.id.description);
+                        break;
+                    case TYPE_SEPARATOR:
+                        convertView = mInflater.inflate(R.layout.list_header, null);
+                        holder.textView = (TextView)convertView.findViewById(R.id.list_header_title);
+                        break;
+                }
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder)convertView.getTag();
+            }
+            holder.textView.setText(mData.get(position));
+            return convertView;
+        }
+ 
+    }
+ 
+    public static class ViewHolder {
+        public TextView textView;
+    }	
 }

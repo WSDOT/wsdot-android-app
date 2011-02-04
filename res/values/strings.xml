@@ -2,4 +2,5 @@
 <resources>
     <string name="hello">Hello World, WSDOT!</string>
     <string name="app_name">WSDOT</string>
+    <string name="no_list_data">Data could not be displayed</string>
 </resources>
