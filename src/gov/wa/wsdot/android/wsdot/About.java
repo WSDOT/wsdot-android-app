@@ -49,7 +49,8 @@ public class About extends Activity {
 				"about Washington's transportation system.</p>" +
 				"<p>Questions, comments or suggestions can be e-mailed to the <a href=\"mailto:webfeedback@wsdot.wa.gov\">WSDOT " +
 				"Communications Office</a> or give us a call at " +
-				"<a href=\"tel:3607057079\">360-705-7079</a>.</p>");
+				"<a href=\"tel:3607057079\">360-705-7079</a>.</p><br />" +
+				"<p style=\"color:#959595;\">Portions of images are modifications based on work created <a href=\"http://code.google.com/policies.html\">and shared by Google</a> and used according to terms described in the <a href=\"http://creativecommons.org/licenses/by/3.0/\">Creative Commons 3.0 Attribution License.</p></a>");
 			
 		return sb.toString();
 	}
