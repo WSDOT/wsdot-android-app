@@ -44,7 +44,6 @@ import android.widget.TextView;
 public class SeattleTrafficAlerts extends ListActivity {
 	private static final String DEBUG_TAG = "SeattleIncidents";
 	private Stack<SeattleIncidentItem> seattleIncidentItems = null;
-	//private SeattleIncidentItemAdapter adapter;
     private Stack<String> blocking = null;
     private Stack<String> construction = null;
     private Stack<String> special = null;
@@ -60,10 +59,7 @@ public class SeattleTrafficAlerts extends ListActivity {
         setContentView(R.layout.main);
         ((TextView)findViewById(R.id.sub_section)).setText("Seattle Area Alerts");
         seattleIncidentItems = new Stack<SeattleIncidentItem>();      
-        
-        //this.adapter = new SeattleIncidentItemAdapter(this, R.layout.seattle_incident_item, seattleIncidentItems);
-        //setListAdapter(this.adapter);
-        
+      
         adapter = new MyCustomAdapter();
         setListAdapter(adapter);
         
