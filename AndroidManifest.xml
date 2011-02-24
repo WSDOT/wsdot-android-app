@@ -51,6 +51,9 @@
    		<activity android:name="RouteSchedulesDaySailings" />
    		<activity android:name="RouteScheduleDayDepartures" />
    		<activity android:name="VesselWatchMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="TollRatesTabActivity" />
+   		<activity android:name="SR520TollRatesActivity" />
+   		<activity android:name="SR16TollRatesActivity" />
 
    		<uses-library android:name="com.google.android.maps" />
 
