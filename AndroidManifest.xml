@@ -51,6 +51,7 @@
    		<activity android:name="RouteSchedulesDaySailings" />
    		<activity android:name="RouteScheduleDayDepartures" />
    		<activity android:name="VesselWatchMap" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="Video" android:configChanges="orientation|keyboardHidden" />
 
    		<uses-library android:name="com.google.android.maps" />
 
