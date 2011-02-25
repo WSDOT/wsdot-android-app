@@ -54,6 +54,7 @@
    		<activity android:name="TollRatesTabActivity" />
    		<activity android:name="SR520TollRatesActivity" />
    		<activity android:name="SR16TollRatesActivity" />
+   		<activity android:name="Video" android:configChanges="orientation|keyboardHidden" />
 
    		<uses-library android:name="com.google.android.maps" />
 

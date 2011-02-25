@@ -29,6 +29,7 @@ public class WSDOT extends MainMenu {
 		addMenuItem("Photos", Photos.class);
 		addMenuItem("Blog", Blog.class);
 		addMenuItem("Traffic & Travel", TrafficTravel.class);
+		addMenuItem("Video", Video.class);
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
