@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="gov.wa.wsdot.android.wsdot"
       android:installLocation="auto"
-      android:versionCode="29"
-      android:versionName="1.5.13">
+      android:versionCode="30"
+      android:versionName="1.5.14">
 
     <application
 	 	android:icon="@drawable/icon"
@@ -35,7 +35,7 @@
    		<activity android:name="MountainPassItemDetails" />
    		<activity android:name="MountainPassItemTabs" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="MountainPassItemCamera" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="MountainPassItemForecast" />   		
+   		<activity android:name="MountainPassItemForecast" />
    		<activity android:name="MountainPassItemMap" />
    		<activity android:name="TrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="SeattleTrafficAlerts" android:configChanges="orientation|keyboardHidden" />
@@ -59,7 +59,7 @@
    		<uses-library android:name="com.google.android.maps" />
 
     </application>
-    
+
     <uses-sdk android:minSdkVersion="3" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
