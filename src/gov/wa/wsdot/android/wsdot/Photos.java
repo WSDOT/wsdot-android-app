@@ -76,7 +76,7 @@ public class Photos extends Activity {
 
 		@Override
 		protected void onPreExecute() {
-	        this.dialog.setMessage("Retrieving photos from Flickr ...");
+	        this.dialog.setMessage("Retrieving latest photos ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 	        this.dialog.setCancelable(true);
 	        this.dialog.setMax(20);
