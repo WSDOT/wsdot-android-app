@@ -18,11 +18,14 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import android.graphics.drawable.Drawable;
+
 public class PhotoItem {
 	private String title;
 	private String published;
 	private String link;
 	private String content;
+	private Drawable image;
 	
 	public String getTitle() {
 		return title;
@@ -47,5 +50,11 @@ public class PhotoItem {
 	}
 	public void setContent(String content) {
 		this.content = content;
+	}
+	public void setImage(Drawable image) {
+		this.image = image;
+	}
+	public Drawable getImage() {
+		return image;
 	}
 }

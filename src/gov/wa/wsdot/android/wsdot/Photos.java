@@ -61,8 +61,6 @@ import android.widget.Gallery.LayoutParams;
 public class Photos extends Activity {
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "Photos";
-    ArrayList<Drawable> bitmapImages = new ArrayList<Drawable>();
-    ArrayList<String> remoteImages = new ArrayList<String>();
     private ArrayList<PhotoItem> photoItems = null;
     
     @Override
@@ -134,7 +132,6 @@ public class Photos extends Activity {
                 	if (matchFound) {
                 		String tmpString = matcher.group();
                 		String imageSrc = tmpString.replace("_m", "_s"); // We want the small 75x75 images
-                		remoteImages.add(imageSrc);
                         ins = new BufferedInputStream(new URL(imageSrc).openStream(), IO_BUFFER_SIZE);
                         final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
                         out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
@@ -143,8 +140,9 @@ public class Photos extends Activity {
                         final byte[] data = dataStream.toByteArray();
                         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);                        
                         final Drawable image = new BitmapDrawable(bitmap);
-                        bitmapImages.add(image);
+                        i.setImage(image);
                 	}
+                	
 					photoItems.add(i);
 					publishProgress(1);
 				}
@@ -202,7 +200,7 @@ public class Photos extends Activity {
         }
 
         public int getCount() {
-        	return remoteImages.size();
+        	return photoItems.size();
         }
         
         public Object getItem(int position) {
@@ -224,7 +222,7 @@ public class Photos extends Activity {
                 imageView = (ImageView) convertView;
             }
 
-            imageView.setImageDrawable(bitmapImages.get(position));
+            imageView.setImageDrawable(photoItems.get(position).getImage());
 
             return imageView;
         }
