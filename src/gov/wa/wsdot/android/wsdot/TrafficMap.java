@@ -401,17 +401,7 @@ public class TrafficMap extends MapActivity {
 			super(null);	
 			
 			try {				
-				/**
-				 * Rather than reading a local static file, lets try reading
-				 * a compressed file and perhaps caching it instead.
-				 * 
-				 * InputStream is = getResources().openRawResource(R.raw.cameras);
-				 * byte [] buffer = new byte[is.available()];
-				 * while (is.read(buffer) != -1);
-				 *
-				 * String jsonFile = new String(buffer);
-				*/
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/Cameras.js.gz");
+				URL url = new URL("http://data.wsdot.wa.gov/mobile/CamerasBeta.js.gz");
 				URLConnection urlConn = url.openConnection();
 				
 				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
@@ -431,11 +421,12 @@ public class TrafficMap extends MapActivity {
 
 				for (int j=0; j < items.length(); j++) {
 					JSONObject item = items.getJSONObject(j);
-					
+					int cameraIcon = (item.getInt("video") == 0) ? R.drawable.camera : R.drawable.camera_video;
+
 					cameraItems.add(new CameraItem(getPoint(item.getDouble("lat"), item.getDouble("lon")),
 							item.getString("title"),
-							item.getString("url"),
-							getMarker(R.drawable.camera)));
+							item.getString("url") + "," + item.getInt("video"),
+							getMarker(cameraIcon)));
 				}
 				 
 			 } catch (Exception e) {
@@ -568,6 +559,8 @@ public class TrafficMap extends MapActivity {
 	private class GetCameraImage extends AsyncTask<String, Void, Drawable> {
 		private final ProgressDialog dialog = new ProgressDialog(TrafficMap.this);
 		private boolean cancelled = false;
+		private boolean hasVideo = false;
+		private String cameraName;
 
 		protected void onPreExecute() {
 			this.dialog.setMessage("Retrieving camera image ...");
@@ -584,7 +577,16 @@ public class TrafficMap extends MapActivity {
 	    }	
 		
 		protected Drawable doInBackground(String... params) {
-			return loadImageFromNetwork(params[0]);
+			String[] param = params[0].split(",");
+			hasVideo = Integer.parseInt(param[1]) != 0;
+			
+			if (hasVideo) {
+				int slashIndex = param[0].lastIndexOf("/");
+				int dotIndex = param[0].lastIndexOf(".");
+				cameraName = param[0].substring(slashIndex + 1, dotIndex);
+			}
+			
+			return loadImageFromNetwork(param[0]);
 		}
 		
 		protected void onPostExecute(Drawable result) {
@@ -608,6 +610,17 @@ public class TrafficMap extends MapActivity {
 						dialog.cancel();
 					}
 				});
+				
+				if (hasVideo) {
+					builder.setNeutralButton("Play Video", new DialogInterface.OnClickListener() {						
+						public void onClick(DialogInterface dialog, int id) {
+							String videoPath = "http://data.wsdot.wa.gov/mobile/video/" + cameraName + ".mp4";
+							Intent intent = new Intent(getApplicationContext(), CameraVideo.class);
+							intent.putExtra("url", videoPath);
+							startActivity(intent);
+						}
+					});
+				}
 	
 				builder.setView(layout);
 				AlertDialog alertDialog = builder.create();
