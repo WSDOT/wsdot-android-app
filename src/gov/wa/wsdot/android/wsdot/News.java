@@ -32,7 +32,9 @@ import org.json.JSONObject;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -42,6 +44,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class News extends ListActivity {
 	private static final String DEBUG_TAG = "News";
@@ -66,11 +69,19 @@ public class News extends ListActivity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving news headlines ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setCancelable(true);
 	        this.dialog.setMax(10);
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }
+			});
 	        this.dialog.show();
 		}
-    	
+    			
+	    protected void onCancelled() {
+	        Toast.makeText(News.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+	    
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			this.dialog.incrementProgressBy(progress[0]);
@@ -99,22 +110,26 @@ public class News extends ListActivity {
 				NewsItem i = null;
 				
 				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-					i = new NewsItem();
-					i.setTitle(item.getString("title"));
-					i.setDescription(item.getString("description"));
-					i.setLink(item.getString("link"));
-					
-	            	try {
-	            		Date date = parseDateFormat.parse(item.getString("pubdate"));
-	            		i.setPubDate(displayDateFormat.format(date));
-	            	} catch (Exception e) {
-	            		i.setPubDate("");
-	            		Log.e(DEBUG_TAG, "Error parsing date", e);
-	            	}				
-					
-					newsItems.add(i);
-					publishProgress(1);
+					if (!this.isCancelled()) {
+						JSONObject item = items.getJSONObject(j);
+						i = new NewsItem();
+						i.setTitle(item.getString("title"));
+						i.setDescription(item.getString("description"));
+						i.setLink(item.getString("link"));
+						
+		            	try {
+		            		Date date = parseDateFormat.parse(item.getString("pubdate"));
+		            		i.setPubDate(displayDateFormat.format(date));
+		            	} catch (Exception e) {
+		            		i.setPubDate("");
+		            		Log.e(DEBUG_TAG, "Error parsing date", e);
+		            	}				
+						
+						newsItems.add(i);
+						publishProgress(1);
+					} else {
+						break;
+					}
 				}			
 
 			} catch (Exception e) {

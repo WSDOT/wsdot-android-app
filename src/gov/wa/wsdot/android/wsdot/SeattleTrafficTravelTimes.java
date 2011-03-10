@@ -32,6 +32,8 @@ import org.json.JSONObject;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,6 +44,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SeattleTrafficTravelTimes extends ListActivity {
 	private static final String DEBUG_TAG = "TravelTimes";
@@ -69,11 +72,19 @@ public class SeattleTrafficTravelTimes extends ListActivity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving travel times ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setCancelable(true);
 	        this.dialog.setMax(119);
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }
+			});
 	        this.dialog.show();
 		}
     	
+	    protected void onCancelled() {
+	        Toast.makeText(SeattleTrafficTravelTimes.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+		
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			this.dialog.incrementProgressBy(progress[0]);
@@ -104,15 +115,19 @@ public class SeattleTrafficTravelTimes extends ListActivity {
 				TravelTimesItem i = null;
 							
 				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-					i = new TravelTimesItem();
-					i.setTitle(item.getString("title"));
-					i.setCurrentTime(Integer.toString(item.getInt("current")));
-					i.setAverageTime(Integer.toString(item.getInt("average")));
-					i.setDistance(item.getString("distance") + " miles");
-					i.setRouteID(item.getString("routeid"));
-					travelTimesItems.add(i);
-					publishProgress(1);
+					if (!this.isCancelled()) {
+						JSONObject item = items.getJSONObject(j);
+						i = new TravelTimesItem();
+						i.setTitle(item.getString("title"));
+						i.setCurrentTime(Integer.toString(item.getInt("current")));
+						i.setAverageTime(Integer.toString(item.getInt("average")));
+						i.setDistance(item.getString("distance") + " miles");
+						i.setRouteID(item.getString("routeid"));
+						travelTimesItems.add(i);
+						publishProgress(1);
+					} else {
+						break;
+					}
 				}
 
 			} catch (Exception e) {

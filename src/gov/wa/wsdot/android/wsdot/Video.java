@@ -36,7 +36,9 @@ import org.json.JSONObject;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -52,6 +54,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Video extends ListActivity {
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
@@ -86,11 +89,19 @@ public class Video extends ListActivity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving latest videos ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setCancelable(true);
 	        this.dialog.setMax(25);
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }				
+			});
 	        this.dialog.show();
 		}
     	
+	    protected void onCancelled() {
+	        Toast.makeText(Video.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+		
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			this.dialog.incrementProgressBy(progress[0]);
@@ -121,26 +132,30 @@ public class Video extends ListActivity {
 				VideoItem i = null;
 				
 				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-					JSONObject thumbnail = item.getJSONObject("thumbnail");
-					i = new VideoItem();
-					i.setId(item.getString("id"));
-					i.setTitle(item.getString("title"));
-					i.setDescription(item.getString("description"));
-					i.setViewCount(item.getString("viewCount"));
-					
-					BufferedInputStream ins = new BufferedInputStream(new URL(thumbnail.getString("sqDefault")).openStream(), IO_BUFFER_SIZE);
-                    final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-                    BufferedOutputStream out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
-                    copy(ins, out);
-                    out.flush();
-                    final byte[] rawData = dataStream.toByteArray();
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);                        
-                    final Drawable image = new BitmapDrawable(bitmap);
-                    i.setThumbNail(image);
-					
-					videoItems.add(i);
-					publishProgress(1);
+					if (!this.isCancelled()) {
+						JSONObject item = items.getJSONObject(j);
+						JSONObject thumbnail = item.getJSONObject("thumbnail");
+						i = new VideoItem();
+						i.setId(item.getString("id"));
+						i.setTitle(item.getString("title"));
+						i.setDescription(item.getString("description"));
+						i.setViewCount(item.getString("viewCount"));
+						
+						BufferedInputStream ins = new BufferedInputStream(new URL(thumbnail.getString("sqDefault")).openStream(), IO_BUFFER_SIZE);
+	                    final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
+	                    BufferedOutputStream out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
+	                    copy(ins, out);
+	                    out.flush();
+	                    final byte[] rawData = dataStream.toByteArray();
+	                    Bitmap bitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);                        
+	                    final Drawable image = new BitmapDrawable(bitmap);
+	                    i.setThumbNail(image);
+						
+						videoItems.add(i);
+						publishProgress(1);
+					} else {
+						break;
+					}
 				}				
 			} catch (Exception e) {
 				Log.e(DEBUG_TAG, "Error in network call", e);

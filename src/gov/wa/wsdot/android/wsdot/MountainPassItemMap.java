@@ -42,6 +42,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -138,7 +139,6 @@ public class MountainPassItemMap extends MapActivity {
 
 	private class GetCameraImage extends AsyncTask<String, Void, Drawable> {
 		private final ProgressDialog dialog = new ProgressDialog(MountainPassItemMap.this);
-		private boolean cancelled = false;
 
 		protected void onPreExecute() {
 			this.dialog.setMessage("Retrieving camera image ...");
@@ -151,7 +151,7 @@ public class MountainPassItemMap extends MapActivity {
 		}
 
 	    protected void onCancelled() {
-	        cancelled = true;
+	    	Toast.makeText(MountainPassItemMap.this, "Cancelled", Toast.LENGTH_SHORT).show();
 	    }	
 		
 		protected Drawable doInBackground(String... params) {
@@ -162,28 +162,27 @@ public class MountainPassItemMap extends MapActivity {
 			if (this.dialog.isShowing()) {
 				this.dialog.dismiss();
 			}
-			if (!cancelled) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(MountainPassItemMap.this);
-				LayoutInflater inflater = (LayoutInflater) MountainPassItemMap.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				View layout = inflater.inflate(R.layout.camera_dialog, null);
-				ImageView image = (ImageView) layout.findViewById(R.id.image);
-				
-				if (image.equals(null)) {
-					image.setImageResource(R.drawable.camera_offline);
-				} else {
-					image.setImageDrawable(result);				
-				}	
-	
-				builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-					}
-				});
-	
-				builder.setView(layout);
-				AlertDialog alertDialog = builder.create();
-				alertDialog.show();
-			}
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(MountainPassItemMap.this);
+			LayoutInflater inflater = (LayoutInflater) MountainPassItemMap.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View layout = inflater.inflate(R.layout.camera_dialog, null);
+			ImageView image = (ImageView) layout.findViewById(R.id.image);
+			
+			if (image.equals(null)) {
+				image.setImageResource(R.drawable.camera_offline);
+			} else {
+				image.setImageDrawable(result);				
+			}	
+
+			builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					dialog.cancel();
+				}
+			});
+
+			builder.setView(layout);
+			AlertDialog alertDialog = builder.create();
+			alertDialog.show();
 		}
 	}	
 	

@@ -63,6 +63,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -428,7 +429,6 @@ public class VesselWatchMap extends MapActivity {
 
 	private class GetCameraImage extends AsyncTask<String, Void, Drawable> {
 		private final ProgressDialog dialog = new ProgressDialog(VesselWatchMap.this);
-		private boolean cancelled = false;
 
 		protected void onPreExecute() {
 			this.dialog.setMessage("Retrieving camera image ...");
@@ -441,7 +441,7 @@ public class VesselWatchMap extends MapActivity {
 		}
 
 	    protected void onCancelled() {
-	        cancelled = true;
+	    	Toast.makeText(VesselWatchMap.this, "Cancelled", Toast.LENGTH_SHORT).show();
 	    }	
 		
 		protected Drawable doInBackground(String... params) {
@@ -452,28 +452,27 @@ public class VesselWatchMap extends MapActivity {
 			if (this.dialog.isShowing()) {
 				this.dialog.dismiss();
 			}
-			if (!cancelled) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(VesselWatchMap.this);
-				LayoutInflater inflater = (LayoutInflater) VesselWatchMap.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				View layout = inflater.inflate(R.layout.camera_dialog, null);
-				ImageView image = (ImageView) layout.findViewById(R.id.image);
-				
-				if (image.equals(null)) {
-					image.setImageResource(R.drawable.camera_offline);
-				} else {
-					image.setImageDrawable(result);				
-				}	
-	
-				builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-					}
-				});
-	
-				builder.setView(layout);
-				AlertDialog alertDialog = builder.create();
-				alertDialog.show();
-			}
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(VesselWatchMap.this);
+			LayoutInflater inflater = (LayoutInflater) VesselWatchMap.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View layout = inflater.inflate(R.layout.camera_dialog, null);
+			ImageView image = (ImageView) layout.findViewById(R.id.image);
+			
+			if (image.equals(null)) {
+				image.setImageResource(R.drawable.camera_offline);
+			} else {
+				image.setImageDrawable(result);				
+			}	
+
+			builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					dialog.cancel();
+				}
+			});
+
+			builder.setView(layout);
+			AlertDialog alertDialog = builder.create();
+			alertDialog.show();
 		}
 	}	
 	
@@ -573,18 +572,31 @@ public class VesselWatchMap extends MapActivity {
 					this.dialog.setMessage("Retrieving ferry and camera locations ...");	
 				} else {
 					this.dialog.setMessage("Retrieving ferry locations ...");
-				}			
+				}
+				
+				this.dialog.setOnCancelListener(new OnCancelListener() {
+		            public void onCancel(DialogInterface dialog) {
+		                cancel(true);
+		            }
+				});				
 				this.dialog.show();
+				
 			} else {
 				 if (customTitleSupported) titleProgressBar.setVisibility(ProgressBar.VISIBLE);
 			}
 		 }
 
+	    protected void onCancelled() {
+	        Toast.makeText(VesselWatchMap.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+		
 		 @Override
 		 public Void doInBackground(Void... unused) {
-			 vessels = new VesselsOverlay();
+			 if (!this.isCancelled()) vessels = new VesselsOverlay();
 			 if (firstRun) {
-				 if (showCameras) cameras = new CamerasOverlay();	 
+				 if (showCameras) {
+					 if (!this.isCancelled()) cameras = new CamerasOverlay();	 
+				 }
 			 }
 			 
 			 return null;

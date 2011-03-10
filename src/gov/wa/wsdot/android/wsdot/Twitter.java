@@ -34,7 +34,9 @@ import org.json.JSONObject;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,6 +46,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Twitter extends ListActivity {
 	private static final String DEBUG_TAG = "Twitter";
@@ -80,11 +83,19 @@ public class Twitter extends ListActivity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving latest tweets ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setCancelable(true);
 	        this.dialog.setMax(20);
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }
+			});
 	        this.dialog.show();
 		}
     	
+	    protected void onCancelled() {
+	        Toast.makeText(Twitter.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+		
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			this.dialog.incrementProgressBy(progress[0]);
@@ -114,29 +125,33 @@ public class Twitter extends ListActivity {
 				TwitterItem i = null;
 				
 				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-					i = new TwitterItem();
-					d = item.getString("text");
-                	Matcher matcher = pattern.matcher(d);
-                	boolean matchFound = matcher.find();
-                	if (matchFound) {
-                		String textLink = matcher.group();
-                		String hyperLink = "<a href=\"" + textLink + "\">" + textLink + "</a>";
-                		d = matcher.replaceFirst(hyperLink);
-                	}
-					i.setTitle(item.getString("text"));
-					i.setDescription(d);
-					
-	            	try {
-	            		Date date = parseDateFormat.parse(item.getString("created_at"));
-	            		i.setPubDate(displayDateFormat.format(date));
-	            	} catch (Exception e) {
-	            		i.setPubDate("");
-	            		Log.e(DEBUG_TAG, "Error parsing date", e);
-	            	}
-					
-					twitterItems.add(i);
-					publishProgress(1);
+					if (!this.isCancelled()) {
+						JSONObject item = items.getJSONObject(j);
+						i = new TwitterItem();
+						d = item.getString("text");
+	                	Matcher matcher = pattern.matcher(d);
+	                	boolean matchFound = matcher.find();
+	                	if (matchFound) {
+	                		String textLink = matcher.group();
+	                		String hyperLink = "<a href=\"" + textLink + "\">" + textLink + "</a>";
+	                		d = matcher.replaceFirst(hyperLink);
+	                	}
+						i.setTitle(item.getString("text"));
+						i.setDescription(d);
+						
+		            	try {
+		            		Date date = parseDateFormat.parse(item.getString("created_at"));
+		            		i.setPubDate(displayDateFormat.format(date));
+		            	} catch (Exception e) {
+		            		i.setPubDate("");
+		            		Log.e(DEBUG_TAG, "Error parsing date", e);
+		            	}
+						
+						twitterItems.add(i);
+						publishProgress(1);
+					} else {
+						break;
+					}
 				}				
 			} catch (Exception e) {
 				Log.e(DEBUG_TAG, "Error in network call", e);

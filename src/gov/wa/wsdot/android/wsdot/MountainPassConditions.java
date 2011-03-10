@@ -38,7 +38,9 @@ import org.json.JSONObject;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,6 +51,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MountainPassConditions extends ListActivity {
 	private static final String DEBUG_TAG = "MountainPassConditions";
@@ -122,10 +125,18 @@ public class MountainPassConditions extends ListActivity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving mountain pass conditions ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setCancelable(true);
 	        this.dialog.setMax(15);
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }				
+			});
 	        this.dialog.show();
 		}
+		
+	    protected void onCancelled() {
+	        Toast.makeText(MountainPassConditions.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
 		
 		@Override
 		protected String doInBackground(String... params) {
@@ -154,52 +165,56 @@ public class MountainPassConditions extends ListActivity {
 				ForecastItem f = null;
 				
 				for (int j=0; j < passConditions.length(); j++) {
-					JSONObject pass = passConditions.getJSONObject(j);
-					i = new MountainPassItem();
-					weatherCondition = pass.getString("WeatherCondition");
-					Integer weather_image = getWeatherImage(weatherPhrases, weatherCondition);
-					i.setWeatherIcon(weather_image);
-					
-					JSONArray cameras = pass.getJSONArray("Cameras");
-					for (int k=0; k < cameras.length(); k++) {
-						JSONObject camera = cameras.getJSONObject(k);
-						c = new CameraItem();
-						c.setTitle(camera.getString("title"));
-						c.setImageUrl(camera.getString("url"));
-						c.setLatitude(camera.getDouble("lat"));
-						c.setLongitude(camera.getDouble("lon"));
-						i.setCameraItem(c);
+					if (!this.isCancelled()) {
+						JSONObject pass = passConditions.getJSONObject(j);
+						i = new MountainPassItem();
+						weatherCondition = pass.getString("WeatherCondition");
+						Integer weather_image = getWeatherImage(weatherPhrases, weatherCondition);
+						i.setWeatherIcon(weather_image);
+						
+						JSONArray cameras = pass.getJSONArray("Cameras");
+						for (int k=0; k < cameras.length(); k++) {
+							JSONObject camera = cameras.getJSONObject(k);
+							c = new CameraItem();
+							c.setTitle(camera.getString("title"));
+							c.setImageUrl(camera.getString("url"));
+							c.setLatitude(camera.getDouble("lat"));
+							c.setLongitude(camera.getDouble("lon"));
+							i.setCameraItem(c);
+						}
+						
+						JSONArray forecasts = pass.getJSONArray("Forecast");
+						for (int l=0; l < forecasts.length(); l++) {
+							JSONObject forecast = forecasts.getJSONObject(l);
+							f = new ForecastItem();
+							f.setDay(forecast.getString("Day"));
+							f.setForecastText(forecast.getString("ForecastText"));
+							i.setForecastItem(f);
+						}
+						
+						i.setWeatherCondition(weatherCondition);
+						i.setElevationInFeet(pass.getString("ElevationInFeet"));
+						i.setTravelAdvisoryActive(pass.getString("TravelAdvisoryActive"));
+						i.setLongitude(pass.getString("Longitude"));
+						i.setMountainPassId(pass.getString("MountainPassId"));
+						i.setRoadCondition(pass.getString("RoadCondition"));
+						i.setTemperatureInFahrenheit(pass.getString("TemperatureInFahrenheit"));
+						i.setLatitude(pass.getString("Latitude"));
+						i.setDateUpdated(pass.getString("DateUpdated"));
+						i.setMountainPassName(pass.getString("MountainPassName"));
+						i.setLongitude(pass.getString("Longitude"));
+						i.setLatitude(pass.getString("Latitude"));
+						JSONObject restrictionOne = pass.getJSONObject("RestrictionOne");
+						i.setRestrictionOneText(restrictionOne.getString("RestrictionText"));
+						i.setRestrictionOneTravelDirection(restrictionOne.getString("TravelDirection"));
+						JSONObject restrictionTwo = pass.getJSONObject("RestrictionTwo");
+						i.setRestrictionTwoText(restrictionTwo.getString("RestrictionText"));
+						i.setRestrictionTwoTravelDirection(restrictionTwo.getString("TravelDirection"));		
+						mountainPassItems.add(i);
+						publishProgress(1);
+					} else {
+						break;
 					}
-					
-					JSONArray forecasts = pass.getJSONArray("Forecast");
-					for (int l=0; l < forecasts.length(); l++) {
-						JSONObject forecast = forecasts.getJSONObject(l);
-						f = new ForecastItem();
-						f.setDay(forecast.getString("Day"));
-						f.setForecastText(forecast.getString("ForecastText"));
-						i.setForecastItem(f);
-					}
-					
-					i.setWeatherCondition(weatherCondition);
-					i.setElevationInFeet(pass.getString("ElevationInFeet"));
-					i.setTravelAdvisoryActive(pass.getString("TravelAdvisoryActive"));
-					i.setLongitude(pass.getString("Longitude"));
-					i.setMountainPassId(pass.getString("MountainPassId"));
-					i.setRoadCondition(pass.getString("RoadCondition"));
-					i.setTemperatureInFahrenheit(pass.getString("TemperatureInFahrenheit"));
-					i.setLatitude(pass.getString("Latitude"));
-					i.setDateUpdated(pass.getString("DateUpdated"));
-					i.setMountainPassName(pass.getString("MountainPassName"));
-					i.setLongitude(pass.getString("Longitude"));
-					i.setLatitude(pass.getString("Latitude"));
-					JSONObject restrictionOne = pass.getJSONObject("RestrictionOne");
-					i.setRestrictionOneText(restrictionOne.getString("RestrictionText"));
-					i.setRestrictionOneTravelDirection(restrictionOne.getString("TravelDirection"));
-					JSONObject restrictionTwo = pass.getJSONObject("RestrictionTwo");
-					i.setRestrictionTwoText(restrictionTwo.getString("RestrictionText"));
-					i.setRestrictionTwoTravelDirection(restrictionTwo.getString("TravelDirection"));		
-					mountainPassItems.add(i);
-					publishProgress(1);
 				}
 				
 			} catch (Exception e) {

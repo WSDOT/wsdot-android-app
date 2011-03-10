@@ -31,7 +31,9 @@ import org.json.JSONObject;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,6 +43,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class RouteSchedules extends ListActivity {
 	private static final String DEBUG_TAG = "RouteSchedules";
@@ -65,10 +68,18 @@ public class RouteSchedules extends ListActivity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving route schedules ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-	        this.dialog.setCancelable(true);
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }
+			});
 	        this.dialog.show();
 		}
 
+	    protected void onCancelled() {
+	        Toast.makeText(RouteSchedules.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+		
 		@Override
 		protected String doInBackground(String... params) {
 			try {
@@ -97,57 +108,61 @@ public class RouteSchedules extends ListActivity {
 				FerriesAnnotationIndexesItem indexesItem = null;
 				
 				for (int i=0; i < items.length(); i++) {
-					JSONObject item = items.getJSONObject(i);
-					route = new FerriesRouteItem();
-					route.setRouteID(item.getInt("RouteID"));
-					route.setDescription(item.getString("Description"));
-					
-					JSONArray dates = item.getJSONArray("Date");
-					for (int j=0; j < dates.length(); j++) {
-						JSONObject date = dates.getJSONObject(j);
-						scheduleDate = new FerriesScheduleDateItem();
-						scheduleDate.setDate(date.getString("Date").substring(6, 19));
+					if (!this.isCancelled()) {
+						JSONObject item = items.getJSONObject(i);
+						route = new FerriesRouteItem();
+						route.setRouteID(item.getInt("RouteID"));
+						route.setDescription(item.getString("Description"));
 						
-						JSONArray sailings = date.getJSONArray("Sailings");
-						for (int k=0; k < sailings.length(); k++) {
-							JSONObject sailing = sailings.getJSONObject(k);
-							terminal = new FerriesTerminalItem();
-							terminal.setArrivingTerminalID(sailing.getInt("ArrivingTerminalID"));
-							terminal.setArrivingTerminalName(sailing.getString("ArrivingTerminalName"));
-							terminal.setDepartingTerminalID(sailing.getInt("DepartingTerminalID"));
-							terminal.setDepartingTerminalName(sailing.getString("DepartingTerminalName"));
+						JSONArray dates = item.getJSONArray("Date");
+						for (int j=0; j < dates.length(); j++) {
+							JSONObject date = dates.getJSONObject(j);
+							scheduleDate = new FerriesScheduleDateItem();
+							scheduleDate.setDate(date.getString("Date").substring(6, 19));
 							
-							JSONArray annotations = sailing.getJSONArray("Annotations");
-							for (int l=0; l < annotations.length(); l++) {
-								notes = new FerriesAnnotationsItem();
-								notes.setAnnotation(annotations.getString(l));
-								terminal.setAnnotations(notes);	
-							}
-							
-							JSONArray times = sailing.getJSONArray("Times");
-							for (int m=0; m < times.length(); m++) {
-								JSONObject time = times.getJSONObject(m);
-								timesItem = new FerriesScheduleTimesItem();
-								timesItem.setDepartingTime(time.getString("DepartingTime").substring(6, 19));
+							JSONArray sailings = date.getJSONArray("Sailings");
+							for (int k=0; k < sailings.length(); k++) {
+								JSONObject sailing = sailings.getJSONObject(k);
+								terminal = new FerriesTerminalItem();
+								terminal.setArrivingTerminalID(sailing.getInt("ArrivingTerminalID"));
+								terminal.setArrivingTerminalName(sailing.getString("ArrivingTerminalName"));
+								terminal.setDepartingTerminalID(sailing.getInt("DepartingTerminalID"));
+								terminal.setDepartingTerminalName(sailing.getString("DepartingTerminalName"));
 								
-								
-								JSONArray annotationIndexes = time.getJSONArray("AnnotationIndexes");
-								for (int n=0; n < annotationIndexes.length(); n++) {
-									indexesItem = new FerriesAnnotationIndexesItem();
-									indexesItem.setIndex(annotationIndexes.getInt(n));
-									timesItem.setAnnotationIndexes(indexesItem);									
+								JSONArray annotations = sailing.getJSONArray("Annotations");
+								for (int l=0; l < annotations.length(); l++) {
+									notes = new FerriesAnnotationsItem();
+									notes.setAnnotation(annotations.getString(l));
+									terminal.setAnnotations(notes);	
 								}
 								
-								terminal.setScheduleTimes(timesItem);
+								JSONArray times = sailing.getJSONArray("Times");
+								for (int m=0; m < times.length(); m++) {
+									JSONObject time = times.getJSONObject(m);
+									timesItem = new FerriesScheduleTimesItem();
+									timesItem.setDepartingTime(time.getString("DepartingTime").substring(6, 19));
+									
+									
+									JSONArray annotationIndexes = time.getJSONArray("AnnotationIndexes");
+									for (int n=0; n < annotationIndexes.length(); n++) {
+										indexesItem = new FerriesAnnotationIndexesItem();
+										indexesItem.setIndex(annotationIndexes.getInt(n));
+										timesItem.setAnnotationIndexes(indexesItem);									
+									}
+									
+									terminal.setScheduleTimes(timesItem);
+								}
+								
+								scheduleDate.setFerriesTerminalItem(terminal);
 							}
 							
-							scheduleDate.setFerriesTerminalItem(terminal);
+							route.setFerriesScheduleDateItem(scheduleDate);
 						}
 						
-						route.setFerriesScheduleDateItem(scheduleDate);
+						routeItems.add(route);
+					} else {
+						break;
 					}
-					
-					routeItems.add(route);
 				}			
 
 			} catch (Exception e) {

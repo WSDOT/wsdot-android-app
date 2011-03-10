@@ -31,7 +31,9 @@ import org.json.JSONObject;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,6 +43,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class RouteAlerts extends ListActivity {
 	private static final String DEBUG_TAG = "RouteAlerts";
@@ -65,10 +68,18 @@ public class RouteAlerts extends ListActivity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving routes with alerts ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-	        this.dialog.setCancelable(true);
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }
+			});
 	        this.dialog.show();
 		}
 
+	    protected void onCancelled() {
+	        Toast.makeText(RouteAlerts.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+		
 		@Override
 		protected String doInBackground(String... params) {
 			try {
@@ -93,30 +104,34 @@ public class RouteAlerts extends ListActivity {
 				FerriesRouteAlertItem a = null;
 				
 				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-					i = new FerriesRouteItem();
-					i.setRouteID(item.getInt("RouteID"));
-					i.setDescription(item.getString("Description"));
-					
-					JSONArray alerts = item.getJSONArray("RouteAlert");
-					for (int k=0; k < alerts.length(); k++) {
-						JSONObject alert = alerts.getJSONObject(k);
-						a = new FerriesRouteAlertItem();
-						a.setBulletinID(alert.getInt("BulletinID"));
-						a.setPublishDate(alert.getString("PublishDate").substring(6, 19));
-						a.setAlertDescription(alert.getString("AlertDescription"));
-						a.setAlertFullTitle(alert.getString("AlertFullTitle"));
+					if (!this.isCancelled()) {
+						JSONObject item = items.getJSONObject(j);
+						i = new FerriesRouteItem();
+						i.setRouteID(item.getInt("RouteID"));
+						i.setDescription(item.getString("Description"));
 						
-						if (alert.getString("AlertFullText").equals("null")) {
-							a.setAlertFullText("");
-						}
-						else {
-							a.setAlertFullText(alert.getString("AlertFullText"));
-						}
-						
-						i.setFerriesRouteAlertItem(a);
-					}				
-					routeItems.add(i);
+						JSONArray alerts = item.getJSONArray("RouteAlert");
+						for (int k=0; k < alerts.length(); k++) {
+							JSONObject alert = alerts.getJSONObject(k);
+							a = new FerriesRouteAlertItem();
+							a.setBulletinID(alert.getInt("BulletinID"));
+							a.setPublishDate(alert.getString("PublishDate").substring(6, 19));
+							a.setAlertDescription(alert.getString("AlertDescription"));
+							a.setAlertFullTitle(alert.getString("AlertFullTitle"));
+							
+							if (alert.getString("AlertFullText").equals("null")) {
+								a.setAlertFullText("");
+							}
+							else {
+								a.setAlertFullText(alert.getString("AlertFullText"));
+							}
+							
+							i.setFerriesRouteAlertItem(a);
+						}				
+						routeItems.add(i);
+					} else {
+						break;
+					}
 				}			
 
 			} catch (Exception e) {

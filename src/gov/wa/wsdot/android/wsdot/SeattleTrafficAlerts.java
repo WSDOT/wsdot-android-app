@@ -32,6 +32,8 @@ import org.json.JSONObject;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +42,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SeattleTrafficAlerts extends ListActivity {
 	private static final String DEBUG_TAG = "SeattleIncidents";
@@ -73,11 +76,19 @@ public class SeattleTrafficAlerts extends ListActivity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving Seattle area alerts ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setCancelable(true);
 	        this.dialog.setMax(10);
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }
+			});
 	        this.dialog.show();
 		}
     	
+	    protected void onCancelled() {
+	        Toast.makeText(SeattleTrafficAlerts.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+		
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			this.dialog.incrementProgressBy(progress[0]);
@@ -134,33 +145,37 @@ public class SeattleTrafficAlerts extends ListActivity {
 				SeattleIncidentItem i = null;
 				
 				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-					i = new SeattleIncidentItem();
-					i.setTitle(item.getString("title"));
-					i.setDescription(item.getString("description"));
-					i.setCategory(item.getInt("category"));
-					i.setGuid(item.getInt("guid"));
-					
-					// Check if Traffic Management Center is closed
-					if (i.getCategory().equals(27)) {
-						closed.push(i.getDescription());
-						break; // TSMC is closed so stop here
+					if (!this.isCancelled()) {
+						JSONObject item = items.getJSONObject(j);
+						i = new SeattleIncidentItem();
+						i.setTitle(item.getString("title"));
+						i.setDescription(item.getString("description"));
+						i.setCategory(item.getInt("category"));
+						i.setGuid(item.getInt("guid"));
+						
+						// Check if Traffic Management Center is closed
+						if (i.getCategory().equals(27)) {
+							closed.push(i.getDescription());
+							break; // TSMC is closed so stop here
+						}
+						// Check if there is an active amber alert
+						else if (i.getCategory().equals(24)) {
+							amberalert.push(i.getDescription());
+						}
+						else if (blockingCategory.contains(i.getCategory())) {
+							blocking.push(i.getDescription());
+						}
+		                else if (constructionCategory.contains(i.getCategory())) {
+		                    construction.push(i.getDescription());
+		                }
+		                else if (specialCategory.contains(i.getCategory())) {
+		                    special.push(i.getDescription());
+		                }								
+						seattleIncidentItems.push(i);
+						publishProgress(1);
+					} else {
+						break;
 					}
-					// Check if there is an active amber alert
-					else if (i.getCategory().equals(24)) {
-						amberalert.push(i.getDescription());
-					}
-					else if (blockingCategory.contains(i.getCategory())) {
-						blocking.push(i.getDescription());
-					}
-	                else if (constructionCategory.contains(i.getCategory())) {
-	                    construction.push(i.getDescription());
-	                }
-	                else if (specialCategory.contains(i.getCategory())) {
-	                    special.push(i.getDescription());
-	                }								
-					seattleIncidentItems.push(i);
-					publishProgress(1);
 				}
 				
 			} catch (Exception e) {

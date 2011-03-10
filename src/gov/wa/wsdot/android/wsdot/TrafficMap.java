@@ -64,6 +64,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -401,16 +402,6 @@ public class TrafficMap extends MapActivity {
 			super(null);	
 			
 			try {				
-				/**
-				 * Rather than reading a local static file, lets try reading
-				 * a compressed file and perhaps caching it instead.
-				 * 
-				 * InputStream is = getResources().openRawResource(R.raw.cameras);
-				 * byte [] buffer = new byte[is.available()];
-				 * while (is.read(buffer) != -1);
-				 *
-				 * String jsonFile = new String(buffer);
-				*/
 				URL url = new URL("http://data.wsdot.wa.gov/mobile/Cameras.js.gz");
 				URLConnection urlConn = url.openConnection();
 				
@@ -536,15 +527,25 @@ public class TrafficMap extends MapActivity {
 			} else {
 				this.dialog.setMessage("Retrieving latest traffic alerts ...");
 			}
+
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }
+			});
 			
 			this.dialog.show();
 		 }
 
+	    protected void onCancelled() {
+	        Toast.makeText(TrafficMap.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+		
 		 @Override
 		 public Void doInBackground(Void... unused) {
-			 alerts = new AlertsOverlay();
+			 if (!this.isCancelled()) alerts = new AlertsOverlay();
 			 if (showCameras) {
-				 cameras = new CamerasOverlay();	 
+				 if (!this.isCancelled()) cameras = new CamerasOverlay();	 
 			 }
 			 
 			 return null;
@@ -567,7 +568,6 @@ public class TrafficMap extends MapActivity {
 	
 	private class GetCameraImage extends AsyncTask<String, Void, Drawable> {
 		private final ProgressDialog dialog = new ProgressDialog(TrafficMap.this);
-		private boolean cancelled = false;
 
 		protected void onPreExecute() {
 			this.dialog.setMessage("Retrieving camera image ...");
@@ -580,8 +580,8 @@ public class TrafficMap extends MapActivity {
 		}
 
 	    protected void onCancelled() {
-	        cancelled = true;
-	    }	
+	        Toast.makeText(TrafficMap.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
 		
 		protected Drawable doInBackground(String... params) {
 			return loadImageFromNetwork(params[0]);
@@ -591,28 +591,27 @@ public class TrafficMap extends MapActivity {
 			if (this.dialog.isShowing()) {
 				this.dialog.dismiss();
 			}
-			if (!cancelled) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(TrafficMap.this);
-				LayoutInflater inflater = (LayoutInflater) TrafficMap.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				View layout = inflater.inflate(R.layout.camera_dialog, null);
-				ImageView image = (ImageView) layout.findViewById(R.id.image);
-				
-				if (image.equals(null)) {
-					image.setImageResource(R.drawable.camera_offline);
-				} else {
-					image.setImageDrawable(result);				
-				}	
-	
-				builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-					}
-				});
-	
-				builder.setView(layout);
-				AlertDialog alertDialog = builder.create();
-				alertDialog.show();
-			}
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(TrafficMap.this);
+			LayoutInflater inflater = (LayoutInflater) TrafficMap.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View layout = inflater.inflate(R.layout.camera_dialog, null);
+			ImageView image = (ImageView) layout.findViewById(R.id.image);
+			
+			if (image.equals(null)) {
+				image.setImageResource(R.drawable.camera_offline);
+			} else {
+				image.setImageDrawable(result);				
+			}	
+
+			builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					dialog.cancel();
+				}
+			});
+
+			builder.setView(layout);
+			AlertDialog alertDialog = builder.create();
+			alertDialog.show();
 		}
 	}
 	

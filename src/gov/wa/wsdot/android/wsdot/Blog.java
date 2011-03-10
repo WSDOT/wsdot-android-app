@@ -30,7 +30,9 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +42,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Blog extends ListActivity {
 	private static final String DEBUG_TAG = "Blog";
@@ -78,10 +81,18 @@ public class Blog extends ListActivity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving blog stories ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setCancelable(true);
 	        this.dialog.setMax(25);
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }
+			});
 	        this.dialog.show();
 		}
+		
+	    protected void onCancelled() {
+	        Toast.makeText(Blog.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
 		
 		@Override
 		protected String doInBackground(String... params) {
@@ -107,66 +118,70 @@ public class Blog extends ListActivity {
 				BlogItem i = null;
 				
 				while (parserEvent != XmlPullParser.END_DOCUMENT) {
-					switch(parserEvent) {
-					case XmlPullParser.TEXT:
-						if (inEntry & inTitle) {
-							title = parser.getText();
-							i.setTitle(title);
+					if (!this.isCancelled()) {
+						switch(parserEvent) {
+						case XmlPullParser.TEXT:
+							if (inEntry & inTitle) {
+								title = parser.getText();
+								i.setTitle(title);
+							}
+							if (inEntry & inPublished) {
+								published = parser.getText();
+								i.setPublished(published);
+							}
+							if (inEntry & inLink) {
+								link = parser.getText();
+								i.setLink(link);
+							}
+							if (inEntry & inContent) {
+								content = parser.getText();
+								i.setContent(content);
+							}
+							break;
+						case XmlPullParser.END_TAG:
+							tag = parser.getName();
+							if (tag.compareTo("entry") == 0) {
+								inEntry = false;
+								blogItems.add(i);
+								publishProgress(1);
+							}
+							if (tag.compareTo("title") == 0) {
+								inTitle = false;
+							}
+							if (tag.compareTo("published") == 0) {
+								inPublished = false;
+							}
+							if (tag.compareTo("link") == 0) {
+								inLink = false;
+							}
+							if (tag.compareTo("content") == 0) {
+								inContent = false;
+							}
+							break;
+						case XmlPullParser.START_TAG:
+							tag = parser.getName();
+							if (tag.compareTo("entry") == 0) {
+								inEntry = true;
+								i = new BlogItem();
+							}
+							if (tag.compareTo("title") == 0) {
+								inTitle = true;
+							}
+							if (tag.compareTo("published") == 0) {
+								inPublished = true;
+							}
+							if (tag.compareTo("link") == 0) {
+								inLink = true;
+							}					
+							if (tag.compareTo("content") == 0) {
+								inContent = true;
+							}
+							break;
 						}
-						if (inEntry & inPublished) {
-							published = parser.getText();
-							i.setPublished(published);
-						}
-						if (inEntry & inLink) {
-							link = parser.getText();
-							i.setLink(link);
-						}
-						if (inEntry & inContent) {
-							content = parser.getText();
-							i.setContent(content);
-						}
-						break;
-					case XmlPullParser.END_TAG:
-						tag = parser.getName();
-						if (tag.compareTo("entry") == 0) {
-							inEntry = false;
-							blogItems.add(i);
-							publishProgress(1);
-						}
-						if (tag.compareTo("title") == 0) {
-							inTitle = false;
-						}
-						if (tag.compareTo("published") == 0) {
-							inPublished = false;
-						}
-						if (tag.compareTo("link") == 0) {
-							inLink = false;
-						}
-						if (tag.compareTo("content") == 0) {
-							inContent = false;
-						}
-						break;
-					case XmlPullParser.START_TAG:
-						tag = parser.getName();
-						if (tag.compareTo("entry") == 0) {
-							inEntry = true;
-							i = new BlogItem();
-						}
-						if (tag.compareTo("title") == 0) {
-							inTitle = true;
-						}
-						if (tag.compareTo("published") == 0) {
-							inPublished = true;
-						}
-						if (tag.compareTo("link") == 0) {
-							inLink = true;
-						}					
-						if (tag.compareTo("content") == 0) {
-							inContent = true;
-						}
+						parserEvent = parser.next();
+					} else {
 						break;
 					}
-					parserEvent = parser.next();
 				}
 			} catch (Exception e) {
 				Log.e(DEBUG_TAG, "Error in network call", e);

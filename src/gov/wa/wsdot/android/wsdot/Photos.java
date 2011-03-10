@@ -39,7 +39,9 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -55,6 +57,7 @@ import android.widget.GridView;
 import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Gallery.LayoutParams;
 
@@ -78,11 +81,19 @@ public class Photos extends Activity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving latest photos ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setCancelable(true);
 	        this.dialog.setMax(20);
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }
+			});
 	        this.dialog.show();
 		}
     	
+	    protected void onCancelled() {
+	        Toast.makeText(Photos.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+		
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			this.dialog.incrementProgressBy(progress[0]);
@@ -118,33 +129,37 @@ public class Photos extends Activity {
 				PhotoItem i = null;
 				
 				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-					i = new PhotoItem();
-					i.setTitle(item.getString("title"));
-					i.setLink(item.getString("link"));
-					i.setPublished(item.getString("published"));
-					tmpContent = item.getString("description");
-					content = tmpContent.replace("<p><a href=\"http://www.flickr.com/people/wsdot/\">WSDOT</a> posted a photo:</p>", "");
-					i.setContent(content);
-                	Matcher matcher = pattern.matcher(content);
-                	boolean matchFound = matcher.find();
-
-                	if (matchFound) {
-                		String tmpString = matcher.group();
-                		String imageSrc = tmpString.replace("_m", "_s"); // We want the small 75x75 images
-                        ins = new BufferedInputStream(new URL(imageSrc).openStream(), IO_BUFFER_SIZE);
-                        final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-                        out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
-                        copy(ins, out);
-                        out.flush();
-                        final byte[] data = dataStream.toByteArray();
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);                        
-                        final Drawable image = new BitmapDrawable(bitmap);
-                        i.setImage(image);
-                	}
-                	
-					photoItems.add(i);
-					publishProgress(1);
+					if (!this.isCancelled()) {
+						JSONObject item = items.getJSONObject(j);
+						i = new PhotoItem();
+						i.setTitle(item.getString("title"));
+						i.setLink(item.getString("link"));
+						i.setPublished(item.getString("published"));
+						tmpContent = item.getString("description");
+						content = tmpContent.replace("<p><a href=\"http://www.flickr.com/people/wsdot/\">WSDOT</a> posted a photo:</p>", "");
+						i.setContent(content);
+	                	Matcher matcher = pattern.matcher(content);
+	                	boolean matchFound = matcher.find();
+	
+	                	if (matchFound) {
+	                		String tmpString = matcher.group();
+	                		String imageSrc = tmpString.replace("_m", "_s"); // We want the small 75x75 images
+	                        ins = new BufferedInputStream(new URL(imageSrc).openStream(), IO_BUFFER_SIZE);
+	                        final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
+	                        out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
+	                        copy(ins, out);
+	                        out.flush();
+	                        final byte[] data = dataStream.toByteArray();
+	                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);                        
+	                        final Drawable image = new BitmapDrawable(bitmap);
+	                        i.setImage(image);
+	                	}
+	                	
+						photoItems.add(i);
+						publishProgress(1);
+					} else {
+						break;
+					}
 				}
 	        } catch (Exception e) {
 	            Log.e(DEBUG_TAG, "Error parsing Flickr JSON feed", e);

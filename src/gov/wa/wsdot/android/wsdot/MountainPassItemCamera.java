@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -43,6 +45,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Gallery;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 public class MountainPassItemCamera extends Activity {
 	
@@ -68,11 +71,19 @@ public class MountainPassItemCamera extends Activity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving camera images ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setCancelable(true);
 	        this.dialog.setMax(remoteImages.size());
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }				
+			});			
 	        this.dialog.show();
 		}
-    	
+
+	    protected void onCancelled() {
+	        Toast.makeText(MountainPassItemCamera.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+		
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			this.dialog.incrementProgressBy(progress[0]);
@@ -83,25 +94,29 @@ public class MountainPassItemCamera extends Activity {
 		   	BufferedInputStream in;
 	        BufferedOutputStream out;      
 	        
-	    	for (int i=0; i < remoteImages.size(); i++) {   		
-	    		final Drawable image;
-	    		Bitmap bitmap = null;
-	            try {
-	                in = new BufferedInputStream(new URL(remoteImages.get(i).getImageUrl()).openStream(), IO_BUFFER_SIZE);
-	                final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-	                out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
-	                copy(in, out);
-	                out.flush();
-	                final byte[] data = dataStream.toByteArray();
-	                bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-	    	    } catch (Exception e) {
-	    	        Log.e(DEBUG_TAG, "Error retrieving camera images", e);
-	    	        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.camera_offline);
-	    	    } finally {
-	    	    	image = new BitmapDrawable(bitmap);
-	    	    	bitmapImages.add(image);
-	    	    	publishProgress(1);
-	    	    }
+	    	for (int i=0; i < remoteImages.size(); i++) {
+	    		if (!this.isCancelled()) {
+		    		final Drawable image;
+		    		Bitmap bitmap = null;
+		            try {
+		                in = new BufferedInputStream(new URL(remoteImages.get(i).getImageUrl()).openStream(), IO_BUFFER_SIZE);
+		                final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
+		                out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
+		                copy(in, out);
+		                out.flush();
+		                final byte[] data = dataStream.toByteArray();
+		                bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+		    	    } catch (Exception e) {
+		    	        Log.e(DEBUG_TAG, "Error retrieving camera images", e);
+		    	        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.camera_offline);
+		    	    } finally {
+		    	    	image = new BitmapDrawable(bitmap);
+		    	    	bitmapImages.add(image);
+		    	    	publishProgress(1);
+		    	    }
+	    		} else {
+	    			break;
+	    		}
 	    	}
 			return null;
 		}
