@@ -419,14 +419,21 @@ public class TrafficMap extends MapActivity {
 				JSONObject obj = new JSONObject(jsonFile);
 				JSONObject result = obj.getJSONObject("cameras");
 				JSONArray items = result.getJSONArray("items");
+				int video;
 
 				for (int j=0; j < items.length(); j++) {
 					JSONObject item = items.getJSONObject(j);
-					
+					try {
+						video = item.getInt("video");
+					} catch (Exception e) {
+						video = 0;
+					}
+					int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
+
 					cameraItems.add(new CameraItem(getPoint(item.getDouble("lat"), item.getDouble("lon")),
 							item.getString("title"),
-							item.getString("url"),
-							getMarker(R.drawable.camera)));
+							item.getString("url") + "," + video,
+							getMarker(cameraIcon)));
 				}
 				 
 			 } catch (Exception e) {
@@ -568,6 +575,8 @@ public class TrafficMap extends MapActivity {
 	
 	private class GetCameraImage extends AsyncTask<String, Void, Drawable> {
 		private final ProgressDialog dialog = new ProgressDialog(TrafficMap.this);
+		private boolean hasVideo = false;
+		private String cameraName;
 
 		protected void onPreExecute() {
 			this.dialog.setMessage("Retrieving camera image ...");
@@ -584,7 +593,16 @@ public class TrafficMap extends MapActivity {
 	    }
 		
 		protected Drawable doInBackground(String... params) {
-			return loadImageFromNetwork(params[0]);
+			String[] param = params[0].split(",");
+			hasVideo = Integer.parseInt(param[1]) != 0;
+			
+			if (hasVideo) {
+				int slashIndex = param[0].lastIndexOf("/");
+				int dotIndex = param[0].lastIndexOf(".");
+				cameraName = param[0].substring(slashIndex + 1, dotIndex);
+			}
+			
+			return loadImageFromNetwork(param[0]);
 		}
 		
 		protected void onPostExecute(Drawable result) {
@@ -608,6 +626,17 @@ public class TrafficMap extends MapActivity {
 					dialog.cancel();
 				}
 			});
+			
+			if (hasVideo) {
+				builder.setNeutralButton("Play Video", new DialogInterface.OnClickListener() {						
+					public void onClick(DialogInterface dialog, int id) {
+						String videoPath = "http://images.wsdot.wa.gov/nwvideo/" + cameraName + ".mp4";
+						Intent intent = new Intent(getApplicationContext(), CameraVideo.class);
+						intent.putExtra("url", videoPath);
+						startActivity(intent);
+					}
+				});
+			}
 
 			builder.setView(layout);
 			AlertDialog alertDialog = builder.create();

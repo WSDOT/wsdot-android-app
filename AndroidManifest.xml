@@ -55,6 +55,7 @@
    		<activity android:name="SR520TollRatesActivity" />
    		<activity android:name="SR16TollRatesActivity" />
    		<activity android:name="Video" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="CameraVideo" />
 
    		<uses-library android:name="com.google.android.maps" />
 
