@@ -401,7 +401,7 @@ public class TrafficMap extends MapActivity {
 			super(null);	
 			
 			try {				
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/CamerasBeta.js.gz");
+				URL url = new URL("http://data.wsdot.wa.gov/mobile/Cameras.js.gz");
 				URLConnection urlConn = url.openConnection();
 				
 				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
@@ -418,14 +418,20 @@ public class TrafficMap extends MapActivity {
 				JSONObject obj = new JSONObject(jsonFile);
 				JSONObject result = obj.getJSONObject("cameras");
 				JSONArray items = result.getJSONArray("items");
+				int video;
 
 				for (int j=0; j < items.length(); j++) {
 					JSONObject item = items.getJSONObject(j);
-					int cameraIcon = (item.getInt("video") == 0) ? R.drawable.camera : R.drawable.camera_video;
+					try {
+						video = item.getInt("video");
+					} catch (Exception e) {
+						video = 0;
+					}
+					int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
 
 					cameraItems.add(new CameraItem(getPoint(item.getDouble("lat"), item.getDouble("lon")),
 							item.getString("title"),
-							item.getString("url") + "," + item.getInt("video"),
+							item.getString("url") + "," + video,
 							getMarker(cameraIcon)));
 				}
 				 
@@ -614,7 +620,7 @@ public class TrafficMap extends MapActivity {
 				if (hasVideo) {
 					builder.setNeutralButton("Play Video", new DialogInterface.OnClickListener() {						
 						public void onClick(DialogInterface dialog, int id) {
-							String videoPath = "http://data.wsdot.wa.gov/mobile/video/" + cameraName + ".mp4";
+							String videoPath = "http://images.wsdot.wa.gov/nwvideo/" + cameraName + ".mp4";
 							Intent intent = new Intent(getApplicationContext(), CameraVideo.class);
 							intent.putExtra("url", videoPath);
 							startActivity(intent);
