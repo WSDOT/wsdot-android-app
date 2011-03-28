@@ -64,6 +64,7 @@ public class BorderWait extends ListActivity {
         routeImage.put(9, R.drawable.sr9);
         routeImage.put(539, R.drawable.sr539);
         routeImage.put(543, R.drawable.sr543);
+        routeImage.put(97, R.drawable.us97);
         
         new GetBorderWaitItems().execute();
     }
@@ -75,7 +76,7 @@ public class BorderWait extends ListActivity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving border wait times ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setMax(8);
+	        this.dialog.setMax(9);
 			this.dialog.setOnCancelListener(new OnCancelListener() {
 	            public void onCancel(DialogInterface dialog) {
 	                cancel(true);
