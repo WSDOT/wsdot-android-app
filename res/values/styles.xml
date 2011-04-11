@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <style name="Text">
+    </style>
+
+    <style name="Text.Title">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/semi_white</item>
+    </style>
+
+    <style name="Text.Description">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Text.Title.Light">
+        <item name="android:textColor">@color/semi_black</item>
+    </style>
+
+    <style name="Text.Description.Light">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="DetailsListView" parent="@android:style/Widget.ListView.White">
+        <item name="android:background">@color/white</item>
+        <item name="android:cacheColorHint">@color/white</item>
+    </style>
+
+    <style name="DetailsEmpty">
+        <item name="android:padding">20dip</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+</resources>

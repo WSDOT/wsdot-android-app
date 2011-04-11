@@ -40,6 +40,7 @@
    		<activity android:name="TrafficMap" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="SeattleTrafficAlerts" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="SeattleTrafficTravelTimes" android:configChanges="orientation|keyboardHidden" />
+   		<activity android:name="SeattleExpressLanes" android:theme="@android:style/Theme.Dialog" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="EditPreferences" />
    		<activity android:name="BorderWait" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="Ferries" />

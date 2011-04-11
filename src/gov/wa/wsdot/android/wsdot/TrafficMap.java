@@ -86,9 +86,11 @@ public class TrafficMap extends MapActivity {
 	boolean showShadows;
 	private FixedMyLocationOverlay myLocationOverlay;
 	private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
+	private ArrayList<ExpressLaneItem> expressLaneItems = null;
 	
 	static final private int MENU_ITEM_SEATTLE_ALERTS = Menu.FIRST;
 	static final private int MENU_ITEM_TRAVEL_TIMES = Menu.FIRST + 1;
+	static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST + 2;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -172,6 +174,7 @@ public class TrafficMap extends MapActivity {
 		if (inPolygon(seattleArea, p.getLatitudeE6(), p.getLongitudeE6())) {
 			menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts").setIcon(R.drawable.ic_menu_notifications);
 		    menu.add(0, MENU_ITEM_TRAVEL_TIMES, menu.size(), "Travel Times").setIcon(R.drawable.ic_menu_recent_history);
+		    menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes").setIcon(R.drawable.ic_menu_express_lanes);
 		}
 	    
 		return super.onPrepareOptionsMenu(menu);
@@ -238,6 +241,9 @@ public class TrafficMap extends MapActivity {
 	    case MENU_ITEM_TRAVEL_TIMES:
 	    	Intent timesIntent = new Intent(this, SeattleTrafficTravelTimes.class);
 	    	startActivity(timesIntent);
+	    	return true;
+	    case MENU_ITEM_EXPRESS_LANES:
+	    	new GetExpressLaneStatus().execute();
 	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
@@ -642,7 +648,77 @@ public class TrafficMap extends MapActivity {
 			AlertDialog alertDialog = builder.create();
 			alertDialog.show();
 		}
-	}
+	}	
+	
+    private class GetExpressLaneStatus extends AsyncTask<String, Integer, String> {
+    	private final ProgressDialog dialog = new ProgressDialog(TrafficMap.this);
+
+		@Override
+		protected void onPreExecute() {
+	        this.dialog.setMessage("Retrieving express lanes status ...");
+			this.dialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface dialog) {
+	                cancel(true);
+	            }
+			});
+	        this.dialog.show();
+		}
+    	
+	    protected void onCancelled() {
+	        Toast.makeText(TrafficMap.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+		
+		@Override
+		protected String doInBackground(String... params) {
+			try {
+				URL url = new URL("http://data.wsdot.wa.gov/mobile/ExpressLanes.js");
+				URLConnection urlConn = url.openConnection();
+				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+				String jsonFile = "";
+				String line;
+				
+				while ((line = in.readLine()) != null)
+					jsonFile += line;
+				in.close();
+				
+				JSONObject obj = new JSONObject(jsonFile);
+				JSONObject result = obj.getJSONObject("express_lanes");
+				JSONArray items = result.getJSONArray("routes");
+				expressLaneItems = new ArrayList<ExpressLaneItem>();
+				ExpressLaneItem i = null;
+							
+				for (int j=0; j < items.length(); j++) {
+					if (!this.isCancelled()) {
+						JSONObject item = items.getJSONObject(j);
+						i = new ExpressLaneItem();
+						i.setTitle(item.getString("title"));
+						i.setRoute(item.getInt("route"));
+						i.setStatus(item.getString("status"));
+						expressLaneItems.add(i);
+					} else {
+						break;
+					}
+				}			
+
+			} catch (Exception e) {
+				Log.e(DEBUG_TAG, "Error in network call", e);
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			if (this.dialog.isShowing()) {
+				this.dialog.dismiss();
+			}
+			
+			Bundle b = new Bundle();
+	    	Intent intent = new Intent(TrafficMap.this, SeattleExpressLanes.class);
+	    	b.putSerializable("ExpressLane", expressLaneItems);
+	    	intent.putExtras(b);
+	    	startActivity(intent);
+		}   
+    }
 	
     private Drawable loadImageFromNetwork(String url) {
     	BufferedInputStream in;
