@@ -172,8 +172,8 @@ public class TrafficMap extends MapActivity {
 	     * the greater Seattle area.
 	     */
 		if (inPolygon(seattleArea, p.getLatitudeE6(), p.getLongitudeE6())) {
-			menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts").setIcon(R.drawable.ic_menu_notifications);
-		    menu.add(0, MENU_ITEM_TRAVEL_TIMES, menu.size(), "Travel Times").setIcon(R.drawable.ic_menu_recent_history);
+			menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts").setIcon(R.drawable.ic_menu_alerts);
+		    menu.add(0, MENU_ITEM_TRAVEL_TIMES, menu.size(), "Travel Times").setIcon(R.drawable.ic_menu_travel_times);
 		    menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes").setIcon(R.drawable.ic_menu_express_lanes);
 		}
 	    
