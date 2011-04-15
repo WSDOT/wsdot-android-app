@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2011 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,12 +24,12 @@ import android.view.MenuItem;
 
 public class WSDOT extends MainMenu {
 	void prepareMenu() {
-		addMenuItem("News", News.class);
-		addMenuItem("Twitter", Twitter.class);
-		addMenuItem("Photos", Photos.class);
-		addMenuItem("Blog", Blog.class);
-		addMenuItem("Traffic & Travel", TrafficTravel.class);
-		addMenuItem("Video", Video.class);
+		addMenuItem("News & Social Media", SocialMedia.class);
+		addMenuItem("Mountain Passes", MountainPassConditions.class);
+		addMenuItem("Canadian Border", BorderWait.class);
+		addMenuItem("Ferries", Ferries.class);
+		addMenuItem("Traffic Map", TrafficMap.class);
+		addMenuItem("Toll Rates", TollRatesTabActivity.class);
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
