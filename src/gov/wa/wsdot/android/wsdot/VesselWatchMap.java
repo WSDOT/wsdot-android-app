@@ -612,13 +612,18 @@ public class VesselWatchMap extends MapActivity {
 				 if (customTitleSupported) titleProgressBar.setVisibility(ProgressBar.INVISIBLE);
 			 }
 
-			if (firstRun) {
-				if (showCameras) map.getOverlays().add(cameras);	
+			map.getOverlays().add(vessels);
+			
+			if (showCameras) {
+				if (firstRun) {
+					map.getOverlays().add(cameras);
+				} else {
+					map.getOverlays().remove(cameras);
+					map.getOverlays().add(cameras);
+				}
 			}
 
 			if (firstRun) firstRun = false;
-			
-			map.getOverlays().add(vessels);			
 			map.invalidate();
 		 }
 	}
