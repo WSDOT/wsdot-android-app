@@ -39,15 +39,24 @@ public class TollRatesTabActivity extends TabActivity {
 	    TabHost.TabSpec spec;
 	    Intent intent;
 
+	    // SR 520 Bridge
 	    intent = new Intent().setClass(this, SR520TollRatesActivity.class);
 	    spec = tabHost.newTabSpec("sr520")
 	    				.setIndicator("SR 520 Bridge", res.getDrawable(R.drawable.ic_tab_sr520))
 	    				.setContent(intent);
 	    tabHost.addTab(spec);
         
+	    // SR 16 Tacoma Narrows Bridge
 	    intent = new Intent().setClass(this, SR16TollRatesActivity.class);	    
 	    spec = tabHost.newTabSpec("sr16")
 	    				.setIndicator("Tacoma Narrows", res.getDrawable(R.drawable.ic_tab_sr16))
+	    				.setContent(intent);
+	    tabHost.addTab(spec);
+
+	    // SR 167 Hot Lanes
+	    intent = new Intent().setClass(this, SR167TollRatesActivity.class);	    
+	    spec = tabHost.newTabSpec("sr167")
+	    				.setIndicator("HOT Lanes", res.getDrawable(R.drawable.ic_tab_sr167))
 	    				.setContent(intent);
 	    tabHost.addTab(spec);
 	    
