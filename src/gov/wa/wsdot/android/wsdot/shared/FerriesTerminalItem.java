@@ -16,7 +16,8 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.shared;
+
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -16,35 +16,21 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.shared;
 
 import java.io.Serializable;
 
-public class ForecastItem implements Serializable {
+public class FerriesAnnotationIndexesItem implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 100148646044249003L;
-	private String day;
-	private String forecastText;
-	private Integer weatherIcon;
+	private static final long serialVersionUID = -2342240085706278983L;
+	private Integer index;
 	
-	public String getDay() {
-		return day;
+	public Integer getIndex() {
+		return index;
 	}
-	public void setDay(String day) {
-		this.day = day;
-	}
-	public String getForecastText() {
-		return forecastText;
-	}
-	public void setForecastText(String forecastText) {
-		this.forecastText = forecastText;
-	}
-	public Integer getWeatherIcon() {
-		return weatherIcon;
-	}
-	public void setWeatherIcon(Integer weatherIcon) {
-		this.weatherIcon = weatherIcon;
+	public void setIndex(Integer index) {
+		this.index = index;
 	}
 }

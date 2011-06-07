@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.shared;
 
 public class HighwayAlertsItem {
 

@@ -16,9 +16,9 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.shared;
 
-public class NewsItem {
+public class TwitterItem {
 	private String title;
 	private String pubDate;
 	private String link;

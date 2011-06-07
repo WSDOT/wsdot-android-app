@@ -18,6 +18,11 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

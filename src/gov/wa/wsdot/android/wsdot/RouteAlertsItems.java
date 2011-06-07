@@ -18,6 +18,9 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.shared.FerriesRouteAlertItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesRouteItem;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

@@ -18,6 +18,9 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.shared.FerriesRouteAlertItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesRouteItem;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

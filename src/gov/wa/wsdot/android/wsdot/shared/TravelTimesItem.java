@@ -16,36 +16,47 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.shared;
 
-public class SeattleIncidentItem {
+public class TravelTimesItem {
 	private String title;
-	private String description;
-	private Integer category;
-	private Integer guid;
-	
+	private String currentTime;
+	private String averageTime;
+	private String distance;
+	private String routeID;
+
 	public String getTitle() {
 		return title;
 	}
 	public void setTitle(String title) {
 		this.title = title;
+	}	
+
+	public String getCurrentTime() {
+		return currentTime;
 	}
-	public String getDescription() {
-		return description;
+	public void setCurrentTime(String currentTime) {
+		this.currentTime = currentTime;
 	}
-	public void setDescription(String description) {
-		this.description = description;
+	
+	public String getAverageTime() {
+		return averageTime;
 	}
-	public Integer getCategory() {
-		return category;
+	public void setAverageTime(String averageTime) {
+		this.averageTime = averageTime;
 	}
-	public void setCategory(Integer category) {
-		this.category = category;
+	
+	public String getDistance() {
+		return distance;
 	}
-	public Integer getGuid() {
-		return guid;
+	public void setDistance(String distance) {
+		this.distance = distance;
 	}
-	public void setGuid(Integer guid) {
-		this.guid = guid;
+	
+	public String getRouteID() {
+		return routeID;
+	}
+	public void setRouteID(String routeID) {
+		this.routeID = routeID;
 	}
 }

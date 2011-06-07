@@ -16,31 +16,35 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.shared;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
-public class FerriesScheduleDateItem implements Serializable {
+public class ForecastItem implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -4532721945762916647L;
-	private String date;
-	private ArrayList<FerriesTerminalItem> sailings = new ArrayList<FerriesTerminalItem>();
+	private static final long serialVersionUID = 100148646044249003L;
+	private String day;
+	private String forecastText;
+	private Integer weatherIcon;
 	
-	public String getDate() {
-		return date;
+	public String getDay() {
+		return day;
 	}
-	public void setDate(String date) {
-		this.date = date;
+	public void setDay(String day) {
+		this.day = day;
 	}
-
-	public ArrayList<FerriesTerminalItem> getFerriesTerminalItem() {
-		return sailings;
+	public String getForecastText() {
+		return forecastText;
 	}
-	public void setFerriesTerminalItem(FerriesTerminalItem sailings) {
-		this.sailings.add(sailings);
+	public void setForecastText(String forecastText) {
+		this.forecastText = forecastText;
 	}
-	
+	public Integer getWeatherIcon() {
+		return weatherIcon;
+	}
+	public void setWeatherIcon(Integer weatherIcon) {
+		this.weatherIcon = weatherIcon;
+	}
 }

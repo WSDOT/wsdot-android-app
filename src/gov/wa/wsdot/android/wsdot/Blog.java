@@ -18,6 +18,8 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.shared.BlogItem;
+
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

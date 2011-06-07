@@ -18,6 +18,9 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.shared.ExpressLaneItem;
+import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;

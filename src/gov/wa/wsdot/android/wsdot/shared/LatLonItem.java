@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.shared;
 
 import java.text.DecimalFormat;
 

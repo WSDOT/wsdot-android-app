@@ -18,6 +18,10 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.shared.CameraItem;
+import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
+import gov.wa.wsdot.android.wsdot.shared.MountainPassItem;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

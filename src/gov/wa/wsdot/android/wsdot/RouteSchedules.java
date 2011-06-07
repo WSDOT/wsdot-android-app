@@ -18,6 +18,13 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesRouteItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

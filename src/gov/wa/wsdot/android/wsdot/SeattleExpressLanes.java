@@ -18,6 +18,8 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.shared.ExpressLaneItem;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

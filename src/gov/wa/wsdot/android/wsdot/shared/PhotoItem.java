@@ -16,22 +16,15 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
-
-import java.io.Serializable;
+package gov.wa.wsdot.android.wsdot.shared;
 
 import android.graphics.drawable.Drawable;
 
-public class CameraItem implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6303369840501629538L;
+public class PhotoItem {
 	private String title;
-	private String imageUrl;
-	private String roadName;
-	private Double longitude;
-	private Double latitude;
+	private String published;
+	private String link;
+	private String content;
 	private Drawable image;
 	
 	public String getTitle() {
@@ -40,34 +33,28 @@ public class CameraItem implements Serializable {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public String getImageUrl() {
-		return imageUrl;
+	public String getPublished() {
+		return published;
 	}
-	public void setImageUrl(String imageUrl) {
-		this.imageUrl = imageUrl;
+	public void setPublished(String published) {
+		this.published = published;
 	}
-	public String getRoadName() {
-		return roadName;
+	public String getLink() {
+		return link;
 	}
-	public void setRoadName(String roadName) {
-		this.roadName = roadName;
+	public void setLink(String link) {
+		this.link = link;
 	}
-	public Double getLatitude() {
-		return latitude;
+	public String getContent() {
+		return content;
 	}
-	public void setLatitude(Double latitude) {
-		this.latitude = latitude;
-	}
-	public Double getLongitude() {
-		return longitude;
-	}
-	public void setLongitude(Double longitude) {
-		this.longitude = longitude;
-	}
-	public Drawable getImage() {
-		return image;
+	public void setContent(String content) {
+		this.content = content;
 	}
 	public void setImage(Drawable image) {
 		this.image = image;
+	}
+	public Drawable getImage() {
+		return image;
 	}
 }

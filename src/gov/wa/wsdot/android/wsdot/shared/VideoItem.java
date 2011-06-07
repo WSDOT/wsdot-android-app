@@ -16,42 +16,52 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.shared;
 
-import java.io.Serializable;
+import android.graphics.drawable.Drawable;
 
-public class ExpressLaneItem implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4852939247560345223L;
+public class VideoItem {
+	private String id;
+	private String uploaded;
 	private String title;
-	private Integer route;
-	private String status;
-	private String pubDate;
+	private String description;
+	private Drawable thumbNail;
+	private String viewCount;
 	
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setUploaded(String uploaded) {
+		this.uploaded = uploaded;
+	}
+	public String getUploaded() {
+		return uploaded;
+	}
 	public void setTitle(String title) {
 		this.title = title;
 	}
 	public String getTitle() {
 		return title;
 	}
-	public void setRoute(Integer route) {
-		this.route = route;
+	public void setDescription(String description) {
+		this.description = description;
 	}
-	public Integer getRoute() {
-		return route;
+	public String getDescription() {
+		return description;
 	}
-	public void setStatus(String status) {
-		this.status = status;
+	public void setThumbNail(Drawable thumbNail) {
+		this.thumbNail = thumbNail;
 	}
-	public String getStatus() {
-		return status;
+	public Drawable getThumbNail() {
+		return thumbNail;
 	}
-	public void setPubDate(String pubDate) {
-		this.pubDate = pubDate;
+	public void setViewCount(String viewCount) {
+		this.viewCount = viewCount;
 	}
-	public String getPubDate() {
-		return pubDate;
+	public String getViewCount() {
+		return viewCount;
 	}
 }

@@ -18,6 +18,9 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.shared.CameraItem;
+import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
+
 import java.util.ArrayList;
 
 import android.app.TabActivity;

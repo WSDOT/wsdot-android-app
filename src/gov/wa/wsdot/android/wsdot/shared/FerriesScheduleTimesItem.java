@@ -16,21 +16,31 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.shared;
+
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
-public class FerriesAnnotationsItem implements Serializable {
+public class FerriesScheduleTimesItem implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 4290938481788720016L;
-	private String annotation;
+	private static final long serialVersionUID = -4358683796023869875L;
+	private String departingTime;
+	private ArrayList<FerriesAnnotationIndexesItem> annotationIndexes = new ArrayList<FerriesAnnotationIndexesItem>();
 	
-	public String getAnnotation() {
-		return annotation;
+	public String getDepartingTime() {
+		return departingTime;
 	}
-	public void setAnnotation(String annotation) {
-		this.annotation = annotation;
+	public void setDepartingTime(String departingTime) {
+		this.departingTime = departingTime;
+	}
+
+	public ArrayList<FerriesAnnotationIndexesItem> getAnnotationIndexes() {
+		return annotationIndexes;
+	}
+	public void setAnnotationIndexes(FerriesAnnotationIndexesItem annotationIndexes) {
+		this.annotationIndexes.add(annotationIndexes);
 	}
 }

@@ -18,6 +18,8 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.shared.BorderWaitItem;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;

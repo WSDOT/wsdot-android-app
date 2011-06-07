@@ -16,13 +16,13 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.shared;
 
-public class TwitterItem {
+public class SeattleIncidentItem {
 	private String title;
-	private String pubDate;
-	private String link;
 	private String description;
+	private Integer category;
+	private Integer guid;
 	
 	public String getTitle() {
 		return title;
@@ -30,22 +30,22 @@ public class TwitterItem {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public String getPubDate() {
-		return pubDate;
-	}
-	public void setPubDate(String pubDate) {
-		this.pubDate = pubDate;
-	}
-	public String getLink() {
-		return link;
-	}
-	public void setLink(String link) {
-		this.link = link;
-	}
 	public String getDescription() {
 		return description;
 	}
 	public void setDescription(String description) {
 		this.description = description;
-	}	
+	}
+	public Integer getCategory() {
+		return category;
+	}
+	public void setCategory(Integer category) {
+		this.category = category;
+	}
+	public Integer getGuid() {
+		return guid;
+	}
+	public void setGuid(Integer guid) {
+		this.guid = guid;
+	}
 }

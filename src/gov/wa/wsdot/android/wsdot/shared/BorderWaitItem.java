@@ -16,45 +16,36 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.shared;
 
-import android.graphics.drawable.Drawable;
-
-public class PhotoItem {
+public class BorderWaitItem {
 	private String title;
-	private String published;
-	private String link;
-	private String content;
-	private Drawable image;
-	
+	private Integer route;
+	private String wait;
+	private String pubDate;
+
 	public String getTitle() {
 		return title;
 	}
 	public void setTitle(String title) {
 		this.title = title;
+	}	
+	public Integer getRoute() {
+		return route;
 	}
-	public String getPublished() {
-		return published;
+	public void setRoute(Integer route) {
+		this.route = route;
 	}
-	public void setPublished(String published) {
-		this.published = published;
+	public String getWait() {
+		return wait;
 	}
-	public String getLink() {
-		return link;
+	public void setWait(String wait) {
+		this.wait = wait;
+	}	
+	public String getPubDate() {
+		return pubDate;
 	}
-	public void setLink(String link) {
-		this.link = link;
-	}
-	public String getContent() {
-		return content;
-	}
-	public void setContent(String content) {
-		this.content = content;
-	}
-	public void setImage(Drawable image) {
-		this.image = image;
-	}
-	public Drawable getImage() {
-		return image;
+	public void setPubDate(String pubDate) {
+		this.pubDate = pubDate;
 	}
 }
