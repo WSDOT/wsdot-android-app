@@ -42,6 +42,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -165,11 +166,13 @@ public class MountainPassItemCamera extends Activity {
         }
  
         public View getView(int position, View convertView, ViewGroup parent) {
-            ImageView imageView = new ImageView(context);
+        	ImageView imageView = new ImageView(context);
+            LayoutInflater inflater = getLayoutInflater();
+            imageView = (ImageView) inflater.inflate(R.layout.gallery_item, parent, false);
             imageView.setImageDrawable(bitmapImages.get(position));
-            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            imageView.setLayoutParams(new Gallery.LayoutParams(290, 270));
             imageView.setBackgroundResource(itemBackground);
+            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            
             return imageView;
         }
     }
