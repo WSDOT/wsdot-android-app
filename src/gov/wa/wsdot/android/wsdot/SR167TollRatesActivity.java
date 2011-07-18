@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -29,6 +30,8 @@ public class SR167TollRatesActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		AnalyticsUtils.getInstance(this).trackPageView("/Toll Rates/SR 167");
 		
 		setContentView(R.layout.webview_tabs);
 		webview = (WebView)findViewById(R.id.webview);

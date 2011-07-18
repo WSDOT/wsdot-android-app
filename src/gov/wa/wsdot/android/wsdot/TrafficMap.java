@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2011 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.shared.ExpressLaneItem;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -98,6 +99,8 @@ public class TrafficMap extends MapActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map");
         
         // Setup the unique latitude, longitude and zoom level
         prepareMap();
@@ -188,6 +191,7 @@ public class TrafficMap extends MapActivity {
 	    switch (item.getItemId()) {
 
 	    case R.id.my_location:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/My Location");
 	    	((TextView)findViewById(R.id.sub_section)).setText("Traffic Near You");
 	        myLocationOverlay.runOnFirstFix(new Runnable() {
 	            public void run() {	    	
@@ -196,42 +200,55 @@ public class TrafficMap extends MapActivity {
 	        });
 	        return true;
 	    case R.id.goto_bellingham:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Bellingham");
 	    	goToLocation("Bellingham Traffic", 48.756302,-122.46151, 12);
 	    	return true;	        
 	    case R.id.goto_chehalis:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Chehalis");
 	    	goToLocation("Chelalis Traffic", 46.635529, -122.937698, 13);
 	    	return true;
 	    case R.id.goto_hoodcanal:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Hood Canal");
 	    	goToLocation("Hood Canal Traffic", 47.85268,-122.628365, 13);
 	    	return true;
 	    case R.id.goto_mtvernon:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Mt Vernon");
 	    	goToLocation("Mt Vernon Traffic", 48.420657,-122.334824, 13);
 	    	return true;
 	    case R.id.goto_stanwood:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Stanwood");
 	    	goToLocation("Stanwood Traffic", 48.22959, -122.34581, 13);
 	    	return true;
 	    case R.id.goto_monroe:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Monroe");
 	    	goToLocation("Monroe Traffic", 47.859476, -121.972446, 14);
 	    	return true;
 	    case R.id.goto_sultan:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Sultan");
 	    	goToLocation("Sultan Traffic", 47.86034, -121.812286, 14);
 	    	return true;
 	    case R.id.goto_olympia:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Olympia");
 	    	goToLocation("Olympia Traffic", 47.021461, -122.899933, 13);
 	        return true;	    	    	
 	    case R.id.goto_seattle:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Seattle");
 	    	goToLocation("Seattle Area Traffic", 47.5990, -122.3350, 12);
 	        return true;
 	    case R.id.goto_spokane:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Spokane");
 	    	goToLocation("Spokane Area Traffic", 47.658566, -117.425995, 12);
 	        return true;	        
 	    case R.id.goto_tacoma:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Tacoma");
 	    	goToLocation("Tacoma Traffic", 47.206275, -122.46254, 12);
 	        return true;	        
 	    case R.id.goto_vancouver:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Vancouver");
 	    	goToLocation("Vancouver Area Traffic", 45.639968, -122.610512, 12);
 	        return true;
 	    case R.id.goto_wenatchee:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Wenatchee");
 	    	goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 13);
 	        return true;	        
 	    //case R.id.my_places:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2011 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
  */
 
 package gov.wa.wsdot.android.wsdot;
+
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -89,6 +91,8 @@ public class VesselWatchMap extends MapActivity {
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch");
         
         // Setup the unique latitude, longitude and zoom level
         prepareMap();
@@ -167,6 +171,7 @@ public class VesselWatchMap extends MapActivity {
 	    switch (item.getItemId()) {
 
 	    case R.id.my_location:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/My Location");
 	        myLocationOverlay.runOnFirstFix(new Runnable() {
 	            public void run() {	    	
 	            	map.getController().animateTo(myLocationOverlay.getMyLocation());
@@ -174,30 +179,39 @@ public class VesselWatchMap extends MapActivity {
 	        });
 	        return true;
 	    case R.id.goto_anacortes:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Anacortes");
 	    	goToLocation(48.535868, -123.013808, 10);
 	    	return true;
 	    case R.id.goto_edmonds:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Edmonds");
 	    	goToLocation(47.803096, -122.438718, 12);
 	    	return true;
 	    case R.id.goto_fauntleroy:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Fauntleroy");
 	    	goToLocation(47.513625, -122.450820, 13);
 	    	return true;
 	    case R.id.goto_mukilteo:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Mukilteo");
 	    	goToLocation(47.963857, -122.327721, 13);
 	    	return true;
 	    case R.id.goto_pointdefiance:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Pt Defiance");
 	    	goToLocation(47.319040, -122.510890, 13);
 	    	return true;
 	    case R.id.goto_porttownsend:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Port Townsend");
 	    	goToLocation(48.135562, -122.714449, 12);
 	    	return true;
 	    case R.id.goto_sanjuanislands:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/San Juan Islands");
 	    	goToLocation(48.557233, -122.897078, 12);
 	    	return true;
 	    case R.id.goto_seattle:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Seattle");
 	    	goToLocation(47.565125, -122.480508, 11);
 	    	return true;
 	    case R.id.goto_seattlebainbridge:
+	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Seattle-Bainbridge");
 	    	goToLocation(47.600325, -122.437249, 12);
 	    	return true;
 	    default:

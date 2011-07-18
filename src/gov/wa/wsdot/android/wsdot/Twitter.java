@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2011 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.shared.TwitterItem;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -58,6 +59,9 @@ public class Twitter extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        AnalyticsUtils.getInstance(this).trackPageView("/News & Social Media/Twitter");
+        
         setContentView(R.layout.main);
         twitterItems = new ArrayList<TwitterItem>();
         this.adapter = new TwitterItemAdapter(this, R.layout.news_item, twitterItems);

@@ -18,11 +18,14 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class WSDOT extends MainMenu {
+	
+	@Override
 	void prepareMenu() {
 		addMenuItem("News & Social Media", SocialMedia.class);
 		addMenuItem("Mountain Passes", MountainPassConditions.class);
@@ -32,6 +35,11 @@ public class WSDOT extends MainMenu {
 		addMenuItem("Toll Rates", TollRatesTabActivity.class);
 	}
 
+	@Override
+	void analyticsTracker() {
+		AnalyticsUtils.getInstance(this).trackPageView("/");		
+	}
+	
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.options_menu, menu);
 		menu.findItem(R.id.about).setIntent(new Intent(this, About.class));	

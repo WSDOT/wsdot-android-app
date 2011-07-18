@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.shared.VideoItem;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -67,6 +68,9 @@ public class Video extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        AnalyticsUtils.getInstance(this).trackPageView("/News & Social Media/Video");
+        
         setContentView(R.layout.main);
         videoItems = new ArrayList<VideoItem>();
         this.adapter = new VideoItemAdapter(this, R.layout.video_row, videoItems);

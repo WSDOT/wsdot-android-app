@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.shared.TravelTimesItem;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -58,6 +59,9 @@ public class SeattleTrafficTravelTimes extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Seattle/Travel Times");
+        
         setContentView(R.layout.main);
         ((TextView)findViewById(R.id.sub_section)).setText("Seattle Area Travel Times");
         travelTimesItems = new ArrayList<TravelTimesItem>();
