@@ -91,7 +91,7 @@ public class Video extends ListActivity {
 		protected void onPreExecute() {
 	        this.dialog.setMessage("Retrieving latest videos ...");
 	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setMax(25);
+	        this.dialog.setMax(10);
 			this.dialog.setOnCancelListener(new OnCancelListener() {
 	            public void onCancel(DialogInterface dialog) {
 	                cancel(true);
@@ -117,7 +117,7 @@ public class Video extends ListActivity {
 	    	//parseDateFormat.setTimeZone(TimeZone.getTimeZone(tz.getID())); // Set TimeZone to what the local device is
 	    	
 			try {
-				URL url = new URL("http://gdata.youtube.com/feeds/api/users/wsdot/uploads?v=2&alt=jsonc");
+				URL url = new URL("http://gdata.youtube.com/feeds/api/users/wsdot/uploads?v=2&alt=jsonc&max-results=10");
 				URLConnection urlConn = url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String jsonFile = "";

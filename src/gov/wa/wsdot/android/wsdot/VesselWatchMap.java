@@ -114,7 +114,8 @@ public class VesselWatchMap extends MapActivity {
 	
 	public void prepareMap() {
 		// Check if custom title is supported. Not sure why it wouldn't be.
-        customTitleSupported = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+        //customTitleSupported = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+		customTitleSupported = false;
 		super.setContentView(R.layout.map);
 
 		if (customTitleSupported) {

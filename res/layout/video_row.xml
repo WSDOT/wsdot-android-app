@@ -7,9 +7,9 @@
     <ImageView
         android:id="@+id/icon"
         android:layout_width="100dp"
-        android:layout_height="wrap_content"
+        android:layout_height="80dp"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="6dip" />
+        android:layout_marginRight="6dp" />
 
     <TextView
         android:id="@+id/toptext"
@@ -29,9 +29,6 @@
         android:layout_toRightOf="@id/icon"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/toptext"
-        android:singleLine="true"
-        android:ellipsize="marquee"
-        android:layout_gravity="bottom" />
+        android:layout_below="@id/toptext" />
 
 </RelativeLayout>
