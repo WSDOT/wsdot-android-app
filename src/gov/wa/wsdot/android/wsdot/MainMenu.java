@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2011 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ public abstract class MainMenu extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		analyticsTracker();
 		setContentView(R.layout.main);
 		prepareMenu();
 		String[] keys = actions.keySet().toArray(new String[actions.keySet().size()]);
@@ -70,5 +71,6 @@ public abstract class MainMenu extends ListActivity {
 		actions.put(label, new Intent(this, cls	));
 	}
 	
+	abstract void analyticsTracker();
 	abstract void prepareMenu();
 }

@@ -18,6 +18,8 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -36,6 +38,8 @@ public class SR16TollRatesActivity extends ListActivity {
 	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        AnalyticsUtils.getInstance(this).trackPageView("/Toll Rates/SR 16");
         
         HashMap<String, String> map = null;
         String[][] vehicleTypeData = {

@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.shared.ExpressLaneItem;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +48,8 @@ public class SeattleExpressLanes extends ListActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Seattle/Express Lanes");
 
         setContentView(R.layout.details);
 

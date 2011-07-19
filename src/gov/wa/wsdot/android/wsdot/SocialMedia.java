@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -32,6 +33,11 @@ public class SocialMedia extends MainMenu {
 		addMenuItem("Video", Video.class);
 	}
 
+	@Override
+	void analyticsTracker() {
+		AnalyticsUtils.getInstance(this).trackPageView("/News & Social Media");		
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

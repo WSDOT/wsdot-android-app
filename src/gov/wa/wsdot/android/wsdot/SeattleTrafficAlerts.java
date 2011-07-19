@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.shared.SeattleIncidentItem;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -61,6 +62,9 @@ public class SeattleTrafficAlerts extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Seattle/Seattle Alerts");
+        
         setContentView(R.layout.main);
         ((TextView)findViewById(R.id.sub_section)).setText("Seattle Area Alerts");
         seattleIncidentItems = new Stack<SeattleIncidentItem>();      

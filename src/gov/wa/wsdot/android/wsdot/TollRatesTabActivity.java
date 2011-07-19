@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -30,6 +31,8 @@ public class TollRatesTabActivity extends TabActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
+	    
+	    AnalyticsUtils.getInstance(this).trackPageView("/Toll Rates");
 
 	    setContentView(R.layout.tabs);
 	    ((TextView)findViewById(R.id.sub_section)).setText("Toll Rates");

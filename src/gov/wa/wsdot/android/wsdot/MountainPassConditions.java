@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2011 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
 import gov.wa.wsdot.android.wsdot.shared.MountainPassItem;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -67,6 +68,9 @@ public class MountainPassConditions extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        AnalyticsUtils.getInstance(this).trackPageView("/Mountain Passes");
+        
         setContentView(R.layout.main);
         ((TextView)findViewById(R.id.sub_section)).setText("Mountain Passes");
         mountainPassItems = new ArrayList<MountainPassItem>();

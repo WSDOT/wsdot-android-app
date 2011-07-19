@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2011 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -30,6 +31,11 @@ public class Ferries extends MainMenu {
 		addMenuItem("Vessel Watch", VesselWatchMap.class);
 	}
 
+	@Override
+	void analyticsTracker() {
+		AnalyticsUtils.getInstance(this).trackPageView("/Ferries");		
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
