@@ -85,8 +85,7 @@ public class AnalyticsUtils {
         final boolean firstRun = prefs.getBoolean(FIRST_RUN_KEY, true);
         if (firstRun) {
             Log.d(TAG, "Analytics firstRun");
-
-            String apiLevel = Integer.toString(Build.VERSION.SDK_INT);
+           	String apiLevel = Build.VERSION.SDK; // Build.VERSION.SDK_INT is only available since API level 4.
             String model = Build.MODEL;
             mTracker.setCustomVar(1, "apiLevel", apiLevel, VISITOR_SCOPE);
             mTracker.setCustomVar(2, "model", model, VISITOR_SCOPE);
