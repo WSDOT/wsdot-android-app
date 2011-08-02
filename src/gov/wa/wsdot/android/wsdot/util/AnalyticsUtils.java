@@ -42,7 +42,7 @@ public class AnalyticsUtils {
 
     private static final int VISITOR_SCOPE = 1;
     private static final String FIRST_RUN_KEY = "firstRun";
-    private static final boolean ANALYTICS_ENABLED = true;
+    private static final boolean ANALYTICS_ENABLED = false;
 
     private static AnalyticsUtils sInstance;
 
