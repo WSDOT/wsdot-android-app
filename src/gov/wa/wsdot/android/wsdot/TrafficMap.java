@@ -172,6 +172,12 @@ public class TrafficMap extends MapActivity {
 		GeoPoint p = map.getMapCenter();
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.traffic_menu, menu);
+	    
+	    if (showCameras) {
+	    	menu.getItem(2).setTitle("Hide Cameras");
+	    } else {
+	    	menu.getItem(2).setTitle("Show Cameras");
+	    }
 
 	    /**
 	     * Check if current location is within a lat/lon bounding box surrounding
@@ -250,10 +256,10 @@ public class TrafficMap extends MapActivity {
 	    case R.id.goto_wenatchee:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Wenatchee");
 	    	goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 13);
-	        return true;	        
-	    //case R.id.my_places:
-	    //	myPlaces();
-	    //	return true;
+	        return true;
+	    case R.id.toggle_cameras:
+	    	toggleCameras(item);
+	    	return true;	        
 	    case MENU_ITEM_SEATTLE_ALERTS:
 	    	Intent alertsIntent = new Intent(this, SeattleTrafficAlerts.class);
 	    	startActivity(alertsIntent);
@@ -264,12 +270,34 @@ public class TrafficMap extends MapActivity {
 	    	return true;
 	    case MENU_ITEM_EXPRESS_LANES:
 	    	new GetExpressLaneStatus().execute();
-	    	return true;
+	    	return true;	    	
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
 	}
 	
+	private void toggleCameras(MenuItem item) {
+		if (showCameras) {
+			AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Hide Cameras");
+			map.getOverlays().remove(cameras);
+			map.invalidate();
+			item.setTitle("Show Cameras");
+			showCameras = false;
+		} else {
+			AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Show Cameras");
+			map.getOverlays().add(cameras);
+			map.invalidate();
+			item.setTitle("Hide Cameras");
+			showCameras = true;
+		}		
+
+		// Save camera display preference
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putBoolean("KEY_SHOW_CAMERAS", showCameras);
+		editor.commit();
+	}
+
 	public void goToLocation(String title, double latitude, double longitude, int zoomLevel) {	
         GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
         map.getController().setZoom(zoomLevel);
@@ -555,12 +583,7 @@ public class TrafficMap extends MapActivity {
 				cameras = null;
 			}
 			
-			if (showCameras) {
-				this.dialog.setMessage("Retrieving latest traffic alerts and camera locations ...");	
-			} else {
-				this.dialog.setMessage("Retrieving latest traffic alerts ...");
-			}
-
+			this.dialog.setMessage("Retrieving latest traffic alerts and camera locations ...");	
 			this.dialog.setOnCancelListener(new OnCancelListener() {
 	            public void onCancel(DialogInterface dialog) {
 	                cancel(true);
@@ -577,10 +600,7 @@ public class TrafficMap extends MapActivity {
 		 @Override
 		 public Void doInBackground(Void... unused) {
 			 if (!this.isCancelled()) alerts = new AlertsOverlay();
-			 if (showCameras) {
-				 if (!this.isCancelled()) cameras = new CamerasOverlay();	 
-			 }
-			 
+			 if (!this.isCancelled()) cameras = new CamerasOverlay();		 
 			 return null;
 		 }
 

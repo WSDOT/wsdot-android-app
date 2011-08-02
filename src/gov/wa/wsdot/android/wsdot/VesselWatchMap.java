@@ -163,6 +163,12 @@ public class VesselWatchMap extends MapActivity {
 		menu.clear();
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.vessel_watch_menu, menu);
+
+	    if (showCameras) {
+	    	menu.getItem(2).setTitle("Hide Cameras");
+	    } else {
+	    	menu.getItem(2).setTitle("Show Cameras");
+	    }	    
 	    
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -215,10 +221,35 @@ public class VesselWatchMap extends MapActivity {
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Seattle-Bainbridge");
 	    	goToLocation(47.600325, -122.437249, 12);
 	    	return true;
+	    case R.id.toggle_cameras:
+	    	toggleCameras(item);
+	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
 	}
+
+	private void toggleCameras(MenuItem item) {
+		if (showCameras) {
+			AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/Hide Cameras");
+			map.getOverlays().remove(cameras);
+			map.invalidate();
+			item.setTitle("Show Cameras");
+			showCameras = false;
+		} else {
+			AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/Show Cameras");
+			map.getOverlays().add(cameras);
+			map.invalidate();
+			item.setTitle("Hide Cameras");
+			showCameras = true;
+		}		
+
+		// Save camera display preference
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putBoolean("KEY_SHOW_CAMERAS", showCameras);
+		editor.commit();
+	}	
 	
 	public void goToLocation(double latitude, double longitude, int zoomLevel) {	
         GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
@@ -583,17 +614,14 @@ public class VesselWatchMap extends MapActivity {
 					map.invalidate();
 					cameras = null;
 				}
-				if (showCameras) {
-					this.dialog.setMessage("Retrieving ferry and camera locations ...");	
-				} else {
-					this.dialog.setMessage("Retrieving ferry locations ...");
-				}
 				
+				this.dialog.setMessage("Retrieving ferry and camera locations ...");				
 				this.dialog.setOnCancelListener(new OnCancelListener() {
 		            public void onCancel(DialogInterface dialog) {
 		                cancel(true);
 		            }
-				});				
+				});
+				
 				this.dialog.show();
 				
 			} else {
@@ -609,11 +637,8 @@ public class VesselWatchMap extends MapActivity {
 		 public Void doInBackground(Void... unused) {
 			 if (!this.isCancelled()) vessels = new VesselsOverlay();
 			 if (firstRun) {
-				 if (showCameras) {
-					 if (!this.isCancelled()) cameras = new CamerasOverlay();	 
-				 }
+				 if (!this.isCancelled()) cameras = new CamerasOverlay();	 
 			 }
-			 
 			 return null;
 		 }
 

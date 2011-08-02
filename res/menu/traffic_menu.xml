@@ -24,10 +24,8 @@
 			<item android:orderInCategory="13" android:title="Wenatchee" android:id="@+id/goto_wenatchee" />
 		</menu>
 	</item>
-	<!--
-	<item android:id="@+id/my_places"
-		android:title="My Places"
-		android:icon="@drawable/ic_menu_myplaces"
+	<item android:id="@+id/toggle_cameras"
+		android:title="Cameras"
+		android:icon="@drawable/ic_menu_camera"
 		android:orderInCategory="3" />
-	-->
 </menu>
