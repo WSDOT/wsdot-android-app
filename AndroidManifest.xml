@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="gov.wa.wsdot.android.wsdot"
       android:installLocation="auto"
-      android:versionCode="38"
-      android:versionName="1.5.22">
+      android:versionCode="39"
+      android:versionName="1.5.23">
 
     <application
 	 	android:icon="@drawable/icon"
