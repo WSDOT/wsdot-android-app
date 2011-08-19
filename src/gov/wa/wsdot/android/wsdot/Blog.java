@@ -55,7 +55,7 @@ public class Blog extends ListActivity {
 	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/News & Social Media/Blog");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2011 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,8 @@ public class MountainPassItemMap extends MapActivity {
 	private MapView map = null;
 	
 	@SuppressWarnings("unchecked")
-	public void onCreate(Bundle savedInstanceState) {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         cameraItems = (ArrayList<CameraItem>)getIntent().getSerializableExtra("Cameras");

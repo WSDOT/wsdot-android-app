@@ -89,7 +89,8 @@ public class VesselWatchMap extends MapActivity {
 	boolean showCameras;
 	boolean showShadows;
 	
-	public void onCreate(Bundle savedInstanceState) {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch");

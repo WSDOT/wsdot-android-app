@@ -37,7 +37,7 @@ public class Ferries extends MainMenu {
 	}
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		((TextView)findViewById(R.id.sub_section)).setText("Ferries");
 	}

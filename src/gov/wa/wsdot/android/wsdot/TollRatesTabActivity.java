@@ -28,7 +28,7 @@ import android.widget.TextView;
 public class TollRatesTabActivity extends TabActivity {
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    
 	    setContentView(R.layout.tabs);

@@ -36,7 +36,7 @@ public class CameraVideo extends Activity {
     private TextView mLoadingMessage;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.videoview);
         ((TextView)findViewById(R.id.sub_section)).setText("Camera Video");

@@ -55,7 +55,7 @@ public class BorderWait extends ListActivity {
 	private HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Canadian Border");

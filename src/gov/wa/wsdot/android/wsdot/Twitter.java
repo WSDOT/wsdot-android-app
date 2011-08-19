@@ -57,7 +57,7 @@ public class Twitter extends ListActivity {
 	private TwitterItemAdapter adapter;
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/News & Social Media/Twitter");

@@ -46,7 +46,7 @@ public class SeattleExpressLanes extends ListActivity {
 	
     @SuppressWarnings("unchecked")
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Seattle/Express Lanes");

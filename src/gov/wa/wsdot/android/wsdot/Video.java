@@ -66,7 +66,7 @@ public class Video extends ListActivity {
 	private VideoItemAdapter adapter;
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/News & Social Media/Video");

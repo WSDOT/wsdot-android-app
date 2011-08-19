@@ -59,7 +59,7 @@ public class RouteSchedules extends ListActivity {
 	private RouteItemAdapter adapter;
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Route Schedules");

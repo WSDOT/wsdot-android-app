@@ -97,7 +97,7 @@ public class TrafficMap extends MapActivity {
 	static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST + 2;
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map");

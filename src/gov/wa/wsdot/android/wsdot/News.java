@@ -55,7 +55,7 @@ public class News extends ListActivity {
 	private NewsItemAdapter adapter;
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/News & Social Media/News");

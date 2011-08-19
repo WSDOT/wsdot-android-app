@@ -66,7 +66,7 @@ public class MountainPassConditions extends ListActivity {
 	private HashMap<Integer, String[]> weatherPhrases = new HashMap<Integer, String[]>();
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Mountain Passes");

@@ -36,7 +36,8 @@ import android.widget.TextView;
 public class SR16TollRatesActivity extends ListActivity {
 	private MyCustomAdapter adapter;
 	
-    public void onCreate(Bundle savedInstanceState) {
+	@Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Toll Rates/SR 16");

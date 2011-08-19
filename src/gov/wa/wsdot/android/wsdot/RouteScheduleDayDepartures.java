@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2011 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,8 +46,8 @@ public class RouteScheduleDayDepartures extends ListActivity {
 	private ArrayList<FerriesAnnotationsItem> annotations = null;
 	private ArrayList<FerriesScheduleTimesItem> times = null;
 	private DepartureTimesAdapter adapter;
+	
 	@Override
-
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		

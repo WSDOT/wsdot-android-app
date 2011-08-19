@@ -70,7 +70,7 @@ public class Photos extends Activity {
     private ArrayList<PhotoItem> photoItems = null;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/News & Social Media/Photos");
