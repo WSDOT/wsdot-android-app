@@ -55,6 +55,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -320,14 +322,29 @@ public class VesselWatchMap extends MapActivity {
 					String route = item.getString("route");
 					String lastDock = item.getString("lastdock");
 					String arrivingTerminal = item.getString("aterm");
+					String leftDock = item.getString("leftdock");
+					String actualDeparture = "";
 					
 					if (route == "") route = "Not available";
 					if (lastDock == "") lastDock = "Not available";
 					if (arrivingTerminal == "") arrivingTerminal = "Not available";
+					if (leftDock == "") {
+						actualDeparture = "--:--";
+					} else {
+						actualDeparture = leftDock + " " + item.getString("leftdockAMPM");
+					}
 					
 					vesselItems.add(new VesselItem(getPoint(item.getDouble("lat"), item.getDouble("lon")),
 							item.getString("name"),
-							"Route: " + route + "\nLast Dock: " + lastDock + "\nArriving Terminal: " + arrivingTerminal + "\nHeading: " + Integer.toString(item.getInt("head")) + "\u00b0 " + item.getString("headtxt") + "\nSpeed: " + Double.toString(item.getDouble("speed")) + " knots",
+							"<b>Route:</b> " + route
+								+ "<br><b>Departing:</b> " + lastDock
+								+ "<br><b>Arriving:</b> " + arrivingTerminal
+								+ "<br><b>Scheduled Departure:</b> " + item.getString("nextdep") + " " + item.getString("nextdepAMPM")
+								+ "<br><b>Actual Departure:</b> " + actualDeparture
+								+ "<br><b>Heading:</b> "	+ Integer.toString(item.getInt("head")) + "\u00b0 " + item.getString("headtxt")
+								+ "<br><b>Speed:</b> " + Double.toString(item.getDouble("speed")) + " knots"
+								+ "<br><br><font color=\"white\"><a href=\"http://www.wsdot.com/ferries/vesselwatch/VesselDetail.aspx?vessel_id="
+									+ item.getInt("vesselID") + "\">" + item.getString("name") + " Web page</a></font>",
 							getMarker(ferryIcon)));
 				}
 				
@@ -358,7 +375,9 @@ public class VesselWatchMap extends MapActivity {
 			LayoutInflater inflater = (LayoutInflater) VesselWatchMap.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			View layout = inflater.inflate(R.layout.vesselwatch_dialog, null);
 			((TextView)layout.findViewById(R.id.VesselName)).setText(item.getTitle());
-			((TextView)layout.findViewById(R.id.VesselDetails)).setText(item.getSnippet());
+			TextView mVesselDetails = (TextView)layout.findViewById(R.id.VesselDetails);
+			mVesselDetails.setMovementMethod(LinkMovementMethod.getInstance());
+			mVesselDetails.setText(Html.fromHtml(item.getSnippet()));
 			
 			builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
