@@ -325,10 +325,10 @@ public class VesselWatchMap extends MapActivity {
 					String leftDock = item.getString("leftdock");
 					String actualDeparture = "";
 					
-					if (route == "") route = "Not available";
-					if (lastDock == "") lastDock = "Not available";
-					if (arrivingTerminal == "") arrivingTerminal = "Not available";
-					if (leftDock == "") {
+					if (route.length() == 0) route = "Not available";
+					if (lastDock.length() == 0) lastDock = "Not available";
+					if (arrivingTerminal.length() == 0) arrivingTerminal = "Not available";
+					if (leftDock.length() == 0) {
 						actualDeparture = "--:--";
 					} else {
 						actualDeparture = leftDock + " " + item.getString("leftdockAMPM");
