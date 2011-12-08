@@ -341,6 +341,7 @@ public class VesselWatchMap extends MapActivity {
 								+ "<br><b>Arriving:</b> " + arrivingTerminal
 								+ "<br><b>Scheduled Departure:</b> " + item.getString("nextdep") + " " + item.getString("nextdepAMPM")
 								+ "<br><b>Actual Departure:</b> " + actualDeparture
+								+ "<br><b>Estimated Arrival:</b> " + item.getString("eta") + " " + item.getString("etaAMPM")
 								+ "<br><b>Heading:</b> "	+ Integer.toString(item.getInt("head")) + "\u00b0 " + item.getString("headtxt")
 								+ "<br><b>Speed:</b> " + Double.toString(item.getDouble("speed")) + " knots"
 								+ "<br><br><font color=\"white\"><a href=\"http://www.wsdot.com/ferries/vesselwatch/VesselDetail.aspx?vessel_id="
