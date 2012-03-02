@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
  */
 
 package gov.wa.wsdot.android.wsdot;
+
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -36,7 +38,9 @@ public class MountainPassItemDetails extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.mountainpass_item_details);
-		Bundle b = getIntent().getExtras();
+		
+		Bundle b = getIntent().getExtras();		
+		AnalyticsUtils.getInstance(this).trackPageView("/Mountain Passes/" + b.getString("MountainPassName") + "/Info");
 		
 		String weatherCondition;
 		String temperatureInFahrenheit;

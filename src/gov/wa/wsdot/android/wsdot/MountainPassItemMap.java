@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -65,9 +66,12 @@ public class MountainPassItemMap extends MapActivity {
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        Bundle b = getIntent().getExtras();
+        AnalyticsUtils.getInstance(this).trackPageView("/Mountain Passes/" + b.getString("MountainPassName") + "/Map");
+        
         cameraItems = (ArrayList<CameraItem>)getIntent().getSerializableExtra("Cameras");
         setContentView(R.layout.map_tabs);
-        Bundle b = getIntent().getExtras();
+
         Float latitude = new Float(b.getString("Latitude"));
         Float longitude = new Float(b.getString("Longitude"));
 

@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="gov.wa.wsdot.android.wsdot"
       android:installLocation="auto"
-      android:versionCode="41"
-      android:versionName="1.5.25">
+      android:versionCode="42"
+      android:versionName="1.5.26">
 
     <application
 	 	android:icon="@drawable/icon"
@@ -12,16 +12,15 @@
 		android:theme="@android:style/Theme.Light.NoTitleBar" >
 
         <activity
-        	android:name=".SplashScreen"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:name=".WSDOT"
+            android:label="@string/app_name" >
+        	<intent-filter>
+            	<action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="WSDOT" />
-   		<activity android:name="News" android:configChanges="orientation|keyboardHidden" />
+
+        <activity android:name="News" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="NewsItemDetails" />
    		<activity android:name="Blog" android:configChanges="orientation|keyboardHidden" />
    		<activity android:name="BlogItemDetails" />

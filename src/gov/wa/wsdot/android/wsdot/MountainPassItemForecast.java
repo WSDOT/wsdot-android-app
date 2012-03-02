@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.util.ArrayList;
 
@@ -39,6 +40,10 @@ public class MountainPassItemForecast extends ListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        Bundle b = getIntent().getExtras();
+        AnalyticsUtils.getInstance(this).trackPageView("/Mountain Passes/" + b.getString("MountainPassName") + "/Forecast");
+        
         forecastItems = (ArrayList<ForecastItem>)getIntent().getSerializableExtra("Forecasts");
         this.adapter = new MountainPassItemForecastAdapter(this, R.layout.simple_list_item, forecastItems);
         setListAdapter(this.adapter);        
