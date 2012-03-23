@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -79,6 +82,26 @@ public class Video extends ListActivity {
         new GetVideoItems().execute();
     }
 	
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+    	MenuInflater inflater = getMenuInflater();
+    	inflater.inflate(R.menu.refresh_menu_items, menu);
+    	
+    	return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+		case R.id.menu_refresh:
+			this.adapter.clear();
+			videoItems.clear();
+			new GetVideoItems().execute();
+		}
+		
+		return super.onOptionsItemSelected(item);
+	}    
+    
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);

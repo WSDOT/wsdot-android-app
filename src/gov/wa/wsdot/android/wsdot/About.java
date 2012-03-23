@@ -64,9 +64,9 @@ public class About extends Activity {
 				"transportation systems vital to our taxpayers and communities.</p>" +
 				"<p>The WSDOT mobile app was created to make it easier for you to know the latest " +
 				"about Washington's transportation system.</p>" +
-				"<p>Questions, comments or suggestions can be e-mailed to the <a href=\"mailto:webfeedback@wsdot.wa.gov\">WSDOT " +
-				"Communications Office</a> or give us a call at " +
-				"<a href=\"tel:3607057079\">360-705-7079</a>.</p><br />" +
+				"<p>Questions, comments or suggestions about this app can be e-mailed to the " +
+				"<a href=\"mailto:webfeedback@wsdot.wa.gov?subject=WSDOT Android App\">WSDOT " +
+				"Communications Office</a>.</p><br />" +
 				"<p style=\"color:#959595;\">App Version: " + versionName);
 			
 		return sb.toString();

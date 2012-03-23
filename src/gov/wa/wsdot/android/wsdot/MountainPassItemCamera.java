@@ -66,7 +66,8 @@ public class MountainPassItemCamera extends Activity {
         setContentView(R.layout.gallery);
         
         Bundle b = getIntent().getExtras();
-        AnalyticsUtils.getInstance(this).trackPageView("/Mountain Passes/" + b.getString("MountainPassName") + "/Cameras");
+        String pageView = "/Mountain Passes/" + b.getString("MountainPassName") + "/Cameras";
+        AnalyticsUtils.getInstance(this).trackPageView(pageView);
 
         remoteImages = (ArrayList<CameraItem>)getIntent().getSerializableExtra("Cameras");
         new GetCameraImages().execute();

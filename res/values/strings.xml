@@ -4,4 +4,5 @@
     <string name="app_name">WSDOT</string>
     <string name="no_list_data">Data could not be displayed</string>
 	<string name="detail_empty">No details found</string>
+	<string name="description_refresh">Refresh</string>
 </resources>

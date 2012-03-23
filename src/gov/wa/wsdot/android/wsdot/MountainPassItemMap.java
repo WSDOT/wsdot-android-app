@@ -67,7 +67,8 @@ public class MountainPassItemMap extends MapActivity {
         super.onCreate(savedInstanceState);
         
         Bundle b = getIntent().getExtras();
-        AnalyticsUtils.getInstance(this).trackPageView("/Mountain Passes/" + b.getString("MountainPassName") + "/Map");
+        String pageView = "/Mountain Passes/" + b.getString("MountainPassName") + "/Map";
+        AnalyticsUtils.getInstance(this).trackPageView(pageView);
         
         cameraItems = (ArrayList<CameraItem>)getIntent().getSerializableExtra("Cameras");
         setContentView(R.layout.map_tabs);

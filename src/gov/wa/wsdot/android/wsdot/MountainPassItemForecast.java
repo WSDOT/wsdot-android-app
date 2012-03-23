@@ -42,7 +42,8 @@ public class MountainPassItemForecast extends ListActivity {
         super.onCreate(savedInstanceState);
         
         Bundle b = getIntent().getExtras();
-        AnalyticsUtils.getInstance(this).trackPageView("/Mountain Passes/" + b.getString("MountainPassName") + "/Forecast");
+        String pageView = "/Mountain Passes/" + b.getString("MountainPassName") + "/Forecast";
+        AnalyticsUtils.getInstance(this).trackPageView(pageView);
         
         forecastItems = (ArrayList<ForecastItem>)getIntent().getSerializableExtra("Forecasts");
         this.adapter = new MountainPassItemForecastAdapter(this, R.layout.simple_list_item, forecastItems);

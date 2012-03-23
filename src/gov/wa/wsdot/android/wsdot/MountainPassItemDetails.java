@@ -39,8 +39,9 @@ public class MountainPassItemDetails extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.mountainpass_item_details);
 		
-		Bundle b = getIntent().getExtras();		
-		AnalyticsUtils.getInstance(this).trackPageView("/Mountain Passes/" + b.getString("MountainPassName") + "/Info");
+		Bundle b = getIntent().getExtras();
+		String pageView = "/Mountain Passes/" + b.getString("MountainPassName") + "/Info";
+		AnalyticsUtils.getInstance(this).trackPageView(pageView);
 		
 		String weatherCondition;
 		String temperatureInFahrenheit;

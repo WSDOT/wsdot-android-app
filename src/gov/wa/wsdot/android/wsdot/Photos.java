@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,9 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -68,6 +71,7 @@ public class Photos extends Activity {
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "Photos";
     private ArrayList<PhotoItem> photoItems = null;
+	private ImageAdapter adapter;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,10 +80,31 @@ public class Photos extends Activity {
         AnalyticsUtils.getInstance(this).trackPageView("/News & Social Media/Photos");
         
         setContentView(R.layout.displayview);
-        ((TextView)findViewById(R.id.sub_section)).setText("Photos");      
+        ((TextView)findViewById(R.id.sub_section)).setText("Photos");
+        this.adapter = new ImageAdapter(this);
         new GetRSSItems().execute();
     }
-   
+
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+    	MenuInflater inflater = getMenuInflater();
+    	inflater.inflate(R.menu.refresh_menu_items, menu);
+    	
+    	return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+		case R.id.menu_refresh:
+			photoItems.clear();
+			this.adapter.notifyDataSetChanged();
+			new GetRSSItems().execute();
+		}
+		
+		return super.onOptionsItemSelected(item);
+	}    
+    
     private class GetRSSItems extends AsyncTask<String, Integer, String> {
     	private final ProgressDialog dialog = new ProgressDialog(Photos.this);
 
@@ -185,7 +210,7 @@ public class Photos extends Activity {
     private void showImages() {
     	try {
             GridView gridView = (GridView) findViewById(R.id.gridview);
-            gridView.setAdapter(new ImageAdapter(this));    
+            gridView.setAdapter(this.adapter);    
             gridView.setOnItemClickListener(new OnItemClickListener() {
             	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 	        		Bundle b = new Bundle();
