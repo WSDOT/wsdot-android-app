@@ -108,7 +108,7 @@ public class SR16TollRatesActivity extends ListActivity {
         }
         
         public boolean isEnabled(int position) {  
-        	return (getItemViewType(position) != TYPE_SEPARATOR);  
+        	return false;  
         }
         
         @Override

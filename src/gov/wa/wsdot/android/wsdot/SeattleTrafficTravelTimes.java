@@ -199,6 +199,15 @@ public class SeattleTrafficTravelTimes extends ListActivity {
 	        this.items = items;
         }
 
+        @SuppressWarnings("unused")
+		public boolean areAllItemsSelectable() {
+        	return false;
+        }
+        
+        public boolean isEnabled(int position) {  
+        	return false;  
+        }        
+        
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 	        View v = convertView;

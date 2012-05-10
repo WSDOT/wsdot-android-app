@@ -101,9 +101,7 @@ public class BorderWaitNorthbound extends ListActivity {
 
 		@Override
 		protected void onPreExecute() {
-			this.dialog.setTitle("Loading...");
-	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setMax(9);
+			this.dialog.setMessage("Retrieving northbound border wait times ...");
 			this.dialog.setOnCancelListener(new OnCancelListener() {
 	            public void onCancel(DialogInterface dialog) {
 	                cancel(true);
