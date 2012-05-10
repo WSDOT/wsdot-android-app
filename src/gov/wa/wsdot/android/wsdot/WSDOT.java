@@ -29,7 +29,7 @@ public class WSDOT extends MainMenu {
 	void prepareMenu() {
 		addMenuItem("News & Social Media", SocialMedia.class);
 		addMenuItem("Mountain Passes", MountainPassConditions.class);
-		addMenuItem("Canadian Border", BorderWait.class);
+		addMenuItem("Canadian Border", BorderWaitTabs.class);
 		addMenuItem("Ferries", Ferries.class);
 		addMenuItem("Traffic Map", TrafficMap.class);
 		addMenuItem("Toll Rates", TollRatesTabActivity.class);

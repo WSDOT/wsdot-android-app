@@ -18,11 +18,20 @@
 
 package gov.wa.wsdot.android.wsdot.shared;
 
-public class BorderWaitItem {
+import java.io.Serializable;
+
+public class BorderWaitItem implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 166664752390774881L;
 	private String title;
 	private Integer route;
-	private String wait;
-	private String pubDate;
+	private Integer wait;
+	private String updated;
+	private String lane;
+	private String name;
+	private String direction;
 
 	public String getTitle() {
 		return title;
@@ -36,16 +45,34 @@ public class BorderWaitItem {
 	public void setRoute(Integer route) {
 		this.route = route;
 	}
-	public String getWait() {
+	public Integer getWait() {
 		return wait;
 	}
-	public void setWait(String wait) {
+	public void setWait(Integer wait) {
 		this.wait = wait;
 	}	
-	public String getPubDate() {
-		return pubDate;
+	public String getUpdated() {
+		return updated;
 	}
-	public void setPubDate(String pubDate) {
-		this.pubDate = pubDate;
+	public void setUpdated(String updated) {
+		this.updated = updated;
+	}
+	public String getLane() {
+		return lane;
+	}
+	public void setLane(String lane) {
+		this.lane = lane;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getDirection() {
+		return direction;
+	}
+	public void setDirection(String direction) {
+		this.direction = direction;
 	}
 }
