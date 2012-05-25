@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
+    <dimen name="whats_happening_height">70dp</dimen>
+    <dimen name="whats_happening_item_padding">10dp</dimen>
+    <dimen name="whats_happening_button_right_padding">20dp</dimen>
+    
     <dimen name="dialog_padding">10dip</dimen>
+    
+    <dimen name="text_size_small">14sp</dimen>
+    <dimen name="text_size_medium">18sp</dimen>
+    <dimen name="text_size_large">18sp</dimen>
+    <dimen name="text_size_xlarge">18sp</dimen>    
 </resources>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,35 +22,93 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.webkit.WebView;
-import android.widget.TextView;
 
-public class RouteAlertsItemDetails extends Activity {
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.ShareActionProvider;
+
+public class RouteAlertsItemDetails extends SherlockFragmentActivity {
 	WebView webview;
 	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+	private String mAlertPublishDate;
+	private String mAlertFullTitle;
+	private String mAlertDescription;
+	private String mAlertFullText;
+	private String mContent;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.webview);
-		((TextView)findViewById(R.id.sub_section)).setText("Ferries Route Alerts");
 
 		Bundle b = getIntent().getExtras();		
-		String alertFullTitle = b.getString("AlertFullTitle");		
+		mAlertFullTitle = b.getString("AlertFullTitle");
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);		
+		getSupportActionBar().setTitle(mAlertFullTitle);
+		
 		Date date = new Date(Long.parseLong(b.getString("AlertPublishDate")));
-		String alertPublishDate = displayDateFormat.format(date);
-		String alertDescription = b.getString("AlertDescription");
-		String alertFullText = b.getString("AlertFullText");
-		String html_content = "<h3>"+ alertFullTitle + "</h3>" + "<p>" + alertPublishDate + "</p><p><b>" + alertDescription + "</b></p><p>" + alertFullText + "</p>";
+		mAlertPublishDate = displayDateFormat.format(date);
+		mAlertDescription = b.getString("AlertDescription");
+		mAlertFullText = b.getString("AlertFullText");
+		
+		mContent = formatText(mAlertPublishDate, mAlertDescription, mAlertFullText);
 
 		webview = (WebView)findViewById(R.id.webview);
 		webview.getSettings().setJavaScriptEnabled(true);
-		webview.getSettings().setPluginsEnabled(true);
-		webview.loadDataWithBaseURL(null, html_content, "text/html", "utf-8", null);
+		webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
 	}
+
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportMenuInflater().inflate(R.menu.share_action_provider, menu);
+
+        // Set file with share history to the provider and set the share intent.
+        MenuItem actionItem = menu.findItem(R.id.menu_item_share_action_provider_action_bar);
+        ShareActionProvider actionProvider = (ShareActionProvider) actionItem.getActionProvider();
+        actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
+        // Note that you can set/change the intent any time,
+        // say when the user has selected an image.
+        actionProvider.setShareIntent(createShareIntent());
+    	
+    	return super.onCreateOptionsMenu(menu);
+	}
+    
+	private Intent createShareIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, mAlertFullTitle);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mAlertDescription + "\n\n" + mAlertFullText);
+        
+        return shareIntent;
+	}		
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}	
+
+	private String formatText(String date, String description, String text)	{
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("<p>" + date + "</p>");
+		sb.append("<p><b>" + description + "</b></p>");
+		sb.append("<p>" + text + "</p>");
+			
+		return sb.toString();
+	}	
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {

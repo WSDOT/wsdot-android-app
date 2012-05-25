@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@ package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.content.Intent;
-import android.view.Menu;
-import android.view.MenuItem;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
 public class WSDOT extends MainMenu {
 	
@@ -41,9 +41,9 @@ public class WSDOT extends MainMenu {
 	}
 	
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.options_menu, menu);
-		menu.findItem(R.id.about).setIntent(new Intent(this, About.class));	
-		menu.findItem(R.id.preferences).setIntent(new Intent(this, EditPreferences.class));
+		getSupportMenuInflater().inflate(R.menu.options_menu, menu);
+		menu.findItem(R.id.menu_about).setIntent(new Intent(this, About.class));	
+		menu.findItem(R.id.menu_preferences).setIntent(new Intent(this, Preferences.class));
 		super.onCreateOptionsMenu(menu);
 		return true;
 	}

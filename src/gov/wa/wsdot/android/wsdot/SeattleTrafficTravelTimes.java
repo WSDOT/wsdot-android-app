@@ -32,19 +32,11 @@ import java.util.zip.GZIPInputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -52,21 +44,27 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class SeattleTrafficTravelTimes extends ListActivity {
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+public class SeattleTrafficTravelTimes extends SherlockListActivity {
 	private static final String DEBUG_TAG = "TravelTimes";
 	private ArrayList<TravelTimesItem> travelTimesItems = null;
 	private TravelTimesItemAdapter adapter;
-	
-	//private HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
-	
+	private View mLoadingSpinner;
+		
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        
         AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Seattle/Travel Times");
         
-        setContentView(R.layout.main);
-        ((TextView)findViewById(R.id.sub_section)).setText("Seattle Area Travel Times");
+        setContentView(R.layout.fragment_list_with_spinner);
+        mLoadingSpinner = findViewById(R.id.loading_spinner);
+        
         travelTimesItems = new ArrayList<TravelTimesItem>();
         this.adapter = new TravelTimesItemAdapter(this, R.layout.traveltimes_item, travelTimesItems);
         setListAdapter(this.adapter);
@@ -76,8 +74,7 @@ public class SeattleTrafficTravelTimes extends ListActivity {
 	
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
-    	inflater.inflate(R.menu.refresh_menu_items, menu);
+    	getSupportMenuInflater().inflate(R.menu.refresh, menu);
     	
     	return super.onCreateOptionsMenu(menu);
 	}
@@ -85,6 +82,9 @@ public class SeattleTrafficTravelTimes extends ListActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;		
 		case R.id.menu_refresh:
 			this.adapter.clear();
 			travelTimesItems.clear();
@@ -95,29 +95,15 @@ public class SeattleTrafficTravelTimes extends ListActivity {
 	}    
     
     private class GetTravelTimesItems extends AsyncTask<String, Integer, String> {
-    	private final ProgressDialog dialog = new ProgressDialog(SeattleTrafficTravelTimes.this);
 
 		@Override
 		protected void onPreExecute() {
-	        this.dialog.setMessage("Retrieving travel times ...");
-	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setMax(119);
-			this.dialog.setOnCancelListener(new OnCancelListener() {
-	            public void onCancel(DialogInterface dialog) {
-	                cancel(true);
-	            }
-			});
-	        this.dialog.show();
+			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
     	
 	    protected void onCancelled() {
 	        Toast.makeText(SeattleTrafficTravelTimes.this, "Cancelled", Toast.LENGTH_SHORT).show();
 	    }
-		
-		@Override
-		protected void onProgressUpdate(Integer... progress) {
-			this.dialog.incrementProgressBy(progress[0]);
-		}
 
 		@Override
 		protected String doInBackground(String... params) {
@@ -167,9 +153,8 @@ public class SeattleTrafficTravelTimes extends ListActivity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}
+			mLoadingSpinner.setVisibility(View.GONE);
+			
             if (travelTimesItems != null && travelTimesItems.size() > 0) {
                 adapter.notifyDataSetChanged();
                 for (int i=0; i < travelTimesItems.size(); i++)
@@ -182,13 +167,6 @@ public class SeattleTrafficTravelTimes extends ListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, final int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		/*
-		Bundle b = new Bundle();
-		Intent intent = new Intent(this, RouteAlertsItems.class);
-		b.putSerializable("routeItems", routeItems.get(position));
-		intent.putExtras(b);
-		startActivity(intent);
-		*/
 	}
 	
 	private class TravelTimesItemAdapter extends ArrayAdapter<TravelTimesItem> {
@@ -210,18 +188,16 @@ public class SeattleTrafficTravelTimes extends ListActivity {
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        View v = convertView;
-	        if (v == null) {
-	            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	            v = vi.inflate(R.layout.traveltimes_item, null);
+	        if (convertView == null) {
+	            convertView = getLayoutInflater().inflate(R.layout.traveltimes_item, null);
 	        }
 	        
 	        TravelTimesItem o = items.get(position);
 	        if (o != null) {
-	            TextView description = (TextView) v.findViewById(R.id.route_description);
-	            TextView distance = (TextView) v.findViewById(R.id.distance);
-	            TextView average = (TextView) v.findViewById(R.id.average);
-	            TextView current = (TextView) v.findViewById(R.id.current);
+	            TextView description = (TextView) convertView.findViewById(R.id.route_description);
+	            TextView distance = (TextView) convertView.findViewById(R.id.distance);
+	            TextView average = (TextView) convertView.findViewById(R.id.average);
+	            TextView current = (TextView) convertView.findViewById(R.id.current);
 	            
 	            if (description != null) {
 	            	description.setText(o.getTitle());
@@ -247,7 +223,15 @@ public class SeattleTrafficTravelTimes extends ListActivity {
 	            	current.setText(o.getCurrentTime() + " min");
 	            }
 	        }
-	        return v;
+	        return convertView;
         }
 	}
+	
+	public static class ViewHolder {
+		public TextView description;
+		public TextView distance;
+		public TextView average;
+		public TextView current;
+	}
+	
 }

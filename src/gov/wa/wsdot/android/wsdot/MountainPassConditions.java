@@ -31,7 +31,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,19 +40,11 @@ import java.util.zip.GZIPInputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -61,12 +53,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MountainPassConditions extends ListActivity {
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+public class MountainPassConditions extends SherlockListActivity {
 	private static final String DEBUG_TAG = "MountainPassConditions";
 	private ArrayList<MountainPassItem> mountainPassItems = null;
 	private MountainPassItemAdapter adapter;
 
 	private HashMap<Integer, String[]> weatherPhrases = new HashMap<Integer, String[]>();
+	private View mLoadingSpinner;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +71,11 @@ public class MountainPassConditions extends ListActivity {
         
         AnalyticsUtils.getInstance(this).trackPageView("/Mountain Passes");
         
-        setContentView(R.layout.main);
-        ((TextView)findViewById(R.id.sub_section)).setText("Mountain Passes");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        
+        setContentView(R.layout.fragment_list_with_spinner);
+        mLoadingSpinner = findViewById(R.id.loading_spinner);        
+        
         mountainPassItems = new ArrayList<MountainPassItem>();
         this.adapter = new MountainPassItemAdapter(this, R.layout.row, mountainPassItems);
         setListAdapter(this.adapter);     
@@ -107,8 +107,7 @@ public class MountainPassConditions extends ListActivity {
 
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
-    	inflater.inflate(R.menu.refresh_menu_items, menu);
+    	getSupportMenuInflater().inflate(R.menu.refresh, menu);
     	
     	return super.onCreateOptionsMenu(menu);
 	}
@@ -116,6 +115,9 @@ public class MountainPassConditions extends ListActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
+		case android.R.id.home:
+	    	finish();
+	    	return true;		
 		case R.id.menu_refresh:
 			this.adapter.clear();
 			mountainPassItems.clear();
@@ -150,19 +152,10 @@ public class MountainPassConditions extends ListActivity {
 	}
    
 	private class GetMountainPassItems extends AsyncTask<String, Integer, String> {
-		private final ProgressDialog dialog = new ProgressDialog(MountainPassConditions.this);
 
 		@Override
 		protected void onPreExecute() {
-	        this.dialog.setMessage("Retrieving mountain pass conditions ...");
-	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setMax(15);
-			this.dialog.setOnCancelListener(new OnCancelListener() {
-	            public void onCancel(DialogInterface dialog) {
-	                cancel(true);
-	            }				
-			});
-	        this.dialog.show();
+			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
 		
 	    protected void onCancelled() {
@@ -242,7 +235,6 @@ public class MountainPassConditions extends ListActivity {
 						i.setRestrictionTwoText(restrictionTwo.getString("RestrictionText"));
 						i.setRestrictionTwoTravelDirection(restrictionTwo.getString("TravelDirection"));		
 						mountainPassItems.add(i);
-						publishProgress(1);
 					} else {
 						break;
 					}
@@ -253,16 +245,11 @@ public class MountainPassConditions extends ListActivity {
 			}
 			return null;
 		}		
-		
-		protected void onProgressUpdate(Integer... progress) {
-			this.dialog.incrementProgressBy(progress[0]);
-		}
 
 		@Override
 		protected void onPostExecute(String result) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}
+			mLoadingSpinner.setVisibility(View.GONE);
+			
             if(mountainPassItems != null && mountainPassItems.size() > 0){
                 adapter.notifyDataSetChanged();
                 for(int i=0;i<mountainPassItems.size();i++)
@@ -272,16 +259,15 @@ public class MountainPassConditions extends ListActivity {
 		}
 	}      
 	
-	@SuppressWarnings("unchecked")
 	private static Integer getWeatherImage(HashMap<Integer, String[]> weatherPhrases, String weather) {
 		Integer image = R.drawable.weather_na;
-		Set set = weatherPhrases.entrySet();
-		Iterator i = set.iterator();
+		Set<Entry<Integer, String[]>> set = weatherPhrases.entrySet();
+		Iterator<Entry<Integer, String[]>> i = set.iterator();
 		
 		if (weather.equals("")) return image;
 		
 		while(i.hasNext()) {
-			Map.Entry me = (Map.Entry)i.next();
+			Entry<Integer, String[]> me = i.next();
 			for (String phrase: (String[])me.getValue()) {
 				String patternStr = phrase;
 				Pattern pattern = Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE);
@@ -305,16 +291,14 @@ public class MountainPassConditions extends ListActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        View v = convertView;
-	        if (v == null) {
-	            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	            v = vi.inflate(R.layout.row, null);
+	        if (convertView == null) {
+	            convertView = getLayoutInflater().inflate(R.layout.row, null);
 	        }
 	        MountainPassItem o = items.get(position);
 	        if (o != null) {
-	            TextView tt = (TextView) v.findViewById(R.id.toptext);
-	            TextView bt = (TextView) v.findViewById(R.id.bottomtext);
-	            ImageView iv = (ImageView) v.findViewById(R.id.icon);
+	            TextView tt = (TextView) convertView.findViewById(R.id.toptext);
+	            TextView bt = (TextView) convertView.findViewById(R.id.bottomtext);
+	            ImageView iv = (ImageView) convertView.findViewById(R.id.icon);
 	            if (tt != null) {
 	            	tt.setText(o.getMountainPassName());
 	            }
@@ -323,7 +307,13 @@ public class MountainPassConditions extends ListActivity {
 	            }
 	       		iv.setImageResource(o.getWeatherIcon());
 	        }
-	        return v;
+	        return convertView;
         }
+	}
+	
+	public static class ViewHolder {
+		public ImageView iv;
+		public TextView tt;
+		public TextView bt;
 	}
 }

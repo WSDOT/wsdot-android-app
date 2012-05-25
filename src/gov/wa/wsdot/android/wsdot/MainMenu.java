@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,8 @@ package gov.wa.wsdot.android.wsdot;
 
 import java.util.TreeMap;
 
-import android.app.ListActivity;
+import com.actionbarsherlock.app.SherlockListActivity;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -32,7 +33,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public abstract class MainMenu extends ListActivity {
+public abstract class MainMenu extends SherlockListActivity {
 	private TreeMap<String, Object> actions = new TreeMap<String, Object>();
 	
 	@Override

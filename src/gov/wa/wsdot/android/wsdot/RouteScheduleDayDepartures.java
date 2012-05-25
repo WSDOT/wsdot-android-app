@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,48 +28,61 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import android.app.ListActivity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class RouteScheduleDayDepartures extends ListActivity {
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.MenuItem;
+
+public class RouteScheduleDayDepartures extends SherlockListActivity {
 	
 	private static final String DEBUG_TAG = "RouteScheduleDayDepartures";
 	private FerriesTerminalItem terminalItem;
 	private ArrayList<FerriesAnnotationsItem> annotations = null;
 	private ArrayList<FerriesScheduleTimesItem> times = null;
 	private DepartureTimesAdapter adapter;
+	private View mLoadingSpinner;
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		String terminalNames = getIntent().getStringExtra("terminalNames");
+
+        getSupportActionBar().setTitle(terminalNames);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        
+        setContentView(R.layout.fragment_list_with_spinner);
+        mLoadingSpinner = findViewById(R.id.loading_spinner);
+		
 		terminalItem = (FerriesTerminalItem)getIntent().getSerializableExtra("terminalItems");
-		setContentView(R.layout.main);
-		((TextView)findViewById(R.id.sub_section)).setText("Ferries Route Schedules");
 		times = new ArrayList<FerriesScheduleTimesItem>();
         this.adapter = new DepartureTimesAdapter(this, android.R.layout.simple_list_item_2, times);
         setListAdapter(this.adapter);
         new GetDepartureTimes().execute();
 	}
 
-   private class GetDepartureTimes extends AsyncTask<String, Integer, String> {
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}	
+	
+	private class GetDepartureTimes extends AsyncTask<String, Integer, String> {
 
 		@Override
 		protected void onPreExecute() {
-			// TODO Auto-generated method stub
-		}
-    	
-		@Override
-		protected void onProgressUpdate(Integer... progress) {
-			// TODO Auto-generated method stub
+			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
 
 		@Override
@@ -106,6 +119,8 @@ public class RouteScheduleDayDepartures extends ListActivity {
 
 		@Override
 		protected void onPostExecute(String result) {
+			mLoadingSpinner.setVisibility(View.GONE);
+			
             if (times != null && times.size() > 0) {
                 adapter.notifyDataSetChanged();
                 for(int i=0;i<times.size();i++)
@@ -134,12 +149,10 @@ public class RouteScheduleDayDepartures extends ListActivity {
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        View v = convertView;
 	        DateFormat dateFormat = new SimpleDateFormat("hh:mm a");
 	        
-	        if (v == null) {
-	            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	            v = vi.inflate(android.R.layout.simple_list_item_2, null);
+	        if (convertView == null) {
+	            convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_2, null);
 	        }
 	        
 	        FerriesScheduleTimesItem o = items.get(position);
@@ -151,16 +164,21 @@ public class RouteScheduleDayDepartures extends ListActivity {
 	        }
 	        
 	        if (o != null) {
-	            TextView tt = (TextView) v.findViewById(android.R.id.text1);
+	            TextView tt = (TextView) convertView.findViewById(android.R.id.text1);
 	            if(tt != null) {
 	            	tt.setText(dateFormat.format(new Date(Long.parseLong(o.getDepartingTime()))));
 	            }
-	            TextView bt = (TextView) v.findViewById(android.R.id.text2);
+	            TextView bt = (TextView) convertView.findViewById(android.R.id.text2);
 	            if(bt != null) {
             		bt.setText(annotation);
 	            }	            
 	        }
-	        return v;
+	        return convertView;
         }
-	}	
+	}
+	
+	public static class ViewHolder {
+		public TextView tt;
+		public TextView bt;
+	}
 }

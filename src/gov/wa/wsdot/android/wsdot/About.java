@@ -19,16 +19,17 @@
 package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.WebView;
-import android.widget.TextView;
 
-public class About extends Activity {
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.MenuItem;
+
+public class About extends SherlockActivity {
 	private static final String DEBUG_TAG = "About";
 	WebView webview;
 	String versionName = "Not available";
@@ -37,6 +38,8 @@ public class About extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		AnalyticsUtils.getInstance(this).trackPageView("/About");
 		
@@ -48,14 +51,21 @@ public class About extends Activity {
 	    }		
 		
 		setContentView(R.layout.webview);
-		((TextView)findViewById(R.id.sub_section)).setText("About");
 		
 		webview = (WebView)findViewById(R.id.webview);
-		webview.getSettings().setJavaScriptEnabled(true);
-		webview.getSettings().setPluginsEnabled(true);
 		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);
 	}
 	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
 	private String formatText()	{
 		StringBuilder sb = new StringBuilder();
 		

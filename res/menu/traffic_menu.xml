@@ -1,13 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/my_location"
-		android:title="My Location"
+	<item
+	    android:id="@+id/my_location"
+		android:title="@string/description_mylocation"
 		android:icon="@drawable/ic_menu_mylocation"
-		android:orderInCategory="1" />
-	<item android:id="@+id/goto_location"
-		android:title="GoTo Location"
+		android:orderInCategory="1"
+		android:showAsAction="ifRoom|withText" />	
+
+	<item
+	    android:id="@+id/toggle_cameras"
+		android:title="@string/description_cameras"
+		android:icon="@drawable/ic_menu_camera"
+		android:orderInCategory="2"
+		android:showAsAction="ifRoom|withText" />	
+		
+	<item
+	    android:id="@+id/goto_location"
+		android:title="@string/description_gotolocation"
 		android:icon="@drawable/ic_menu_goto"
-		android:orderInCategory="2" >
+		android:orderInCategory="3"
+		android:showAsAction="ifRoom|withText" >
 		<menu>
 			<item android:orderInCategory="1" android:title="Bellingham" android:id="@+id/goto_bellingham" />
 			<item android:orderInCategory="2" android:title="Chehalis" android:id="@+id/goto_chehalis" />		
@@ -24,8 +36,5 @@
 			<item android:orderInCategory="13" android:title="Wenatchee" android:id="@+id/goto_wenatchee" />
 		</menu>
 	</item>
-	<item android:id="@+id/toggle_cameras"
-		android:title="Cameras"
-		android:icon="@drawable/ic_menu_camera"
-		android:orderInCategory="3" />
+
 </menu>

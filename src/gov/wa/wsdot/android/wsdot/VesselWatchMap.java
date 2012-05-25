@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -42,10 +43,9 @@ import org.json.JSONObject;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -58,32 +58,26 @@ import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockMapActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
-public class VesselWatchMap extends MapActivity {
+public class VesselWatchMap extends SherlockMapActivity {
 
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "VesselWatchMap";
 	private MapView map = null;
 	private Handler handler = new Handler();
 	private Timer timer;
-	private boolean customTitleSupported;
-	private ProgressBar titleProgressBar;
 	private boolean firstRun = true;
 	private FixedMyLocationOverlay myLocationOverlay;
 	private VesselsOverlay vessels = null;
@@ -96,6 +90,8 @@ public class VesselWatchMap extends MapActivity {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch");
+        
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
         // Setup the unique latitude, longitude and zoom level
         prepareMap();
@@ -120,20 +116,7 @@ public class VesselWatchMap extends MapActivity {
     }
 	
 	public void prepareMap() {
-		// Check if custom title is supported. Not sure why it wouldn't be.
-        //customTitleSupported = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-		customTitleSupported = false;
-		super.setContentView(R.layout.map);
-
-		if (customTitleSupported) {
-			getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);		
-			final TextView leftText = (TextView) findViewById(R.id.left_text);
-			leftText.setText(getText(R.string.app_name).toString());
-			titleProgressBar = (ProgressBar) findViewById(R.id.progress_small_title);
-			titleProgressBar.setVisibility(ProgressBar.INVISIBLE);			
-		}
-		
-		((TextView)findViewById(R.id.sub_section)).setText("Ferries Vessel Watch");
+		setContentView(R.layout.map);
 		
 		Double latitude = 47.565125;
         Double longitude = -122.480508;
@@ -164,13 +147,12 @@ public class VesselWatchMap extends MapActivity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.vessel_watch_menu, menu);
+	    getSupportMenuInflater().inflate(R.menu.vessel_watch_menu, menu);
 
 	    if (showCameras) {
-	    	menu.getItem(2).setTitle("Hide Cameras");
+	    	menu.getItem(1).setTitle("Hide Cameras");
 	    } else {
-	    	menu.getItem(2).setTitle("Show Cameras");
+	    	menu.getItem(1).setTitle("Show Cameras");
 	    }	    
 	    
 		return super.onPrepareOptionsMenu(menu);
@@ -180,6 +162,9 @@ public class VesselWatchMap extends MapActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
 
+	    case android.R.id.home:
+	    	finish();
+	    	return true;	    
 	    case R.id.my_location:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/My Location");
 	        myLocationOverlay.runOnFirstFix(new Runnable() {
@@ -373,10 +358,9 @@ public class VesselWatchMap extends MapActivity {
 		protected boolean onTap(int i) {
 			OverlayItem item = getItem(i);
 			AlertDialog.Builder builder = new AlertDialog.Builder(VesselWatchMap.this);
-			LayoutInflater inflater = (LayoutInflater) VesselWatchMap.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View layout = inflater.inflate(R.layout.vesselwatch_dialog, null);
-			((TextView)layout.findViewById(R.id.VesselName)).setText(item.getTitle());
-			TextView mVesselDetails = (TextView)layout.findViewById(R.id.VesselDetails);
+			View layout = getLayoutInflater().inflate(R.layout.vesselwatch_dialog, null);
+			((TextView)layout.findViewById(R.id.vessel_name)).setText(item.getTitle());
+			TextView mVesselDetails = (TextView)layout.findViewById(R.id.vessel_details);
 			mVesselDetails.setMovementMethod(LinkMovementMethod.getInstance());
 			mVesselDetails.setText(Html.fromHtml(item.getSnippet()));
 			
@@ -521,8 +505,7 @@ public class VesselWatchMap extends MapActivity {
 			}
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(VesselWatchMap.this);
-			LayoutInflater inflater = (LayoutInflater) VesselWatchMap.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View layout = inflater.inflate(R.layout.camera_dialog, null);
+			View layout = getLayoutInflater().inflate(R.layout.camera_dialog, null);
 			ImageView image = (ImageView) layout.findViewById(R.id.image);
 			
 			if (image.equals(null)) {
@@ -555,7 +538,9 @@ public class VesselWatchMap extends MapActivity {
             out.flush();
             final byte[] data = dataStream.toByteArray();
             Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);                        
-            Drawable image = new BitmapDrawable(bitmap);
+
+            @SuppressWarnings("deprecation")
+			Drawable image = new BitmapDrawable(bitmap);
             return image;
 	    } catch (Exception e) {
 	        Log.e(DEBUG_TAG, "Error retrieving camera images", e);
@@ -644,9 +629,6 @@ public class VesselWatchMap extends MapActivity {
 				});
 				
 				this.dialog.show();
-				
-			} else {
-				 if (customTitleSupported) titleProgressBar.setVisibility(ProgressBar.VISIBLE);
 			}
 		 }
 
@@ -669,8 +651,6 @@ public class VesselWatchMap extends MapActivity {
 				if (this.dialog.isShowing()) {
 					this.dialog.dismiss();
 				}
-			 } else {
-				 if (customTitleSupported) titleProgressBar.setVisibility(ProgressBar.INVISIBLE);
 			 }
 
 			map.getOverlays().add(vessels);

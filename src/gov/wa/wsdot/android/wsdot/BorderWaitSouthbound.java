@@ -31,18 +31,11 @@ import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -50,38 +43,48 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class BorderWaitSouthbound extends ListActivity {
+import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
+public class BorderWaitSouthbound extends SherlockListFragment {
 	private static final String DEBUG_TAG = "BorderWaitSouthbound";
 	private ArrayList<BorderWaitItem> borderWaitItems = null;
 	private BorderWaitItemAdapter adapter;	
 	
 	private HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
+	private View mLoadingSpinner;
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 		
-		AnalyticsUtils.getInstance(this).trackPageView("/Canadian Border/Southbound");
-		
-        borderWaitItems = new ArrayList<BorderWaitItem>();
-        this.adapter = new BorderWaitItemAdapter(this, R.layout.borderwait_row, borderWaitItems);
-        setListAdapter(this.adapter);
-        
-        routeImage.put(5, R.drawable.i5);
-        routeImage.put(9, R.drawable.sr9);
-        routeImage.put(539, R.drawable.sr539);
-        routeImage.put(543, R.drawable.sr543);
-        routeImage.put(97, R.drawable.us97);
-        
-        new GetBorderWaitItems().execute();
+		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Canadian Border/Southbound");
 	}
 
+    @SuppressWarnings("deprecation")
+	@Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+
+        // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
+        // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+                ViewGroup.LayoutParams.FILL_PARENT));
+
+        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+
+        return root;
+    } 	
+	
     @Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
-    	inflater.inflate(R.menu.refresh_menu_items, menu);
-    	
-    	return super.onCreateOptionsMenu(menu);
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    	super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.refresh, menu);
 	}
 
 	@Override
@@ -96,28 +99,33 @@ public class BorderWaitSouthbound extends ListActivity {
 		return super.onOptionsItemSelected(item);
 	}	
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        borderWaitItems = new ArrayList<BorderWaitItem>();
+        this.adapter = new BorderWaitItemAdapter(getActivity(), R.layout.borderwait_row, borderWaitItems);
+        setListAdapter(this.adapter);
+        
+        routeImage.put(5, R.drawable.i5);
+        routeImage.put(9, R.drawable.sr9);
+        routeImage.put(539, R.drawable.sr539);
+        routeImage.put(543, R.drawable.sr543);
+        routeImage.put(97, R.drawable.us97);        
+        
+        new GetBorderWaitItems().execute();
+    }	
+	
 	private class GetBorderWaitItems extends AsyncTask<String, Integer, String> {
-    	private final ProgressDialog dialog = new ProgressDialog(BorderWaitSouthbound.this);
 
 		@Override
 		protected void onPreExecute() {
-			this.dialog.setMessage("Retrieving southbound border wait times ...");
-			this.dialog.setOnCancelListener(new OnCancelListener() {
-	            public void onCancel(DialogInterface dialog) {
-	                cancel(true);
-	            }
-			});
-	        this.dialog.show();
+			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
     	
 	    protected void onCancelled() {
-	        Toast.makeText(BorderWaitSouthbound.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
 	    }
-		
-		@Override
-		protected void onProgressUpdate(Integer... progress) {
-			this.dialog.incrementProgressBy(progress[0]);
-		}
 
 		@Override
 		protected String doInBackground(String... params) {
@@ -166,9 +174,7 @@ public class BorderWaitSouthbound extends ListActivity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}
+			mLoadingSpinner.setVisibility(View.GONE);
 			
             if(borderWaitItems != null && borderWaitItems.size() > 0){
                 adapter.notifyDataSetChanged();
@@ -177,7 +183,7 @@ public class BorderWaitSouthbound extends ListActivity {
             }
             adapter.notifyDataSetChanged();
 		}   
-    }	
+    }
 	
 	private class BorderWaitItemAdapter extends ArrayAdapter<BorderWaitItem> {
         private ArrayList<BorderWaitItem> items;
@@ -186,7 +192,7 @@ public class BorderWaitSouthbound extends ListActivity {
                 super(context, textViewResourceId, items);
                 this.items = items;
         }
-
+        
         @SuppressWarnings("unused")
 		public boolean areAllItemsSelectable() {
         	return false;
@@ -198,17 +204,15 @@ public class BorderWaitSouthbound extends ListActivity {
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        View v = convertView;
-	        if (v == null) {
-	            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	            v = vi.inflate(R.layout.borderwait_row, null);
+	        if (convertView == null) {
+	            convertView = getActivity().getLayoutInflater().inflate(R.layout.borderwait_row, null);
 	        }
 	        BorderWaitItem o = items.get(position);
 	        if (o != null) {
-	            TextView tt = (TextView) v.findViewById(R.id.toptext);
-	            TextView bt = (TextView) v.findViewById(R.id.bottomtext);
-	            TextView rt = (TextView) v.findViewById(R.id.righttext);
-	            ImageView iv = (ImageView) v.findViewById(R.id.icon);
+	            TextView tt = (TextView) convertView.findViewById(R.id.toptext);
+	            TextView bt = (TextView) convertView.findViewById(R.id.bottomtext);
+	            TextView rt = (TextView) convertView.findViewById(R.id.righttext);
+	            ImageView iv = (ImageView) convertView.findViewById(R.id.icon);
 	            if (tt != null) {
 	            	tt.setText(o.getName() + " (" + o.getLane() + ")");
 	            }
@@ -226,7 +230,7 @@ public class BorderWaitSouthbound extends ListActivity {
 	            }
 	            iv.setImageResource(routeImage.get(o.getRoute()));
 	        }
-	        return v;
+	        return convertView;
         }
         
 	}

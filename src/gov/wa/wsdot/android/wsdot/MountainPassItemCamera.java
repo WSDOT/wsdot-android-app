@@ -31,10 +31,6 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -51,51 +47,58 @@ import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-public class MountainPassItemCamera extends Activity {
+import com.actionbarsherlock.app.SherlockFragment;
+
+public class MountainPassItemCamera extends SherlockFragment {
 	
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "MountainPassItemPhotos";
 	private ArrayList<CameraItem> remoteImages;
     private ArrayList<Drawable> bitmapImages = new ArrayList<Drawable>();
-	
-    @SuppressWarnings("unchecked")
-	@Override    
-    protected void onCreate(Bundle savedInstanceState) 
-    {
+    private ViewGroup mRootView;
+    
+	@SuppressWarnings("unchecked")
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		
+		Bundle args = activity.getIntent().getExtras();
+		remoteImages = (ArrayList<CameraItem>)activity.getIntent().getSerializableExtra("Cameras");
+		String pageView = "/Mountain Passes/" + args.getString("MountainPassName") + "/Cameras";
+	    AnalyticsUtils.getInstance(getActivity()).trackPageView(pageView);		
+	}    
+    
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.gallery);
-        
-        Bundle b = getIntent().getExtras();
-        String pageView = "/Mountain Passes/" + b.getString("MountainPassName") + "/Cameras";
-        AnalyticsUtils.getInstance(this).trackPageView(pageView);
-
-        remoteImages = (ArrayList<CameraItem>)getIntent().getSerializableExtra("Cameras");
-        new GetCameraImages().execute();
     }
 
-    private class GetCameraImages extends AsyncTask<String, Integer, String> {
-    	private final ProgressDialog dialog = new ProgressDialog(MountainPassItemCamera.this);
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		mRootView = (ViewGroup) inflater.inflate(R.layout.gallery, null);
+		
+		return mRootView;
+	}    
+    
+    @Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		
+		new GetCameraImages().execute();
+	}
+
+	private class GetCameraImages extends AsyncTask<String, Integer, String> {
 
 		@Override
 		protected void onPreExecute() {
-	        this.dialog.setMessage("Retrieving camera images ...");
-	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setMax(remoteImages.size());
-			this.dialog.setOnCancelListener(new OnCancelListener() {
-	            public void onCancel(DialogInterface dialog) {
-	                cancel(true);
-	            }				
-			});			
-	        this.dialog.show();
 		}
 
 	    protected void onCancelled() {
-	        Toast.makeText(MountainPassItemCamera.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
 	    }
 		
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
-			this.dialog.incrementProgressBy(progress[0]);
 		}
 
 		@Override
@@ -105,7 +108,6 @@ public class MountainPassItemCamera extends Activity {
 	        
 	    	for (int i=0; i < remoteImages.size(); i++) {
 	    		if (!this.isCancelled()) {
-		    		final Drawable image;
 		    		Bitmap bitmap = null;
 		            try {
 		                in = new BufferedInputStream(new URL(remoteImages.get(i).getImageUrl()).openStream(), IO_BUFFER_SIZE);
@@ -119,7 +121,8 @@ public class MountainPassItemCamera extends Activity {
 		    	        Log.e(DEBUG_TAG, "Error retrieving camera images", e);
 		    	        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.camera_offline);
 		    	    } finally {
-		    	    	image = new BitmapDrawable(bitmap);
+		    	    	@SuppressWarnings("deprecation")
+		    	    	final Drawable image = new BitmapDrawable(bitmap);
 		    	    	bitmapImages.add(image);
 		    	    	publishProgress(1);
 		    	    }
@@ -132,29 +135,26 @@ public class MountainPassItemCamera extends Activity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}
 			populateGallery();
 		}   
     }  
 
     private void populateGallery() {
     	try {
-            Gallery gallery = (Gallery) findViewById(R.id.gallery);
-            gallery.setAdapter(new ImageAdapter(this));
+            Gallery gallery = (Gallery) mRootView.findViewById(R.id.gallery);
+            gallery.setAdapter(new ImageAdapter(getActivity()));
     	} catch (Exception e) {
             Log.e("DEBUG_TAG", "Error getting images", e);
         }	        
     }    
     
     public class ImageAdapter extends BaseAdapter {
-        private Context context;
+        private Activity context;
         private int itemBackground;
  
-        public ImageAdapter(Context c) {
+        public ImageAdapter(Activity c) {
             context = c;
-            TypedArray a = obtainStyledAttributes(R.styleable.Gallery1);
+            TypedArray a = getActivity().obtainStyledAttributes(R.styleable.Gallery1);
             itemBackground = a.getResourceId(R.styleable.Gallery1_android_galleryItemBackground, 0);
             a.recycle();                    
         }
@@ -173,8 +173,7 @@ public class MountainPassItemCamera extends Activity {
  
         public View getView(int position, View convertView, ViewGroup parent) {
         	ImageView imageView = new ImageView(context);
-            LayoutInflater inflater = getLayoutInflater();
-            imageView = (ImageView) inflater.inflate(R.layout.gallery_item, parent, false);
+            imageView = (ImageView) getActivity().getLayoutInflater().inflate(R.layout.gallery_item, parent, false);
             imageView.setImageDrawable(bitmapImages.get(position));
             imageView.setBackgroundResource(itemBackground);
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="@dimen/whats_happening_height"
+    android:orientation="horizontal"
+    android:baselineAligned="false"
+    android:background="@drawable/whats_happening_background" />

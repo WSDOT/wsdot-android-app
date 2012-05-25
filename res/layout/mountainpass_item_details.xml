@@ -7,33 +7,17 @@
 	
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
-	<!-- <include layout="@layout/header" /> -->
-	
-	<TextView android:id="@+id/MountainPassName"
-		android:text="Mountain Pass Name"
-		android:textSize="16sp"
-		android:textStyle="bold"
-		android:textColor="#017359"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-        android:paddingTop="5sp"
-        android:paddingRight="5sp"
-        android:paddingBottom="10sp"
-        android:paddingLeft="5dp"
-		/>
-		
-	<TextView android:id="@+id/DateUpdated"
-		android:text="Date Last Updated"
-    	android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-        android:paddingLeft="5dp"
-        android:paddingRight="5sp"
-        android:paddingBottom="15sp"		
-		/>			
-
+	<TextView
+	    android:id="@+id/date_updated"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+		android:paddingLeft="5dp"
+	    android:paddingBottom="10dp"
+	    android:paddingTop="5dp" />    
+    	
 	<TextView
 	    android:id="@+id/heading_WeatherCondition"
 	    android:text="Weather:"
@@ -41,7 +25,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 		android:paddingLeft="5dp"
-	    android:paddingRight="5sp"
+	    android:paddingRight="5dp"
 	    />    
 
 	<TextView
@@ -50,8 +34,8 @@
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
         android:paddingLeft="5dp"
-        android:paddingRight="5sp"
-        android:paddingBottom="5sp"
+        android:paddingRight="5dp"
+        android:paddingBottom="5dp"
     	/>
 
 	<TableLayout 
@@ -64,18 +48,18 @@
 			    android:id="@+id/heading_TemperatureInFahrenheit"
 			    android:text="Temperature:"
 			    android:textStyle="bold"
-			    android:width="105px"
+			    android:width="115dp"
          		android:paddingLeft="5dp"
-         		android:paddingRight="5sp"
-         		android:paddingBottom="5sp"
+         		android:paddingRight="5dp"
+         		android:paddingBottom="5dp"
 			    />
 			<TextView
 			    android:id="@+id/TemperatureInFahrenheit"
 			    android:text="temperature"
 			    android:layout_width="fill_parent"
 			    android:paddingLeft="5dp"
-         		android:paddingRight="5sp"
-         		android:paddingBottom="5sp"
+         		android:paddingRight="5dp"
+         		android:paddingBottom="5dp"
 			    />
 	    </TableRow>
 	    <TableRow>
@@ -83,10 +67,10 @@
 			    android:id="@+id/heading_ElevationInFeet"
 			    android:text="Elevation:"
 			    android:textStyle="bold"
-			    android:width="105px"
+			    android:width="115dp"
 		        android:paddingLeft="5dp"
-		        android:paddingRight="5sp"
-		        android:paddingBottom="5sp"
+		        android:paddingRight="5dp"
+		        android:paddingBottom="5dp"
 			    />    
 		
 			<TextView
@@ -94,8 +78,8 @@
 			    android:text="elevation"
 			    android:layout_width="fill_parent"
 		        android:paddingLeft="5dp"
-		        android:paddingRight="5sp"
-		        android:paddingBottom="5sp"
+		        android:paddingRight="5dp"
+		        android:paddingBottom="5dp"
 			    />	    
 	    </TableRow>
 
@@ -108,7 +92,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 		android:paddingLeft="5dp"
-	    android:paddingRight="5sp"
+	    android:paddingRight="5dp"
 	    />    
 
 	<TextView
@@ -117,8 +101,8 @@
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
         android:paddingLeft="5dp"
-        android:paddingRight="5sp"
-        android:paddingBottom="5sp"
+        android:paddingRight="5dp"
+        android:paddingBottom="5dp"
     	/>
     
 	<TextView
@@ -128,7 +112,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 		android:paddingLeft="5dp"
-	    android:paddingRight="5sp"
+	    android:paddingRight="5dp"
 	    />    
 
 	<TextView
@@ -137,8 +121,8 @@
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
         android:paddingLeft="5dp"
-        android:paddingRight="5sp"
-        android:paddingBottom="5sp"
+        android:paddingRight="5dp"
+        android:paddingBottom="5dp"
     	/>	  
 
 	<TextView
@@ -148,7 +132,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 		android:paddingLeft="5dp"
-	    android:paddingRight="5sp"
+	    android:paddingRight="5dp"
 	    />    
 
 	<TextView
@@ -157,8 +141,8 @@
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
         android:paddingLeft="5dp"
-        android:paddingRight="5sp"
-        android:paddingBottom="5sp"
+        android:paddingRight="5dp"
+        android:paddingBottom="5dp"
     	/>
 
 </LinearLayout>

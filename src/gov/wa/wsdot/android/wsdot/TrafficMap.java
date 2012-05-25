@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,10 @@
 
 package gov.wa.wsdot.android.wsdot;
 
-import gov.wa.wsdot.android.wsdot.shared.ExpressLaneItem;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
+import gov.wa.wsdot.android.wsdot.HighwayAlertItemDetails;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -36,7 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,11 +48,10 @@ import org.json.JSONObject;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.DialogInterface.OnCancelListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -61,23 +61,20 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockMapActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
-public class TrafficMap extends MapActivity {
+public class TrafficMap extends SherlockMapActivity {
 	
 	private static final String DEBUG_TAG = "TrafficMap";
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
@@ -90,7 +87,6 @@ public class TrafficMap extends MapActivity {
 	boolean showShadows;
 	private FixedMyLocationOverlay myLocationOverlay;
 	private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
-	private ArrayList<ExpressLaneItem> expressLaneItems = null;
 	
 	static final private int MENU_ITEM_SEATTLE_ALERTS = Menu.FIRST;
 	static final private int MENU_ITEM_TRAVEL_TIMES = Menu.FIRST + 1;
@@ -101,6 +97,8 @@ public class TrafficMap extends MapActivity {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map");
+        
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
         // Setup the unique latitude, longitude and zoom level
         prepareMap();
@@ -144,7 +142,7 @@ public class TrafficMap extends MapActivity {
 	
 	public void prepareMap() {
 		setContentView(R.layout.map);
-		((TextView)findViewById(R.id.sub_section)).setText("Traffic Near You");	
+	
         map = (MapView) findViewById(R.id.mapview);
         map.setSatellite(false);
         map.setBuiltInZoomControls(true);
@@ -156,27 +154,24 @@ public class TrafficMap extends MapActivity {
 	protected void onResume() {
 		super.onResume();
 		myLocationOverlay.enableMyLocation();
-
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		myLocationOverlay.disableMyLocation();
-
 	}
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
 		GeoPoint p = map.getMapCenter();
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.traffic_menu, menu);
+	    getSupportMenuInflater().inflate(R.menu.traffic_menu, menu);
 	    
 	    if (showCameras) {
-	    	menu.getItem(2).setTitle("Hide Cameras");
+	    	menu.getItem(1).setTitle("Hide Cameras");
 	    } else {
-	    	menu.getItem(2).setTitle("Show Cameras");
+	    	menu.getItem(1).setTitle("Show Cameras");
 	    }
 
 	    /**
@@ -184,9 +179,17 @@ public class TrafficMap extends MapActivity {
 	     * the greater Seattle area.
 	     */
 		if (inPolygon(seattleArea, p.getLatitudeE6(), p.getLongitudeE6())) {
-			menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts").setIcon(R.drawable.ic_menu_alerts);
-		    menu.add(0, MENU_ITEM_TRAVEL_TIMES, menu.size(), "Travel Times").setIcon(R.drawable.ic_menu_travel_times);
-		    menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes").setIcon(R.drawable.ic_menu_express_lanes);
+			menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts")
+				.setIcon(R.drawable.ic_menu_alerts)
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+			
+		    menu.add(0, MENU_ITEM_TRAVEL_TIMES, menu.size(), "Travel Times")
+		    	.setIcon(R.drawable.ic_menu_travel_times)
+		    	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		    
+		    menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes")
+		    	.setIcon(R.drawable.ic_menu_express_lanes)
+		    	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		}
 	    
 		return super.onPrepareOptionsMenu(menu);
@@ -196,9 +199,11 @@ public class TrafficMap extends MapActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
 
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
 	    case R.id.my_location:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/My Location");
-	    	((TextView)findViewById(R.id.sub_section)).setText("Traffic Near You");
 	        myLocationOverlay.runOnFirstFix(new Runnable() {
 	            public void run() {	    	
 	            	map.getController().animateTo(myLocationOverlay.getMyLocation());
@@ -269,7 +274,9 @@ public class TrafficMap extends MapActivity {
 	    	startActivity(timesIntent);
 	    	return true;
 	    case MENU_ITEM_EXPRESS_LANES:
-	    	new GetExpressLaneStatus().execute();
+	    	//new GetExpressLaneStatus().execute();
+	    	Intent expressIntent = new Intent(this, SeattleExpressLanes.class);
+	    	startActivity(expressIntent);
 	    	return true;	    	
 	    default:
 	        return super.onOptionsItemSelected(item);
@@ -302,7 +309,6 @@ public class TrafficMap extends MapActivity {
         GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
         map.getController().setZoom(zoomLevel);
         map.getController().setCenter(newPoint);
-        ((TextView)findViewById(R.id.sub_section)).setText(title);
 	}
 
 	/**
@@ -327,24 +333,7 @@ public class TrafficMap extends MapActivity {
 			j = i;
 		}
 		return inPoly;
-	}	
-	
-	/*
-	public void myPlaces() {
-		final CharSequence[] items = {"Seattle", "Tacoma", "Wenatchee"};
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("My Places");
-
-		builder.setItems(items, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int item) {
-				Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
-			}
-		});
-	
-		AlertDialog alert = builder.create();
-		alert.show();		
 	}
-	*/	
 	
 	@Override
 	protected boolean isRouteDisplayed() {
@@ -394,7 +383,7 @@ public class TrafficMap extends MapActivity {
 					JSONObject startRoadwayLocation = item.getJSONObject("StartRoadwayLocation");
 					
 					alertItems.add(new AlertItem(getPoint(startRoadwayLocation.getDouble("Latitude"), startRoadwayLocation.getDouble("Longitude")),
-							"",
+							item.getString("EventCategory"),
 							item.getString("HeadlineDescription"),
 							getMarker(getCategoryIcon(eventCategories, item.getString("EventCategory")))));
 				}
@@ -422,15 +411,13 @@ public class TrafficMap extends MapActivity {
 		@Override
 		protected boolean onTap(int i) {
 			OverlayItem item = getItem(i);
-			AlertDialog.Builder dialog = new AlertDialog.Builder(TrafficMap.this);
-			dialog.setMessage(item.getSnippet());  
-			dialog.setNegativeButton("OK", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					dialog.cancel();
-				}
-			});
-		
-			dialog.show();
+			Bundle b = new Bundle();
+			Intent intent = new Intent(TrafficMap.this, HighwayAlertItemDetails.class);
+			b.putString("title", item.getTitle());
+			b.putString("description", item.getSnippet());
+			intent.putExtras(b);
+			startActivity(intent);
+
 			return true;
 		} 
 		 
@@ -513,7 +500,7 @@ public class TrafficMap extends MapActivity {
 		@Override
 		protected boolean onTap(int i) {
 			OverlayItem item = getItem(i);
-			new GetCameraImage().execute(item.getSnippet());
+			new GetCameraImage().execute(item.getTitle(), item.getSnippet());
 
 			return true;
 		} 
@@ -622,6 +609,7 @@ public class TrafficMap extends MapActivity {
 	private class GetCameraImage extends AsyncTask<String, Void, Drawable> {
 		private final ProgressDialog dialog = new ProgressDialog(TrafficMap.this);
 		private boolean hasVideo = false;
+		private String cameraTitle;
 		private String cameraName;
 
 		protected void onPreExecute() {
@@ -639,7 +627,8 @@ public class TrafficMap extends MapActivity {
 	    }
 		
 		protected Drawable doInBackground(String... params) {
-			String[] param = params[0].split(",");
+			cameraTitle = params[0];
+			String[] param = params[1].split(",");
 			hasVideo = Integer.parseInt(param[1]) != 0;
 			
 			if (hasVideo) {
@@ -657,8 +646,7 @@ public class TrafficMap extends MapActivity {
 			}
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(TrafficMap.this);
-			LayoutInflater inflater = (LayoutInflater) TrafficMap.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View layout = inflater.inflate(R.layout.camera_dialog, null);
+			View layout = getLayoutInflater().inflate(R.layout.camera_dialog, null);
 			ImageView image = (ImageView) layout.findViewById(R.id.image);
 			
 			if (image.equals(null)) {
@@ -678,6 +666,7 @@ public class TrafficMap extends MapActivity {
 					public void onClick(DialogInterface dialog, int id) {
 						String videoPath = "http://images.wsdot.wa.gov/nwvideo/" + cameraName + ".mp4";
 						Intent intent = new Intent(getApplicationContext(), CameraVideo.class);
+						intent.putExtra("title", cameraTitle);
 						intent.putExtra("url", videoPath);
 						startActivity(intent);
 					}
@@ -689,77 +678,7 @@ public class TrafficMap extends MapActivity {
 			alertDialog.show();
 		}
 	}	
-	
-    private class GetExpressLaneStatus extends AsyncTask<String, Integer, String> {
-    	private final ProgressDialog dialog = new ProgressDialog(TrafficMap.this);
-
-		@Override
-		protected void onPreExecute() {
-	        this.dialog.setMessage("Retrieving express lanes status ...");
-			this.dialog.setOnCancelListener(new OnCancelListener() {
-	            public void onCancel(DialogInterface dialog) {
-	                cancel(true);
-	            }
-			});
-	        this.dialog.show();
-		}
-    	
-	    protected void onCancelled() {
-	        Toast.makeText(TrafficMap.this, "Cancelled", Toast.LENGTH_SHORT).show();
-	    }
 		
-		@Override
-		protected String doInBackground(String... params) {
-			try {
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/ExpressLanes.js");
-				URLConnection urlConn = url.openConnection();
-				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-				String jsonFile = "";
-				String line;
-				
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
-				in.close();
-				
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject result = obj.getJSONObject("express_lanes");
-				JSONArray items = result.getJSONArray("routes");
-				expressLaneItems = new ArrayList<ExpressLaneItem>();
-				ExpressLaneItem i = null;
-							
-				for (int j=0; j < items.length(); j++) {
-					if (!this.isCancelled()) {
-						JSONObject item = items.getJSONObject(j);
-						i = new ExpressLaneItem();
-						i.setTitle(item.getString("title"));
-						i.setRoute(item.getInt("route"));
-						i.setStatus(item.getString("status"));
-						expressLaneItems.add(i);
-					} else {
-						break;
-					}
-				}			
-
-			} catch (Exception e) {
-				Log.e(DEBUG_TAG, "Error in network call", e);
-			}
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}
-			
-			Bundle b = new Bundle();
-	    	Intent intent = new Intent(TrafficMap.this, SeattleExpressLanes.class);
-	    	b.putSerializable("ExpressLane", expressLaneItems);
-	    	intent.putExtras(b);
-	    	startActivity(intent);
-		}   
-    }
-	
     private Drawable loadImageFromNetwork(String url) {
     	BufferedInputStream in;
         BufferedOutputStream out;  
@@ -772,7 +691,9 @@ public class TrafficMap extends MapActivity {
             out.flush();
             final byte[] data = dataStream.toByteArray();
             Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);                        
-            final Drawable image = new BitmapDrawable(bitmap);
+            
+            @SuppressWarnings("deprecation")
+			final Drawable image = new BitmapDrawable(bitmap);
             return image;
 	    } catch (Exception e) {
 	        Log.e(DEBUG_TAG, "Error retrieving camera images", e);
@@ -797,16 +718,15 @@ public class TrafficMap extends MapActivity {
         }
     }	
 	
-	@SuppressWarnings("unchecked")
 	private static Integer getCategoryIcon(HashMap<Integer, String[]> eventCategories, String category) {
 		Integer image = R.drawable.alert_highest;
-		Set set = eventCategories.entrySet();
-		Iterator i = set.iterator();
+		Set<Entry<Integer, String[]>> set = eventCategories.entrySet();
+		Iterator<Entry<Integer, String[]>> i = set.iterator();
 		
 		if (category.equals("")) return image;
 		
 		while(i.hasNext()) {
-			Map.Entry me = (Map.Entry)i.next();
+			Entry<Integer, String[]> me = i.next();
 			for (String phrase: (String[])me.getValue()) {
 				String patternStr = phrase;
 				Pattern pattern = Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE);

@@ -27,36 +27,48 @@ import java.util.Date;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class MountainPassItemDetails extends Activity {
-	private static final String DEBUG_TAG = "MountainPassItemDetails";
+import com.actionbarsherlock.app.SherlockFragment;
+
+public class MountainPassItemDetails extends SherlockFragment {
+	private static final String DEBUG_TAG = "MountainPassItemDetails";	
 	DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m"); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
 	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
-
+	private ViewGroup mRootView;
+	private String mWeatherCondition;
+	private String mTemperatureInFahrenheit;
+	private String mElevationInFeet;
+	private String mRoadCondition;
+	private String mRestrictionOneTravelDirection;
+	private String mRestrictionOneText;
+	private String mRestrictionTwoTravelDirection;
+	private String mRestrictionTwoText;
+	private String mDateUpdated;
+	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.mountainpass_item_details);
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
 		
-		Bundle b = getIntent().getExtras();
-		String pageView = "/Mountain Passes/" + b.getString("MountainPassName") + "/Info";
-		AnalyticsUtils.getInstance(this).trackPageView(pageView);
+		Bundle args = activity.getIntent().getExtras();
+        String pageView = "/Mountain Passes/" + args.getString("MountainPassName") + "/Info";
+        AnalyticsUtils.getInstance(getActivity()).trackPageView(pageView);			
 		
-		String weatherCondition;
-		String temperatureInFahrenheit;
+		mWeatherCondition = args.getString("WeatherCondition");
+		mTemperatureInFahrenheit = args.getString("TemperatureInFahrenheit");
 		
-		weatherCondition = b.getString("WeatherCondition");
-		temperatureInFahrenheit = b.getString("TemperatureInFahrenheit");
-		
-		if (weatherCondition.equals("")) weatherCondition = "Not available";
-		if (temperatureInFahrenheit.equals("null")) {
-			temperatureInFahrenheit = "Not available";
+		if (mWeatherCondition.equals("")) mWeatherCondition = "Not available";
+		if (mTemperatureInFahrenheit.equals("null")) {
+			mTemperatureInFahrenheit = "Not available";
 		} else {
-			temperatureInFahrenheit = temperatureInFahrenheit + "\u00b0F";
+			mTemperatureInFahrenheit = mTemperatureInFahrenheit + "\u00b0F";
 		}
 
-		String tempDate = b.getString("DateUpdated");
+	    String tempDate = args.getString("DateUpdated");
+	    
 		try {
 			tempDate = tempDate.replace("[", "");
 			tempDate = tempDate.replace("]", "");
@@ -70,19 +82,38 @@ public class MountainPassItemDetails extends Activity {
 			tempDate = result.toString().trim();
 			tempDate = tempDate.substring(0, tempDate.length()-1);
 			Date date = parseDateFormat.parse(tempDate);
-			((TextView)findViewById(R.id.DateUpdated)).setText(displayDateFormat.format(date));
+			mDateUpdated = displayDateFormat.format(date);
 		} catch (Exception e) {
 			Log.e(DEBUG_TAG, "Error parsing date: " + tempDate, e);
-		}
+		}	    
 		
-		((TextView)findViewById(R.id.MountainPassName)).setText(b.getString("MountainPassName"));
-		((TextView)findViewById(R.id.WeatherCondition)).setText(weatherCondition);
-		((TextView)findViewById(R.id.TemperatureInFahrenheit)).setText(temperatureInFahrenheit);
-		((TextView)findViewById(R.id.ElevationInFeet)).setText(b.getString("ElevationInFeet") + " ft");
-		((TextView)findViewById(R.id.RoadCondition)).setText(b.getString("RoadCondition"));
-		((TextView)findViewById(R.id.heading_RestrictionOneTravelDirection)).setText("Restrictions " + b.getString("RestrictionOneTravelDirection") + ":");
-		((TextView)findViewById(R.id.RestrictionOneText)).setText(b.getString("RestrictionOneText"));
-		((TextView)findViewById(R.id.heading_RestrictionTwoTravelDirection)).setText("Restrictions " + b.getString("RestrictionTwoTravelDirection") + ":");
-		((TextView)findViewById(R.id.RestrictionTwoText)).setText(b.getString("RestrictionTwoText"));
+		mElevationInFeet = args.getString("ElevationInFeet");
+		mRoadCondition = args.getString("RoadCondition");
+		mRestrictionOneTravelDirection = args.getString("RestrictionOneTravelDirection");
+		mRestrictionOneText = args.getString("RestrictionOneText");
+		mRestrictionTwoTravelDirection = args.getString("RestrictionTwoTravelDirection");
+		mRestrictionTwoText = args.getString("RestrictionTwoText");
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mRootView = (ViewGroup) inflater.inflate(R.layout.mountainpass_item_details, null);
+        
+        ((TextView)mRootView.findViewById(R.id.date_updated)).setText(mDateUpdated);
+		((TextView)mRootView.findViewById(R.id.WeatherCondition)).setText(mWeatherCondition);
+		((TextView)mRootView.findViewById(R.id.TemperatureInFahrenheit)).setText(mTemperatureInFahrenheit);
+		((TextView)mRootView.findViewById(R.id.ElevationInFeet)).setText(mElevationInFeet + " ft");
+		((TextView)mRootView.findViewById(R.id.RoadCondition)).setText(mRoadCondition);
+		((TextView)mRootView.findViewById(R.id.heading_RestrictionOneTravelDirection)).setText("Restrictions " + mRestrictionOneTravelDirection + ":");
+		((TextView)mRootView.findViewById(R.id.RestrictionOneText)).setText(mRestrictionOneText);
+		((TextView)mRootView.findViewById(R.id.heading_RestrictionTwoTravelDirection)).setText("Restrictions " + mRestrictionTwoTravelDirection + ":");
+		((TextView)mRootView.findViewById(R.id.RestrictionTwoText)).setText(mRestrictionTwoText);        
+        
+        return mRootView;		
 	}
 }

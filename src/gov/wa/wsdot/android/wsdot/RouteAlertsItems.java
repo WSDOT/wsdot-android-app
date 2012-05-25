@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,19 +26,20 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class RouteAlertsItems extends ListActivity {
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.MenuItem;
+
+public class RouteAlertsItems extends SherlockListActivity {
 
 	private static final String DEBUG_TAG = "RouteAlertItems";
 	private FerriesRouteItem routeItems;
@@ -51,9 +52,12 @@ public class RouteAlertsItems extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+        String description = (String)getIntent().getStringExtra("description");
+		
+        getSupportActionBar().setTitle(description);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		
 		routeItems = (FerriesRouteItem)getIntent().getSerializableExtra("routeItems");
-		setContentView(R.layout.main);
-		((TextView)findViewById(R.id.sub_section)).setText("Ferries Route Alerts");
 		routeAlertItems = new ArrayList<FerriesRouteAlertItem>();
         this.adapter = new AlertItemAdapter(this, android.R.layout.simple_list_item_2, routeAlertItems);
         setListAdapter(this.adapter);
@@ -68,6 +72,16 @@ public class RouteAlertsItems extends ListActivity {
         thread.start();
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}	
+	
     private Runnable returnRes = new Runnable() {
         public void run() {
             if (routeAlertItems != null && routeAlertItems.size() > 0) {
@@ -118,15 +132,13 @@ public class RouteAlertsItems extends ListActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        View v = convertView;
-	        if (v == null) {
-	            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	            v = vi.inflate(android.R.layout.simple_list_item_2, null);
+	        if (convertView == null) {
+	            convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_2, null);
 	        }
 	        FerriesRouteAlertItem o = items.get(position);
 	        if (o != null) {
-	            TextView tt = (TextView) v.findViewById(android.R.id.text1);
-	            TextView bt = (TextView) v.findViewById(android.R.id.text2);
+	            TextView tt = (TextView) convertView.findViewById(android.R.id.text1);
+	            TextView bt = (TextView) convertView.findViewById(android.R.id.text2);
 	            if (tt != null) {
 	            	tt.setText(o.getAlertFullTitle());
 	            }
@@ -140,8 +152,12 @@ public class RouteAlertsItems extends ListActivity {
 	            	
 	            }
 	        }
-	        return v;
+	        return convertView;
         }
-	}	
+	}
 	
+	public static class ViewHolder {
+		public TextView tt;
+		public TextView bt;
+	}
 }

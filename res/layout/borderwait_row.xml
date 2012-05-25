@@ -13,7 +13,6 @@
 
     <TextView
         android:id="@+id/toptext"
-        android:text="Title"
         android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,7 +26,6 @@
         android:layout_alignParentBottom="true"
         android:layout_below="@id/toptext"
         android:layout_toRightOf="@id/icon"
-        android:text="Description"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
@@ -37,7 +35,6 @@
         android:layout_alignBottom="@+id/icon"
         android:layout_alignRight="@+id/toptext"
         android:layout_alignTop="@+id/toptext"
-        android:text="N/A"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,60 +21,83 @@ package gov.wa.wsdot.android.wsdot;
 import gov.wa.wsdot.android.wsdot.shared.ExpressLaneItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import android.app.ListActivity;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.TextUtils.TruncateAt;
-import android.view.Gravity;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class SeattleExpressLanes extends ListActivity {
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+public class SeattleExpressLanes extends SherlockListActivity {
 	private ArrayList<ExpressLaneItem> expressLaneItems;
 	private ExpressLaneItemAdapter adapter;
 	
 	private HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
+	private View mLoadingSpinner;
 	
-    @SuppressWarnings("unchecked")
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Seattle/Express Lanes");
 
-        setContentView(R.layout.details);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        
+        setContentView(R.layout.fragment_list_with_spinner);
+        mLoadingSpinner = findViewById(R.id.loading_spinner);        
 
         routeImage.put(5, R.drawable.i5);
         routeImage.put(90, R.drawable.i90);
         
-        expressLaneItems = (ArrayList<ExpressLaneItem>)getIntent().getSerializableExtra("ExpressLane");
-        Collections.sort(expressLaneItems, new RouteComparator());
+        expressLaneItems = new ArrayList<ExpressLaneItem>();
         this.adapter = new ExpressLaneItemAdapter(this, R.layout.details_item, expressLaneItems);
         setListAdapter(this.adapter);
-
-        View title = findViewById(android.R.id.title);
-        if (title instanceof TextView) {
-            TextView titleText = (TextView)title;
-            int dialogPadding = (int)getResources().getDimension(R.dimen.dialog_padding);
-            titleText.setSingleLine();
-            titleText.setEllipsize(TruncateAt.END);
-            titleText.setGravity(Gravity.CENTER_VERTICAL);
-            titleText.setPadding(dialogPadding, dialogPadding, dialogPadding, dialogPadding);
-            titleText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_dialog_menu_generic, 0, 0, 0);
-            titleText.setCompoundDrawablePadding(dialogPadding);
-        }       
-        setTitle("Express Lanes");
+        
+        new GetExpressLaneStatus().execute();
     }
     
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+    	getSupportMenuInflater().inflate(R.menu.refresh, menu);
+    	
+    	return super.onCreateOptionsMenu(menu);
+	}	
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+	    case R.id.menu_refresh:
+	    	this.adapter.clear();
+	    	expressLaneItems.clear();
+	    	new GetExpressLaneStatus().execute();
+		}
+		
+		return super.onOptionsItemSelected(item);
+	}
+	
     private class RouteComparator implements Comparator<ExpressLaneItem> {
 
     	public int compare(ExpressLaneItem object1, ExpressLaneItem object2) {
@@ -90,6 +113,72 @@ public class SeattleExpressLanes extends ListActivity {
 			}			
 		}    	
     }
+
+    private class GetExpressLaneStatus extends AsyncTask<String, Integer, String> {
+
+		@Override
+		protected void onPreExecute() {
+			mLoadingSpinner.setVisibility(View.VISIBLE);
+		}
+    	
+	    protected void onCancelled() {
+	        Toast.makeText(SeattleExpressLanes.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	    }
+		
+		@Override
+		protected String doInBackground(String... params) {
+			try {
+				URL url = new URL("http://data.wsdot.wa.gov/mobile/ExpressLanes.js");
+				URLConnection urlConn = url.openConnection();
+				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+				String jsonFile = "";
+				String line;
+				
+				while ((line = in.readLine()) != null)
+					jsonFile += line;
+				in.close();
+				
+				JSONObject obj = new JSONObject(jsonFile);
+				JSONObject result = obj.getJSONObject("express_lanes");
+				JSONArray items = result.getJSONArray("routes");
+				expressLaneItems = new ArrayList<ExpressLaneItem>();
+				ExpressLaneItem i = null;
+							
+				for (int j=0; j < items.length(); j++) {
+					if (!this.isCancelled()) {
+						JSONObject item = items.getJSONObject(j);
+						i = new ExpressLaneItem();
+						i.setTitle(item.getString("title"));
+						i.setRoute(item.getInt("route"));
+						i.setStatus(item.getString("status"));
+						i.setUpdated(item.getString("updated"));
+						expressLaneItems.add(i);
+					} else {
+						break;
+					}
+				}
+				
+				Collections.sort(expressLaneItems, new RouteComparator());
+
+			} catch (Exception e) {
+				Log.e("SeattleExpressLanes", "Error in network call", e);
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			mLoadingSpinner.setVisibility(View.GONE);
+			
+			if (expressLaneItems != null & expressLaneItems.size() > 0) {
+                adapter.notifyDataSetChanged();
+                for(int i=0;i<expressLaneItems.size();i++)
+                adapter.add(expressLaneItems.get(i));				
+			}
+			adapter.notifyDataSetChanged();
+		}   
+    }
+    
     
 	private class ExpressLaneItemAdapter extends ArrayAdapter<ExpressLaneItem> {
         private ArrayList<ExpressLaneItem> items;
@@ -110,25 +199,35 @@ public class SeattleExpressLanes extends ListActivity {
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        View v = convertView;
-	        if (v == null) {
-	            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	            v = vi.inflate(R.layout.details_item, null);
+	        if (convertView == null) {
+	            convertView = getLayoutInflater().inflate(R.layout.details_item, null);
 	        }
 	        ExpressLaneItem o = items.get(position);
 	        if (o != null) {
-	            TextView tt = (TextView) v.findViewById(R.id.title);
-	            TextView bt = (TextView) v.findViewById(R.id.description);
-	            ImageView iv = (ImageView) v.findViewById(R.id.icon);
+	            TextView tt = (TextView) convertView.findViewById(R.id.title);
+	            TextView bt = (TextView) convertView.findViewById(R.id.description);
+	            TextView ut = (TextView) convertView.findViewById(R.id.updated);
+	            ImageView iv = (ImageView) convertView.findViewById(R.id.icon);
 	            if (tt != null) {
 	            	tt.setText(o.getTitle());
 	            }
 	            if(bt != null) {
             		bt.setText(o.getStatus());
 	            }
+	            if(ut != null) {
+            		ut.setText(o.getUpdated());
+	            }	            
 	       		iv.setImageResource(routeImage.get(o.getRoute()));
 	        }
-	        return v;
+	        
+	        return convertView;
         }
+	}
+	
+	public static class ViewHolder {
+		public TextView tt;
+		public TextView bt;
+		public TextView ut;
+		public ImageView iv;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,49 +23,62 @@ import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 
 import java.util.ArrayList;
 
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class RouteSchedulesDaySailings extends ListActivity {
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.MenuItem;
+
+public class RouteSchedulesDaySailings extends SherlockListActivity {
 	
 	private static final String DEBUG_TAG = "RouteSchedulesDaySailings";
 	private FerriesScheduleDateItem scheduleDateItems;
 	private ArrayList<FerriesTerminalItem> terminalItems = null;
 	private SailingsAdapter adapter;
+	private View mLoadingSpinner;
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		String dayOfWeek = getIntent().getStringExtra("dayOfWeek");
+		
+        getSupportActionBar().setTitle(dayOfWeek);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        
+        setContentView(R.layout.fragment_list_with_spinner);
+        mLoadingSpinner = findViewById(R.id.loading_spinner);		
+		
 		scheduleDateItems = (FerriesScheduleDateItem)getIntent().getSerializableExtra("scheduleDateItems");
-		setContentView(R.layout.main);
-		((TextView)findViewById(R.id.sub_section)).setText("Ferries Route Schedules");
 		terminalItems = new ArrayList<FerriesTerminalItem>();
         this.adapter = new SailingsAdapter(this, android.R.layout.simple_list_item_1, terminalItems);
         setListAdapter(this.adapter);
         new GetTerminals().execute();
 	}
 	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}	
+	
     private class GetTerminals extends AsyncTask<String, Integer, String> {
 
 		@Override
 		protected void onPreExecute() {
-			// TODO Auto-generated method stub
-		}
-    	
-		@Override
-		protected void onProgressUpdate(Integer... progress) {
-			// TODO Auto-generated method stub
+			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
 
 		@Override
@@ -98,7 +111,9 @@ public class RouteSchedulesDaySailings extends ListActivity {
 		}
 
 		@Override
-		protected void onPostExecute(String result) {			
+		protected void onPostExecute(String result) {
+			mLoadingSpinner.setVisibility(View.GONE);
+			
             if (terminalItems != null && terminalItems.size() > 0) {
                 adapter.notifyDataSetChanged();
                 for(int i=0;i<terminalItems.size();i++)
@@ -111,8 +126,11 @@ public class RouteSchedulesDaySailings extends ListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
+		String terminalNames = terminalItems.get(position).getDepartingTerminalName() + " to " +
+				terminalItems.get(position).getArrivingTerminalName();
 		Bundle b = new Bundle();
 		Intent intent = new Intent(this, RouteScheduleDayDepartures.class);
+		b.putString("terminalNames", terminalNames);
 		b.putSerializable("terminalItems", terminalItems.get(position));
 		intent.putExtras(b);
 		startActivity(intent);		
@@ -128,22 +146,21 @@ public class RouteSchedulesDaySailings extends ListActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        View v = convertView;
-	        
-	        if (v == null) {
-	            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	            v = vi.inflate(android.R.layout.simple_list_item_1, null);
+	        if (convertView == null) {
+	            convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, null);
 	        }
 	        FerriesTerminalItem o = items.get(position);
 	        if (o != null) {
-	            TextView tt = (TextView) v.findViewById(android.R.id.text1);
+	            TextView tt = (TextView) convertView.findViewById(android.R.id.text1);
 	            if(tt != null) {
 	            	tt.setText(o.getDepartingTerminalName() + " to " + o.getArrivingTerminalName());
 	            }
 	        }
-	        return v;
+	        return convertView;
         }
 	}
-    
-
+	
+	public static class ViewHolder {
+		public TextView tt;
+	}
 }

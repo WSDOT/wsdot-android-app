@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,23 +21,37 @@ package gov.wa.wsdot.android.wsdot;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 
-public class SR167TollRatesActivity extends Activity {
+import com.actionbarsherlock.app.SherlockFragment;
+
+public class SR167TollRatesActivity extends SherlockFragment {
 	WebView webview;
+	private ViewGroup mRootView;
+	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		AnalyticsUtils.getInstance(this).trackPageView("/Toll Rates/SR 167");
-		
-		setContentView(R.layout.webview_tabs);
-		webview = (WebView)findViewById(R.id.webview);
-		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);	
+		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Toll Rates/SR 167");		
 	}
 	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		mRootView = (ViewGroup) inflater.inflate(R.layout.webview, null);
+		webview = (WebView)mRootView.findViewById(R.id.webview);
+		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);	
+		
+		return mRootView;
+	}
+
 	private String formatText()	{
 		StringBuilder sb = new StringBuilder();
 		
@@ -54,14 +68,4 @@ public class SR167TollRatesActivity extends Activity {
 			
 		return sb.toString();
 	}
-	
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-	    if ((keyCode == KeyEvent.KEYCODE_BACK) && webview.canGoBack()) {
-	        webview.goBack();
-	        return true;
-	    }
-	    return super.onKeyDown(keyCode, event);
-	}
-
 }

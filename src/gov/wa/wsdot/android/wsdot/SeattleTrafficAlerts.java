@@ -32,25 +32,23 @@ import java.util.TreeSet;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import android.app.ListActivity;
-import android.app.ProgressDialog;
+
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class SeattleTrafficAlerts extends ListActivity {
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+public class SeattleTrafficAlerts extends SherlockListActivity {
 	private static final String DEBUG_TAG = "SeattleIncidents";
 	private Stack<SeattleIncidentItem> seattleIncidentItems = null;
     private Stack<String> blocking = null;
@@ -60,16 +58,19 @@ public class SeattleTrafficAlerts extends ListActivity {
     private Stack<String> amberalert = null;
 	
     private MyCustomAdapter adapter;
+    private View mLoadingSpinner;
 
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        
         AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Seattle/Seattle Alerts");
         
-        setContentView(R.layout.main);
-        ((TextView)findViewById(R.id.sub_section)).setText("Seattle Area Alerts");
+        setContentView(R.layout.fragment_list_with_spinner);
+        mLoadingSpinner = findViewById(R.id.loading_spinner);
         seattleIncidentItems = new Stack<SeattleIncidentItem>();      
       
         this.adapter = new MyCustomAdapter();
@@ -80,8 +81,7 @@ public class SeattleTrafficAlerts extends ListActivity {
     
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
-    	inflater.inflate(R.menu.refresh_menu_items, menu);
+    	getSupportMenuInflater().inflate(R.menu.refresh, menu);
     	
     	return super.onCreateOptionsMenu(menu);
 	}
@@ -89,6 +89,9 @@ public class SeattleTrafficAlerts extends ListActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
 		case R.id.menu_refresh:
 			seattleIncidentItems.clear();
 			blocking.clear();
@@ -105,29 +108,15 @@ public class SeattleTrafficAlerts extends ListActivity {
 	}    
     
     private class GetSeattleIncidentItems extends AsyncTask<String, Integer, String> {
-    	private final ProgressDialog dialog = new ProgressDialog(SeattleTrafficAlerts.this);
 
 		@Override
 		protected void onPreExecute() {
-	        this.dialog.setMessage("Retrieving Seattle area alerts ...");
-	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setMax(10);
-			this.dialog.setOnCancelListener(new OnCancelListener() {
-	            public void onCancel(DialogInterface dialog) {
-	                cancel(true);
-	            }
-			});
-	        this.dialog.show();
+			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
     	
 	    protected void onCancelled() {
 	        Toast.makeText(SeattleTrafficAlerts.this, "Cancelled", Toast.LENGTH_SHORT).show();
 	    }
-		
-		@Override
-		protected void onProgressUpdate(Integer... progress) {
-			this.dialog.incrementProgressBy(progress[0]);
-		}
 
 		@Override
 		protected String doInBackground(String... params) {
@@ -221,9 +210,8 @@ public class SeattleTrafficAlerts extends ListActivity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}
+			mLoadingSpinner.setVisibility(View.GONE);
+			
 			if (amberalert != null && amberalert.size() != 0) {
 				adapter.addSeparatorItem("Amber Alert");
 				while (!amberalert.empty()) {

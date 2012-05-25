@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,48 +18,116 @@
 
 package gov.wa.wsdot.android.wsdot;
 
-import android.app.TabActivity;
-import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.widget.TabHost;
-import android.widget.TextView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 
-public class TollRatesTabActivity extends TabActivity {
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.app.ActionBar.Tab;
+import com.actionbarsherlock.view.MenuItem;
+
+public class TollRatesTabActivity extends SherlockFragmentActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
-	    
-	    setContentView(R.layout.tabs);
-	    ((TextView)findViewById(R.id.sub_section)).setText("Toll Rates");
-	    Resources res = getResources();
-	    TabHost tabHost = getTabHost();
-	    tabHost.getTabWidget().setBackgroundColor(0xff017359);   
-	    TabHost.TabSpec spec;
-	    Intent intent;
 
-	    // SR 520 Bridge
-	    intent = new Intent().setClass(this, SR520TollRatesActivity.class);
-	    spec = tabHost.newTabSpec("sr520")
-	    				.setIndicator("SR 520 Bridge", res.getDrawable(R.drawable.ic_tab_sr520))
-	    				.setContent(intent);
-	    tabHost.addTab(spec);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        ActionBar.Tab sr520Tab = getSupportActionBar().newTab();
+        sr520Tab.setText("SR 520");
+        sr520Tab.setTabListener(new TabListener<SR520TollRatesActivity>(this, "SR520", SR520TollRatesActivity.class));
+        getSupportActionBar().addTab(sr520Tab);
+
+        ActionBar.Tab sr16Tab = getSupportActionBar().newTab();
+        sr16Tab.setText("SR 16");
+        sr16Tab.setTabListener(new TabListener<SR16TollRatesActivity>(this, "SR16", SR16TollRatesActivity.class));
+        getSupportActionBar().addTab(sr16Tab);        
+
+        ActionBar.Tab sr167Tab = getSupportActionBar().newTab();
+        sr167Tab.setText("SR 167");
+        sr167Tab.setTabListener(new TabListener<SR167TollRatesActivity>(this, "SR167", SR167TollRatesActivity.class));
+        getSupportActionBar().addTab(sr167Tab);         
         
-	    // SR 16 Tacoma Narrows Bridge
-	    intent = new Intent().setClass(this, SR16TollRatesActivity.class);	    
-	    spec = tabHost.newTabSpec("sr16")
-	    				.setIndicator("Tacoma Narrows", res.getDrawable(R.drawable.ic_tab_sr16))
-	    				.setContent(intent);
-	    tabHost.addTab(spec);
-
-	    // SR 167 Hot Lanes
-	    intent = new Intent().setClass(this, SR167TollRatesActivity.class);	    
-	    spec = tabHost.newTabSpec("sr167")
-	    				.setIndicator("HOT Lanes", res.getDrawable(R.drawable.ic_tab_sr167))
-	    				.setContent(intent);
-	    tabHost.addTab(spec);
-	    
-	    tabHost.setCurrentTabByTag("sr520");
+        if (savedInstanceState != null) {
+            getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
+        }
 	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        /*Save the selected tab in order to restore in screen rotation*/
+        outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
+    }
+    public class TabListener<T extends Fragment> implements ActionBar.TabListener {
+        private Fragment mFragment;
+        private final SherlockFragmentActivity mActivity;
+        private final String mTag;
+        private final Class<T> mClass;
+
+        /** Constructor used each time a new tab is created.
+          * @param activity  The host Activity, used to instantiate the fragment
+          * @param tag  The identifier tag for the fragment
+          * @param clz  The fragment's Class, used to instantiate the fragment
+          */
+        public TabListener(SherlockFragmentActivity activity, String tag, Class<T> clz) {
+            mActivity = activity;
+            mTag = tag;
+            mClass = clz;
+            
+            FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+
+
+            // Check to see if we already have a fragment for this tab, probably
+            // from a previously saved state.  If so, deactivate it, because our
+            // initial state is that a tab isn't shown.
+            mFragment = mActivity.getSupportFragmentManager().findFragmentByTag(mTag);
+            if (mFragment != null && !mFragment.isDetached()) {
+                ft.detach(mFragment);
+            }
+        }       
+
+        /* The following are each of the ActionBar.TabListener callbacks */
+
+        public void onTabSelected(Tab tab, FragmentTransaction ft) {
+
+                ft = mActivity.getSupportFragmentManager().beginTransaction();
+
+            if (mFragment == null) {
+                mFragment = Fragment.instantiate(mActivity, mClass.getName());
+                ft.add(android.R.id.content, mFragment, mTag);
+                ft.commit();
+            } else {
+                ft.attach(mFragment);
+                ft.commit();
+            }
+        }
+
+        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+
+            ft = mActivity.getSupportFragmentManager().beginTransaction();
+
+            if (mFragment != null) {
+                ft.detach(mFragment);
+                ft.commitAllowingStateLoss();
+            }   
+        }
+
+        public void onTabReselected(Tab tab, FragmentTransaction ft) {
+            // User selected the already selected tab. Usually do nothing.
+        }
+    }    
 }

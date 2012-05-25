@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,28 +18,73 @@
 
 package gov.wa.wsdot.android.wsdot;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.webkit.WebView;
-import android.widget.TextView;
 
-public class PhotoItemDetails extends Activity {
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.ShareActionProvider;
+
+public class PhotoItemDetails extends SherlockActivity {
 	WebView webview;
+	private String mTitle;
+	private String mLink;
+	private String mContent;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.photo_item_details);
-		((TextView)findViewById(R.id.sub_section)).setText("Photos");
+
 		Bundle b = getIntent().getExtras();
+		mTitle = b.getString("title");
+		mLink = b.getString("link");
+		mContent = b.getString("content");
 		
-		((TextView)findViewById(R.id.photo_heading)).setText(b.getString("heading"));
-		String html_content = b.getString("content");
-		webview = (WebView)findViewById(R.id.photo_webview);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setTitle(mTitle);
+		
+		setContentView(R.layout.webview);
+
+		webview = (WebView)findViewById(R.id.webview);
 		webview.getSettings().setJavaScriptEnabled(true);
-		webview.getSettings().setPluginsEnabled(true);
-		webview.loadDataWithBaseURL(null, html_content, "text/html", "utf-8", null);
+		webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
+	}
+	
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportMenuInflater().inflate(R.menu.share_action_provider, menu);
+
+        // Set file with share history to the provider and set the share intent.
+        MenuItem actionItem = menu.findItem(R.id.menu_item_share_action_provider_action_bar);
+        ShareActionProvider actionProvider = (ShareActionProvider) actionItem.getActionProvider();
+        actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
+        // Note that you can set/change the intent any time,
+        // say when the user has selected an image.
+        actionProvider.setShareIntent(createShareIntent());
+    	
+    	return super.onCreateOptionsMenu(menu);
+	}
+    
+	private Intent createShareIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mTitle + " " + mLink);
+        
+        return shareIntent;
+	}	
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 	
 	@Override

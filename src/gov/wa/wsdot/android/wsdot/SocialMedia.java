@@ -20,7 +20,8 @@ package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.os.Bundle;
-import android.widget.TextView;
+
+import com.actionbarsherlock.view.MenuItem;
 
 public class SocialMedia extends MainMenu {
 
@@ -41,6 +42,17 @@ public class SocialMedia extends MainMenu {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		((TextView)findViewById(R.id.sub_section)).setText("News & Social Media");
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}	
 }

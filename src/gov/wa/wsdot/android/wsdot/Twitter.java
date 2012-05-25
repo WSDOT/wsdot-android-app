@@ -34,19 +34,12 @@ import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import android.app.ListActivity;
-import android.app.ProgressDialog;
+
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -54,10 +47,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Twitter extends ListActivity {
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+public class Twitter extends SherlockListActivity {
 	private static final String DEBUG_TAG = "Twitter";
 	private ArrayList<TwitterItem> twitterItems = null;
 	private TwitterItemAdapter adapter;
+	private View mLoadingSpinner;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,18 +63,20 @@ public class Twitter extends ListActivity {
         
         AnalyticsUtils.getInstance(this).trackPageView("/News & Social Media/Twitter");
         
-        setContentView(R.layout.main);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        
+        setContentView(R.layout.fragment_list_with_spinner);
+        mLoadingSpinner = findViewById(R.id.loading_spinner);
+        
         twitterItems = new ArrayList<TwitterItem>();
-        this.adapter = new TwitterItemAdapter(this, R.layout.news_item, twitterItems);
-        ((TextView)findViewById(R.id.sub_section)).setText("Tweets");
+        this.adapter = new TwitterItemAdapter(this, R.layout.simple_list_item, twitterItems);
         setListAdapter(this.adapter);
         new GetTwitterItems().execute();
     }
 
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
-    	inflater.inflate(R.menu.refresh_menu_items, menu);
+    	getSupportMenuInflater().inflate(R.menu.refresh, menu);
     	
     	return super.onCreateOptionsMenu(menu);
 	}
@@ -84,6 +84,9 @@ public class Twitter extends ListActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
 		case R.id.menu_refresh:
 			this.adapter.clear();
 			twitterItems.clear();
@@ -106,30 +109,16 @@ public class Twitter extends ListActivity {
 	}
 	   
     private class GetTwitterItems extends AsyncTask<String, Integer, String> {
-    	private final ProgressDialog dialog = new ProgressDialog(Twitter.this);
 
 		@Override
 		protected void onPreExecute() {
-	        this.dialog.setMessage("Retrieving latest tweets ...");
-	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setMax(20);
-			this.dialog.setOnCancelListener(new OnCancelListener() {
-	            public void onCancel(DialogInterface dialog) {
-	                cancel(true);
-	            }
-			});
-	        this.dialog.show();
+			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
     	
 	    protected void onCancelled() {
 	        Toast.makeText(Twitter.this, "Cancelled", Toast.LENGTH_SHORT).show();
 	    }
 		
-		@Override
-		protected void onProgressUpdate(Integer... progress) {
-			this.dialog.incrementProgressBy(progress[0]);
-		}
-
 		@Override
 		protected String doInBackground(String... params) {
 	    	String patternStr = "(http://[A-Za-z0-9./]+)"; // Find bit.ly addresses
@@ -177,7 +166,6 @@ public class Twitter extends ListActivity {
 		            	}
 						
 						twitterItems.add(i);
-						publishProgress(1);
 					} else {
 						break;
 					}
@@ -190,9 +178,8 @@ public class Twitter extends ListActivity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}
+			mLoadingSpinner.setVisibility(View.GONE);
+			
             if (twitterItems != null && twitterItems.size() > 0){
                 adapter.notifyDataSetChanged();
                 for(int i=0;i<twitterItems.size();i++)
@@ -212,15 +199,13 @@ public class Twitter extends ListActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        View v = convertView;
-	        if (v == null) {
-	            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	            v = vi.inflate(R.layout.news_item, null);
+	        if (convertView == null) {
+	            convertView = getLayoutInflater().inflate(R.layout.simple_list_item, null);
 	        }
 	        TwitterItem o = items.get(position);
 	        if (o != null) {
-                TextView tt = (TextView) v.findViewById(R.id.toptext);
-                TextView bt = (TextView) v.findViewById(R.id.bottomtext);
+                TextView tt = (TextView) convertView.findViewById(R.id.title);
+                TextView bt = (TextView) convertView.findViewById(R.id.description);
                 if (tt != null) {
                 	tt.setText(o.getTitle());
                 }
@@ -228,7 +213,12 @@ public class Twitter extends ListActivity {
 	        		bt.setText(o.getPubDate());
                 }
 	        }
-	        return v;
+	        return convertView;
         }
+	}
+	
+	public static class ViewHolder {
+		public TextView tt;
+		public TextView bt;
 	}
 }

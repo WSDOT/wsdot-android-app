@@ -39,12 +39,8 @@ import java.util.zip.GZIPInputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.DialogInterface.OnCancelListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -52,43 +48,46 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.Gallery.LayoutParams;
 import android.widget.GridView;
 import android.widget.ImageSwitcher;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Gallery.LayoutParams;
 
-public class Photos extends Activity {
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+public class Photos extends SherlockActivity {
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "Photos";
     private ArrayList<PhotoItem> photoItems = null;
 	private ImageAdapter adapter;
+	private View mLoadingSpinner;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         AnalyticsUtils.getInstance(this).trackPageView("/News & Social Media/Photos");
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
-        setContentView(R.layout.displayview);
-        ((TextView)findViewById(R.id.sub_section)).setText("Photos");
+        setContentView(R.layout.photos);
+        mLoadingSpinner = findViewById(R.id.loading_spinner);
+
         this.adapter = new ImageAdapter(this);
         new GetRSSItems().execute();
     }
 
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
-    	inflater.inflate(R.menu.refresh_menu_items, menu);
+    	getSupportMenuInflater().inflate(R.menu.refresh, menu);
     	
     	return super.onCreateOptionsMenu(menu);
 	}
@@ -96,6 +95,9 @@ public class Photos extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;		
 		case R.id.menu_refresh:
 			photoItems.clear();
 			this.adapter.notifyDataSetChanged();
@@ -106,29 +108,15 @@ public class Photos extends Activity {
 	}    
     
     private class GetRSSItems extends AsyncTask<String, Integer, String> {
-    	private final ProgressDialog dialog = new ProgressDialog(Photos.this);
 
 		@Override
 		protected void onPreExecute() {
-	        this.dialog.setMessage("Retrieving latest photos ...");
-	        this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        this.dialog.setMax(20);
-			this.dialog.setOnCancelListener(new OnCancelListener() {
-	            public void onCancel(DialogInterface dialog) {
-	                cancel(true);
-	            }
-			});
-	        this.dialog.show();
+			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
     	
 	    protected void onCancelled() {
 	        Toast.makeText(Photos.this, "Cancelled", Toast.LENGTH_SHORT).show();
 	    }
-		
-		@Override
-		protected void onProgressUpdate(Integer... progress) {
-			this.dialog.incrementProgressBy(progress[0]);
-		}
 
 		@Override
 		protected String doInBackground(String... params) {
@@ -182,7 +170,9 @@ public class Photos extends Activity {
 	                        out.flush();
 	                        final byte[] data = dataStream.toByteArray();
 	                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);                        
-	                        final Drawable image = new BitmapDrawable(bitmap);
+
+	                        @SuppressWarnings("deprecation")
+							final Drawable image = new BitmapDrawable(bitmap);
 	                        i.setImage(image);
 	                	}
 	                	
@@ -200,9 +190,8 @@ public class Photos extends Activity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}
+			mLoadingSpinner.setVisibility(View.GONE);
+			
 			showImages();
 		}   
     }
@@ -215,7 +204,8 @@ public class Photos extends Activity {
             	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 	        		Bundle b = new Bundle();
 	        		Intent intent = new Intent(Photos.this, PhotoItemDetails.class);
-	        		b.putString("heading", photoItems.get(position).getTitle());
+	        		b.putString("title", photoItems.get(position).getTitle());
+	        		b.putString("link", photoItems.get(position).getLink());
 	        		b.putString("content", photoItems.get(position).getContent());
 	        		intent.putExtras(b);
 	        		startActivity(intent);
@@ -227,7 +217,8 @@ public class Photos extends Activity {
         }	        
     }  
     
-    public View makeView() {
+    @SuppressWarnings("deprecation")
+	public View makeView() {
         ImageView imageView = new ImageView(this);
         imageView.setBackgroundColor(0xFFFFFFFF);
         imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);

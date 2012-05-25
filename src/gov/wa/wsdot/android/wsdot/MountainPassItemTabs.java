@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,75 +21,142 @@ package gov.wa.wsdot.android.wsdot;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-import android.app.TabActivity;
-import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.widget.TabHost;
-import android.widget.TextView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 
-public class MountainPassItemTabs extends TabActivity {
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
+
+public class MountainPassItemTabs extends SherlockFragmentActivity {
+	
+	DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m"); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
+	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	
 	private ArrayList<CameraItem> cameraItems;
 	private ArrayList<ForecastItem> forecastItems;
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 
-	    setContentView(R.layout.tabs);
-	    ((TextView)findViewById(R.id.sub_section)).setText("Mountain Passes");
-	    Resources res = getResources();
-	    TabHost tabHost = getTabHost();
-	    tabHost.getTabWidget().setBackgroundColor(0xff017359);   
-	    TabHost.TabSpec spec;
-	    Intent intent;
-
 	    Bundle b = getIntent().getExtras();
-	    intent = new Intent().setClass(this, MountainPassItemDetails.class);
-	    intent.putExtras(b);
-	    spec = tabHost.newTabSpec("info")
-	    				.setIndicator("Info", res.getDrawable(R.drawable.ic_tab_passes_info))
-	    				.setContent(intent);
-	    tabHost.addTab(spec);
+	    String mountainPassName = b.getString("MountainPassName");
+	    
+        getSupportActionBar().setTitle(mountainPassName);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
 	    cameraItems = (ArrayList<CameraItem>)getIntent().getSerializableExtra("Cameras");
-	    forecastItems = (ArrayList<ForecastItem>)getIntent().getSerializableExtra("Forecasts");
-	        
-	    // If there are no cameras for this pass, do not show the camera or map tabs
-	    if (cameraItems.isEmpty()) {
-	    } else {
-		    intent = new Intent().setClass(this, MountainPassItemCamera.class);	    
-		    b.putSerializable("Cameras", cameraItems);
-		    intent.putExtras(b);
-		    spec = tabHost.newTabSpec("cameras")
-		    				.setIndicator("Cameras", res.getDrawable(R.drawable.ic_tab_passes_camera))
-		    				.setContent(intent);
-		    tabHost.addTab(spec);
-	    	
-	    	intent = new Intent().setClass(this, MountainPassItemMap.class);	    
-		    intent.putExtras(b);
-		    spec = tabHost.newTabSpec("map")
-		    				.setIndicator("Map", res.getDrawable(R.drawable.ic_tab_passes_map))
-		    				.setContent(intent);
-		    tabHost.addTab(spec);
-	    }
+	    forecastItems = (ArrayList<ForecastItem>)getIntent().getSerializableExtra("Forecasts");        
+        
+        ActionBar.Tab reportTab = getSupportActionBar().newTab();
+        reportTab.setText("Report");
+        reportTab.setTabListener(new TabListener<MountainPassItemDetails>(this, "Report", MountainPassItemDetails.class, b));
+        getSupportActionBar().addTab(reportTab);	    
 	    
-	    // If there is no forecast for this pass, do not show the tab
-	    if (forecastItems.isEmpty()) {
-	    } else {
-		    intent = new Intent().setClass(this, MountainPassItemForecast.class);	    
-		    b.putSerializable("Forecasts", forecastItems);
-		    intent.putExtras(b);
-		    spec = tabHost.newTabSpec("forecast")
-		    				.setIndicator("Forecast", res.getDrawable(R.drawable.ic_tab_passes_forecast))
-		    				.setContent(intent);
-		    tabHost.addTab(spec);
+	    if (!cameraItems.isEmpty()) {
+	        ActionBar.Tab camerasTab = getSupportActionBar().newTab();
+	        camerasTab.setText("Cameras");
+	        camerasTab.setTabListener(new TabListener<MountainPassItemCamera>(this, "Cameras", MountainPassItemCamera.class, b));
+	        getSupportActionBar().addTab(camerasTab); 
 	    }
-	    
-	    tabHost.setCurrentTabByTag("info");
+        
+	    if (!forecastItems.isEmpty()) {
+	        ActionBar.Tab forecastTab = getSupportActionBar().newTab();
+	        forecastTab.setText("Forecast");
+	        forecastTab.setTabListener(new TabListener<MountainPassItemForecast>(this, "Forecast", MountainPassItemForecast.class, b));
+	        getSupportActionBar().addTab(forecastTab); 	    	
+	    }
+        
+        if (savedInstanceState != null) {
+            getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
+        }        
 	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        /*Save the selected tab in order to restore in screen rotation*/
+        outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
+    }
+    
+    public class TabListener<T extends Fragment> implements ActionBar.TabListener {
+        private Fragment mFragment;
+        private final SherlockFragmentActivity mActivity;
+        private final String mTag;
+        private final Class<T> mClass;
+        private final Bundle mArgs;
+
+        /** Constructor used each time a new tab is created.
+          * @param activity  The host Activity, used to instantiate the fragment
+          * @param tag  The identifier tag for the fragment
+          * @param clz  The fragment's Class, used to instantiate the fragment
+          * @param args The fragment's passed arguments
+          */
+        public TabListener(SherlockFragmentActivity activity, String tag, Class<T> clz, Bundle args) {
+            mActivity = activity;
+            mTag = tag;
+            mClass = clz;
+            mArgs = args;
+            
+            FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+
+
+            // Check to see if we already have a fragment for this tab, probably
+            // from a previously saved state.  If so, deactivate it, because our
+            // initial state is that a tab isn't shown.
+            mFragment = mActivity.getSupportFragmentManager().findFragmentByTag(mTag);
+            if (mFragment != null && !mFragment.isDetached()) {
+                ft.detach(mFragment);
+            }
+        }       
+
+        /* The following are each of the ActionBar.TabListener callbacks */
+
+        public void onTabSelected(Tab tab, FragmentTransaction ft) {
+
+                ft = mActivity.getSupportFragmentManager().beginTransaction();
+
+            if (mFragment == null) {
+                mFragment = Fragment.instantiate(mActivity, mClass.getName(), mArgs);
+                ft.add(android.R.id.content, mFragment, mTag);
+                ft.commit();
+            } else {
+                ft.attach(mFragment);
+                ft.commit();
+            }
+        }
+
+        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+
+            ft = mActivity.getSupportFragmentManager().beginTransaction();
+
+            if (mFragment != null) {
+                ft.detach(mFragment);
+                ft.commitAllowingStateLoss();
+            }   
+        }
+
+        public void onTabReselected(Tab tab, FragmentTransaction ft) {
+            // User selected the already selected tab. Usually do nothing.
+        }
+    }	
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,10 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import com.actionbarsherlock.view.MenuItem;
+
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.os.Bundle;
-import android.widget.TextView;
 
 public class Ferries extends MainMenu {
 	
@@ -39,6 +40,18 @@ public class Ferries extends MainMenu {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		((TextView)findViewById(R.id.sub_section)).setText("Ferries");
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);	
 	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}	
+	
 } 

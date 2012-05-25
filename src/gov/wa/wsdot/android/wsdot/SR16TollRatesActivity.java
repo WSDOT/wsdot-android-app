@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-import android.app.ListActivity;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,15 +31,36 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-public class SR16TollRatesActivity extends ListActivity {
+import com.actionbarsherlock.app.SherlockListFragment;
+
+public class SR16TollRatesActivity extends SherlockListFragment {
 	private MyCustomAdapter adapter;
 	
 	@Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        AnalyticsUtils.getInstance(this).trackPageView("/Toll Rates/SR 16");
-        
+        AnalyticsUtils.getInstance(getActivity()).trackPageView("/Toll Rates/SR 16");        
+    }
+
+    @SuppressWarnings("deprecation")
+	@Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+
+        // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
+        // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+                ViewGroup.LayoutParams.FILL_PARENT));
+
+        return root;
+    }
+	
+    @Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		
         HashMap<String, String> map = null;
         String[][] vehicleTypeData = {
         		{"Passenger vehicle/Motorcycle", "Two", "$2.75", "$4.00"},
@@ -68,10 +87,10 @@ public class SR16TollRatesActivity extends ListActivity {
         	map.put("goodtogo_pass", vehicleTypeData[i][2]);
             map.put("pay_by_cash", vehicleTypeData[i][3]);
             adapter.addItem(map);
-        }
-    }
-    
-    private class MyCustomAdapter extends BaseAdapter {
+        }		
+	}
+
+	private class MyCustomAdapter extends BaseAdapter {
         
     	private static final int TYPE_ITEM = 0;
         private static final int TYPE_SEPARATOR = 1;
@@ -82,7 +101,7 @@ public class SR16TollRatesActivity extends ListActivity {
         private TreeSet<Integer> mSeparatorsSet = new TreeSet<Integer>();
  
         public MyCustomAdapter() {
-            mInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            mInflater = getActivity().getLayoutInflater();
         }
         
         public void addItem(final HashMap<String, String> map) {
@@ -129,8 +148,9 @@ public class SR16TollRatesActivity extends ListActivity {
         }
         
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
+            ViewHolder holder;
             int type = getItemViewType(position);
+            
             if (convertView == null) {
                 holder = new ViewHolder();
                 switch (type) {
@@ -157,6 +177,7 @@ public class SR16TollRatesActivity extends ListActivity {
             holder.numberAxles.setText(mData.get(position).get("number_axles"));
             holder.goodToGoPass.setText(mData.get(position).get("goodtogo_pass"));
             holder.payByCash.setText(mData.get(position).get("pay_by_cash"));
+            
             return convertView;
         }
     }

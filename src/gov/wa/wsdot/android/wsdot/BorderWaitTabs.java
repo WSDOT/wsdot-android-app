@@ -18,38 +18,112 @@
 
 package gov.wa.wsdot.android.wsdot;
 
-import android.app.TabActivity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TabHost;
-import android.widget.TextView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 
-public class BorderWaitTabs extends TabActivity {
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
+
+public class BorderWaitTabs extends SherlockFragmentActivity {
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       
-        setContentView(R.layout.tabs);
-        ((TextView)findViewById(R.id.sub_section)).setText("Border Wait Times");
 
-	    TabHost tabHost = getTabHost();
-	    tabHost.getTabWidget().setBackgroundColor(0xff017359);   
-	    TabHost.TabSpec spec;
-	    Intent intent;
-
-	    intent = new Intent().setClass(BorderWaitTabs.this, BorderWaitNorthbound.class);
-	    spec = tabHost.newTabSpec("northbound")
-	    				.setIndicator("Northbound")
-	    				.setContent(intent);
-	    tabHost.addTab(spec);        
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         
-	    intent = new Intent().setClass(BorderWaitTabs.this, BorderWaitSouthbound.class);
-	    spec = tabHost.newTabSpec("southbound")
-	    				.setIndicator("Southbound")
-	    				.setContent(intent);
-	    tabHost.addTab(spec);	    
+        ActionBar.Tab northboundTab = getSupportActionBar().newTab();
+        northboundTab.setText("Northbound");
+        northboundTab.setTabListener(new TabListener<BorderWaitNorthbound>(this, "Northbound", BorderWaitNorthbound.class));
+        getSupportActionBar().addTab(northboundTab);
 
-	    tabHost.setCurrentTabByTag("northbound");        
+        ActionBar.Tab southboundTab = getSupportActionBar().newTab();
+        southboundTab.setText("Southbound");
+        southboundTab.setTabListener(new TabListener<BorderWaitSouthbound>(this, "Southbound", BorderWaitSouthbound.class));
+        getSupportActionBar().addTab(southboundTab);        
+        
+        if (savedInstanceState != null) {
+            getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
+        }
+    }
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}    
+    
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        /*Save the selected tab in order to restore in screen rotation*/
+        outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
+    }
+    
+    public class TabListener<T extends Fragment> implements ActionBar.TabListener {
+        private Fragment mFragment;
+        private final SherlockFragmentActivity mActivity;
+        private final String mTag;
+        private final Class<T> mClass;
+
+        /** Constructor used each time a new tab is created.
+          * @param activity  The host Activity, used to instantiate the fragment
+          * @param tag  The identifier tag for the fragment
+          * @param clz  The fragment's Class, used to instantiate the fragment
+          */
+        public TabListener(SherlockFragmentActivity activity, String tag, Class<T> clz) {
+            mActivity = activity;
+            mTag = tag;
+            mClass = clz;
+            
+            FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+
+
+            // Check to see if we already have a fragment for this tab, probably
+            // from a previously saved state.  If so, deactivate it, because our
+            // initial state is that a tab isn't shown.
+            mFragment = mActivity.getSupportFragmentManager().findFragmentByTag(mTag);
+            if (mFragment != null && !mFragment.isDetached()) {
+                ft.detach(mFragment);
+            }
+        }       
+
+        /* The following are each of the ActionBar.TabListener callbacks */
+
+        public void onTabSelected(Tab tab, FragmentTransaction ft) {
+
+                ft = mActivity.getSupportFragmentManager().beginTransaction();
+
+            if (mFragment == null) {
+                mFragment = Fragment.instantiate(mActivity, mClass.getName());
+                ft.add(android.R.id.content, mFragment, mTag);
+                ft.commit();
+            } else {
+                ft.attach(mFragment);
+                ft.commit();
+            }
+        }
+
+        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+
+            ft = mActivity.getSupportFragmentManager().beginTransaction();
+
+            if (mFragment != null) {
+                ft.detach(mFragment);
+                ft.commitAllowingStateLoss();
+            }   
+        }
+
+        public void onTabReselected(Tab tab, FragmentTransaction ft) {
+            // User selected the already selected tab. Usually do nothing.
+        }
     }
 }

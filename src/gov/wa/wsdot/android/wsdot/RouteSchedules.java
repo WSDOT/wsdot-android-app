@@ -36,19 +36,12 @@ import java.util.zip.GZIPInputStream;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import android.app.ListActivity;
-import android.app.ProgressDialog;
+
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -56,10 +49,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class RouteSchedules extends ListActivity {
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+public class RouteSchedules extends SherlockListActivity {
 	private static final String DEBUG_TAG = "RouteSchedules";
 	private ArrayList<FerriesRouteItem> routeItems = null;
 	private RouteItemAdapter adapter;
+	private View mLoadingSpinner;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +65,11 @@ public class RouteSchedules extends ListActivity {
         
         AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Route Schedules");
         
-        setContentView(R.layout.main);
-        ((TextView)findViewById(R.id.sub_section)).setText("Ferries Route Schedules");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        
+        setContentView(R.layout.fragment_list_with_spinner);
+        mLoadingSpinner = findViewById(R.id.loading_spinner);
+        
         routeItems = new ArrayList<FerriesRouteItem>();
         this.adapter = new RouteItemAdapter(this, android.R.layout.simple_list_item_1, routeItems);
         setListAdapter(this.adapter);
@@ -77,8 +78,7 @@ public class RouteSchedules extends ListActivity {
 	
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
-    	inflater.inflate(R.menu.refresh_menu_items, menu);
+    	getSupportMenuInflater().inflate(R.menu.refresh, menu);
     	
     	return super.onCreateOptionsMenu(menu);
 	}
@@ -86,6 +86,9 @@ public class RouteSchedules extends ListActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;		
 		case R.id.menu_refresh:
 			this.adapter.clear();
 			routeItems.clear();
@@ -96,18 +99,10 @@ public class RouteSchedules extends ListActivity {
 	}    
     
     private class GetRouteSchedules extends AsyncTask<String, Integer, String> {
-    	private final ProgressDialog dialog = new ProgressDialog(RouteSchedules.this);
 
 		@Override
 		protected void onPreExecute() {
-	        this.dialog.setMessage("Retrieving route schedules ...");
-	        this.dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-			this.dialog.setOnCancelListener(new OnCancelListener() {
-	            public void onCancel(DialogInterface dialog) {
-	                cancel(true);
-	            }
-			});
-	        this.dialog.show();
+			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
 
 	    protected void onCancelled() {
@@ -192,7 +187,6 @@ public class RouteSchedules extends ListActivity {
 							
 							route.setFerriesScheduleDateItem(scheduleDate);
 						}
-						
 						routeItems.add(route);
 					} else {
 						break;
@@ -207,9 +201,8 @@ public class RouteSchedules extends ListActivity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}
+			mLoadingSpinner.setVisibility(View.GONE);
+			
             if (routeItems != null && routeItems.size() > 0) {
                 adapter.notifyDataSetChanged();
                 for(int i=0;i<routeItems.size();i++)
@@ -224,6 +217,7 @@ public class RouteSchedules extends ListActivity {
 		super.onListItemClick(l, v, position, id);
 		Bundle b = new Bundle();
 		Intent intent = new Intent(this, RouteSchedulesDays.class);
+		b.putString("description", routeItems.get(position).getDescription());
 		b.putSerializable("routeItems", routeItems.get(position));
 		intent.putExtras(b);
 		startActivity(intent);
@@ -239,19 +233,21 @@ public class RouteSchedules extends ListActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        View v = convertView;
-	        if (v == null) {
-	            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	            v = vi.inflate(android.R.layout.simple_list_item_1, null);
+	        if (convertView == null) {
+	            convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, null);
 	        }
 	        FerriesRouteItem o = items.get(position);
 	        if (o != null) {
-	            TextView tt = (TextView) v.findViewById(android.R.id.text1);
+	            TextView tt = (TextView) convertView.findViewById(android.R.id.text1);
 	            if (tt != null) {
 	            	tt.setText(o.getDescription());
 	            }
 	        }
-	        return v;
+	        return convertView;
         }
+	}
+	
+	public static class ViewHolder {
+		public TextView tt;
 	}
 }

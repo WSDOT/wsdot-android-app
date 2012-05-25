@@ -205,8 +205,10 @@ public class MountainPassItemMap extends MapActivity {
             copy(in, out);
             out.flush();
             final byte[] data = dataStream.toByteArray();
-            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);                        
-            Drawable image = new BitmapDrawable(bitmap);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            
+            @SuppressWarnings("deprecation")
+			Drawable image = new BitmapDrawable(bitmap);
             return image;
 	    } catch (Exception e) {
 	        Log.e(DEBUG_TAG, "Error retrieving camera images", e);
