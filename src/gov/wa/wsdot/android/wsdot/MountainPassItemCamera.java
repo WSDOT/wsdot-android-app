@@ -56,6 +56,7 @@ public class MountainPassItemCamera extends SherlockFragment {
 	private ArrayList<CameraItem> remoteImages;
     private ArrayList<Drawable> bitmapImages = new ArrayList<Drawable>();
     private ViewGroup mRootView;
+	private View mLoadingSpinner;
     
 	@SuppressWarnings("unchecked")
 	@Override
@@ -73,9 +74,17 @@ public class MountainPassItemCamera extends SherlockFragment {
         super.onCreate(savedInstanceState);
     }
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mRootView = (ViewGroup) inflater.inflate(R.layout.gallery, null);
+		
+        // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
+        // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
+        mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+                ViewGroup.LayoutParams.FILL_PARENT));
+
+        mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);		
 		
 		return mRootView;
 	}    
@@ -91,15 +100,12 @@ public class MountainPassItemCamera extends SherlockFragment {
 
 		@Override
 		protected void onPreExecute() {
+			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
 
 	    protected void onCancelled() {
 	        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
 	    }
-		
-		@Override
-		protected void onProgressUpdate(Integer... progress) {
-		}
 
 		@Override
 		protected String doInBackground(String... params) {
@@ -124,7 +130,6 @@ public class MountainPassItemCamera extends SherlockFragment {
 		    	    	@SuppressWarnings("deprecation")
 		    	    	final Drawable image = new BitmapDrawable(bitmap);
 		    	    	bitmapImages.add(image);
-		    	    	publishProgress(1);
 		    	    }
 	    		} else {
 	    			break;
@@ -135,6 +140,8 @@ public class MountainPassItemCamera extends SherlockFragment {
 
 		@Override
 		protected void onPostExecute(String result) {
+			mLoadingSpinner.setVisibility(View.GONE);
+			
 			populateGallery();
 		}   
     }  
