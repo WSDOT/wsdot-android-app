@@ -11,9 +11,9 @@
         android:layout_height="fill_parent"
         android:layout_weight="1" />
 
-    <fragment android:name="gov.wa.wsdot.android.wsdot.ui.WhatsHappeningFragment"
+    <fragment android:name="gov.wa.wsdot.android.wsdot.ui.HighImpactAlertsFragment"
         android:id="@+id/fragment_now_playing"
         android:layout_width="fill_parent"
-        android:layout_height="@dimen/whats_happening_height" />
+        android:layout_height="@dimen/high_impact_alerts_height" />
 
 </LinearLayout>

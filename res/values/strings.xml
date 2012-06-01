@@ -49,7 +49,7 @@
     <string name="description_gotolocation">GoTo Location</string>
     <string name="description_star">Star</string>
     
-    <string name="whats_happening_default">High impact alerts and other important travel updates here.</string>
+    <string name="high_impact_alerts_inactive">No highest impact travel alerts</string>
 
     <!-- Replace the apiKey with your own. See this link for more information, 
 		 http://code.google.com/android/add-ons/google-apis/mapkey.html

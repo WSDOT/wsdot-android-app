@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <dimen name="whats_happening_height">70dp</dimen>
-    <dimen name="whats_happening_item_padding">10dp</dimen>
-    <dimen name="whats_happening_button_right_padding">20dp</dimen>
+    <dimen name="high_impact_alerts_height">70dp</dimen>
+    <dimen name="high_impact_alerts_item_padding">10dp</dimen>
+    <dimen name="high_impact_alerts_button_right_padding">20dp</dimen>
     
     <dimen name="dialog_padding">10dip</dimen>
     
