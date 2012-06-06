@@ -134,13 +134,13 @@
    		    android:label="@string/title_video" />
    		
    		<activity
-   		    android:name=".CameraVideo" />
+   		    android:name=".CameraTabs" />
 
    		<activity
    		    android:name=".HighwayAlertItemDetails" />
    				
-   		<uses-library android:name="com.google.android.maps" />
-
+   		<uses-library android:name="com.google.android.maps" />   		
+   		
     </application>
 
 </manifest> 
