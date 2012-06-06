@@ -19,7 +19,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.options_menu, menu);
+        getSupportMenuInflater().inflate(R.menu.options, menu);
 
         return super.onCreateOptionsMenu(menu);
     }

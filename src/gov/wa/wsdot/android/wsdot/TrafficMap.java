@@ -153,7 +153,7 @@ public class TrafficMap extends SherlockMapActivity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
 		GeoPoint p = map.getMapCenter();
-	    getSupportMenuInflater().inflate(R.menu.traffic_menu, menu);
+	    getSupportMenuInflater().inflate(R.menu.traffic, menu);
 	    
 	    if (showCameras) {
 	    	menu.getItem(1).setTitle("Hide Cameras");

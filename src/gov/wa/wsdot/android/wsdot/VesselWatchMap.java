@@ -138,7 +138,7 @@ public class VesselWatchMap extends SherlockMapActivity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
-	    getSupportMenuInflater().inflate(R.menu.vessel_watch_menu, menu);
+	    getSupportMenuInflater().inflate(R.menu.vessel_watch, menu);
 
 	    if (showCameras) {
 	    	menu.getItem(1).setTitle("Hide Cameras");
