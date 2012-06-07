@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -196,58 +197,72 @@ public class TrafficMap extends SherlockMapActivity {
 	            	map.getController().animateTo(myLocationOverlay.getMyLocation());
 	            }
 	        });
+	        UIUtils.refreshActionBarMenu(this);
 	        return true;
 	    case R.id.goto_bellingham:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Bellingham");
 	    	goToLocation("Bellingham Traffic", 48.756302,-122.46151, 12);
+	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;	        
 	    case R.id.goto_chehalis:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Chehalis");
 	    	goToLocation("Chelalis Traffic", 46.635529, -122.937698, 13);
+	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_hoodcanal:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Hood Canal");
 	    	goToLocation("Hood Canal Traffic", 47.85268,-122.628365, 13);
+	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_mtvernon:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Mt Vernon");
 	    	goToLocation("Mt Vernon Traffic", 48.420657,-122.334824, 13);
+	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_stanwood:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Stanwood");
 	    	goToLocation("Stanwood Traffic", 48.22959, -122.34581, 13);
+	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_monroe:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Monroe");
 	    	goToLocation("Monroe Traffic", 47.859476, -121.972446, 14);
+	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_sultan:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Sultan");
 	    	goToLocation("Sultan Traffic", 47.86034, -121.812286, 14);
+	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_olympia:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Olympia");
 	    	goToLocation("Olympia Traffic", 47.021461, -122.899933, 13);
+	    	UIUtils.refreshActionBarMenu(this);
 	        return true;	    	    	
 	    case R.id.goto_seattle:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Seattle");
 	    	goToLocation("Seattle Area Traffic", 47.5990, -122.3350, 12);
+	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
 	    case R.id.goto_spokane:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Spokane");
 	    	goToLocation("Spokane Area Traffic", 47.658566, -117.425995, 12);
+	    	UIUtils.refreshActionBarMenu(this);
 	        return true;	        
 	    case R.id.goto_tacoma:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Tacoma");
 	    	goToLocation("Tacoma Traffic", 47.206275, -122.46254, 12);
+	    	UIUtils.refreshActionBarMenu(this);
 	        return true;	        
 	    case R.id.goto_vancouver:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Vancouver");
 	    	goToLocation("Vancouver Area Traffic", 45.639968, -122.610512, 12);
+	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
 	    case R.id.goto_wenatchee:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Wenatchee");
 	    	goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 13);
+	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
 	    case R.id.toggle_cameras:
 	    	toggleCameras(item);
