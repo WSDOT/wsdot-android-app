@@ -61,6 +61,9 @@ public class CameraImageFragment extends SherlockFragment {
 	private String mTitle;
 	private String mCameraName = "cameraImage.jpg";
 	private ShareActionProvider actionProvider;
+	
+	static final private int MENU_ITEM_REFRESH = Menu.FIRST;
+	static final private int MENU_ITEM_STAR = Menu.FIRST + 1;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -112,7 +115,30 @@ public class CameraImageFragment extends SherlockFragment {
         MenuItem actionItem = menu.findItem(R.id.menu_item_share_action_provider_action_bar);
         actionProvider = (ShareActionProvider) actionItem.getActionProvider();
         actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
-	}
+
+		menu.add(0, Menu.FIRST, menu.size(), R.string.description_refresh)
+			.setIcon(R.drawable.ic_menu_refresh)
+			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+
+        menu.add(0, Menu.FIRST + 1, menu.size(), R.string.description_star)
+			.setIcon(R.drawable.ic_menu_star)
+			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);        
+    }
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+		case MENU_ITEM_REFRESH:
+			mImage.setImageDrawable(null);
+			new GetCameraImage().execute();
+			return true;
+		case MENU_ITEM_STAR:
+			Toast.makeText(getSherlockActivity(), "Starred", Toast.LENGTH_SHORT).show();
+			return true;
+		}
+		
+		return super.onOptionsItemSelected(item);
+	}    
     
 	private Intent createShareIntent() {
 		File f = new File(getActivity().getFilesDir(), mCameraName);

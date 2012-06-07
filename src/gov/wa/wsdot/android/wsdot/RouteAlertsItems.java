@@ -35,8 +35,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class RouteAlertsItems extends SherlockListActivity {
@@ -73,11 +75,21 @@ public class RouteAlertsItems extends SherlockListActivity {
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getSupportMenuInflater().inflate(R.menu.star, menu);
+		
+		return super.onCreateOptionsMenu(menu);
+	}	
+	
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 	    case android.R.id.home:
 	    	finish();
 	    	return true;
+	    case R.id.menu_star:
+			Toast.makeText(this, "Starred", Toast.LENGTH_SHORT).show();
+			return true;    	
 		}
 		return super.onOptionsItemSelected(item);
 	}	

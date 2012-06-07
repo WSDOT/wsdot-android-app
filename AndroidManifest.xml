@@ -134,7 +134,8 @@
    		    android:label="@string/title_video" />
    		
    		<activity
-   		    android:name=".CameraTabs" />
+   		    android:name=".CameraTabs"
+   		    android:uiOptions="splitActionBarWhenNarrow" />
 
    		<activity
    		    android:name=".HighwayAlertItemDetails" />
