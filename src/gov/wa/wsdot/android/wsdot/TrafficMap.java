@@ -263,10 +263,10 @@ public class TrafficMap extends SherlockMapActivity {
 	    case MENU_ITEM_EXPRESS_LANES:
 	    	Intent expressIntent = new Intent(this, SeattleExpressLanes.class);
 	    	startActivity(expressIntent);
-	    	return true;	    	
-	    default:
-	        return super.onOptionsItemSelected(item);
+	    	return true;
 	    }
+	    
+	    return super.onOptionsItemSelected(item);
 	}
 	
 	private void toggleCameras(MenuItem item) {
