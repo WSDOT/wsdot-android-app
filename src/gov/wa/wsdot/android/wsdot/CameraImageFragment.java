@@ -64,6 +64,7 @@ public class CameraImageFragment extends SherlockFragment {
 	
 	static final private int MENU_ITEM_REFRESH = Menu.FIRST;
 	static final private int MENU_ITEM_STAR = Menu.FIRST + 1;
+	static final private int MENU_ITEM_REPORT_IMAGE = Menu.FIRST + 2;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -116,13 +117,17 @@ public class CameraImageFragment extends SherlockFragment {
         actionProvider = (ShareActionProvider) actionItem.getActionProvider();
         actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
 
-		menu.add(0, Menu.FIRST, menu.size(), R.string.description_refresh)
+		menu.add(0, MENU_ITEM_REFRESH, menu.size(), R.string.description_refresh)
 			.setIcon(R.drawable.ic_menu_refresh)
 			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 
-        menu.add(0, Menu.FIRST + 1, menu.size(), R.string.description_star)
+        menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star)
 			.setIcon(R.drawable.ic_menu_star)
 			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);        
+        
+        menu.add(0, MENU_ITEM_REPORT_IMAGE, menu.size(), R.string.description_report_image)
+			.setIcon(R.drawable.ic_menu_report_image)
+			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT); 
     }
 
 	@Override

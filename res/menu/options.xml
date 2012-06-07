@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/menu_star"
+        android:icon="@drawable/ic_menu_star"
+        android:title="@string/description_favorites"
+        android:orderInCategory="1"
+        android:showAsAction="ifRoom|withText" />
+    
+    <item
 		android:id="@+id/menu_preferences"
 		android:title="@string/description_preferences"
 		android:icon="@drawable/ic_menu_preferences"
-		android:orderInCategory="1"
+		android:orderInCategory="2"
 		android:showAsAction="never" />				
     
     <item
 		android:id="@+id/menu_about"
 		android:title="@string/description_about"
 		android:icon="@drawable/ic_menu_info_details"
-		android:orderInCategory="2"
+		android:orderInCategory="3"
 		android:showAsAction="never" />
 </menu>
