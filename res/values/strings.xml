@@ -38,6 +38,7 @@
     <string name="title_mountainpassdetails">Mountain Pass Details</string>
     <string name="title_preferences">Preferences</string>
     <string name="title_news">News</string>
+    <string name="title_favorites">Favorites</string>
 	
     <string name="description_refresh">Refresh</string>
     <string name="description_share">Share</string>

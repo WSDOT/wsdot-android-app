@@ -1,6 +1,7 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.About;
+import gov.wa.wsdot.android.wsdot.FavoritesActivity;
 import gov.wa.wsdot.android.wsdot.Preferences;
 import gov.wa.wsdot.android.wsdot.R;
 import android.content.Intent;
@@ -34,6 +35,10 @@ public class HomeActivity extends SherlockFragmentActivity {
             case R.id.menu_preferences:
                 startActivity(new Intent(this, Preferences.class));
                 break;
+                
+            case R.id.menu_favorites:
+            	startActivity(new Intent(this, FavoritesActivity.class));
+            	break;
         }
         return super.onOptionsItemSelected(item);
     }

@@ -139,6 +139,10 @@
 
    		<activity
    		    android:name=".HighwayAlertItemDetails" />
+   		
+   		<activity
+   		    android:name=".FavoritesActivity"
+   		    android:label="@string/title_favorites" />   		
    				
    		<uses-library android:name="com.google.android.maps" />   		
    		
