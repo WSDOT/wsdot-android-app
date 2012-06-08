@@ -98,47 +98,36 @@ public class CameraTabs extends SherlockFragmentActivity {
             mTag = tag;
             mClass = clz;
             mArgs = args;
-            
-            FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-
 
             // Check to see if we already have a fragment for this tab, probably
             // from a previously saved state.  If so, deactivate it, because our
             // initial state is that a tab isn't shown.
             mFragment = mActivity.getSupportFragmentManager().findFragmentByTag(mTag);
             if (mFragment != null && !mFragment.isDetached()) {
+            	FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.detach(mFragment);
+                ft.commit();
             }
         }       
 
         /* The following are each of the ActionBar.TabListener callbacks */
 
         public void onTabSelected(Tab tab, FragmentTransaction ft) {
-
-                ft = mActivity.getSupportFragmentManager().beginTransaction();
-
             if (mFragment == null) {
                 mFragment = Fragment.instantiate(mActivity, mClass.getName(), mArgs);
                 ft.add(android.R.id.content, mFragment, mTag);
-                ft.commit();
             } else {
                 ft.attach(mFragment);
-                ft.commit();
             }
         }
 
         public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-
-            ft = mActivity.getSupportFragmentManager().beginTransaction();
-
             if (mFragment != null) {
                 ft.detach(mFragment);
-                ft.commitAllowingStateLoss();
             }   
         }
 
         public void onTabReselected(Tab tab, FragmentTransaction ft) {
-            // User selected the already selected tab. Usually do nothing.
         }
     }	
 }

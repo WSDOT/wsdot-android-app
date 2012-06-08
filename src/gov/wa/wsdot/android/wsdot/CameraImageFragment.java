@@ -19,9 +19,7 @@
 package gov.wa.wsdot.android.wsdot;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -65,7 +63,7 @@ public class CameraImageFragment extends SherlockFragment {
 	static final private int MENU_ITEM_REFRESH = Menu.FIRST;
 	static final private int MENU_ITEM_STAR = Menu.FIRST + 1;
 	static final private int MENU_ITEM_REPORT_IMAGE = Menu.FIRST + 2;
-
+	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -115,8 +113,9 @@ public class CameraImageFragment extends SherlockFragment {
         // Set file with share history to the provider and set the share intent.
         MenuItem actionItem = menu.findItem(R.id.menu_item_share_action_provider_action_bar);
         actionProvider = (ShareActionProvider) actionItem.getActionProvider();
-        actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
-
+        //actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
+        actionProvider.setShareHistoryFileName(null);
+    	
 		menu.add(0, MENU_ITEM_REFRESH, menu.size(), R.string.description_refresh)
 			.setIcon(R.drawable.ic_menu_refresh)
 			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
@@ -133,6 +132,7 @@ public class CameraImageFragment extends SherlockFragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
+
 		case MENU_ITEM_REFRESH:
 			mImage.setImageDrawable(null);
 			new GetCameraImage().execute();
@@ -140,6 +140,9 @@ public class CameraImageFragment extends SherlockFragment {
 		case MENU_ITEM_STAR:
 			Toast.makeText(getSherlockActivity(), "Starred", Toast.LENGTH_SHORT).show();
 			return true;
+		case MENU_ITEM_REPORT_IMAGE:
+			Toast.makeText(getSherlockActivity(), "Report Image", Toast.LENGTH_SHORT).show();
+			return true;			
 		}
 		
 		return super.onOptionsItemSelected(item);
@@ -180,9 +183,6 @@ public class CameraImageFragment extends SherlockFragment {
 		protected void onPostExecute(Drawable result) {
 			mLoadingSpinner.setVisibility(View.GONE);
 			mImage.setImageDrawable(result);
-			
-	        // Note that you can set/change the intent any time,
-	        // say when the user has selected an image.		
 			actionProvider.setShareIntent(createShareIntent());
 		}
 	}	
@@ -198,25 +198,14 @@ public class CameraImageFragment extends SherlockFragment {
         	connection.connect();
             InputStream input = connection.getInputStream();
             image = BitmapFactory.decodeStream(input);
+            fos = getActivity().openFileOutput(mCameraName, Context.MODE_WORLD_READABLE);
+            image.compress(Bitmap.CompressFormat.JPEG, 75, fos);
+			fos.flush();
+			fos.close();            
 	    } catch (Exception e) {
 	        Log.e("CameraImageFragment", "Error retrieving camera image", e);
 	        image = BitmapFactory.decodeResource(getResources(), R.drawable.camera_offline);
 	    }
-        
-        try {
-            fos = getActivity().openFileOutput(mCameraName, Context.MODE_WORLD_READABLE);
-            image.compress(Bitmap.CompressFormat.JPEG, 75, fos);
-        } catch (FileNotFoundException e) {
-        	Log.e("CameraImageFragment", e.toString(), e);
-        	image = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.camera_offline);
-        }
-        
-        try {
-			fos.flush();
-			fos.close();
-		} catch (IOException e) {
-			Log.e("CameraImageFragment", e.toString(), e);
-		}       
 
 	    return new BitmapDrawable(image);	    
     }
