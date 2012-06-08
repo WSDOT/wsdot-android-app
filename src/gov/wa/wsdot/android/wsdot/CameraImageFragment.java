@@ -59,6 +59,7 @@ public class CameraImageFragment extends SherlockFragment {
 	private String mTitle;
 	private String mCameraName = "cameraImage.jpg";
 	private ShareActionProvider actionProvider;
+	private GetCameraImage getCameraImage;
 	
 	static final private int MENU_ITEM_REFRESH = Menu.FIRST;
 	static final private int MENU_ITEM_STAR = Menu.FIRST + 1;
@@ -103,10 +104,18 @@ public class CameraImageFragment extends SherlockFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-		new GetCameraImage().execute();
+		getCameraImage = new GetCameraImage();
+		getCameraImage.execute();
+	}
+    
+	@Override
+	public void onPause() {
+		super.onPause();
+		
+		getCameraImage.cancel(true);
 	}
 
-    @Override
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.share_action_provider, menu);
 
@@ -135,7 +144,8 @@ public class CameraImageFragment extends SherlockFragment {
 
 		case MENU_ITEM_REFRESH:
 			mImage.setImageDrawable(null);
-			new GetCameraImage().execute();
+			getCameraImage = new GetCameraImage();
+			getCameraImage.execute();
 			return true;
 		case MENU_ITEM_STAR:
 			Toast.makeText(getSherlockActivity(), "Starred", Toast.LENGTH_SHORT).show();
@@ -172,41 +182,44 @@ public class CameraImageFragment extends SherlockFragment {
 			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
 
-	    protected void onCancelled() {
-	        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
+		@Override
+		protected void onCancelled(Drawable result) {
+			super.onCancelled(result);
+		}
+
+		protected void onCancelled() {
+	        Toast.makeText(getActivity(), "Cancelled.", Toast.LENGTH_SHORT).show();
 	    }
 		
+		@SuppressWarnings("deprecation")
 		protected Drawable doInBackground(String... params) {
-			return loadImageFromNetwork(mUrl);
+	    	FileOutputStream fos = null;
+	    	Bitmap image;
+	        
+	        try {
+	        	HttpURLConnection connection = (HttpURLConnection) new URL(mUrl).openConnection();
+	        	connection.setRequestProperty("User-agent","Mozilla/4.0");
+	        	connection.connect();
+	            InputStream input = connection.getInputStream();
+	            image = BitmapFactory.decodeStream(input);
+	            fos = getActivity().openFileOutput(mCameraName, Context.MODE_WORLD_READABLE);
+	            image.compress(Bitmap.CompressFormat.JPEG, 75, fos);
+				fos.flush();
+				fos.close();            
+		    } catch (Exception e) {
+		        Log.e("CameraImageFragment", "Error retrieving camera image", e);
+		        image = BitmapFactory.decodeResource(getResources(), R.drawable.camera_offline);
+		    }
+        
+		    return new BitmapDrawable(image);
 		}
 		
 		protected void onPostExecute(Drawable result) {
-			mLoadingSpinner.setVisibility(View.GONE);
-			mImage.setImageDrawable(result);
-			actionProvider.setShareIntent(createShareIntent());
+	        if (!isCancelled()) {
+				mLoadingSpinner.setVisibility(View.GONE);
+				mImage.setImageDrawable(result);
+				actionProvider.setShareIntent(createShareIntent());
+	        }
 		}
-	}	
-	
-    @SuppressWarnings("deprecation")
-	private Drawable loadImageFromNetwork(String url) {
-    	FileOutputStream fos = null;
-    	Bitmap image;
-        
-        try {
-        	HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        	connection.setRequestProperty("User-agent","Mozilla/4.0");
-        	connection.connect();
-            InputStream input = connection.getInputStream();
-            image = BitmapFactory.decodeStream(input);
-            fos = getActivity().openFileOutput(mCameraName, Context.MODE_WORLD_READABLE);
-            image.compress(Bitmap.CompressFormat.JPEG, 75, fos);
-			fos.flush();
-			fos.close();            
-	    } catch (Exception e) {
-	        Log.e("CameraImageFragment", "Error retrieving camera image", e);
-	        image = BitmapFactory.decodeResource(getResources(), R.drawable.camera_offline);
-	    }
-
-	    return new BitmapDrawable(image);	    
-    }
+	}
 }
