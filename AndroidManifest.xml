@@ -42,11 +42,12 @@
    		<activity android:name="BlogItemDetails" />
    		
    		<activity
-   		    android:name=".Twitter"
-   		    android:label="@string/title_twitter" />
+   		    android:name=".ui.TwitterActivity"
+   		    android:label="@string/title_twitter"
+   		    android:uiOptions="splitActionBarWhenNarrow" />
    		
    		<activity
-   		    android:name=".TwitterItemDetails"
+   		    android:name=".ui.TwitterDetailsActivity"
    		    android:label="@string/title_twitter" />
    		
    		<activity
@@ -57,7 +58,7 @@
    		    android:name=".PhotoItemDetails" />
    		
    		<activity
-   		    android:name=".SocialMedia"
+   		    android:name=".ui.SocialMediaActivity"
    		    android:label="@string/title_socialmedia" />
    		
    		<activity
@@ -91,7 +92,7 @@
    		    android:label="@string/title_preferences" />
    		
    		<activity
-   		    android:name=".BorderWaitTabs"
+   		    android:name=".ui.BorderWaitActivity"
    		    android:label="@string/title_borderwait" />
    		   		
    		<activity

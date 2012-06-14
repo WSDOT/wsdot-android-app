@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -27,7 +27,7 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 
-public class BorderWaitTabs extends SherlockFragmentActivity {
+public class BorderWaitActivity extends SherlockFragmentActivity {
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,12 +38,12 @@ public class BorderWaitTabs extends SherlockFragmentActivity {
         
         ActionBar.Tab northboundTab = getSupportActionBar().newTab();
         northboundTab.setText("Northbound");
-        northboundTab.setTabListener(new TabListener<BorderWaitNorthbound>(this, "Northbound", BorderWaitNorthbound.class));
+        northboundTab.setTabListener(new TabListener<BorderWaitNorthboundFragment>(this, "Northbound", BorderWaitNorthboundFragment.class));
         getSupportActionBar().addTab(northboundTab);
 
         ActionBar.Tab southboundTab = getSupportActionBar().newTab();
         southboundTab.setText("Southbound");
-        southboundTab.setTabListener(new TabListener<BorderWaitSouthbound>(this, "Southbound", BorderWaitSouthbound.class));
+        southboundTab.setTabListener(new TabListener<BorderWaitSouthboundFragment>(this, "Southbound", BorderWaitSouthboundFragment.class));
         getSupportActionBar().addTab(southboundTab);        
         
         if (savedInstanceState != null) {

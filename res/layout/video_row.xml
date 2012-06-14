@@ -13,8 +13,7 @@
 
     <TextView
         android:id="@+id/toptext"
-        android:text="Title"
-        android:textStyle="bold"
+		android:textSize="@dimen/text_size_medium"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/icon"
@@ -23,7 +22,7 @@
 
     <TextView
         android:id="@+id/bottomtext"
-        android:text="Description"
+		android:textSize="@dimen/text_size_medium"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/icon"

@@ -1,10 +1,8 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.BorderWaitTabs;
 import gov.wa.wsdot.android.wsdot.Ferries;
 import gov.wa.wsdot.android.wsdot.MountainPassConditions;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.SocialMedia;
 import gov.wa.wsdot.android.wsdot.TollRatesTabActivity;
 import gov.wa.wsdot.android.wsdot.TrafficMap;
 import android.content.Intent;
@@ -42,7 +40,7 @@ public class DashboardFragment extends SherlockFragment {
 
         root.findViewById(R.id.home_btn_social).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-            	startActivity(new Intent(getActivity(), SocialMedia.class));
+            	startActivity(new Intent(getActivity(), SocialMediaActivity.class));
             }
         });
         
@@ -54,7 +52,7 @@ public class DashboardFragment extends SherlockFragment {
         
         root.findViewById(R.id.home_btn_border).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                startActivity(new Intent(getActivity(), BorderWaitTabs.class));                
+                startActivity(new Intent(getActivity(), BorderWaitActivity.class));                
             }
         });
         

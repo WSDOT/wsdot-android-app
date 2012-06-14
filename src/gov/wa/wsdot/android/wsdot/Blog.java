@@ -35,6 +35,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -173,11 +174,13 @@ public class Blog extends SherlockListActivity {
 	}   
 	
 	private class BlogItemAdapter extends ArrayAdapter<BlogItem> {
-        private ArrayList<BlogItem> items;
+        //private ArrayList<BlogItem> items;
+        private Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
+        private Typeface tfb = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Bold.ttf");
 
         public BlogItemAdapter(Context context, int textViewResourceId, ArrayList<BlogItem> items) {
 	        super(context, textViewResourceId, items);
-	        this.items = items;
+	        //this.items = items;
         }
 
         @Override
@@ -185,10 +188,12 @@ public class Blog extends SherlockListActivity {
 	        if (convertView == null) {
 	            convertView = getLayoutInflater().inflate(R.layout.simple_list_item, null);
 	        }
-	        BlogItem o = items.get(position);
+	        BlogItem o = getItem(position);
 	        if (o != null) {
 	            TextView tt = (TextView) convertView.findViewById(R.id.title);
+	            tt.setTypeface(tfb);
 	            TextView bt = (TextView) convertView.findViewById(R.id.description);
+	            bt.setTypeface(tf);
 	            if (tt != null) {
 	            	tt.setText(o.getTitle());
 	            }

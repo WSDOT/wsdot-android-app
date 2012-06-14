@@ -40,6 +40,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -195,11 +196,13 @@ public class Video extends SherlockListActivity {
     }
 	
 	private class VideoItemAdapter extends ArrayAdapter<VideoItem> {
-        private ArrayList<VideoItem> items;
+        //private ArrayList<VideoItem> items;
+		private Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
+		private Typeface tfb = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Bold.ttf");		
 
         public VideoItemAdapter(Context context, int textViewResourceId, ArrayList<VideoItem> items) {
         	super(context, textViewResourceId, items);
-            this.items = items;
+            //this.items = items;
         }
 
         @Override
@@ -207,11 +210,13 @@ public class Video extends SherlockListActivity {
 	        if (convertView == null) {
 	            convertView = getLayoutInflater().inflate(R.layout.video_row, null);
 	        }
-	        VideoItem o = items.get(position);
+	        VideoItem o = getItem(position);
 	        if (o != null) {
 	        	ImageView ic = (ImageView) convertView.findViewById(R.id.icon);
                 TextView tt = (TextView) convertView.findViewById(R.id.toptext);
+                tt.setTypeface(tfb);
                 TextView bt = (TextView) convertView.findViewById(R.id.bottomtext);
+                bt.setTypeface(tf);
                 if (ic != null) {
                 	ic.setImageDrawable(o.getThumbNail());
                 }
