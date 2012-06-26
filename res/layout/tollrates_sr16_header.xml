@@ -6,29 +6,30 @@
      android:orientation="horizontal"
      android:layout_weight="1">
  
-     <TextView android:id="@+id/vehicle_type_title"
-         android:layout_width="125dp"
-         android:layout_height="fill_parent"
-         style="?android:attr/listSeparatorTextViewStyle"
-         android:layout_weight="1" />
- 
      <TextView android:id="@+id/number_axles_title"
-     	android:gravity="center"
-        android:layout_width="65dp"
+        android:layout_width="110dp"
         android:layout_height="fill_parent"
         style="?android:attr/listSeparatorTextViewStyle"
         android:layout_weight="1" />
 
      <TextView android:id="@+id/goodtogo_pass_title"
      	android:gravity="center"
-        android:layout_width="65dp"
+        android:layout_width="70dp"
         android:layout_height="fill_parent"
         style="?android:attr/listSeparatorTextViewStyle"
         android:layout_weight="1" />
  
      <TextView android:id="@+id/pay_by_cash_title"
      	android:gravity="center"
-        android:layout_width="65dp"
+        android:layout_width="70dp"
+        android:layout_height="fill_parent"
+        android:paddingRight="10dp"
+        style="?android:attr/listSeparatorTextViewStyle"
+        android:layout_weight="1" />
+
+     <TextView android:id="@+id/pay_by_mail_title"
+     	android:gravity="center"
+        android:layout_width="70dp"
         android:layout_height="fill_parent"
         android:paddingRight="10dp"
         style="?android:attr/listSeparatorTextViewStyle"
