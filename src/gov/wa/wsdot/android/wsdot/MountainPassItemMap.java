@@ -71,7 +71,7 @@ public class MountainPassItemMap extends MapActivity {
         AnalyticsUtils.getInstance(this).trackPageView(pageView);
         
         cameraItems = (ArrayList<CameraItem>)getIntent().getSerializableExtra("Cameras");
-        setContentView(R.layout.map_tabs);
+        setContentView(R.layout.map);
 
         Float latitude = new Float(b.getString("Latitude"));
         Float longitude = new Float(b.getString("Longitude"));
