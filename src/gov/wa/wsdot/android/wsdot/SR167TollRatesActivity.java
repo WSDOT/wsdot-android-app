@@ -41,7 +41,8 @@ public class SR167TollRatesActivity extends Activity {
 	private String formatText()	{
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("<ul>" +
+		sb.append("<p>Tolls are collected in both directions</p>" +
+				"<ul>" +
 				"<li>$.50 minimum during periods of little congestion.</li>" +
 				"<li>$9.00 maximum during periods of heavy congestion.</li>" +
 				"<li>During other levels of congestion, the toll amount varies between $.50 and $9.00.</li>" +

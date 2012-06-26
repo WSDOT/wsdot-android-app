@@ -44,29 +44,29 @@ public class SR16TollRatesActivity extends ListActivity {
         
         HashMap<String, String> map = null;
         String[][] vehicleTypeData = {
-        		{"Passenger vehicle/Motorcycle", "Two", "$2.75", "$4.00"},
-        		{"Passenger vehicle with small trailer", "Three", "$4.15", "$6.00"},
-        		{"Tractor-trailer rig/passenger vehicle with trailer", "Four", "$5.50", "$8.00"},
-        		{"Tractor with big trailer", "Five", "$6.90", "$10.00"},
-        		{"Tractor with bigger trailer (six or more axles)", "Six or more", "$8.25", "$12.00"}
+        		{"Two (includes motorcycle)", "$4.00", "$5.00", "$6.00"},
+        		{"Three", "$6.00", "$7.50", "$9.00"},
+        		{"Four", "$8.00", "$10.00", "$12.00"},
+        		{"Five", "$10.00", "$12.50", "$15.00"},
+        		{"Six or more", "$12.00", "$15.00", "$18.00"}
         		};
         
         adapter = new MyCustomAdapter();
         setListAdapter(adapter);
         
         map = new HashMap<String, String>();
-        map.put("vehicle_type", "Vehicle Type");
         map.put("number_axles", "Number of Axles");
         map.put("goodtogo_pass", "Good To Go! Pass");
         map.put("pay_by_cash", "Cash");
+        map.put("pay_by_mail", "Pay By Mail");
         adapter.addSeparatorItem(map);
         
         for (int i = 0; i < vehicleTypeData.length; i++) {
         	map = new HashMap<String, String>();
-        	map.put("vehicle_type", vehicleTypeData[i][0]);
-            map.put("number_axles", vehicleTypeData[i][1]);
-        	map.put("goodtogo_pass", vehicleTypeData[i][2]);
-            map.put("pay_by_cash", vehicleTypeData[i][3]);
+            map.put("number_axles", vehicleTypeData[i][0]);
+        	map.put("goodtogo_pass", vehicleTypeData[i][1]);
+            map.put("pay_by_cash", vehicleTypeData[i][2]);
+            map.put("pay_by_mail", vehicleTypeData[i][3]);
             adapter.addItem(map);
         }
     }
@@ -136,35 +136,35 @@ public class SR16TollRatesActivity extends ListActivity {
                 switch (type) {
                     case TYPE_ITEM:
                         convertView = mInflater.inflate(R.layout.tollrates_sr16_row, null);
-                        holder.vehicleType = (TextView)convertView.findViewById(R.id.vehicle_type);
                         holder.numberAxles = (TextView)convertView.findViewById(R.id.number_axles);
                         holder.goodToGoPass = (TextView)convertView.findViewById(R.id.goodtogo_pass);
                         holder.payByCash = (TextView)convertView.findViewById(R.id.pay_by_cash);
+                        holder.payByMail = (TextView)convertView.findViewById(R.id.pay_by_mail);
                         break;
                     case TYPE_SEPARATOR:
                         convertView = mInflater.inflate(R.layout.tollrates_sr16_header, null);
-                        holder.vehicleType = (TextView)convertView.findViewById(R.id.vehicle_type_title);
                         holder.numberAxles = (TextView)convertView.findViewById(R.id.number_axles_title);
                         holder.goodToGoPass = (TextView)convertView.findViewById(R.id.goodtogo_pass_title);
                         holder.payByCash = (TextView)convertView.findViewById(R.id.pay_by_cash_title);
+                        holder.payByMail = (TextView)convertView.findViewById(R.id.pay_by_mail_title);
                         break;
                 }
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder)convertView.getTag();
             }
-            holder.vehicleType.setText(mData.get(position).get("vehicle_type"));
             holder.numberAxles.setText(mData.get(position).get("number_axles"));
             holder.goodToGoPass.setText(mData.get(position).get("goodtogo_pass"));
             holder.payByCash.setText(mData.get(position).get("pay_by_cash"));
+            holder.payByMail.setText(mData.get(position).get("pay_by_mail"));
             return convertView;
         }
     }
     
     public static class ViewHolder {
-    	public TextView vehicleType;
         public TextView numberAxles;
         public TextView goodToGoPass;
         public TextView payByCash;
+        public TextView payByMail;
     }
 }
