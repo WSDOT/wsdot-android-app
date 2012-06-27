@@ -30,12 +30,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -63,6 +65,18 @@ public class TwitterFragment extends SherlockListFragment
 	private static ArrayList<TwitterItem> twitterItems = null;
 	private static TwitterItemAdapter mAdapter;
 	private static View mLoadingSpinner;
+	private static String mScreenName;
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		try {
+			mScreenName = getArguments().getString("account");
+		} catch (Exception e) {
+			
+		}
+	}
 	
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -72,7 +86,7 @@ public class TwitterFragment extends SherlockListFragment
         // during a configuration change.
         setRetainInstance(true);
 		setHasOptionsMenu(true);        
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Twitter");        
+        AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Twitter");
     }
 
     @SuppressWarnings("deprecation")
@@ -148,13 +162,19 @@ public class TwitterFragment extends SherlockListFragment
 		public ArrayList<TwitterItem> loadInBackground() {
 	    	String patternStr = "(http://[A-Za-z0-9./]+)"; // Find bit.ly addresses
 	    	Pattern pattern = Pattern.compile(patternStr);
-	    	DateFormat parseDateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy"); //e.g. Mon Aug 23 17:46:24 +0000 2010
+	    	DateFormat parseDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+	    	parseDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 	    	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	    	twitterItems = new ArrayList<TwitterItem>();
 			TwitterItem i = null;
+			URL url;
 			
 			try {
-				URL url = new URL("http://twitter.com/statuses/user_timeline/14124059.json");
+				if (mScreenName == null || mScreenName == "all") {
+					url = new URL("http://www.wsdot.wa.gov/news/socialroom/posts/twitter");
+				} else {
+					url = new URL("http://www.wsdot.wa.gov/news/socialroom/posts/twitter/" + mScreenName);
+				}
 				URLConnection urlConn = url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String jsonFile = "";
