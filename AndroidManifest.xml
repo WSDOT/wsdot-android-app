@@ -43,8 +43,7 @@
    		
    		<activity
    		    android:name=".ui.TwitterActivity"
-   		    android:label="@string/title_twitter"
-   		    android:uiOptions="splitActionBarWhenNarrow" />
+   		    android:label="@string/title_twitter" />
    		
    		<activity
    		    android:name=".ui.TwitterDetailsActivity"
