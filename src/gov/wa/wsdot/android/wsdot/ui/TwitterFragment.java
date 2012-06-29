@@ -47,15 +47,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.ShareActionProvider;
 
 public class TwitterFragment extends SherlockListFragment
 	implements LoaderCallbacks<ArrayList<TwitterItem>> {
@@ -66,6 +70,7 @@ public class TwitterFragment extends SherlockListFragment
 	private static View mLoadingSpinner;
 	private static String mScreenName;
 	private HashMap<String, Integer> mTwitterProfileImages = new HashMap<String, Integer>();
+	ActionMode mActionMode;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -114,6 +119,17 @@ public class TwitterFragment extends SherlockListFragment
 		getListView().setDivider(null);
 		getListView().setDividerHeight(0);
 		
+		getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				
+				mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(twitterItems.get(position).getText()));
+				
+				return true;
+			}
+			
+		});
+		
 		mAdapter = new TwitterItemAdapter(getActivity());
 		setListAdapter(mAdapter);
 		
@@ -128,6 +144,52 @@ public class TwitterFragment extends SherlockListFragment
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);		
 	}    
+	
+	private final class ActionModeCallback implements ActionMode.Callback {
+		private String mText;
+		
+		public ActionModeCallback(String text) {
+			this.mText = text;
+		}
+
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			MenuInflater inflater = mode.getMenuInflater();
+			inflater.inflate(R.menu.share_action_provider, menu);
+	        // Set file with share history to the provider and set the share intent.
+	        MenuItem actionItem = menu.findItem(R.id.menu_item_share_action_provider_action_bar);
+	        ShareActionProvider actionProvider = (ShareActionProvider) actionItem.getActionProvider();
+	        //actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
+	        actionProvider.setShareHistoryFileName(null);
+	        // Note that you can set/change the intent any time,
+	        // say when the user has selected an image.
+	        actionProvider.setShareIntent(createShareIntent(mText));
+			
+	        return true;
+		}
+
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false;
+		}
+
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			mode.finish();
+			return true;
+		}
+
+		public void onDestroyActionMode(ActionMode mode) {
+			mActionMode = null;
+		}
+		
+	}
+
+	private Intent createShareIntent(String mText) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mText);
+        
+        return shareIntent;
+	}	
 	
     @Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
