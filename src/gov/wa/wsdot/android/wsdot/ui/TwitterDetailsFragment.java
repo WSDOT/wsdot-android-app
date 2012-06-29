@@ -35,8 +35,10 @@ import com.actionbarsherlock.widget.ShareActionProvider;
 
 public class TwitterDetailsFragment extends SherlockFragment {
 	
-	private String mPublishDate;
-	private String mDescription;
+	private String mUserName;
+	private String mCreatedAt;
+	private String mText;
+	private String mHtmlText;
 	private WebView webview;
 
 	@Override
@@ -44,8 +46,10 @@ public class TwitterDetailsFragment extends SherlockFragment {
 		super.onAttach(activity);
 
 		Bundle args = activity.getIntent().getExtras();
-		mPublishDate = args.getString("publishDate");
-		mDescription = args.getString("description");	
+		mUserName = args.getString("userName");
+		mCreatedAt = args.getString("createdAt");
+		mText = args.getString("text");	
+		mHtmlText = args.getString("htmlText");
 	}
 
 	@Override
@@ -73,7 +77,7 @@ public class TwitterDetailsFragment extends SherlockFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-		webview.loadDataWithBaseURL(null, formatText(mPublishDate, mDescription), "text/html", "utf-8", null);
+		webview.loadDataWithBaseURL(null, formatText(mUserName, mCreatedAt, mHtmlText), "text/html", "utf-8", null);
 	}
 	
 	@Override
@@ -94,16 +98,17 @@ public class TwitterDetailsFragment extends SherlockFragment {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mDescription);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mText);
         
         return shareIntent;
 	}
 	
-	private String formatText(String date, String content)	{
+	private String formatText(String userName, String createdAt, String htmlText)	{
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("<p>" + date + "</p>");
-		sb.append("<p>"+ content +"</p>");
+		sb.append("<p><b>" + userName + "</b></p>");
+		sb.append("<p style='color:#7d7d7d;'>" + createdAt + "</p>");
+		sb.append("<p>"+ htmlText +"</p>");
 			
 		return sb.toString();
 	}	

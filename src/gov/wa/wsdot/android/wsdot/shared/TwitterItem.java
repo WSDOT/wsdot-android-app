@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,33 +19,50 @@
 package gov.wa.wsdot.android.wsdot.shared;
 
 public class TwitterItem {
-	private String title;
-	private String pubDate;
-	private String link;
-	private String description;
+	private String text;
+	private String formatedHtmlText;
+	private String createdAt;
+	private String userName;
+	private String screenName;
 	
-	public String getTitle() {
-		return title;
+	public String getText() {
+		return text;
 	}
-	public void setTitle(String title) {
-		this.title = title;
+
+	public void setText(String text) {
+		this.text = text;
 	}
-	public String getPubDate() {
-		return pubDate;
+
+	public String getFormatedHtmlText() {
+		return formatedHtmlText;
 	}
-	public void setPubDate(String pubDate) {
-		this.pubDate = pubDate;
+
+	public void setFormatedHtmlText(String formatedHtmlText) {
+		this.formatedHtmlText = formatedHtmlText;
 	}
-	public String getLink() {
-		return link;
+	
+	public String getCreatedAt() {
+		return createdAt;
 	}
-	public void setLink(String link) {
-		this.link = link;
+	
+	public void setCreatedAt(String createdAt) {
+		this.createdAt = createdAt;
 	}
-	public String getDescription() {
-		return description;
+
+	public String getUserName() {
+		return userName;
 	}
-	public void setDescription(String description) {
-		this.description = description;
-	}	
+	
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getScreenName() {
+		return screenName;
+	}
+
+	public void setScreenName(String screenName) {
+		this.screenName = screenName;
+	}
+	
 }

@@ -21,18 +21,14 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.TwitterItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,11 +41,14 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -66,11 +65,12 @@ public class TwitterFragment extends SherlockListFragment
 	private static TwitterItemAdapter mAdapter;
 	private static View mLoadingSpinner;
 	private static String mScreenName;
+	private HashMap<String, Integer> mTwitterProfileImages = new HashMap<String, Integer>();
 
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-
+		
 		try {
 			mScreenName = getArguments().getString("account");
 		} catch (Exception e) {
@@ -81,7 +81,7 @@ public class TwitterFragment extends SherlockListFragment
     @Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
@@ -110,8 +110,19 @@ public class TwitterFragment extends SherlockListFragment
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
+		// Remove the separator between items in the ListView
+		getListView().setDivider(null);
+		getListView().setDividerHeight(0);
+		
 		mAdapter = new TwitterItemAdapter(getActivity());
 		setListAdapter(mAdapter);
+		
+		mTwitterProfileImages.put("wsferries", R.drawable.ic_list_wsdot_ferries);
+		mTwitterProfileImages.put("GoodToGoWSDOT", R.drawable.ic_list_wsdot_goodtogo);
+		mTwitterProfileImages.put("SnoqualmiePass", R.drawable.ic_list_wsdot_snoqualmie_pass);
+		mTwitterProfileImages.put("wsdot", R.drawable.ic_list_wsdot);
+		mTwitterProfileImages.put("wsdot_tacoma", R.drawable.ic_list_wsdot_tacoma);
+		mTwitterProfileImages.put("wsdot_traffic", R.drawable.ic_list_wsdot_traffic);		
 		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.        
@@ -160,11 +171,12 @@ public class TwitterFragment extends SherlockListFragment
 
 		@Override
 		public ArrayList<TwitterItem> loadInBackground() {
-	    	String patternStr = "(http://[A-Za-z0-9./]+)"; // Find bit.ly addresses
-	    	Pattern pattern = Pattern.compile(patternStr);
-	    	DateFormat parseDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-	    	parseDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-	    	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+			String urlPattern = "(https?:\\/\\/[-a-zA-Z0-9._~:\\/?#@!$&\'()*+,;=%]+)";
+			String atPattern = "@+([_a-zA-Z0-9-]+)";
+			String hashPattern = "#+([_a-zA-Z0-9-]+)";
+			String text;
+			String htmlText;
+
 	    	twitterItems = new ArrayList<TwitterItem>();
 			TwitterItem i = null;
 			URL url;
@@ -175,6 +187,7 @@ public class TwitterFragment extends SherlockListFragment
 				} else {
 					url = new URL("http://www.wsdot.wa.gov/news/socialroom/posts/twitter/" + mScreenName);
 				}
+				
 				URLConnection urlConn = url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String jsonFile = "";
@@ -185,30 +198,30 @@ public class TwitterFragment extends SherlockListFragment
 				in.close();
 				
 				JSONArray items = new JSONArray(jsonFile);
-				String d;			
 				
 				for (int j=0; j < items.length(); j++) {
 						JSONObject item = items.getJSONObject(j);
 						i = new TwitterItem();
-						d = item.getString("text");
-	                	Matcher matcher = pattern.matcher(d);
-	                	boolean matchFound = matcher.find();
-	                	if (matchFound) {
-	                		String textLink = matcher.group();
-	                		String hyperLink = "<a href=\"" + textLink + "\">" + textLink + "</a>";
-	                		d = matcher.replaceFirst(hyperLink);
-	                	}
-						i.setTitle(item.getString("text"));
-						i.setDescription(d);
+						htmlText = "";
+						text = item.getString("text");
+						htmlText = text.replaceAll(urlPattern, "<a href=\"$1\">$1</a>");
+						htmlText = htmlText.replaceAll(atPattern, "<a href=\"http://twitter.com/#!/$1\">@$1</a>");
+						htmlText = htmlText.replaceAll(hashPattern, "<a href=\"http://twitter.com/#!/search?q=%23$1\">#$1</a>");
+
+						i.setText(text);
+						i.setFormatedHtmlText(htmlText);
+
+		            	JSONObject user = item.getJSONObject("user");
+		            	i.setUserName(user.getString("name"));
+		            	i.setScreenName(user.getString("screen_name"));
 						
 		            	try {
-		            		Date date = parseDateFormat.parse(item.getString("created_at"));
-		            		i.setPubDate(displayDateFormat.format(date));
+		            		i.setCreatedAt(ParserUtils.relativeTime(item.getString("created_at"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
 		            	} catch (Exception e) {
-		            		i.setPubDate("");
+		            		i.setCreatedAt("");
 		            		Log.e(DEBUG_TAG, "Error parsing date", e);
 		            	}
-						
+		            	
 						twitterItems.add(i);
 				}				
 			} catch (Exception e) {
@@ -266,9 +279,10 @@ public class TwitterFragment extends SherlockListFragment
 		
 		Bundle b = new Bundle();
 		Intent intent = new Intent(getActivity(), TwitterDetailsActivity.class);
-		b.putString("description", twitterItems.get(position).getDescription());
-		b.putString("link", twitterItems.get(position).getLink());
-		b.putString("publishDate", twitterItems.get(position).getPubDate());
+		b.putString("userName", twitterItems.get(position).getUserName());
+		b.putString("createdAt", twitterItems.get(position).getCreatedAt());
+		b.putString("text", twitterItems.get(position).getText());
+		b.putString("htmlText", twitterItems.get(position).getFormatedHtmlText());
 		intent.putExtras(b);
 
 		startActivity(intent);
@@ -280,7 +294,7 @@ public class TwitterFragment extends SherlockListFragment
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");		
 
         public TwitterItemAdapter(Context context) {
-        	super(context, R.layout.simple_list_item);
+        	super(context, R.layout.twitter_list_item_with_icon);
         	mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
@@ -295,36 +309,52 @@ public class TwitterFragment extends SherlockListFragment
                 notifyDataSetChanged();                
             }
         }
-        
-        @Override
+
+		@Override
         public View getView(int position, View convertView, ViewGroup parent) {
 	        if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.simple_list_item, null);
+	            convertView = mInflater.inflate(R.layout.twitter_list_item_with_icon, null);
 	        }
 	        
 	        TwitterItem item = getItem(position);
 	        
 	        if (item != null) {
-                TextView tt = (TextView) convertView.findViewById(R.id.title);
-                tt.setTypeface(tfb);
-                TextView bt = (TextView) convertView.findViewById(R.id.description);
-                bt.setTypeface(tf);
+	        	ImageView icon = (ImageView) convertView.findViewById(R.id.icon);
+                TextView userName = (TextView) convertView.findViewById(R.id.user_name);
+                userName.setTypeface(tfb);
+	        	TextView createdAt = (TextView) convertView.findViewById(R.id.created_at);
+                createdAt.setTypeface(tf);
+	        	TextView text = (TextView) convertView.findViewById(R.id.text);
+                text.setMovementMethod(LinkMovementMethod.getInstance());
+                text.setTypeface(tf);
+
+                if (icon != null) {
+                	icon.setImageResource(mTwitterProfileImages.get(item.getScreenName()));
+                }                
                 
-                if (tt != null) {
-                	tt.setText(item.getTitle());
+                if (userName != null) {
+                	userName.setText(item.getUserName());
                 }
                 
-                if(bt != null) {
-	        		bt.setText(item.getPubDate());
+                if (createdAt != null) {
+                	createdAt.setText(item.getCreatedAt());
                 }
+                
+                if (text != null) {
+                	text.setText(Html.fromHtml(item.getFormatedHtmlText()));
+                }
+                
 	        }
 	        
 	        return convertView;
         }
+
 	}
 	
 	public static class ViewHolder {
-		public TextView tt;
-		public TextView bt;
+		public ImageView icon;
+		public TextView userName;
+		public TextView createdAt;
+		public TextView text;
 	}
 }
