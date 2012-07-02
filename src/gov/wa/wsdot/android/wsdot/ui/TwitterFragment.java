@@ -278,7 +278,7 @@ public class TwitterFragment extends SherlockListFragment
 		            	i.setScreenName(user.getString("screen_name"));
 						
 		            	try {
-		            		i.setCreatedAt(ParserUtils.relativeTime(item.getString("created_at"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+		            		i.setCreatedAt(ParserUtils.relativeTime(item.getString("created_at"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
 		            	} catch (Exception e) {
 		            		i.setCreatedAt("");
 		            		Log.e(DEBUG_TAG, "Error parsing date", e);

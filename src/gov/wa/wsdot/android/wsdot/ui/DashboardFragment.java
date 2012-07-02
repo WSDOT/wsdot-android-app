@@ -1,7 +1,6 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.Ferries;
-import gov.wa.wsdot.android.wsdot.MountainPassConditions;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.TollRatesTabActivity;
 import gov.wa.wsdot.android.wsdot.TrafficMap;
@@ -34,7 +33,7 @@ public class DashboardFragment extends SherlockFragment {
 
         root.findViewById(R.id.home_btn_passes).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-            	startActivity(new Intent(getActivity(), MountainPassConditions.class));
+            	startActivity(new Intent(getActivity(), MountainPassesActivity.class));
             }
         });
 

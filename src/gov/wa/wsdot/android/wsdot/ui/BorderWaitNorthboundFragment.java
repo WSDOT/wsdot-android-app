@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.BorderWaitItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -33,6 +34,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
@@ -93,11 +95,11 @@ public class BorderWaitNorthboundFragment extends SherlockListFragment
         adapter = new BorderWaitItemAdapter(getActivity());
         setListAdapter(adapter);
         
-        routeImage.put(5, R.drawable.i5);
-        routeImage.put(9, R.drawable.sr9);
-        routeImage.put(539, R.drawable.sr539);
-        routeImage.put(543, R.drawable.sr543);
-        routeImage.put(97, R.drawable.us97);        
+        routeImage.put(5, R.drawable.ic_list_i5);
+        routeImage.put(9, R.drawable.ic_list_sr9);
+        routeImage.put(539, R.drawable.ic_list_sr539);
+        routeImage.put(543, R.drawable.ic_list_sr543);
+        routeImage.put(97, R.drawable.ic_list_us97);        
         
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.        
@@ -168,7 +170,7 @@ public class BorderWaitNorthboundFragment extends SherlockListFragment
 					JSONObject item = items.getJSONObject(j);
 					i = new BorderWaitItem();
 					i.setLane(item.getString("lane"));
-					i.setUpdated(item.getString("updated"));
+					i.setUpdated(ParserUtils.relativeTime(item.getString("updated"), "yyyy-MM-dd h:mm a", false));
 					i.setName(item.getString("name"));
 					i.setRoute(item.getInt("route"));
 					i.setDirection(item.getString("direction"));
@@ -227,7 +229,10 @@ public class BorderWaitNorthboundFragment extends SherlockListFragment
 		}
 	}
 	
-	public static class BorderWaitItemAdapter extends ArrayAdapter<BorderWaitItem> {
+	public class BorderWaitItemAdapter extends ArrayAdapter<BorderWaitItem> {
+        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+
 		private final LayoutInflater mInflater;
 		
         public BorderWaitItemAdapter(Context context) {
@@ -265,8 +270,11 @@ public class BorderWaitNorthboundFragment extends SherlockListFragment
 	        
 	        if (item != null) {
 	            TextView tt = (TextView) convertView.findViewById(R.id.toptext);
+	            tt.setTypeface(tfb);
 	            TextView bt = (TextView) convertView.findViewById(R.id.bottomtext);
+	            bt.setTypeface(tf);
 	            TextView rt = (TextView) convertView.findViewById(R.id.righttext);
+	            rt.setTypeface(tfb);
 	            ImageView iv = (ImageView) convertView.findViewById(R.id.icon);
 
 	            if (tt != null) {

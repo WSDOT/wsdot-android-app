@@ -25,9 +25,13 @@ import java.util.TimeZone;
 
 public class ParserUtils {
 	
-	public static String relativeTime(String createdAt, String datePattern) {
+	public static String relativeTime(String createdAt, String datePattern, boolean isUTC) {
 		DateFormat parseDateFormat = new SimpleDateFormat(datePattern);
-    	parseDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    	
+		if (isUTC) {
+			parseDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		}
+		
 		DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 		int delta = 0;
   

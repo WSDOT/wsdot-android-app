@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.shared.ExpressLaneItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -34,6 +35,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -66,11 +68,11 @@ public class SeattleExpressLanes extends SherlockListActivity {
         setContentView(R.layout.fragment_list_with_spinner);
         mLoadingSpinner = findViewById(R.id.loading_spinner);        
 
-        routeImage.put(5, R.drawable.i5);
-        routeImage.put(90, R.drawable.i90);
+        routeImage.put(5, R.drawable.ic_list_i5);
+        routeImage.put(90, R.drawable.ic_list_i90);
         
         expressLaneItems = new ArrayList<ExpressLaneItem>();
-        this.adapter = new ExpressLaneItemAdapter(this, R.layout.details_item, expressLaneItems);
+        this.adapter = new ExpressLaneItemAdapter(this, R.layout.simple_list_item_with_icon, expressLaneItems);
         setListAdapter(this.adapter);
         
         new GetExpressLaneStatus().execute();
@@ -151,7 +153,7 @@ public class SeattleExpressLanes extends SherlockListActivity {
 						i.setTitle(item.getString("title"));
 						i.setRoute(item.getInt("route"));
 						i.setStatus(item.getString("status"));
-						i.setUpdated(item.getString("updated"));
+						i.setUpdated(ParserUtils.relativeTime(item.getString("updated"), "yyyy-MM-dd h:mm a", false));
 						expressLaneItems.add(i);
 					} else {
 						break;
@@ -181,7 +183,10 @@ public class SeattleExpressLanes extends SherlockListActivity {
     
     
 	private class ExpressLaneItemAdapter extends ArrayAdapter<ExpressLaneItem> {
-        private ArrayList<ExpressLaneItem> items;
+        private Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
+        private Typeface tfb = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Bold.ttf");
+		
+		private ArrayList<ExpressLaneItem> items;
 
         public ExpressLaneItemAdapter(Context context, int textViewResourceId, ArrayList<ExpressLaneItem> items) {
 	        super(context, textViewResourceId, items);
@@ -200,23 +205,24 @@ public class SeattleExpressLanes extends SherlockListActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 	        if (convertView == null) {
-	            convertView = getLayoutInflater().inflate(R.layout.details_item, null);
+	            convertView = getLayoutInflater().inflate(R.layout.simple_list_item_with_icon, null);
 	        }
 	        ExpressLaneItem o = items.get(position);
 	        if (o != null) {
 	            TextView tt = (TextView) convertView.findViewById(R.id.title);
-	            TextView bt = (TextView) convertView.findViewById(R.id.description);
-	            TextView ut = (TextView) convertView.findViewById(R.id.updated);
+	            tt.setTypeface(tfb);
+	            TextView bt = (TextView) convertView.findViewById(R.id.text);
+	            bt.setTypeface(tf);
 	            ImageView iv = (ImageView) convertView.findViewById(R.id.icon);
+	            
 	            if (tt != null) {
-	            	tt.setText(o.getTitle());
+	            	tt.setText(o.getTitle() + " " + o.getStatus());
 	            }
+	            
 	            if(bt != null) {
-            		bt.setText(o.getStatus());
+            		bt.setText(o.getUpdated());
 	            }
-	            if(ut != null) {
-            		ut.setText(o.getUpdated());
-	            }	            
+	            
 	       		iv.setImageResource(routeImage.get(o.getRoute()));
 	        }
 	        
@@ -227,7 +233,6 @@ public class SeattleExpressLanes extends SherlockListActivity {
 	public static class ViewHolder {
 		public TextView tt;
 		public TextView bt;
-		public TextView ut;
 		public ImageView iv;
 	}
 }

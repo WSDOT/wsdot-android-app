@@ -61,14 +61,11 @@
    		    android:label="@string/title_socialmedia" />
    		
    		<activity
-   		    android:name=".MountainPassConditions"
+   		    android:name=".ui.MountainPassesActivity"
    		    android:label="@string/title_mountainpasses" />
    		
    		<activity
-   		    android:name=".MountainPassItemTabs" />
-   		
-   		<activity
-   		    android:name=".MountainPassItemMap" />
+   		    android:name=".ui.MountainPassItemActivity" />
    		
    		<activity
    		    android:name=".TrafficMap"
