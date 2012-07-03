@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -103,18 +104,63 @@ public class MountainPassItemReportFragment extends SherlockFragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = (ViewGroup) inflater.inflate(R.layout.mountainpass_item_details, null);
+        Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");		
+		
+		mRootView = (ViewGroup) inflater.inflate(R.layout.mountainpass_item_details, null);
         
-        ((TextView)mRootView.findViewById(R.id.date_updated)).setText(mDateUpdated);
-		((TextView)mRootView.findViewById(R.id.WeatherCondition)).setText(mWeatherCondition);
-		((TextView)mRootView.findViewById(R.id.TemperatureInFahrenheit)).setText(mTemperatureInFahrenheit);
-		((TextView)mRootView.findViewById(R.id.ElevationInFeet)).setText(mElevationInFeet + " ft");
-		((TextView)mRootView.findViewById(R.id.RoadCondition)).setText(mRoadCondition);
-		((TextView)mRootView.findViewById(R.id.heading_RestrictionOneTravelDirection)).setText("Restrictions " + mRestrictionOneTravelDirection + ":");
-		((TextView)mRootView.findViewById(R.id.RestrictionOneText)).setText(mRestrictionOneText);
-		((TextView)mRootView.findViewById(R.id.heading_RestrictionTwoTravelDirection)).setText("Restrictions " + mRestrictionTwoTravelDirection + ":");
-		((TextView)mRootView.findViewById(R.id.RestrictionTwoText)).setText(mRestrictionTwoText);        
+        TextView date_updated = (TextView)mRootView.findViewById(R.id.date_updated);
+        date_updated.setTypeface(tf);
+        date_updated.setText(mDateUpdated);
         
+        TextView weather_condition_header = (TextView)mRootView.findViewById(R.id.weather_condition_title);
+        weather_condition_header.setTypeface(tfb);
+        weather_condition_header.setText("Weather:");
+        
+		TextView weather_condition_text = (TextView)mRootView.findViewById(R.id.weather_condition_text);
+		weather_condition_text.setTypeface(tf);
+		weather_condition_text.setText(mWeatherCondition);
+		
+		TextView temperature_header = (TextView)mRootView.findViewById(R.id.temperature_title);
+		temperature_header.setTypeface(tfb);
+		temperature_header.setText("Temperature:");
+
+		TextView temperature_text = (TextView)mRootView.findViewById(R.id.temperature_text);
+		temperature_text.setTypeface(tf);
+		temperature_text.setText(mTemperatureInFahrenheit);		
+
+		TextView elevation_header = (TextView)mRootView.findViewById(R.id.elevation_title);
+		elevation_header.setTypeface(tfb);
+		elevation_header.setText("Elevation:");		
+		
+		TextView elevation_text = (TextView)mRootView.findViewById(R.id.elevation_text);
+		elevation_text.setTypeface(tf);
+		elevation_text.setText(mElevationInFeet + " ft");
+
+		TextView road_condition_header = (TextView)mRootView.findViewById(R.id.road_condition_title);
+		road_condition_header.setTypeface(tfb);
+		road_condition_header.setText("Conditions:");		
+		
+		TextView road_condition_text = (TextView)mRootView.findViewById(R.id.road_condition_text);
+		road_condition_text.setTypeface(tf);
+		road_condition_text.setText(mRoadCondition);
+		
+		TextView restriction_one_header = (TextView)mRootView.findViewById(R.id.restriction_one_title);
+		restriction_one_header.setTypeface(tfb);
+		restriction_one_header.setText("Restrictions " + mRestrictionOneTravelDirection + ":");
+		
+		TextView restriction_one_text = (TextView)mRootView.findViewById(R.id.restriction_one_text);
+		restriction_one_text.setTypeface(tf);
+		restriction_one_text.setText(mRestrictionOneText);
+		
+		TextView restriction_two_header = (TextView)mRootView.findViewById(R.id.restriction_two_title);
+		restriction_two_header.setTypeface(tfb);
+		restriction_two_header.setText("Restrictions " + mRestrictionTwoTravelDirection + ":");
+		
+		TextView restriction_two_text = (TextView)mRootView.findViewById(R.id.restriction_two_text);
+		restriction_two_text.setTypeface(tf);
+		restriction_two_text.setText(mRestrictionTwoText);
+		
         return mRootView;		
 	}
 }

@@ -2,40 +2,35 @@
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/ScrollView01"
-	android:layout_height="wrap_content"
-	android:layout_width="fill_parent">
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content">
 	
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="14dp" >
 
 	<TextView
 	    android:id="@+id/date_updated"
+	    android:textSize="@dimen/text_size_small"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-		android:paddingLeft="5dp"
-	    android:paddingBottom="10dp"
-	    android:paddingTop="5dp" />    
+	    android:paddingBottom="15dp" />    
     	
 	<TextView
-	    android:id="@+id/heading_WeatherCondition"
-	    android:text="Weather:"
-	    android:textStyle="bold"
+	    android:id="@+id/weather_condition_title"
+	    android:textSize="@dimen/text_size_medium"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-		android:paddingLeft="5dp"
-	    android:paddingRight="5dp"
 	    />    
 
 	<TextView
-    	android:id="@+id/WeatherCondition"
-    	android:text="weather condition text"
+    	android:id="@+id/weather_condition_text"
+    	android:textSize="@dimen/text_size_small"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingBottom="5dp"
+    	android:paddingBottom="10dp"
     	/>
 
 	<TableLayout 
@@ -45,104 +40,79 @@
 
 	    <TableRow> 
 			<TextView
-			    android:id="@+id/heading_TemperatureInFahrenheit"
-			    android:text="Temperature:"
-			    android:textStyle="bold"
+			    android:id="@+id/temperature_title"
+			    android:textSize="@dimen/text_size_medium"
 			    android:width="115dp"
-         		android:paddingLeft="5dp"
-         		android:paddingRight="5dp"
-         		android:paddingBottom="5dp"
+			    android:paddingBottom="10dp"
 			    />
 			<TextView
-			    android:id="@+id/TemperatureInFahrenheit"
-			    android:text="temperature"
+			    android:id="@+id/temperature_text"
+			    android:textSize="@dimen/text_size_small"
 			    android:layout_width="fill_parent"
-			    android:paddingLeft="5dp"
-         		android:paddingRight="5dp"
-         		android:paddingBottom="5dp"
+			    android:paddingBottom="10dp"
 			    />
 	    </TableRow>
 	    <TableRow>
 			<TextView
-			    android:id="@+id/heading_ElevationInFeet"
-			    android:text="Elevation:"
-			    android:textStyle="bold"
+			    android:id="@+id/elevation_title"
+			    android:textSize="@dimen/text_size_medium"
 			    android:width="115dp"
-		        android:paddingLeft="5dp"
-		        android:paddingRight="5dp"
-		        android:paddingBottom="5dp"
+			    android:paddingBottom="10dp"
 			    />    
 		
 			<TextView
-			    android:id="@+id/ElevationInFeet"
-			    android:text="elevation"
+			    android:id="@+id/elevation_text"
+			    android:textSize="@dimen/text_size_small"
 			    android:layout_width="fill_parent"
-		        android:paddingLeft="5dp"
-		        android:paddingRight="5dp"
-		        android:paddingBottom="5dp"
+			    android:paddingBottom="10dp"
 			    />	    
 	    </TableRow>
 
     </TableLayout>
 
 	<TextView
-	    android:id="@+id/heading_RoadCondition"
-	    android:text="Conditions:"
-	    android:textStyle="bold"
+	    android:id="@+id/road_condition_title"
+	    android:textSize="@dimen/text_size_medium"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-		android:paddingLeft="5dp"
-	    android:paddingRight="5dp"
 	    />    
 
 	<TextView
-    	android:id="@+id/RoadCondition"
-    	android:text="road condition text"
+    	android:id="@+id/road_condition_text"
+    	android:textSize="@dimen/text_size_small"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingBottom="5dp"
+    	android:paddingBottom="10dp"
     	/>
     
 	<TextView
-	    android:id="@+id/heading_RestrictionOneTravelDirection"
-	    android:text="Restrictions NSEW"
-	    android:textStyle="bold"
+	    android:id="@+id/restriction_one_title"
+	    android:textSize="@dimen/text_size_medium"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-		android:paddingLeft="5dp"
-	    android:paddingRight="5dp"
 	    />    
 
 	<TextView
-    	android:id="@+id/RestrictionOneText"
-    	android:text="restriction text"
+    	android:id="@+id/restriction_one_text"
+    	android:textSize="@dimen/text_size_small"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingBottom="5dp"
+    	android:paddingBottom="10dp"
     	/>	  
 
 	<TextView
-	    android:id="@+id/heading_RestrictionTwoTravelDirection"
-	    android:text="Restrictions NSEW"
-	    android:textStyle="bold"
+	    android:id="@+id/restriction_two_title"
+	    android:textSize="@dimen/text_size_medium"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-		android:paddingLeft="5dp"
-	    android:paddingRight="5dp"
 	    />    
 
 	<TextView
-    	android:id="@+id/RestrictionTwoText"
-    	android:text="restriction text"
+    	android:id="@+id/restriction_two_text"
+    	android:textSize="@dimen/text_size_small"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingBottom="5dp"
+    	android:paddingBottom="10dp"
     	/>
 
 </LinearLayout>
