@@ -87,9 +87,9 @@ public class MountainPassesActivity extends SherlockListActivity {
     }
 	
 	private void buildWeatherPhrases() {
-		String[] weather_clear = {"fair", "sunny", "mostly sunny", "clear", "mostly clear"};
-		String[] weather_few_clouds = {"few clouds", "scattered clouds"};
-		String[] weather_partly_cloudy = {"partly cloudy"};
+		String[] weather_clear = {"fair", "sunny", "clear"};
+		String[] weather_few_clouds = {"few clouds", "scattered clouds", "mostly sunny", "mostly clear"};
+		String[] weather_partly_cloudy = {"partly cloudy", "partly sunny"};
 		String[] weather_cloudy = {"cloudy"};
 		String[] weather_mostly_cloudy = {"broken", "mostly cloudy"};
 		String[] weather_overcast = {"overcast"};
