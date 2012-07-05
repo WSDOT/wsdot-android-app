@@ -13,7 +13,7 @@
 
 	<TextView
 	    android:id="@+id/date_updated"
-	    android:textSize="@dimen/text_size_small"
+	    android:textSize="@dimen/text_size_medium"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:paddingBottom="15dp" />    
@@ -27,7 +27,7 @@
 
 	<TextView
     	android:id="@+id/weather_condition_text"
-    	android:textSize="@dimen/text_size_small"
+    	android:textSize="@dimen/text_size_medium"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
     	android:paddingBottom="10dp"
@@ -47,7 +47,7 @@
 			    />
 			<TextView
 			    android:id="@+id/temperature_text"
-			    android:textSize="@dimen/text_size_small"
+			    android:textSize="@dimen/text_size_medium"
 			    android:layout_width="fill_parent"
 			    android:paddingBottom="10dp"
 			    />
@@ -62,7 +62,7 @@
 		
 			<TextView
 			    android:id="@+id/elevation_text"
-			    android:textSize="@dimen/text_size_small"
+			    android:textSize="@dimen/text_size_medium"
 			    android:layout_width="fill_parent"
 			    android:paddingBottom="10dp"
 			    />	    
@@ -79,7 +79,7 @@
 
 	<TextView
     	android:id="@+id/road_condition_text"
-    	android:textSize="@dimen/text_size_small"
+    	android:textSize="@dimen/text_size_medium"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
     	android:paddingBottom="10dp"
@@ -94,7 +94,7 @@
 
 	<TextView
     	android:id="@+id/restriction_one_text"
-    	android:textSize="@dimen/text_size_small"
+    	android:textSize="@dimen/text_size_medium"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
     	android:paddingBottom="10dp"
@@ -109,7 +109,7 @@
 
 	<TextView
     	android:id="@+id/restriction_two_text"
-    	android:textSize="@dimen/text_size_small"
+    	android:textSize="@dimen/text_size_medium"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
     	android:paddingBottom="10dp"

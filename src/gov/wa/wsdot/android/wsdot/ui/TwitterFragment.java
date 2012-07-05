@@ -116,8 +116,8 @@ public class TwitterFragment extends SherlockListFragment
 		super.onActivityCreated(savedInstanceState);
 		
 		// Remove the separator between items in the ListView
-		getListView().setDivider(null);
-		getListView().setDividerHeight(0);
+		//getListView().setDivider(null);
+		//getListView().setDividerHeight(0);
 		
 		getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> parent, View view,

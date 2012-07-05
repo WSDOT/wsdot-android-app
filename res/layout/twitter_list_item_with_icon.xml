@@ -3,8 +3,7 @@
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	android:padding="14dp"
-	android:descendantFocusability="blocksDescendants"
-	android:background="@drawable/listview_background" >
+	android:descendantFocusability="blocksDescendants" >
 
     <ImageView
         android:id="@+id/icon"
@@ -34,7 +33,6 @@
          android:id="@+id/text"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
-         android:paddingBottom="10dp"
          android:layout_alignLeft="@+id/created_at"
          android:layout_below="@+id/created_at"
          android:textSize="@dimen/text_size_medium" />
