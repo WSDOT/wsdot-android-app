@@ -48,7 +48,15 @@
    		<activity
    		    android:name=".ui.TwitterDetailsActivity"
    		    android:label="@string/title_twitter" />
+
+   		<activity
+   		    android:name=".ui.FacebookActivity"
+   		    android:label="@string/title_facebook" />
    		
+   		<activity
+   		    android:name=".ui.FacebookDetailsActivity"
+   		    android:label="@string/title_facebook" />   		
+   				
    		<activity
    		    android:name=".Photos"
    		    android:label="@string/title_photos" />
