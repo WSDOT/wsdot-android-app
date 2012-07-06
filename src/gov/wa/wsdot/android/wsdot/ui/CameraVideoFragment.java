@@ -33,8 +33,10 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,13 +48,14 @@ import android.widget.VideoView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
-public class CameraVideoFragment extends SherlockFragment {
+public class CameraVideoFragment extends SherlockFragment
+	implements LoaderCallbacks<Boolean> {
 	
-	private String mVideoPath;
+	private static String mVideoPath;
     private VideoView mVideoView;
-	private ProgressBar mLoadingSpinner;
+	private static ProgressBar mLoadingSpinner;
 	private ViewGroup mRootView;
-	private String mCameraName = "cameraVideo.mp4";
+	private static String mCameraName = "cameraVideo.mp4";
 	
     @Override
 	public void onAttach(Activity activity) {
@@ -71,7 +74,9 @@ public class CameraVideoFragment extends SherlockFragment {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
+        // Tell the framework to try to keep this fragment around
+        // during a configuration change.
         setRetainInstance(true);
         setHasOptionsMenu(true);
     }
@@ -96,81 +101,128 @@ public class CameraVideoFragment extends SherlockFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-		new GetCameraVideo().execute();
+		// Prepare the loader. Either re-connect with an existing one,
+		// or start a new one.        
+        getLoaderManager().initLoader(0, null, this);
 	}
 
-	private class GetCameraVideo extends AsyncTask<Void, Void, Boolean> {
+	public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+		return new CameraVideoLoader(getActivity());
+	}
 
-		protected void onPreExecute() {
-			mLoadingSpinner.setVisibility(View.VISIBLE);
-		}
+	public void onLoadFinished(Loader<Boolean> loader, Boolean data) {
+		mLoadingSpinner.setVisibility(View.GONE);
+		
+		if (data) {
+			File f = new File(getActivity().getFilesDir(), mCameraName);
+			
+			mVideoView.setMediaController(new MediaController(getActivity()));
+			mVideoView.setVideoURI(Uri.fromFile(f));
+			mVideoView.requestFocus();
+			
+	        mVideoView.setOnPreparedListener(new OnPreparedListener() {
+				public void onPrepared(MediaPlayer arg0) {
+					mLoadingSpinner.setVisibility(View.GONE);
+					mVideoView.start();
+				}
+	        });
+	        
+	        mVideoView.setOnErrorListener(new OnErrorListener() {
+	        	public boolean onError(MediaPlayer mp, int what, int extra) {
+	        		Toast.makeText(getActivity(), "Error occured", 500).show();
+	 				return false;
+	 			}
+	 		});
+		}		
+	}
 
-	    protected void onCancelled() {
-	        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
-	    }
-		
-		protected Boolean doInBackground(Void... params) {
-			return loadVideoFromNetwork(mVideoPath);
-		}
-		
-		protected void onPostExecute(Boolean result) {
-			mLoadingSpinner.setVisibility(View.GONE);
-			
-			if (result) {
-				File f = new File(getActivity().getFilesDir(), mCameraName);
-				
-				mVideoView.setMediaController(new MediaController(getActivity()));
-				mVideoView.setVideoURI(Uri.fromFile(f));
-				mVideoView.requestFocus();
-				
-		        mVideoView.setOnPreparedListener(new OnPreparedListener() {
-					public void onPrepared(MediaPlayer arg0) {
-						mLoadingSpinner.setVisibility(View.GONE);
-						mVideoView.start();
-					}
-		        });
-		        
-		        mVideoView.setOnErrorListener(new OnErrorListener() {
-		        	public boolean onError(MediaPlayer mp, int what, int extra) {
-		        		Toast.makeText(getActivity(), "Error occured", 500).show();
-		 				return false;
-		 			}
-		 		});
-			}
-			
-		}
+	public void onLoaderReset(Loader<Boolean> loader) {
+		mLoadingSpinner.setVisibility(View.GONE);		
 	}
 	
-    private boolean loadVideoFromNetwork(String url) {
-    	FileOutputStream fos = null;
-        
-        try {
-        	HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        	connection.setRequestProperty("User-agent","Mozilla/4.0");
-        	connection.connect();
-            InputStream inputStream = connection.getInputStream();
-            
-            fos = getActivity().openFileOutput(mCameraName, Context.MODE_WORLD_READABLE);
-            byte[] buffer = new byte[1024];
-            int bufferLength = 0; //used to store a temporary size of the buffer
+	public static class CameraVideoLoader extends AsyncTaskLoader<Boolean> {
+		private Context mContext;
+		
+		public CameraVideoLoader(Context context) {
+			super(context);
+			
+			this.mContext = context;
+		}
 
-            while ( (bufferLength = inputStream.read(buffer)) > 0 ) {
-                fos.write(buffer, 0, bufferLength);
-            }
-
-        } catch (Exception e) {
-	        Log.e("CameraVideo", "Error retrieving camera video", e);
+		@Override
+		public Boolean loadInBackground() {
+	    	FileOutputStream fos = null;
 	        
-	        return false;
-	    }
-        
-        try {
-			fos.flush();
-			fos.close();
-		} catch (IOException e) {
-			Log.e("CameraVideoFragment", e.toString(), e);
-		}         
-        
-		return true;	    
-    }	
+	        try {
+	        	HttpURLConnection connection = (HttpURLConnection) new URL(mVideoPath).openConnection();
+	        	connection.setRequestProperty("User-agent","Mozilla/4.0");
+	        	connection.connect();
+	            InputStream inputStream = connection.getInputStream();
+	            
+	            fos = mContext.openFileOutput(mCameraName, Context.MODE_WORLD_READABLE);
+	            byte[] buffer = new byte[1024];
+	            int bufferLength = 0; //used to store a temporary size of the buffer
+
+	            while ( (bufferLength = inputStream.read(buffer)) > 0 ) {
+	                fos.write(buffer, 0, bufferLength);
+	            }
+
+	        } catch (Exception e) {
+		        Log.e("CameraVideo", "Error retrieving camera video", e);
+		        
+		        return false;
+		    }
+	        
+	        try {
+				fos.flush();
+				fos.close();
+			} catch (IOException e) {
+				Log.e("CameraVideoFragment", e.toString(), e);
+			}         
+	        
+			return true;	    
+
+		}
+
+		@Override
+		public void deliverResult(Boolean data) {
+		    /**
+		     * Called when there is new data to deliver to the client. The
+		     * super class will take care of delivering it; the implementation
+		     * here just adds a little more logic.
+		     */	
+			super.deliverResult(data);
+		}
+		
+		@Override
+		protected void onStartLoading() {
+			super.onStartLoading();
+			
+			mLoadingSpinner.setVisibility(View.VISIBLE);
+			forceLoad();
+		}
+
+		@Override
+		protected void onStopLoading() {
+			super.onStopLoading();
+			
+	        // Attempt to cancel the current load task if possible.
+	        cancelLoad();			
+		}
+		
+		@Override
+		public void onCanceled(Boolean data) {
+			super.onCanceled(data);
+		}
+
+		@Override
+		protected void onReset() {
+			super.onReset();
+			
+	        // Ensure the loader is stopped
+	        onStopLoading();			
+		}		
+
+		
+	}
 }

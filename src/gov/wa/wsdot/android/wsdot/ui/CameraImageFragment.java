@@ -35,9 +35,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,16 +54,16 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
 
-public class CameraImageFragment extends SherlockFragment {
+public class CameraImageFragment extends SherlockFragment
+	implements LoaderCallbacks<Drawable> {
 
-	private String mUrl;
+	private static String mUrl;
 	private ViewGroup mRootView;
-	private ProgressBar mLoadingSpinner;
+	private static ProgressBar mLoadingSpinner;
 	private ImageView mImage;
 	private String mTitle;
-	private String mCameraName = "cameraImage.jpg";
+	private static String mCameraName = "cameraImage.jpg";
 	private ShareActionProvider actionProvider;
-	private GetCameraImage getCameraImage;
 	
 	static final private int MENU_ITEM_REFRESH = Menu.FIRST;
 	static final private int MENU_ITEM_STAR = Menu.FIRST + 1;
@@ -81,7 +83,9 @@ public class CameraImageFragment extends SherlockFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
+        // Tell the framework to try to keep this fragment around
+        // during a configuration change.		
         setRetainInstance(true);
 		setHasOptionsMenu(true);
 	}
@@ -106,15 +110,9 @@ public class CameraImageFragment extends SherlockFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-		getCameraImage = new GetCameraImage();
-		getCameraImage.execute();
-	}
-    
-	@Override
-	public void onPause() {
-		super.onPause();
-		
-		getCameraImage.cancel(true);
+		// Prepare the loader. Either re-connect with an existing one,
+		// or start a new one.        
+        getLoaderManager().initLoader(0, null, this);
 	}
 
 	@Override
@@ -146,8 +144,7 @@ public class CameraImageFragment extends SherlockFragment {
 
 		case MENU_ITEM_REFRESH:
 			mImage.setImageDrawable(null);
-			getCameraImage = new GetCameraImage();
-			getCameraImage.execute();
+			getLoaderManager().restartLoader(0, null, this);
 			return true;
 		case MENU_ITEM_STAR:
 			Toast.makeText(getSherlockActivity(), "Starred", Toast.LENGTH_SHORT).show();
@@ -177,24 +174,35 @@ public class CameraImageFragment extends SherlockFragment {
 		
         return shareIntent;
 	}	
+
 	
-	private class GetCameraImage extends AsyncTask<String, Void, Drawable> {
+	public Loader<Drawable> onCreateLoader(int id, Bundle args) {	
+		return new CameraImageLoader(getActivity());
+	}
+	
 
-		protected void onPreExecute() {
-			mLoadingSpinner.setVisibility(View.VISIBLE);
-		}
+	public void onLoadFinished(Loader<Drawable> loader, Drawable data) {
+		mLoadingSpinner.setVisibility(View.GONE);	
+		mImage.setImageDrawable(data);
+		actionProvider.setShareIntent(createShareIntent());		
+	}
 
-		@Override
-		protected void onCancelled(Drawable result) {
-			super.onCancelled(result);
-		}
-
-		protected void onCancelled() {
-	        Toast.makeText(getActivity(), "Cancelled.", Toast.LENGTH_SHORT).show();
-	    }
+	public void onLoaderReset(Loader<Drawable> loader) {
+		mLoadingSpinner.setVisibility(View.GONE);		
+	}
+	
+	public static class CameraImageLoader extends AsyncTaskLoader<Drawable> {
+		private Context mContext;
 		
+		public CameraImageLoader(Context context) {
+			super(context);
+			
+			this.mContext = context;
+		}
+
 		@SuppressWarnings("deprecation")
-		protected Drawable doInBackground(String... params) {
+		@Override
+		public Drawable loadInBackground() {
 	    	FileOutputStream fos = null;
 	    	Bitmap image;
 	        
@@ -204,24 +212,55 @@ public class CameraImageFragment extends SherlockFragment {
 	        	connection.connect();
 	            InputStream input = connection.getInputStream();
 	            image = BitmapFactory.decodeStream(input);
-	            fos = getActivity().openFileOutput(mCameraName, Context.MODE_WORLD_READABLE);
+	            fos = mContext.openFileOutput(mCameraName, Context.MODE_WORLD_READABLE);
 	            image.compress(Bitmap.CompressFormat.JPEG, 75, fos);
 				fos.flush();
 				fos.close();            
 		    } catch (Exception e) {
 		        Log.e("CameraImageFragment", "Error retrieving camera image", e);
-		        image = BitmapFactory.decodeResource(getResources(), R.drawable.camera_offline);
+		        image = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.camera_offline);
 		    }
         
 		    return new BitmapDrawable(image);
 		}
-		
-		protected void onPostExecute(Drawable result) {
-	        if (!isCancelled()) {
-				mLoadingSpinner.setVisibility(View.GONE);
-				mImage.setImageDrawable(result);
-				actionProvider.setShareIntent(createShareIntent());
-	        }
+
+		@Override
+		public void deliverResult(Drawable data) {
+		    /**
+		     * Called when there is new data to deliver to the client. The
+		     * super class will take care of delivering it; the implementation
+		     * here just adds a little more logic.
+		     */	
+			super.deliverResult(data);
 		}
+		
+		@Override
+		protected void onStartLoading() {
+			super.onStartLoading();
+			
+			mLoadingSpinner.setVisibility(View.VISIBLE);
+			forceLoad();
+		}
+
+		@Override
+		protected void onStopLoading() {
+			super.onStopLoading();
+			
+	        // Attempt to cancel the current load task if possible.
+	        cancelLoad();			
+		}
+		
+		@Override
+		public void onCanceled(Drawable data) {
+			super.onCanceled(data);
+		}
+
+		@Override
+		protected void onReset() {
+			super.onReset();
+			
+	        // Ensure the loader is stopped
+	        onStopLoading();			
+		}		
 	}
 }
