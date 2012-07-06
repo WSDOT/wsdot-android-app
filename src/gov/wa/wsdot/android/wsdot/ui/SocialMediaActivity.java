@@ -19,7 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.Blog;
-import gov.wa.wsdot.android.wsdot.News;
 import gov.wa.wsdot.android.wsdot.Photos;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.Video;
@@ -117,8 +116,8 @@ public class SocialMediaActivity extends SherlockListActivity {
 			listViewItems = new ArrayList<ListViewItem>();
 			
 	        listViewItems.add(new ListViewItem("Blog", Blog.class, R.drawable.ic_list_blogger));
-	        listViewItems.add(new ListViewItem("Facebook", News.class, R.drawable.ic_list_facebook));
-	        listViewItems.add(new ListViewItem("News", News.class, R.drawable.ic_list_wsdot));
+	        listViewItems.add(new ListViewItem("Facebook", NewsActivity.class, R.drawable.ic_list_facebook));
+	        listViewItems.add(new ListViewItem("News", NewsActivity.class, R.drawable.ic_list_wsdot));
 	        listViewItems.add(new ListViewItem("Photos", Photos.class, R.drawable.ic_list_flickr));
 	        listViewItems.add(new ListViewItem("Twitter", TwitterActivity.class, R.drawable.ic_list_twitter));
 	        listViewItems.add(new ListViewItem("Video", Video.class, R.drawable.ic_list_youtube));
