@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot;
 
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
+import gov.wa.wsdot.android.wsdot.ui.CameraActivity;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
@@ -502,7 +503,7 @@ public class TrafficMap extends SherlockMapActivity {
 		protected boolean onTap(int i) {
 			OverlayItem item = getItem(i);
 			Bundle b = new Bundle();
-			Intent intent = new Intent(TrafficMap.this, CameraTabs.class);
+			Intent intent = new Intent(TrafficMap.this, CameraActivity.class);
 			b.putString("title", item.getTitle());
 			b.putString("url", item.getSnippet());
 			intent.putExtras(b);

@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot;
 
+import gov.wa.wsdot.android.wsdot.ui.CameraActivity;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
 
@@ -451,7 +452,7 @@ public class VesselWatchMap extends SherlockMapActivity {
 		protected boolean onTap(int i) {
 			OverlayItem item = getItem(i);
 			Bundle b = new Bundle();
-			Intent intent = new Intent(VesselWatchMap.this, CameraTabs.class);
+			Intent intent = new Intent(VesselWatchMap.this, CameraActivity.class);
 			b.putString("title", item.getTitle());
 			b.putString("url", item.getSnippet());
 			intent.putExtras(b);

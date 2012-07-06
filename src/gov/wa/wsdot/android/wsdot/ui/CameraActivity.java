@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -27,7 +27,7 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 
-public class CameraTabs extends SherlockFragmentActivity {
+public class CameraActivity extends SherlockFragmentActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

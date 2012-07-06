@@ -1,7 +1,5 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.About;
-import gov.wa.wsdot.android.wsdot.FavoritesActivity;
 import gov.wa.wsdot.android.wsdot.Preferences;
 import gov.wa.wsdot.android.wsdot.R;
 import android.content.Intent;
@@ -29,7 +27,7 @@ public class HomeActivity extends SherlockFragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_about:
-            	startActivity(new Intent(this, About.class));
+            	startActivity(new Intent(this, AboutActivity.class));
                 break;
 
             case R.id.menu_preferences:

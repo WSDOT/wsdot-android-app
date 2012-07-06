@@ -16,7 +16,9 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.ui;
+
+import gov.wa.wsdot.android.wsdot.R;
 
 import java.io.File;
 import java.io.FileOutputStream;

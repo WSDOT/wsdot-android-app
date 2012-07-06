@@ -16,8 +16,9 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.ui;
 
+import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -26,10 +27,10 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.WebView;
 
-import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 
-public class About extends SherlockActivity {
+public class AboutActivity extends SherlockFragmentActivity {
 	private static final String DEBUG_TAG = "About";
 	WebView webview;
 	String versionName = "Not available";

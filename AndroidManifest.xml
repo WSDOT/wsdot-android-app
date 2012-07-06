@@ -32,7 +32,7 @@
    		    android:name=".ui.NewsDetailsActivity" />
 
    		<activity
-   		    android:name=".About"
+   		    android:name=".ui.AboutActivity"
    		    android:label="@string/title_about" />   		
    				
    		<activity
@@ -131,14 +131,14 @@
    		    android:label="@string/title_video" />
    		
    		<activity
-   		    android:name=".CameraTabs"
+   		 	android:name=".ui.CameraActivity"
    		    android:uiOptions="splitActionBarWhenNarrow" />
 
    		<activity
    		    android:name=".HighwayAlertItemDetails" />
    		
    		<activity
-   		    android:name=".FavoritesActivity"
+ 			android:name=".ui.FavoritesActivity"
    		    android:label="@string/title_favorites" />   		
    				
    		<uses-library android:name="com.google.android.maps" />   		

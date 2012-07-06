@@ -16,17 +16,20 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.ui;
 
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.R.id;
+import gov.wa.wsdot.android.wsdot.R.layout;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.webkit.WebView;
 
-import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 
-public class FavoritesActivity extends SherlockActivity {
+public class FavoritesActivity extends SherlockFragmentActivity {
 
 	WebView webview;
 
