@@ -115,12 +115,12 @@ public class SocialMediaActivity extends SherlockListActivity {
 		protected String doInBackground(String... arg0) {
 			listViewItems = new ArrayList<ListViewItem>();
 			
-	        listViewItems.add(new ListViewItem("Blog", Blog.class, R.drawable.ic_list_blogger));
+	        listViewItems.add(new ListViewItem("Blogger", Blog.class, R.drawable.ic_list_blogger));
 	        listViewItems.add(new ListViewItem("Facebook", NewsActivity.class, R.drawable.ic_list_facebook));
+	        listViewItems.add(new ListViewItem("Flickr", Photos.class, R.drawable.ic_list_flickr));
 	        listViewItems.add(new ListViewItem("News", NewsActivity.class, R.drawable.ic_list_wsdot));
-	        listViewItems.add(new ListViewItem("Photos", Photos.class, R.drawable.ic_list_flickr));
 	        listViewItems.add(new ListViewItem("Twitter", TwitterActivity.class, R.drawable.ic_list_twitter));
-	        listViewItems.add(new ListViewItem("Video", Video.class, R.drawable.ic_list_youtube));
+	        listViewItems.add(new ListViewItem("Youtube", Video.class, R.drawable.ic_list_youtube));
 	        
 			return null;
 		}
