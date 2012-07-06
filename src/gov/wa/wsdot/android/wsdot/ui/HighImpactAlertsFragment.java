@@ -73,7 +73,10 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
+        // Tell the framework to try to keep this fragment around
+        // during a configuration change.
+        setRetainInstance(true);		
 		setHasOptionsMenu(true);
 	}
 
