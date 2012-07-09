@@ -32,7 +32,9 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 
-public class TwitterActivity extends SherlockFragmentActivity implements ActionBar.OnNavigationListener {
+public class TwitterActivity extends SherlockFragmentActivity
+	implements ActionBar.OnNavigationListener {
+	
     private ArrayList<String> mTwitterAccounts;
     private HashMap<String, String> mTwitterScreenNames = new HashMap<String, String>();
     

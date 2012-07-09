@@ -19,8 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.R.id;
-import gov.wa.wsdot.android.wsdot.R.layout;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.os.Bundle;
 import android.view.KeyEvent;
