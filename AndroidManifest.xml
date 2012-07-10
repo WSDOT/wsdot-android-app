@@ -36,10 +36,10 @@
    		    android:label="@string/title_about" />   		
    				
    		<activity
-   		    android:name=".Blog"
+   		    android:name=".ui.BlogActivity"
    		    android:label="@string/title_blog" />
    		
-   		<activity android:name="BlogItemDetails" />
+   		<activity android:name=".ui.BlogDetailsActivity" />
    		
    		<activity
    		    android:name=".ui.TwitterActivity"
