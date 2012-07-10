@@ -1,6 +1,5 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.Ferries;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.TrafficMap;
 import android.content.Intent;
@@ -26,7 +25,7 @@ public class DashboardFragment extends SherlockFragment {
 
         root.findViewById(R.id.home_btn_ferries).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-            	startActivity(new Intent(getActivity(), Ferries.class));
+            	startActivity(new Intent(getActivity(), FerriesActivity.class));
             }
         });
 

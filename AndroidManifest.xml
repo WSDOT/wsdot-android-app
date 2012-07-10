@@ -100,7 +100,7 @@
    		    android:label="@string/title_borderwait" />
    		   		
    		<activity
-   		    android:name=".Ferries"
+   		    android:name=".ui.FerriesActivity"
    		    android:label="@string/title_ferries" />
    		
    		<activity
