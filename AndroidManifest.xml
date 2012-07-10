@@ -92,7 +92,7 @@
    		    android:label="@string/title_expresslanes" />
    		
    		<activity
-   		    android:name=".Preferences"
+   		    android:name=".ui.PreferencesActivity"
    		    android:label="@string/title_preferences" />
    		
    		<activity
@@ -131,7 +131,7 @@
    		    android:label="@string/title_vesselwatch" />
    		
    		<activity
-   		    android:name=".TollRatesTabActivity"
+   		    android:name=".ui.TollRatesActivity"
    		    android:label="@string/title_tollrates" />
    		
    		<activity

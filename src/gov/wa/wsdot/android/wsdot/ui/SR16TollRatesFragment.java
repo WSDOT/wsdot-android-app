@@ -16,8 +16,9 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.ui;
 
+import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
-public class SR16TollRatesActivity extends SherlockListFragment {
+public class SR16TollRatesFragment extends SherlockListFragment {
 	private MyCustomAdapter adapter;
 	
 	@Override

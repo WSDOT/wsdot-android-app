@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -27,7 +27,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.view.MenuItem;
 
-public class TollRatesTabActivity extends SherlockFragmentActivity {
+public class TollRatesActivity extends SherlockFragmentActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,17 +38,17 @@ public class TollRatesTabActivity extends SherlockFragmentActivity {
 
         ActionBar.Tab sr520Tab = getSupportActionBar().newTab();
         sr520Tab.setText("SR 520");
-        sr520Tab.setTabListener(new TabListener<SR520TollRatesActivity>(this, "SR520", SR520TollRatesActivity.class));
+        sr520Tab.setTabListener(new TabListener<SR520TollRatesFragment>(this, "SR520", SR520TollRatesFragment.class));
         getSupportActionBar().addTab(sr520Tab);
 
         ActionBar.Tab sr16Tab = getSupportActionBar().newTab();
         sr16Tab.setText("SR 16");
-        sr16Tab.setTabListener(new TabListener<SR16TollRatesActivity>(this, "SR16", SR16TollRatesActivity.class));
+        sr16Tab.setTabListener(new TabListener<SR16TollRatesFragment>(this, "SR16", SR16TollRatesFragment.class));
         getSupportActionBar().addTab(sr16Tab);        
 
         ActionBar.Tab sr167Tab = getSupportActionBar().newTab();
         sr167Tab.setText("SR 167");
-        sr167Tab.setTabListener(new TabListener<SR167TollRatesActivity>(this, "SR167", SR167TollRatesActivity.class));
+        sr167Tab.setTabListener(new TabListener<SR167TollRatesFragment>(this, "SR167", SR167TollRatesFragment.class));
         getSupportActionBar().addTab(sr167Tab);         
         
         if (savedInstanceState != null) {

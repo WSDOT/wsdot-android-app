@@ -2,7 +2,6 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.Ferries;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.TollRatesTabActivity;
 import gov.wa.wsdot.android.wsdot.TrafficMap;
 import android.content.Intent;
 import android.os.Bundle;
@@ -45,7 +44,7 @@ public class DashboardFragment extends SherlockFragment {
         
         root.findViewById(R.id.home_btn_tolling).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-            	startActivity(new Intent(getActivity(), TollRatesTabActivity.class));
+            	startActivity(new Intent(getActivity(), TollRatesActivity.class));
             }
         });        
         
