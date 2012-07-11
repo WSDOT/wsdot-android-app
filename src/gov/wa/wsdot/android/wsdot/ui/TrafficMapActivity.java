@@ -21,7 +21,6 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.HighwayAlertItemDetails;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.SeattleExpressLanes;
-import gov.wa.wsdot.android.wsdot.SeattleTrafficAlertsActivity;
 import gov.wa.wsdot.android.wsdot.SeattleTrafficTravelTimes;
 import gov.wa.wsdot.android.wsdot.R.drawable;
 import gov.wa.wsdot.android.wsdot.R.id;

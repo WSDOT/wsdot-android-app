@@ -80,7 +80,7 @@
    		    android:label="@string/title_trafficmap" />
    		
    		<activity
-   		    android:name=".SeattleTrafficAlertsActivity"
+   		    android:name=".ui.SeattleTrafficAlertsActivity"
    		    android:label="@string/title_seattlealerts" />
    		
    		<activity
