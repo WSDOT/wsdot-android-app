@@ -1,7 +1,6 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.TrafficMap;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -19,7 +18,7 @@ public class DashboardFragment extends SherlockFragment {
 
         root.findViewById(R.id.home_btn_traffic).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-            	startActivity(new Intent(getActivity(), TrafficMap.class));
+            	startActivity(new Intent(getActivity(), TrafficMapActivity.class));
             }            
         });
 

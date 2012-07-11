@@ -76,11 +76,11 @@
    		    android:name=".ui.MountainPassItemActivity" />
    		
    		<activity
-   		    android:name=".TrafficMap"
+   		    android:name=".ui.TrafficMapActivity"
    		    android:label="@string/title_trafficmap" />
    		
    		<activity
-   		    android:name=".SeattleTrafficAlerts"
+   		    android:name=".SeattleTrafficAlertsActivity"
    		    android:label="@string/title_seattlealerts" />
    		
    		<activity

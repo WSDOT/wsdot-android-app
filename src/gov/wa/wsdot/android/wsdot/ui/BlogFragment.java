@@ -135,7 +135,7 @@ public class BlogFragment extends SherlockListFragment
 	}
 	
 	/**
-	 * A custom Loader that loads all of the border wait times from the data server.
+	 * A custom Loader that loads all of the posts from the WSDOT blog.
 	 */	
 	public static class BlogItemsLoader extends AsyncTaskLoader<ArrayList<BlogItem>> {
 
