@@ -23,10 +23,11 @@
         android:layout_weight="1"
         />
 
-	<com.viewpagerindicator.UnderlinePageIndicator
+	<com.viewpagerindicator.LinePageIndicator
 		android:id="@+id/indicator"
-		android:layout_height="2dp"
-		android:layout_width="fill_parent"
-		/>
+        android:padding="5dip"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        />
 
 </LinearLayout>

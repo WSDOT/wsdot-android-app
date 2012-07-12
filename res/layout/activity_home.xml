@@ -1,19 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/home_root"
     android:orientation="vertical"    
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-
-    <fragment android:name="gov.wa.wsdot.android.wsdot.ui.DashboardFragment"
-        android:id="@+id/fragment_dashboard"
+	
+    <com.viewpagerindicator.TitlePageIndicator
+        android:id="@+id/indicator"
+        android:padding="10dp"
+        android:layout_height="wrap_content"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="1" />
+        android:background="#ff141414"
+        android:textColor="@color/white"
+        app:footerColor="#ff33b5e5"
+        app:footerLineHeight="1dp"
+        app:footerIndicatorHeight="3dp"
+        app:footerIndicatorStyle="underline"
+        app:selectedColor="@color/white"
+        app:selectedBold="true"
+        />
+    
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        />
 
     <fragment android:name="gov.wa.wsdot.android.wsdot.ui.HighImpactAlertsFragment"
         android:id="@+id/fragment_now_playing"
         android:layout_width="fill_parent"
-        android:layout_height="@dimen/high_impact_alerts_height" />
-
+        android:layout_height="@dimen/high_impact_alerts_height" />    
+    		
 </LinearLayout>

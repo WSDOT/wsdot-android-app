@@ -144,10 +144,6 @@
 
    		<activity
    		    android:name=".HighwayAlertItemDetails" />
-   		
-   		<activity
- 			android:name=".ui.FavoritesActivity"
-   		    android:label="@string/title_favorites" />   		
    				
    		<uses-library android:name="com.google.android.maps" />   		
    		

@@ -39,7 +39,6 @@
     <string name="title_mountainpassdetails">Mountain Pass Details</string>
     <string name="title_preferences">Preferences</string>
     <string name="title_news">News</string>
-    <string name="title_favorites">Favorites</string>
 	
     <string name="description_refresh">Refresh</string>
     <string name="description_share">Share</string>
@@ -54,6 +53,7 @@
     <string name="description_report_image">Report Image</string>
     
     <string name="high_impact_alerts_inactive">No highest impact travel alerts</string>
+    <string name="no_favorites">You have not added any favorites yet.</string>
 
     <!-- Replace the apiKey with your own. See this link for more information, 
 		 http://code.google.com/android/add-ons/google-apis/mapkey.html

@@ -53,8 +53,7 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.viewpagerindicator.PageIndicator;
-import com.viewpagerindicator.UnderlinePageIndicator;
+import com.viewpagerindicator.LinePageIndicator;
 
 public class HighImpactAlertsFragment extends SherlockFragment
 	implements LoaderCallbacks<ArrayList<HighwayAlertsItem>> {
@@ -62,7 +61,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	private ViewGroup mRootView;
     private ViewPagerAdapter mAdapter;
     private static ViewPager mPager;
-    private PageIndicator mIndicator;
+    private static LinePageIndicator mIndicator;
 	private static View mLoadingSpinner;
     
     @Override
@@ -85,7 +84,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
         mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_high_impact_alerts, container);
         mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);
         mPager = (ViewPager)mRootView.findViewById(R.id.pager);
-        mIndicator = (UnderlinePageIndicator)mRootView.findViewById(R.id.indicator);
+        mIndicator = (LinePageIndicator)mRootView.findViewById(R.id.indicator);
         
         return mRootView;
     }
@@ -124,6 +123,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	public void onLoadFinished(Loader<ArrayList<HighwayAlertsItem>> loader, ArrayList<HighwayAlertsItem> alertItems) {
 		mLoadingSpinner.setVisibility(View.GONE);
 		mPager.setVisibility(View.VISIBLE);
+		mIndicator.setVisibility(View.VISIBLE);
 		mAdapter = new ViewPagerAdapter(getActivity(), alertItems);
 		mPager.setAdapter(mAdapter);
 		mIndicator.setViewPager(mPager);				
@@ -135,7 +135,9 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	
 	public class ViewPagerAdapter extends PagerAdapter {
         private ArrayList<HighwayAlertsItem> items;
-        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");        
+        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        @SuppressWarnings("unused")
+		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");        
 
         @SuppressWarnings("unused")
 		private final Context context;
@@ -168,11 +170,16 @@ public class HighImpactAlertsFragment extends SherlockFragment
 		    	});
 		    	
 		    	TextView title = (TextView)view.findViewById(R.id.title_alert);
-		    	title.setTypeface(tfb);
+		    	title.setTypeface(tf);
 		    	title.setText(items.get(position).getExtendedDescription());
+		    	
+		    	if (getCount() < 2) mIndicator.setVisibility(View.GONE);
+		    	
 	    	} else {
 	    		view = getActivity().getLayoutInflater().inflate(R.layout.high_impact_alerts_inactive, null);
+	    		mIndicator.setVisibility(View.GONE);
 	    	}
+	    	
 	        ((ViewPager)pager).addView(view, 0);
 	        
 	        return view;
@@ -281,6 +288,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
 			
 			mLoadingSpinner.setVisibility(View.VISIBLE);
 			mPager.setVisibility(View.GONE);
+			mIndicator.setVisibility(View.GONE);
 			forceLoad();
 		}		
 		

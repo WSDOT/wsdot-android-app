@@ -14,5 +14,13 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:drawSelectorOnTop="false" />
+
+    <TextView
+        android:id="@+id/empty_list_view"
+        android:textSize="@dimen/text_size_medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />    
     
 </FrameLayout>
