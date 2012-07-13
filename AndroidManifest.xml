@@ -135,7 +135,7 @@
    		    android:label="@string/title_tollrates" />
    		
    		<activity
-   		    android:name=".Video"
+   		    android:name=".ui.VideoActivity"
    		    android:label="@string/title_video" />
    		
    		<activity
