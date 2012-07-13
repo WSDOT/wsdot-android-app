@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,35 +66,35 @@ public class SR520TollRatesFragment extends SherlockListFragment {
 		
         HashMap<String, String> map = null;
         String[][] weekdayData = {
-        		{"Midnight to 5 a.m.", "0", "0"},
-        		{"5 a.m. to 6 a.m.", "$1.64", "$3.18"},
-        		{"6 a.m. to 7 a.m.", "$2.87", "$4.41"},
-        		{"7 a.m. to 9 a.m.", "$3.59", "$5.13"},
-        		{"9 a.m. to 10 a.m.", "$2.87", "$4.41"},
-        		{"10 a.m. to 2 p.m.", " $2.31", "$3.84"},
-        		{"2 p.m. to 3 p.m.", "$2.87", "$4.41"},
-        		{"3 p.m. to 6 p.m.", "$3.59", "$5.13"},
-        		{"6 p.m. to 7 p.m.", "$2.87", "$4.41"},
-        		{"7 p.m. to 9 p.m.", "$2.31", "$3.84"},
-        		{"9 p.m. to 11 p.m.", "$1.64", "$3.18"},
-        		{"11 p.m. to 11:59 p.m.", "0", "0"}
+        		{"Midnight to 5 AM", "0", "0"},
+        		{"5 AM to 6 AM", "$1.64", "$3.18"},
+        		{"6 AM to 7 AM", "$2.87", "$4.41"},
+        		{"7 AM to 9 AM", "$3.59", "$5.13"},
+        		{"9 AM to 10 AM", "$2.87", "$4.41"},
+        		{"10 AM to 2 PM", " $2.31", "$3.84"},
+        		{"2 PM to 3 PM", "$2.87", "$4.41"},
+        		{"3 PM to 6 PM", "$3.59", "$5.13"},
+        		{"6 PM to 7 PM", "$2.87", "$4.41"},
+        		{"7 PM to 9 PM", "$2.31", "$3.84"},
+        		{"9 PM to 11 PM", "$1.64", "$3.18"},
+        		{"11 PM to 11:59 PM", "0", "0"}
         		};
 
         String[][] weekendData = {
-        		{"Midnight to 5 a.m.", "0", "0"},
-        		{"5 a.m. to 8 a.m.", "$1.13", "$2.67"},
-        		{"8 a.m. to 11 a.m.", "$1.69", "$3.23"},
-        		{"11 a.m. to 6 p.m.", "$2.26", "$3.79"},
-        		{"6 p.m. to 9 p.m.", "$1.69", "$3.23"},
-        		{"9 p.m. to 11 p.m.", " $1.13", "$2.67"},
-        		{"11 p.m. to 11:59 p.m.", "0", "0"}
+        		{"Midnight to 5 AM", "0", "0"},
+        		{"5 AM to 8 AM", "$1.13", "$2.67"},
+        		{"8 AM to 11 AM", "$1.69", "$3.23"},
+        		{"11 AM to 6 PM", "$2.26", "$3.79"},
+        		{"6 PM to 9 PM", "$1.69", "$3.23"},
+        		{"9 PM to 11 PM", " $1.13", "$2.67"},
+        		{"11 PM to 11:59 PM", "0", "0"}
         		};
                 
         adapter = new MyCustomAdapter();
         setListAdapter(adapter);
         
         map = new HashMap<String, String>();
-        map.put("hours", "Mondays - Fridays");
+        map.put("hours", "Monday to Friday");
         map.put("goodtogo_pass", "Good To Go! Pass");
         map.put("pay_by_mail", "Pay By Mail");
         adapter.addSeparatorItem(map);
@@ -101,7 +102,7 @@ public class SR520TollRatesFragment extends SherlockListFragment {
         BuildAdapterData(weekdayData);
         
         map = new HashMap<String, String>();
-        map.put("hours", "Saturdays and Sundays");
+        map.put("hours", "Saturday and Sunday");
         map.put("goodtogo_pass", "Good To Go! Pass");
         map.put("pay_by_mail", "Pay By Mail");
         adapter.addSeparatorItem(map);
@@ -130,6 +131,8 @@ public class SR520TollRatesFragment extends SherlockListFragment {
         ArrayList<HashMap<String, String>> mData = new ArrayList<HashMap<String, String>>();
         private LayoutInflater mInflater;
         private TreeSet<Integer> mSeparatorsSet = new TreeSet<Integer>();
+        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
  
         public MyCustomAdapter() {
             mInflater = getActivity().getLayoutInflater();
@@ -188,20 +191,27 @@ public class SR520TollRatesFragment extends SherlockListFragment {
                     case TYPE_ITEM:
                         convertView = mInflater.inflate(R.layout.tollrates_sr520_row, null);
                         holder.hours = (TextView)convertView.findViewById(R.id.hours);
+                        holder.hours.setTypeface(tf);
                         holder.goodToGoPass = (TextView)convertView.findViewById(R.id.goodtogo_pass);
+                        holder.goodToGoPass.setTypeface(tf);
                         holder.payByMail = (TextView)convertView.findViewById(R.id.pay_by_mail);
+                        holder.payByMail.setTypeface(tf);
                         break;
                     case TYPE_SEPARATOR:
                         convertView = mInflater.inflate(R.layout.tollrates_sr520_header, null);
                         holder.hours = (TextView)convertView.findViewById(R.id.hours_title);
+                        holder.hours.setTypeface(tfb);
                         holder.goodToGoPass = (TextView)convertView.findViewById(R.id.goodtogo_pass_title);
+                        holder.goodToGoPass.setTypeface(tfb);
                         holder.payByMail = (TextView)convertView.findViewById(R.id.pay_by_mail_title);
+                        holder.payByMail.setTypeface(tfb);
                         break;
                 }
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder)convertView.getTag();
             }
+            
             holder.hours.setText(mData.get(position).get("hours"));
             holder.goodToGoPass.setText(mData.get(position).get("goodtogo_pass"));
             holder.payByMail.setText(mData.get(position).get("pay_by_mail"));

@@ -1,38 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout
-     xmlns:android="http://schemas.android.com/apk/res/android"
-     android:paddingTop="5dp"
-     android:paddingBottom="5dp"
-     android:paddingLeft="5dp"
-     android:layout_width="fill_parent"
-     android:layout_height="wrap_content"
-     android:orientation="horizontal"
-     android:layout_weight="1">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="14dp" >
  
-      <TextView android:id="@+id/number_axles"
-        android:layout_width="110dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingRight="10dp" />
+	<TextView android:id="@+id/number_axles"
+		android:layout_width="110dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		/>
  
-     <TextView android:id="@+id/goodtogo_pass"
-     	android:gravity="center"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"/>
+	<TextView android:id="@+id/goodtogo_pass"
+		android:gravity="center"
+		android:layout_width="70dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		/>
 
-     <TextView android:id="@+id/pay_by_cash"
-     	android:gravity="center"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingRight="10dp" />
+	<TextView android:id="@+id/pay_by_cash"
+		android:gravity="center"
+		android:layout_width="70dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		/>
      
-     <TextView android:id="@+id/pay_by_mail"
-     	android:gravity="center"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingRight="10dp" />
+	<TextView android:id="@+id/pay_by_mail"
+		android:gravity="center"
+		android:layout_width="70dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		/>
         
 </LinearLayout>

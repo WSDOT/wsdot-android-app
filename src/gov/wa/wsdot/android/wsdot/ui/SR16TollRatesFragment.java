@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -96,11 +97,12 @@ public class SR16TollRatesFragment extends SherlockListFragment {
     	private static final int TYPE_ITEM = 0;
         private static final int TYPE_SEPARATOR = 1;
         private static final int TYPE_MAX_COUNT = TYPE_SEPARATOR + 1;
-
         ArrayList<HashMap<String, String>> mData = new ArrayList<HashMap<String, String>>();
         private LayoutInflater mInflater;
         private TreeSet<Integer> mSeparatorsSet = new TreeSet<Integer>();
- 
+        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+        
         public MyCustomAdapter() {
             mInflater = getActivity().getLayoutInflater();
         }
@@ -158,22 +160,31 @@ public class SR16TollRatesFragment extends SherlockListFragment {
                     case TYPE_ITEM:
                         convertView = mInflater.inflate(R.layout.tollrates_sr16_row, null);
                         holder.numberAxles = (TextView)convertView.findViewById(R.id.number_axles);
+                        holder.numberAxles.setTypeface(tf);
                         holder.goodToGoPass = (TextView)convertView.findViewById(R.id.goodtogo_pass);
+                        holder.goodToGoPass.setTypeface(tf);
                         holder.payByCash = (TextView)convertView.findViewById(R.id.pay_by_cash);
+                        holder.payByCash.setTypeface(tf);
                         holder.payByMail = (TextView)convertView.findViewById(R.id.pay_by_mail);
+                        holder.payByMail.setTypeface(tf);
                         break;
                     case TYPE_SEPARATOR:
                         convertView = mInflater.inflate(R.layout.tollrates_sr16_header, null);
                         holder.numberAxles = (TextView)convertView.findViewById(R.id.number_axles_title);
+                        holder.numberAxles.setTypeface(tfb);
                         holder.goodToGoPass = (TextView)convertView.findViewById(R.id.goodtogo_pass_title);
+                        holder.goodToGoPass.setTypeface(tfb);
                         holder.payByCash = (TextView)convertView.findViewById(R.id.pay_by_cash_title);
+                        holder.payByCash.setTypeface(tfb);
                         holder.payByMail = (TextView)convertView.findViewById(R.id.pay_by_mail_title);
+                        holder.payByMail.setTypeface(tfb);
                         break;
                 }
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder)convertView.getTag();
             }
+            
             holder.numberAxles.setText(mData.get(position).get("number_axles"));
             holder.goodToGoPass.setText(mData.get(position).get("goodtogo_pass"));
             holder.payByCash.setText(mData.get(position).get("pay_by_cash"));
