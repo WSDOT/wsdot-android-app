@@ -16,9 +16,13 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.ui.CameraActivity;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.R.drawable;
+import gov.wa.wsdot.android.wsdot.R.id;
+import gov.wa.wsdot.android.wsdot.R.layout;
+import gov.wa.wsdot.android.wsdot.R.menu;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
 
@@ -64,7 +68,7 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
-public class VesselWatchMap extends SherlockMapActivity {
+public class VesselWatchMapActivity extends SherlockMapActivity {
 
 	private static final String DEBUG_TAG = "VesselWatchMap";
 	private MapView map = null;
@@ -349,7 +353,7 @@ public class VesselWatchMap extends SherlockMapActivity {
 		@Override
 		protected boolean onTap(int i) {
 			OverlayItem item = getItem(i);
-			AlertDialog.Builder builder = new AlertDialog.Builder(VesselWatchMap.this);
+			AlertDialog.Builder builder = new AlertDialog.Builder(VesselWatchMapActivity.this);
 			View layout = getLayoutInflater().inflate(R.layout.vesselwatch_dialog, null);
 			((TextView)layout.findViewById(R.id.vessel_name)).setText(item.getTitle());
 			TextView mVesselDetails = (TextView)layout.findViewById(R.id.vessel_details);
@@ -452,7 +456,7 @@ public class VesselWatchMap extends SherlockMapActivity {
 		protected boolean onTap(int i) {
 			OverlayItem item = getItem(i);
 			Bundle b = new Bundle();
-			Intent intent = new Intent(VesselWatchMap.this, CameraActivity.class);
+			Intent intent = new Intent(VesselWatchMapActivity.this, CameraActivity.class);
 			b.putString("title", item.getTitle());
 			b.putString("url", item.getSnippet());
 			intent.putExtras(b);
@@ -516,7 +520,7 @@ public class VesselWatchMap extends SherlockMapActivity {
 	}
 	
 	class OverlayTask extends AsyncTask<Void, Void, Void> {
-		private final ProgressDialog dialog = new ProgressDialog(VesselWatchMap.this);
+		private final ProgressDialog dialog = new ProgressDialog(VesselWatchMapActivity.this);
 		
 		@Override
 		public void onPreExecute() {
@@ -544,7 +548,7 @@ public class VesselWatchMap extends SherlockMapActivity {
 		 }
 
 	    protected void onCancelled() {
-	        Toast.makeText(VesselWatchMap.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	        Toast.makeText(VesselWatchMapActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
 	    }
 		
 		 @Override

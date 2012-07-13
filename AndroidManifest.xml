@@ -127,7 +127,7 @@
    		    android:name=".RouteScheduleDayDepartures" />
    		
    		<activity
-   		    android:name=".VesselWatchMap"
+   		    android:name=".ui.VesselWatchMapActivity"
    		    android:label="@string/title_vesselwatch" />
    		
    		<activity
