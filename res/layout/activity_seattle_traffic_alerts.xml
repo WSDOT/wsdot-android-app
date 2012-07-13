@@ -5,7 +5,7 @@
     android:layout_height="fill_parent">
 
     <fragment
-        android:name="gov.wa.wsdot.android.wsdot.SeattleTrafficAlertsFragment"
+        android:name="gov.wa.wsdot.android.wsdot.ui.SeattleTrafficAlertsFragment"
         android:id="@+id/fragment_seattle_traffic_alerts"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
