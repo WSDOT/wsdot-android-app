@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -59,7 +60,7 @@ public class RouteSchedulesDaySailings extends SherlockListActivity {
 		
 		scheduleDateItems = (FerriesScheduleDateItem)getIntent().getSerializableExtra("scheduleDateItems");
 		terminalItems = new ArrayList<FerriesTerminalItem>();
-        this.adapter = new SailingsAdapter(this, android.R.layout.simple_list_item_1, terminalItems);
+        this.adapter = new SailingsAdapter(this, R.layout.list_item, terminalItems);
         setListAdapter(this.adapter);
         new GetTerminals().execute();
 	}
@@ -138,6 +139,7 @@ public class RouteSchedulesDaySailings extends SherlockListActivity {
     
 	private class SailingsAdapter extends ArrayAdapter<FerriesTerminalItem> {
         private ArrayList<FerriesTerminalItem> items;
+        private Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
 
         public SailingsAdapter(Context context, int textViewResourceId, ArrayList<FerriesTerminalItem> items) {
 	        super(context, textViewResourceId, items);
@@ -147,15 +149,20 @@ public class RouteSchedulesDaySailings extends SherlockListActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 	        if (convertView == null) {
-	            convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, null);
+	            convertView = getLayoutInflater().inflate(R.layout.list_item, null);
 	        }
-	        FerriesTerminalItem o = items.get(position);
-	        if (o != null) {
-	            TextView tt = (TextView) convertView.findViewById(android.R.id.text1);
-	            if(tt != null) {
-	            	tt.setText(o.getDepartingTerminalName() + " to " + o.getArrivingTerminalName());
+	        
+	        FerriesTerminalItem item = getItem(position);
+	        
+	        if (item != null) {
+	            TextView tt = (TextView) convertView.findViewById(android.R.id.title);
+	            tt.setTypeface(tf);
+	            
+	            if (tt != null) {
+	            	tt.setText(item.getDepartingTerminalName() + " to " + item.getArrivingTerminalName());
 	            }
 	        }
+	        
 	        return convertView;
         }
 	}

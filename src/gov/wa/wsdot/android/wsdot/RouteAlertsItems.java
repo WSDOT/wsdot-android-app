@@ -28,6 +28,7 @@ import java.util.Date;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -61,7 +62,7 @@ public class RouteAlertsItems extends SherlockListActivity {
 		
 		routeItems = (FerriesRouteItem)getIntent().getSerializableExtra("routeItems");
 		routeAlertItems = new ArrayList<FerriesRouteAlertItem>();
-        this.adapter = new AlertItemAdapter(this, android.R.layout.simple_list_item_2, routeAlertItems);
+        this.adapter = new AlertItemAdapter(this, R.layout.simple_list_item, routeAlertItems);
         setListAdapter(this.adapter);
 
         viewAlerts = new Runnable() {
@@ -136,7 +137,8 @@ public class RouteAlertsItems extends SherlockListActivity {
 
 	private class AlertItemAdapter extends ArrayAdapter<FerriesRouteAlertItem> {
         private ArrayList<FerriesRouteAlertItem> items;
-
+        private Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
+        
         public AlertItemAdapter(Context context, int textViewResourceId, ArrayList<FerriesRouteAlertItem> items) {
 	        super(context, textViewResourceId, items);
 	        this.items = items;
@@ -145,25 +147,31 @@ public class RouteAlertsItems extends SherlockListActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 	        if (convertView == null) {
-	            convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_2, null);
+	            convertView = getLayoutInflater().inflate(R.layout.simple_list_item, null);
 	        }
-	        FerriesRouteAlertItem o = items.get(position);
-	        if (o != null) {
-	            TextView tt = (TextView) convertView.findViewById(android.R.id.text1);
-	            TextView bt = (TextView) convertView.findViewById(android.R.id.text2);
+	        
+	        FerriesRouteAlertItem item = getItem(position);
+	        
+	        if (item != null) {
+	            TextView tt = (TextView) convertView.findViewById(R.id.title);
+	            tt.setTypeface(tf);
+	            TextView bt = (TextView) convertView.findViewById(R.id.description);
+	            bt.setTypeface(tf);
+	            
 	            if (tt != null) {
-	            	tt.setText(o.getAlertFullTitle());
+	            	tt.setText(item.getAlertFullTitle());
 	            }
-	            if(bt != null) {
+	            
+	            if (bt != null) {
 	            	try {
-	            		Date date = new Date(Long.parseLong(o.getPublishDate()));
+	            		Date date = new Date(Long.parseLong(item.getPublishDate()));
 	            		bt.setText(displayDateFormat.format(date));
 	            	} catch (Exception e) {
 	            		Log.e(DEBUG_TAG, "Error parsing date", e);
 	            	}	            	
-	            	
 	            }
 	        }
+
 	        return convertView;
         }
 	}

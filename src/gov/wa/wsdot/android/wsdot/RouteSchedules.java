@@ -39,6 +39,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -71,7 +72,7 @@ public class RouteSchedules extends SherlockListActivity {
         mLoadingSpinner = findViewById(R.id.loading_spinner);
         
         routeItems = new ArrayList<FerriesRouteItem>();
-        this.adapter = new RouteItemAdapter(this, android.R.layout.simple_list_item_1, routeItems);
+        this.adapter = new RouteItemAdapter(this, R.layout.list_item, routeItems);
         setListAdapter(this.adapter);
         new GetRouteSchedules().execute();
     }
@@ -225,6 +226,7 @@ public class RouteSchedules extends SherlockListActivity {
 	
 	private class RouteItemAdapter extends ArrayAdapter<FerriesRouteItem> {
         private ArrayList<FerriesRouteItem> items;
+        private Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
 
         public RouteItemAdapter(Context context, int textViewResourceId, ArrayList<FerriesRouteItem> items) {
 	        super(context, textViewResourceId, items);
@@ -234,15 +236,20 @@ public class RouteSchedules extends SherlockListActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 	        if (convertView == null) {
-	            convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, null);
+	            convertView = getLayoutInflater().inflate(R.layout.list_item, null);
 	        }
-	        FerriesRouteItem o = items.get(position);
-	        if (o != null) {
-	            TextView tt = (TextView) convertView.findViewById(android.R.id.text1);
+	        
+	        FerriesRouteItem item = getItem(position);
+	        
+	        if (item != null) {
+	            TextView tt = (TextView) convertView.findViewById(R.id.title);
+	            tt.setTypeface(tf);
+	            
 	            if (tt != null) {
-	            	tt.setText(o.getDescription());
+	            	tt.setText(item.getDescription());
 	            }
 	        }
+	        
 	        return convertView;
         }
 	}

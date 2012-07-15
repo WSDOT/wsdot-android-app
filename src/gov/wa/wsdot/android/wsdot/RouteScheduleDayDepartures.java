@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -63,7 +64,7 @@ public class RouteScheduleDayDepartures extends SherlockListActivity {
 		
 		terminalItem = (FerriesTerminalItem)getIntent().getSerializableExtra("terminalItems");
 		times = new ArrayList<FerriesScheduleTimesItem>();
-        this.adapter = new DepartureTimesAdapter(this, android.R.layout.simple_list_item_2, times);
+        this.adapter = new DepartureTimesAdapter(this, R.layout.simple_list_item, times);
         setListAdapter(this.adapter);
         new GetDepartureTimes().execute();
 	}
@@ -132,6 +133,7 @@ public class RouteScheduleDayDepartures extends SherlockListActivity {
 
 	private class DepartureTimesAdapter extends ArrayAdapter<FerriesScheduleTimesItem> {
         private ArrayList<FerriesScheduleTimesItem> items;
+        private Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
 
         public DepartureTimesAdapter(Context context, int textViewResourceId, ArrayList<FerriesScheduleTimesItem> items) {
 	        super(context, textViewResourceId, items);
@@ -152,10 +154,10 @@ public class RouteScheduleDayDepartures extends SherlockListActivity {
 	        DateFormat dateFormat = new SimpleDateFormat("hh:mm a");
 	        
 	        if (convertView == null) {
-	            convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_2, null);
+	            convertView = getLayoutInflater().inflate(R.layout.simple_list_item, null);
 	        }
 	        
-	        FerriesScheduleTimesItem o = items.get(position);
+	        FerriesScheduleTimesItem item = getItem(position);
 	        String annotation = "";
 
 	        for (int i=0; i < items.get(position).getAnnotationIndexes().size(); i++) {
@@ -163,16 +165,22 @@ public class RouteScheduleDayDepartures extends SherlockListActivity {
 	        	annotation += p.getAnnotation();
 	        }
 	        
-	        if (o != null) {
-	            TextView tt = (TextView) convertView.findViewById(android.R.id.text1);
-	            if(tt != null) {
-	            	tt.setText(dateFormat.format(new Date(Long.parseLong(o.getDepartingTime()))));
+	        if (item != null) {
+	            TextView tt = (TextView) convertView.findViewById(R.id.title);
+	            tt.setTypeface(tf);
+	            
+	            if (tt != null) {
+	            	tt.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
 	            }
-	            TextView bt = (TextView) convertView.findViewById(android.R.id.text2);
-	            if(bt != null) {
+	            
+	            TextView bt = (TextView) convertView.findViewById(R.id.description);
+	            bt.setTypeface(tf);
+	            
+	            if (bt != null) {
             		bt.setText(annotation);
 	            }	            
 	        }
+	        
 	        return convertView;
         }
 	}

@@ -28,6 +28,7 @@ import java.util.Date;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -66,7 +67,7 @@ public class RouteSchedulesDays extends SherlockListActivity {
 		
 		routeItems = (FerriesRouteItem)getIntent().getSerializableExtra("routeItems");
 		scheduleDateItems = new ArrayList<FerriesScheduleDateItem>();
-        this.adapter = new DaysOfWeekAdapter(this, android.R.layout.simple_list_item_2, scheduleDateItems);
+        this.adapter = new DaysOfWeekAdapter(this, R.layout.simple_list_item, scheduleDateItems);
         setListAdapter(this.adapter);
         new GetDates().execute();
 	}
@@ -146,6 +147,7 @@ public class RouteSchedulesDays extends SherlockListActivity {
 
 	private class DaysOfWeekAdapter extends ArrayAdapter<FerriesScheduleDateItem> {
         private ArrayList<FerriesScheduleDateItem> items;
+        private Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
 
         public DaysOfWeekAdapter(Context context, int textViewResourceId, ArrayList<FerriesScheduleDateItem> items) {
 	        super(context, textViewResourceId, items);
@@ -155,24 +157,29 @@ public class RouteSchedulesDays extends SherlockListActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 	        if (convertView == null) {
-	            convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_2, null);
+	            convertView = getLayoutInflater().inflate(R.layout.simple_list_item, null);
 	        }
-	        FerriesScheduleDateItem o = items.get(position);
-	        if (o != null) {
-	            TextView tt = (TextView) convertView.findViewById(android.R.id.text1);
-	            TextView bt = (TextView) convertView.findViewById(android.R.id.text2);
+	        FerriesScheduleDateItem item = getItem(position);
+	        if (item != null) {
+	            TextView tt = (TextView) convertView.findViewById(R.id.title);
+	            tt.setTypeface(tf);
+	            TextView bt = (TextView) convertView.findViewById(R.id.description);
+	            bt.setTypeface(tf);
+	            
 	            if(tt != null) {
-	            	tt.setText(dateFormat.format(new Date(Long.parseLong(o.getDate()))));
+	            	tt.setText(dateFormat.format(new Date(Long.parseLong(item.getDate()))));
 	            }
+	            
 	            if (bt != null) {
 	            	try {
-	            		Date date = new Date(Long.parseLong(o.getDate()));
+	            		Date date = new Date(Long.parseLong(item.getDate()));
 	            		bt.setText(subTitleDateFormat.format(date));
 	            	} catch (Exception e) {
 	            		Log.e(DEBUG_TAG, "Error parsing date", e);
 	            	}
 	            }
 	        }
+	        
 	        return convertView;
         }
 	}
