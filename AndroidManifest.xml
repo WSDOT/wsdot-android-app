@@ -39,7 +39,8 @@
    		    android:name=".ui.BlogActivity"
    		    android:label="@string/title_blog" />
    		
-   		<activity android:name=".ui.BlogDetailsActivity" />
+   		<activity
+   		    android:name=".ui.BlogDetailsActivity" />
    		
    		<activity
    		    android:name=".ui.TwitterActivity"
@@ -58,11 +59,11 @@
    		    android:label="@string/title_facebook" />   		
    				
    		<activity
-   		    android:name=".Photos"
+   		    android:name=".ui.PhotosActivity"
    		    android:label="@string/title_photos" />
    		
    		<activity
-   		    android:name=".PhotoItemDetails" />
+   		    android:name=".ui.PhotoDetailsActivity" />
    		
    		<activity
    		    android:name=".ui.SocialMediaActivity"
@@ -84,11 +85,11 @@
    		    android:label="@string/title_seattlealerts" />
    		
    		<activity
-   		    android:name=".SeattleTrafficTravelTimes"
+   		    android:name=".ui.SeattleTravelTimesActivity"
    		    android:label="@string/title_traveltimes" />
    		
    		<activity
-   		    android:name=".SeattleExpressLanes"
+   		    android:name=".ui.SeattleExpressLanesActivity"
    		    android:label="@string/title_expresslanes" />
    		
    		<activity
@@ -143,7 +144,7 @@
    		    android:uiOptions="splitActionBarWhenNarrow" />
 
    		<activity
-   		    android:name=".HighwayAlertItemDetails" />
+   		    android:name=".ui.HighwayAlertDetailsActivity" />
    				
    		<uses-library android:name="com.google.android.maps" />   		
    		

@@ -18,10 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.HighwayAlertItemDetails;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.SeattleExpressLanes;
-import gov.wa.wsdot.android.wsdot.SeattleTrafficTravelTimes;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
@@ -276,11 +273,11 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	    	startActivity(alertsIntent);
 	    	return true;
 	    case MENU_ITEM_TRAVEL_TIMES:
-	    	Intent timesIntent = new Intent(this, SeattleTrafficTravelTimes.class);
+	    	Intent timesIntent = new Intent(this, SeattleTravelTimesActivity.class);
 	    	startActivity(timesIntent);
 	    	return true;
 	    case MENU_ITEM_EXPRESS_LANES:
-	    	Intent expressIntent = new Intent(this, SeattleExpressLanes.class);
+	    	Intent expressIntent = new Intent(this, SeattleExpressLanesActivity.class);
 	    	startActivity(expressIntent);
 	    	return true;
 	    }
@@ -417,7 +414,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		protected boolean onTap(int i) {
 			OverlayItem item = getItem(i);
 			Bundle b = new Bundle();
-			Intent intent = new Intent(TrafficMapActivity.this, HighwayAlertItemDetails.class);
+			Intent intent = new Intent(TrafficMapActivity.this, HighwayAlertDetailsActivity.class);
 			b.putString("title", item.getTitle());
 			b.putString("description", item.getSnippet());
 			intent.putExtras(b);

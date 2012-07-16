@@ -16,8 +16,9 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.ui;
 
+import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.PhotoItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
@@ -63,7 +64,7 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-public class Photos extends SherlockActivity {
+public class PhotosActivity extends SherlockActivity {
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "Photos";
     private ArrayList<PhotoItem> photoItems = null;
@@ -115,7 +116,7 @@ public class Photos extends SherlockActivity {
 		}
     	
 	    protected void onCancelled() {
-	        Toast.makeText(Photos.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	        Toast.makeText(PhotosActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
 	    }
 
 		@Override
@@ -203,7 +204,7 @@ public class Photos extends SherlockActivity {
             gridView.setOnItemClickListener(new OnItemClickListener() {
             	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 	        		Bundle b = new Bundle();
-	        		Intent intent = new Intent(Photos.this, PhotoItemDetails.class);
+	        		Intent intent = new Intent(PhotosActivity.this, PhotoDetailsActivity.class);
 	        		b.putString("title", photoItems.get(position).getTitle());
 	        		b.putString("link", photoItems.get(position).getLink());
 	        		b.putString("content", photoItems.get(position).getContent());

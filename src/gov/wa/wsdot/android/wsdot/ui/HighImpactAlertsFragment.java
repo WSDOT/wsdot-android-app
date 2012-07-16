@@ -18,7 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.HighwayAlertItemDetails;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 
@@ -161,7 +160,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
 		    	view.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 						Bundle b = new Bundle();
-						Intent intent = new Intent(getActivity(), HighwayAlertItemDetails.class);
+						Intent intent = new Intent(getActivity(), HighwayAlertDetailsActivity.class);
 						b.putString("title", items.get(position).getEventCategory());
 						b.putString("description", items.get(position).getExtendedDescription());
 						intent.putExtras(b);

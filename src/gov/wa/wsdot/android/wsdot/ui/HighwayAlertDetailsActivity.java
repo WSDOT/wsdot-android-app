@@ -16,11 +16,11 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.ui;
 
+import gov.wa.wsdot.android.wsdot.R;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.webkit.WebView;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -28,7 +28,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
 
-public class HighwayAlertItemDetails extends SherlockActivity {
+public class HighwayAlertDetailsActivity extends SherlockActivity {
 
 	private WebView webview;
 	private String mTitle;
@@ -90,12 +90,4 @@ public class HighwayAlertItemDetails extends SherlockActivity {
 		return super.onOptionsItemSelected(item);
 	}	
 	
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-	    if ((keyCode == KeyEvent.KEYCODE_BACK) && webview.canGoBack()) {
-	        webview.goBack();
-	        return true;
-	    }
-	    return super.onKeyDown(keyCode, event);
-	}	
 }

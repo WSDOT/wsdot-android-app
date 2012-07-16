@@ -16,8 +16,9 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.ui;
 
+import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.TravelTimesItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
@@ -48,7 +49,7 @@ import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-public class SeattleTrafficTravelTimes extends SherlockListActivity {
+public class SeattleTravelTimesActivity extends SherlockListActivity {
 	private static final String DEBUG_TAG = "TravelTimes";
 	private ArrayList<TravelTimesItem> travelTimesItems = null;
 	private TravelTimesItemAdapter adapter;
@@ -102,7 +103,7 @@ public class SeattleTrafficTravelTimes extends SherlockListActivity {
 		}
     	
 	    protected void onCancelled() {
-	        Toast.makeText(SeattleTrafficTravelTimes.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	        Toast.makeText(SeattleTravelTimesActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
 	    }
 
 		@Override

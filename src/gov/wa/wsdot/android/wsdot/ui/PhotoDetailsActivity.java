@@ -16,8 +16,9 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.ui;
 
+import gov.wa.wsdot.android.wsdot.R;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -28,7 +29,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
 
-public class PhotoItemDetails extends SherlockActivity {
+public class PhotoDetailsActivity extends SherlockActivity {
 	WebView webview;
 	private String mTitle;
 	private String mLink;
