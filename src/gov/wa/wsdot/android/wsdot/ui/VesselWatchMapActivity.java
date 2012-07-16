@@ -19,10 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.R.drawable;
-import gov.wa.wsdot.android.wsdot.R.id;
-import gov.wa.wsdot.android.wsdot.R.layout;
-import gov.wa.wsdot.android.wsdot.R.menu;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
 

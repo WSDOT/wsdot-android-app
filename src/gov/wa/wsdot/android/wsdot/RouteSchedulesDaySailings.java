@@ -155,7 +155,7 @@ public class RouteSchedulesDaySailings extends SherlockListActivity {
 	        FerriesTerminalItem item = getItem(position);
 	        
 	        if (item != null) {
-	            TextView tt = (TextView) convertView.findViewById(android.R.id.title);
+	            TextView tt = (TextView) convertView.findViewById(R.id.title);
 	            tt.setTypeface(tf);
 	            
 	            if (tt != null) {
