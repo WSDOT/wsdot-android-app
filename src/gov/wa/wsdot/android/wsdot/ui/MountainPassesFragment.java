@@ -126,6 +126,7 @@ public class MountainPassesFragment extends SherlockListFragment
 		String[] weather_fog = {"fog"};
 		String[] weather_sleet = {"rain snow", "light rain snow", "heavy rain snow", "rain and snow"};
 		String[] weather_hail = {"ice pellets", "light ice pellets", "heavy ice pellets", "hail"};
+		String[] weather_thunderstorm = {"thunderstorm", "thunderstorms"};
 		
 		weatherPhrases.put(R.drawable.ic_list_sunny, weather_clear);
 		weatherPhrases.put(R.drawable.ic_list_cloudy_1, weather_few_clouds);
@@ -139,6 +140,7 @@ public class MountainPassesFragment extends SherlockListFragment
 		weatherPhrases.put(R.drawable.ic_list_fog, weather_fog);
 		weatherPhrases.put(R.drawable.ic_list_sleet, weather_sleet);
 		weatherPhrases.put(R.drawable.ic_list_hail, weather_hail);
+		weatherPhrases.put(R.drawable.ic_list_tstorm_3, weather_thunderstorm);
 		
 		weatherPhrasesNight.put(R.drawable.ic_list_sunny_night, weather_clear);
 		weatherPhrasesNight.put(R.drawable.ic_list_cloudy_1_night, weather_few_clouds);
@@ -151,7 +153,8 @@ public class MountainPassesFragment extends SherlockListFragment
 		weatherPhrasesNight.put(R.drawable.ic_list_snow_4, weather_snow);
 		weatherPhrasesNight.put(R.drawable.ic_list_fog_night, weather_fog);
 		weatherPhrasesNight.put(R.drawable.ic_list_sleet, weather_sleet);
-		weatherPhrasesNight.put(R.drawable.ic_list_hail, weather_hail);		
+		weatherPhrasesNight.put(R.drawable.ic_list_hail, weather_hail);
+		weatherPhrasesNight.put(R.drawable.ic_list_tstorm_3, weather_thunderstorm);
 		
 		return;
 	}
