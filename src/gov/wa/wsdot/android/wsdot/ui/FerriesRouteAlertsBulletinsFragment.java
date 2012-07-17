@@ -1,0 +1,276 @@
+/*
+ * Copyright (c) 2012 Washington State Department of Transportation
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+package gov.wa.wsdot.android.wsdot.ui;
+
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.FerriesRouteAlertItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesRouteItem;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+
+import java.util.ArrayList;
+import java.util.Date;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
+public class FerriesRouteAlertsBulletinsFragment extends SherlockListFragment
+	implements LoaderCallbacks<ArrayList<FerriesRouteAlertItem>> {
+
+	private static final String DEBUG_TAG = "RouteAlertsBulletins";
+	private static FerriesRouteItem routeItems;
+	private static ArrayList<FerriesRouteAlertItem> routeAlertItems;
+	private static RouteAlertItemAdapter adapter;
+	private static View mLoadingSpinner;
+	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		routeItems = (FerriesRouteItem)activity.getIntent().getSerializableExtra("routeItems");
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+        // Tell the framework to try to keep this fragment around
+        // during a configuration change.
+		setRetainInstance(true);
+		setHasOptionsMenu(true);	
+	}	
+	
+	@SuppressWarnings("deprecation")
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+
+        // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
+        // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+                ViewGroup.LayoutParams.FILL_PARENT));
+
+        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+
+        return root;
+    }
+	
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+        adapter = new RouteAlertItemAdapter(getActivity());
+        setListAdapter(adapter);
+        
+		// Prepare the loader. Either re-connect with an existing one,
+		// or start a new one.
+        getLoaderManager().initLoader(0, null, this);
+	}
+
+    @Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    	super.onCreateOptionsMenu(menu, inflater);
+    	inflater.inflate(R.menu.star, menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case R.id.menu_star:
+			Toast.makeText(getActivity(), "Added to Favorites", Toast.LENGTH_SHORT).show();
+			return true;
+		}
+		
+		return super.onOptionsItemSelected(item);
+	}	
+	
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		Bundle b = new Bundle();
+		Intent intent = new Intent(getActivity(), FerriesRouteAlertsBulletinDetailsActivity.class);
+		b.putString("AlertFullTitle", routeAlertItems.get(position).getAlertFullTitle());
+		b.putString("AlertPublishDate", routeAlertItems.get(position).getPublishDate());
+		b.putString("AlertDescription", routeAlertItems.get(position).getAlertDescription());
+		b.putString("AlertFullText", routeAlertItems.get(position).getAlertFullText());
+		intent.putExtras(b);
+		startActivity(intent);		
+	}
+	
+	public Loader<ArrayList<FerriesRouteAlertItem>> onCreateLoader(int id, Bundle args) {
+		// This is called when a new Loader needs to be created. There
+        // is only one Loader with no arguments, so it is simple
+		return new RouteAlertsBulletinsLoader(getActivity());
+	}
+	public void onLoadFinished(Loader<ArrayList<FerriesRouteAlertItem>> loader,
+			ArrayList<FerriesRouteAlertItem> data) {
+
+		mLoadingSpinner.setVisibility(View.GONE);
+		adapter.setData(data);		
+	}
+	
+	public void onLoaderReset(Loader<ArrayList<FerriesRouteAlertItem>> loader) {
+		adapter.setData(null);
+	}
+
+	/**
+	 * A custom Loader that loads all of the WSF route alert bulletins for selected route.
+	 */	
+	public static class RouteAlertsBulletinsLoader extends AsyncTaskLoader<ArrayList<FerriesRouteAlertItem>> {
+
+		public RouteAlertsBulletinsLoader(Context context) {
+			super(context);
+		}
+
+		@Override
+		public ArrayList<FerriesRouteAlertItem> loadInBackground() {
+	        int numAlerts = routeItems.getFerriesRouteAlertItem().size();
+	        routeAlertItems = new ArrayList<FerriesRouteAlertItem>();
+			
+			for (int j=0; j<numAlerts; j++)
+			{
+				FerriesRouteAlertItem i = new FerriesRouteAlertItem();
+				i.setAlertFullTitle(routeItems.getFerriesRouteAlertItem().get(j).getAlertFullTitle());
+				i.setPublishDate(routeItems.getFerriesRouteAlertItem().get(j).getPublishDate());
+				i.setAlertDescription(routeItems.getFerriesRouteAlertItem().get(j).getAlertDescription());
+				i.setAlertFullText(routeItems.getFerriesRouteAlertItem().get(j).getAlertFullText());
+				routeAlertItems.add(i);
+			}
+			
+			return routeAlertItems;
+		}
+
+		@Override
+		public void deliverResult(ArrayList<FerriesRouteAlertItem> data) {
+		    /**
+		     * Called when there is new data to deliver to the client. The
+		     * super class will take care of delivering it; the implementation
+		     * here just adds a little more logic.
+		     */	
+			super.deliverResult(data);
+		}
+
+		@Override
+		protected void onStartLoading() {
+			super.onStartLoading();
+			
+			adapter.clear();
+			mLoadingSpinner.setVisibility(View.VISIBLE);
+			forceLoad();
+		}
+
+		@Override
+		protected void onStopLoading() {
+			super.onStopLoading();
+			
+			// Attempt to cancel the current load task if possible.
+			cancelLoad();
+		}		
+		
+		@Override
+		public void onCanceled(ArrayList<FerriesRouteAlertItem> data) {
+			super.onCanceled(data);
+		}		
+		
+		@Override
+		protected void onReset() {
+			super.onReset();
+			
+			// Ensure the loader is stopped
+			onStopLoading();
+		}
+		
+	}
+	
+	private class RouteAlertItemAdapter extends ArrayAdapter<FerriesRouteAlertItem> {
+		private final LayoutInflater mInflater;
+        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+        //DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+        
+        public RouteAlertItemAdapter(Context context) {
+	        super(context, R.layout.simple_list_item);
+	        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        public void setData(ArrayList<FerriesRouteAlertItem> data) {
+            clear();
+            if (data != null) {
+                //addAll(data); // Only in API level 11
+                notifyDataSetChanged();
+                for (int i=0; i < data.size(); i++) {
+                	add(data.get(i));
+                }
+                notifyDataSetChanged();                
+            }        	
+        }
+        
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+	        if (convertView == null) {
+	            convertView = mInflater.inflate(R.layout.simple_list_item, null);
+	        }
+	        
+	        FerriesRouteAlertItem item = getItem(position);
+	        
+	        if (item != null) {
+	            TextView tt = (TextView) convertView.findViewById(R.id.title);
+	            tt.setTypeface(tfb);
+	            TextView bt = (TextView) convertView.findViewById(R.id.description);
+	            bt.setTypeface(tf);
+	            
+            	tt.setText(item.getAlertFullTitle());
+	            
+            	try {
+            		Date date = new Date(Long.parseLong(item.getPublishDate()));
+            		bt.setText(ParserUtils.relativeTime(date));
+            	} catch (Exception e) {
+            		Log.e(DEBUG_TAG, "Error parsing date", e);
+            	}	            	
+	        }
+
+	        return convertView;
+        }
+	}
+	
+	public static class ViewHolder {
+		public TextView tt;
+		public TextView bt;
+	}
+	
+}

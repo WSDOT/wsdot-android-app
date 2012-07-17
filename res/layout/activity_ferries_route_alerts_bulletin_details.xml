@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"    
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <fragment
+        android:name="gov.wa.wsdot.android.wsdot.ui.FerriesRouteAlertsBulletinDetailsFragment"
+        android:id="@+id/fragment_ferries_route_alerts_bulletin_details"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1" />
+
+</LinearLayout>

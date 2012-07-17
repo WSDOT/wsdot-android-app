@@ -105,14 +105,14 @@
    		    android:label="@string/title_ferries" />
    		
    		<activity
-   		    android:name=".RouteAlerts"
+   		    android:name=".ui.FerriesRouteAlertsActivity"
    		    android:label="@string/title_ferriesroutealerts" />
    		
    		<activity
-   		    android:name=".RouteAlertsItems" />
+   		    android:name=".ui.FerriesRouteAlertsBulletinsActivity" />
    		
    		<activity
-   		    android:name=".RouteAlertsItemDetails" />
+   		    android:name=".ui.FerriesRouteAlertsBulletinDetailsActivity" />
    		
    		<activity
    		    android:name=".RouteSchedules"
