@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.util;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -27,18 +28,33 @@ public class ParserUtils {
 	
 	public static String relativeTime(String createdAt, String datePattern, boolean isUTC) {
 		DateFormat parseDateFormat = new SimpleDateFormat(datePattern);
-    	
+		Date parseDate;
+
 		if (isUTC) {
 			parseDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		}		
+		
+		try {
+			parseDate = parseDateFormat.parse(createdAt);
+		} catch (ParseException e) {
+			return "Error with date";
 		}
 		
-		DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+		return getRelative(parseDate);
+
+	}
+	
+	public static String relativeTime(Date createdAt) { 
+		return(getRelative(createdAt));
+	}
+	
+	private static String getRelative(Date date) {
+		DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");	
 		int delta = 0;
-  
+		  
 		try {
-			Date parseDate = parseDateFormat.parse(createdAt);
 			Date relativeDate = new Date();
-			delta = (int)((relativeDate.getTime() - parseDate.getTime()) / 1000); // convert to seconds
+			delta = (int)((relativeDate.getTime() - date.getTime()) / 1000); // convert to seconds
 			if (delta < 60) {
 				return "just now";
 			} else if (delta < 120) {
@@ -50,10 +66,11 @@ public class ParserUtils {
 			} else if (delta < (24*60*60)) {
                 return Integer.toString(delta / 3600) + " hours ago";
 			} else {
-                return displayDateFormat.format(parseDate);
+                return displayDateFormat.format(date);
 			}
 		} catch (Exception e) {
 			return "Unavailable";
-		}
+		}		
+		
 	}
 }
