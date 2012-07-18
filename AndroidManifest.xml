@@ -132,6 +132,9 @@
    		    android:label="@string/title_vesselwatch" />
    		
    		<activity
+   		    android:name=".ui.VesselWatchDetailsActivity" />
+   		
+   		<activity
    		    android:name=".ui.TollRatesActivity"
    		    android:label="@string/title_tollrates" />
    		

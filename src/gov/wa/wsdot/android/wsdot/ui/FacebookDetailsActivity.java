@@ -29,7 +29,7 @@ public class FacebookDetailsActivity extends SherlockFragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.fragment_facebook_details);
+		setContentView(R.layout.activity_facebook_details);
 		
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}

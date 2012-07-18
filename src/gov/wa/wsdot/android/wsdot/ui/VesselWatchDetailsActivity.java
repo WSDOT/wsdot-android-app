@@ -20,18 +20,36 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import android.os.Bundle;
+import android.webkit.WebView;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
 
-public class FacebookActivity extends SherlockFragmentActivity {
-    
+public class VesselWatchDetailsActivity extends SherlockActivity {
+
+	private WebView webview;
+	private String mTitle;
+	private String mDescription;
+	private String mContent;	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_facebook);
 		
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		Bundle b = getIntent().getExtras();
+		mTitle = b.getString("title");
+		mDescription = b.getString("description");
+		
+		getSupportActionBar().setTitle(mTitle);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		
+		setContentView(R.layout.webview);
+					
+		webview = (WebView)findViewById(R.id.webview);
+		webview.getSettings().setJavaScriptEnabled(true);
+		
+		mContent = "<p>" + mDescription + "</p>";
+		webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
 	}
 	
 	@Override
@@ -42,6 +60,6 @@ public class FacebookActivity extends SherlockFragmentActivity {
 	    	return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
+	}	
+	
 }

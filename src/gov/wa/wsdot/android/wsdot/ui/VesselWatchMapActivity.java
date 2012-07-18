@@ -37,7 +37,6 @@ import java.util.zip.GZIPInputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -49,11 +48,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockMapActivity;
@@ -321,8 +316,8 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 								+ "<br><b>Estimated Arrival:</b> " + item.getString("eta") + " " + item.getString("etaAMPM")
 								+ "<br><b>Heading:</b> "	+ Integer.toString(item.getInt("head")) + "\u00b0 " + item.getString("headtxt")
 								+ "<br><b>Speed:</b> " + Double.toString(item.getDouble("speed")) + " knots"
-								+ "<br><br><font color=\"white\"><a href=\"http://www.wsdot.com/ferries/vesselwatch/VesselDetail.aspx?vessel_id="
-									+ item.getInt("vesselID") + "\">" + item.getString("name") + " Web page</a></font>",
+								+ "<br><br><a href=\"http://www.wsdot.com/ferries/vesselwatch/VesselDetail.aspx?vessel_id="
+									+ item.getInt("vesselID") + "\">" + item.getString("name") + " Web page</a>",
 							getMarker(ferryIcon)));
 				}
 				
@@ -349,22 +344,12 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 		@Override
 		protected boolean onTap(int i) {
 			OverlayItem item = getItem(i);
-			AlertDialog.Builder builder = new AlertDialog.Builder(VesselWatchMapActivity.this);
-			View layout = getLayoutInflater().inflate(R.layout.vesselwatch_dialog, null);
-			((TextView)layout.findViewById(R.id.vessel_name)).setText(item.getTitle());
-			TextView mVesselDetails = (TextView)layout.findViewById(R.id.vessel_details);
-			mVesselDetails.setMovementMethod(LinkMovementMethod.getInstance());
-			mVesselDetails.setText(Html.fromHtml(item.getSnippet()));
-			
-			builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					dialog.cancel();
-				}
-			});
-
-			builder.setView(layout);
-			AlertDialog alertDialog = builder.create();
-			alertDialog.show();		
+			Bundle b = new Bundle();
+			Intent intent = new Intent(VesselWatchMapActivity.this, VesselWatchDetailsActivity.class);
+			b.putString("title", item.getTitle());
+			b.putString("description", item.getSnippet());
+			intent.putExtras(b);
+			startActivity(intent);
 			
 			return true;
 		}

@@ -29,7 +29,7 @@ public class TwitterDetailsActivity extends SherlockFragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.fragment_twitter_details);
+		setContentView(R.layout.activity_twitter_details);
 		
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}

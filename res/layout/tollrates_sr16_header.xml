@@ -7,33 +7,37 @@
     android:paddingTop="12dp"
     android:paddingRight="14dp"
     android:paddingBottom="12dp"
-    android:paddingLeft="14dp" >
+    android:paddingLeft="14dp">
  
     <TextView android:id="@+id/number_axles_title"
         android:textColor="@color/black"
         android:layout_width="110dp"
        	android:layout_height="wrap_content"
-       	android:layout_weight="1" />
+       	android:layout_weight="1"
+       	/>
 
     <TextView android:id="@+id/goodtogo_pass_title"
         android:textColor="@color/black"
     	android:gravity="center"
        	android:layout_width="70dp"
        	android:layout_height="wrap_content"
-       	android:layout_weight="1" />
+       	android:layout_weight="1"
+       	/>
 
     <TextView android:id="@+id/pay_by_cash_title"
         android:textColor="@color/black"        
     	android:gravity="center"
        	android:layout_width="70dp"
        	android:layout_height="wrap_content"
-       	android:layout_weight="1" />
+       	android:layout_weight="1"
+       	/>
 
     <TextView android:id="@+id/pay_by_mail_title"
         android:textColor="@color/black"
     	android:gravity="center"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        />
         
 </LinearLayout>

@@ -10,7 +10,8 @@
 		android:textStyle="bold"
 		android:padding="5dp"
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" />
+		android:layout_height="wrap_content"
+		/>
    
  	<TableLayout 
 	    xmlns:android="http://schemas.android.com/apk/res/android"
@@ -22,38 +23,50 @@
 			    android:id="@+id/heading_distance"
 			    android:text="Distance:"
          		android:paddingTop="5dp"
-         		android:paddingLeft="5dp" />
+         		android:paddingLeft="5dp"
+         		/>
+			
 			<TextView
 			    android:id="@+id/distance"
 			    android:text="miles"
 			    android:layout_width="fill_parent"
 			    android:paddingTop="5dp"
-			    android:paddingLeft="5dp" />
+			    android:paddingLeft="5dp"
+			    />
+			
 	    </TableRow>
 	    <TableRow> 
 			<TextView
 			    android:id="@+id/heading_average"
 			    android:text="Average:"
-         		android:paddingLeft="5dp" />
+         		android:paddingLeft="5dp"
+         		/>
+			
 			<TextView
 			    android:id="@+id/average"
 			    android:text="minutes"
 			    android:layout_width="fill_parent"
-			    android:paddingLeft="5dp" />			    
+			    android:paddingLeft="5dp"
+			    />
+						    
 	    </TableRow>
 	    <TableRow> 
 			<TextView
 			    android:id="@+id/heading_current"
 			    android:text="Current:"
          		android:paddingLeft="5dp"
-         		android:paddingBottom="5dp" />
+         		android:paddingBottom="5dp"
+         		/>
+			
 			<TextView
 			    android:id="@+id/current"
 			    android:textStyle="bold"
 			    android:text="minutes"
 			    android:layout_width="fill_parent"
 			    android:paddingLeft="5dp"
-			    android:paddingBottom="5dp" />
+			    android:paddingBottom="5dp"
+			    />
+			
 	    </TableRow>	    
 	</TableLayout> 
          

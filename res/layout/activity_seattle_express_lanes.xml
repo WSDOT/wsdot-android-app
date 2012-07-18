@@ -9,6 +9,6 @@
         android:id="@+id/fragment_seattle_express_lanes"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="1" />
+        />
 
 </LinearLayout>

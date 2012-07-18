@@ -29,7 +29,8 @@
         android:layout_weight="1"
         />
 
-    <fragment android:name="gov.wa.wsdot.android.wsdot.ui.HighImpactAlertsFragment"
+    <fragment
+        android:name="gov.wa.wsdot.android.wsdot.ui.HighImpactAlertsFragment"
         android:id="@+id/fragment_now_playing"
         android:layout_width="fill_parent"
         android:layout_height="@dimen/high_impact_alerts_height" />    

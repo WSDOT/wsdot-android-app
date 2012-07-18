@@ -9,7 +9,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone" />    
+        android:visibility="gone"
+        />    
     
 	<GridView xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layoutAnimation="@anim/layout_wave_scale" 
@@ -21,6 +22,7 @@
 	    android:horizontalSpacing="10dp"
 	    android:columnWidth="90dp"
 	    android:stretchMode="columnWidth"
-	    android:gravity="center" />
+	    android:gravity="center"
+	    />
 
 </FrameLayout>

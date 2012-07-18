@@ -28,7 +28,7 @@ public class NewsDetailsActivity extends SherlockFragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.fragment_news_details);
+		setContentView(R.layout.activity_news_details);
 		
 		Bundle args = getIntent().getExtras();
 		String title = args.getString("title");

@@ -9,7 +9,8 @@
         android:layout_width="100dp"
         android:layout_height="80dp"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="6dp" />
+        android:layout_marginRight="6dp"
+        />
 
     <TextView
         android:id="@+id/toptext"
@@ -18,7 +19,8 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/icon"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true" />
+        android:layout_alignParentRight="true"
+        />
 
     <TextView
         android:id="@+id/bottomtext"
@@ -28,6 +30,7 @@
         android:layout_toRightOf="@id/icon"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/toptext" />
+        android:layout_below="@id/toptext"
+        />
 
 </RelativeLayout>

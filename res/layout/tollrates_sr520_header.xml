@@ -7,7 +7,7 @@
     android:paddingTop="12dp"
     android:paddingRight="14dp"
     android:paddingBottom="12dp"
-    android:paddingLeft="14dp" >
+    android:paddingLeft="14dp">
  
      <TextView android:id="@+id/hours_title"
          android:textColor="@color/black"
