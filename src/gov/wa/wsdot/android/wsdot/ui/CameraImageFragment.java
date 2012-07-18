@@ -67,7 +67,6 @@ public class CameraImageFragment extends SherlockFragment
 	
 	static final private int MENU_ITEM_REFRESH = Menu.FIRST;
 	static final private int MENU_ITEM_STAR = Menu.FIRST + 1;
-	static final private int MENU_ITEM_REPORT_IMAGE = Menu.FIRST + 2;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -122,8 +121,7 @@ public class CameraImageFragment extends SherlockFragment
         // Set file with share history to the provider and set the share intent.
         MenuItem actionItem = menu.findItem(R.id.menu_item_share_action_provider_action_bar);
         actionProvider = (ShareActionProvider) actionItem.getActionProvider();
-        //actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
-        actionProvider.setShareHistoryFileName(null);
+        actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
     	
 		menu.add(0, MENU_ITEM_REFRESH, menu.size(), R.string.description_refresh)
 			.setIcon(R.drawable.ic_menu_refresh)
@@ -131,11 +129,7 @@ public class CameraImageFragment extends SherlockFragment
 
         menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star)
 			.setIcon(R.drawable.ic_menu_star)
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);        
-        
-        menu.add(0, MENU_ITEM_REPORT_IMAGE, menu.size(), R.string.description_report_image)
-			.setIcon(R.drawable.ic_menu_report_image)
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT); 
+			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);       
     }
 
 	@Override
@@ -148,10 +142,7 @@ public class CameraImageFragment extends SherlockFragment
 			return true;
 		case MENU_ITEM_STAR:
 			Toast.makeText(getSherlockActivity(), "Starred", Toast.LENGTH_SHORT).show();
-			return true;
-		case MENU_ITEM_REPORT_IMAGE:
-			Toast.makeText(getSherlockActivity(), "Report Image", Toast.LENGTH_SHORT).show();
-			return true;			
+			return true;		
 		}
 		
 		return super.onOptionsItemSelected(item);
