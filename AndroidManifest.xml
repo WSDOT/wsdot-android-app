@@ -115,17 +115,17 @@
    		    android:name=".ui.FerriesRouteAlertsBulletinDetailsActivity" />
    		
    		<activity
-   		    android:name=".RouteSchedules"
+   		    android:name=".ui.FerriesRouteSchedulesActivity"
    		    android:label="@string/title_ferriesrouteschedules" />
    		
    		<activity
-   		    android:name=".RouteSchedulesDays" />
+   		    android:name=".ui.FerriesRouteSchedulesDaysActivity" />
    		
    		<activity
-   		    android:name=".RouteSchedulesDaySailings" />
+   		    android:name=".ui.FerriesRouteSchedulesDaySailingsActivity" />
    		
    		<activity
-   		    android:name=".RouteScheduleDayDepartures" />
+   		    android:name=".ui.FerriesRouteSchedulesDayDeparturesActivity" />
    		
    		<activity
    		    android:name=".ui.VesselWatchMapActivity"

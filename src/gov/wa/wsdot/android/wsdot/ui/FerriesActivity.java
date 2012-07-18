@@ -19,7 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.RouteSchedules;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.util.ArrayList;
@@ -113,7 +112,7 @@ public class FerriesActivity extends SherlockListActivity {
 			listViewItems = new ArrayList<ListViewItem>();
 			
 	        listViewItems.add(new ListViewItem("Route Alerts", FerriesRouteAlertsActivity.class));
-	        listViewItems.add(new ListViewItem("Route Schedules", RouteSchedules.class));
+	        listViewItems.add(new ListViewItem("Route Schedules", FerriesRouteSchedulesActivity.class));
 	        listViewItems.add(new ListViewItem("Vessel Watch", VesselWatchMapActivity.class));
 	        
 			return null;
