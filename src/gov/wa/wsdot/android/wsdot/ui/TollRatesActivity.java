@@ -18,9 +18,15 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
+import java.util.ArrayList;
+
+import gov.wa.wsdot.android.wsdot.R;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -29,31 +35,33 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class TollRatesActivity extends SherlockFragmentActivity {
 	
+    private ViewPager mViewPager;
+	private TabsAdapter mTabsAdapter;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 
+		mViewPager = new ViewPager(this);
+		mViewPager.setId(R.id.pager);
+		
+		setContentView(mViewPager);
+	    
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        ActionBar.Tab sr520Tab = getSupportActionBar().newTab();
-        sr520Tab.setText("SR 520");
-        sr520Tab.setTabListener(new TabListener<SR520TollRatesFragment>(this, "SR520", SR520TollRatesFragment.class));
-        getSupportActionBar().addTab(sr520Tab);
-
-        ActionBar.Tab sr16Tab = getSupportActionBar().newTab();
-        sr16Tab.setText("SR 16");
-        sr16Tab.setTabListener(new TabListener<SR16TollRatesFragment>(this, "SR16", SR16TollRatesFragment.class));
-        getSupportActionBar().addTab(sr16Tab);        
-
-        ActionBar.Tab sr167Tab = getSupportActionBar().newTab();
-        sr167Tab.setText("SR 167");
-        sr167Tab.setTabListener(new TabListener<SR167TollRatesFragment>(this, "SR167", SR167TollRatesFragment.class));
-        getSupportActionBar().addTab(sr167Tab);         
+        mTabsAdapter = new TabsAdapter(this, mViewPager);
+        mTabsAdapter.addTab(getSupportActionBar().newTab().setText("SR 520"),
+        		SR520TollRatesFragment.class, null);
+        mTabsAdapter.addTab(getSupportActionBar().newTab().setText("SR 16"),
+        		SR16TollRatesFragment.class, null);
+        mTabsAdapter.addTab(getSupportActionBar().newTab().setText("SR 167"),
+        		SR167TollRatesFragment.class, null);
         
         if (savedInstanceState != null) {
             getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
         }
+
 	}
 	
 	@Override
@@ -69,65 +77,84 @@ public class TollRatesActivity extends SherlockFragmentActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        /*Save the selected tab in order to restore in screen rotation*/
+        //Save the selected tab in order to restore in screen rotation
         outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
     }
-    public class TabListener<T extends Fragment> implements ActionBar.TabListener {
-        private Fragment mFragment;
-        private final SherlockFragmentActivity mActivity;
-        private final String mTag;
-        private final Class<T> mClass;
 
-        /** Constructor used each time a new tab is created.
-          * @param activity  The host Activity, used to instantiate the fragment
-          * @param tag  The identifier tag for the fragment
-          * @param clz  The fragment's Class, used to instantiate the fragment
-          */
-        public TabListener(SherlockFragmentActivity activity, String tag, Class<T> clz) {
-            mActivity = activity;
-            mTag = tag;
-            mClass = clz;
-            
-            FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+    public static class TabsAdapter extends FragmentPagerAdapter implements
+		ActionBar.TabListener, ViewPager.OnPageChangeListener {
 
+		private final Context mContext;
+		private final ActionBar mActionBar;
+		private final ViewPager mViewPager;
+		private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
 
-            // Check to see if we already have a fragment for this tab, probably
-            // from a previously saved state.  If so, deactivate it, because our
-            // initial state is that a tab isn't shown.
-            mFragment = mActivity.getSupportFragmentManager().findFragmentByTag(mTag);
-            if (mFragment != null && !mFragment.isDetached()) {
-                ft.detach(mFragment);
-            }
-        }       
+		static final class TabInfo {
+			private final Class<?> clss;
+			private final Bundle args;
 
-        /* The following are each of the ActionBar.TabListener callbacks */
+			TabInfo(Class<?> _class, Bundle _args) {
+				clss = _class;
+				args = _args;
+			}
+		}
 
-        public void onTabSelected(Tab tab, FragmentTransaction ft) {
+		public TabsAdapter(SherlockFragmentActivity activity, ViewPager pager) {
+			super(activity.getSupportFragmentManager());
+			mContext = activity;
+			mActionBar = activity.getSupportActionBar();
+			mViewPager = pager;
+			mViewPager.setAdapter(this);
+			mViewPager.setOnPageChangeListener(this);
+		}
 
-                ft = mActivity.getSupportFragmentManager().beginTransaction();
+		public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
+			TabInfo info = new TabInfo(clss, args);
+			tab.setTag(info);
+			tab.setTabListener(this);
+			mTabs.add(info);
+			mActionBar.addTab(tab);
+			notifyDataSetChanged();
+		}
 
-            if (mFragment == null) {
-                mFragment = Fragment.instantiate(mActivity, mClass.getName());
-                ft.add(android.R.id.content, mFragment, mTag);
-                ft.commit();
-            } else {
-                ft.attach(mFragment);
-                ft.commit();
-            }
-        }
+		@Override
+		public int getCount() {
+			return mTabs.size();
+		}
 
-        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+		@Override
+		public Fragment getItem(int position) {
+			TabInfo info = mTabs.get(position);
+			return Fragment.instantiate(mContext, info.clss.getName(),
+					info.args);
+		}
 
-            ft = mActivity.getSupportFragmentManager().beginTransaction();
+		public void onPageScrolled(int position, float positionOffset,
+				int positionOffsetPixels) {
+		}
 
-            if (mFragment != null) {
-                ft.detach(mFragment);
-                ft.commitAllowingStateLoss();
-            }   
-        }
+		public void onPageSelected(int position) {
+			mActionBar.setSelectedNavigationItem(position);
+		}
 
-        public void onTabReselected(Tab tab, FragmentTransaction ft) {
-            // User selected the already selected tab. Usually do nothing.
-        }
+		public void onPageScrollStateChanged(int state)	{
+		}
+
+		public void onTabSelected(Tab tab, FragmentTransaction ft) {
+			Object tag = tab.getTag();
+			for (int i = 0; i < mTabs.size(); i++) {
+				if (mTabs.get(i) == tag) {
+					mViewPager.setCurrentItem(i);
+				}
+			}
+		}
+
+		public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+		}
+
+		public void onTabReselected(Tab tab, FragmentTransaction ft) {
+		}
+    	
     }    
+    
 }

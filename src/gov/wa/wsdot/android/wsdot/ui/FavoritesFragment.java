@@ -39,7 +39,7 @@ public class FavoritesFragment extends SherlockListFragment {
 		
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
-        setRetainInstance(true);
+        //setRetainInstance(true);
             
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/Favorites");
 	}

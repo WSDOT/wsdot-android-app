@@ -6,21 +6,6 @@
     android:orientation="vertical"    
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-	
-    <com.viewpagerindicator.TitlePageIndicator
-        android:id="@+id/indicator"
-        android:padding="10dp"
-        android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
-        android:background="#ff141414"
-        android:textColor="@color/white"
-        app:footerColor="#ff33b5e5"
-        app:footerLineHeight="1dp"
-        app:footerIndicatorHeight="3dp"
-        app:footerIndicatorStyle="underline"
-        app:selectedColor="@color/white"
-        app:selectedBold="true"
-        />
     
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"

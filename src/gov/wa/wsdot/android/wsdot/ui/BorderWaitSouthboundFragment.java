@@ -64,9 +64,6 @@ public class BorderWaitSouthboundFragment extends SherlockListFragment
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-        setRetainInstance(true);
 		setHasOptionsMenu(true);
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Canadian Border/Southbound");
 	}

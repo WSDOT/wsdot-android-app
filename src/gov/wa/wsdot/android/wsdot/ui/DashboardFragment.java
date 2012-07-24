@@ -14,7 +14,7 @@ public class DashboardFragment extends SherlockFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_dashboard, container);
+        View root = inflater.inflate(R.layout.fragment_dashboard, null);
 
         root.findViewById(R.id.home_btn_traffic).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {

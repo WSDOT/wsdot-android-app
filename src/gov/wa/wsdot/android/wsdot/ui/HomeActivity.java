@@ -1,40 +1,60 @@
+/*
+ * Copyright (c) 2012 Washington State Department of Transportation
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.support.v4.view.PagerAdapter;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
-import android.view.View;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.viewpagerindicator.TitlePageIndicator;
-import com.viewpagerindicator.TitlePageIndicator.IndicatorStyle;
 
 public class HomeActivity extends SherlockFragmentActivity {
 
-    private ViewPagerAdapter mAdapter;
-    private static ViewPager mPager;
-    private TitlePageIndicator mIndicator;
-	private static final String[] mPageTitles = new String[] { "Home", "Favorites" };
-	
+    private ViewPager mViewPager;
+	private TabsAdapter mTabsAdapter;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        mAdapter = new ViewPagerAdapter();
-        mPager = (ViewPager) findViewById(R.id.pager);
-        mPager.setAdapter(mAdapter);
-        mPager.setCurrentItem(0); // Defaults to 0 anyways.
+        mViewPager = (ViewPager) findViewById(R.id.pager);
 
-        mIndicator = (TitlePageIndicator)findViewById(R.id.indicator);
-        mIndicator.setViewPager(mPager);
-        mIndicator.setFooterIndicatorStyle(IndicatorStyle.Triangle);
+        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        
+        mTabsAdapter = new TabsAdapter(this, mViewPager);
+		mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Home"),
+				DashboardFragment.class, null);
+		mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Favorites"),
+				FavoritesFragment.class, null);        
+        
     }
 
     @Override
@@ -58,74 +78,80 @@ public class HomeActivity extends SherlockFragmentActivity {
         return super.onOptionsItemSelected(item);
     }
     
-    private class ViewPagerAdapter extends PagerAdapter {
+    public static class TabsAdapter extends FragmentPagerAdapter implements
+		ActionBar.TabListener, ViewPager.OnPageChangeListener {
 
-        public int getCount() {
-                return 2;
-        }
+		private final Context mContext;
+		private final ActionBar mActionBar;
+		private final ViewPager mViewPager;
+		private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
 
-        public Object instantiateItem(View collection, int position) {
+		static final class TabInfo {
+			private final Class<?> clss;
+			private final Bundle args;
 
-                LayoutInflater inflater = (LayoutInflater) collection.getContext()
-                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-                int resId = 0;
-                switch (position) {
-                case 0:
-                    resId = R.layout.activity_dashboard;
-                    break;
-                case 1:
-                    resId = R.layout.activity_favorites;
-                    break;
-                }
-
-                View view = inflater.inflate(resId, null);
-
-                ((ViewPager) collection).addView(view, 0);
-
-                return view;
-        }
-
-        @Override
-		public CharSequence getPageTitle(int position) {
-			return mPageTitles[position];
+			TabInfo(Class<?> _class, Bundle _args) {
+				clss = _class;
+				args = _args;
+			}
 		}
-               
+
+		public TabsAdapter(SherlockFragmentActivity activity, ViewPager pager) {
+			super(activity.getSupportFragmentManager());
+			mContext = activity;
+			mActionBar = activity.getSupportActionBar();
+			mViewPager = pager;
+			mViewPager.setAdapter(this);
+			mViewPager.setOnPageChangeListener(this);
+		}
+
+		public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
+			TabInfo info = new TabInfo(clss, args);
+			tab.setTag(info);
+			tab.setTabListener(this);
+			mTabs.add(info);
+			mActionBar.addTab(tab);
+			notifyDataSetChanged();
+		}
+
 		@Override
-        public void destroyItem(View arg0, int arg1, Object arg2) {
-                ((ViewPager) arg0).removeView((View) arg2);
+		public int getCount() {
+			return mTabs.size();
+		}
 
-        }
+		@Override
+		public Fragment getItem(int position) {
+			TabInfo info = mTabs.get(position);
+			return Fragment.instantiate(mContext, info.clss.getName(),
+					info.args);
+		}
 
-        @Override
-        public void finishUpdate(View arg0) {
-                // TODO Auto-generated method stub
+		public void onPageScrolled(int position, float positionOffset,
+				int positionOffsetPixels) {
+		}
 
-        }
+		public void onPageSelected(int position) {
+			mActionBar.setSelectedNavigationItem(position);
+		}
 
-        @Override
-        public boolean isViewFromObject(View arg0, Object arg1) {
-                return arg0 == ((View) arg1);
+		public void onPageScrollStateChanged(int state)	{
+		}
 
-        }
+		public void onTabSelected(Tab tab, FragmentTransaction ft) {
+			Object tag = tab.getTag();
+			for (int i = 0; i < mTabs.size(); i++) {
+				if (mTabs.get(i) == tag) {
+					mViewPager.setCurrentItem(i);
+				}
+			}
+		}
 
-        @Override
-        public void restoreState(Parcelable arg0, ClassLoader arg1) {
-                // TODO Auto-generated method stub
+		public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+		}
 
-        }
+		public void onTabReselected(Tab tab, FragmentTransaction ft) {
+		}
+    	
+    }    
 
-        @Override
-        public Parcelable saveState() {
-                // TODO Auto-generated method stub
-                return null;
-        }
-
-        @Override
-        public void startUpdate(View arg0) {
-                // TODO Auto-generated method stub
-
-        }    
-    
-    }
 }
