@@ -26,9 +26,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -45,11 +48,19 @@ public class MountainPassItemActivity extends SherlockFragmentActivity {
 	private ArrayList<CameraItem> cameraItems;
 	private ArrayList<ForecastItem> forecastItems;
 	
+    private ViewPager mViewPager;
+	private TabsAdapter mTabsAdapter;
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 
+		mViewPager = new ViewPager(this);
+		mViewPager.setId(R.id.pager);
+		
+		setContentView(mViewPager);
+	    
 	    Bundle b = getIntent().getExtras();
 	    String mountainPassName = b.getString("MountainPassName");
 	    
@@ -60,23 +71,18 @@ public class MountainPassItemActivity extends SherlockFragmentActivity {
 	    cameraItems = (ArrayList<CameraItem>)getIntent().getSerializableExtra("Cameras");
 	    forecastItems = (ArrayList<ForecastItem>)getIntent().getSerializableExtra("Forecasts");        
         
-        ActionBar.Tab reportTab = getSupportActionBar().newTab();
-        reportTab.setText("Report");
-        reportTab.setTabListener(new TabListener<MountainPassItemReportFragment>(this, "Report", MountainPassItemReportFragment.class, b));
-        getSupportActionBar().addTab(reportTab);	    
+	    mTabsAdapter = new TabsAdapter(this, mViewPager);
+	    mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Report"),
+	    		MountainPassItemReportFragment.class, b);
 	    
 	    if (!cameraItems.isEmpty()) {
-	        ActionBar.Tab camerasTab = getSupportActionBar().newTab();
-	        camerasTab.setText("Cameras");
-	        camerasTab.setTabListener(new TabListener<MountainPassItemCameraFragment>(this, "Cameras", MountainPassItemCameraFragment.class, b));
-	        getSupportActionBar().addTab(camerasTab); 
+		    mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Cameras"),
+		    		MountainPassItemCameraFragment.class, b);
 	    }
         
 	    if (!forecastItems.isEmpty()) {
-	        ActionBar.Tab forecastTab = getSupportActionBar().newTab();
-	        forecastTab.setText("Forecast");
-	        forecastTab.setTabListener(new TabListener<MountainPassItemForecastFragment>(this, "Forecast", MountainPassItemForecastFragment.class, b));
-	        getSupportActionBar().addTab(forecastTab); 	    	
+		    mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Forecast"),
+		    		MountainPassItemForecastFragment.class, b);
 	    }
         
         if (savedInstanceState != null) {
@@ -112,65 +118,80 @@ public class MountainPassItemActivity extends SherlockFragmentActivity {
         outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
     }
     
-    public class TabListener<T extends Fragment> implements ActionBar.TabListener {
-        private Fragment mFragment;
-        private final SherlockFragmentActivity mActivity;
-        private final String mTag;
-        private final Class<T> mClass;
-        private final Bundle mArgs;
+    public static class TabsAdapter extends FragmentPagerAdapter implements
+		ActionBar.TabListener, ViewPager.OnPageChangeListener {
 
-        /** Constructor used each time a new tab is created.
-          * @param activity  The host Activity, used to instantiate the fragment
-          * @param tag  The identifier tag for the fragment
-          * @param clz  The fragment's Class, used to instantiate the fragment
-          * @param args The fragment's passed arguments
-          */
-        public TabListener(SherlockFragmentActivity activity, String tag, Class<T> clz, Bundle args) {
-            mActivity = activity;
-            mTag = tag;
-            mClass = clz;
-            mArgs = args;
-            
-            FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+		private final Context mContext;
+		private final ActionBar mActionBar;
+		private final ViewPager mViewPager;
+		private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
 
+		static final class TabInfo {
+			private final Class<?> clss;
+			private final Bundle args;
 
-            // Check to see if we already have a fragment for this tab, probably
-            // from a previously saved state.  If so, deactivate it, because our
-            // initial state is that a tab isn't shown.
-            mFragment = mActivity.getSupportFragmentManager().findFragmentByTag(mTag);
-            if (mFragment != null && !mFragment.isDetached()) {
-                ft.detach(mFragment);
-            }
-        }       
+			TabInfo(Class<?> _class, Bundle _args) {
+				clss = _class;
+				args = _args;
+			}
+		}
 
-        /* The following are each of the ActionBar.TabListener callbacks */
+		public TabsAdapter(SherlockFragmentActivity activity, ViewPager pager) {
+			super(activity.getSupportFragmentManager());
+			mContext = activity;
+			mActionBar = activity.getSupportActionBar();
+			mViewPager = pager;
+			mViewPager.setAdapter(this);
+			mViewPager.setOnPageChangeListener(this);
+		}
 
-        public void onTabSelected(Tab tab, FragmentTransaction ft) {
+		public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
+			TabInfo info = new TabInfo(clss, args);
+			tab.setTag(info);
+			tab.setTabListener(this);
+			mTabs.add(info);
+			mActionBar.addTab(tab);
+			notifyDataSetChanged();
+		}
 
-                ft = mActivity.getSupportFragmentManager().beginTransaction();
+		@Override
+		public int getCount() {
+			return mTabs.size();
+		}
 
-            if (mFragment == null) {
-                mFragment = Fragment.instantiate(mActivity, mClass.getName(), mArgs);
-                ft.add(android.R.id.content, mFragment, mTag);
-                ft.commit();
-            } else {
-                ft.attach(mFragment);
-                ft.commit();
-            }
-        }
+		@Override
+		public Fragment getItem(int position) {
+			TabInfo info = mTabs.get(position);
+			return Fragment.instantiate(mContext, info.clss.getName(),
+					info.args);
+		}
 
-        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+		public void onPageScrolled(int position, float positionOffset,
+				int positionOffsetPixels) {
+		}
 
-            ft = mActivity.getSupportFragmentManager().beginTransaction();
+		public void onPageSelected(int position) {
+			mActionBar.setSelectedNavigationItem(position);
+		}
 
-            if (mFragment != null) {
-                ft.detach(mFragment);
-                ft.commitAllowingStateLoss();
-            }   
-        }
+		public void onPageScrollStateChanged(int state)	{
+		}
 
-        public void onTabReselected(Tab tab, FragmentTransaction ft) {
-            // User selected the already selected tab. Usually do nothing.
-        }
-    }	
+		public void onTabSelected(Tab tab, FragmentTransaction ft) {
+			Object tag = tab.getTag();
+			for (int i = 0; i < mTabs.size(); i++) {
+				if (mTabs.get(i) == tag) {
+					mViewPager.setCurrentItem(i);
+				}
+			}
+		}
+
+		public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+		}
+
+		public void onTabReselected(Tab tab, FragmentTransaction ft) {
+		}
+    	
+    }    
+    
 }

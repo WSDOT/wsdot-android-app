@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
+import gov.wa.wsdot.android.wsdot.ui.widget.ResizeableImageView;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedInputStream;
@@ -32,32 +33,36 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import android.app.Activity;
-import android.content.res.TypedArray;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.Gallery;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.ListView;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockListFragment;
 
-public class MountainPassItemCameraFragment extends SherlockFragment {
+public class MountainPassItemCameraFragment extends SherlockListFragment
+	implements LoaderCallbacks<ArrayList<Drawable>> {
 	
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "MountainPassItemPhotos";
-	private ArrayList<CameraItem> remoteImages;
-    private ArrayList<Drawable> bitmapImages = new ArrayList<Drawable>();
+	private static ArrayList<CameraItem> remoteImages;
+    private static ArrayList<Drawable> bitmapImages = new ArrayList<Drawable>();
     private ViewGroup mRootView;
-	private View mLoadingSpinner;
+    private static CameraImageAdapter mAdapter;
+	private static View mLoadingSpinner;
     
 	@SuppressWarnings("unchecked")
 	@Override
@@ -78,14 +83,14 @@ public class MountainPassItemCameraFragment extends SherlockFragment {
 	@SuppressWarnings("deprecation")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mRootView = (ViewGroup) inflater.inflate(R.layout.gallery, null);
+		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
 		
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
                 ViewGroup.LayoutParams.FILL_PARENT));
 
-        mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);		
+        mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);
 		
 		return mRootView;
 	}    
@@ -94,102 +99,167 @@ public class MountainPassItemCameraFragment extends SherlockFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-		new GetCameraImages().execute();
+		mAdapter = new CameraImageAdapter(getActivity());
+		setListAdapter(mAdapter);
+		// Prepare the loader. Either re-connect with an existing one,
+		// or start a new one.		
+		getLoaderManager().initLoader(0, null, this);
 	}
 
-	private class GetCameraImages extends AsyncTask<String, Integer, String> {
+	public Loader<ArrayList<Drawable>> onCreateLoader(int id, Bundle args) {
+        // This is called when a new Loader needs to be created. There
+        // is only one Loader with no arguments, so it is simple.
+		return new CameraImagesLoader(getActivity());
+	}
 
-		@Override
-		protected void onPreExecute() {
-			mLoadingSpinner.setVisibility(View.VISIBLE);
+	public void onLoadFinished(Loader<ArrayList<Drawable>> loader,
+			ArrayList<Drawable> data) {
+
+		mLoadingSpinner.setVisibility(View.GONE);
+		mAdapter.setData(data);	
+	}
+
+	public void onLoaderReset(Loader<ArrayList<Drawable>> loader) {
+		bitmapImages.clear();
+		mAdapter.setData(null);
+	}
+	
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+
+		Bundle b = new Bundle();
+		Intent intent = new Intent(getActivity(), CameraActivity.class);
+		b.putString("title", remoteImages.get(position).getTitle());
+		b.putString("url", remoteImages.get(position).getImageUrl());
+		intent.putExtras(b);
+		
+		startActivity(intent);
+	}
+
+	/**
+	 * A custom Loader that loads all of the camera images for this mountain pass.
+	 */		
+	public static class CameraImagesLoader extends AsyncTaskLoader<ArrayList<Drawable>> {
+		private Context mContext;
+		
+		public CameraImagesLoader(Context context) {
+			super(context);
+			
+			this.mContext = context;
 		}
 
-	    protected void onCancelled() {
-	        Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
-	    }
-
 		@Override
-		protected String doInBackground(String... params) {
+		public ArrayList<Drawable> loadInBackground() {
 		   	BufferedInputStream in;
 	        BufferedOutputStream out;      
 	        
 	    	for (int i=0; i < remoteImages.size(); i++) {
-	    		if (!this.isCancelled()) {
-		    		Bitmap bitmap = null;
-		            try {
-		                in = new BufferedInputStream(new URL(remoteImages.get(i).getImageUrl()).openStream(), IO_BUFFER_SIZE);
-		                final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-		                out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
-		                copy(in, out);
-		                out.flush();
-		                final byte[] data = dataStream.toByteArray();
-		                bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-		    	    } catch (Exception e) {
-		    	        Log.e(DEBUG_TAG, "Error retrieving camera images", e);
-		    	        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.camera_offline);
-		    	    } finally {
-		    	    	@SuppressWarnings("deprecation")
-		    	    	final Drawable image = new BitmapDrawable(bitmap);
-		    	    	bitmapImages.add(image);
-		    	    }
-	    		} else {
-	    			break;
-	    		}
+	    		Bitmap bitmap = null;
+	            try {
+	                in = new BufferedInputStream(new URL(remoteImages.get(i).getImageUrl()).openStream(), IO_BUFFER_SIZE);
+	                final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
+	                out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
+	                copy(in, out);
+	                out.flush();
+	                final byte[] data = dataStream.toByteArray();
+	                bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+	    	    } catch (Exception e) {
+	    	        Log.e(DEBUG_TAG, "Error retrieving camera images", e);
+	    	        bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.camera_offline);
+	    	    } finally {
+	    	    	@SuppressWarnings("deprecation")
+	    	    	final Drawable image = new BitmapDrawable(bitmap);
+	    	    	bitmapImages.add(image);
+	    	    }
 	    	}
-			return null;
+
+			return bitmapImages;
+		}
+
+	    /**
+	     * Called when there is new data to deliver to the client. The
+	     * super class will take care of delivering it; the implementation
+	     * here just adds a little more logic.
+	     */
+		@Override
+		public void deliverResult(ArrayList<Drawable> data) {
+			super.deliverResult(data);
 		}
 
 		@Override
-		protected void onPostExecute(String result) {
-			mLoadingSpinner.setVisibility(View.GONE);
+		protected void onStartLoading() {
+			super.onStartLoading();
+
+			mLoadingSpinner.setVisibility(View.VISIBLE);
+
+			forceLoad();		
+		}
+
+		@Override
+		protected void onStopLoading() {
+			super.onStopLoading();
 			
-			populateGallery();
-		}   
-    }  
+			// Attempt to cancel the current load task if possible.
+	        cancelLoad();
+		}
+		
+		@Override
+		public void onCanceled(ArrayList<Drawable> data) {
+			super.onCanceled(data);
+		}
 
-    private void populateGallery() {
-    	try {
-            Gallery gallery = (Gallery) mRootView.findViewById(R.id.gallery);
-            gallery.setAdapter(new ImageAdapter(getActivity()));
-    	} catch (Exception e) {
-            Log.e("DEBUG_TAG", "Error getting images", e);
-        }	        
-    }    
-    
-    public class ImageAdapter extends BaseAdapter {
-        private Activity context;
-        private int itemBackground;
- 
-        public ImageAdapter(Activity c) {
-            context = c;
-            TypedArray a = getActivity().obtainStyledAttributes(R.styleable.Gallery1);
-            itemBackground = a.getResourceId(R.styleable.Gallery1_android_galleryItemBackground, 0);
-            a.recycle();                    
+		@Override
+		protected void onReset() {
+			super.onReset();
+			
+	        // Ensure the loader is stopped
+	        onStopLoading();			
+		}
+		
+	}
+
+	private class CameraImageAdapter extends ArrayAdapter<Drawable> {
+		private final LayoutInflater mInflater;
+		
+		public CameraImageAdapter(Context context) {
+			super(context, R.layout.list_item_resizeable_image);
+			mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		}
+		
+        public void setData(ArrayList<Drawable> data) {
+            clear();
+            if (data != null) {
+                //addAll(data); // Only in API level 11
+                notifyDataSetChanged();
+                for (int i=0; i < data.size(); i++) {
+                	add(data.get(i));
+                }
+                notifyDataSetChanged();                
+            }
         }
- 
-        public int getCount() {
-            return remoteImages.size();
-        }
- 
-        public Object getItem(int position) {
-            return position;
-        }            
- 
-        public long getItemId(int position) {
-            return position;
-        }
- 
+        
+        @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-        	ImageView imageView = new ImageView(context);
-            imageView = (ImageView) getActivity().getLayoutInflater().inflate(R.layout.gallery_item, parent, false);
-            imageView.setImageDrawable(bitmapImages.get(position));
-            imageView.setBackgroundResource(itemBackground);
-            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            
-            return imageView;
+	        if (convertView == null) {
+	            convertView = mInflater.inflate(R.layout.list_item_resizeable_image, null);
+	        }
+	        
+	        Drawable item = getItem(position);
+	        
+	        if (item != null) {
+	        	ResizeableImageView iv = (ResizeableImageView) convertView.findViewById(R.id.image);
+	        	iv.setImageDrawable(item.getCurrent());
+	        }
+	        
+	        return convertView;
         }
-    }
-
+	}
+	
+	public static class ViewHolder {
+		public ImageView iv;
+	}        
+	
     /**
      * Copy the content of the input stream into the output stream, using a
      * temporary byte array buffer whose size is defined by
@@ -205,5 +275,6 @@ public class MountainPassItemCameraFragment extends SherlockFragment {
         while ((read = in.read(b)) != -1) {
             out.write(b, 0, read);
         }
-    }    
+    }
+   
 }

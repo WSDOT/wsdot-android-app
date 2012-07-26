@@ -40,7 +40,9 @@ public class CameraActivity extends SherlockFragmentActivity {
 	    String url = b.getString("url");
 	    
 		String[] param = url.split(",");
-		hasVideo = Integer.parseInt(param[1]) != 0;
+		if (param.length > 1) {
+			hasVideo = Integer.parseInt(param[1]) != 0;
+		}
 	    
         getSupportActionBar().setTitle(title);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
