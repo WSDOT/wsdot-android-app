@@ -100,7 +100,12 @@ public class TravelTimesFragment extends SherlockListFragment
     @Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     	super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.refresh, menu);  	
+		inflater.inflate(R.menu.refresh, menu);
+		
+        menu.add(R.string.search_title)
+        .setIcon(R.drawable.ic_menu_search)
+        .setActionView(R.layout.collapsible_edittext)
+        .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 	}
 
 	@Override
