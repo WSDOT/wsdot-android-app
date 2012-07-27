@@ -85,7 +85,7 @@
    		    android:label="@string/title_seattlealerts" />
    		
    		<activity
-   		    android:name=".ui.SeattleTravelTimesActivity"
+   		    android:name=".ui.TravelTimesActivity"
    		    android:label="@string/title_traveltimes" />
    		
    		<activity

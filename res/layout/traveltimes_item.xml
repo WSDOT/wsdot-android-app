@@ -2,12 +2,11 @@
  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
      android:layout_width="fill_parent"
      android:layout_height="wrap_content"
-     android:orientation="vertical">
+     android:orientation="vertical"
+     android:padding="14dp">
   
 	<TextView android:id="@+id/route_description"
-		android:text="Route Description"
-		android:textSize="16sp"
-		android:textStyle="bold"
+		android:textSize="@dimen/text_size_medium"
 		android:padding="5dp"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -17,34 +16,34 @@
 	    xmlns:android="http://schemas.android.com/apk/res/android"
 	    android:layout_height="wrap_content" 
 	    android:layout_width="fill_parent">
+	    
+	    <TableRow>
+            <TextView
+                android:id="@+id/heading_distance"
+                android:paddingLeft="5dp"
+                android:paddingTop="5dp"
+                android:text="Distance:"
+                android:textSize="@dimen/text_size_medium" />
 
-	    <TableRow> 
-			<TextView
-			    android:id="@+id/heading_distance"
-			    android:text="Distance:"
-         		android:paddingTop="5dp"
-         		android:paddingLeft="5dp"
-         		/>
-			
-			<TextView
-			    android:id="@+id/distance"
-			    android:text="miles"
-			    android:layout_width="fill_parent"
-			    android:paddingTop="5dp"
-			    android:paddingLeft="5dp"
-			    />
-			
-	    </TableRow>
+            <TextView
+                android:id="@+id/distance"
+                android:layout_width="fill_parent"
+                android:paddingLeft="5dp"
+                android:paddingTop="5dp"
+                android:textSize="@dimen/text_size_medium" />
+        </TableRow>
+
 	    <TableRow> 
 			<TextView
 			    android:id="@+id/heading_average"
 			    android:text="Average:"
+			    android:textSize="@dimen/text_size_medium"
          		android:paddingLeft="5dp"
          		/>
 			
 			<TextView
 			    android:id="@+id/average"
-			    android:text="minutes"
+			    android:textSize="@dimen/text_size_medium"
 			    android:layout_width="fill_parent"
 			    android:paddingLeft="5dp"
 			    />
@@ -54,14 +53,14 @@
 			<TextView
 			    android:id="@+id/heading_current"
 			    android:text="Current:"
+			    android:textSize="@dimen/text_size_medium"
          		android:paddingLeft="5dp"
          		android:paddingBottom="5dp"
          		/>
 			
 			<TextView
 			    android:id="@+id/current"
-			    android:textStyle="bold"
-			    android:text="minutes"
+				android:textSize="@dimen/text_size_medium"
 			    android:layout_width="fill_parent"
 			    android:paddingLeft="5dp"
 			    android:paddingBottom="5dp"

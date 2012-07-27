@@ -78,8 +78,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
 	
 	static final private int MENU_ITEM_SEATTLE_ALERTS = Menu.FIRST;
-	static final private int MENU_ITEM_TRAVEL_TIMES = Menu.FIRST + 1;
-	static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST + 2;
+	static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST + 1;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -171,11 +170,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 			menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts")
 				.setIcon(R.drawable.ic_menu_alerts)
 				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-			
-		    menu.add(0, MENU_ITEM_TRAVEL_TIMES, menu.size(), "Travel Times")
-		    	.setIcon(R.drawable.ic_menu_travel_times)
-		    	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-		    
+
 		    menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes")
 		    	.setIcon(R.drawable.ic_menu_express_lanes)
 		    	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
@@ -200,6 +195,13 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	        });
 	        UIUtils.refreshActionBarMenu(this);
 	        return true;
+	    case R.id.toggle_cameras:
+	    	toggleCameras(item);
+	    	return true;	        
+	    case R.id.travel_times:
+	    	Intent timesIntent = new Intent(this, TravelTimesActivity.class);
+	    	startActivity(timesIntent);
+	    	return true;
 	    case R.id.goto_bellingham:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Bellingham");
 	    	goToLocation("Bellingham Traffic", 48.756302,-122.46151, 12);
@@ -265,16 +267,9 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	    	goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
-	    case R.id.toggle_cameras:
-	    	toggleCameras(item);
-	    	return true;	        
 	    case MENU_ITEM_SEATTLE_ALERTS:
 	    	Intent alertsIntent = new Intent(this, SeattleTrafficAlertsActivity.class);
 	    	startActivity(alertsIntent);
-	    	return true;
-	    case MENU_ITEM_TRAVEL_TIMES:
-	    	Intent timesIntent = new Intent(this, SeattleTravelTimesActivity.class);
-	    	startActivity(timesIntent);
 	    	return true;
 	    case MENU_ITEM_EXPRESS_LANES:
 	    	Intent expressIntent = new Intent(this, SeattleExpressLanesActivity.class);

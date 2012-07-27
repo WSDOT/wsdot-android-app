@@ -13,12 +13,19 @@
 		android:icon="@drawable/ic_menu_camera"
 		android:orderInCategory="2"
 		android:showAsAction="ifRoom|withText" />	
-		
+
+	<item
+	    android:id="@+id/travel_times"
+		android:title="@string/description_travel_times"
+		android:icon="@drawable/ic_menu_travel_times"
+		android:orderInCategory="3"
+		android:showAsAction="ifRoom|withText" />
+			
 	<item
 	    android:id="@+id/goto_location"
 		android:title="@string/description_gotolocation"
 		android:icon="@drawable/ic_menu_goto"
-		android:orderInCategory="3"
+		android:orderInCategory="4"
 		android:showAsAction="ifRoom|withText" >
 		<menu>
 			<item android:orderInCategory="1" android:title="Bellingham" android:id="@+id/goto_bellingham" />
