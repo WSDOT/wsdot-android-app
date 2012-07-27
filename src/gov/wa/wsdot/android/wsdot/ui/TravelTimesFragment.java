@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.TravelTimesItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -171,6 +172,7 @@ public class TravelTimesFragment extends SherlockListFragment
 					i.setAverageTime(Integer.toString(item.getInt("average")));
 					i.setDistance(item.getString("distance") + " miles");
 					i.setRouteID(item.getString("routeid"));
+					i.setUpdated(ParserUtils.relativeTime(item.getString("updated"), "yyyy-MM-dd h:mm a", false));
 					travelTimesItems.add(i);
 				}
 
@@ -262,36 +264,40 @@ public class TravelTimesFragment extends SherlockListFragment
 	        }
 	        
 	        TravelTimesItem item = getItem(position);
+	        String distance;
+	        String average_time;
 	        
 	        if (item != null) {
-	            TextView description = (TextView) convertView.findViewById(R.id.route_description);
+	            TextView description = (TextView) convertView.findViewById(R.id.description);
 	            description.setTypeface(tfb);
-	            TextView distance = (TextView) convertView.findViewById(R.id.distance);
-	            distance.setTypeface(tf);
-	            TextView average = (TextView) convertView.findViewById(R.id.average);
-	            average.setTypeface(tf);
-	            TextView current = (TextView) convertView.findViewById(R.id.current);
-	            current.setTypeface(tfb);
+	            TextView current_time = (TextView) convertView.findViewById(R.id.current_time);
+	            current_time.setTypeface(tfb);
+	            TextView distance_average_time = (TextView) convertView.findViewById(R.id.distance_average_time);
+	            distance_average_time.setTypeface(tf);
+	            TextView updated = (TextView) convertView.findViewById(R.id.updated);
+	            updated.setTypeface(tf);
 	            
             	description.setText(item.getTitle());
-           		distance.setText(item.getDistance());
+            	distance = item.getDistance();
 
             	if (Integer.parseInt(item.getAverageTime()) == 0) {
-            		average.setText("Not Available");
+            		average_time = "Not Available";
             	} else {
-            		average.setText(item.getAverageTime() + " min");
+            		average_time = item.getAverageTime() + " min";
             	}
 
+            	distance_average_time.setText(distance + " / " + average_time);
 
             	if (Integer.parseInt(item.getCurrentTime()) < Integer.parseInt(item.getAverageTime())) {
-            		current.setTextColor(0xFF017359);
+            		current_time.setTextColor(0xFF008060);
             	} else if (Integer.parseInt(item.getCurrentTime()) > Integer.parseInt(item.getAverageTime()) && (Integer.parseInt(item.getAverageTime()) != 0)) {
-            		current.setTextColor(Color.RED);
+            		current_time.setTextColor(Color.RED);
             	} else {
-            		current.setTextColor(Color.BLUE);
+            		current_time.setTextColor(Color.BLACK);
             	}
 
-            	current.setText(item.getCurrentTime() + " min");
+            	current_time.setText(item.getCurrentTime() + " min");
+            	updated.setText(item.getUpdated());
 
 	        }
 	        
@@ -301,9 +307,9 @@ public class TravelTimesFragment extends SherlockListFragment
 	
 	public static class ViewHolder {
 		public TextView description;
-		public TextView distance;
-		public TextView average;
-		public TextView current;
+		public TextView current_time;
+		public TextView distance_average_time;
+		public TextView updated;
 	}	
 
 }

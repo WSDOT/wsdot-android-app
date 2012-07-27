@@ -1,72 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
- <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-     android:layout_width="fill_parent"
-     android:layout_height="wrap_content"
-     android:orientation="vertical"
-     android:padding="14dp">
-  
-	<TextView android:id="@+id/route_description"
-		android:textSize="@dimen/text_size_medium"
-		android:padding="5dp"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		/>
-   
- 	<TableLayout 
-	    xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:layout_height="wrap_content" 
-	    android:layout_width="fill_parent">
-	    
-	    <TableRow>
-            <TextView
-                android:id="@+id/heading_distance"
-                android:paddingLeft="5dp"
-                android:paddingTop="5dp"
-                android:text="Distance:"
-                android:textSize="@dimen/text_size_medium" />
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="14dp">
 
-            <TextView
-                android:id="@+id/distance"
-                android:layout_width="fill_parent"
-                android:paddingLeft="5dp"
-                android:paddingTop="5dp"
-                android:textSize="@dimen/text_size_medium" />
-        </TableRow>
+	<TextView
+	    android:id="@+id/description"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentTop="true"
+	    android:layout_marginRight="14dp"
+	    android:layout_toLeftOf="@+id/current_time"
+	    android:textSize="@dimen/text_size_medium" />
+		
+	<TextView
+		android:id="@+id/current_time"
+		android:textSize="@dimen/text_size_large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+		android:layout_alignParentRight="true" />	
+	
+	<TextView
+	    android:id="@+id/distance_average_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+		android:layout_below="@+id/description"
+		android:textSize="@dimen/text_size_small" />
 
-	    <TableRow> 
-			<TextView
-			    android:id="@+id/heading_average"
-			    android:text="Average:"
-			    android:textSize="@dimen/text_size_medium"
-         		android:paddingLeft="5dp"
-         		/>
-			
-			<TextView
-			    android:id="@+id/average"
-			    android:textSize="@dimen/text_size_medium"
-			    android:layout_width="fill_parent"
-			    android:paddingLeft="5dp"
-			    />
-						    
-	    </TableRow>
-	    <TableRow> 
-			<TextView
-			    android:id="@+id/heading_current"
-			    android:text="Current:"
-			    android:textSize="@dimen/text_size_medium"
-         		android:paddingLeft="5dp"
-         		android:paddingBottom="5dp"
-         		/>
-			
-			<TextView
-			    android:id="@+id/current"
-				android:textSize="@dimen/text_size_medium"
-			    android:layout_width="fill_parent"
-			    android:paddingLeft="5dp"
-			    android:paddingBottom="5dp"
-			    />
-			
-	    </TableRow>	    
-	</TableLayout> 
-         
- </LinearLayout>
+    <TextView
+        android:id="@+id/updated"
+        android:textSize="@dimen/text_size_small"
+        android:textColor="@color/semi_black"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+		android:layout_marginTop="7dp"
+        android:layout_below="@+id/distance_average_time" />	
+    	
+</RelativeLayout>
