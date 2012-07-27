@@ -230,7 +230,7 @@ public class TravelTimesFragment extends SherlockListFragment
         private final LayoutInflater mInflater;
         
         public TravelTimesItemAdapter(Context context) {
-	        super(context, R.layout.traveltimes_item);
+	        super(context, R.layout.list_item_travel_times);
 	        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
@@ -258,7 +258,7 @@ public class TravelTimesFragment extends SherlockListFragment
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 	        if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.traveltimes_item, null);
+	            convertView = mInflater.inflate(R.layout.list_item_travel_times, null);
 	        }
 	        
 	        TravelTimesItem item = getItem(position);
