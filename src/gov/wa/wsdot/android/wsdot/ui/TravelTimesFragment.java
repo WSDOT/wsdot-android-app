@@ -52,6 +52,7 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 
 public class TravelTimesFragment extends SherlockListFragment
 	implements LoaderCallbacks<ArrayList<TravelTimesItem>> {
@@ -102,10 +103,14 @@ public class TravelTimesFragment extends SherlockListFragment
     	super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.refresh, menu);
 		
+        //Create the search view
+        SearchView searchView = new SearchView(getSherlockActivity().getSupportActionBar().getThemedContext());
+        searchView.setQueryHint("Search Travel Times…");
+		
         menu.add(R.string.search_title)
         .setIcon(R.drawable.ic_menu_search)
-        .setActionView(R.layout.collapsible_edittext)
-        .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        .setActionView(searchView)
+        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 	}
 
 	@Override
