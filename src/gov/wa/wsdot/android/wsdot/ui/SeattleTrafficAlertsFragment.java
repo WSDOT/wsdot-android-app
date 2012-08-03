@@ -294,7 +294,7 @@ public class SeattleTrafficAlertsFragment extends SherlockListFragment
                 }
     			
 	        	if (amberalert != null && amberalert.size() != 0) {
-	    			mAdapter.addSeparatorItem("Amber Alert");
+	    			mAdapter.addSeparatorItem("Amber Alerts");
 	    			while (!amberalert.empty()) {
 	    				mAdapter.addItem(amberalert.pop());
 	    			}
