@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
+import gov.wa.wsdot.android.wsdot.ui.widget.MyMapView;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
@@ -68,7 +69,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	
 	private static final String DEBUG_TAG = "TrafficMap";
 	private HashMap<Integer, String[]> eventCategories = new HashMap<Integer, String[]>();
-	protected MapView map = null;
+	private MyMapView map = null;
 	protected MapController mapController = null;
 	private AlertsOverlay alerts = null;
 	private CamerasOverlay cameras = null;
@@ -131,7 +132,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	public void prepareMap() {
 		setContentView(R.layout.map);
 	
-        map = (MapView) findViewById(R.id.mapview);
+        map = (MyMapView) findViewById(R.id.mapview);
         map.setSatellite(false);
         map.setBuiltInZoomControls(true);
         map.setTraffic(true);

@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.widget.MyMapView;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
 
@@ -62,7 +63,7 @@ import com.google.android.maps.OverlayItem;
 public class VesselWatchMapActivity extends SherlockMapActivity {
 
 	private static final String DEBUG_TAG = "VesselWatchMap";
-	private MapView map = null;
+	private MyMapView map = null;
 	private Handler handler = new Handler();
 	private Timer timer;
 	private boolean firstRun = true;
@@ -107,7 +108,7 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 		
 		Double latitude = 47.565125;
         Double longitude = -122.480508;
-        map = (MapView) findViewById(R.id.mapview);
+        map = (MyMapView) findViewById(R.id.mapview);
         map.setSatellite(false);
         map.getController().setZoom(11);
         map.setBuiltInZoomControls(true);
