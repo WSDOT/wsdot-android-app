@@ -18,6 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.provider;
 
-public class MountainPassesContract {
+public class WSDOTContract {
 
 }

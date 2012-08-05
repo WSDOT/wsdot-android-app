@@ -23,7 +23,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
-public class MountainPassesProvider extends ContentProvider {
+public class WSDOTProvider extends ContentProvider {
 
 	@Override
 	public int delete(Uri arg0, String arg1, String[] arg2) {

@@ -23,9 +23,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class MountainPassesDatabase extends SQLiteOpenHelper {
+public class WSDOTDatabase extends SQLiteOpenHelper {
 
-	public MountainPassesDatabase(Context context, String name,
+	public WSDOTDatabase(Context context, String name,
 			CursorFactory factory, int version) {
 		super(context, name, factory, version);
 		// TODO Auto-generated constructor stub
