@@ -55,6 +55,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockMapActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
@@ -76,6 +77,8 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch");
         
@@ -105,6 +108,7 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 	
 	public void prepareMap() {
 		setContentView(R.layout.map);
+		setSupportProgressBarIndeterminateVisibility(false);
 		
 		Double latitude = 47.565125;
         Double longitude = -122.480508;
@@ -526,6 +530,8 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 				});
 				
 				this.dialog.show();
+			} else {
+				setSupportProgressBarIndeterminateVisibility(true);
 			}
 		 }
 
@@ -548,6 +554,8 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 				if (this.dialog.isShowing()) {
 					this.dialog.dismiss();
 				}
+			 } else {
+				 setSupportProgressBarIndeterminateVisibility(false);
 			 }
 
 			map.getOverlays().add(vessels);
