@@ -19,6 +19,8 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.service.CameraDownloadService;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
 import gov.wa.wsdot.android.wsdot.ui.widget.MyMapView;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
@@ -43,13 +45,13 @@ import java.util.zip.GZIPInputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -59,6 +61,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockMapActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapController;
@@ -68,6 +71,7 @@ import com.google.android.maps.OverlayItem;
 public class TrafficMapActivity extends SherlockMapActivity {
 	
 	private static final String DEBUG_TAG = "TrafficMap";
+	@SuppressLint("UseSparseArrays")
 	private HashMap<Integer, String[]> eventCategories = new HashMap<Integer, String[]>();
 	private MyMapView map = null;
 	protected MapController mapController = null;
@@ -84,6 +88,8 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map");
         
@@ -131,6 +137,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	
 	public void prepareMap() {
 		setContentView(R.layout.map);
+		setSupportProgressBarIndeterminateVisibility(false);
 	
         map = (MyMapView) findViewById(R.id.mapview);
         map.setSatellite(false);
@@ -280,7 +287,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	    
 	    return super.onOptionsItemSelected(item);
 	}
-	
+
 	private void toggleCameras(MenuItem item) {
 		if (showCameras) {
 			AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Hide Cameras");
@@ -436,48 +443,53 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	
 	private class CamerasOverlay extends ItemizedOverlay<CameraItem> {
 		private List<CameraItem> cameraItems = new ArrayList<CameraItem>();
+		private String[] projection = {
+				Cameras.CAMERA_LATITUDE,
+				Cameras.CAMERA_LONGITUDE,
+				Cameras.CAMERA_TITLE,
+				Cameras.CAMERA_URL,
+				Cameras.CAMERA_HAS_VIDEO
+				};
 
 		public CamerasOverlay() {
 			super(null);	
+			Cursor cameraCursor = null;
 			
-			try {				
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/Cameras.js.gz");
-				URLConnection urlConn = url.openConnection();
+			try {
+				cameraCursor = getContentResolver().query(
+						Cameras.CONTENT_URI,
+						projection,
+						null,
+						null,
+						null
+						);
 				
-				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
-                GZIPInputStream gzin = new GZIPInputStream(bis);
-                InputStreamReader is = new InputStreamReader(gzin);
-                BufferedReader in = new BufferedReader(is);
-				
-				String jsonFile = "";
-				String line;
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
-				in.close();
-				
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject result = obj.getJSONObject("cameras");
-				JSONArray items = result.getJSONArray("items");
-				int video;
-
-				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-					try {
-						video = item.getInt("video");
-					} catch (Exception e) {
-						video = 0;
+				if (cameraCursor.moveToFirst()) {
+					while (!cameraCursor.isAfterLast()) {
+						int video = cameraCursor.getInt(4);
+						int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
+						
+						cameraItems.add(new CameraItem(
+								getPoint(cameraCursor.getDouble(0), cameraCursor.getDouble(1)),
+								cameraCursor.getString(2),
+								cameraCursor.getString(3) + "," + video,
+								getMarker(cameraIcon)));
+						
+						cameraCursor.moveToNext();
 					}
-					int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
-
-					cameraItems.add(new CameraItem(getPoint(item.getDouble("lat"), item.getDouble("lon")),
-							item.getString("title"),
-							item.getString("url") + "," + video,
-							getMarker(cameraIcon)));
+				} else {
+				    Intent intent = new Intent(TrafficMapActivity.this, CameraDownloadService.class);
+				    intent.setData(Uri.parse("http://data.wsdot.wa.gov/mobile/Cameras.js.gz"));
+					startService(intent);
 				}
-				 
+
 			 } catch (Exception e) {
 				 Log.e(DEBUG_TAG, "Error in network call", e);
-			 }			 
+			 } finally {
+				 if (cameraCursor != null) {
+					 cameraCursor.close();
+				 }
+			 }
 			 
 			 populate();
 		}
@@ -558,7 +570,6 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	}	
 	
 	class OverlayTask extends AsyncTask<Void, Void, Void> {
-		private final ProgressDialog dialog = new ProgressDialog(TrafficMapActivity.this);
 		
 		@Override
 		public void onPreExecute() {
@@ -573,14 +584,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 				cameras = null;
 			}
 			
-			this.dialog.setMessage("Retrieving latest traffic alerts and camera locations ...");	
-			this.dialog.setOnCancelListener(new OnCancelListener() {
-	            public void onCancel(DialogInterface dialog) {
-	                cancel(true);
-	            }
-			});
-			
-			this.dialog.show();
+			setSupportProgressBarIndeterminateVisibility(true);
 		 }
 
 	    protected void onCancelled() {
@@ -596,9 +600,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}
+			 setSupportProgressBarIndeterminateVisibility(false);
 
 			map.getOverlays().add(alerts);
 			if (showCameras) {

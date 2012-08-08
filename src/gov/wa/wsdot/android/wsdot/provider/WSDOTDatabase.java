@@ -18,29 +18,47 @@
 
 package gov.wa.wsdot.android.wsdot.provider;
 
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CamerasColumns;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
+import android.util.Log;
 
 public class WSDOTDatabase extends SQLiteOpenHelper {
 
-	public WSDOTDatabase(Context context, String name,
-			CursorFactory factory, int version) {
-		super(context, name, factory, version);
-		// TODO Auto-generated constructor stub
+	private static final String DEBUG_TAG = "WSDOTDatabase";
+	private static final String DATABASE_NAME = "wsdot.db";
+    private static final int DATABASE_VERSION = 1;
+
+    interface Tables {
+        String CAMERAS = "cameras";    	
+    }
+    
+	public WSDOTDatabase(Context context) {
+		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		// TODO Auto-generated method stub
-		
+        db.execSQL("CREATE TABLE " + Tables.CAMERAS + " ("
+        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+        		+ CamerasColumns.CAMERA_ID + " INTEGER,"
+                + CamerasColumns.CAMERA_TITLE + " TEXT,"
+                + CamerasColumns.CAMERA_URL + " TEXT,"
+                + CamerasColumns.CAMERA_LATITUDE + " REAL,"
+                + CamerasColumns.CAMERA_LONGITUDE + " REAL,"
+                + CamerasColumns.CAMERA_HAS_VIDEO + " INTEGER NOT NULL default 0,"
+                + CamerasColumns.CAMERA_IS_FAVORITE + " INTEGER NOT NULL default 0,"
+                + CamerasColumns.CAMERA_ROAD_NAME + " TEXT);");
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO Auto-generated method stub
-		
+		Log.e(DEBUG_TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMERAS);
+        
+        onCreate(db);		
 	}
-
+	
 }

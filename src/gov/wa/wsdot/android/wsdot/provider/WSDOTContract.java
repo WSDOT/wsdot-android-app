@@ -18,6 +18,40 @@
 
 package gov.wa.wsdot.android.wsdot.provider;
 
+import android.content.ContentResolver;
+import android.net.Uri;
+import android.provider.BaseColumns;
+
 public class WSDOTContract {
 
+	interface CamerasColumns {
+	    String CAMERA_ID = "camera_id";
+	    String CAMERA_TITLE = "camera_title";
+	    String CAMERA_URL = "camera_url";
+	    String CAMERA_LATITUDE = "camera_latitude";
+	    String CAMERA_LONGITUDE = "camera_longitude";
+	    String CAMERA_HAS_VIDEO = "camera_has_video";
+	    String CAMERA_IS_FAVORITE = "camera_is_favorite";
+	    String CAMERA_ROAD_NAME = "camera_road_name";
+	}
+	
+	public static final String CONTENT_AUTHORITY = "gov.wa.wsdot.android.wsdot.provider.WSDOTProvider";
+	public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+	
+	public static class Cameras implements CamerasColumns, BaseColumns {
+		/** The URI path portion for this table */
+		public static final String PATH_CAMERAS = "cameras";
+		
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_CAMERAS).build();
+		
+	    public static final String CONTENT_TYPE =
+	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/camera";
+	    public static final String CONTENT_ITEM_TYPE =
+	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/camera";
+
+	}
+	
+	private WSDOTContract() {
+	}
 }
