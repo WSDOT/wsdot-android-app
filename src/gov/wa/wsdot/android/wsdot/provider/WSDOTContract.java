@@ -37,11 +37,10 @@ public class WSDOTContract {
 	
 	public static final String CONTENT_AUTHORITY = "gov.wa.wsdot.android.wsdot.provider.WSDOTProvider";
 	public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+	private static final String PATH_CAMERAS = "cameras";
 	
 	public static class Cameras implements CamerasColumns, BaseColumns {
-		/** The URI path portion for this table */
-		public static final String PATH_CAMERAS = "cameras";
-		
 		public static final Uri CONTENT_URI =
 				BASE_CONTENT_URI.buildUpon().appendPath(PATH_CAMERAS).build();
 		

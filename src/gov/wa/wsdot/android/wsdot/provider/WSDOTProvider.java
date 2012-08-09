@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.provider;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTDatabase.Tables;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -30,6 +31,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class WSDOTProvider extends ContentProvider {
@@ -46,8 +48,8 @@ public class WSDOTProvider extends ContentProvider {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = WSDOTContract.CONTENT_AUTHORITY;
         
-        matcher.addURI(authority, Cameras.PATH_CAMERAS, CAMERAS);
-        matcher.addURI(authority, Cameras.PATH_CAMERAS + "/#", CAMERAS_ID);
+        matcher.addURI(authority, "cameras", CAMERAS);
+        matcher.addURI(authority, "cameras/#", CAMERAS_ID);
         
         return matcher;
 	}
@@ -100,34 +102,52 @@ public class WSDOTProvider extends ContentProvider {
 	
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+        int uriType = sUriMatcher.match(uri);
+        SQLiteDatabase sqlDB = mDb.getWritableDatabase();
+        int rowsAffected = 0;
+        switch (uriType) {
+        case CAMERAS:
+            rowsAffected = sqlDB.delete(Tables.CAMERAS, selection, selectionArgs);
+            break;
+        case CAMERAS_ID:
+            String id = uri.getLastPathSegment();
+            if (TextUtils.isEmpty(selection)) {
+                rowsAffected = sqlDB.delete(Tables.CAMERAS, BaseColumns._ID + "=" + id, null);
+            } else {
+                rowsAffected = sqlDB.delete(Tables.CAMERAS,
+                        selection + " and " + BaseColumns._ID + "=" + id,
+                        selectionArgs);
+            }
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown or Invalid URI " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return rowsAffected;
 	}
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
         int uriType = sUriMatcher.match(uri);
-        
-        if (uriType != CAMERAS) {
-            throw new IllegalArgumentException("Invalid URI for insert");
-        }
-        
         SQLiteDatabase sqlDB = mDb.getWritableDatabase();
         
-        try {
-            long newID = sqlDB.insertOrThrow(WSDOTDatabase.Tables.CAMERAS, null, values);
-            if (newID > 0) {
-                Uri newUri = ContentUris.withAppendedId(uri, newID);
-                getContext().getContentResolver().notifyChange(uri, null);
-                return newUri;
-            } else {
-                throw new SQLException("Failed to insert row into " + uri);
+        switch(uriType) {
+        case CAMERAS:
+            try {
+                long newID = sqlDB.insertOrThrow(Tables.CAMERAS, null, values);
+                if (newID > 0) {
+                    Uri newUri = ContentUris.withAppendedId(uri, newID);
+                    getContext().getContentResolver().notifyChange(uri, null);
+                    return newUri;
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+            } catch (SQLiteConstraintException e) {
+                Log.i(DEBUG_TAG, "Ignoring constraint failure.");
             }
-        } catch (SQLiteConstraintException e) {
-            Log.i(DEBUG_TAG, "Ignoring constraint failure.");
-        }
-        
-        return null;
+    	default:
+    		throw new UnsupportedOperationException("Unknown uri: " + uri);
+    	}
 	}
 
 	@Override
