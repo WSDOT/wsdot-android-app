@@ -137,6 +137,7 @@ public class TwitterFragment extends SherlockListFragment
 		mTwitterProfileImages.put("GoodToGoWSDOT", R.drawable.ic_list_wsdot_goodtogo);
 		mTwitterProfileImages.put("SnoqualmiePass", R.drawable.ic_list_wsdot_snoqualmie_pass);
 		mTwitterProfileImages.put("wsdot", R.drawable.ic_list_wsdot);
+		mTwitterProfileImages.put("wsdot_sw", R.drawable.ic_list_wsdot_sw);
 		mTwitterProfileImages.put("wsdot_tacoma", R.drawable.ic_list_wsdot_tacoma);
 		mTwitterProfileImages.put("wsdot_traffic", R.drawable.ic_list_wsdot_traffic);		
 		
@@ -223,7 +224,7 @@ public class TwitterFragment extends SherlockListFragment
 	}	
 	
 	/**
-	 * A custom Loader that loads all of the border wait times from the data server.
+	 * A custom Loader that loads all of the Twitter feeds from the data server.
 	 */	
 	public static class TwitterItemsLoader extends AsyncTaskLoader<ArrayList<TwitterItem>> {
 
