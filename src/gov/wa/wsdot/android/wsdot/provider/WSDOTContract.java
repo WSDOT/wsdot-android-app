@@ -31,16 +31,25 @@ public class WSDOTContract {
 	    String CAMERA_LATITUDE = "camera_latitude";
 	    String CAMERA_LONGITUDE = "camera_longitude";
 	    String CAMERA_HAS_VIDEO = "camera_has_video";
-	    String CAMERA_IS_FAVORITE = "camera_is_favorite";
 	    String CAMERA_ROAD_NAME = "camera_road_name";
+	}
+	
+	interface HighwayAlertsColumns {
+		String HIGHWAY_ALERT_ID = "highway_alert_id";
+		String HIGHWAY_ALERT_HEADLINE = "highway_alert_headline";
+		String HIGHWAY_ALERT_LATITUDE = "highway_alert_latitude";
+		String HIGHWAY_ALERT_LONGITUDE = "highway_alert_longitude";
+		String HIGHWAY_ALERT_CATEGORY = "highway_alert_category";
+		String HIGHWAY_ALERT_ROAD_NAME = "highway_alert_road_name";
 	}
 	
 	public static final String CONTENT_AUTHORITY = "gov.wa.wsdot.android.wsdot.provider.WSDOTProvider";
 	public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
 	private static final String PATH_CAMERAS = "cameras";
+	private static final String PATH_HIGHWAY_ALERTS = "highway_alerts";
 	
-	public static class Cameras implements CamerasColumns, BaseColumns {
+	public static class Cameras implements BaseColumns, CamerasColumns {
 		public static final Uri CONTENT_URI =
 				BASE_CONTENT_URI.buildUpon().appendPath(PATH_CAMERAS).build();
 		
@@ -49,6 +58,16 @@ public class WSDOTContract {
 	    public static final String CONTENT_ITEM_TYPE =
 	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/camera";
 
+	}
+	
+	public static class HighwayAlerts implements BaseColumns, HighwayAlertsColumns {
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_HIGHWAY_ALERTS).build();
+		
+	    public static final String CONTENT_TYPE =
+	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/highway_alert";
+	    public static final String CONTENT_ITEM_TYPE =
+	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/highway_alert";		
 	}
 	
 	private WSDOTContract() {

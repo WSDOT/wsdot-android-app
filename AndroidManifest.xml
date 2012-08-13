@@ -21,7 +21,10 @@
             android:exported="false" />
         
         <service
-            android:name=".service.CameraDownloadService" />
+            android:name=".service.CamerasSyncService" />
+        
+        <service
+            android:name=".service.HighwayAlertsSyncService" />
                 
         <activity
             android:name=".ui.HomeActivity"

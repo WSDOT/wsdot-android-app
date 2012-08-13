@@ -1,0 +1,160 @@
+/*
+ * Copyright (c) 2012 Washington State Department of Transportation
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+package gov.wa.wsdot.android.wsdot.ui.map;
+
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.ui.CameraActivity;
+
+import java.util.ArrayList;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
+
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.MapView;
+import com.google.android.maps.OverlayItem;
+
+public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
+	private static final String DEBUG_TAG = "CamerasOverlay";
+	private ArrayList<CameraItem> mCameraItems = new ArrayList<CameraItem>();
+	private final Activity mActivity;
+	boolean showCameras;
+	boolean showShadows;
+
+	private String[] projection = {
+			Cameras.CAMERA_LATITUDE,
+			Cameras.CAMERA_LONGITUDE,
+			Cameras.CAMERA_TITLE,
+			Cameras.CAMERA_URL,
+			Cameras.CAMERA_HAS_VIDEO
+			};
+
+	private GeoPoint getPoint(double lat, double lon) {
+		return(new GeoPoint((int)(lat*1E6), (int)(lon*1E6)));
+	}	
+	
+	public CamerasOverlay(Activity activity) {
+		super(null);
+		mActivity = activity;
+		Cursor cameraCursor = null;
+		
+        // Check preferences
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        showShadows = settings.getBoolean("KEY_SHOW_MARKER_SHADOWS", true);
+		
+		try {
+			cameraCursor = mActivity.getContentResolver().query(
+					Cameras.CONTENT_URI,
+					projection,
+					null,
+					null,
+					null
+					);
+			
+			if (cameraCursor.moveToFirst()) {
+				while (!cameraCursor.isAfterLast()) {
+					int video = cameraCursor.getInt(4);
+					int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
+					
+					mCameraItems.add(new CameraItem(
+							getPoint(cameraCursor.getDouble(0), cameraCursor.getDouble(1)),
+							cameraCursor.getString(2),
+							cameraCursor.getString(3) + "," + video,
+							getMarker(cameraIcon)));
+					
+					cameraCursor.moveToNext();
+				}
+			}
+		 } catch (Exception e) {
+			 Log.e(DEBUG_TAG, "Error in network call", e);
+		 } finally {
+			 if (cameraCursor != null) {
+				 cameraCursor.close();
+			 }
+		 }
+		 
+		 populate();
+	}
+	
+	class CameraItem extends OverlayItem {
+		 Drawable marker = null;
+	
+		 CameraItem(GeoPoint pt, String title, String description, Drawable marker) {
+			 super(pt, title, description);
+			 this.marker = marker;
+		 }
+
+		 @Override
+		 public Drawable getMarker(int stateBitset) {
+			 Drawable result = marker;
+			 setState(result, stateBitset);
+
+			 return result;
+		 }
+	}	
+	
+	@Override
+	protected CameraItem createItem(int i) {
+		return(mCameraItems.get(i));
+	}
+	
+	@Override
+	public void draw(Canvas canvas, MapView mapView, boolean shadow) {
+		if (!showShadows) {
+			shadow = false;
+		}
+		super.draw(canvas, mapView, shadow);
+	}
+
+	@Override
+	protected boolean onTap(int i) {
+		OverlayItem item = getItem(i);
+		Bundle b = new Bundle();
+		Intent intent = new Intent(mActivity, CameraActivity.class);
+		b.putString("title", item.getTitle());
+		b.putString("url", item.getSnippet());
+		intent.putExtras(b);
+		mActivity.startActivity(intent);
+
+		return true;
+	} 
+	 
+	 @Override
+	 public int size() {
+		 return(mCameraItems.size());
+	 }
+	 
+	 private Drawable getMarker(int resource) {
+		 Drawable marker = mActivity.getResources().getDrawable(resource);
+		 marker.setBounds(0, 0, marker.getIntrinsicWidth(),
+		 marker.getIntrinsicHeight());
+		 boundCenterBottom(marker);
+
+		 return(marker);
+	 }
+}

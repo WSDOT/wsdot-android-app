@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.provider;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTDatabase.Tables;
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -43,6 +44,9 @@ public class WSDOTProvider extends ContentProvider {
 
     private static final int CAMERAS = 100;
     private static final int CAMERAS_ID = 101;
+    
+    private static final int HIGHWAY_ALERTS = 200;
+    private static final int HIGHWAY_ALERTS_ID = 201;
 
     private static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -50,6 +54,8 @@ public class WSDOTProvider extends ContentProvider {
         
         matcher.addURI(authority, "cameras", CAMERAS);
         matcher.addURI(authority, "cameras/#", CAMERAS_ID);
+        matcher.addURI(authority, "highway_alerts", HIGHWAY_ALERTS);
+        matcher.addURI(authority, "highway_alerts/#", HIGHWAY_ALERTS_ID);
         
         return matcher;
 	}
@@ -68,6 +74,10 @@ public class WSDOTProvider extends ContentProvider {
             return Cameras.CONTENT_TYPE;
         case CAMERAS_ID:
             return Cameras.CONTENT_ITEM_TYPE;
+        case HIGHWAY_ALERTS:
+            return HighwayAlerts.CONTENT_TYPE;
+        case HIGHWAY_ALERTS_ID:
+            return HighwayAlerts.CONTENT_ITEM_TYPE;
         default:
         	throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -78,17 +88,26 @@ public class WSDOTProvider extends ContentProvider {
 			String[] selectionArgs,	String sortOrder) {
 		
 		SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-    	queryBuilder.setTables(WSDOTDatabase.Tables.CAMERAS);
     	
     	final int match = sUriMatcher.match(uri);
     	
     	switch (match) {
 	    case CAMERAS:
-	        // no filter
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.CAMERAS);
+	    	// no filter
 	        break;
 	    case CAMERAS_ID:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.CAMERAS);
 	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
 	        break;
+	    case HIGHWAY_ALERTS:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.HIGHWAY_ALERTS);
+	    	// no filter
+	        break;
+	    case HIGHWAY_ALERTS_ID:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.HIGHWAY_ALERTS);
+	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
+	        break;	        
 	    default:
 	    	throw new IllegalArgumentException("Unknown URI " + uri);
 	    }
@@ -105,12 +124,14 @@ public class WSDOTProvider extends ContentProvider {
         int uriType = sUriMatcher.match(uri);
         SQLiteDatabase sqlDB = mDb.getWritableDatabase();
         int rowsAffected = 0;
+        String id;
+        
         switch (uriType) {
         case CAMERAS:
             rowsAffected = sqlDB.delete(Tables.CAMERAS, selection, selectionArgs);
             break;
         case CAMERAS_ID:
-            String id = uri.getLastPathSegment();
+            id = uri.getLastPathSegment();
             if (TextUtils.isEmpty(selection)) {
                 rowsAffected = sqlDB.delete(Tables.CAMERAS, BaseColumns._ID + "=" + id, null);
             } else {
@@ -119,11 +140,67 @@ public class WSDOTProvider extends ContentProvider {
                         selectionArgs);
             }
             break;
+        case HIGHWAY_ALERTS:
+            rowsAffected = sqlDB.delete(Tables.HIGHWAY_ALERTS, selection, selectionArgs);
+            break;
+        case HIGHWAY_ALERTS_ID:
+            id = uri.getLastPathSegment();
+            if (TextUtils.isEmpty(selection)) {
+                rowsAffected = sqlDB.delete(Tables.HIGHWAY_ALERTS, BaseColumns._ID + "=" + id, null);
+            } else {
+                rowsAffected = sqlDB.delete(Tables.HIGHWAY_ALERTS,
+                        selection + " and " + BaseColumns._ID + "=" + id,
+                        selectionArgs);
+            }
+            break;            
         default:
             throw new IllegalArgumentException("Unknown or Invalid URI " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
         return rowsAffected;
+	}
+
+	
+	
+	@Override
+	public int bulkInsert(Uri uri, ContentValues[] values) {
+        int uriType = sUriMatcher.match(uri);
+        SQLiteDatabase sqlDB = mDb.getWritableDatabase();
+        int rowsAdded = 0;
+        
+        switch(uriType) {
+        case CAMERAS:
+        	sqlDB.beginTransaction();
+            try {
+            	for (ContentValues value : values) {
+	                sqlDB.insert(Tables.CAMERAS, null, value);
+            	}
+            	sqlDB.setTransactionSuccessful();
+            	rowsAdded = values.length;
+            } finally {
+                getContext().getContentResolver().notifyChange(uri, null);
+                sqlDB.endTransaction();
+            }
+            
+            return rowsAdded;
+        case HIGHWAY_ALERTS:
+        	sqlDB.beginTransaction();
+            try {
+            	for (ContentValues value : values) {
+	                sqlDB.insert(Tables.HIGHWAY_ALERTS, null, value);
+            	}
+            	sqlDB.setTransactionSuccessful();
+            	rowsAdded = values.length;
+            } finally {
+                getContext().getContentResolver().notifyChange(uri, null);
+                sqlDB.endTransaction();
+            }
+            
+            return rowsAdded;
+        default:
+    		throw new UnsupportedOperationException("Unknown uri: " + uri);
+    	}
+
 	}
 
 	@Override
@@ -134,9 +211,22 @@ public class WSDOTProvider extends ContentProvider {
         switch(uriType) {
         case CAMERAS:
             try {
-                long newID = sqlDB.insertOrThrow(Tables.CAMERAS, null, values);
-                if (newID > 0) {
-                    Uri newUri = ContentUris.withAppendedId(uri, newID);
+                long rowId = sqlDB.insertOrThrow(Tables.CAMERAS, null, values);
+                if (rowId > 0) {
+                    Uri newUri = ContentUris.withAppendedId(uri, rowId);
+                    getContext().getContentResolver().notifyChange(uri, null);
+                    return newUri;
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+            } catch (SQLiteConstraintException e) {
+                Log.i(DEBUG_TAG, "Ignoring constraint failure.");
+            }
+        case HIGHWAY_ALERTS:
+            try {
+                long rowId = sqlDB.insertOrThrow(Tables.HIGHWAY_ALERTS, null, values);
+                if (rowId > 0) {
+                    Uri newUri = ContentUris.withAppendedId(uri, rowId);
                     getContext().getContentResolver().notifyChange(uri, null);
                     return newUri;
                 } else {

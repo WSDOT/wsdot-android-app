@@ -19,39 +19,23 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
-import gov.wa.wsdot.android.wsdot.service.CameraDownloadService;
+import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
+import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
+import gov.wa.wsdot.android.wsdot.ui.map.CamerasOverlay;
+import gov.wa.wsdot.android.wsdot.ui.map.HighwayAlertsOverlay;
 import gov.wa.wsdot.android.wsdot.ui.widget.MyMapView;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -63,19 +47,12 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.google.android.maps.GeoPoint;
-import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.OverlayItem;
 
 public class TrafficMapActivity extends SherlockMapActivity {
-	
-	private static final String DEBUG_TAG = "TrafficMap";
-	@SuppressLint("UseSparseArrays")
-	private HashMap<Integer, String[]> eventCategories = new HashMap<Integer, String[]>();
 	private MyMapView map = null;
 	protected MapController mapController = null;
-	private AlertsOverlay alerts = null;
+	private HighwayAlertsOverlay alerts = null;
 	private CamerasOverlay cameras = null;
 	boolean showCameras;
 	boolean showShadows;
@@ -84,6 +61,9 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	
 	static final private int MENU_ITEM_SEATTLE_ALERTS = Menu.FIRST;
 	static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST + 1;
+	
+	private CamerasSyncReceiver mCamerasReceiver;
+	private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +78,16 @@ public class TrafficMapActivity extends SherlockMapActivity {
         // Setup the unique latitude, longitude and zoom level
         prepareMap();
         prepareBoundingBox();
+        
+        IntentFilter camerasFilter = new IntentFilter(CamerasSyncReceiver.PROCESS_RESPONSE);
+        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mCamerasReceiver = new CamerasSyncReceiver();
+        registerReceiver(mCamerasReceiver, camerasFilter); 
+        
+        IntentFilter alertsFilter = new IntentFilter(HighwayAlertsSyncReceiver.PROCESS_RESPONSE);
+        alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
+        registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);         
         
         /**
          * Using an extended version of MyLocationOverlay class because it has been
@@ -122,10 +112,9 @@ public class TrafficMapActivity extends SherlockMapActivity {
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
-        showShadows = settings.getBoolean("KEY_SHOW_MARKER_SHADOWS", true);
-        buildEventCategories();       
-
-        new OverlayTask().execute();
+    
+        new CamerasOverlayTask().execute();
+        new HighwayAlertsOverlayTask().execute();
     }
 	
 	public void prepareBoundingBox() {
@@ -158,6 +147,41 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		myLocationOverlay.disableMyLocation();
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		this.unregisterReceiver(mCamerasReceiver);
+		this.unregisterReceiver(mHighwayAlertsSyncReceiver);
+	}
+	
+	public class CamerasSyncReceiver extends BroadcastReceiver {
+		public static final String PROCESS_RESPONSE = "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE";
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String responseString = intent.getStringExtra(CamerasSyncService.RESPONSE_STRING);
+			if (responseString.equals("OK")) {
+				new CamerasOverlayTask().execute(); // We've got cameras, now add them.
+			} else if (responseString.equals("ERROR")) {
+				Log.e("CameraDownloadReceiver", "Got an ERROR. Not executing OverlayTask.");
+			}
+		}
+	}
+	
+	public class HighwayAlertsSyncReceiver extends BroadcastReceiver {
+		public static final String PROCESS_RESPONSE = "gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE";
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String responseString = intent.getStringExtra(HighwayAlertsSyncService.RESPONSE_STRING);
+			if (responseString.equals("OK")) {
+				new HighwayAlertsOverlayTask().execute(); // We've got alerts, now add them.
+			} else if (responseString.equals("ERROR")) {
+				Log.e("HighwayAlertsSyncReceiver", "Got an ERROR. Not executing OverlayTask.");
+			}
+		}
+	}
+	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
@@ -196,7 +220,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	    	return true;
 	    case R.id.my_location:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/My Location");
-	        myLocationOverlay.runOnFirstFix(new Runnable() {
+	    	myLocationOverlay.runOnFirstFix(new Runnable() {
 	            public void run() {	    	
 	            	map.getController().animateTo(myLocationOverlay.getMyLocation());
 	            }
@@ -345,291 +369,80 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		return false;
 	}	
 	
-	private void buildEventCategories() {
-		String[] event_construction = {"construction", "maintenance"};
-		String[] event_closure = {"closure", "hcb closed marine"};
-		
-		eventCategories.put(R.drawable.closed, event_closure);
-		eventCategories.put(R.drawable.construction_high, event_construction);
-	}
-
-	private GeoPoint getPoint(double lat, double lon) {
-		return(new GeoPoint((int)(lat*1E6), (int)(lon*1E6)));
-	 }	
-	
-	private class AlertsOverlay extends ItemizedOverlay<AlertItem> {
-		private List<AlertItem> alertItems = new ArrayList<AlertItem>();
-
-		public AlertsOverlay() {
-			super(null);			
-			
-			try {
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz");
-				URLConnection urlConn = url.openConnection();
-				
-				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
-                GZIPInputStream gzin = new GZIPInputStream(bis);
-                InputStreamReader is = new InputStreamReader(gzin);
-                BufferedReader in = new BufferedReader(is);
-				
-				String jsonFile = "";
-				String line;
-				
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
-				in.close();
-			
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject result = obj.getJSONObject("alerts");
-				JSONArray items = result.getJSONArray("items");
-
-				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-					JSONObject startRoadwayLocation = item.getJSONObject("StartRoadwayLocation");
-					
-					alertItems.add(new AlertItem(getPoint(startRoadwayLocation.getDouble("Latitude"), startRoadwayLocation.getDouble("Longitude")),
-							item.getString("EventCategory"),
-							item.getString("HeadlineDescription"),
-							getMarker(getCategoryIcon(eventCategories, item.getString("EventCategory")))));
-				}
-				 
-			 } catch (Exception e) {
-				 Log.e(DEBUG_TAG, "Error in network call", e);
-			 }			 
-			 
-			 populate();
-		}
-		
-		@Override
-		protected AlertItem createItem(int i) {
-			return(alertItems.get(i));
-		}
-		
-		@Override
-		public void draw(Canvas canvas, MapView mapView, boolean shadow) {
-			if (!showShadows) {
-				shadow = false;
-			}
-			super.draw(canvas, mapView, shadow);
-		}
-
-		@Override
-		protected boolean onTap(int i) {
-			OverlayItem item = getItem(i);
-			Bundle b = new Bundle();
-			Intent intent = new Intent(TrafficMapActivity.this, HighwayAlertDetailsActivity.class);
-			b.putString("title", item.getTitle());
-			b.putString("description", item.getSnippet());
-			intent.putExtras(b);
-			startActivity(intent);
-
-			return true;
-		} 
-		 
-		 @Override
-		 public int size() {
-			 return(alertItems.size());
-		 }
-		 
-		 private Drawable getMarker(int resource) {
-			 Drawable marker = getResources().getDrawable(resource);
-			 marker.setBounds(0, 0, marker.getIntrinsicWidth(),
-			 marker.getIntrinsicHeight());
-			 boundCenterBottom(marker);
-
-			 return(marker);
-		 }
-	}
-	
-	private class CamerasOverlay extends ItemizedOverlay<CameraItem> {
-		private List<CameraItem> cameraItems = new ArrayList<CameraItem>();
-		private String[] projection = {
-				Cameras.CAMERA_LATITUDE,
-				Cameras.CAMERA_LONGITUDE,
-				Cameras.CAMERA_TITLE,
-				Cameras.CAMERA_URL,
-				Cameras.CAMERA_HAS_VIDEO
-				};
-
-		public CamerasOverlay() {
-			super(null);	
-			Cursor cameraCursor = null;
-			
-			try {
-				cameraCursor = getContentResolver().query(
-						Cameras.CONTENT_URI,
-						projection,
-						null,
-						null,
-						null
-						);
-				
-				if (cameraCursor.moveToFirst()) {
-					while (!cameraCursor.isAfterLast()) {
-						int video = cameraCursor.getInt(4);
-						int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
-						
-						cameraItems.add(new CameraItem(
-								getPoint(cameraCursor.getDouble(0), cameraCursor.getDouble(1)),
-								cameraCursor.getString(2),
-								cameraCursor.getString(3) + "," + video,
-								getMarker(cameraIcon)));
-						
-						cameraCursor.moveToNext();
-					}
-				} else {
-				    Intent intent = new Intent(TrafficMapActivity.this, CameraDownloadService.class);
-				    intent.setData(Uri.parse("http://data.wsdot.wa.gov/mobile/Cameras.js.gz"));
-					startService(intent);
-				}
-
-			 } catch (Exception e) {
-				 Log.e(DEBUG_TAG, "Error in network call", e);
-			 } finally {
-				 if (cameraCursor != null) {
-					 cameraCursor.close();
-				 }
-			 }
-			 
-			 populate();
-		}
-		
-		@Override
-		protected CameraItem createItem(int i) {
-			return(cameraItems.get(i));
-		}
-		
-		@Override
-		public void draw(Canvas canvas, MapView mapView, boolean shadow) {
-			if (!showShadows) {
-				shadow = false;
-			}
-			super.draw(canvas, mapView, shadow);
-		}
-
-		@Override
-		protected boolean onTap(int i) {
-			OverlayItem item = getItem(i);
-			Bundle b = new Bundle();
-			Intent intent = new Intent(TrafficMapActivity.this, CameraActivity.class);
-			b.putString("title", item.getTitle());
-			b.putString("url", item.getSnippet());
-			intent.putExtras(b);
-			startActivity(intent);
-
-			return true;
-		} 
-		 
-		 @Override
-		 public int size() {
-			 return(cameraItems.size());
-		 }
-		 
-		 private Drawable getMarker(int resource) {
-			 Drawable marker = getResources().getDrawable(resource);
-			 marker.setBounds(0, 0, marker.getIntrinsicWidth(),
-			 marker.getIntrinsicHeight());
-			 boundCenterBottom(marker);
-
-			 return(marker);
-		 }
-	}	
-	
-	class AlertItem extends OverlayItem {
-		 Drawable marker = null;
-	
-		 AlertItem(GeoPoint pt, String title, String description, Drawable marker) {
-			 super(pt, title, description);
-			 this.marker = marker;
-		 }
-
-		 @Override
-		 public Drawable getMarker(int stateBitset) {
-			 Drawable result = marker;
-			 setState(result, stateBitset);
-
-			 return result;
-		 }
-	}
-	
-	class CameraItem extends OverlayItem {
-		 Drawable marker = null;
-	
-		 CameraItem(GeoPoint pt, String title, String description, Drawable marker) {
-			 super(pt, title, description);
-			 this.marker = marker;
-		 }
-
-		 @Override
-		 public Drawable getMarker(int stateBitset) {
-			 Drawable result = marker;
-			 setState(result, stateBitset);
-
-			 return result;
-		 }
-	}	
-	
-	class OverlayTask extends AsyncTask<Void, Void, Void> {
+	class CamerasOverlayTask extends AsyncTask<Void, Void, Void> {
 		
 		@Override
 		public void onPreExecute() {
-			if (alerts != null) {
-				map.getOverlays().remove(alerts);
-				map.invalidate();
-				alerts = null;
-			}
+			setSupportProgressBarIndeterminateVisibility(true);
+			
 			if (cameras != null) {
 				map.getOverlays().remove(cameras);
 				map.invalidate();
 				cameras = null;
 			}
-			
-			setSupportProgressBarIndeterminateVisibility(true);
-		 }
 
-	    protected void onCancelled() {
-	        Toast.makeText(TrafficMapActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
-	    }
+		 }
 		
 		 @Override
 		 public Void doInBackground(Void... unused) {
-			 if (!this.isCancelled()) alerts = new AlertsOverlay();
-			 if (!this.isCancelled()) cameras = new CamerasOverlay();		 
+			 cameras = new CamerasOverlay(TrafficMapActivity.this);		 
+			 
 			 return null;
 		 }
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-			 setSupportProgressBarIndeterminateVisibility(false);
-
-			map.getOverlays().add(alerts);
 			if (showCameras) {
-				map.getOverlays().add(cameras);	
-			}
-			
-			map.invalidate();
-		 }
-	}	
-	
-	private static Integer getCategoryIcon(HashMap<Integer, String[]> eventCategories, String category) {
-		Integer image = R.drawable.alert_highest;
-		Set<Entry<Integer, String[]>> set = eventCategories.entrySet();
-		Iterator<Entry<Integer, String[]>> i = set.iterator();
-		
-		if (category.equals("")) return image;
-		
-		while(i.hasNext()) {
-			Entry<Integer, String[]> me = i.next();
-			for (String phrase: (String[])me.getValue()) {
-				String patternStr = phrase;
-				Pattern pattern = Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE);
-				Matcher matcher = pattern.matcher(category);
-				boolean matchFound = matcher.find();
-				if (matchFound) {
-					image = (Integer)me.getKey();
+				if (cameras.size() != 0) {
+					map.getOverlays().add(cameras);
+				} else {
+					Toast.makeText(TrafficMapActivity.this, "Downloading cameras...", Toast.LENGTH_LONG).show();
+					Intent intent = new Intent(TrafficMapActivity.this, CamerasSyncService.class);
+				    intent.putExtra(CamerasSyncService.REQUEST_STRING, "http://data.wsdot.wa.gov/mobile/Cameras.js.gz");
+					startService(intent);
 				}
 			}
-		}	
-		return image;
+			
+			setSupportProgressBarIndeterminateVisibility(false);
+			map.invalidate();
+		 }
 	}
+
+	class HighwayAlertsOverlayTask extends AsyncTask<Void, Void, Void> {
+		
+		@Override
+		public void onPreExecute() {
+			setSupportProgressBarIndeterminateVisibility(true);
+			
+			if (alerts != null) {
+				map.getOverlays().remove(alerts);
+				map.invalidate();
+				alerts = null;
+			}
+
+		 }
+		
+		 @Override
+		 public Void doInBackground(Void... unused) {
+			 alerts = new HighwayAlertsOverlay(TrafficMapActivity.this);
+			 
+			 return null;
+		 }
+
+		 @Override
+		 public void onPostExecute(Void unused) {
+			if (alerts.size() != 0) {
+				 map.getOverlays().add(alerts);				
+			} else {
+				Toast.makeText(TrafficMapActivity.this, "Downloading highway alerts...", Toast.LENGTH_LONG).show();
+				Intent intent = new Intent(TrafficMapActivity.this, HighwayAlertsSyncService.class);
+			    intent.putExtra(HighwayAlertsSyncService.REQUEST_STRING, "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz");
+				startService(intent);
+			}
+			
+			setSupportProgressBarIndeterminateVisibility(false);
+			map.invalidate();
+		 }
+	}
+	
 }

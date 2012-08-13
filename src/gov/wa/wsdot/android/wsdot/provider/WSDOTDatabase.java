@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.provider;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CamerasColumns;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -32,7 +33,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     interface Tables {
-        String CAMERAS = "cameras";    	
+        String CAMERAS = "cameras";
+        String HIGHWAY_ALERTS = "highway_alerts";
     }
     
 	public WSDOTDatabase(Context context) {
@@ -49,14 +51,23 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + CamerasColumns.CAMERA_LATITUDE + " REAL,"
                 + CamerasColumns.CAMERA_LONGITUDE + " REAL,"
                 + CamerasColumns.CAMERA_HAS_VIDEO + " INTEGER NOT NULL default 0,"
-                + CamerasColumns.CAMERA_IS_FAVORITE + " INTEGER NOT NULL default 0,"
                 + CamerasColumns.CAMERA_ROAD_NAME + " TEXT);");
+        
+        db.execSQL("CREATE TABLE " + Tables.HIGHWAY_ALERTS + " ("
+        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+        		+ HighwayAlertsColumns.HIGHWAY_ALERT_ID + " INTEGER,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_HEADLINE + " TEXT,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_LATITUDE + " REAL,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_LONGITUDE + " REAL,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_CATEGORY + " TEXT,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_ROAD_NAME + " TEXT);");
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.e(DEBUG_TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMERAS);
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.HIGHWAY_ALERTS);
         
         onCreate(db);		
 	}
