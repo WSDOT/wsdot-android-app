@@ -60,6 +60,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + HighwayAlertsColumns.HIGHWAY_ALERT_LATITUDE + " REAL,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_LONGITUDE + " REAL,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_CATEGORY + " TEXT,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_PRIORITY + " TEXT,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_ROAD_NAME + " TEXT);");
 	}
 

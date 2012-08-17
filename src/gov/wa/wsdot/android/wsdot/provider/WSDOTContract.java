@@ -40,6 +40,7 @@ public class WSDOTContract {
 		String HIGHWAY_ALERT_LATITUDE = "highway_alert_latitude";
 		String HIGHWAY_ALERT_LONGITUDE = "highway_alert_longitude";
 		String HIGHWAY_ALERT_CATEGORY = "highway_alert_category";
+		String HIGHWAY_ALERT_PRIORITY = "highway_alert_priority";
 		String HIGHWAY_ALERT_ROAD_NAME = "highway_alert_road_name";
 	}
 	

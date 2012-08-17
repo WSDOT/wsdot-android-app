@@ -51,6 +51,12 @@ public class HighwayAlertsSyncService extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
+		/** 
+		 * TODO: onHandleIntent needs to check for the last time we refreshed the data.
+		 * 
+		 * If data was refreshed within allowed time period, don't sync, otherwise
+		 * get fresh data from the server.
+		 */
 		
 		String requestString = intent.getStringExtra(REQUEST_STRING);
 		String responseString = "";
@@ -84,6 +90,7 @@ public class HighwayAlertsSyncService extends IntentService {
 				alertData.put(HighwayAlerts.HIGHWAY_ALERT_ID, item.getString("AlertID"));
 				alertData.put(HighwayAlerts.HIGHWAY_ALERT_HEADLINE, item.getString("HeadlineDescription"));
 				alertData.put(HighwayAlerts.HIGHWAY_ALERT_CATEGORY, item.getString("EventCategory"));
+				alertData.put(HighwayAlerts.HIGHWAY_ALERT_PRIORITY, item.getString("Priority"));
 				alertData.put(HighwayAlerts.HIGHWAY_ALERT_LATITUDE, startRoadwayLocation.getString("Latitude"));
 				alertData.put(HighwayAlerts.HIGHWAY_ALERT_LONGITUDE, startRoadwayLocation.getString("Longitude"));
 				alertData.put(HighwayAlerts.HIGHWAY_ALERT_ROAD_NAME, startRoadwayLocation.getString("RoadName"));

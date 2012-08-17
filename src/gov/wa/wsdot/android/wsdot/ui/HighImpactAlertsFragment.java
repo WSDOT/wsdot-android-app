@@ -19,30 +19,24 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.zip.GZIPInputStream;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
+import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,13 +49,14 @@ import com.actionbarsherlock.view.MenuItem;
 import com.viewpagerindicator.LinePageIndicator;
 
 public class HighImpactAlertsFragment extends SherlockFragment
-	implements LoaderCallbacks<ArrayList<HighwayAlertsItem>> {
+	implements LoaderCallbacks<Cursor> {
 
 	private ViewGroup mRootView;
     private ViewPagerAdapter mAdapter;
     private static ViewPager mPager;
     private static LinePageIndicator mIndicator;
 	private static View mLoadingSpinner;
+	private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
     
     @Override
     public void onAttach(Activity activity) {
@@ -72,10 +67,12 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-        setRetainInstance(true);		
 		setHasOptionsMenu(true);
+		
+        IntentFilter alertsFilter = new IntentFilter(HighwayAlertsSyncReceiver.PROCESS_RESPONSE);
+        alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
+        getActivity().registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);		
 	}
 
 	@Override
@@ -98,6 +95,13 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	}
 
     @Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		getActivity().unregisterReceiver(mHighwayAlertsSyncReceiver);
+	}
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     	super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.refresh, menu);
@@ -113,27 +117,52 @@ public class HighImpactAlertsFragment extends SherlockFragment
 		return super.onOptionsItemSelected(item);
 	}	
 	
-	public Loader<ArrayList<HighwayAlertsItem>> onCreateLoader(int id, Bundle args) {
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         // This is called when a new Loader needs to be created. There
         // is only one Loader with no arguments, so it is simple.
-		return new HighImpactAlertsLoader(getActivity());
+		String[] projection = {
+				HighwayAlerts.HIGHWAY_ALERT_LATITUDE,
+				HighwayAlerts.HIGHWAY_ALERT_LONGITUDE,
+				HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
+				HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
+				HighwayAlerts.HIGHWAY_ALERT_PRIORITY
+				};
+		
+		CursorLoader cursorLoader = new HighImpactAlertsLoader(getActivity(),
+				HighwayAlerts.CONTENT_URI,
+				projection,
+				HighwayAlerts.HIGHWAY_ALERT_PRIORITY + " LIKE ?",
+				new String[] {"Highest"},
+				null
+				);
+		
+		return cursorLoader;
 	}
 
-	public void onLoadFinished(Loader<ArrayList<HighwayAlertsItem>> loader, ArrayList<HighwayAlertsItem> alertItems) {
-		mLoadingSpinner.setVisibility(View.GONE);
-		mPager.setVisibility(View.VISIBLE);
-		mIndicator.setVisibility(View.VISIBLE);
-		mAdapter = new ViewPagerAdapter(getActivity(), alertItems);
-		mPager.setAdapter(mAdapter);
-		mIndicator.setViewPager(mPager);				
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		/**
+		 * TODO: Fix. This will loop if there are no "Highest" impact alerts.
+		 */
+		if (cursor.getCount() > 0) {
+			mLoadingSpinner.setVisibility(View.GONE);
+			mPager.setVisibility(View.VISIBLE);
+			mIndicator.setVisibility(View.VISIBLE);
+			mAdapter = new ViewPagerAdapter(getActivity(), cursor);
+			mPager.setAdapter(mAdapter);
+			mIndicator.setViewPager(mPager);
+		} else {
+			Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
+		    intent.putExtra(HighwayAlertsSyncService.REQUEST_STRING, "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz");
+			getActivity().startService(intent);			
+		}
 	}
 
-	public void onLoaderReset(Loader<ArrayList<HighwayAlertsItem>> loader) {
+	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.items = null;
 	}	
 	
 	public class ViewPagerAdapter extends PagerAdapter {
-        private ArrayList<HighwayAlertsItem> items;
+        private Cursor items;
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         @SuppressWarnings("unused")
 		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");        
@@ -141,36 +170,38 @@ public class HighImpactAlertsFragment extends SherlockFragment
         @SuppressWarnings("unused")
 		private final Context context;
 	 
-	    public ViewPagerAdapter(Context context, ArrayList<HighwayAlertsItem> items) {
+	    public ViewPagerAdapter(Context context, Cursor cursor) {
 	        this.context = context;
-	        this.items = items;
+	        this.items = cursor;
 	    }
 	  
 	    @Override
 	    public int getCount() {
-	        return items.size();
+	        return items.getCount();
 	    }
 	 
 	    @Override
 	    public Object instantiateItem(View pager, final int position) {
 	    	View view;
-	    	
-	    	if (!items.get(position).getExtendedDescription().equalsIgnoreCase("error")) {
+
+	    	if (items.moveToFirst()) {
 		    	view = getActivity().getLayoutInflater().inflate(R.layout.high_impact_alerts_active, null);
 		    	view.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
+						items.moveToPosition(position);
 						Bundle b = new Bundle();
 						Intent intent = new Intent(getActivity(), HighwayAlertDetailsActivity.class);
-						b.putString("title", items.get(position).getEventCategory());
-						b.putString("description", items.get(position).getExtendedDescription());
+						b.putString("title", items.getString(2));
+						b.putString("description", items.getString(3));
 						intent.putExtras(b);
 						startActivity(intent);				
 					}
 		    	});
 		    	
+		    	items.moveToPosition(position);
 		    	TextView title = (TextView)view.findViewById(R.id.title_alert);
 		    	title.setTypeface(tf);
-		    	title.setText(items.get(position).getExtendedDescription());
+		    	title.setText(items.getString(3));
 		    	
 		    	if (getCount() < 2) mIndicator.setVisibility(View.GONE);
 		    	
@@ -211,104 +242,37 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	    public void startUpdate(View view) {
 	    }
 	}
-
-	/**
-	 * A custom Loader that loads all of the highest impact highway alerts from the data server.
-	 */	
-	public static class HighImpactAlertsLoader extends AsyncTaskLoader<ArrayList<HighwayAlertsItem>> {
-		
-		public HighImpactAlertsLoader(Context context) {
-				super(context);
-		}
-
-		@Override
-		public ArrayList<HighwayAlertsItem> loadInBackground() {
-			ArrayList<HighwayAlertsItem> alertItems = new ArrayList<HighwayAlertsItem>();
-			HighwayAlertsItem i = null;
-			
-			try {
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz");
-				URLConnection urlConn = url.openConnection();
-				
-				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
-                GZIPInputStream gzin = new GZIPInputStream(bis);
-                InputStreamReader is = new InputStreamReader(gzin);
-                BufferedReader in = new BufferedReader(is);
-				
-				String jsonFile = "";
-				String line;
-				
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
-				in.close();
-			
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject result = obj.getJSONObject("alerts");
-				JSONArray items = result.getJSONArray("items");
-				
-				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-
-					if (item.getString("Priority").equalsIgnoreCase("highest")) {
-						i = new HighwayAlertsItem();
-						i.setEventCategory(item.getString("EventCategory"));
-						i.setExtendedDescription(item.getString("HeadlineDescription"));
-						
-						alertItems.add(i);
-					}
-				}
-				
-			} catch (Exception e) {
-				// Likely a network error accessing data file.
-			} finally {
-				if (alertItems.isEmpty()) {
-					i = new HighwayAlertsItem();
-					i.setExtendedDescription("error");
-					alertItems.add(i);					
-				}
-			}
-			
-			return alertItems;
-		}
-		
-	    /**
-	     * Called when there is new data to deliver to the client. The
-	     * super class will take care of delivering it; the implementation
-	     * here just adds a little more logic.
-	     */		
-		@Override
-		public void deliverResult(ArrayList<HighwayAlertsItem> alertItems) {
-			super.deliverResult(alertItems);				
+	
+	public static class HighImpactAlertsLoader extends CursorLoader {
+		public HighImpactAlertsLoader(Context context, Uri uri,
+				String[] projection, String selection, String[] selectionArgs,
+				String sortOrder) {
+			super(context, uri, projection, selection, selectionArgs, sortOrder);
 		}
 
 		@Override
 		protected void onStartLoading() {
 			super.onStartLoading();
-			
+
 			mLoadingSpinner.setVisibility(View.VISIBLE);
 			mPager.setVisibility(View.GONE);
 			mIndicator.setVisibility(View.GONE);
 			forceLoad();
-		}		
-		
-		@Override
-		protected void onStopLoading() {
-	        // Attempt to cancel the current load task if possible.
-	        cancelLoad();
 		}
-		
-		@Override
-		public void onCanceled(ArrayList<HighwayAlertsItem> alertItems) {
-			super.onCanceled(alertItems);
-		}
-
-	    @Override
-	    protected void onReset() {
-	        super.onReset();
-
-	        // Ensure the loader is stopped
-	        onStopLoading();
-	    }
-		
 	}
+	
+	public class HighwayAlertsSyncReceiver extends BroadcastReceiver {
+		public static final String PROCESS_RESPONSE = "gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE";
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String responseString = intent.getStringExtra(HighwayAlertsSyncService.RESPONSE_STRING);
+			if (responseString.equals("OK")) {
+				getLoaderManager().restartLoader(0, null, HighImpactAlertsFragment.this); // We've got alerts, now add them.
+			} else if (responseString.equals("ERROR")) {
+				Log.e("HighwayAlertsSyncReceiver", "Got an ERROR. Not restarting Loader.");
+			}
+		}
+	}	
+
 }
