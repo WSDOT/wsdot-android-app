@@ -18,9 +18,12 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
+import java.util.ArrayList;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
+import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -127,12 +130,12 @@ public class HighImpactAlertsFragment extends SherlockFragment
 				HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
 				HighwayAlerts.HIGHWAY_ALERT_PRIORITY
 				};
-		
+
 		CursorLoader cursorLoader = new HighImpactAlertsLoader(getActivity(),
 				HighwayAlerts.CONTENT_URI,
 				projection,
-				HighwayAlerts.HIGHWAY_ALERT_PRIORITY + " LIKE ?",
-				new String[] {"Highest"},
+				null,
+				null,
 				null
 				);
 		
@@ -140,21 +143,32 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		/**
-		 * TODO: Fix. This will loop if there are no "Highest" impact alerts.
-		 */
-		if (cursor.getCount() > 0) {
+		ArrayList<HighwayAlertsItem> alertItems = new ArrayList<HighwayAlertsItem>();
+		
+		if (cursor.moveToFirst()) {
+			while (!cursor.isAfterLast()) {
+				if (cursor.getString(4).equalsIgnoreCase("highest")) {
+					HighwayAlertsItem item = new HighwayAlertsItem();
+					item.setEventCategory(cursor.getString(2));
+					item.setExtendedDescription(cursor.getString(3));
+					alertItems.add(item);
+				}
+				cursor.moveToNext();
+			}
+			
 			mLoadingSpinner.setVisibility(View.GONE);
 			mPager.setVisibility(View.VISIBLE);
 			mIndicator.setVisibility(View.VISIBLE);
-			mAdapter = new ViewPagerAdapter(getActivity(), cursor);
+			mAdapter = new ViewPagerAdapter(getActivity(), alertItems);
 			mPager.setAdapter(mAdapter);
 			mIndicator.setViewPager(mPager);
+
 		} else {
 			Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
 		    intent.putExtra(HighwayAlertsSyncService.REQUEST_STRING, "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz");
 			getActivity().startService(intent);			
 		}
+		
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
@@ -162,7 +176,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	}	
 	
 	public class ViewPagerAdapter extends PagerAdapter {
-        private Cursor items;
+		private ArrayList<HighwayAlertsItem> items;
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         @SuppressWarnings("unused")
 		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");        
@@ -170,44 +184,50 @@ public class HighImpactAlertsFragment extends SherlockFragment
         @SuppressWarnings("unused")
 		private final Context context;
 	 
-	    public ViewPagerAdapter(Context context, Cursor cursor) {
+	    public ViewPagerAdapter(Context context, ArrayList<HighwayAlertsItem> items) {
 	        this.context = context;
-	        this.items = cursor;
+	        this.items = items;
 	    }
 	  
 	    @Override
 	    public int getCount() {
-	        return items.getCount();
+	        return items.size();
 	    }
 	 
 	    @Override
 	    public Object instantiateItem(View pager, final int position) {
 	    	View view;
 
-	    	if (items.moveToFirst()) {
+	    	String category = items.get(position).getEventCategory();
+	    	
+	    	if (!category.equalsIgnoreCase("error")) {
 		    	view = getActivity().getLayoutInflater().inflate(R.layout.high_impact_alerts_active, null);
 		    	view.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
-						items.moveToPosition(position);
 						Bundle b = new Bundle();
 						Intent intent = new Intent(getActivity(), HighwayAlertDetailsActivity.class);
-						b.putString("title", items.getString(2));
-						b.putString("description", items.getString(3));
+						b.putString("title", items.get(position).getEventCategory());
+						b.putString("description", items.get(position).getExtendedDescription());
 						intent.putExtras(b);
 						startActivity(intent);				
 					}
 		    	});
-		    	
-		    	items.moveToPosition(position);
+
 		    	TextView title = (TextView)view.findViewById(R.id.title_alert);
 		    	title.setTypeface(tf);
-		    	title.setText(items.getString(3));
+		    	title.setText(items.get(position).getExtendedDescription());
 		    	
 		    	if (getCount() < 2) mIndicator.setVisibility(View.GONE);
 		    	
 	    	} else {
 	    		view = getActivity().getLayoutInflater().inflate(R.layout.high_impact_alerts_inactive, null);
 	    		mIndicator.setVisibility(View.GONE);
+	    		
+	    		if (!items.isEmpty()) {
+	    			TextView title = (TextView)view.findViewById(R.id.title_alert);
+			    	title.setTypeface(tf);
+			    	title.setText(items.get(position).getExtendedDescription());
+	    		}
 	    	}
 	    	
 	        ((ViewPager)pager).addView(view, 0);
@@ -269,8 +289,19 @@ public class HighImpactAlertsFragment extends SherlockFragment
 			String responseString = intent.getStringExtra(HighwayAlertsSyncService.RESPONSE_STRING);
 			if (responseString.equals("OK")) {
 				getLoaderManager().restartLoader(0, null, HighImpactAlertsFragment.this); // We've got alerts, now add them.
-			} else if (responseString.equals("ERROR")) {
-				Log.e("HighwayAlertsSyncReceiver", "Got an ERROR. Not restarting Loader.");
+			} else {
+				Log.e("HighwayAlertsSyncReceiver", "Received an error. Not restarting Loader.");
+				ArrayList<HighwayAlertsItem> alertItems = new ArrayList<HighwayAlertsItem>();
+				HighwayAlertsItem item = new HighwayAlertsItem();
+				item.setEventCategory("error");
+				item.setExtendedDescription(responseString);
+				alertItems.add(item);
+				mLoadingSpinner.setVisibility(View.GONE);
+				mPager.setVisibility(View.VISIBLE);
+				mIndicator.setVisibility(View.VISIBLE);
+				mAdapter = new ViewPagerAdapter(getActivity(), alertItems);
+				mPager.setAdapter(mAdapter);
+				mIndicator.setViewPager(mPager);		
 			}
 		}
 	}	

@@ -101,7 +101,7 @@ public class HighwayAlertsSyncService extends IntentService {
 			responseString = "OK";
     	} catch (Exception e) {
     		Log.e(DEBUG_TAG, "Error: " + e.getMessage());
-    		responseString = "ERROR";
+    		responseString = e.getMessage();
     	}
     	
         Intent broadcastIntent = new Intent();
