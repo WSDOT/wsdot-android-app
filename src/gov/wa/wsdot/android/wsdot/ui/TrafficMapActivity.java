@@ -113,8 +113,13 @@ public class TrafficMapActivity extends SherlockMapActivity {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
     
-        new CamerasOverlayTask().execute();
-        new HighwayAlertsOverlayTask().execute();
+		Intent camerasIntent = new Intent(TrafficMapActivity.this, CamerasSyncService.class);
+	    camerasIntent.putExtra(CamerasSyncService.REQUEST_STRING, "http://data.wsdot.wa.gov/mobile/Cameras.js.gz");
+		startService(camerasIntent);        
+
+		Intent alertsIntent = new Intent(TrafficMapActivity.this, HighwayAlertsSyncService.class);
+	    alertsIntent.putExtra(HighwayAlertsSyncService.REQUEST_STRING, "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz");
+		startService(alertsIntent);
     }
 	
 	public void prepareBoundingBox() {
@@ -160,10 +165,11 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra(CamerasSyncService.RESPONSE_STRING);
-			if (responseString.equals("OK")) {
+			if (responseString.equals("OK") || responseString.equals("NOOP")) {
 				new CamerasOverlayTask().execute(); // We've got cameras, now add them.
-			} else if (responseString.equals("ERROR")) {
-				Log.e("CameraDownloadReceiver", "Got an ERROR. Not executing OverlayTask.");
+			} else {
+				Log.e("CameraDownloadReceiver", "Received an error. Not executing OverlayTask.");
+				Toast.makeText(TrafficMapActivity.this, responseString, Toast.LENGTH_LONG).show();
 			}
 		}
 	}
@@ -174,10 +180,11 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra(HighwayAlertsSyncService.RESPONSE_STRING);
-			if (responseString.equals("OK")) {
+			if (responseString.equals("OK") || responseString.equals("NOOP")) {
 				new HighwayAlertsOverlayTask().execute(); // We've got alerts, now add them.
-			} else if (responseString.equals("ERROR")) {
-				Log.e("HighwayAlertsSyncReceiver", "Got an ERROR. Not executing OverlayTask.");
+			} else {
+				Log.e("HighwayAlertsSyncReceiver", "Received an error. Not executing OverlayTask.");
+				Toast.makeText(TrafficMapActivity.this, responseString, Toast.LENGTH_LONG).show();
 			}
 		}
 	}
@@ -392,16 +399,13 @@ public class TrafficMapActivity extends SherlockMapActivity {
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-			if (showCameras) {
-				if (cameras.size() != 0) {
-					map.getOverlays().add(cameras);
-				} else {
-					Toast.makeText(TrafficMapActivity.this, "Downloading cameras...", Toast.LENGTH_LONG).show();
-					Intent intent = new Intent(TrafficMapActivity.this, CamerasSyncService.class);
-				    intent.putExtra(CamerasSyncService.REQUEST_STRING, "http://data.wsdot.wa.gov/mobile/Cameras.js.gz");
-					startService(intent);
-				}
-			}
+			 if (cameras.size() != 0) {
+				 map.getOverlays().add(cameras);
+			 }
+			 
+			 if (!showCameras) {
+				 map.getOverlays().remove(cameras);
+			 }
 			
 			setSupportProgressBarIndeterminateVisibility(false);
 			map.invalidate();
@@ -433,11 +437,6 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		 public void onPostExecute(Void unused) {
 			if (alerts.size() != 0) {
 				 map.getOverlays().add(alerts);				
-			} else {
-				Toast.makeText(TrafficMapActivity.this, "Downloading highway alerts...", Toast.LENGTH_LONG).show();
-				Intent intent = new Intent(TrafficMapActivity.this, HighwayAlertsSyncService.class);
-			    intent.putExtra(HighwayAlertsSyncService.REQUEST_STRING, "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz");
-				startService(intent);
 			}
 			
 			setSupportProgressBarIndeterminateVisibility(false);
