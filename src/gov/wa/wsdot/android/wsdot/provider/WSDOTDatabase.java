@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot.provider;
 
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CachesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CamerasColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
 import android.content.Context;
@@ -33,6 +34,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     interface Tables {
+    	String CACHES = "caches";
         String CAMERAS = "cameras";
         String HIGHWAY_ALERTS = "highway_alerts";
     }
@@ -43,7 +45,12 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + Tables.CAMERAS + " ("
+        db.execSQL("CREATE TABLE " + Tables.CACHES + " ("
+        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + CachesColumns.CACHE_TABLE_NAME + " TEXT,"
+                + CachesColumns.CACHE_LAST_UPDATED + " INTEGER);");
+		
+		db.execSQL("CREATE TABLE " + Tables.CAMERAS + " ("
         		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
         		+ CamerasColumns.CAMERA_ID + " INTEGER,"
                 + CamerasColumns.CAMERA_TITLE + " TEXT,"
@@ -62,15 +69,23 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + HighwayAlertsColumns.HIGHWAY_ALERT_CATEGORY + " TEXT,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_PRIORITY + " TEXT,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_ROAD_NAME + " TEXT);");
+
+        seedData(db);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.e(DEBUG_TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.CACHES);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMERAS);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.HIGHWAY_ALERTS);
         
         onCreate(db);		
+	}
+	
+	private void seedData(SQLiteDatabase db) {
+		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('cameras', 0);");
+		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('highway_alerts', 0);");
 	}
 	
 }

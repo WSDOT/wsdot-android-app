@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot.service;
 
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.ui.TrafficMapActivity.HighwayAlertsSyncReceiver;
 
@@ -37,73 +38,121 @@ import android.app.IntentService;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 public class HighwayAlertsSyncService extends IntentService {
 	
 	private static final String DEBUG_TAG = "HighwayAlertsSyncService";
     public static final String REQUEST_STRING = "alertsRequest";
+    public static final String REQUEST_FORCE_UPDATE = "false";
     public static final String RESPONSE_STRING = "alertsResponse";
 	
+    private String[] projection = {
+    		Caches.CACHE_LAST_UPDATED
+    		};
+    
     public HighwayAlertsSyncService() {
 		super("HighwayAlertsSyncService");
 	}
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		/** 
-		 * TODO: onHandleIntent needs to check for the last time we refreshed the data.
-		 * 
-		 * If data was refreshed within allowed time period, don't sync, otherwise
-		 * get fresh data from the server.
-		 */
-		
-		String requestString = intent.getStringExtra(REQUEST_STRING);
+		ContentResolver resolver = getContentResolver();
+		Cursor cursor = null;
+		long now = System.currentTimeMillis();
+		boolean shouldUpdate = true;
 		String responseString = "";
-		
-    	try {
-			URL url = new URL(requestString);
-			URLConnection urlConn = url.openConnection();
-			
-			BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
-            GZIPInputStream gzin = new GZIPInputStream(bis);
-            InputStreamReader is = new InputStreamReader(gzin);
-            BufferedReader in = new BufferedReader(is);
-			
-			String jsonFile = "";
-			String line;
-			while ((line = in.readLine()) != null)
-				jsonFile += line;
-			in.close();
-			
-			JSONObject obj = new JSONObject(jsonFile);
-			JSONObject result = obj.getJSONObject("alerts");
-			JSONArray items = result.getJSONArray("items");
-			ContentResolver resolver = getContentResolver();
-			List<ContentValues> alerts = new ArrayList<ContentValues>();
-			
-			for (int j=0; j < items.length(); j++) {
-				JSONObject item = items.getJSONObject(j);
-				JSONObject startRoadwayLocation = item.getJSONObject("StartRoadwayLocation");
-				ContentValues alertData = new ContentValues();
 
-				alertData.put(HighwayAlerts.HIGHWAY_ALERT_ID, item.getString("AlertID"));
-				alertData.put(HighwayAlerts.HIGHWAY_ALERT_HEADLINE, item.getString("HeadlineDescription"));
-				alertData.put(HighwayAlerts.HIGHWAY_ALERT_CATEGORY, item.getString("EventCategory"));
-				alertData.put(HighwayAlerts.HIGHWAY_ALERT_PRIORITY, item.getString("Priority"));
-				alertData.put(HighwayAlerts.HIGHWAY_ALERT_LATITUDE, startRoadwayLocation.getString("Latitude"));
-				alertData.put(HighwayAlerts.HIGHWAY_ALERT_LONGITUDE, startRoadwayLocation.getString("Longitude"));
-				alertData.put(HighwayAlerts.HIGHWAY_ALERT_ROAD_NAME, startRoadwayLocation.getString("RoadName"));
-				alerts.add(alertData);
-			}
+		/** 
+		 * Check the cache table for the last time data was downloaded. If we are within
+		 * the allowed time period, don't sync, otherwise get fresh data from the server.
+		 */
+		try {
+			cursor = resolver.query(
+					Caches.CONTENT_URI,
+					projection,
+					Caches.CACHE_TABLE_NAME + " LIKE ?",
+					new String[] {"highway_alerts"},
+					null
+					);
 			
-			resolver.bulkInsert(HighwayAlerts.CONTENT_URI, alerts.toArray(new ContentValues[alerts.size()]));
-			responseString = "OK";
-    	} catch (Exception e) {
-    		Log.e(DEBUG_TAG, "Error: " + e.getMessage());
-    		responseString = e.getMessage();
-    	}
-    	
+			if (cursor != null && cursor.moveToFirst()) {
+				long lastUpdated = cursor.getLong(0);
+				//long deltaMinutes = (now - lastUpdated) / DateUtils.MINUTE_IN_MILLIS;
+				//Log.d(DEBUG_TAG, "Delta since last update is " + deltaMinutes + " min");
+				shouldUpdate = (Math.abs(now - lastUpdated) > (5 * DateUtils.MINUTE_IN_MILLIS));
+			}
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+		
+		// Tapping the refresh button will force a data refresh.
+		boolean forceUpdate = intent.getBooleanExtra(REQUEST_FORCE_UPDATE, false);
+		
+		if (shouldUpdate || forceUpdate) {
+			String requestString = intent.getStringExtra(REQUEST_STRING);
+			
+	    	try {
+				URL url = new URL(requestString);
+				URLConnection urlConn = url.openConnection();
+				
+				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
+	            GZIPInputStream gzin = new GZIPInputStream(bis);
+	            InputStreamReader is = new InputStreamReader(gzin);
+	            BufferedReader in = new BufferedReader(is);
+				
+				String jsonFile = "";
+				String line;
+				while ((line = in.readLine()) != null)
+					jsonFile += line;
+				in.close();
+				
+				JSONObject obj = new JSONObject(jsonFile);
+				JSONObject result = obj.getJSONObject("alerts");
+				JSONArray items = result.getJSONArray("items");
+				List<ContentValues> alerts = new ArrayList<ContentValues>();
+				
+				for (int j=0; j < items.length(); j++) {
+					JSONObject item = items.getJSONObject(j);
+					JSONObject startRoadwayLocation = item.getJSONObject("StartRoadwayLocation");
+					ContentValues alertData = new ContentValues();
+	
+					alertData.put(HighwayAlerts.HIGHWAY_ALERT_ID, item.getString("AlertID"));
+					alertData.put(HighwayAlerts.HIGHWAY_ALERT_HEADLINE, item.getString("HeadlineDescription"));
+					alertData.put(HighwayAlerts.HIGHWAY_ALERT_CATEGORY, item.getString("EventCategory"));
+					alertData.put(HighwayAlerts.HIGHWAY_ALERT_PRIORITY, item.getString("Priority"));
+					alertData.put(HighwayAlerts.HIGHWAY_ALERT_LATITUDE, startRoadwayLocation.getString("Latitude"));
+					alertData.put(HighwayAlerts.HIGHWAY_ALERT_LONGITUDE, startRoadwayLocation.getString("Longitude"));
+					alertData.put(HighwayAlerts.HIGHWAY_ALERT_ROAD_NAME, startRoadwayLocation.getString("RoadName"));
+					alerts.add(alertData);
+				}
+				
+				// Purge existing highway alerts covered by incoming data
+				resolver.delete(HighwayAlerts.CONTENT_URI, null, null);
+				// Bulk insert all the new highway alerts
+				resolver.bulkInsert(HighwayAlerts.CONTENT_URI, alerts.toArray(new ContentValues[alerts.size()]));
+				// Update the cache table with the time we did the update
+				ContentValues values = new ContentValues();
+				values.put(Caches.CACHE_LAST_UPDATED, System.currentTimeMillis());
+				resolver.update(
+						Caches.CONTENT_URI,
+						values, Caches.CACHE_TABLE_NAME + " LIKE ?",
+						new String[] {"highway_alerts"}
+						);
+				
+				responseString = "OK";
+	    	} catch (Exception e) {
+	    		Log.e(DEBUG_TAG, "Error: " + e.getMessage());
+	    		responseString = e.getMessage();
+	    	}
+		} else {
+			responseString = "NOOP";
+		}
+		
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(HighwayAlertsSyncReceiver.PROCESS_RESPONSE);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);

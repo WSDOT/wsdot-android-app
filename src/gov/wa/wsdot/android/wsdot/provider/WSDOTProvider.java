@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot.provider;
 
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTDatabase.Tables;
@@ -42,16 +43,21 @@ public class WSDOTProvider extends ContentProvider {
 	
     private static final UriMatcher sUriMatcher = buildUriMatcher();	
 
-    private static final int CAMERAS = 100;
-    private static final int CAMERAS_ID = 101;
+    private static final int CACHES = 100;
+    private static final int CACHES_ID = 101;
     
-    private static final int HIGHWAY_ALERTS = 200;
-    private static final int HIGHWAY_ALERTS_ID = 201;
+    private static final int CAMERAS = 200;
+    private static final int CAMERAS_ID = 201;
+    
+    private static final int HIGHWAY_ALERTS = 300;
+    private static final int HIGHWAY_ALERTS_ID = 301;
 
     private static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = WSDOTContract.CONTENT_AUTHORITY;
         
+        matcher.addURI(authority, "caches", CACHES);
+        matcher.addURI(authority, "caches/#", CACHES_ID);
         matcher.addURI(authority, "cameras", CAMERAS);
         matcher.addURI(authority, "cameras/#", CAMERAS_ID);
         matcher.addURI(authority, "highway_alerts", HIGHWAY_ALERTS);
@@ -70,6 +76,10 @@ public class WSDOTProvider extends ContentProvider {
 	public String getType(Uri uri) {
         final int match = sUriMatcher.match(uri);
         switch (match) {
+        case CACHES:
+            return Caches.CONTENT_TYPE;
+        case CACHES_ID:
+            return Caches.CONTENT_ITEM_TYPE;
         case CAMERAS:
             return Cameras.CONTENT_TYPE;
         case CAMERAS_ID:
@@ -92,6 +102,14 @@ public class WSDOTProvider extends ContentProvider {
     	final int match = sUriMatcher.match(uri);
     	
     	switch (match) {
+	    case CACHES:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.CACHES);
+	    	// no filter
+	        break;
+	    case CACHES_ID:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.CACHES);
+	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
+	        break;
 	    case CAMERAS:
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.CAMERAS);
 	    	// no filter
@@ -127,6 +145,19 @@ public class WSDOTProvider extends ContentProvider {
         String id;
         
         switch (uriType) {
+        case CACHES:
+            rowsAffected = sqlDB.delete(Tables.CACHES, selection, selectionArgs);
+            break;
+        case CACHES_ID:
+            id = uri.getLastPathSegment();
+            if (TextUtils.isEmpty(selection)) {
+                rowsAffected = sqlDB.delete(Tables.CACHES, BaseColumns._ID + "=" + id, null);
+            } else {
+                rowsAffected = sqlDB.delete(Tables.CACHES,
+                        selection + " and " + BaseColumns._ID + "=" + id,
+                        selectionArgs);
+            }
+            break;
         case CAMERAS:
             rowsAffected = sqlDB.delete(Tables.CAMERAS, selection, selectionArgs);
             break;
@@ -209,6 +240,19 @@ public class WSDOTProvider extends ContentProvider {
         SQLiteDatabase sqlDB = mDb.getWritableDatabase();
         
         switch(uriType) {
+        case CACHES:
+            try {
+                long rowId = sqlDB.insertOrThrow(Tables.CACHES, null, values);
+                if (rowId > 0) {
+                    Uri newUri = ContentUris.withAppendedId(uri, rowId);
+                    getContext().getContentResolver().notifyChange(uri, null);
+                    return newUri;
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+            } catch (SQLiteConstraintException e) {
+                Log.i(DEBUG_TAG, "Ignoring constraint failure.");
+            }
         case CAMERAS:
             try {
                 long rowId = sqlDB.insertOrThrow(Tables.CAMERAS, null, values);
@@ -242,8 +286,21 @@ public class WSDOTProvider extends ContentProvider {
 
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+        int uriType = sUriMatcher.match(uri);
+        SQLiteDatabase sqlDB = mDb.getWritableDatabase();
+        
+        int rowsAffected;
+        
+        switch(uriType) {
+        case CACHES:
+        	rowsAffected = sqlDB.update(Tables.CACHES, values, selection, selectionArgs);
+        	break;
+        default:
+            throw new IllegalArgumentException("Unknown or Invalid URI");
+        }
+        
+        getContext().getContentResolver().notifyChange(uri, null);
+        return rowsAffected;
 	}
 
 }

@@ -24,6 +24,11 @@ import android.provider.BaseColumns;
 
 public class WSDOTContract {
 
+	interface CachesColumns {
+		String CACHE_TABLE_NAME = "cache_table_name";
+		String CACHE_LAST_UPDATED = "cache_last_updated";
+	}
+	
 	interface CamerasColumns {
 	    String CAMERA_ID = "camera_id";
 	    String CAMERA_TITLE = "camera_title";
@@ -47,8 +52,20 @@ public class WSDOTContract {
 	public static final String CONTENT_AUTHORITY = "gov.wa.wsdot.android.wsdot.provider.WSDOTProvider";
 	public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
+	private static final String PATH_CACHES = "caches";
 	private static final String PATH_CAMERAS = "cameras";
 	private static final String PATH_HIGHWAY_ALERTS = "highway_alerts";
+
+	public static class Caches implements BaseColumns, CachesColumns {
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_CACHES).build();
+		
+	    public static final String CONTENT_TYPE =
+	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/cache";
+	    public static final String CONTENT_ITEM_TYPE =
+	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/cache";
+
+	}	
 	
 	public static class Cameras implements BaseColumns, CamerasColumns {
 		public static final Uri CONTENT_URI =
