@@ -138,6 +138,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.menu_refresh:
+			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 			Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
 		    intent.putExtra(HighwayAlertsSyncService.REQUEST_STRING, HIGHWAYALERTS_URL);
 		    intent.putExtra(HighwayAlertsSyncService.REQUEST_FORCE_UPDATE, true);
@@ -150,7 +151,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
     public class MyTimerTask extends TimerTask {
         private Runnable runnable = new Runnable() {
             public void run() {
-    			Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
+            	Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
     		    intent.putExtra(HighwayAlertsSyncService.REQUEST_STRING, HIGHWAYALERTS_URL);
     			getActivity().startService(intent);
             }
@@ -202,6 +203,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
 			alertItems.add(item);
 		}
 			
+		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
 		mLoadingSpinner.setVisibility(View.GONE);
 		mPager.setVisibility(View.VISIBLE);
 		mIndicator.setVisibility(View.VISIBLE);
@@ -336,7 +338,8 @@ public class HighImpactAlertsFragment extends SherlockFragment
 				item.setEventCategory("error");
 				item.setExtendedDescription(responseString);
 				alertItems.add(item);
-				
+
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
 				mLoadingSpinner.setVisibility(View.GONE);
 				mPager.setVisibility(View.VISIBLE);
 				mIndicator.setVisibility(View.VISIBLE);
