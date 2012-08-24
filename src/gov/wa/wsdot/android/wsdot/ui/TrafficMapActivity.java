@@ -48,6 +48,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
+import com.google.android.maps.MapView;
 
 public class TrafficMapActivity extends SherlockMapActivity {
 	private MyMapView map = null;
@@ -64,6 +65,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	
 	private CamerasSyncReceiver mCamerasReceiver;
 	private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
+	private Intent camerasIntent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +115,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
     
-		Intent camerasIntent = new Intent(TrafficMapActivity.this, CamerasSyncService.class);
+		camerasIntent = new Intent(TrafficMapActivity.this, CamerasSyncService.class);
 	    camerasIntent.putExtra(CamerasSyncService.REQUEST_STRING, "http://data.wsdot.wa.gov/mobile/Cameras.js.gz");
 		startService(camerasIntent);        
 
@@ -138,6 +140,8 @@ public class TrafficMapActivity extends SherlockMapActivity {
         map.setBuiltInZoomControls(true);
         map.setTraffic(true);
         map.getController().setZoom(13);
+        
+        map.setOnChangeListener(new MapViewChangeListener());
 	}
 
 	@Override
@@ -157,6 +161,21 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		super.onDestroy();
 		this.unregisterReceiver(mCamerasReceiver);
 		this.unregisterReceiver(mHighwayAlertsSyncReceiver);
+	}
+	
+	private class MapViewChangeListener implements MyMapView.OnChangeListener {
+
+		public void onChange(MapView view, GeoPoint newCenter, GeoPoint oldCenter, int newZoom, int oldZoom) {
+			if ((!newCenter.equals(oldCenter)) && (newZoom != oldZoom)) {
+				startService(camerasIntent);
+			}
+			else if (!newCenter.equals(oldCenter)) {
+				startService(camerasIntent);
+			}
+			else if (newZoom != oldZoom) {
+				startService(camerasIntent);
+			}
+		}	
 	}
 	
 	public class CamerasSyncReceiver extends BroadcastReceiver {
@@ -381,7 +400,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		@Override
 		public void onPreExecute() {
 			setSupportProgressBarIndeterminateVisibility(true);
-			
+
 			if (cameras != null) {
 				map.getOverlays().remove(cameras);
 				map.invalidate();
@@ -392,8 +411,19 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		
 		 @Override
 		 public Void doInBackground(Void... unused) {
-			 cameras = new CamerasOverlay(TrafficMapActivity.this);		 
+			 GeoPoint mapTopLeft = map.getProjection().fromPixels(0, 0);
+			 double topLatitude = (double)(mapTopLeft.getLatitudeE6())/1E6;
+			 double leftLongitude = (double)(mapTopLeft.getLongitudeE6())/1E6;
+   			 GeoPoint mapBottomRight = map.getProjection().fromPixels(map.getWidth(), map.getHeight());
+			 double bottomLatitude = (double)(mapBottomRight.getLatitudeE6())/1E6;
+			 double rightLongitude = (double)(mapBottomRight.getLongitudeE6())/1E6;			 
 			 
+			 cameras = new CamerasOverlay(
+					 TrafficMapActivity.this,
+					 topLatitude, leftLongitude,
+					 bottomLatitude, rightLongitude
+					 );		 
+
 			 return null;
 		 }
 

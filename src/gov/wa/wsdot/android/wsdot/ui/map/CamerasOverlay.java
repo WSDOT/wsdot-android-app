@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui.map;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
 import gov.wa.wsdot.android.wsdot.ui.CameraActivity;
 
 import java.util.ArrayList;
@@ -43,8 +44,13 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 	private static final String DEBUG_TAG = "CamerasOverlay";
 	private ArrayList<CameraItem> mCameraItems = new ArrayList<CameraItem>();
 	private final Activity mActivity;
+	private double mTopLatitude;
+	private double mLeftLongitude;
+	private double mBottomLatitude;
+	private double mRightLongitude;
 	boolean showCameras;
 	boolean showShadows;
+	private ArrayList<LatLonItem> mViewableMapArea = new ArrayList<LatLonItem>();
 
 	private String[] projection = {
 			Cameras.CAMERA_LATITUDE,
@@ -58,16 +64,29 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 		return(new GeoPoint((int)(lat*1E6), (int)(lon*1E6)));
 	}	
 	
-	public CamerasOverlay(Activity activity) {
+	public CamerasOverlay(Activity activity, double topLatitude, double leftLongitude,
+			double bottomLatitude, double rightLongitude) {
+		
 		super(null);
-		mActivity = activity;
+		
+		this.mActivity = activity;
+		this.mTopLatitude = topLatitude;
+		this.mLeftLongitude = leftLongitude;
+		this.mBottomLatitude = bottomLatitude;
+		this.mRightLongitude = rightLongitude;
+		
 		Cursor cameraCursor = null;
+		
+		mViewableMapArea.add(new LatLonItem(mTopLatitude, mLeftLongitude));
+		mViewableMapArea.add(new LatLonItem(mTopLatitude, mRightLongitude));
+		mViewableMapArea.add(new LatLonItem(mBottomLatitude, mRightLongitude));
+		mViewableMapArea.add(new LatLonItem(mBottomLatitude, mLeftLongitude));
 		
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         showShadows = settings.getBoolean("KEY_SHOW_MARKER_SHADOWS", true);
-		
-		try {
+        
+        try {
 			cameraCursor = mActivity.getContentResolver().query(
 					Cameras.CONTENT_URI,
 					projection,
@@ -78,17 +97,20 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 			
 			if (cameraCursor.moveToFirst()) {
 				while (!cameraCursor.isAfterLast()) {
-					int video = cameraCursor.getInt(4);
-					int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
-					
-					mCameraItems.add(new CameraItem(
-							getPoint(cameraCursor.getDouble(0), cameraCursor.getDouble(1)),
-							cameraCursor.getString(2),
-							cameraCursor.getString(3) + "," + video,
-							getMarker(cameraIcon)));
-					
+					if (inPolygon(mViewableMapArea, cameraCursor.getDouble(0), cameraCursor.getDouble(1))) {
+						//Log.d(DEBUG_TAG, "Camera: " + cameraCursor.getString(2));
+						int video = cameraCursor.getInt(4);
+						int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
+						
+						mCameraItems.add(new CameraItem(
+								getPoint(cameraCursor.getDouble(0), cameraCursor.getDouble(1)),
+								cameraCursor.getString(2),
+								cameraCursor.getString(3) + "," + video,
+								getMarker(cameraIcon)));
+					}
 					cameraCursor.moveToNext();
 				}
+				//Log.d(DEBUG_TAG, "Done adding cameras");
 			}
 		 } catch (Exception e) {
 			 Log.e(DEBUG_TAG, "Error in network call", e);
@@ -157,4 +179,29 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 
 		 return(marker);
 	 }
+	 
+	 /**
+	  * Iterate through collection of LatLon objects in arrayList and see
+	  * if passed latitude and longitude point is within the collection.
+	  */	
+	 private boolean inPolygon(ArrayList<LatLonItem> points, double latitude, double longitude) {	
+		 int j = points.size() - 1;
+		 double lat = latitude;
+		 double lon = longitude;		
+		 boolean inPoly = false;
+
+		 for (int i = 0; i < points.size(); i++) {
+			 if ((points.get(i).getLongitude() < lon && points.get(j).getLongitude() >= lon) || 
+					 (points.get(j).getLongitude() < lon && points.get(i).getLongitude() >= lon)) {
+				 if (points.get(i).getLatitude() + (lon - points.get(i).getLongitude()) / 
+						 (points.get(j).getLongitude() - points.get(i).getLongitude()) * 
+						 (points.get(j).getLatitude() - points.get(i).getLatitude()) < lat) {
+					 inPoly = !inPoly;
+				 }
+			 }
+			 j = i;
+		 }
+		 return inPoly;
+	 }
+	 
 }
