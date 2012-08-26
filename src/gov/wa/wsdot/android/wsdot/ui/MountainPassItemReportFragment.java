@@ -21,14 +21,9 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +33,6 @@ import com.actionbarsherlock.app.SherlockFragment;
 
 public class MountainPassItemReportFragment extends SherlockFragment {
 	private static final String DEBUG_TAG = "MountainPassItemDetails";	
-	DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m"); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
-	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	private ViewGroup mRootView;
 	private String mWeatherCondition;
 	private String mTemperatureInFahrenheit;
@@ -68,27 +61,8 @@ public class MountainPassItemReportFragment extends SherlockFragment {
 		} else {
 			mTemperatureInFahrenheit = mTemperatureInFahrenheit + "\u00b0F";
 		}
-
-	    String tempDate = args.getString("DateUpdated");
 	    
-		try {
-			tempDate = tempDate.replace("[", "");
-			tempDate = tempDate.replace("]", "");
-			
-			String[] a = tempDate.split(",");
-			StringBuilder result = new StringBuilder();
-			for (int i=0; i < 5; i++) {
-				result.append(a[i]);
-				result.append(",");
-			}
-			tempDate = result.toString().trim();
-			tempDate = tempDate.substring(0, tempDate.length()-1);
-			Date date = parseDateFormat.parse(tempDate);
-			mDateUpdated = displayDateFormat.format(date);
-		} catch (Exception e) {
-			Log.e(DEBUG_TAG, "Error parsing date: " + tempDate, e);
-		}	    
-		
+		mDateUpdated = args.getString("DateUpdated");
 		mElevationInFeet = args.getString("ElevationInFeet");
 		mRoadCondition = args.getString("RoadCondition");
 		mRestrictionOneTravelDirection = args.getString("RestrictionOneTravelDirection");

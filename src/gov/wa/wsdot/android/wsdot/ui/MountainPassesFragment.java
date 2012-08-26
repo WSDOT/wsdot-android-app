@@ -23,13 +23,17 @@ import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
 import gov.wa.wsdot.android.wsdot.shared.MountainPassItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -66,6 +70,8 @@ public class MountainPassesFragment extends SherlockListFragment
 	implements LoaderCallbacks<ArrayList<MountainPassItem>> {
 	
 	private static final String DEBUG_TAG = "MountainPassConditions";
+	private static DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m"); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
+	private static DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	private static MountainPassItemAdapter adapter;
 	private static ArrayList<MountainPassItem> mountainPassItems = null;
 	private static HashMap<Integer, String[]> weatherPhrases = new HashMap<Integer, String[]>();
@@ -213,7 +219,7 @@ public class MountainPassesFragment extends SherlockListFragment
 	}
     
 	/**
-	 * A custom Loader that loads all of the border wait times from the data server.
+	 * A custom Loader that loads all of the mountain pass info from the data server.
 	 */
 	public static class MountainPassItemsLoader extends AsyncTaskLoader<ArrayList<MountainPassItem>> {
 
@@ -237,7 +243,8 @@ public class MountainPassesFragment extends SherlockListFragment
                 InputStreamReader is = new InputStreamReader(gzin);
                 BufferedReader in = new BufferedReader(is);
 				
-				String jsonFile = "";
+				String mDateUpdated = "";
+                String jsonFile = "";
 				String line;
 				while ((line = in.readLine()) != null)
 					jsonFile += line;
@@ -255,6 +262,27 @@ public class MountainPassesFragment extends SherlockListFragment
 					weatherCondition = pass.getString("WeatherCondition");
 					weather_image = getWeatherImage(weatherPhrases, weatherCondition);
 					i.setWeatherIcon(weather_image);
+					
+				    String tempDate = pass.getString("DateUpdated");
+				    
+					try {
+						tempDate = tempDate.replace("[", "");
+						tempDate = tempDate.replace("]", "");
+						
+						String[] a = tempDate.split(",");
+						StringBuilder sb = new StringBuilder();
+						for (int m=0; m < 5; m++) {
+							sb.append(a[m]);
+							sb.append(",");
+						}
+						tempDate = sb.toString().trim();
+						tempDate = tempDate.substring(0, tempDate.length()-1);
+						Date date = parseDateFormat.parse(tempDate);
+						mDateUpdated = displayDateFormat.format(date);
+					} catch (Exception e) {
+						Log.e(DEBUG_TAG, "Error parsing date: " + tempDate, e);
+						mDateUpdated = "N/A";
+					}					
 					
 					JSONArray cameras = pass.getJSONArray("Cameras");
 					for (int k=0; k < cameras.length(); k++) {
@@ -284,6 +312,9 @@ public class MountainPassesFragment extends SherlockListFragment
 						
 						if (l == 0) {
 							i.setWeatherIcon(weather_image);
+							if (weatherCondition.equals("")) {
+								weatherCondition = f.getForecastText().split("\\.")[0] + ".";
+							}
 						}
 						
 						i.setForecastItem(f);
@@ -297,7 +328,7 @@ public class MountainPassesFragment extends SherlockListFragment
 					i.setRoadCondition(pass.getString("RoadCondition"));
 					i.setTemperatureInFahrenheit(pass.getString("TemperatureInFahrenheit"));
 					i.setLatitude(pass.getString("Latitude"));
-					i.setDateUpdated(pass.getString("DateUpdated"));
+					i.setDateUpdated(mDateUpdated);
 					i.setMountainPassName(pass.getString("MountainPassName"));
 					i.setLongitude(pass.getString("Longitude"));
 					i.setLatitude(pass.getString("Latitude"));
@@ -392,10 +423,11 @@ public class MountainPassesFragment extends SherlockListFragment
 	
 	private class MountainPassItemAdapter extends ArrayAdapter<MountainPassItem> {
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private final LayoutInflater mInflater;
         
         public MountainPassItemAdapter(Context context) {
-                super(context, R.layout.list_item_with_icon);
+                super(context, R.layout.list_item_details_with_icon);
                 mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
@@ -414,20 +446,28 @@ public class MountainPassesFragment extends SherlockListFragment
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 	        if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.list_item_with_icon, null);
+	            convertView = mInflater.inflate(R.layout.list_item_details_with_icon, null);
 	        }
 	        MountainPassItem item = getItem(position);
 	        
 	        if (item != null) {
-	        	TextView tt = (TextView) convertView.findViewById(R.id.title);
-	        	tt.setTypeface(tf);
-	            ImageView iv = (ImageView) convertView.findViewById(R.id.icon);
+	        	TextView title = (TextView) convertView.findViewById(R.id.title);
+	        	title.setTypeface(tfb);
+	        	TextView created_at = (TextView) convertView.findViewById(R.id.created_at);
+	        	created_at.setTypeface(tf);
+	        	TextView text = (TextView) convertView.findViewById(R.id.text);
+	            ImageView icon = (ImageView) convertView.findViewById(R.id.icon);
 	            
-	            if (tt != null) {
-	            	tt.setText(item.getMountainPassName());
+	       		icon.setImageResource(item.getWeatherIcon());
+	            title.setText(item.getMountainPassName());
+	            created_at.setText(ParserUtils.relativeTime(item.getDateUpdated(), "MMMM d, yyyy h:mm a", false));
+	            
+	            if (item.getWeatherCondition().equals("")) {
+	            	text.setVisibility(View.GONE);
+	            } else {
+	            	text.setVisibility(View.VISIBLE);
+	            	text.setText(item.getWeatherCondition());
 	            }
-	            
-	       		iv.setImageResource(item.getWeatherIcon());
 	        }
 	        return convertView;
         }
