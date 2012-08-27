@@ -39,6 +39,11 @@ public class WSDOTContract {
 	    String CAMERA_ROAD_NAME = "camera_road_name";
 	}
 	
+	interface FavoritesColumns {
+		String FAVORITES_ID = "favorites_id";
+		String FAVORITES_TABLE_NAME = "favorites_table_name";
+	}
+	
 	interface HighwayAlertsColumns {
 		String HIGHWAY_ALERT_ID = "highway_alert_id";
 		String HIGHWAY_ALERT_HEADLINE = "highway_alert_headline";
@@ -54,6 +59,7 @@ public class WSDOTContract {
 
 	private static final String PATH_CACHES = "caches";
 	private static final String PATH_CAMERAS = "cameras";
+	private static final String PATH_FAVORITES = "favorites";
 	private static final String PATH_HIGHWAY_ALERTS = "highway_alerts";
 
 	public static class Caches implements BaseColumns, CachesColumns {
@@ -75,6 +81,17 @@ public class WSDOTContract {
 	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/camera";
 	    public static final String CONTENT_ITEM_TYPE =
 	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/camera";
+
+	}
+
+	public static class Favorites implements BaseColumns, FavoritesColumns {
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITES).build();
+		
+	    public static final String CONTENT_TYPE =
+	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/favorite";
+	    public static final String CONTENT_ITEM_TYPE =
+	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/favorite";
 
 	}
 	

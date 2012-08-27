@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.provider;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Favorites;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTDatabase.Tables;
 import android.content.ContentProvider;
@@ -49,8 +50,11 @@ public class WSDOTProvider extends ContentProvider {
     private static final int CAMERAS = 200;
     private static final int CAMERAS_ID = 201;
     
-    private static final int HIGHWAY_ALERTS = 300;
-    private static final int HIGHWAY_ALERTS_ID = 301;
+    private static final int FAVORITES = 300;
+    private static final int FAVORITES_ID = 301;
+    
+    private static final int HIGHWAY_ALERTS = 400;
+    private static final int HIGHWAY_ALERTS_ID = 401;
 
     private static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -60,6 +64,8 @@ public class WSDOTProvider extends ContentProvider {
         matcher.addURI(authority, "caches/#", CACHES_ID);
         matcher.addURI(authority, "cameras", CAMERAS);
         matcher.addURI(authority, "cameras/#", CAMERAS_ID);
+        matcher.addURI(authority, "favorites", FAVORITES);
+        matcher.addURI(authority, "favorites/#", FAVORITES_ID);
         matcher.addURI(authority, "highway_alerts", HIGHWAY_ALERTS);
         matcher.addURI(authority, "highway_alerts/#", HIGHWAY_ALERTS_ID);
         
@@ -84,6 +90,10 @@ public class WSDOTProvider extends ContentProvider {
             return Cameras.CONTENT_TYPE;
         case CAMERAS_ID:
             return Cameras.CONTENT_ITEM_TYPE;
+        case FAVORITES:
+            return Favorites.CONTENT_TYPE;
+        case FAVORITES_ID:
+            return Favorites.CONTENT_ITEM_TYPE;
         case HIGHWAY_ALERTS:
             return HighwayAlerts.CONTENT_TYPE;
         case HIGHWAY_ALERTS_ID:
@@ -116,6 +126,14 @@ public class WSDOTProvider extends ContentProvider {
 	        break;
 	    case CAMERAS_ID:
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.CAMERAS);
+	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
+	        break;
+	    case FAVORITES:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.FAVORITES);
+	    	// no filter
+	        break;
+	    case FAVORITES_ID:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.FAVORITES);
 	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
 	        break;
 	    case HIGHWAY_ALERTS:
@@ -167,6 +185,19 @@ public class WSDOTProvider extends ContentProvider {
                 rowsAffected = sqlDB.delete(Tables.CAMERAS, BaseColumns._ID + "=" + id, null);
             } else {
                 rowsAffected = sqlDB.delete(Tables.CAMERAS,
+                        selection + " and " + BaseColumns._ID + "=" + id,
+                        selectionArgs);
+            }
+            break;
+        case FAVORITES:
+            rowsAffected = sqlDB.delete(Tables.FAVORITES, selection, selectionArgs);
+            break;
+        case FAVORITES_ID:
+            id = uri.getLastPathSegment();
+            if (TextUtils.isEmpty(selection)) {
+                rowsAffected = sqlDB.delete(Tables.FAVORITES, BaseColumns._ID + "=" + id, null);
+            } else {
+                rowsAffected = sqlDB.delete(Tables.FAVORITES,
                         selection + " and " + BaseColumns._ID + "=" + id,
                         selectionArgs);
             }
@@ -256,6 +287,19 @@ public class WSDOTProvider extends ContentProvider {
         case CAMERAS:
             try {
                 long rowId = sqlDB.insertOrThrow(Tables.CAMERAS, null, values);
+                if (rowId > 0) {
+                    Uri newUri = ContentUris.withAppendedId(uri, rowId);
+                    getContext().getContentResolver().notifyChange(uri, null);
+                    return newUri;
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+            } catch (SQLiteConstraintException e) {
+                Log.i(DEBUG_TAG, "Ignoring constraint failure.");
+            }
+        case FAVORITES:
+            try {
+                long rowId = sqlDB.insertOrThrow(Tables.FAVORITES, null, values);
                 if (rowId > 0) {
                     Uri newUri = ContentUris.withAppendedId(uri, rowId);
                     getContext().getContentResolver().notifyChange(uri, null);

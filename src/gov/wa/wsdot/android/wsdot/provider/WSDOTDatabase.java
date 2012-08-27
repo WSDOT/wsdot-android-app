@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.provider;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CachesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CamerasColumns;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FavoritesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -36,6 +37,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
     interface Tables {
     	String CACHES = "caches";
         String CAMERAS = "cameras";
+        String FAVORITES = "favorites";
         String HIGHWAY_ALERTS = "highway_alerts";
     }
     
@@ -60,6 +62,11 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + CamerasColumns.CAMERA_HAS_VIDEO + " INTEGER NOT NULL default 0,"
                 + CamerasColumns.CAMERA_ROAD_NAME + " TEXT);");
         
+        db.execSQL("CREATE TABLE " + Tables.FAVORITES + " ("
+        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + FavoritesColumns.FAVORITES_ID + " INTEGER,"
+                + FavoritesColumns.FAVORITES_TABLE_NAME + " TEXT);");
+		
         db.execSQL("CREATE TABLE " + Tables.HIGHWAY_ALERTS + " ("
         		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
         		+ HighwayAlertsColumns.HIGHWAY_ALERT_ID + " INTEGER,"
@@ -78,6 +85,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 		Log.e(DEBUG_TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CACHES);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMERAS);
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.FAVORITES);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.HIGHWAY_ALERTS);
         
         onCreate(db);		
