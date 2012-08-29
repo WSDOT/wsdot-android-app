@@ -27,7 +27,6 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +43,15 @@ public class FavoritesFragment extends SherlockListFragment
 	private View mEmptyView;
 	private SimpleCursorAdapter adapter;
 
+	private static final String[] cameras_projection = {
+		Cameras._ID,
+		Cameras.CAMERA_ID,
+		Cameras.CAMERA_TITLE,
+		Cameras.CAMERA_IS_FAVORITE
+		};		
+
+	private static final int CAMERAS_LOADER_ID = 0;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -82,7 +90,7 @@ public class FavoritesFragment extends SherlockListFragment
 		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.		
-		getLoaderManager().initLoader(0, null, this);
+		getLoaderManager().initLoader(CAMERAS_LOADER_ID, null, this);
 		
 		adapter = new SimpleCursorAdapter(
 	            getActivity(),
@@ -90,8 +98,10 @@ public class FavoritesFragment extends SherlockListFragment
 	            null,
 	            from,
 	            to,
-	            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-	 
+	            0
+	            );
+		
+		adapter.setViewBinder(new FavoritesViewBinder());
 	    setListAdapter(adapter);
 		
 	    TextView t = (TextView) mEmptyView;
@@ -111,32 +121,49 @@ public class FavoritesFragment extends SherlockListFragment
 		startActivity(intent);
 	}
 
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-	    String[] projection = {
-	    		Cameras._ID,
-	    		Cameras.CAMERA_ID,
-	    		Cameras.CAMERA_TITLE,
-	    		Cameras.CAMERA_IS_FAVORITE
-	    		};		
+	private class FavoritesViewBinder implements SimpleCursorAdapter.ViewBinder {
+
+		public boolean setViewValue(View arg0, Cursor arg1, int arg2) {
+			// TODO Auto-generated method stub
+			return false;
+		}
 		
-		CursorLoader cursorLoader = new CursorLoader(
-				getActivity(),
-				Cameras.CONTENT_URI,
-				projection,
-				Cameras.CAMERA_IS_FAVORITE + "=?",
-				new String[] {Integer.toString(1)},
-				null
-				);
+	}
+	
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+	    CursorLoader cursorLoader = null;
+	    
+		switch(id) {
+	    case 0:
+			cursorLoader = new CursorLoader(
+					getActivity(),
+					Cameras.CONTENT_URI,
+					cameras_projection,
+					Cameras.CAMERA_IS_FAVORITE + "=?",
+					new String[] {Integer.toString(1)},
+					null
+					);
+			break;
+		}
 
 		return cursorLoader;
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		adapter.swapCursor(cursor);
+		switch(loader.getId()) {
+		case 0:
+			adapter.swapCursor(cursor);
+			break;
+		}
+		
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
-		adapter.swapCursor(null);
+		switch(loader.getId()) {
+		case 0:
+			adapter.swapCursor(null);
+			break;
+		}
 	}
     
 }
