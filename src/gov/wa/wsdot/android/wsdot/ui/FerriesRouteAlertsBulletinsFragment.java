@@ -41,12 +41,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 
 public class FerriesRouteAlertsBulletinsFragment extends SherlockListFragment
 	implements LoaderCallbacks<ArrayList<FerriesRouteAlertItem>> {
@@ -101,23 +97,6 @@ public class FerriesRouteAlertsBulletinsFragment extends SherlockListFragment
 		// or start a new one.
         getLoaderManager().initLoader(0, null, this);
 	}
-
-    @Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	super.onCreateOptionsMenu(menu, inflater);
-    	inflater.inflate(R.menu.star, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-	    case R.id.menu_star:
-			Toast.makeText(getActivity(), "Added to Favorites", Toast.LENGTH_SHORT).show();
-			return true;
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}	
 	
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {

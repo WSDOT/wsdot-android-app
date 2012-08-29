@@ -29,6 +29,7 @@ public class FerriesRouteItem implements Serializable {
 	private static final long serialVersionUID = -84316089995566867L;
 	private Integer routeID;
 	private String description;
+	private boolean selected;
 	private ArrayList<FerriesRouteAlertItem> routeAlert = new ArrayList<FerriesRouteAlertItem>();
 	private ArrayList<FerriesScheduleDateItem> scheduleDate = new ArrayList<FerriesScheduleDateItem>();
 
@@ -45,6 +46,14 @@ public class FerriesRouteItem implements Serializable {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+    public boolean isSelected() {
+        return selected;
+    }
+    
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }	
 	
 	public ArrayList<FerriesRouteAlertItem> getFerriesRouteAlertItem() {
 		return routeAlert;

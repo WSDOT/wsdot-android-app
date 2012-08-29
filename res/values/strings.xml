@@ -53,8 +53,11 @@
     <string name="description_favorites">Favorites</string>
     <string name="description_report_image">Report Image</string>
     
+    <string name="add_favorite">Added as favorite.</string>
+    <string name="remove_favorite">Removed as favorite.</string>
+    
     <string name="high_impact_alerts_inactive">No highest impact travel alerts</string>
-    <string name="no_favorites">You have not added any favorites yet.</string>
+    <string name="no_favorites">No favorites added yet.</string>
     
     <string name="search_title">Search</string>
     <string name="search_hint">Search Travel Times</string>

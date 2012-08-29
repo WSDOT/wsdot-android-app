@@ -18,6 +18,9 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import android.content.ContentResolver;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -28,35 +31,73 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 
 public class CameraActivity extends SherlockFragmentActivity {
+	private ContentResolver resolver;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 
+	    resolver = getContentResolver();
+	    Cursor cursor = null;
+	    
+	    int cameraId = 0;
+	    String title = "";
+	    String url = "";
 	    boolean hasVideo = false;
+	    int isFavorite = 0;
+
+	    String[] projection = {
+	    		Cameras.CAMERA_ID,
+	    		Cameras.CAMERA_TITLE,
+	    		Cameras.CAMERA_URL,
+	    		Cameras.CAMERA_HAS_VIDEO,
+	    		Cameras.CAMERA_IS_FAVORITE
+	    		};	    
 	    
 	    Bundle b = getIntent().getExtras();
-	    String title = b.getString("title");
-	    String url = b.getString("url");
+	    int id = b.getInt("id");
 	    
-		String[] param = url.split(",");
-		if (param.length > 1) {
-			hasVideo = Integer.parseInt(param[1]) != 0;
-		}
+		try {
+			cursor = resolver.query(
+					Cameras.CONTENT_URI,
+					projection,
+					Cameras.CAMERA_ID + "=?",
+					new String[] {Integer.toString(id)},
+					null
+					);
+			
+			if (cursor != null && cursor.moveToFirst()) {
+				cameraId = cursor.getInt(0);
+				title = cursor.getString(1);
+				url = cursor.getString(2);
+				hasVideo = cursor.getInt(3) != 0;
+				isFavorite = cursor.getInt(4);
+			}
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}	    
 	    
+		Bundle args = new Bundle();
+		args.putInt("id", cameraId);
+		args.putString("title", title);
+		args.putString("url", url);
+		args.putInt("isFavorite", isFavorite);
+		
         getSupportActionBar().setTitle(title);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         
         ActionBar.Tab reportTab = getSupportActionBar().newTab();
         reportTab.setText("Camera");
-        reportTab.setTabListener(new TabListener<CameraImageFragment>(this, "Camera", CameraImageFragment.class, b));
+        reportTab.setTabListener(new TabListener<CameraImageFragment>(this, "Camera", CameraImageFragment.class, args));
         getSupportActionBar().addTab(reportTab);	    
 	    
 	    if (hasVideo) {
 	        ActionBar.Tab camerasTab = getSupportActionBar().newTab();
 	        camerasTab.setText("Video");
-	        camerasTab.setTabListener(new TabListener<CameraVideoFragment>(this, "Video", CameraVideoFragment.class, b));
+	        camerasTab.setTabListener(new TabListener<CameraVideoFragment>(this, "Video", CameraVideoFragment.class, args));
 	        getSupportActionBar().addTab(camerasTab); 
 	    }
         

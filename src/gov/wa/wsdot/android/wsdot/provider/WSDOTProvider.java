@@ -339,6 +339,9 @@ public class WSDOTProvider extends ContentProvider {
         case CACHES:
         	rowsAffected = sqlDB.update(Tables.CACHES, values, selection, selectionArgs);
         	break;
+        case CAMERAS:
+        	rowsAffected = sqlDB.update(Tables.CAMERAS, values, selection, selectionArgs);
+        	break;
         default:
             throw new IllegalArgumentException("Unknown or Invalid URI");
         }

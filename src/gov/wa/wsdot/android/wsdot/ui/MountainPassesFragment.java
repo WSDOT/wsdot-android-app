@@ -57,6 +57,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -445,37 +448,56 @@ public class MountainPassesFragment extends SherlockListFragment
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
+	        ViewHolder holder;
+        	
+        	if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.list_item_details_with_icon, null);
+	            holder = new ViewHolder();
+	            holder.title = (TextView) convertView.findViewById(R.id.title);
+	            holder.title.setTypeface(tfb);
+	            holder.created_at = (TextView) convertView.findViewById(R.id.created_at);
+	            holder.created_at.setTypeface(tf);
+	            holder.text = (TextView) convertView.findViewById(R.id.text);
+	            holder.text.setTypeface(tf);
+	            holder.icon = (ImageView) convertView.findViewById(R.id.icon);
+	            holder.star_button = (CheckBox) convertView.findViewById(R.id.star_button);
+            	holder.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+					public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
+						int getPosition = (Integer) buttonView.getTag();
+						mountainPassItems.get(getPosition).setSelected(buttonView.isChecked());
+					}
+				});
+            	convertView.setTag(holder);
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
-	        MountainPassItem item = getItem(position);
-	        
-	        if (item != null) {
-	        	TextView title = (TextView) convertView.findViewById(R.id.title);
-	        	title.setTypeface(tfb);
-	        	TextView created_at = (TextView) convertView.findViewById(R.id.created_at);
-	        	created_at.setTypeface(tf);
-	        	TextView text = (TextView) convertView.findViewById(R.id.text);
-	            ImageView icon = (ImageView) convertView.findViewById(R.id.icon);
-	            
-	       		icon.setImageResource(item.getWeatherIcon());
-	            title.setText(item.getMountainPassName());
-	            created_at.setText(ParserUtils.relativeTime(item.getDateUpdated(), "MMMM d, yyyy h:mm a", false));
-	            
-	            if (item.getWeatherCondition().equals("")) {
-	            	text.setVisibility(View.GONE);
-	            } else {
-	            	text.setVisibility(View.VISIBLE);
-	            	text.setText(item.getWeatherCondition());
-	            }
-	        }
+
+        	MountainPassItem item = getItem(position);
+       		holder.icon.setImageResource(item.getWeatherIcon());
+            holder.title.setText(item.getMountainPassName());
+			holder.created_at.setText(ParserUtils.relativeTime(
+					item.getDateUpdated(), "MMMM d, yyyy h:mm a", false));
+            
+            if (item.getWeatherCondition().equals("")) {
+            	holder.text.setVisibility(View.GONE);
+            } else {
+            	holder.text.setVisibility(View.VISIBLE);
+            	holder.text.setText(item.getWeatherCondition());
+            }
+            
+        	holder.star_button.setTag(position);
+        	holder.star_button.setChecked(mountainPassItems.get(position).isSelected());
+
 	        return convertView;
         }
 	}
 	
 	public static class ViewHolder {
-		public ImageView iv;
-		public TextView tt;
+		public ImageView icon;
+		public TextView title;
+		public TextView created_at;
+		public TextView text;
+		public CheckBox star_button;
 	}
 
 }

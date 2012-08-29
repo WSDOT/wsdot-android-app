@@ -60,7 +60,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + CamerasColumns.CAMERA_LATITUDE + " REAL,"
                 + CamerasColumns.CAMERA_LONGITUDE + " REAL,"
                 + CamerasColumns.CAMERA_HAS_VIDEO + " INTEGER NOT NULL default 0,"
-                + CamerasColumns.CAMERA_ROAD_NAME + " TEXT);");
+                + CamerasColumns.CAMERA_ROAD_NAME + " TEXT,"
+                + CamerasColumns.CAMERA_IS_FAVORITE + " INTEGER NOT NULL default 0);");
         
         db.execSQL("CREATE TABLE " + Tables.FAVORITES + " ("
         		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"

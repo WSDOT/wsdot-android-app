@@ -115,6 +115,7 @@ public class CamerasSyncService extends IntentService {
 				JSONObject result = obj.getJSONObject("cameras");
 				JSONArray items = result.getJSONArray("items");
 				List<ContentValues> cams = new ArrayList<ContentValues>();
+				List<Integer> favorites = new ArrayList<Integer>();
 				
 				for (int j=0; j < items.length(); j++) {
 					JSONObject item = items.getJSONObject(j);

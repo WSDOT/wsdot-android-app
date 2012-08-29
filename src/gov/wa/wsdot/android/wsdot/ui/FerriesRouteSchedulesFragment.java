@@ -50,6 +50,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -292,7 +295,7 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         
         public RouteItemAdapter(Context context) {
-	        super(context, R.layout.list_item);
+	        super(context, R.layout.list_item_with_star);
 	        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
@@ -310,24 +313,37 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.list_item, null);
+        	ViewHolder holder;
+        	
+        	if (convertView == null) {
+	            convertView = mInflater.inflate(R.layout.list_item_with_star, null);
+	            holder = new ViewHolder();
+	            holder.title = (TextView) convertView.findViewById(R.id.title);
+	            holder.title.setTypeface(tf);
+	            holder.star_button = (CheckBox) convertView.findViewById(R.id.star_button);
+            	holder.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+					public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
+						int getPosition = (Integer) buttonView.getTag();
+						routeItems.get(getPosition).setSelected(buttonView.isChecked());
+					}
+				});
+            	convertView.setTag(holder);
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
 	        
 	        FerriesRouteItem item = getItem(position);
-	        
-	        if (item != null) {
-	            TextView tt = (TextView) convertView.findViewById(R.id.title);
-	            tt.setTypeface(tf);
-            	tt.setText(item.getDescription());
-	        }
+        	holder.title.setText(item.getDescription());
+        	holder.star_button.setTag(position);
+        	holder.star_button.setChecked(routeItems.get(position).isSelected());
 	        
 	        return convertView;
         }
 	}
 	
 	public static class ViewHolder {
-		public TextView tt;
+		public TextView title;
+		public CheckBox star_button;
 	}	
 	
 }

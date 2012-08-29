@@ -37,6 +37,7 @@ public class WSDOTContract {
 	    String CAMERA_LONGITUDE = "camera_longitude";
 	    String CAMERA_HAS_VIDEO = "camera_has_video";
 	    String CAMERA_ROAD_NAME = "camera_road_name";
+	    String CAMERA_IS_FAVORITE = "camera_is_favorite";
 	}
 	
 	interface FavoritesColumns {

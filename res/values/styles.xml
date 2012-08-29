@@ -92,4 +92,9 @@
         <item name="android:textIsSelectable">true</item>
     </style>    
     
+    <style name="StarButton">
+        <item name="android:background">@drawable/btn_star_label_background</item>
+        <item name="android:button">@drawable/btn_star_holo_light</item>
+    </style>
+    
 </resources>

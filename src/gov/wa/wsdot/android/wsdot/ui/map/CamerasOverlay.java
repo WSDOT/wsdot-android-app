@@ -57,7 +57,8 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 			Cameras.CAMERA_LONGITUDE,
 			Cameras.CAMERA_TITLE,
 			Cameras.CAMERA_URL,
-			Cameras.CAMERA_HAS_VIDEO
+			Cameras.CAMERA_HAS_VIDEO,
+			Cameras.CAMERA_ID
 			};
 
 	private GeoPoint getPoint(double lat, double lon) {
@@ -104,9 +105,11 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 						
 						mCameraItems.add(new CameraItem(
 								getPoint(cameraCursor.getDouble(0), cameraCursor.getDouble(1)),
-								cameraCursor.getString(2),
-								cameraCursor.getString(3) + "," + video,
-								getMarker(cameraIcon)));
+								null,
+								null,
+								getMarker(cameraIcon),
+								cameraCursor.getInt(5)
+								));
 					}
 					cameraCursor.moveToNext();
 				}
@@ -125,10 +128,12 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 	
 	class CameraItem extends OverlayItem {
 		 Drawable marker = null;
+		 int id;
 	
-		 CameraItem(GeoPoint pt, String title, String description, Drawable marker) {
+		 CameraItem(GeoPoint pt, String title, String description, Drawable marker, int id) {
 			 super(pt, title, description);
 			 this.marker = marker;
+			 this.id = id;
 		 }
 
 		 @Override
@@ -155,11 +160,9 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 
 	@Override
 	protected boolean onTap(int i) {
-		OverlayItem item = getItem(i);
 		Bundle b = new Bundle();
 		Intent intent = new Intent(mActivity, CameraActivity.class);
-		b.putString("title", item.getTitle());
-		b.putString("url", item.getSnippet());
+		b.putInt("id", this.mCameraItems.get(i).id);
 		intent.putExtras(b);
 		mActivity.startActivity(intent);
 

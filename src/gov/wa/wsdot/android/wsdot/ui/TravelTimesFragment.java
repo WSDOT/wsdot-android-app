@@ -46,6 +46,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -60,6 +63,7 @@ public class TravelTimesFragment extends SherlockListFragment
 	private static final String DEBUG_TAG = "TravelTimes";
 	private static TravelTimesItemAdapter adapter;
 	private static View mLoadingSpinner;
+	private static ArrayList<TravelTimesItem> travelTimesItems = null;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -151,7 +155,7 @@ public class TravelTimesFragment extends SherlockListFragment
 
 		@Override
 		public ArrayList<TravelTimesItem> loadInBackground() {
-			ArrayList<TravelTimesItem> travelTimesItems = new ArrayList<TravelTimesItem>();
+			travelTimesItems  = new ArrayList<TravelTimesItem>();
 			TravelTimesItem i = null;
 			
 			try {
@@ -269,48 +273,59 @@ public class TravelTimesFragment extends SherlockListFragment
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
+	        ViewHolder holder;
+        	
+        	if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.list_item_travel_times, null);
+	            holder = new ViewHolder();
+	            holder.description = (TextView) convertView.findViewById(R.id.description);
+	            holder.description.setTypeface(tfb);
+	            holder.current_time = (TextView) convertView.findViewById(R.id.current_time);
+	            holder.current_time.setTypeface(tfb);
+	            holder.distance_average_time = (TextView) convertView.findViewById(R.id.distance_average_time);
+	            holder.distance_average_time.setTypeface(tf);
+	            holder.updated = (TextView) convertView.findViewById(R.id.updated);
+	            holder.updated.setTypeface(tf);
+	            holder.star_button = (CheckBox) convertView.findViewById(R.id.star_button);
+            	holder.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+					public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
+						int getPosition = (Integer) buttonView.getTag();
+						travelTimesItems.get(getPosition).setSelected(buttonView.isChecked());
+					}
+				});
+            	convertView.setTag(holder);	            
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
 	        
 	        TravelTimesItem item = getItem(position);
 	        String distance;
 	        String average_time;
-	        
-	        if (item != null) {
-	            TextView description = (TextView) convertView.findViewById(R.id.description);
-	            description.setTypeface(tfb);
-	            TextView current_time = (TextView) convertView.findViewById(R.id.current_time);
-	            current_time.setTypeface(tfb);
-	            TextView distance_average_time = (TextView) convertView.findViewById(R.id.distance_average_time);
-	            distance_average_time.setTypeface(tf);
-	            TextView updated = (TextView) convertView.findViewById(R.id.updated);
-	            updated.setTypeface(tf);
-	            
-            	description.setText(item.getTitle());
-            	distance = item.getDistance();
+            
+        	holder.description.setText(item.getTitle());
+        	distance = item.getDistance();
 
-            	if (Integer.parseInt(item.getAverageTime()) == 0) {
-            		average_time = "Not Available";
-            	} else {
-            		average_time = item.getAverageTime() + " min";
-            	}
+        	if (Integer.parseInt(item.getAverageTime()) == 0) {
+        		average_time = "Not Available";
+        	} else {
+        		average_time = item.getAverageTime() + " min";
+        	}
 
-            	distance_average_time.setText(distance + " / " + average_time);
+        	holder.distance_average_time.setText(distance + " / " + average_time);
 
-            	if (Integer.parseInt(item.getCurrentTime()) < Integer.parseInt(item.getAverageTime())) {
-            		current_time.setTextColor(0xFF008060);
-            	} else if (Integer.parseInt(item.getCurrentTime()) > Integer.parseInt(item.getAverageTime()) && (Integer.parseInt(item.getAverageTime()) != 0)) {
-            		current_time.setTextColor(Color.RED);
-            	} else {
-            		current_time.setTextColor(Color.BLACK);
-            	}
+        	if (Integer.parseInt(item.getCurrentTime()) < Integer.parseInt(item.getAverageTime())) {
+        		holder.current_time.setTextColor(0xFF008060);
+        	} else if (Integer.parseInt(item.getCurrentTime()) > Integer.parseInt(item.getAverageTime()) && (Integer.parseInt(item.getAverageTime()) != 0)) {
+        		holder.current_time.setTextColor(Color.RED);
+        	} else {
+        		holder.current_time.setTextColor(Color.BLACK);
+        	}
 
-            	current_time.setText(item.getCurrentTime() + " min");
-            	updated.setText(item.getUpdated());
-
-	        }
-	        
+        	holder.current_time.setText(item.getCurrentTime() + " min");
+        	holder.updated.setText(item.getUpdated());
+        	holder.star_button.setTag(position);
+        	holder.star_button.setChecked(travelTimesItems.get(position).isSelected());
+        	
 	        return convertView;
         }
 	}
@@ -320,6 +335,7 @@ public class TravelTimesFragment extends SherlockListFragment
 		public TextView current_time;
 		public TextView distance_average_time;
 		public TextView updated;
+		public CheckBox star_button;
 	}	
 
 }

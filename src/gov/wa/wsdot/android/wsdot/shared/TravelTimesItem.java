@@ -25,6 +25,7 @@ public class TravelTimesItem {
 	private String distance;
 	private String updated;
 	private String routeID;
+	private boolean selected;
 
 	public String getTitle() {
 		return title;
@@ -65,5 +66,11 @@ public class TravelTimesItem {
 	}
 	public void setUpdated(String updated) {
 		this.updated = updated;
+	}
+	public boolean isSelected() {
+		return selected;
+	}
+	public void setSelected(boolean selected) {
+		this.selected = selected;
 	}
 }

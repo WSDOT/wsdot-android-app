@@ -19,19 +19,30 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
-public class FavoritesFragment extends SherlockListFragment {
+public class FavoritesFragment extends SherlockListFragment
+	implements LoaderCallbacks<Cursor>{
 
 	private View mLoadingSpinner;
 	private View mEmptyView;
+	private SimpleCursorAdapter adapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -66,9 +77,66 @@ public class FavoritesFragment extends SherlockListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-		TextView t = (TextView) mEmptyView;
+	    String[] from = { Cameras.CAMERA_TITLE };
+	    int[] to = { R.id.title };
+		
+		// Prepare the loader. Either re-connect with an existing one,
+		// or start a new one.		
+		getLoaderManager().initLoader(0, null, this);
+		
+		adapter = new SimpleCursorAdapter(
+	            getActivity(),
+	            R.layout.list_item,
+	            null,
+	            from,
+	            to,
+	            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+	 
+	    setListAdapter(adapter);
+		
+	    TextView t = (TextView) mEmptyView;
 		t.setText(R.string.no_favorites);
-		mEmptyView.setVisibility(View.VISIBLE);
+		getListView().setEmptyView(mEmptyView);	
+	}
+	
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		
+		Cursor c = (Cursor) adapter.getItem(position);
+		Bundle b = new Bundle();
+		Intent intent = new Intent(getActivity(), CameraActivity.class);
+		b.putInt("id", c.getInt(1));
+		intent.putExtras(b);
+		startActivity(intent);
+	}
+
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+	    String[] projection = {
+	    		Cameras._ID,
+	    		Cameras.CAMERA_ID,
+	    		Cameras.CAMERA_TITLE,
+	    		Cameras.CAMERA_IS_FAVORITE
+	    		};		
+		
+		CursorLoader cursorLoader = new CursorLoader(
+				getActivity(),
+				Cameras.CONTENT_URI,
+				projection,
+				Cameras.CAMERA_IS_FAVORITE + "=?",
+				new String[] {Integer.toString(1)},
+				null
+				);
+
+		return cursorLoader;
+	}
+
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		adapter.swapCursor(cursor);
+	}
+
+	public void onLoaderReset(Loader<Cursor> loader) {
+		adapter.swapCursor(null);
 	}
     
 }

@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -61,7 +62,7 @@ public class CameraVideoFragment extends SherlockFragment
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 
-		Bundle args = activity.getIntent().getExtras();
+		Bundle args = getArguments();
 		String url = args.getString("url");
 		
 		int slashIndex = url.lastIndexOf("/");
@@ -129,7 +130,7 @@ public class CameraVideoFragment extends SherlockFragment
 	        
 	        mVideoView.setOnErrorListener(new OnErrorListener() {
 	        	public boolean onError(MediaPlayer mp, int what, int extra) {
-	        		Toast.makeText(getActivity(), "Error occured", 500).show();
+	        		Toast.makeText(getActivity(), "Error occured", Toast.LENGTH_SHORT).show();
 	 				return false;
 	 			}
 	 		});
@@ -149,6 +150,7 @@ public class CameraVideoFragment extends SherlockFragment
 			this.mContext = context;
 		}
 
+		@SuppressLint("WorldReadableFiles")
 		@Override
 		public Boolean loadInBackground() {
 	    	FileOutputStream fos = null;

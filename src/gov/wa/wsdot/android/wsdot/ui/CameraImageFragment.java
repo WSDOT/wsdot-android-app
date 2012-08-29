@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,7 +27,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -62,8 +65,11 @@ public class CameraImageFragment extends SherlockFragment
 	private static ProgressBar mLoadingSpinner;
 	private ImageView mImage;
 	private String mTitle;
+	private int mId;
 	private static String mCameraName = "cameraImage.jpg";
 	private ShareActionProvider actionProvider;
+	private boolean mIsStarred = false;
+	private ContentResolver resolver;
 	
 	static final private int MENU_ITEM_REFRESH = Menu.FIRST;
 	static final private int MENU_ITEM_STAR = Menu.FIRST + 1;
@@ -72,17 +78,18 @@ public class CameraImageFragment extends SherlockFragment
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		
-		Bundle args = activity.getIntent().getExtras();
+		Bundle args = getArguments();
+		mId = args.getInt("id");
 		mTitle = args.getString("title");
-		String path = args.getString("url");    
-		String[] param = path.split(",");
-		mUrl = param[0];
+		mUrl = args.getString("url");
+		mIsStarred = args.getInt("isFavorite") != 0;
+		Log.d("CameraImageFragment", mUrl);
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		
         // Tell the framework to try to keep this fragment around
         // during a configuration change.		
         setRetainInstance(true);
@@ -115,6 +122,20 @@ public class CameraImageFragment extends SherlockFragment
 	}
 
 	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star)
+			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		
+		if (mIsStarred) {
+			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
+		} else {
+			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
+		}
+		
+		super.onPrepareOptionsMenu(menu);
+	}	
+	
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.share_action_provider, menu);
 
@@ -126,10 +147,6 @@ public class CameraImageFragment extends SherlockFragment
 		menu.add(0, MENU_ITEM_REFRESH, menu.size(), R.string.description_refresh)
 			.setIcon(R.drawable.ic_menu_refresh)
 			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-
-        menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star)
-			.setIcon(R.drawable.ic_menu_star)
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);       
     }
 
 	@Override
@@ -141,13 +158,55 @@ public class CameraImageFragment extends SherlockFragment
 			getLoaderManager().restartLoader(0, null, this);
 			return true;
 		case MENU_ITEM_STAR:
-			Toast.makeText(getSherlockActivity(), "Starred", Toast.LENGTH_SHORT).show();
+			toggleStar(item);
 			return true;		
 		}
 		
 		return super.onOptionsItemSelected(item);
 	}    
     
+	private void toggleStar(MenuItem item) {
+		resolver = getActivity().getContentResolver();
+		
+		if (mIsStarred) {
+			item.setIcon(R.drawable.ic_menu_star);
+			try {
+				ContentValues values = new ContentValues();
+				values.put(Cameras.CAMERA_IS_FAVORITE, 0);
+				resolver.update(
+						Cameras.CONTENT_URI,
+						values,
+						Cameras.CAMERA_ID + "=?",
+						new String[] {Integer.toString(mId)}
+						);
+				
+				Toast.makeText(getSherlockActivity(), R.string.remove_favorite, Toast.LENGTH_SHORT).show();			
+				mIsStarred = false;
+	    	} catch (Exception e) {
+	    		Toast.makeText(getSherlockActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+	    		Log.e("CameraImageFragment", "Error: " + e.getMessage());
+	    	}
+		} else {
+			item.setIcon(R.drawable.ic_menu_star_on);
+			try {
+				ContentValues values = new ContentValues();
+				values.put(Cameras.CAMERA_IS_FAVORITE, 1);
+				resolver.update(
+						Cameras.CONTENT_URI,
+						values,
+						Cameras.CAMERA_ID + "=?",
+						new String[] {Integer.toString(mId)}
+						);			
+				
+				Toast.makeText(getSherlockActivity(), R.string.add_favorite, Toast.LENGTH_SHORT).show();
+				mIsStarred = true;
+			} catch (Exception e) {
+				Toast.makeText(getSherlockActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+	    		Log.e("CameraImageFragment", "Error: " + e.getMessage());
+	    	}
+		}		
+	}
+
 	private Intent createShareIntent() {
 		File f = new File(getActivity().getFilesDir(), mCameraName);
 	    ContentValues values = new ContentValues(2);
@@ -191,6 +250,7 @@ public class CameraImageFragment extends SherlockFragment
 			this.mContext = context;
 		}
 
+		@SuppressLint("WorldReadableFiles")
 		@SuppressWarnings("deprecation")
 		@Override
 		public Drawable loadInBackground() {

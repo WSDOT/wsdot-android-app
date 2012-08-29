@@ -13,13 +13,23 @@
         android:layout_marginRight="14dp"
         />
 
+	<CheckBox
+    	android:id="@+id/star_button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="7dp"    	
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/description_star"
+        style="@style/StarButton" />
+    
     <TextView
         android:id="@+id/title"
-        android:textSize="@dimen/text_size_large"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/star_button"
         android:layout_toRightOf="@+id/icon"
-        />
+        android:textSize="@dimen/text_size_large" />
 
     <TextView
         android:id="@+id/created_at"

@@ -4,14 +4,24 @@
     android:layout_height="wrap_content"
     android:padding="14dp">
 
+	<CheckBox
+    	android:id="@+id/star_button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="7dp"    	
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/description_star"
+        style="@style/StarButton" />    
+    
 	<TextView
 	    android:id="@+id/description"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentLeft="true"
 	    android:layout_alignParentTop="true"
-	    android:layout_marginRight="14dp"
-	    android:layout_toLeftOf="@+id/current_time"
+	    android:layout_marginRight="7dp"
+	    android:layout_toLeftOf="@+id/star_button"
 	    android:textSize="@dimen/text_size_medium" />
 		
 	<TextView
@@ -19,8 +29,9 @@
 		android:textSize="@dimen/text_size_large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-		android:layout_alignParentRight="true" />	
+        android:layout_below="@+id/star_button"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentBottom="true" />	
 	
 	<TextView
 	    android:id="@+id/distance_average_time"
