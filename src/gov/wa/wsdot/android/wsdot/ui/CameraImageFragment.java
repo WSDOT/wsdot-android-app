@@ -82,7 +82,7 @@ public class CameraImageFragment extends SherlockFragment
 		mId = args.getInt("id");
 		mTitle = args.getString("title");
 		mUrl = args.getString("url");
-		mIsStarred = args.getInt("isFavorite") != 0;
+		mIsStarred = args.getInt("isStarred") != 0;
 	}
 
 	@Override
@@ -171,7 +171,7 @@ public class CameraImageFragment extends SherlockFragment
 			item.setIcon(R.drawable.ic_menu_star);
 			try {
 				ContentValues values = new ContentValues();
-				values.put(Cameras.CAMERA_IS_FAVORITE, 0);
+				values.put(Cameras.CAMERA_IS_STARRED, 0);
 				resolver.update(
 						Cameras.CONTENT_URI,
 						values,
@@ -189,7 +189,7 @@ public class CameraImageFragment extends SherlockFragment
 			item.setIcon(R.drawable.ic_menu_star_on);
 			try {
 				ContentValues values = new ContentValues();
-				values.put(Cameras.CAMERA_IS_FAVORITE, 1);
+				values.put(Cameras.CAMERA_IS_STARRED, 1);
 				resolver.update(
 						Cameras.CONTENT_URI,
 						values,

@@ -20,8 +20,8 @@ package gov.wa.wsdot.android.wsdot.provider;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Favorites;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTDatabase.Tables;
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -50,12 +50,12 @@ public class WSDOTProvider extends ContentProvider {
     private static final int CAMERAS = 200;
     private static final int CAMERAS_ID = 201;
     
-    private static final int FAVORITES = 300;
-    private static final int FAVORITES_ID = 301;
-    
-    private static final int HIGHWAY_ALERTS = 400;
-    private static final int HIGHWAY_ALERTS_ID = 401;
+    private static final int HIGHWAY_ALERTS = 300;
+    private static final int HIGHWAY_ALERTS_ID = 301;
 
+    private static final int MOUNTAIN_PASSES = 400;
+    private static final int MOUNTAIN_PASSES_ID = 401;
+    
     private static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = WSDOTContract.CONTENT_AUTHORITY;
@@ -64,10 +64,10 @@ public class WSDOTProvider extends ContentProvider {
         matcher.addURI(authority, "caches/#", CACHES_ID);
         matcher.addURI(authority, "cameras", CAMERAS);
         matcher.addURI(authority, "cameras/#", CAMERAS_ID);
-        matcher.addURI(authority, "favorites", FAVORITES);
-        matcher.addURI(authority, "favorites/#", FAVORITES_ID);
         matcher.addURI(authority, "highway_alerts", HIGHWAY_ALERTS);
         matcher.addURI(authority, "highway_alerts/#", HIGHWAY_ALERTS_ID);
+        matcher.addURI(authority, "mountain_passses", MOUNTAIN_PASSES);
+        matcher.addURI(authority, "mountain_passes/#", MOUNTAIN_PASSES_ID);
         
         return matcher;
 	}
@@ -90,14 +90,14 @@ public class WSDOTProvider extends ContentProvider {
             return Cameras.CONTENT_TYPE;
         case CAMERAS_ID:
             return Cameras.CONTENT_ITEM_TYPE;
-        case FAVORITES:
-            return Favorites.CONTENT_TYPE;
-        case FAVORITES_ID:
-            return Favorites.CONTENT_ITEM_TYPE;
         case HIGHWAY_ALERTS:
             return HighwayAlerts.CONTENT_TYPE;
         case HIGHWAY_ALERTS_ID:
             return HighwayAlerts.CONTENT_ITEM_TYPE;
+        case MOUNTAIN_PASSES:
+            return MountainPasses.CONTENT_TYPE;
+        case MOUNTAIN_PASSES_ID:
+            return MountainPasses.CONTENT_ITEM_TYPE;
         default:
         	throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -128,14 +128,6 @@ public class WSDOTProvider extends ContentProvider {
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.CAMERAS);
 	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
 	        break;
-	    case FAVORITES:
-	    	queryBuilder.setTables(WSDOTDatabase.Tables.FAVORITES);
-	    	// no filter
-	        break;
-	    case FAVORITES_ID:
-	    	queryBuilder.setTables(WSDOTDatabase.Tables.FAVORITES);
-	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
-	        break;
 	    case HIGHWAY_ALERTS:
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.HIGHWAY_ALERTS);
 	    	// no filter
@@ -144,6 +136,14 @@ public class WSDOTProvider extends ContentProvider {
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.HIGHWAY_ALERTS);
 	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
 	        break;	        
+	    case MOUNTAIN_PASSES:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.MOUNTAIN_PASSES);
+	    	// no filter
+	        break;
+	    case MOUNTAIN_PASSES_ID:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.MOUNTAIN_PASSES);
+	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
+	        break;
 	    default:
 	    	throw new IllegalArgumentException("Unknown URI " + uri);
 	    }
@@ -189,19 +189,6 @@ public class WSDOTProvider extends ContentProvider {
                         selectionArgs);
             }
             break;
-        case FAVORITES:
-            rowsAffected = sqlDB.delete(Tables.FAVORITES, selection, selectionArgs);
-            break;
-        case FAVORITES_ID:
-            id = uri.getLastPathSegment();
-            if (TextUtils.isEmpty(selection)) {
-                rowsAffected = sqlDB.delete(Tables.FAVORITES, BaseColumns._ID + "=" + id, null);
-            } else {
-                rowsAffected = sqlDB.delete(Tables.FAVORITES,
-                        selection + " and " + BaseColumns._ID + "=" + id,
-                        selectionArgs);
-            }
-            break;
         case HIGHWAY_ALERTS:
             rowsAffected = sqlDB.delete(Tables.HIGHWAY_ALERTS, selection, selectionArgs);
             break;
@@ -215,14 +202,25 @@ public class WSDOTProvider extends ContentProvider {
                         selectionArgs);
             }
             break;            
+        case MOUNTAIN_PASSES:
+            rowsAffected = sqlDB.delete(Tables.MOUNTAIN_PASSES, selection, selectionArgs);
+            break;
+        case MOUNTAIN_PASSES_ID:
+            id = uri.getLastPathSegment();
+            if (TextUtils.isEmpty(selection)) {
+                rowsAffected = sqlDB.delete(Tables.MOUNTAIN_PASSES, BaseColumns._ID + "=" + id, null);
+            } else {
+                rowsAffected = sqlDB.delete(Tables.MOUNTAIN_PASSES,
+                        selection + " and " + BaseColumns._ID + "=" + id,
+                        selectionArgs);
+            }
+            break;
         default:
             throw new IllegalArgumentException("Unknown or Invalid URI " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
         return rowsAffected;
 	}
-
-	
 	
 	@Override
 	public int bulkInsert(Uri uri, ContentValues[] values) {
@@ -297,9 +295,9 @@ public class WSDOTProvider extends ContentProvider {
             } catch (SQLiteConstraintException e) {
                 Log.i(DEBUG_TAG, "Ignoring constraint failure.");
             }
-        case FAVORITES:
+        case HIGHWAY_ALERTS:
             try {
-                long rowId = sqlDB.insertOrThrow(Tables.FAVORITES, null, values);
+                long rowId = sqlDB.insertOrThrow(Tables.HIGHWAY_ALERTS, null, values);
                 if (rowId > 0) {
                     Uri newUri = ContentUris.withAppendedId(uri, rowId);
                     getContext().getContentResolver().notifyChange(uri, null);
@@ -310,9 +308,9 @@ public class WSDOTProvider extends ContentProvider {
             } catch (SQLiteConstraintException e) {
                 Log.i(DEBUG_TAG, "Ignoring constraint failure.");
             }
-        case HIGHWAY_ALERTS:
+        case MOUNTAIN_PASSES:
             try {
-                long rowId = sqlDB.insertOrThrow(Tables.HIGHWAY_ALERTS, null, values);
+                long rowId = sqlDB.insertOrThrow(Tables.MOUNTAIN_PASSES, null, values);
                 if (rowId > 0) {
                     Uri newUri = ContentUris.withAppendedId(uri, rowId);
                     getContext().getContentResolver().notifyChange(uri, null);
@@ -341,6 +339,9 @@ public class WSDOTProvider extends ContentProvider {
         	break;
         case CAMERAS:
         	rowsAffected = sqlDB.update(Tables.CAMERAS, values, selection, selectionArgs);
+        	break;
+        case MOUNTAIN_PASSES:
+        	rowsAffected = sqlDB.update(Tables.MOUNTAIN_PASSES, values, selection, selectionArgs);
         	break;
         default:
             throw new IllegalArgumentException("Unknown or Invalid URI");

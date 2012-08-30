@@ -37,12 +37,7 @@ public class WSDOTContract {
 	    String CAMERA_LONGITUDE = "camera_longitude";
 	    String CAMERA_HAS_VIDEO = "camera_has_video";
 	    String CAMERA_ROAD_NAME = "camera_road_name";
-	    String CAMERA_IS_FAVORITE = "camera_is_favorite";
-	}
-	
-	interface FavoritesColumns {
-		String FAVORITES_ID = "favorites_id";
-		String FAVORITES_TABLE_NAME = "favorites_table_name";
+	    String CAMERA_IS_STARRED = "camera_is_starred";
 	}
 	
 	interface HighwayAlertsColumns {
@@ -54,15 +49,33 @@ public class WSDOTContract {
 		String HIGHWAY_ALERT_PRIORITY = "highway_alert_priority";
 		String HIGHWAY_ALERT_ROAD_NAME = "highway_alert_road_name";
 	}
+
+	interface MountainPassesColumns {
+		String MOUNTAIN_PASS_ID = "id";
+		String MOUNTAIN_PASS_NAME = "name";
+		String MOUNTAIN_PASS_WEATHER_CONDITION = "weather_condition";
+		String MOUNTAIN_PASS_ELEVATION = "elevation";
+		String MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE = "travel_advisory_active";
+		String MOUNTAIN_PASS_ROAD_CONDITION = "road_condition";
+		String MOUNTAIN_PASS_TEMPERATURE = "temperature";
+		String MOUNTAIN_PASS_DATE_UPDATED = "date_updated";
+		String MOUNTAIN_PASS_RESTRICTION_ONE = "restriction_one";
+		String MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION = "restriction_one_direction";
+		String MOUNTAIN_PASS_RESTRICTION_TWO = "restriction_two";
+		String MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION = "restriction_two_direction";
+		String MOUNTAIN_PASS_CAMERA = "camera";
+		String MOUNTAIN_PASS_FORECAST = "forecast";
+		String MOUNTAIN_PASS_IS_STARRED = "is_starred";
+	}	
 	
 	public static final String CONTENT_AUTHORITY = "gov.wa.wsdot.android.wsdot.provider.WSDOTProvider";
 	public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
 	private static final String PATH_CACHES = "caches";
 	private static final String PATH_CAMERAS = "cameras";
-	private static final String PATH_FAVORITES = "favorites";
 	private static final String PATH_HIGHWAY_ALERTS = "highway_alerts";
-
+	private static final String PATH_MOUNTAIN_PASSES = "mountain_passes";
+	
 	public static class Caches implements BaseColumns, CachesColumns {
 		public static final Uri CONTENT_URI =
 				BASE_CONTENT_URI.buildUpon().appendPath(PATH_CACHES).build();
@@ -84,17 +97,6 @@ public class WSDOTContract {
 	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/camera";
 
 	}
-
-	public static class Favorites implements BaseColumns, FavoritesColumns {
-		public static final Uri CONTENT_URI =
-				BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITES).build();
-		
-	    public static final String CONTENT_TYPE =
-	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/favorite";
-	    public static final String CONTENT_ITEM_TYPE =
-	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/favorite";
-
-	}
 	
 	public static class HighwayAlerts implements BaseColumns, HighwayAlertsColumns {
 		public static final Uri CONTENT_URI =
@@ -104,6 +106,17 @@ public class WSDOTContract {
 	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/highway_alert";
 	    public static final String CONTENT_ITEM_TYPE =
 	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/highway_alert";		
+	}
+	
+	public static class MountainPasses implements BaseColumns, MountainPassesColumns {
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOUNTAIN_PASSES).build();
+		
+	    public static final String CONTENT_TYPE =
+	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/mountain_pass";
+	    public static final String CONTENT_ITEM_TYPE =
+	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/mountain_pass";
+
 	}
 	
 	private WSDOTContract() {

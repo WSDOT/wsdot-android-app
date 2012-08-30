@@ -52,7 +52,7 @@ public class FavoritesFragment extends SherlockListFragment
 		Cameras._ID,
 		Cameras.CAMERA_ID,
 		Cameras.CAMERA_TITLE,
-		Cameras.CAMERA_IS_FAVORITE
+		Cameras.CAMERA_IS_STARRED
 		};		
 
 	private static final int CAMERAS_LOADER_ID = 0;
@@ -125,7 +125,7 @@ public class FavoritesFragment extends SherlockListFragment
 					getActivity(),
 					Cameras.CONTENT_URI,
 					cameras_projection,
-					Cameras.CAMERA_IS_FAVORITE + "=?",
+					Cameras.CAMERA_IS_STARRED + "=?",
 					new String[] {Integer.toString(1)},
 					null
 					);

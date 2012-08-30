@@ -20,8 +20,8 @@ package gov.wa.wsdot.android.wsdot.provider;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CachesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CamerasColumns;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FavoritesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPassesColumns;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -37,8 +37,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
     interface Tables {
     	String CACHES = "caches";
         String CAMERAS = "cameras";
-        String FAVORITES = "favorites";
         String HIGHWAY_ALERTS = "highway_alerts";
+        String MOUNTAIN_PASSES = "mountain_passes";
     }
     
 	public WSDOTDatabase(Context context) {
@@ -61,12 +61,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + CamerasColumns.CAMERA_LONGITUDE + " REAL,"
                 + CamerasColumns.CAMERA_HAS_VIDEO + " INTEGER NOT NULL default 0,"
                 + CamerasColumns.CAMERA_ROAD_NAME + " TEXT,"
-                + CamerasColumns.CAMERA_IS_FAVORITE + " INTEGER NOT NULL default 0);");
-        
-        db.execSQL("CREATE TABLE " + Tables.FAVORITES + " ("
-        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + FavoritesColumns.FAVORITES_ID + " INTEGER,"
-                + FavoritesColumns.FAVORITES_TABLE_NAME + " TEXT);");
+                + CamerasColumns.CAMERA_IS_STARRED + " INTEGER NOT NULL default 0);");
 		
         db.execSQL("CREATE TABLE " + Tables.HIGHWAY_ALERTS + " ("
         		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -78,16 +73,34 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + HighwayAlertsColumns.HIGHWAY_ALERT_PRIORITY + " TEXT,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_ROAD_NAME + " TEXT);");
 
+        db.execSQL("CREATE TABLE " + Tables.MOUNTAIN_PASSES + " ("
+        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_ID + " INTEGER,"
+                + MountainPassesColumns.MOUNTAIN_PASS_NAME + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_CONDITION + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_ELEVATION + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_ROAD_CONDITION + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_TEMPERATURE + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_DATE_UPDATED + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED + " INTEGER NOT NULL default 0);");
+        
         seedData(db);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.e(DEBUG_TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
+		Log.d(DEBUG_TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CACHES);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMERAS);
-		db.execSQL("DROP TABLE IF EXISTS " + Tables.FAVORITES);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.HIGHWAY_ALERTS);
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.MOUNTAIN_PASSES);
         
         onCreate(db);		
 	}
@@ -95,6 +108,23 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 	private void seedData(SQLiteDatabase db) {
 		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('cameras', 0);");
 		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('highway_alerts', 0);");
+		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('mountain_passes', 0);");
+		
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (1, 'Blewett Pass US 97', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (2, 'Cayuse Pass SR 123', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (3, 'Chinook Pass SR 410', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (5, 'Crystal to Greenwater SR 410', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (15, 'Disautel Pass SR 155', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (14, 'Loup Loup Pass SR 20', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (13, 'Manastash Ridge I-82', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (6, 'Mt. Baker Hwy SR 542', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (7, 'North Cascade Hwy SR 20', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (8, 'Satus Pass US 97', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (9, 'Sherman Pass SR 20', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (11, 'Snoqualmie Pass I-90', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (10, 'Stevens Pass US 2', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (16, 'Wauconda Pass SR 20', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
+		db.execSQL("insert into mountain_passes (id, name, weather_condition, elevation, travel_advisory_active, road_condition, temperature, date_updated, restriction_one, restriction_one_direction, restriction_two, restriction_two_direction, camera, forecast, is_starred) values (12, 'White Pass US 12', '', '', '', '', '', '', '', '', '', '', '', '', 0);");
 	}
 	
 }

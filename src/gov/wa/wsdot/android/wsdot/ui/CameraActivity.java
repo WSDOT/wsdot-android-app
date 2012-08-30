@@ -44,14 +44,14 @@ public class CameraActivity extends SherlockFragmentActivity {
 	    String title = "";
 	    String url = "";
 	    boolean hasVideo = false;
-	    int isFavorite = 0;
+	    int isStarred = 0;
 
 	    String[] projection = {
 	    		Cameras.CAMERA_ID,
 	    		Cameras.CAMERA_TITLE,
 	    		Cameras.CAMERA_URL,
 	    		Cameras.CAMERA_HAS_VIDEO,
-	    		Cameras.CAMERA_IS_FAVORITE
+	    		Cameras.CAMERA_IS_STARRED
 	    		};	    
 	    
 	    Bundle b = getIntent().getExtras();
@@ -71,7 +71,7 @@ public class CameraActivity extends SherlockFragmentActivity {
 				title = cursor.getString(1);
 				url = cursor.getString(2);
 				hasVideo = cursor.getInt(3) != 0;
-				isFavorite = cursor.getInt(4);
+				isStarred = cursor.getInt(4);
 			}
 		} finally {
 			if (cursor != null) {
@@ -83,7 +83,7 @@ public class CameraActivity extends SherlockFragmentActivity {
 		args.putInt("id", cameraId);
 		args.putString("title", title);
 		args.putString("url", url);
-		args.putInt("isFavorite", isFavorite);
+		args.putInt("isStarred", isStarred);
 		
         getSupportActionBar().setTitle(title);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

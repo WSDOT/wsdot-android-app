@@ -44,7 +44,7 @@ import android.util.Log;
 
 public class CamerasSyncService extends IntentService {
 	
-	private static final String DEBUG_TAG = "CameraDownloadService";
+	private static final String DEBUG_TAG = "CamerasSyncService";
     public static final String REQUEST_STRING = "cameraRequest";
     public static final String REQUEST_FORCE_UPDATE = "false";
     public static final String RESPONSE_STRING = "cameraResponse";
@@ -54,7 +54,7 @@ public class CamerasSyncService extends IntentService {
     		};
     
     public CamerasSyncService() {
-		super("CameraDownloadService");
+		super("CamerasSyncService");
 	}
 
 	@Override
