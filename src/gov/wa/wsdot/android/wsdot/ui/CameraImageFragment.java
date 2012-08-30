@@ -83,7 +83,6 @@ public class CameraImageFragment extends SherlockFragment
 		mTitle = args.getString("title");
 		mUrl = args.getString("url");
 		mIsStarred = args.getInt("isFavorite") != 0;
-		Log.d("CameraImageFragment", mUrl);
 	}
 
 	@Override

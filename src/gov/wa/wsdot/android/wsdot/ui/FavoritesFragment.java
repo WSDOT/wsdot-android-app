@@ -20,14 +20,18 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.ui.widget.SeparatedListAdapter;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +45,8 @@ public class FavoritesFragment extends SherlockListFragment
 
 	private View mLoadingSpinner;
 	private View mEmptyView;
-	private SimpleCursorAdapter adapter;
+	private SeparatedListAdapter mAdapter;
+	private CameraAdapter mCameraAdapter;
 
 	private static final String[] cameras_projection = {
 		Cameras._ID,
@@ -84,25 +89,10 @@ public class FavoritesFragment extends SherlockListFragment
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+
+		mCameraAdapter = new CameraAdapter(getActivity(), null, false);
 		
-	    String[] from = { Cameras.CAMERA_TITLE };
-	    int[] to = { R.id.title };
-		
-		// Prepare the loader. Either re-connect with an existing one,
-		// or start a new one.		
 		getLoaderManager().initLoader(CAMERAS_LOADER_ID, null, this);
-		
-		adapter = new SimpleCursorAdapter(
-	            getActivity(),
-	            R.layout.list_item,
-	            null,
-	            from,
-	            to,
-	            0
-	            );
-		
-		adapter.setViewBinder(new FavoritesViewBinder());
-	    setListAdapter(adapter);
 		
 	    TextView t = (TextView) mEmptyView;
 		t.setText(R.string.no_favorites);
@@ -113,23 +103,19 @@ public class FavoritesFragment extends SherlockListFragment
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		
-		Cursor c = (Cursor) adapter.getItem(position);
-		Bundle b = new Bundle();
-		Intent intent = new Intent(getActivity(), CameraActivity.class);
-		b.putInt("id", c.getInt(1));
-		intent.putExtras(b);
-		startActivity(intent);
-	}
-
-	private class FavoritesViewBinder implements SimpleCursorAdapter.ViewBinder {
-
-		public boolean setViewValue(View arg0, Cursor arg1, int arg2) {
-			// TODO Auto-generated method stub
-			return false;
-		}
+		String type = (String) ((Object[]) v.getTag())[1];
+		Log.d("FavoritesFragment", type);
 		
+		if (type.equals("camera")) {
+			Cursor c = (Cursor) mAdapter.getItem(position);
+			Bundle b = new Bundle();
+			Intent intent = new Intent(getActivity(), CameraActivity.class);
+			b.putInt("id", c.getInt(1));
+			intent.putExtras(b);
+			startActivity(intent);
+		}
 	}
-	
+
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 	    CursorLoader cursorLoader = null;
 	    
@@ -150,20 +136,63 @@ public class FavoritesFragment extends SherlockListFragment
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		mAdapter = new SeparatedListAdapter(getActivity());
+		
 		switch(loader.getId()) {
 		case 0:
-			adapter.swapCursor(cursor);
+			mCameraAdapter.swapCursor(cursor);
+			if (cursor.moveToFirst()) {
+				mAdapter.addSection("Cameras", mCameraAdapter);
+			}
 			break;
 		}
+		
+		setListAdapter(mAdapter);
 		
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
 		switch(loader.getId()) {
 		case 0:
-			adapter.swapCursor(null);
+			mCameraAdapter.swapCursor(null);
 			break;
 		}
+	}
+	
+	public class CameraAdapter extends CursorAdapter {
+        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+        
+		public CameraAdapter(Context context, Cursor c, boolean autoRequery) {
+			super(context, c, autoRequery);
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+            ViewHolder viewholder = (ViewHolder) ((Object[]) view.getTag())[0];
+
+            String title = cursor.getString(2); // CAMERA_TITLE
+            viewholder.title.setText(title);
+            viewholder.title.setTypeface(tf);
+		}
+
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            View view = LayoutInflater.from(context).inflate(R.layout.list_item, null);
+            ViewHolder viewholder = new ViewHolder(view);
+            view.setTag(new Object[] { viewholder, "camera" });
+            
+            return view;
+		}
+		
+        private class ViewHolder {
+            TextView title;
+
+            public ViewHolder(View view) {
+                    title = (TextView) view.findViewById(R.id.title);
+            }
+        }		
+		
 	}
     
 }
