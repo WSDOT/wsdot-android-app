@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
 import gov.wa.wsdot.android.wsdot.shared.MountainPassItem;
@@ -45,8 +46,10 @@ import java.util.zip.GZIPInputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -80,6 +83,8 @@ public class MountainPassesFragment extends SherlockListFragment
 	private static HashMap<Integer, String[]> weatherPhrases = new HashMap<Integer, String[]>();
 	private static HashMap<Integer, String[]> weatherPhrasesNight = new HashMap<Integer, String[]>();
 	private static View mLoadingSpinner;
+	private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
+	private static final String MOUNTAINPASS_URL = "http://data.wsdot.wa.gov/mobile/MountainPassConditions.js.gz";
 	
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -87,9 +92,19 @@ public class MountainPassesFragment extends SherlockListFragment
         
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
-        setRetainInstance(true);
+        //setRetainInstance(true);
 		setHasOptionsMenu(true);         
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/Mountain Passes");
+        
+		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
+		filter.addCategory(Intent.CATEGORY_DEFAULT);
+		mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
+		getActivity().registerReceiver(mMountainPassesSyncReceiver, filter);
+		
+    	Intent intent = new Intent(getActivity(), MountainPassesSyncService.class);
+	    intent.putExtra("url", MOUNTAINPASS_URL);
+		getActivity().startService(intent);
+		
+		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Mountain Passes");
     }
 
     @SuppressWarnings("deprecation")
@@ -121,7 +136,14 @@ public class MountainPassesFragment extends SherlockListFragment
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);        
 	}
-    
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		
+		getActivity().unregisterReceiver(mMountainPassesSyncReceiver);
+	}
+
 	private void buildWeatherPhrases() {
 		String[] weather_clear = {"fair", "sunny", "clear"};
 		String[] weather_few_clouds = {"few clouds", "scattered clouds", "mostly sunny", "mostly clear"};
@@ -178,7 +200,10 @@ public class MountainPassesFragment extends SherlockListFragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.menu_refresh:
-			getLoaderManager().restartLoader(0, null, this);
+			Intent intent = new Intent(getActivity(), MountainPassesSyncService.class);
+		    intent.putExtra("url", MOUNTAINPASS_URL);
+		    intent.putExtra("forceUpdate", true);
+			getActivity().startService(intent);			
 		}
 		
 		return super.onOptionsItemSelected(item);
@@ -498,6 +523,19 @@ public class MountainPassesFragment extends SherlockListFragment
 		public TextView created_at;
 		public TextView text;
 		public CheckBox star_button;
+	}
+	
+	public class MountainPassesSyncReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String responseString = intent.getStringExtra("responseString");
+			if (responseString.equals("OK")) {
+				getLoaderManager().restartLoader(0, null, MountainPassesFragment.this);
+			}
+			
+		}
+		
 	}
 
 }
