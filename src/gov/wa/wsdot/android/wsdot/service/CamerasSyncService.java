@@ -95,6 +95,9 @@ public class CamerasSyncService extends IntentService {
 		
 		if (shouldUpdate || forceUpdate) {
 			String requestString = intent.getStringExtra(REQUEST_STRING);
+			List<Integer> starred = new ArrayList<Integer>();
+			
+			starred = getStarred();
 			
 	    	try {
 				URL url = new URL(requestString);
@@ -115,7 +118,6 @@ public class CamerasSyncService extends IntentService {
 				JSONObject result = obj.getJSONObject("cameras");
 				JSONArray items = result.getJSONArray("items");
 				List<ContentValues> cams = new ArrayList<ContentValues>();
-				List<Integer> favorites = new ArrayList<Integer>();
 				
 				for (int j=0; j < items.length(); j++) {
 					JSONObject item = items.getJSONObject(j);
@@ -128,6 +130,11 @@ public class CamerasSyncService extends IntentService {
 					cameraData.put(Cameras.CAMERA_LONGITUDE, item.getString("lon"));
 					cameraData.put(Cameras.CAMERA_HAS_VIDEO, item.getString("video"));
 					cameraData.put(Cameras.CAMERA_ROAD_NAME, item.getString("roadName"));
+					
+					if (starred.contains(Integer.parseInt(item.getString("id")))) {
+						cameraData.put(Cameras.CAMERA_IS_STARRED, 1);
+					}
+					
 					cams.add(cameraData);
 				}
 
@@ -158,6 +165,39 @@ public class CamerasSyncService extends IntentService {
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.putExtra(RESPONSE_STRING, responseString);
         sendBroadcast(broadcastIntent);   	
-	}	
+	}
+
+	/** 
+	 * Check the camera table for any starred entries. If we find some, save them
+	 * to a list so we can re-star those cameras after we flush the database.
+	 */	
+	private List<Integer> getStarred() {
+		ContentResolver resolver = getContentResolver();
+		Cursor cursor = null;
+		List<Integer> starred = new ArrayList<Integer>();
+
+		try {
+			cursor = resolver.query(
+					Cameras.CONTENT_URI,
+					new String[] {Cameras.CAMERA_ID},
+					Cameras.CAMERA_IS_STARRED + "=?",
+					new String[] {"1"},
+					null
+					);
+			
+			if (cursor != null && cursor.moveToFirst()) {
+				while (!cursor.isAfterLast()) {
+					starred.add(cursor.getInt(0));
+					cursor.moveToNext();
+				}
+			}
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+		
+		return starred;
+	}
 
 }
