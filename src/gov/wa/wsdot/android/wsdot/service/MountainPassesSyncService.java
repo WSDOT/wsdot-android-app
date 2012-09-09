@@ -43,10 +43,6 @@ public class MountainPassesSyncService extends IntentService {
 
 	private static final String DEBUG_TAG = "MountainPassesSyncService";
 	
-    private String[] projection = {
-    		Caches.CACHE_LAST_UPDATED
-    		};	
-	
 	public MountainPassesSyncService(String name) {
 		super("MountainPassesSyncService");
 	}
@@ -66,7 +62,7 @@ public class MountainPassesSyncService extends IntentService {
 		try {
 			cursor = resolver.query(
 					Caches.CONTENT_URI,
-					projection,
+					new String[] {Caches.CACHE_LAST_UPDATED},
 					Caches.CACHE_TABLE_NAME + " LIKE ?",
 					new String[] {"mountain_passes"},
 					null
@@ -130,7 +126,8 @@ public class MountainPassesSyncService extends IntentService {
 					
 					resolver.update(
 							MountainPasses.CONTENT_URI,
-							values, MountainPasses.MOUNTAIN_PASS_ID + "=?",
+							values,
+							MountainPasses.MOUNTAIN_PASS_ID + "=?",
 							new String[] {pass.getString("MountainPassId")}
 							);
 				}
