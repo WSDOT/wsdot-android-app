@@ -25,6 +25,9 @@
         
         <service
             android:name=".service.HighwayAlertsSyncService" />
+        
+        <service
+            android:name=".service.MountainPassesSyncService" />
                 
         <activity
             android:name=".ui.HomeActivity"

@@ -66,7 +66,7 @@ public class WSDOTProvider extends ContentProvider {
         matcher.addURI(authority, "cameras/#", CAMERAS_ID);
         matcher.addURI(authority, "highway_alerts", HIGHWAY_ALERTS);
         matcher.addURI(authority, "highway_alerts/#", HIGHWAY_ALERTS_ID);
-        matcher.addURI(authority, "mountain_passses", MOUNTAIN_PASSES);
+        matcher.addURI(authority, "mountain_passes", MOUNTAIN_PASSES);
         matcher.addURI(authority, "mountain_passes/#", MOUNTAIN_PASSES_ID);
         
         return matcher;

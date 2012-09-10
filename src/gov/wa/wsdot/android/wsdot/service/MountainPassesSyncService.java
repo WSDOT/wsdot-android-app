@@ -43,7 +43,7 @@ public class MountainPassesSyncService extends IntentService {
 
 	private static final String DEBUG_TAG = "MountainPassesSyncService";
 	
-	public MountainPassesSyncService(String name) {
+	public MountainPassesSyncService() {
 		super("MountainPassesSyncService");
 	}
 
@@ -131,6 +131,15 @@ public class MountainPassesSyncService extends IntentService {
 							new String[] {pass.getString("MountainPassId")}
 							);
 				}
+				
+				// Update the cache table with the time we did the update
+				ContentValues values = new ContentValues();
+				values.put(Caches.CACHE_LAST_UPDATED, System.currentTimeMillis());
+				resolver.update(
+						Caches.CONTENT_URI,
+						values, Caches.CACHE_TABLE_NAME + "=?",
+						new String[] {"mountain_passes"}
+						);
 				
 				responseString = "OK";
 	    	} catch (Exception e) {
