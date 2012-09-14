@@ -65,6 +65,7 @@ public class WSDOTContract {
 		String MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION = "restriction_two_direction";
 		String MOUNTAIN_PASS_CAMERA = "camera";
 		String MOUNTAIN_PASS_FORECAST = "forecast";
+		String MOUNTAIN_PASS_WEATHER_ICON = "weather_icon";
 		String MOUNTAIN_PASS_IS_STARRED = "is_starred";
 	}	
 	
