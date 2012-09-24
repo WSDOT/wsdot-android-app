@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 import java.util.ArrayList;
 
@@ -45,7 +46,10 @@ public class HomeActivity extends SherlockFragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        // Force use of overflow menu on devices with ICS and menu button.
+        UIUtils.setHasPermanentMenuKey(this, false);
+        
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_home);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
