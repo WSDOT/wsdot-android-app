@@ -24,6 +24,10 @@ import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
@@ -40,16 +44,34 @@ import com.actionbarsherlock.app.SherlockListFragment;
 public class MountainPassItemForecastFragment extends SherlockListFragment {
 	private ArrayList<ForecastItem> forecastItems;
 	private MountainPassItemForecastAdapter adapter;
+	private static String forecastsArray;
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		
 		Bundle args = activity.getIntent().getExtras();
-		forecastItems = (ArrayList<ForecastItem>)activity.getIntent().getSerializableExtra("Forecasts");
+		forecastsArray = args.getString("Forecasts");
         String pageView = "/Mountain Passes/" + args.getString("MountainPassName") + "/Forecast";
         AnalyticsUtils.getInstance(getActivity()).trackPageView(pageView);
+        
+        JSONArray forecasts;
+        ForecastItem f = null;
+        forecastItems = new ArrayList<ForecastItem>();
+        
+        try {
+			forecasts = new JSONArray(forecastsArray);
+			for (int i=0; i < forecasts.length(); i++) {
+				JSONObject forecast = forecasts.getJSONObject(i);
+				f = new ForecastItem();
+				f.setDay(forecast.getString("Day"));
+				f.setForecastText(forecast.getString("ForecastText"));
+				f.setWeatherIcon(forecast.getInt("weather_icon"));
+				forecastItems.add(f);
+			}
+        } catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override

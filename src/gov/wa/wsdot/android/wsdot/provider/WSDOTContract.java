@@ -30,14 +30,14 @@ public class WSDOTContract {
 	}
 	
 	interface CamerasColumns {
-	    String CAMERA_ID = "camera_id";
-	    String CAMERA_TITLE = "camera_title";
-	    String CAMERA_URL = "camera_url";
-	    String CAMERA_LATITUDE = "camera_latitude";
-	    String CAMERA_LONGITUDE = "camera_longitude";
-	    String CAMERA_HAS_VIDEO = "camera_has_video";
-	    String CAMERA_ROAD_NAME = "camera_road_name";
-	    String CAMERA_IS_STARRED = "camera_is_starred";
+	    String CAMERA_ID = "id";
+	    String CAMERA_TITLE = "title";
+	    String CAMERA_URL = "url";
+	    String CAMERA_LATITUDE = "latitude";
+	    String CAMERA_LONGITUDE = "longitude";
+	    String CAMERA_HAS_VIDEO = "has_video";
+	    String CAMERA_ROAD_NAME = "road_name";
+	    String CAMERA_IS_STARRED = "is_starred";
 	}
 	
 	interface HighwayAlertsColumns {

@@ -31,6 +31,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -58,21 +63,24 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 	
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "MountainPassItemPhotos";
-	private static ArrayList<CameraItem> remoteImages;
-    private static ArrayList<Drawable> bitmapImages = new ArrayList<Drawable>();
+	private static List<CameraItem> remoteImages;
+    private static ArrayList<Drawable> bitmapImages;
     private ViewGroup mRootView;
+    private static String camerasArray;
     private static CameraImageAdapter mAdapter;
 	private static View mLoadingSpinner;
     
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		
 		Bundle args = activity.getIntent().getExtras();
-		remoteImages = (ArrayList<CameraItem>)activity.getIntent().getSerializableExtra("Cameras");
+		camerasArray = args.getString("Cameras");
 		String pageView = "/Mountain Passes/" + args.getString("MountainPassName") + "/Cameras";
-	    AnalyticsUtils.getInstance(getActivity()).trackPageView(pageView);		
+	    AnalyticsUtils.getInstance(getActivity()).trackPageView(pageView);
+	    
+	    remoteImages = new ArrayList<CameraItem>();
+	    bitmapImages  = new ArrayList<Drawable>();
 	}    
     
 	@Override
@@ -130,8 +138,7 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 
 		Bundle b = new Bundle();
 		Intent intent = new Intent(getActivity(), CameraActivity.class);
-		b.putString("title", remoteImages.get(position).getTitle());
-		b.putString("url", remoteImages.get(position).getImageUrl());
+		b.putInt("id", remoteImages.get(position).getCameraId());
 		intent.putExtras(b);
 		
 		startActivity(intent);
@@ -152,7 +159,22 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 		@Override
 		public ArrayList<Drawable> loadInBackground() {
 		   	BufferedInputStream in;
-	        BufferedOutputStream out;      
+	        BufferedOutputStream out;
+	        JSONArray cameras;
+	        CameraItem c = null;
+
+	        try {
+				cameras = new JSONArray(camerasArray);
+				for (int k=0; k < cameras.length(); k++) {
+					JSONObject camera = cameras.getJSONObject(k);
+					c = new CameraItem();
+					c.setImageUrl(camera.getString("url"));
+					c.setCameraId(camera.getInt("id"));
+					remoteImages.add(c);
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 	        
 	    	for (int i=0; i < remoteImages.size(); i++) {
 	    		Bitmap bitmap = null;
@@ -177,7 +199,7 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 			return bitmapImages;
 		}
 
-	    /**
+		/**
 	     * Called when there is new data to deliver to the client. The
 	     * super class will take care of delivering it; the implementation
 	     * here just adds a little more logic.

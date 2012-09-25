@@ -257,6 +257,20 @@ public class WSDOTProvider extends ContentProvider {
             }
             
             return rowsAdded;
+        case MOUNTAIN_PASSES:
+        	sqlDB.beginTransaction();
+            try {
+            	for (ContentValues value : values) {
+	                sqlDB.insert(Tables.MOUNTAIN_PASSES, null, value);
+            	}
+            	sqlDB.setTransactionSuccessful();
+            	rowsAdded = values.length;
+            } finally {
+                getContext().getContentResolver().notifyChange(uri, null);
+                sqlDB.endTransaction();
+            }
+            
+            return rowsAdded;        
         default:
     		throw new UnsupportedOperationException("Unknown uri: " + uri);
     	}
