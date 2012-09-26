@@ -65,9 +65,6 @@ public class MountainPassesFragment extends SherlockListFragment
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-        //setRetainInstance(true);
 		setHasOptionsMenu(true);         
         
 		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
@@ -261,7 +258,12 @@ public class MountainPassesFragment extends SherlockListFragment
             viewholder.icon.setImageResource(icon);
             
             viewholder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
-			viewholder.star_button
+			
+            // Seems when Android recycles the views, the onCheckedChangeListener is still active
+            // and the call to setChecked() causes that code within the listener to run repeatedly.
+            // Assigning null to setOnCheckedChangeListener seems to fix it.
+            viewholder.star_button.setOnCheckedChangeListener(null);
+            viewholder.star_button
 					.setChecked(cursor.getInt(cursor
 							.getColumnIndex(MountainPasses.MOUNTAIN_PASS_IS_STARRED)) != 0);
             viewholder.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
