@@ -171,6 +171,11 @@ public class HighwayAlertsOverlay extends ItemizedOverlay<OverlayItem> {
 		 return(mAlertItems.size());
 	 }
 	 
+	 public void clear() {
+		 mAlertItems.clear();
+		 populate();
+	 }
+	 
 	 private Drawable getMarker(int resource) {
 		 Drawable marker = mActivity.getResources().getDrawable(resource);
 		 marker.setBounds(0, 0, marker.getIntrinsicWidth(),

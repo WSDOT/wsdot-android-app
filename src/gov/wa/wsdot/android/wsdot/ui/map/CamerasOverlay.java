@@ -174,6 +174,11 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 		 return(mCameraItems.size());
 	 }
 	 
+	 public void clear() {
+		 mCameraItems.clear();
+		 populate();
+	 }
+	 
 	 private Drawable getMarker(int resource) {
 		 Drawable marker = mActivity.getResources().getDrawable(resource);
 		 marker.setBounds(0, 0, marker.getIntrinsicWidth(),

@@ -67,6 +67,8 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
 	private Intent camerasIntent;
 	
+	private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +82,9 @@ public class TrafficMapActivity extends SherlockMapActivity {
         // Setup the unique latitude, longitude and zoom level
         prepareMap();
         prepareBoundingBox();
+        
+        // Initialize AsyncTask
+        mCamerasOverlayTask = new CamerasOverlayTask();
         
         IntentFilter camerasFilter = new IntentFilter(CamerasSyncReceiver.PROCESS_RESPONSE);
         camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -185,7 +190,12 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra(CamerasSyncService.RESPONSE_STRING);
 			if (responseString.equals("OK") || responseString.equals("NOOP")) {
-				new CamerasOverlayTask().execute(); // We've got cameras, now add them.
+				// We've got cameras, now add them.
+				if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+					mCamerasOverlayTask = new CamerasOverlayTask().execute();
+				} else if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+					mCamerasOverlayTask.execute();
+				}
 			} else {
 				Log.e("CameraDownloadReceiver", "Received an error. Not executing OverlayTask.");
 				Toast.makeText(TrafficMapActivity.this, responseString, Toast.LENGTH_LONG).show();
