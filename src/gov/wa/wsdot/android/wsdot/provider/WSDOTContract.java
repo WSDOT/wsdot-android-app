@@ -67,7 +67,17 @@ public class WSDOTContract {
 		String MOUNTAIN_PASS_FORECAST = "forecast";
 		String MOUNTAIN_PASS_WEATHER_ICON = "weather_icon";
 		String MOUNTAIN_PASS_IS_STARRED = "is_starred";
-	}	
+	}
+	
+	interface TravelTimesColumns {
+		String TRAVEL_TIMES_ID = "id";
+		String TRAVEL_TIMES_TITLE = "title";
+		String TRAVEL_TIMES_UPDATED = "updated";
+		String TRAVEL_TIMES_DISTANCE = "distance";
+		String TRAVEL_TIMES_AVERAGE = "average";
+		String TRAVEL_TIMES_CURRENT = "current";
+		String TRAVEL_TIMES_IS_STARRED = "is_starred";
+	}
 	
 	public static final String CONTENT_AUTHORITY = "gov.wa.wsdot.android.wsdot.provider.WSDOTProvider";
 	public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
@@ -76,6 +86,7 @@ public class WSDOTContract {
 	private static final String PATH_CAMERAS = "cameras";
 	private static final String PATH_HIGHWAY_ALERTS = "highway_alerts";
 	private static final String PATH_MOUNTAIN_PASSES = "mountain_passes";
+	private static final String PATH_TRAVEL_TIMES = "travel_times";
 	
 	public static class Caches implements BaseColumns, CachesColumns {
 		public static final Uri CONTENT_URI =
@@ -117,6 +128,17 @@ public class WSDOTContract {
 	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/mountain_pass";
 	    public static final String CONTENT_ITEM_TYPE =
 	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/mountain_pass";
+
+	}
+	
+	public static class TravelTimes implements BaseColumns, TravelTimesColumns {
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAVEL_TIMES).build();
+		
+	    public static final String CONTENT_TYPE =
+	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/travel_time";
+	    public static final String CONTENT_ITEM_TYPE =
+	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/travel_time";
 
 	}
 	

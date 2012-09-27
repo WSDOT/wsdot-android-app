@@ -22,6 +22,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CachesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CamerasColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPassesColumns;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimesColumns;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -39,6 +40,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         String CAMERAS = "cameras";
         String HIGHWAY_ALERTS = "highway_alerts";
         String MOUNTAIN_PASSES = "mountain_passes";
+        String TRAVEL_TIMES = "travel_times";
     }
     
 	public WSDOTDatabase(Context context) {
@@ -92,6 +94,16 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " INTEGER,"
                 + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED + " INTEGER NOT NULL default 0);");
         
+        db.execSQL("CREATE TABLE " + Tables.TRAVEL_TIMES + " ("
+        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + TravelTimesColumns.TRAVEL_TIMES_ID + " INTEGER,"
+                + TravelTimesColumns.TRAVEL_TIMES_TITLE + " TEXT,"
+                + TravelTimesColumns.TRAVEL_TIMES_UPDATED + " TEXT,"
+                + TravelTimesColumns.TRAVEL_TIMES_DISTANCE + " TEXT,"
+                + TravelTimesColumns.TRAVEL_TIMES_AVERAGE + " INTEGER,"
+                + TravelTimesColumns.TRAVEL_TIMES_CURRENT + " INTEGER,"
+                + TravelTimesColumns.TRAVEL_TIMES_IS_STARRED + " INTEGER NOT NULL default 0);");
+        
         seedData(db);
 	}
 
@@ -110,6 +122,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('cameras', 0);");
 		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('highway_alerts', 0);");
 		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('mountain_passes', 0);");
+		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('travel_times', 0);");
 
 		// Front load the mountain pass cameras
 		db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (1134, 'White Pass Summit on US12 @ MP 150.9', 'http://images.wsdot.wa.gov/SC/012VC15094.jpg', 46.63404, -121.40514, 0, 'US 12', 0);");

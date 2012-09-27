@@ -28,6 +28,9 @@
         
         <service
             android:name=".service.MountainPassesSyncService" />
+        
+        <service
+            android:name=".service.TravelTimesSyncService" />
                 
         <activity
             android:name=".ui.HomeActivity"

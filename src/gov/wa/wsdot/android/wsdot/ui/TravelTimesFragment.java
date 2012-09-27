@@ -19,33 +19,26 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.TravelTimesItem;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
+import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.zip.GZIPInputStream;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -58,18 +51,30 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 
 public class TravelTimesFragment extends SherlockListFragment
-	implements LoaderCallbacks<ArrayList<TravelTimesItem>> {
+	implements LoaderCallbacks<Cursor> {
 
+	@SuppressWarnings("unused")
 	private static final String DEBUG_TAG = "TravelTimes";
-	private static TravelTimesItemAdapter adapter;
+	private static TravelTimesAdapter adapter;
 	private static View mLoadingSpinner;
-	private static ArrayList<TravelTimesItem> travelTimesItems = null;
+	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
+	private static final String TRAVEL_TIMES_URL = "http://data.wsdot.wa.gov/mobile/TravelTimes.js.gz";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		setHasOptionsMenu(true);
+		
+		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
+		filter.addCategory(Intent.CATEGORY_DEFAULT);
+		mTravelTimesSyncReceiver = new TravelTimesSyncReceiver();
+		getActivity().registerReceiver(mTravelTimesSyncReceiver, filter);
+		
+		Intent intent = new Intent(getActivity(), TravelTimesSyncService.class);
+	    intent.putExtra("url", TRAVEL_TIMES_URL);
+		getActivity().startService(intent);
+		
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Traffic Map/Travel Times");
 	}	
 	
@@ -94,7 +99,7 @@ public class TravelTimesFragment extends SherlockListFragment
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-		adapter = new TravelTimesItemAdapter(getActivity());
+		adapter = new TravelTimesAdapter(getActivity(), null, false);
 		setListAdapter(adapter);
 		
 		// Prepare the loader. Either re-connect with an existing one,
@@ -102,6 +107,13 @@ public class TravelTimesFragment extends SherlockListFragment
         getLoaderManager().initLoader(0, null, this);
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		
+		getActivity().unregisterReceiver(mTravelTimesSyncReceiver);
+	}
+	
     @Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     	super.onCreateOptionsMenu(menu, inflater);
@@ -109,7 +121,7 @@ public class TravelTimesFragment extends SherlockListFragment
 		
         //Create the search view
         SearchView searchView = new SearchView(getSherlockActivity().getSupportActionBar().getThemedContext());
-        searchView.setQueryHint("Search Travel Times…");
+        searchView.setQueryHint("Search Travel Times");
 		
         menu.add(R.string.search_title)
         .setIcon(R.drawable.ic_menu_search)
@@ -121,133 +133,76 @@ public class TravelTimesFragment extends SherlockListFragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.menu_refresh:
-			getLoaderManager().restartLoader(0, null, this);
+			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+			Intent intent = new Intent(getActivity(), TravelTimesSyncService.class);
+		    intent.putExtra("url", TRAVEL_TIMES_URL);
+		    intent.putExtra("forceUpdate", true);
+			getActivity().startService(intent);
 		}
 		
 		return super.onOptionsItemSelected(item);
 	}
 	
-	public Loader<ArrayList<TravelTimesItem>> onCreateLoader(int id, Bundle args) {
-		// This is called when a new Loader needs to be created. There
-        // is only one Loader with no arguments, so it is simple
-		return new TravelTimesLoader(getActivity());
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		String[] projection = {
+				TravelTimes._ID,
+				TravelTimes.TRAVEL_TIMES_ID,
+				TravelTimes.TRAVEL_TIMES_TITLE,
+				TravelTimes.TRAVEL_TIMES_UPDATED,
+				TravelTimes.TRAVEL_TIMES_DISTANCE,
+				TravelTimes.TRAVEL_TIMES_AVERAGE,
+				TravelTimes.TRAVEL_TIMES_CURRENT,
+				TravelTimes.TRAVEL_TIMES_IS_STARRED
+				};
+		
+		CursorLoader cursorLoader = new TravelTimesItemsLoader(getActivity(),
+				TravelTimes.CONTENT_URI,
+				projection,
+				null,
+				null,
+				null
+				);
+		
+		return cursorLoader;
 	}
 
-	public void onLoadFinished(Loader<ArrayList<TravelTimesItem>> loader,
-			ArrayList<TravelTimesItem> data) {
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+		
+		if (cursor.moveToFirst()) {
+			mLoadingSpinner.setVisibility(View.GONE);
+		} else {
+			mLoadingSpinner.setVisibility(View.VISIBLE);
+		}
+		
+		adapter.swapCursor(cursor);	}
 
-		mLoadingSpinner.setVisibility(View.GONE);
-		adapter.setData(data);		
-	}
-
-	public void onLoaderReset(Loader<ArrayList<TravelTimesItem>> loader) {
-		adapter.setData(null);		
+	public void onLoaderReset(Loader<Cursor> loader) {
+		adapter.swapCursor(null);		
 	}
 	
-	/**
-	 * A custom Loader that loads all of the travel times from the data server.
-	 */
-	public static class TravelTimesLoader extends AsyncTaskLoader<ArrayList<TravelTimesItem>> {
-
-		public TravelTimesLoader(Context context) {
-			super(context);
-		}
-
-		@Override
-		public ArrayList<TravelTimesItem> loadInBackground() {
-			travelTimesItems  = new ArrayList<TravelTimesItem>();
-			TravelTimesItem i = null;
-			
-			try {
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/TravelTimes.js.gz");
-				URLConnection urlConn = url.openConnection();
-				
-				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
-                GZIPInputStream gzin = new GZIPInputStream(bis);
-                InputStreamReader is = new InputStreamReader(gzin);
-                BufferedReader in = new BufferedReader(is);
-				
-				String jsonFile = "";
-				String line;
-				
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
-				in.close();
-				
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject result = obj.getJSONObject("traveltimes");
-				JSONArray items = result.getJSONArray("items");
-							
-				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-					i = new TravelTimesItem();
-					i.setTitle(item.getString("title"));
-					i.setCurrentTime(Integer.toString(item.getInt("current")));
-					i.setAverageTime(Integer.toString(item.getInt("average")));
-					i.setDistance(item.getString("distance") + " miles");
-					i.setRouteID(item.getString("routeid"));
-					i.setUpdated(ParserUtils.relativeTime(item.getString("updated"), "yyyy-MM-dd h:mm a", false));
-					travelTimesItems.add(i);
-				}
-
-			} catch (Exception e) {
-				Log.e(DEBUG_TAG, "Error in network call", e);
-			}
-			
-			return travelTimesItems;
-		}
-
-		@Override
-		public void deliverResult(ArrayList<TravelTimesItem> data) {
-		    /**
-		     * Called when there is new data to deliver to the client. The
-		     * super class will take care of delivering it; the implementation
-		     * here just adds a little more logic.
-		     */	
-			super.deliverResult(data);
+	public static class TravelTimesItemsLoader extends CursorLoader {
+		public TravelTimesItemsLoader(Context context, Uri uri,
+				String[] projection, String selection, String[] selectionArgs,
+				String sortOrder) {
+			super(context, uri, projection, selection, selectionArgs, sortOrder);
 		}
 
 		@Override
 		protected void onStartLoading() {
 			super.onStartLoading();
-			
-			adapter.clear();
+
 			mLoadingSpinner.setVisibility(View.VISIBLE);
 			forceLoad();
 		}
-
-		@Override
-		protected void onStopLoading() {
-			super.onStopLoading();
-			
-	        // Attempt to cancel the current load task if possible.
-	        cancelLoad();
-		}
-		
-		@Override
-		public void onCanceled(ArrayList<TravelTimesItem> data) {
-			super.onCanceled(data);
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-			
-	        // Ensure the loader is stopped
-	        onStopLoading();
-		}
-		
 	}
 	
-	private class TravelTimesItemAdapter extends ArrayAdapter<TravelTimesItem> {
+	private class TravelTimesAdapter extends CursorAdapter {
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
-        private final LayoutInflater mInflater;
-        
-        public TravelTimesItemAdapter(Context context) {
-	        super(context, R.layout.list_item_travel_times);
-	        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        public TravelTimesAdapter(Context context, Cursor c, boolean autoRequery) {
+	        super(context, c, autoRequery);
         }
 
         @SuppressWarnings("unused")
@@ -259,83 +214,107 @@ public class TravelTimesFragment extends SherlockListFragment
         	return false;  
         }        
         
-        public void setData(ArrayList<TravelTimesItem> data) {
-            clear();
-            if (data != null) {
-                //addAll(data); // Only in API level 11
-                notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
-                	add(data.get(i));
-                }
-                notifyDataSetChanged();                
-            }
-        }
-        
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-	        ViewHolder holder;
-        	
-        	if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.list_item_travel_times, null);
-	            holder = new ViewHolder();
-	            holder.description = (TextView) convertView.findViewById(R.id.description);
-	            holder.description.setTypeface(tfb);
-	            holder.current_time = (TextView) convertView.findViewById(R.id.current_time);
-	            holder.current_time.setTypeface(tfb);
-	            holder.distance_average_time = (TextView) convertView.findViewById(R.id.distance_average_time);
-	            holder.distance_average_time.setTypeface(tf);
-	            holder.updated = (TextView) convertView.findViewById(R.id.updated);
-	            holder.updated.setTypeface(tf);
-	            holder.star_button = (CheckBox) convertView.findViewById(R.id.star_button);
-            	holder.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-					public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
-						int getPosition = (Integer) buttonView.getTag();
-						travelTimesItems.get(getPosition).setSelected(buttonView.isChecked());
-					}
-				});
-            	convertView.setTag(holder);	            
-	        } else {
-	        	holder = (ViewHolder) convertView.getTag();
-	        }
-	        
-	        TravelTimesItem item = getItem(position);
-	        String distance;
-	        String average_time;
-            
-        	holder.description.setText(item.getTitle());
-        	distance = item.getDistance();
+		@Override
+		public void bindView(View view, Context context, final Cursor cursor) {
+			ViewHolder viewholder = (ViewHolder) view.getTag();
 
-        	if (Integer.parseInt(item.getAverageTime()) == 0) {
+	        String average_time;
+
+	        String title = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_TITLE));
+			viewholder.title.setText(title);
+			viewholder.title.setTypeface(tfb);
+
+			String distance = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_DISTANCE));
+			int average = cursor.getInt(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_AVERAGE));
+			
+        	if (average == 0) {
         		average_time = "Not Available";
         	} else {
-        		average_time = item.getAverageTime() + " min";
+        		average_time = average + " min";
         	}
-
-        	holder.distance_average_time.setText(distance + " / " + average_time);
-
-        	if (Integer.parseInt(item.getCurrentTime()) < Integer.parseInt(item.getAverageTime())) {
-        		holder.current_time.setTextColor(0xFF008060);
-        	} else if (Integer.parseInt(item.getCurrentTime()) > Integer.parseInt(item.getAverageTime()) && (Integer.parseInt(item.getAverageTime()) != 0)) {
-        		holder.current_time.setTextColor(Color.RED);
+			
+			viewholder.distance_average_time.setText(distance + " / " + average_time);
+			viewholder.distance_average_time.setTypeface(tf);
+			
+			int current = cursor.getInt(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_CURRENT));
+			
+        	if (current < average) {
+        		viewholder.current_time.setTextColor(0xFF008060);
+        	} else if ((current > average) && (average != 0)) {
+        		viewholder.current_time.setTextColor(Color.RED);
         	} else {
-        		holder.current_time.setTextColor(Color.BLACK);
+        		viewholder.current_time.setTextColor(Color.BLACK);
         	}
 
-        	holder.current_time.setText(item.getCurrentTime() + " min");
-        	holder.updated.setText(item.getUpdated());
-        	holder.star_button.setTag(position);
-        	holder.star_button.setChecked(travelTimesItems.get(position).isSelected());
+        	viewholder.current_time.setText(current + " min");
+        	viewholder.current_time.setTypeface(tfb);
         	
-	        return convertView;
-        }
+        	viewholder.updated.setText(cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_UPDATED)));
+        	viewholder.updated.setTypeface(tf);
+        	
+            viewholder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
+            // Seems when Android recycles the views, the onCheckedChangeListener is still active
+            // and the call to setChecked() causes that code within the listener to run repeatedly.
+            // Assigning null to setOnCheckedChangeListener seems to fix it.
+            viewholder.star_button.setOnCheckedChangeListener(null);
+            viewholder.star_button
+					.setChecked(cursor.getInt(cursor
+							.getColumnIndex(TravelTimes.TRAVEL_TIMES_IS_STARRED)) != 0);
+            viewholder.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+				public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
+					int rowId = (Integer) buttonView.getTag();
+					ContentValues values = new ContentValues();
+					values.put(TravelTimes.TRAVEL_TIMES_IS_STARRED, isChecked ? 1 : 0);
+
+					getActivity().getContentResolver().update(
+							TravelTimes.CONTENT_URI,
+							values,
+							TravelTimes._ID + "=?",
+							new String[] {Integer.toString(rowId)}
+							);
+				}
+			});
+		}
+
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            View view = LayoutInflater.from(context).inflate(R.layout.list_item_travel_times, null);
+            ViewHolder viewholder = new ViewHolder(view);
+            view.setTag(viewholder);
+            
+            return view;
+		}
+		
+		private class ViewHolder {
+			public TextView title;
+			public TextView current_time;
+			public TextView distance_average_time;
+			public TextView updated;
+			public CheckBox star_button;
+			
+			public ViewHolder(View view) {
+				title = (TextView) view.findViewById(R.id.title);
+				current_time = (TextView) view.findViewById(R.id.current_time);
+				distance_average_time = (TextView) view.findViewById(R.id.distance_average_time);
+				updated = (TextView) view.findViewById(R.id.updated);
+				star_button = (CheckBox) view.findViewById(R.id.star_button);
+			}
+		}
+
 	}
-	
-	public static class ViewHolder {
-		public TextView description;
-		public TextView current_time;
-		public TextView distance_average_time;
-		public TextView updated;
-		public CheckBox star_button;
-	}	
+
+	public class TravelTimesSyncReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String responseString = intent.getStringExtra("responseString");
+			if (responseString.equals("OK")) {
+				getLoaderManager().restartLoader(0, null, TravelTimesFragment.this);
+			} else if (responseString.equals("NOOP")) {
+				// Nothing to do.
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			}
+		}
+	}
 
 }
