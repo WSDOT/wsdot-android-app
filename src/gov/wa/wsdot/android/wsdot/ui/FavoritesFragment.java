@@ -24,6 +24,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
 import gov.wa.wsdot.android.wsdot.ui.widget.SeparatedListAdapter;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -39,6 +40,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -262,7 +264,6 @@ public class FavoritesFragment extends SherlockListFragment
 	
 	public class CameraAdapter extends CursorAdapter {
 	    private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-	    private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
 		public CameraAdapter(Context context, Cursor c, boolean autoRequery) {
 			super(context, c, autoRequery);
@@ -310,25 +311,52 @@ public class FavoritesFragment extends SherlockListFragment
 
             String title = cursor.getString(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_NAME));
             viewholder.title.setText(title);
-            viewholder.title.setTypeface(tf);
+            viewholder.title.setTypeface(tfb);
+            
+            String created_at = cursor.getString(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_DATE_UPDATED));
+            viewholder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
+            viewholder.created_at.setTypeface(tf);
+            
+            String text = cursor.getString(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_WEATHER_CONDITION));
+            
+			if (text.equals("")) {
+				viewholder.text.setVisibility(View.GONE);
+			} else {
+				viewholder.text.setVisibility(View.VISIBLE);
+				viewholder.text.setText(text);
+				viewholder.text.setTypeface(tf);
+			}
+            
+            int icon = cursor.getInt(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_WEATHER_ICON));
+            viewholder.icon.setImageResource(icon);
+            
+            viewholder.star_button.setVisibility(View.GONE);
 		}
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            View view = LayoutInflater.from(context).inflate(R.layout.list_item, null);
+            View view = LayoutInflater.from(context).inflate(R.layout.list_item_details_with_icon, null);
             ViewHolder viewholder = new ViewHolder(view);
             view.setTag(new Object[] { viewholder, "mountain_pass" });
             
             return view;
 		}
 		
-        private class ViewHolder {
-            TextView title;
-
+		private class ViewHolder {
+			ImageView icon;
+			TextView title;
+			TextView created_at;
+			TextView text;
+			CheckBox star_button;
+			
             public ViewHolder(View view) {
-                    title = (TextView) view.findViewById(R.id.title);
+                title = (TextView) view.findViewById(R.id.title);
+                created_at = (TextView) view.findViewById(R.id.created_at);
+                text = (TextView) view.findViewById(R.id.text);
+                icon = (ImageView) view.findViewById(R.id.icon);
+                star_button = (CheckBox) view.findViewById(R.id.star_button);
             }
-        }		
+		}		
 		
 	}
 	
