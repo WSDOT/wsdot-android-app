@@ -22,6 +22,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -175,7 +176,8 @@ public class TravelTimesFragment extends SherlockListFragment
 			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
 		
-		adapter.swapCursor(cursor);	}
+		adapter.swapCursor(cursor);
+	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
 		adapter.swapCursor(null);		
@@ -249,7 +251,8 @@ public class TravelTimesFragment extends SherlockListFragment
         	viewholder.current_time.setText(current + " min");
         	viewholder.current_time.setTypeface(tfb);
         	
-        	viewholder.updated.setText(cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_UPDATED)));
+        	String created_at = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_UPDATED));
+        	viewholder.updated.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
         	viewholder.updated.setTypeface(tf);
         	
             viewholder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));

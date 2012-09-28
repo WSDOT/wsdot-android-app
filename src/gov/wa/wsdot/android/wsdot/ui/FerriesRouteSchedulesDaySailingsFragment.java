@@ -19,10 +19,16 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 
 import java.util.ArrayList;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -43,19 +49,20 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
 
 public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragment
-	implements LoaderCallbacks<ArrayList<FerriesTerminalItem>> {
+	implements LoaderCallbacks<ArrayList<FerriesScheduleDateItem>> {
 	
 	private static final String DEBUG_TAG = "RouteSchedulesDaySailings";
-	private static FerriesScheduleDateItem scheduleDateItems;
-	private static ArrayList<FerriesTerminalItem> terminalItems;
+	private static ArrayList<FerriesScheduleDateItem> scheduleDateItems;
 	private static SailingsAdapter adapter;
 	private static View mLoadingSpinner;
+	private static String mDates;
 	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		
-		scheduleDateItems = (FerriesScheduleDateItem)activity.getIntent().getSerializableExtra("scheduleDateItems");
+		Bundle args = activity.getIntent().getExtras();
+		mDates = args.getString("date");
 	}
 
 	@Override
@@ -97,7 +104,7 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
 	}
 
 
-	public Loader<ArrayList<FerriesTerminalItem>> onCreateLoader(int id,
+	public Loader<ArrayList<FerriesScheduleDateItem>> onCreateLoader(int id,
 			Bundle args) {
 		
 		// This is called when a new Loader needs to be created. There
@@ -105,55 +112,84 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
 		return new TerminalLoader(getActivity());
 	}
 
-	public void onLoadFinished(Loader<ArrayList<FerriesTerminalItem>> loader,
-			ArrayList<FerriesTerminalItem> data) {
+	public void onLoadFinished(Loader<ArrayList<FerriesScheduleDateItem>> loader,
+			ArrayList<FerriesScheduleDateItem> data) {
 		
 		mLoadingSpinner.setVisibility(View.GONE);
-		adapter.setData(data);		
+		adapter.setData(data.get(0).getFerriesTerminalItem());		
 	}
 
-	public void onLoaderReset(Loader<ArrayList<FerriesTerminalItem>> loader) {
+	public void onLoaderReset(Loader<ArrayList<FerriesScheduleDateItem>> loader) {
 		adapter.setData(null);
 	}
 	
-	public static class TerminalLoader extends AsyncTaskLoader<ArrayList<FerriesTerminalItem>> {
+	public static class TerminalLoader extends AsyncTaskLoader<ArrayList<FerriesScheduleDateItem>> {
 
 		public TerminalLoader(Context context) {
 			super(context);
 		}
 
 		@Override
-		public ArrayList<FerriesTerminalItem> loadInBackground() {
-	    	int numTerminals = scheduleDateItems.getFerriesTerminalItem().size();
-	    	terminalItems = new ArrayList<FerriesTerminalItem>();
+		public ArrayList<FerriesScheduleDateItem> loadInBackground() {
+			scheduleDateItems = new ArrayList<FerriesScheduleDateItem>();
+			FerriesScheduleDateItem scheduleDate = null;
+			FerriesTerminalItem terminal = null;
+			FerriesAnnotationsItem notes = null;
+			FerriesScheduleTimesItem timesItem = null;
+			FerriesAnnotationIndexesItem indexesItem = null;
 			
 	    	try {   		
-				for (int i=0; i<numTerminals; i++) {
-					FerriesTerminalItem terminalItem = new FerriesTerminalItem();
-					terminalItem.setArrivingTerminalID(scheduleDateItems.getFerriesTerminalItem().get(i).getArrivingTerminalID());
-					terminalItem.setArrivingTerminalName(scheduleDateItems.getFerriesTerminalItem().get(i).getArrivingTerminalName());
-					terminalItem.setDepartingTerminalID(scheduleDateItems.getFerriesTerminalItem().get(i).getDepartingTerminalID());
-					terminalItem.setDepartingTerminalName(scheduleDateItems.getFerriesTerminalItem().get(i).getDepartingTerminalName());
-
-					for (int j=0; j<scheduleDateItems.getFerriesTerminalItem().get(i).getAnnotations().size(); j++) {
-						terminalItem.setAnnotations(scheduleDateItems.getFerriesTerminalItem().get(i).getAnnotations().get(j));
-					}					
+				JSONArray dates = new JSONArray(mDates);
+				for (int j=0; j < dates.length(); j++) {
+					JSONObject date = dates.getJSONObject(j);
+					scheduleDate = new FerriesScheduleDateItem();
+					scheduleDate.setDate(date.getString("Date").substring(6, 19));
 					
-					for (int k=0; k<scheduleDateItems.getFerriesTerminalItem().get(i).getScheduleTimes().size(); k++) {
-						terminalItem.setScheduleTimes(scheduleDateItems.getFerriesTerminalItem().get(i).getScheduleTimes().get(k));
-					}				
+					JSONArray sailings = date.getJSONArray("Sailings");
+					for (int k=0; k < sailings.length(); k++) {
+						JSONObject sailing = sailings.getJSONObject(k);
+						terminal = new FerriesTerminalItem();
+						terminal.setArrivingTerminalID(sailing.getInt("ArrivingTerminalID"));
+						terminal.setArrivingTerminalName(sailing.getString("ArrivingTerminalName"));
+						terminal.setDepartingTerminalID(sailing.getInt("DepartingTerminalID"));
+						terminal.setDepartingTerminalName(sailing.getString("DepartingTerminalName"));
+						
+						JSONArray annotations = sailing.getJSONArray("Annotations");
+						for (int l=0; l < annotations.length(); l++) {
+							notes = new FerriesAnnotationsItem();
+							notes.setAnnotation(annotations.getString(l));
+							terminal.setAnnotations(notes);	
+						}
+						
+						JSONArray times = sailing.getJSONArray("Times");
+						for (int m=0; m < times.length(); m++) {
+							JSONObject time = times.getJSONObject(m);
+							timesItem = new FerriesScheduleTimesItem();
+							timesItem.setDepartingTime(time.getString("DepartingTime").substring(6, 19));
+							
+							
+							JSONArray annotationIndexes = time.getJSONArray("AnnotationIndexes");
+							for (int n=0; n < annotationIndexes.length(); n++) {
+								indexesItem = new FerriesAnnotationIndexesItem();
+								indexesItem.setIndex(annotationIndexes.getInt(n));
+								timesItem.setAnnotationIndexes(indexesItem);									
+							}
+							terminal.setScheduleTimes(timesItem);
+						}
+						scheduleDate.setFerriesTerminalItem(terminal);
+					}
 					
-					terminalItems.add(terminalItem);
+					scheduleDateItems.add(scheduleDate);
 				}
 			} catch (Exception e) {
-				Log.e(DEBUG_TAG, "Error adding terminal info", e);
+				Log.e(DEBUG_TAG, "Error adding schedule date items", e);
 			}
 		
-	    	return terminalItems;		
+	    	return scheduleDateItems;		
 		}
 
 		@Override
-		public void deliverResult(ArrayList<FerriesTerminalItem> data) {
+		public void deliverResult(ArrayList<FerriesScheduleDateItem> data) {
 		    /**
 		     * Called when there is new data to deliver to the client. The
 		     * super class will take care of delivering it; the implementation
@@ -180,7 +216,7 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
 		}
 		
 		@Override
-		public void onCanceled(ArrayList<FerriesTerminalItem> data) {
+		public void onCanceled(ArrayList<FerriesScheduleDateItem> data) {
 			super.onCanceled(data);
 		}
 
@@ -197,12 +233,19 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		String terminalNames = terminalItems.get(position).getDepartingTerminalName() + " to " +
-				terminalItems.get(position).getArrivingTerminalName();
+
+		String terminalNames = scheduleDateItems.get(0)
+				.getFerriesTerminalItem().get(position)
+				.getDepartingTerminalName()
+				+ " to "
+				+ scheduleDateItems.get(0).getFerriesTerminalItem()
+						.get(position).getArrivingTerminalName();
+		
 		Bundle b = new Bundle();
 		Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDayDeparturesActivity.class);
 		b.putString("terminalNames", terminalNames);
-		b.putSerializable("terminalItems", terminalItems.get(position));
+		b.putInt("position", position);
+		b.putSerializable("scheduleDateItems", scheduleDateItems);
 		intent.putExtras(b);
 		startActivity(intent);		
 	}

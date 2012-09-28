@@ -19,37 +19,27 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesRouteItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
+import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.zip.GZIPInputStream;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -62,21 +52,28 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
 public class FerriesRouteSchedulesFragment extends SherlockListFragment
-	implements LoaderCallbacks<ArrayList<FerriesRouteItem>> {
+	implements LoaderCallbacks<Cursor> {
 
 	private static final String DEBUG_TAG = "RouteSchedules";
-	private static ArrayList<FerriesRouteItem> routeItems = null;
-	private static RouteItemAdapter adapter;
+	private static RouteSchedulesAdapter adapter;
 	private static View mLoadingSpinner;
+	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
+	private static final String FERRIES_SCHEDULES_URL = "http://data.wsdot.wa.gov/mobile/WSFRouteSchedules.js.gz";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-        setRetainInstance(true);
         setHasOptionsMenu(true);
+        
+		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
+		filter.addCategory(Intent.CATEGORY_DEFAULT);
+		mFerriesSchedulesSyncReceiver = new FerriesSchedulesSyncReceiver();
+		getActivity().registerReceiver(mFerriesSchedulesSyncReceiver, filter);
+		
+		Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
+	    intent.putExtra("url", FERRIES_SCHEDULES_URL);
+		getActivity().startService(intent);
         
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/Ferries/Route Schedules");
 	}	
@@ -102,7 +99,7 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-        adapter = new RouteItemAdapter(getActivity());
+        adapter = new RouteSchedulesAdapter(getActivity(), null, false);
         setListAdapter(adapter);
         
 		// Prepare the loader. Either re-connect with an existing one,
@@ -110,6 +107,13 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
         getLoaderManager().initLoader(0, null, this);
 	
 	}	
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		
+		getActivity().unregisterReceiver(mFerriesSchedulesSyncReceiver);
+	}
 	
     @Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -121,229 +125,162 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.menu_refresh:
-			getLoaderManager().restartLoader(0, null, this);
+			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+			Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
+		    intent.putExtra("url", FERRIES_SCHEDULES_URL);
+		    intent.putExtra("forceUpdate", true);
+			getActivity().startService(intent);
 		}
 		
 		return super.onOptionsItemSelected(item);
 	}
 	
-	public Loader<ArrayList<FerriesRouteItem>> onCreateLoader(int id, Bundle args) {
-		// This is called when a new Loader needs to be created. There
-        // is only one Loader with no arguments, so it is simple
-		return new RouteSchedulesLoader(getActivity());
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		String[] projection = {
+				FerriesSchedules._ID,
+				FerriesSchedules.FERRIES_SCHEDULE_ID,
+				FerriesSchedules.FERRIES_SCHEDULE_TITLE,
+				FerriesSchedules.FERRIES_SCHEDULE_DATE,
+				FerriesSchedules.FERRIES_SCHEDULE_UPDATED,
+				FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED };
+		
+		CursorLoader cursorLoader = new RouteSchedulesLoader(getActivity(),
+				FerriesSchedules.CONTENT_URI,
+				projection,
+				null,
+				null,
+				null
+				);
+		
+		return cursorLoader;
 	}
 
-	public void onLoadFinished(Loader<ArrayList<FerriesRouteItem>> loader, ArrayList<FerriesRouteItem> data) {
-		mLoadingSpinner.setVisibility(View.GONE);
-		adapter.setData(data);
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+		
+		if (cursor.moveToFirst()) {
+			mLoadingSpinner.setVisibility(View.GONE);
+		} else {
+			mLoadingSpinner.setVisibility(View.VISIBLE);
+		}
+		
+		adapter.swapCursor(cursor);
 		
 	}
 
-	public void onLoaderReset(Loader<ArrayList<FerriesRouteItem>> loader) {
-		adapter.setData(null);
+	public void onLoaderReset(Loader<Cursor> loader) {
+		adapter.swapCursor(null);
 	}
 
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		Bundle b = new Bundle();
-		Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDaysActivity.class);
-		b.putString("description", routeItems.get(position).getDescription());
-		b.putSerializable("routeItems", routeItems.get(position));
-		intent.putExtras(b);
-		startActivity(intent);
-	}
-
-	/**
-	 * A custom Loader that loads all of the WSF route schedules from the data server.
-	 */		
-	public static class RouteSchedulesLoader extends AsyncTaskLoader<ArrayList<FerriesRouteItem>> {
-
-		public RouteSchedulesLoader(Context context) {
-			super(context);
+	public static class RouteSchedulesLoader extends CursorLoader {
+		public RouteSchedulesLoader(Context context, Uri uri,
+				String[] projection, String selection, String[] selectionArgs,
+				String sortOrder) {
+			super(context, uri, projection, selection, selectionArgs, sortOrder);
 		}
 
-		@Override
-		public ArrayList<FerriesRouteItem> loadInBackground() {
-			routeItems = new ArrayList<FerriesRouteItem>();
-			FerriesRouteItem route = null;
-			FerriesScheduleDateItem scheduleDate = null;
-			FerriesTerminalItem terminal = null;
-			FerriesAnnotationsItem notes = null;
-			FerriesScheduleTimesItem timesItem = null;
-			FerriesAnnotationIndexesItem indexesItem = null;
-			
-			try {
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/WSFRouteSchedules.js.gz");
-				URLConnection urlConn = url.openConnection();
-				
-				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
-                GZIPInputStream gzin = new GZIPInputStream(bis);
-                InputStreamReader is = new InputStreamReader(gzin);
-                BufferedReader in = new BufferedReader(is);
-				
-				String jsonFile = "";
-				String line;
-				
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
-				in.close();
-				
-				JSONArray items = new JSONArray(jsonFile);
-				
-				for (int i=0; i < items.length(); i++) {
-					JSONObject item = items.getJSONObject(i);
-					route = new FerriesRouteItem();
-					route.setRouteID(item.getInt("RouteID"));
-					route.setDescription(item.getString("Description"));
-					
-					JSONArray dates = item.getJSONArray("Date");
-					for (int j=0; j < dates.length(); j++) {
-						JSONObject date = dates.getJSONObject(j);
-						scheduleDate = new FerriesScheduleDateItem();
-						scheduleDate.setDate(date.getString("Date").substring(6, 19));
-						
-						JSONArray sailings = date.getJSONArray("Sailings");
-						for (int k=0; k < sailings.length(); k++) {
-							JSONObject sailing = sailings.getJSONObject(k);
-							terminal = new FerriesTerminalItem();
-							terminal.setArrivingTerminalID(sailing.getInt("ArrivingTerminalID"));
-							terminal.setArrivingTerminalName(sailing.getString("ArrivingTerminalName"));
-							terminal.setDepartingTerminalID(sailing.getInt("DepartingTerminalID"));
-							terminal.setDepartingTerminalName(sailing.getString("DepartingTerminalName"));
-							
-							JSONArray annotations = sailing.getJSONArray("Annotations");
-							for (int l=0; l < annotations.length(); l++) {
-								notes = new FerriesAnnotationsItem();
-								notes.setAnnotation(annotations.getString(l));
-								terminal.setAnnotations(notes);	
-							}
-							
-							JSONArray times = sailing.getJSONArray("Times");
-							for (int m=0; m < times.length(); m++) {
-								JSONObject time = times.getJSONObject(m);
-								timesItem = new FerriesScheduleTimesItem();
-								timesItem.setDepartingTime(time.getString("DepartingTime").substring(6, 19));
-								
-								
-								JSONArray annotationIndexes = time.getJSONArray("AnnotationIndexes");
-								for (int n=0; n < annotationIndexes.length(); n++) {
-									indexesItem = new FerriesAnnotationIndexesItem();
-									indexesItem.setIndex(annotationIndexes.getInt(n));
-									timesItem.setAnnotationIndexes(indexesItem);									
-								}
-								terminal.setScheduleTimes(timesItem);
-							}
-							scheduleDate.setFerriesTerminalItem(terminal);
-						}
-						route.setFerriesScheduleDateItem(scheduleDate);
-					}
-					routeItems.add(route);
-				}			
-
-			} catch (Exception e) {
-				Log.e(DEBUG_TAG, "Error in network call", e);
-			}
-
-			return routeItems;
-		}
-
-		@Override
-		public void deliverResult(ArrayList<FerriesRouteItem> data) {
-		    /**
-		     * Called when there is new data to deliver to the client. The
-		     * super class will take care of delivering it; the implementation
-		     * here just adds a little more logic.
-		     */	
-			super.deliverResult(data);
-		}
-		
 		@Override
 		protected void onStartLoading() {
 			super.onStartLoading();
-			
-			adapter.clear();
+
 			mLoadingSpinner.setVisibility(View.VISIBLE);
 			forceLoad();
 		}
+	}
+	
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		
+		Cursor c = (Cursor) adapter.getItem(position);
+		Bundle b = new Bundle();
+		Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDaySailingsActivity.class);
+		b.putInt("id", c.getInt(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_ID)));
+		b.putString("title", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE)));
+		b.putString("date", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_DATE)));
+		b.putInt("isStarred", c.getInt(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED)));
+		intent.putExtras(b);
+		startActivity(intent);
+	}
+	
+	public class RouteSchedulesAdapter extends CursorAdapter {
+		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        
+        public RouteSchedulesAdapter(Context context, Cursor c, boolean autoRequery) {
+        	super(context, c, autoRequery);
+        }
 
 		@Override
-		protected void onStopLoading() {
-			super.onStopLoading();
+		public void bindView(View view, Context context, final Cursor cursor) {
+			ViewHolder viewholder = (ViewHolder) view.getTag();
 			
-			// Attempt to cancel the current load task if possible.
-			cancelLoad();
-		}		
-		
-		@Override
-		public void onCanceled(ArrayList<FerriesRouteItem> data) {
-			super.onCanceled(data);
+			viewholder.title.setText(cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE)));
+			viewholder.title.setTypeface(tf);
+			
+            String created_at = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_UPDATED));
+            viewholder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
+            viewholder.created_at.setTypeface(tf);
+			
+            viewholder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
+            // Seems when Android recycles the views, the onCheckedChangeListener is still active
+            // and the call to setChecked() causes that code within the listener to run repeatedly.
+            // Assigning null to setOnCheckedChangeListener seems to fix it.
+            viewholder.star_button.setOnCheckedChangeListener(null);
+            viewholder.star_button
+					.setChecked(cursor.getInt(cursor
+							.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED)) != 0);
+            viewholder.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+				public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
+					int rowId = (Integer) buttonView.getTag();
+					ContentValues values = new ContentValues();
+					values.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, isChecked ? 1 : 0);
+
+					getActivity().getContentResolver().update(
+							FerriesSchedules.CONTENT_URI,
+							values,
+							FerriesSchedules._ID + "=?",
+							new String[] {Integer.toString(rowId)}
+							);
+				}
+			});
+			
 		}
 
 		@Override
-		protected void onReset() {
-			super.onReset();
-			
-			// Ensure the loader is stopped
-			onStopLoading();
-		}		
-		
-	}
-	
-	public class RouteItemAdapter extends ArrayAdapter<FerriesRouteItem> {
-		private final LayoutInflater mInflater;
-		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-        
-        public RouteItemAdapter(Context context) {
-	        super(context, R.layout.list_item_with_star);
-	        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        }
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            View view = LayoutInflater.from(context).inflate(R.layout.list_item_with_star, null);
+            ViewHolder viewholder = new ViewHolder(view);
+            view.setTag(viewholder);
+            
+            return view;
+		}
 
-        public void setData(ArrayList<FerriesRouteItem> data) {
-            clear();
-            if (data != null) {
-                //addAll(data); // Only in API level 11
-                notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
-                	add(data.get(i));
-                }
-                notifyDataSetChanged();                
-            }        	
-        }
+    	public class ViewHolder {
+    		public TextView title;
+    		public TextView created_at;
+    		public CheckBox star_button;
+    		
+    		public ViewHolder(View view) {
+    			title = (TextView) view.findViewById(R.id.title);
+    			created_at = (TextView) view.findViewById(R.id.created_at);   			
+    			star_button = (CheckBox) view.findViewById(R.id.star_button);
+    		}
+    	}
         
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-        	ViewHolder holder;
-        	
-        	if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.list_item_with_star, null);
-	            holder = new ViewHolder();
-	            holder.title = (TextView) convertView.findViewById(R.id.title);
-	            holder.title.setTypeface(tf);
-	            holder.star_button = (CheckBox) convertView.findViewById(R.id.star_button);
-            	holder.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-					public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
-						int getPosition = (Integer) buttonView.getTag();
-						routeItems.get(getPosition).setSelected(buttonView.isChecked());
-					}
-				});
-            	convertView.setTag(holder);
-	        } else {
-	        	holder = (ViewHolder) convertView.getTag();
-	        }
-	        
-	        FerriesRouteItem item = getItem(position);
-        	holder.title.setText(item.getDescription());
-        	holder.star_button.setTag(position);
-        	holder.star_button.setChecked(routeItems.get(position).isSelected());
-	        
-	        return convertView;
-        }
 	}
 	
-	public static class ViewHolder {
-		public TextView title;
-		public CheckBox star_button;
-	}	
+	public class FerriesSchedulesSyncReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String responseString = intent.getStringExtra("responseString");
+			if (responseString.equals("OK")) {
+				getLoaderManager().restartLoader(0, null, FerriesRouteSchedulesFragment.this);
+			} else if (responseString.equals("NOOP")) {
+				// Nothing to do.
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			}
+		}
+	}
 	
 }

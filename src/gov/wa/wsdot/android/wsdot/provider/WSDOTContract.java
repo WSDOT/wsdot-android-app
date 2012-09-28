@@ -79,6 +79,14 @@ public class WSDOTContract {
 		String TRAVEL_TIMES_IS_STARRED = "is_starred";
 	}
 	
+	interface FerriesSchedulesColumns {
+		String FERRIES_SCHEDULE_ID = "id";
+		String FERRIES_SCHEDULE_TITLE = "title";
+		String FERRIES_SCHEDULE_DATE = "date";
+		String FERRIES_SCHEDULE_UPDATED = "updated";
+		String FERRIES_SCHEDULE_IS_STARRED = "is_starred";
+	}
+	
 	public static final String CONTENT_AUTHORITY = "gov.wa.wsdot.android.wsdot.provider.WSDOTProvider";
 	public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
@@ -87,6 +95,7 @@ public class WSDOTContract {
 	private static final String PATH_HIGHWAY_ALERTS = "highway_alerts";
 	private static final String PATH_MOUNTAIN_PASSES = "mountain_passes";
 	private static final String PATH_TRAVEL_TIMES = "travel_times";
+	private static final String PATH_FERRIES_SCHEDULES = "ferries_schedules";
 	
 	public static class Caches implements BaseColumns, CachesColumns {
 		public static final Uri CONTENT_URI =
@@ -139,6 +148,17 @@ public class WSDOTContract {
 	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/travel_time";
 	    public static final String CONTENT_ITEM_TYPE =
 	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/travel_time";
+
+	}
+
+	public static class FerriesSchedules implements BaseColumns, FerriesSchedulesColumns {
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_FERRIES_SCHEDULES).build();
+		
+	    public static final String CONTENT_TYPE =
+	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/ferries_schedule";
+	    public static final String CONTENT_ITEM_TYPE =
+	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/ferries_schedule";
 
 	}
 	

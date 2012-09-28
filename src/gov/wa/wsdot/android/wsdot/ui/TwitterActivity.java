@@ -69,7 +69,7 @@ public class TwitterActivity extends SherlockFragmentActivity
         list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
 
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        getSupportActionBar().setListNavigationCallbacks(list, this);		
+        getSupportActionBar().setListNavigationCallbacks(list, this);
 	}
 	
 	@Override

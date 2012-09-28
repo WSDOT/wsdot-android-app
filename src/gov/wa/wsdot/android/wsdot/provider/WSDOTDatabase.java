@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.provider;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CachesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CamerasColumns;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedulesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPassesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimesColumns;
@@ -41,6 +42,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         String HIGHWAY_ALERTS = "highway_alerts";
         String MOUNTAIN_PASSES = "mountain_passes";
         String TRAVEL_TIMES = "travel_times";
+        String FERRIES_SCHEDULES = "ferries_schedules";
     }
     
 	public WSDOTDatabase(Context context) {
@@ -104,6 +106,14 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + TravelTimesColumns.TRAVEL_TIMES_CURRENT + " INTEGER,"
                 + TravelTimesColumns.TRAVEL_TIMES_IS_STARRED + " INTEGER NOT NULL default 0);");
         
+        db.execSQL("CREATE TABLE " + Tables.FERRIES_SCHEDULES + " ("
+        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + FerriesSchedulesColumns.FERRIES_SCHEDULE_ID + " INTEGER,"
+                + FerriesSchedulesColumns.FERRIES_SCHEDULE_TITLE + " TEXT,"
+                + FerriesSchedulesColumns.FERRIES_SCHEDULE_DATE + " TEXT,"
+                + FerriesSchedulesColumns.FERRIES_SCHEDULE_UPDATED + " TEXT,"
+                + FerriesSchedulesColumns.FERRIES_SCHEDULE_IS_STARRED + " INTEGER NOT NULL default 0);");
+        
         seedData(db);
 	}
 
@@ -114,6 +124,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMERAS);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.HIGHWAY_ALERTS);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.MOUNTAIN_PASSES);
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.FERRIES_SCHEDULES);
         
         onCreate(db);		
 	}
@@ -123,6 +134,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('highway_alerts', 0);");
 		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('mountain_passes', 0);");
 		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('travel_times', 0);");
+		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_schedules', 0);");
 
 		// Front load the mountain pass cameras
 		db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (1134, 'White Pass Summit on US12 @ MP 150.9', 'http://images.wsdot.wa.gov/SC/012VC15094.jpg', 46.63404, -121.40514, 0, 'US 12', 0);");

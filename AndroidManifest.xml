@@ -31,6 +31,9 @@
         
         <service
             android:name=".service.TravelTimesSyncService" />
+        
+        <service
+            android:name=".service.FerriesSchedulesSyncService" />
                 
         <activity
             android:name=".ui.HomeActivity"
@@ -143,9 +146,6 @@
    		<activity
    		    android:name=".ui.FerriesRouteSchedulesActivity"
    		    android:label="@string/title_ferriesrouteschedules" />
-   		
-   		<activity
-   		    android:name=".ui.FerriesRouteSchedulesDaysActivity" />
    		
    		<activity
    		    android:name=".ui.FerriesRouteSchedulesDaySailingsActivity" />

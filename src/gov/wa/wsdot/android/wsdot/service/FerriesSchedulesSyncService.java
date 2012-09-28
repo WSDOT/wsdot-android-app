@@ -19,14 +19,17 @@
 package gov.wa.wsdot.android.wsdot.service;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -41,12 +44,12 @@ import android.database.Cursor;
 import android.text.format.DateUtils;
 import android.util.Log;
 
-public class TravelTimesSyncService extends IntentService {
-	
-	private static final String DEBUG_TAG = "TravelTimesSyncService";
+public class FerriesSchedulesSyncService extends IntentService {
 
-	public TravelTimesSyncService() {
-		super("TravelTimesSyncService");
+	private static final String DEBUG_TAG = "FerriesSchedulesSyncService";
+	
+	public FerriesSchedulesSyncService() {
+		super("FerriesSchedulesSyncService");
 	}
 
 	@Override
@@ -56,6 +59,7 @@ public class TravelTimesSyncService extends IntentService {
 		long now = System.currentTimeMillis();
 		boolean shouldUpdate = true;
 		String responseString = "";
+		DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
 		/** 
 		 * Check the cache table for the last time data was downloaded. If we are within
@@ -66,7 +70,7 @@ public class TravelTimesSyncService extends IntentService {
 					Caches.CONTENT_URI,
 					new String[] {Caches.CACHE_LAST_UPDATED},
 					Caches.CACHE_TABLE_NAME + " LIKE ?",
-					new String[] {"travel_times"},
+					new String[] {"ferries_schedules"},
 					null
 					);
 			
@@ -74,7 +78,7 @@ public class TravelTimesSyncService extends IntentService {
 				long lastUpdated = cursor.getLong(0);
 				//long deltaMinutes = (now - lastUpdated) / DateUtils.MINUTE_IN_MILLIS;
 				//Log.d(DEBUG_TAG, "Delta since last update is " + deltaMinutes + " min");
-				shouldUpdate = (Math.abs(now - lastUpdated) > (5 * DateUtils.MINUTE_IN_MILLIS));
+				shouldUpdate = (Math.abs(now - lastUpdated) > (30 * DateUtils.MINUTE_IN_MILLIS));
 			}
 		} finally {
 			if (cursor != null) {
@@ -107,39 +111,37 @@ public class TravelTimesSyncService extends IntentService {
 					jsonFile += line;
 				in.close();
 				
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject result = obj.getJSONObject("traveltimes");
-				JSONArray items = result.getJSONArray("items");
-				List<ContentValues> times = new ArrayList<ContentValues>();
-							
-				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-					ContentValues timesValues = new ContentValues();
-					timesValues.put(TravelTimes.TRAVEL_TIMES_TITLE, item.getString("title"));
-					timesValues.put(TravelTimes.TRAVEL_TIMES_CURRENT, item.getInt("current"));
-					timesValues.put(TravelTimes.TRAVEL_TIMES_AVERAGE, item.getInt("average"));
-					timesValues.put(TravelTimes.TRAVEL_TIMES_DISTANCE, item.getString("distance") + " miles");
-					timesValues.put(TravelTimes.TRAVEL_TIMES_ID, Integer.parseInt(item.getString("routeid")));
-					timesValues.put(TravelTimes.TRAVEL_TIMES_UPDATED, item.getString("updated"));
+				JSONArray items = new JSONArray(jsonFile);
+				List<ContentValues> schedules = new ArrayList<ContentValues>();
+				
+				for (int i=0; i < items.length(); i++) {
+					JSONObject item = items.getJSONObject(i);
+					ContentValues schedule = new ContentValues();
+					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_ID, item.getInt("RouteID"));
+					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_TITLE, item.getString("Description"));
+					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_DATE, item.getString("Date"));
+					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_UPDATED,
+							dateFormat.format(new Date(Long.parseLong(item
+									.getString("CacheDate").substring(6, 19)))));
 					
-					if (starred.contains(Integer.parseInt(item.getString("routeid")))) {
-						timesValues.put(TravelTimes.TRAVEL_TIMES_IS_STARRED, 1);
+					if (starred.contains(item.getInt("RouteID"))) {
+						schedule.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, 1);
 					}
 					
-					times.add(timesValues);
+					schedules.add(schedule);
 				}
-
+				
 				// Purge existing travel times covered by incoming data
-				resolver.delete(TravelTimes.CONTENT_URI, null, null);
+				resolver.delete(FerriesSchedules.CONTENT_URI, null, null);
 				// Bulk insert all the new travel times
-				resolver.bulkInsert(TravelTimes.CONTENT_URI, times.toArray(new ContentValues[times.size()]));		
+				resolver.bulkInsert(FerriesSchedules.CONTENT_URI, schedules.toArray(new ContentValues[schedules.size()]));		
 				// Update the cache table with the time we did the update
 				ContentValues values = new ContentValues();
 				values.put(Caches.CACHE_LAST_UPDATED, System.currentTimeMillis());
 				resolver.update(
 						Caches.CONTENT_URI,
 						values, Caches.CACHE_TABLE_NAME + "=?",
-						new String[] {"travel_times"}
+						new String[] {"ferries_schedules"}
 						);
 				
 				responseString = "OK";				
@@ -153,14 +155,15 @@ public class TravelTimesSyncService extends IntentService {
 		}
 		
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction("gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
+        broadcastIntent.setAction("gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.putExtra("responseString", responseString);
         sendBroadcast(broadcastIntent);
+		
 	}
-
+	
 	/** 
-	 * Check the travel times table for any starred entries. If we find some, save them
+	 * Check the ferries schedules table for any starred entries. If we find some, save them
 	 * to a list so we can re-star those after we flush the database.
 	 */	
 	private List<Integer> getStarred() {
@@ -170,9 +173,9 @@ public class TravelTimesSyncService extends IntentService {
 
 		try {
 			cursor = resolver.query(
-					TravelTimes.CONTENT_URI,
-					new String[] {TravelTimes.TRAVEL_TIMES_ID},
-					TravelTimes.TRAVEL_TIMES_IS_STARRED + "=?",
+					FerriesSchedules.CONTENT_URI,
+					new String[] {FerriesSchedules.FERRIES_SCHEDULE_ID},
+					FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED + "=?",
 					new String[] {"1"},
 					null
 					);
@@ -191,5 +194,5 @@ public class TravelTimesSyncService extends IntentService {
 		
 		return starred;
 	}
-	
+
 }

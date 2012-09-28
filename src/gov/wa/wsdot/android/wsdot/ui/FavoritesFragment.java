@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
 import gov.wa.wsdot.android.wsdot.ui.widget.SeparatedListAdapter;
@@ -55,6 +56,7 @@ public class FavoritesFragment extends SherlockListFragment
 	private CameraAdapter mCameraAdapter;
 	private MountainPassAdapter mMountainPassAdapter;
 	private TravelTimesAdapter mTravelTimesAdapter;
+	private FerriesSchedulesAdapter mFerriesSchedulesAdapter;
 
 	private static final String[] cameras_projection = {
 		Cameras._ID,
@@ -93,9 +95,19 @@ public class FavoritesFragment extends SherlockListFragment
 		TravelTimes.TRAVEL_TIMES_IS_STARRED
 		};
 	
+	private static final String[] ferries_schedules_projection = {
+			FerriesSchedules._ID,
+			FerriesSchedules.FERRIES_SCHEDULE_ID,
+			FerriesSchedules.FERRIES_SCHEDULE_TITLE,
+			FerriesSchedules.FERRIES_SCHEDULE_DATE,
+			FerriesSchedules.FERRIES_SCHEDULE_UPDATED,
+			FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED
+			};
+	
 	private static final int CAMERAS_LOADER_ID = 0;
 	private static final int MOUNTAIN_PASSES_LOADER_ID = 1;
 	private static final int TRAVEL_TIMES_LOADER_ID = 2;
+	private static final int FERRIES_SCHEDULES_LOADER_ID = 3;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -133,11 +145,13 @@ public class FavoritesFragment extends SherlockListFragment
 		mCameraAdapter = new CameraAdapter(getActivity(), null, false);
 		mMountainPassAdapter = new MountainPassAdapter(getActivity(), null, false);
 		mTravelTimesAdapter = new TravelTimesAdapter(getActivity(), null, false);
+		mFerriesSchedulesAdapter = new FerriesSchedulesAdapter(getActivity(), null, false);
 		
 		
 		getLoaderManager().initLoader(CAMERAS_LOADER_ID, null, this);
 		getLoaderManager().initLoader(MOUNTAIN_PASSES_LOADER_ID, null, this);
 		getLoaderManager().initLoader(TRAVEL_TIMES_LOADER_ID, null, this);
+		getLoaderManager().initLoader(FERRIES_SCHEDULES_LOADER_ID, null, this);
 		
 	    TextView t = (TextView) mEmptyView;
 		t.setText(R.string.no_favorites);
@@ -178,6 +192,16 @@ public class FavoritesFragment extends SherlockListFragment
 			b.putInt("isStarred", c.getInt(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_IS_STARRED)));
 			intent.putExtras(b);
 			startActivity(intent);
+		} else if (type.equals("ferries_schedules")) {
+			Cursor c = (Cursor) mAdapter.getItem(position);
+			Bundle b = new Bundle();
+			Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDaySailingsActivity.class);
+			b.putInt("id", c.getInt(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_ID)));
+			b.putString("title", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE)));
+			b.putString("date", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_DATE)));
+			b.putInt("isStarred", c.getInt(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED)));
+			intent.putExtras(b);
+			startActivity(intent);
 		}
 	}
 
@@ -215,6 +239,16 @@ public class FavoritesFragment extends SherlockListFragment
 					null
 					);
 			break;
+	    case 3:
+			cursorLoader = new CursorLoader(
+					getActivity(),
+					FerriesSchedules.CONTENT_URI,
+					ferries_schedules_projection,
+					FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED + "=?",
+					new String[] {Integer.toString(1)},
+					null
+					);
+			break;
 		}
 
 		return cursorLoader;
@@ -233,11 +267,17 @@ public class FavoritesFragment extends SherlockListFragment
 		case 2:
 			mTravelTimesAdapter.swapCursor(cursor);
 			break;
+		case 3:
+			mFerriesSchedulesAdapter.swapCursor(cursor);
+			break;
 		}
 		
 		if (mCameraAdapter.getCount() > 0) {
 			mAdapter.addSection("Cameras", mCameraAdapter);
 		} 
+		if (mFerriesSchedulesAdapter.getCount() > 0) {
+			mAdapter.addSection("Ferries Route Schedules", mFerriesSchedulesAdapter);
+		}
 		if (mMountainPassAdapter.getCount() > 0) {
 			mAdapter.addSection("Mountain Passes", mMountainPassAdapter);
 		}
@@ -259,6 +299,10 @@ public class FavoritesFragment extends SherlockListFragment
 			break;
 		case 2:
 			mTravelTimesAdapter.swapCursor(null);
+			break;
+		case 3:
+			mFerriesSchedulesAdapter.swapCursor(null);
+			break;
 		}
 	}
 	
@@ -403,7 +447,8 @@ public class FavoritesFragment extends SherlockListFragment
         	viewholder.current_time.setText(current + " min");
         	viewholder.current_time.setTypeface(tfb);
         	
-        	viewholder.updated.setText(cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_UPDATED)));
+        	String created_at = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_UPDATED));
+        	viewholder.updated.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
         	viewholder.updated.setTypeface(tf);
 
         	viewholder.star_button.setVisibility(View.GONE);
@@ -419,11 +464,11 @@ public class FavoritesFragment extends SherlockListFragment
 		}
 		
 		private class ViewHolder {
-			public TextView title;
-			public TextView current_time;
-			public TextView distance_average_time;
-			public TextView updated;
-			public CheckBox star_button;
+			TextView title;
+			TextView current_time;
+			TextView distance_average_time;
+			TextView updated;
+			CheckBox star_button;
 			
 			public ViewHolder(View view) {
 				title = (TextView) view.findViewById(R.id.title);
@@ -433,6 +478,51 @@ public class FavoritesFragment extends SherlockListFragment
 				star_button = (CheckBox) view.findViewById(R.id.star_button);
 			}
 		}		
+		
+	}
+	
+	public class FerriesSchedulesAdapter extends CursorAdapter {
+	    private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+
+		public FerriesSchedulesAdapter(Context context, Cursor c, boolean autoRequery) {
+			super(context, c, autoRequery);
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+            ViewHolder viewholder = (ViewHolder) ((Object[]) view.getTag())[0];
+
+            String title = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE));
+            viewholder.title.setText(title);
+            viewholder.title.setTypeface(tf);
+            
+            String created_at = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_UPDATED));
+            viewholder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
+            viewholder.created_at.setTypeface(tf);
+            
+            viewholder.star_button.setVisibility(View.GONE);
+		}
+
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            View view = LayoutInflater.from(context).inflate(R.layout.list_item_with_star, null);
+            ViewHolder viewholder = new ViewHolder(view);
+            view.setTag(new Object[] { viewholder, "ferries_schedules" });
+            
+            return view;
+		}
+		
+        private class ViewHolder {
+            TextView title;
+            TextView created_at;
+            CheckBox star_button;
+
+            public ViewHolder(View view) {
+                    title = (TextView) view.findViewById(R.id.title);
+                    created_at = (TextView) view.findViewById(R.id.created_at);
+                    star_button = (CheckBox) view.findViewById(R.id.star_button);
+            }
+        }		
 		
 	}
     

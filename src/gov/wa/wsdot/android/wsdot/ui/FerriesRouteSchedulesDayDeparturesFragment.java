@@ -59,7 +59,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		
-		terminalItem = (FerriesTerminalItem)activity.getIntent().getSerializableExtra("terminalItems");
+		terminalItem = (FerriesTerminalItem) getArguments().getSerializable("terminalItems");
 	}
 
 	@Override
@@ -204,6 +204,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 	private class DepartureTimesAdapter extends ArrayAdapter<FerriesScheduleTimesItem> {
 		private final LayoutInflater mInflater;
 		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
         public DepartureTimesAdapter(Context context) {
 	        super(context, R.layout.simple_list_item);
@@ -220,8 +221,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
         }        
         
         public void setData(ArrayList<FerriesScheduleTimesItem> data) {
-            clear();
-            if (data != null) {
+        	if (data != null) {
                 //addAll(data); // Only in API level 11
                 notifyDataSetChanged();
                 for (int i=0; i < data.size(); i++) {
@@ -234,9 +234,19 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 	        DateFormat dateFormat = new SimpleDateFormat("hh:mm a");
+	        ViewHolder holder;
 	        
 	        if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.simple_list_item, null);
+	            convertView = mInflater.inflate(R.layout.list_item_departure_times, null);
+	            holder = new ViewHolder();
+	            holder.title = (TextView) convertView.findViewById(R.id.title);
+	            holder.title.setTypeface(tfb);
+	            holder.description = (TextView) convertView.findViewById(R.id.description);
+	            holder.description.setTypeface(tf);
+	            
+	            convertView.setTag(holder);
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
 	        
 	        FerriesScheduleTimesItem item = getItem(position);
@@ -247,23 +257,16 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 	        	annotation += p.getAnnotation();
 	        }
 	        
-	        if (item != null) {
-	            TextView tt = (TextView) convertView.findViewById(R.id.title);
-	            tt.setTypeface(tf);
-            	tt.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
-	            
-	            TextView bt = (TextView) convertView.findViewById(R.id.description);
-	            bt.setTypeface(tf);
-           		bt.setText(annotation);
-	        }
+        	holder.title.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
+       		holder.description.setText(android.text.Html.fromHtml(annotation));
 	        
 	        return convertView;
         }
+        
+    	private class ViewHolder {
+    		public TextView title;
+    		public TextView description;
+    	}
 	}
-	
-	public static class ViewHolder {
-		public TextView tt;
-		public TextView bt;
-	}	
 	
 }
