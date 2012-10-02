@@ -47,6 +47,7 @@ import android.util.Log;
 public class FerriesSchedulesSyncService extends IntentService {
 
 	private static final String DEBUG_TAG = "FerriesSchedulesSyncService";
+	private static final String FERRIES_SCHEDULES_URL = "http://data.wsdot.wa.gov/mobile/WSFRouteSchedules.js.gz";
 	
 	public FerriesSchedulesSyncService() {
 		super("FerriesSchedulesSyncService");
@@ -90,13 +91,12 @@ public class FerriesSchedulesSyncService extends IntentService {
 		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
 		
 		if (shouldUpdate || forceUpdate) {
-			String requestString = intent.getStringExtra("url");
 			List<Integer> starred = new ArrayList<Integer>();
 
 			starred = getStarred();
 			
 			try {
-				URL url = new URL(requestString);
+				URL url = new URL(FERRIES_SCHEDULES_URL);
 				URLConnection urlConn = url.openConnection();
 				
 				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());

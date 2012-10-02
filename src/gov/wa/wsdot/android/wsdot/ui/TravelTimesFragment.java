@@ -60,7 +60,6 @@ public class TravelTimesFragment extends SherlockListFragment
 	private static TravelTimesAdapter adapter;
 	private static View mLoadingSpinner;
 	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
-	private static final String TRAVEL_TIMES_URL = "http://data.wsdot.wa.gov/mobile/TravelTimes.js.gz";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -74,7 +73,6 @@ public class TravelTimesFragment extends SherlockListFragment
 		getActivity().registerReceiver(mTravelTimesSyncReceiver, filter);
 		
 		Intent intent = new Intent(getActivity(), TravelTimesSyncService.class);
-	    intent.putExtra("url", TRAVEL_TIMES_URL);
 		getActivity().startService(intent);
 		
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Traffic Map/Travel Times");
@@ -137,7 +135,6 @@ public class TravelTimesFragment extends SherlockListFragment
 		case R.id.menu_refresh:
 			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 			Intent intent = new Intent(getActivity(), TravelTimesSyncService.class);
-		    intent.putExtra("url", TRAVEL_TIMES_URL);
 		    intent.putExtra("forceUpdate", true);
 			getActivity().startService(intent);
 		}

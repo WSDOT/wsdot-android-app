@@ -43,6 +43,7 @@ import java.util.zip.GZIPInputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -54,10 +55,13 @@ import android.util.Log;
 public class MountainPassesSyncService extends IntentService {
 
 	private static final String DEBUG_TAG = "MountainPassesSyncService";
+	@SuppressLint("UseSparseArrays")
 	private static HashMap<Integer, String[]> weatherPhrases = new HashMap<Integer, String[]>();
+	@SuppressLint("UseSparseArrays")
 	private static HashMap<Integer, String[]> weatherPhrasesNight = new HashMap<Integer, String[]>();
 	private static DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m"); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
 	private static DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+	private static final String MOUNTAIN_PASS_URL = "http://data.wsdot.wa.gov/mobile/MountainPassConditions.js.gz";
 	
 	public MountainPassesSyncService() {
 		super("MountainPassesSyncService");
@@ -100,14 +104,13 @@ public class MountainPassesSyncService extends IntentService {
 		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
 		
 		if (shouldUpdate || forceUpdate) {
-			String requestString = intent.getStringExtra("url");
 			List<Integer> starred = new ArrayList<Integer>();
 
 			starred = getStarred();
 	        buildWeatherPhrases();
 			
 			try {
-				URL url = new URL(requestString);
+				URL url = new URL(MOUNTAIN_PASS_URL);
 				URLConnection urlConn = url.openConnection();
 				
 				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());

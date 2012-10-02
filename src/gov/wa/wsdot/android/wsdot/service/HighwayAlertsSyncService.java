@@ -44,6 +44,7 @@ import android.util.Log;
 public class HighwayAlertsSyncService extends IntentService {
 	
 	private static final String DEBUG_TAG = "HighwayAlertsSyncService";
+	private static final String HIGHWAY_ALERTS_URL = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz";
 
 	private String[] projection = {
     		Caches.CACHE_LAST_UPDATED
@@ -90,10 +91,9 @@ public class HighwayAlertsSyncService extends IntentService {
 		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
 		
 		if (shouldUpdate || forceUpdate) {
-			String requestString = intent.getStringExtra("url");
 			
 	    	try {
-				URL url = new URL(requestString);
+				URL url = new URL(HIGHWAY_ALERTS_URL);
 				URLConnection urlConn = url.openConnection();
 				
 				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());

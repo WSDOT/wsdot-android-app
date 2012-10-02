@@ -68,7 +68,6 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	private ArrayList<HighwayAlertsItem> alertItems = new ArrayList<HighwayAlertsItem>();
 	private Handler mHandler = new Handler();
 	private Timer timer;
-	private static final String HIGHWAY_ALERTS_URL = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz";
     
     @Override
     public void onAttach(Activity activity) {
@@ -140,7 +139,6 @@ public class HighImpactAlertsFragment extends SherlockFragment
 		case R.id.menu_refresh:
 			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 			Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-		    intent.putExtra("url", HIGHWAY_ALERTS_URL);
 		    intent.putExtra("forceUpdate", true);
 			getActivity().startService(intent);
 		}
@@ -152,7 +150,6 @@ public class HighImpactAlertsFragment extends SherlockFragment
         private Runnable runnable = new Runnable() {
             public void run() {
             	Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-    		    intent.putExtra("url", HIGHWAY_ALERTS_URL);
     			getActivity().startService(intent);
             }
         };

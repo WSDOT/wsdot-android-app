@@ -66,10 +66,6 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	private CamerasSyncReceiver mCamerasReceiver;
 	private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
 	private Intent camerasIntent;
-	
-	private static final String CAMERAS_URL = "http://data.wsdot.wa.gov/mobile/Cameras.js.gz";
-	private static final String HIGHWAY_ALERTS_URL = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz";
-	
 	private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
 	
 	@Override
@@ -124,11 +120,9 @@ public class TrafficMapActivity extends SherlockMapActivity {
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
     
 		camerasIntent = new Intent(TrafficMapActivity.this, CamerasSyncService.class);
-	    camerasIntent.putExtra("url", CAMERAS_URL);
 		startService(camerasIntent);        
 
 		Intent alertsIntent = new Intent(TrafficMapActivity.this, HighwayAlertsSyncService.class);
-	    alertsIntent.putExtra("url", HIGHWAY_ALERTS_URL);
 		startService(alertsIntent);
     }
 	

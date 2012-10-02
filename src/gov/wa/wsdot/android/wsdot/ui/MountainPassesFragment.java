@@ -60,7 +60,6 @@ public class MountainPassesFragment extends SherlockListFragment
 	private static MountainPassAdapter adapter;
 	private static View mLoadingSpinner;
 	private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
-	private static final String MOUNTAINPASS_URL = "http://data.wsdot.wa.gov/mobile/MountainPassConditions.js.gz";
 	
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -74,7 +73,6 @@ public class MountainPassesFragment extends SherlockListFragment
 		getActivity().registerReceiver(mMountainPassesSyncReceiver, filter);
 		
 		Intent intent = new Intent(getActivity(), MountainPassesSyncService.class);
-	    intent.putExtra("url", MOUNTAINPASS_URL);
 		getActivity().startService(intent);
 		
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Mountain Passes");
@@ -128,7 +126,6 @@ public class MountainPassesFragment extends SherlockListFragment
 		case R.id.menu_refresh:
 			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 			Intent intent = new Intent(getActivity(), MountainPassesSyncService.class);
-		    intent.putExtra("url", MOUNTAINPASS_URL);
 		    intent.putExtra("forceUpdate", true);
 			getActivity().startService(intent);			
 		}

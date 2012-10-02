@@ -58,7 +58,6 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 	private static RouteSchedulesAdapter adapter;
 	private static View mLoadingSpinner;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
-	private static final String FERRIES_SCHEDULES_URL = "http://data.wsdot.wa.gov/mobile/WSFRouteSchedules.js.gz";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -72,7 +71,6 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 		getActivity().registerReceiver(mFerriesSchedulesSyncReceiver, filter);
 		
 		Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
-	    intent.putExtra("url", FERRIES_SCHEDULES_URL);
 		getActivity().startService(intent);
         
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/Ferries/Route Schedules");
@@ -127,7 +125,6 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 		case R.id.menu_refresh:
 			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 			Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
-		    intent.putExtra("url", FERRIES_SCHEDULES_URL);
 		    intent.putExtra("forceUpdate", true);
 			getActivity().startService(intent);
 		}

@@ -44,6 +44,7 @@ import android.util.Log;
 public class TravelTimesSyncService extends IntentService {
 	
 	private static final String DEBUG_TAG = "TravelTimesSyncService";
+	private static final String TRAVEL_TIMES_URL = "http://data.wsdot.wa.gov/mobile/TravelTimes.js.gz";
 
 	public TravelTimesSyncService() {
 		super("TravelTimesSyncService");
@@ -86,13 +87,12 @@ public class TravelTimesSyncService extends IntentService {
 		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
 		
 		if (shouldUpdate || forceUpdate) {
-			String requestString = intent.getStringExtra("url");
 			List<Integer> starred = new ArrayList<Integer>();
 
 			starred = getStarred();
 			
 			try {
-				URL url = new URL(requestString);
+				URL url = new URL(TRAVEL_TIMES_URL);
 				URLConnection urlConn = url.openConnection();
 				
 				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
