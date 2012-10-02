@@ -20,7 +20,6 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
@@ -45,6 +44,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -234,7 +234,10 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 					int rowId = (Integer) buttonView.getTag();
 					ContentValues values = new ContentValues();
 					values.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, isChecked ? 1 : 0);
-
+					
+					int toastMessage = isChecked ? R.string.add_favorite : R.string.remove_favorite;
+					Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
+					
 					getActivity().getContentResolver().update(
 							FerriesSchedules.CONTENT_URI,
 							values,

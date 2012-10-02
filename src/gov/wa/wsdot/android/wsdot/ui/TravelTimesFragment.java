@@ -42,6 +42,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
@@ -269,6 +270,9 @@ public class TravelTimesFragment extends SherlockListFragment
 					ContentValues values = new ContentValues();
 					values.put(TravelTimes.TRAVEL_TIMES_IS_STARRED, isChecked ? 1 : 0);
 
+					int toastMessage = isChecked ? R.string.add_favorite : R.string.remove_favorite;
+					Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
+					
 					getActivity().getContentResolver().update(
 							TravelTimes.CONTENT_URI,
 							values,

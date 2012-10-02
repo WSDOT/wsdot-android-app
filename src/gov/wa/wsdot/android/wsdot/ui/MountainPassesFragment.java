@@ -45,6 +45,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -272,6 +273,9 @@ public class MountainPassesFragment extends SherlockListFragment
 					ContentValues values = new ContentValues();
 					values.put(MountainPasses.MOUNTAIN_PASS_IS_STARRED, isChecked ? 1 : 0);
 
+					int toastMessage = isChecked ? R.string.add_favorite : R.string.remove_favorite;
+					Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
+					
 					getActivity().getContentResolver().update(
 							MountainPasses.CONTENT_URI,
 							values,
