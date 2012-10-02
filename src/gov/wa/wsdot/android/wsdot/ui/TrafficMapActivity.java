@@ -67,6 +67,9 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
 	private Intent camerasIntent;
 	
+	private static final String CAMERAS_URL = "http://data.wsdot.wa.gov/mobile/Cameras.js.gz";
+	private static final String HIGHWAY_ALERTS_URL = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz";
+	
 	private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
 	
 	@Override
@@ -86,12 +89,12 @@ public class TrafficMapActivity extends SherlockMapActivity {
         // Initialize AsyncTask
         mCamerasOverlayTask = new CamerasOverlayTask();
         
-        IntentFilter camerasFilter = new IntentFilter(CamerasSyncReceiver.PROCESS_RESPONSE);
+        IntentFilter camerasFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
         camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
         mCamerasReceiver = new CamerasSyncReceiver();
         registerReceiver(mCamerasReceiver, camerasFilter); 
         
-        IntentFilter alertsFilter = new IntentFilter(HighwayAlertsSyncReceiver.PROCESS_RESPONSE);
+        IntentFilter alertsFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
         alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
         mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
         registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);         
@@ -121,11 +124,11 @@ public class TrafficMapActivity extends SherlockMapActivity {
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
     
 		camerasIntent = new Intent(TrafficMapActivity.this, CamerasSyncService.class);
-	    camerasIntent.putExtra(CamerasSyncService.REQUEST_STRING, "http://data.wsdot.wa.gov/mobile/Cameras.js.gz");
+	    camerasIntent.putExtra("url", CAMERAS_URL);
 		startService(camerasIntent);        
 
 		Intent alertsIntent = new Intent(TrafficMapActivity.this, HighwayAlertsSyncService.class);
-	    alertsIntent.putExtra(HighwayAlertsSyncService.REQUEST_STRING, "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz");
+	    alertsIntent.putExtra("url", HIGHWAY_ALERTS_URL);
 		startService(alertsIntent);
     }
 	
@@ -184,11 +187,10 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	}
 	
 	public class CamerasSyncReceiver extends BroadcastReceiver {
-		public static final String PROCESS_RESPONSE = "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE";
-		
+
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String responseString = intent.getStringExtra(CamerasSyncService.RESPONSE_STRING);
+			String responseString = intent.getStringExtra("responseString");
 			if (responseString.equals("OK") || responseString.equals("NOOP")) {
 				// We've got cameras, now add them.
 				if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
@@ -204,11 +206,10 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	}
 	
 	public class HighwayAlertsSyncReceiver extends BroadcastReceiver {
-		public static final String PROCESS_RESPONSE = "gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE";
-		
+
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String responseString = intent.getStringExtra(HighwayAlertsSyncService.RESPONSE_STRING);
+			String responseString = intent.getStringExtra("responseString");
 			if (responseString.equals("OK") || responseString.equals("NOOP")) {
 				new HighwayAlertsOverlayTask().execute(); // We've got alerts, now add them.
 			} else {

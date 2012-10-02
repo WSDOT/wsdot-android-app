@@ -68,7 +68,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	private ArrayList<HighwayAlertsItem> alertItems = new ArrayList<HighwayAlertsItem>();
 	private Handler mHandler = new Handler();
 	private Timer timer;
-	private static final String HIGHWAYALERTS_URL = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz";
+	private static final String HIGHWAY_ALERTS_URL = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz";
     
     @Override
     public void onAttach(Activity activity) {
@@ -81,7 +81,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
 
 		setHasOptionsMenu(true);
 		
-        IntentFilter alertsFilter = new IntentFilter(HighwayAlertsSyncReceiver.PROCESS_RESPONSE);
+        IntentFilter alertsFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
         alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
         mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
         getActivity().registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);		
@@ -140,8 +140,8 @@ public class HighImpactAlertsFragment extends SherlockFragment
 		case R.id.menu_refresh:
 			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 			Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-		    intent.putExtra(HighwayAlertsSyncService.REQUEST_STRING, HIGHWAYALERTS_URL);
-		    intent.putExtra(HighwayAlertsSyncService.REQUEST_FORCE_UPDATE, true);
+		    intent.putExtra("url", HIGHWAY_ALERTS_URL);
+		    intent.putExtra("forceUpdate", true);
 			getActivity().startService(intent);
 		}
 		
@@ -152,7 +152,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
         private Runnable runnable = new Runnable() {
             public void run() {
             	Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-    		    intent.putExtra(HighwayAlertsSyncService.REQUEST_STRING, HIGHWAYALERTS_URL);
+    		    intent.putExtra("url", HIGHWAY_ALERTS_URL);
     			getActivity().startService(intent);
             }
         };
@@ -326,7 +326,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
 		
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String responseString = intent.getStringExtra(HighwayAlertsSyncService.RESPONSE_STRING);
+			String responseString = intent.getStringExtra("responseString");
 			if (responseString.equals("OK")) {
 				getLoaderManager().restartLoader(0, null, HighImpactAlertsFragment.this); // We've got alerts, now add them.
 			} else if (responseString.equals("NOOP")) {

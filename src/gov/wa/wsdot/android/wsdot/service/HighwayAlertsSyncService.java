@@ -20,7 +20,6 @@ package gov.wa.wsdot.android.wsdot.service;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
-import gov.wa.wsdot.android.wsdot.ui.TrafficMapActivity.HighwayAlertsSyncReceiver;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -45,11 +44,8 @@ import android.util.Log;
 public class HighwayAlertsSyncService extends IntentService {
 	
 	private static final String DEBUG_TAG = "HighwayAlertsSyncService";
-    public static final String REQUEST_STRING = "alertsRequest";
-    public static final String REQUEST_FORCE_UPDATE = "false";
-    public static final String RESPONSE_STRING = "alertsResponse";
-	
-    private String[] projection = {
+
+	private String[] projection = {
     		Caches.CACHE_LAST_UPDATED
     		};
     
@@ -91,10 +87,10 @@ public class HighwayAlertsSyncService extends IntentService {
 		}
 		
 		// Tapping the refresh button will force a data refresh.
-		boolean forceUpdate = intent.getBooleanExtra(REQUEST_FORCE_UPDATE, false);
+		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
 		
 		if (shouldUpdate || forceUpdate) {
-			String requestString = intent.getStringExtra(REQUEST_STRING);
+			String requestString = intent.getStringExtra("url");
 			
 	    	try {
 				URL url = new URL(requestString);
@@ -154,9 +150,9 @@ public class HighwayAlertsSyncService extends IntentService {
 		}
 		
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(HighwayAlertsSyncReceiver.PROCESS_RESPONSE);
+        broadcastIntent.setAction("gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.putExtra(RESPONSE_STRING, responseString);
+        broadcastIntent.putExtra("responseString", responseString);
         sendBroadcast(broadcastIntent);   	
 	}	
 

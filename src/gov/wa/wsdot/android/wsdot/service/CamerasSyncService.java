@@ -20,7 +20,6 @@ package gov.wa.wsdot.android.wsdot.service;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
-import gov.wa.wsdot.android.wsdot.ui.TrafficMapActivity.CamerasSyncReceiver;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -45,9 +44,6 @@ import android.util.Log;
 public class CamerasSyncService extends IntentService {
 	
 	private static final String DEBUG_TAG = "CamerasSyncService";
-    public static final String REQUEST_STRING = "cameraRequest";
-    public static final String REQUEST_FORCE_UPDATE = "false";
-    public static final String RESPONSE_STRING = "cameraResponse";
 	
     private String[] projection = {
     		Caches.CACHE_LAST_UPDATED
@@ -91,10 +87,10 @@ public class CamerasSyncService extends IntentService {
 		}
 		
 		// Ability to force a refresh of camera data.
-		boolean forceUpdate = intent.getBooleanExtra(REQUEST_FORCE_UPDATE, false);
+		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
 		
 		if (shouldUpdate || forceUpdate) {
-			String requestString = intent.getStringExtra(REQUEST_STRING);
+			String requestString = intent.getStringExtra("url");
 			List<Integer> starred = new ArrayList<Integer>();
 			
 			starred = getStarred();
@@ -161,9 +157,9 @@ public class CamerasSyncService extends IntentService {
 		}
 		
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(CamerasSyncReceiver.PROCESS_RESPONSE);
+        broadcastIntent.setAction("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        broadcastIntent.putExtra(RESPONSE_STRING, responseString);
+        broadcastIntent.putExtra("responseString", responseString);
         sendBroadcast(broadcastIntent);   	
 	}
 
