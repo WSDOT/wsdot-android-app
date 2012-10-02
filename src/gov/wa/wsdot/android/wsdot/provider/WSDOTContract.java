@@ -96,6 +96,7 @@ public class WSDOTContract {
 	private static final String PATH_MOUNTAIN_PASSES = "mountain_passes";
 	private static final String PATH_TRAVEL_TIMES = "travel_times";
 	private static final String PATH_FERRIES_SCHEDULES = "ferries_schedules";
+	private static final String PATH_SEARCH = "search";
 	
 	public static class Caches implements BaseColumns, CachesColumns {
 		public static final Uri CONTENT_URI =
@@ -143,6 +144,9 @@ public class WSDOTContract {
 	public static class TravelTimes implements BaseColumns, TravelTimesColumns {
 		public static final Uri CONTENT_URI =
 				BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAVEL_TIMES).build();
+		
+		public static final Uri CONTENT_FILTER_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAVEL_TIMES).appendPath(PATH_SEARCH).build();
 		
 	    public static final String CONTENT_TYPE =
 	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/travel_time";

@@ -37,29 +37,33 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
+import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
 
 public class TravelTimesFragment extends SherlockListFragment
-	implements LoaderCallbacks<Cursor> {
+	implements LoaderCallbacks<Cursor>, OnQueryTextListener {
 
 	@SuppressWarnings("unused")
 	private static final String DEBUG_TAG = "TravelTimes";
 	private static TravelTimesAdapter adapter;
 	private static View mLoadingSpinner;
+	//private View mEmptyView;
 	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
+	private String mFilter;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -91,6 +95,7 @@ public class TravelTimesFragment extends SherlockListFragment
                 ViewGroup.LayoutParams.FILL_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        //mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
 	}
@@ -101,6 +106,10 @@ public class TravelTimesFragment extends SherlockListFragment
 		
 		adapter = new TravelTimesAdapter(getActivity(), null, false);
 		setListAdapter(adapter);
+
+		//TextView t = (TextView) mEmptyView;
+		//t.setText(R.string.no_favorites);
+		//getListView().setEmptyView(mEmptyView);	
 		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.        
@@ -122,13 +131,27 @@ public class TravelTimesFragment extends SherlockListFragment
         //Create the search view
         SearchView searchView = new SearchView(getSherlockActivity().getSupportActionBar().getThemedContext());
         searchView.setQueryHint("Search Travel Times");
+        searchView.setOnQueryTextListener(this);
 		
         menu.add(R.string.search_title)
-        .setIcon(R.drawable.ic_menu_search)
-        .setActionView(searchView)
-        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        	.setIcon(R.drawable.ic_menu_search)
+        	.setActionView(searchView)
+        	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 	}
 
+	public boolean onQueryTextChange(String newText) {
+        // Called when the action bar search text has changed. Update the search filter.
+        mFilter = !TextUtils.isEmpty(newText) ? newText : null;
+        
+        return true;
+	}
+
+	public boolean onQueryTextSubmit(String query) {
+		getLoaderManager().restartLoader(0, null, this);
+		
+		return false;
+	}
+    
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
@@ -154,8 +177,16 @@ public class TravelTimesFragment extends SherlockListFragment
 				TravelTimes.TRAVEL_TIMES_IS_STARRED
 				};
 		
+        Uri baseUri;
+        
+        if (mFilter != null) {
+            baseUri = Uri.withAppendedPath(TravelTimes.CONTENT_FILTER_URI, Uri.encode(mFilter));
+        } else {
+            baseUri = TravelTimes.CONTENT_URI;
+        }
+		
 		CursorLoader cursorLoader = new TravelTimesItemsLoader(getActivity(),
-				TravelTimes.CONTENT_URI,
+				baseUri,
 				projection,
 				null,
 				null,
@@ -168,12 +199,7 @@ public class TravelTimesFragment extends SherlockListFragment
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
 		
-		if (cursor.moveToFirst()) {
-			mLoadingSpinner.setVisibility(View.GONE);
-		} else {
-			mLoadingSpinner.setVisibility(View.VISIBLE);
-		}
-		
+		mLoadingSpinner.setVisibility(View.GONE);
 		adapter.swapCursor(cursor);
 	}
 

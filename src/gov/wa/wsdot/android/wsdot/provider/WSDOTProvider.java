@@ -60,6 +60,7 @@ public class WSDOTProvider extends ContentProvider {
     
     private static final int TRAVEL_TIMES = 500;
     private static final int TRAVEL_TIMES_ID = 501;
+    private static final int TRAVEL_TIMES_SEARCH = 502;
     
     private static final int FERRIES_SCHEDULES = 600;
     private static final int FERRIES_SCHEDULES_ID = 601;
@@ -78,6 +79,7 @@ public class WSDOTProvider extends ContentProvider {
         matcher.addURI(authority, "mountain_passes/#", MOUNTAIN_PASSES_ID);
         matcher.addURI(authority, "travel_times", TRAVEL_TIMES);
         matcher.addURI(authority, "travel_times/#", TRAVEL_TIMES_ID);
+        matcher.addURI(authority, "travel_times/search/*", TRAVEL_TIMES_SEARCH);
         matcher.addURI(authority, "ferries_schedules", FERRIES_SCHEDULES);
         matcher.addURI(authority, "ferries_schedules/#", FERRIES_SCHEDULES_ID);
         
@@ -114,6 +116,8 @@ public class WSDOTProvider extends ContentProvider {
         	return TravelTimes.CONTENT_TYPE;
         case TRAVEL_TIMES_ID:
         	return TravelTimes.CONTENT_ITEM_TYPE;
+        case TRAVEL_TIMES_SEARCH:
+        	return TravelTimes.CONTENT_TYPE;
         case FERRIES_SCHEDULES:
         	return FerriesSchedules.CONTENT_TYPE;
         case FERRIES_SCHEDULES_ID:
@@ -172,6 +176,12 @@ public class WSDOTProvider extends ContentProvider {
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.TRAVEL_TIMES);
 	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
 	        break;
+	        
+	    case TRAVEL_TIMES_SEARCH:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.TRAVEL_TIMES);
+	    	queryBuilder.appendWhere(TravelTimes.TRAVEL_TIMES_TITLE + " LIKE '%" + uri.getLastPathSegment() + "%'");
+	    	break;
+	        
 	    case FERRIES_SCHEDULES:
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.FERRIES_SCHEDULES);
 	    	// no filter
