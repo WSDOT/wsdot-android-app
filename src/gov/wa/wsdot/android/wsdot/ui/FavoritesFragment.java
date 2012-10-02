@@ -23,11 +23,16 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
+import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
+import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
+import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
 import gov.wa.wsdot.android.wsdot.ui.widget.SeparatedListAdapter;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -50,6 +55,7 @@ import com.actionbarsherlock.app.SherlockListFragment;
 public class FavoritesFragment extends SherlockListFragment
 	implements LoaderCallbacks<Cursor>{
 
+	@SuppressWarnings("unused")
 	private View mLoadingSpinner;
 	private View mEmptyView;
 	private SeparatedListAdapter mAdapter;
@@ -57,6 +63,14 @@ public class FavoritesFragment extends SherlockListFragment
 	private MountainPassAdapter mMountainPassAdapter;
 	private TravelTimesAdapter mTravelTimesAdapter;
 	private FerriesSchedulesAdapter mFerriesSchedulesAdapter;
+	
+	private Intent mFerriesSchedulesIntent;
+	private Intent mMountainPassesIntent;
+	private Intent mTravelTimesIntent;
+	
+	private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
+	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
+	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
 
 	private static final String[] cameras_projection = {
 		Cameras._ID,
@@ -112,12 +126,29 @@ public class FavoritesFragment extends SherlockListFragment
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-        //setRetainInstance(true);
             
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/Favorites");
+
+        // Ferries Route Schedules
+		IntentFilter ferriesSchedulesFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
+		ferriesSchedulesFilter.addCategory(Intent.CATEGORY_DEFAULT);
+		mFerriesSchedulesSyncReceiver = new FerriesSchedulesSyncReceiver();
+		getActivity().registerReceiver(mFerriesSchedulesSyncReceiver, ferriesSchedulesFilter);
+		mFerriesSchedulesIntent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
+        
+		// Mountain Passes
+        IntentFilter mountainPassesFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
+        mountainPassesFilter.addCategory(Intent.CATEGORY_DEFAULT);
+		mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
+		getActivity().registerReceiver(mMountainPassesSyncReceiver, mountainPassesFilter);
+		mMountainPassesIntent = new Intent(getActivity(), MountainPassesSyncService.class);
+		
+		// Travel Times
+		IntentFilter travelTimesfilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
+		travelTimesfilter.addCategory(Intent.CATEGORY_DEFAULT);
+		mTravelTimesSyncReceiver = new TravelTimesSyncReceiver();
+		getActivity().registerReceiver(mTravelTimesSyncReceiver, travelTimesfilter);
+		mTravelTimesIntent = new Intent(getActivity(), TravelTimesSyncService.class);
 	}
 	
     @SuppressWarnings("deprecation")
@@ -147,7 +178,6 @@ public class FavoritesFragment extends SherlockListFragment
 		mTravelTimesAdapter = new TravelTimesAdapter(getActivity(), null, false);
 		mFerriesSchedulesAdapter = new FerriesSchedulesAdapter(getActivity(), null, false);
 		
-		
 		getLoaderManager().initLoader(CAMERAS_LOADER_ID, null, this);
 		getLoaderManager().initLoader(MOUNTAIN_PASSES_LOADER_ID, null, this);
 		getLoaderManager().initLoader(TRAVEL_TIMES_LOADER_ID, null, this);
@@ -156,6 +186,15 @@ public class FavoritesFragment extends SherlockListFragment
 	    TextView t = (TextView) mEmptyView;
 		t.setText(R.string.no_favorites);
 		getListView().setEmptyView(mEmptyView);	
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		
+		getActivity().unregisterReceiver(mFerriesSchedulesSyncReceiver);
+		getActivity().unregisterReceiver(mMountainPassesSyncReceiver);
+		getActivity().unregisterReceiver(mTravelTimesSyncReceiver);
 	}
 	
 	@Override
@@ -277,12 +316,15 @@ public class FavoritesFragment extends SherlockListFragment
 		} 
 		if (mFerriesSchedulesAdapter.getCount() > 0) {
 			mAdapter.addSection("Ferries Route Schedules", mFerriesSchedulesAdapter);
+			getActivity().startService(mFerriesSchedulesIntent);
 		}
 		if (mMountainPassAdapter.getCount() > 0) {
 			mAdapter.addSection("Mountain Passes", mMountainPassAdapter);
+			getActivity().startService(mMountainPassesIntent);
 		}
 		if (mTravelTimesAdapter.getCount() > 0) {
 			mAdapter.addSection("Travel Times", mTravelTimesAdapter);
+			getActivity().startService(mTravelTimesIntent);
 		}
 		
 		setListAdapter(mAdapter);
@@ -524,6 +566,45 @@ public class FavoritesFragment extends SherlockListFragment
             }
         }		
 		
+	}
+	
+	public class MountainPassesSyncReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String responseString = intent.getStringExtra("responseString");
+			if (responseString.equals("OK")) {
+				getLoaderManager().restartLoader(MOUNTAIN_PASSES_LOADER_ID, null, FavoritesFragment.this);
+			} else if (responseString.equals("NOOP")) {
+				// Nothing to do.
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			}
+		}
+	}
+	
+	public class FerriesSchedulesSyncReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String responseString = intent.getStringExtra("responseString");
+			if (responseString.equals("OK")) {
+				getLoaderManager().restartLoader(FERRIES_SCHEDULES_LOADER_ID, null, FavoritesFragment.this);
+			} else if (responseString.equals("NOOP")) {
+				// Nothing to do.
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			}
+		}
+	}
+	
+	public class TravelTimesSyncReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String responseString = intent.getStringExtra("responseString");
+			if (responseString.equals("OK")) {
+				getLoaderManager().restartLoader(TRAVEL_TIMES_LOADER_ID, null, FavoritesFragment.this);
+			} else if (responseString.equals("NOOP")) {
+				// Nothing to do.
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			}
+		}
 	}
     
 }
