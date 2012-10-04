@@ -60,10 +60,6 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 			Cameras.CAMERA_HAS_VIDEO,
 			Cameras.CAMERA_ID
 			};
-
-	private GeoPoint getPoint(double lat, double lon) {
-		return(new GeoPoint((int)(lat*1E6), (int)(lon*1E6)));
-	}	
 	
 	public CamerasOverlay(Activity activity, double topLatitude, double leftLongitude,
 			double bottomLatitude, double rightLongitude) {
@@ -124,6 +120,10 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 		 }
 		 
 		 populate();
+	}
+	
+	private GeoPoint getPoint(double lat, double lon) {
+		return(new GeoPoint((int)(lat*1E6), (int)(lon*1E6)));
 	}
 	
 	class CameraItem extends OverlayItem {
