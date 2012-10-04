@@ -408,7 +408,6 @@ public class TrafficMapActivity extends SherlockMapActivity {
 
 			if (cameras != null) {
 				map.getOverlays().remove(cameras);
-				map.invalidate();
 				cameras = null;
 			}
 
@@ -455,7 +454,6 @@ public class TrafficMapActivity extends SherlockMapActivity {
 			
 			if (alerts != null) {
 				map.getOverlays().remove(alerts);
-				map.invalidate();
 				alerts = null;
 			}
 
