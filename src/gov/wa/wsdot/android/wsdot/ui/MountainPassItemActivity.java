@@ -93,21 +93,21 @@ public class MountainPassItemActivity extends SherlockFragmentActivity {
             getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
         }        
 	}
-
+	
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star)
 			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		
+	
 		if (mIsStarred) {
 			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
 		} else {
 			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
 		}
 		
-		return super.onPrepareOptionsMenu(menu);
-	}	
-	
+		return super.onCreateOptionsMenu(menu);
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {

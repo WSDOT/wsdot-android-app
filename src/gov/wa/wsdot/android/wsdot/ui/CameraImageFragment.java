@@ -119,20 +119,6 @@ public class CameraImageFragment extends SherlockFragment
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);
 	}
-
-	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star)
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		
-		if (mIsStarred) {
-			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
-		} else {
-			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
-		}
-		
-		super.onPrepareOptionsMenu(menu);
-	}	
 	
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -146,6 +132,15 @@ public class CameraImageFragment extends SherlockFragment
 		menu.add(0, MENU_ITEM_REFRESH, menu.size(), R.string.description_refresh)
 			.setIcon(R.drawable.ic_menu_refresh)
 			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		
+		menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star)
+		.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+	
+		if (mIsStarred) {
+			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
+		} else {
+			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
+		}		
     }
 
 	@Override
