@@ -92,6 +92,7 @@ public class WSDOTContract {
 
 	private static final String PATH_CACHES = "caches";
 	private static final String PATH_CAMERAS = "cameras";
+	private static final String PATH_CAMERAS_ROAD_NAME = "road_name";
 	private static final String PATH_HIGHWAY_ALERTS = "highway_alerts";
 	private static final String PATH_MOUNTAIN_PASSES = "mountain_passes";
 	private static final String PATH_TRAVEL_TIMES = "travel_times";
@@ -112,6 +113,9 @@ public class WSDOTContract {
 	public static class Cameras implements BaseColumns, CamerasColumns {
 		public static final Uri CONTENT_URI =
 				BASE_CONTENT_URI.buildUpon().appendPath(PATH_CAMERAS).build();
+		
+		public static final Uri CONTENT_ROAD_NAME_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_CAMERAS).appendPath(PATH_CAMERAS_ROAD_NAME).build();
 		
 	    public static final String CONTENT_TYPE =
 	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/camera";

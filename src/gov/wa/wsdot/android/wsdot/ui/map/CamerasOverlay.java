@@ -31,6 +31,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -48,6 +49,7 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 	private double mLeftLongitude;
 	private double mBottomLatitude;
 	private double mRightLongitude;
+	private String mRoadName;
 	boolean showCameras;
 	boolean showShadows;
 	private ArrayList<LatLonItem> mViewableMapArea = new ArrayList<LatLonItem>();
@@ -58,11 +60,12 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 			Cameras.CAMERA_TITLE,
 			Cameras.CAMERA_URL,
 			Cameras.CAMERA_HAS_VIDEO,
-			Cameras.CAMERA_ID
+			Cameras.CAMERA_ID,
+			Cameras.CAMERA_ROAD_NAME
 			};
 	
 	public CamerasOverlay(Activity activity, double topLatitude, double leftLongitude,
-			double bottomLatitude, double rightLongitude) {
+			double bottomLatitude, double rightLongitude, String roadName) {
 		
 		super(null);
 		
@@ -71,6 +74,7 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 		this.mLeftLongitude = leftLongitude;
 		this.mBottomLatitude = bottomLatitude;
 		this.mRightLongitude = rightLongitude;
+		this.mRoadName = roadName;
 		
 		Cursor cameraCursor = null;
 		
@@ -83,9 +87,17 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         showShadows = settings.getBoolean("KEY_SHOW_MARKER_SHADOWS", true);
         
+        Uri baseUri;
+        
+        if (mRoadName != null) {
+            baseUri = Uri.withAppendedPath(Cameras.CONTENT_ROAD_NAME_URI, Uri.encode(mRoadName));
+        } else {
+            baseUri = Cameras.CONTENT_URI;
+        }
+        
         try {
 			cameraCursor = mActivity.getContentResolver().query(
-					Cameras.CONTENT_URI,
+					baseUri,
 					projection,
 					null,
 					null,

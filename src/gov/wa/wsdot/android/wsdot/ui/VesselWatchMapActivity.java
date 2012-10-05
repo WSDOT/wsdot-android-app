@@ -322,8 +322,8 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 			 cameras = new CamerasOverlay(
 					 VesselWatchMapActivity.this,
 					 topLatitude, leftLongitude,
-					 bottomLatitude, rightLongitude
-					 );		 
+					 bottomLatitude, rightLongitude,
+					 "ferries");		 
 
 			 return null;
 		 }
@@ -366,11 +366,11 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 		 @Override
 		 public void onPostExecute(Void unused) {
 			if (vessels.size() != 0) {
-				 map.getOverlays().add(vessels);				
+				 map.getOverlays().add(vessels);
+				 map.invalidate();
 			}
 			
 			setSupportProgressBarIndeterminateVisibility(false);
-			map.invalidate();
 		 }
 	}
 

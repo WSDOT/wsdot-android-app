@@ -425,8 +425,8 @@ public class TrafficMapActivity extends SherlockMapActivity {
 			 cameras = new CamerasOverlay(
 					 TrafficMapActivity.this,
 					 topLatitude, leftLongitude,
-					 bottomLatitude, rightLongitude
-					 );		 
+					 bottomLatitude, rightLongitude,
+					 null);		 
 
 			 return null;
 		 }

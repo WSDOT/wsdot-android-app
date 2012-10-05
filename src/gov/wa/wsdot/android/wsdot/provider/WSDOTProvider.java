@@ -51,6 +51,7 @@ public class WSDOTProvider extends ContentProvider {
     
     private static final int CAMERAS = 200;
     private static final int CAMERAS_ID = 201;
+    private static final int CAMERAS_ROAD_NAME = 202;
     
     private static final int HIGHWAY_ALERTS = 300;
     private static final int HIGHWAY_ALERTS_ID = 301;
@@ -73,6 +74,7 @@ public class WSDOTProvider extends ContentProvider {
         matcher.addURI(authority, "caches/#", CACHES_ID);
         matcher.addURI(authority, "cameras", CAMERAS);
         matcher.addURI(authority, "cameras/#", CAMERAS_ID);
+        matcher.addURI(authority, "cameras/road_name/*", CAMERAS_ROAD_NAME);
         matcher.addURI(authority, "highway_alerts", HIGHWAY_ALERTS);
         matcher.addURI(authority, "highway_alerts/#", HIGHWAY_ALERTS_ID);
         matcher.addURI(authority, "mountain_passes", MOUNTAIN_PASSES);
@@ -104,6 +106,8 @@ public class WSDOTProvider extends ContentProvider {
             return Cameras.CONTENT_TYPE;
         case CAMERAS_ID:
             return Cameras.CONTENT_ITEM_TYPE;
+        case CAMERAS_ROAD_NAME:
+        	return Cameras.CONTENT_TYPE;
         case HIGHWAY_ALERTS:
             return HighwayAlerts.CONTENT_TYPE;
         case HIGHWAY_ALERTS_ID:
@@ -152,6 +156,10 @@ public class WSDOTProvider extends ContentProvider {
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.CAMERAS);
 	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
 	        break;
+	    case CAMERAS_ROAD_NAME:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.CAMERAS);
+	    	queryBuilder.appendWhere(Cameras.CAMERA_ROAD_NAME + " LIKE '" + uri.getLastPathSegment() + "'");
+	    	break;
 	    case HIGHWAY_ALERTS:
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.HIGHWAY_ALERTS);
 	    	// no filter
@@ -176,12 +184,10 @@ public class WSDOTProvider extends ContentProvider {
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.TRAVEL_TIMES);
 	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
 	        break;
-	        
 	    case TRAVEL_TIMES_SEARCH:
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.TRAVEL_TIMES);
 	    	queryBuilder.appendWhere(TravelTimes.TRAVEL_TIMES_TITLE + " LIKE '%" + uri.getLastPathSegment() + "%'");
 	    	break;
-	        
 	    case FERRIES_SCHEDULES:
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.FERRIES_SCHEDULES);
 	    	// no filter
