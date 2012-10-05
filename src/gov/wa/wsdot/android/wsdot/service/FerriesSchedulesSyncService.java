@@ -120,6 +120,7 @@ public class FerriesSchedulesSyncService extends IntentService {
 					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_ID, item.getInt("RouteID"));
 					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_TITLE, item.getString("Description"));
 					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_DATE, item.getString("Date"));
+					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_ALERT, item.getString("RouteAlert"));
 					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_UPDATED,
 							dateFormat.format(new Date(Long.parseLong(item
 									.getString("CacheDate").substring(6, 19)))));

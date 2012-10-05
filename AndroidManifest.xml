@@ -34,7 +34,10 @@
         
         <service
             android:name=".service.FerriesSchedulesSyncService" />
-                
+
+        <service
+            android:name=".service.BorderWaitSyncService" />
+        
         <activity
             android:name=".ui.HomeActivity"
             android:label="@string/app_name" >
@@ -132,10 +135,6 @@
    		<activity
    		    android:name=".ui.FerriesActivity"
    		    android:label="@string/title_ferries" />
-   		
-   		<activity
-   		    android:name=".ui.FerriesRouteAlertsActivity"
-   		    android:label="@string/title_ferriesroutealerts" />
    		
    		<activity
    		    android:name=".ui.FerriesRouteAlertsBulletinsActivity" />

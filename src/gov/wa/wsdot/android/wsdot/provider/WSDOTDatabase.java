@@ -111,6 +111,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + FerriesSchedulesColumns.FERRIES_SCHEDULE_ID + " INTEGER,"
                 + FerriesSchedulesColumns.FERRIES_SCHEDULE_TITLE + " TEXT,"
                 + FerriesSchedulesColumns.FERRIES_SCHEDULE_DATE + " TEXT,"
+                + FerriesSchedulesColumns.FERRIES_SCHEDULE_ALERT + " TEXT,"
                 + FerriesSchedulesColumns.FERRIES_SCHEDULE_UPDATED + " TEXT,"
                 + FerriesSchedulesColumns.FERRIES_SCHEDULE_IS_STARRED + " INTEGER NOT NULL default 0);");
         

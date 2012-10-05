@@ -26,6 +26,10 @@ import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -52,12 +56,14 @@ public class FerriesRouteAlertsBulletinsFragment extends SherlockListFragment
 	private static ArrayList<FerriesRouteAlertItem> routeAlertItems;
 	private static RouteAlertItemAdapter adapter;
 	private static View mLoadingSpinner;
+	private static String mAlerts;
 	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 
-		routeItems = (FerriesRouteItem)activity.getIntent().getSerializableExtra("routeItems");
+		Bundle args = activity.getIntent().getExtras();
+		mAlerts = args.getString("alert");
 	}
 
 	@Override
@@ -138,17 +144,22 @@ public class FerriesRouteAlertsBulletinsFragment extends SherlockListFragment
 
 		@Override
 		public ArrayList<FerriesRouteAlertItem> loadInBackground() {
-	        int numAlerts = routeItems.getFerriesRouteAlertItem().size();
 	        routeAlertItems = new ArrayList<FerriesRouteAlertItem>();
 			
-			for (int j=0; j<numAlerts; j++)
-			{
-				FerriesRouteAlertItem i = new FerriesRouteAlertItem();
-				i.setAlertFullTitle(routeItems.getFerriesRouteAlertItem().get(j).getAlertFullTitle());
-				i.setPublishDate(routeItems.getFerriesRouteAlertItem().get(j).getPublishDate());
-				i.setAlertDescription(routeItems.getFerriesRouteAlertItem().get(j).getAlertDescription());
-				i.setAlertFullText(routeItems.getFerriesRouteAlertItem().get(j).getAlertFullText());
-				routeAlertItems.add(i);
+	        try {
+				JSONArray alerts = new JSONArray(mAlerts);
+				for (int j=0; j<alerts.length(); j++)	{
+					JSONObject alert = alerts.getJSONObject(j);
+					FerriesRouteAlertItem i = new FerriesRouteAlertItem();
+					i.setAlertFullTitle(alert.getString("AlertFullTitle"));
+					i.setPublishDate(alert.getString("PublishDate").substring(6, 19));
+					i.setAlertDescription(alert.getString("AlertDescription"));
+					i.setAlertFullText(alert.getString("AlertFullText"));
+					routeAlertItems.add(i);
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
 			return routeAlertItems;

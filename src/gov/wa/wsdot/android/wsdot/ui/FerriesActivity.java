@@ -111,7 +111,6 @@ public class FerriesActivity extends SherlockListActivity {
 		protected String doInBackground(String... arg0) {
 			listViewItems = new ArrayList<ListViewItem>();
 			
-	        listViewItems.add(new ListViewItem("Route Alerts", FerriesRouteAlertsActivity.class));
 	        listViewItems.add(new ListViewItem("Route Schedules", FerriesRouteSchedulesActivity.class));
 	        listViewItems.add(new ListViewItem("Vessel Watch", VesselWatchMapActivity.class));
 	        

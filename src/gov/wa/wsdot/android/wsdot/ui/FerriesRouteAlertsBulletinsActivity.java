@@ -31,9 +31,9 @@ public class FerriesRouteAlertsBulletinsActivity extends SherlockFragmentActivit
 		setContentView(R.layout.activity_ferries_route_alerts_bulletins);
 		
 		Bundle args = getIntent().getExtras();
-        String description = args.getString("description");
+        String title = args.getString("title");
 
-        getSupportActionBar().setTitle(description);
+        getSupportActionBar().setTitle(title);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 	

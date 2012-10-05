@@ -8,13 +8,12 @@
 	<CheckBox
     	android:id="@+id/star_button"
         android:layout_alignParentRight="true"
-        android:layout_marginLeft="7dp"    	
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:contentDescription="@string/description_star"
-        style="@style/StarButton" />      
-    
+        style="@style/StarButton" />
+	
 	<TextView
 	    android:id="@+id/title"
 	    android:textSize="@dimen/text_size_large"
@@ -32,5 +31,15 @@
         android:layout_marginTop="7dp"
         android:layout_below="@+id/title"
         />
+
+	<ImageButton
+	    android:id="@+id/alert_button"
+	    android:contentDescription="@string/description_alert"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentRight="true"
+	    android:layout_alignParentBottom="true"
+	    android:layout_below="@+id/star_button"
+	    android:background="@null" />
          
 </RelativeLayout>

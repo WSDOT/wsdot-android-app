@@ -38,10 +38,12 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,6 +56,7 @@ import com.actionbarsherlock.view.MenuItem;
 public class FerriesRouteSchedulesFragment extends SherlockListFragment
 	implements LoaderCallbacks<Cursor> {
 
+	@SuppressWarnings("unused")
 	private static final String DEBUG_TAG = "RouteSchedules";
 	private static RouteSchedulesAdapter adapter;
 	private static View mLoadingSpinner;
@@ -138,6 +141,7 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 				FerriesSchedules.FERRIES_SCHEDULE_ID,
 				FerriesSchedules.FERRIES_SCHEDULE_TITLE,
 				FerriesSchedules.FERRIES_SCHEDULE_DATE,
+				FerriesSchedules.FERRIES_SCHEDULE_ALERT,
 				FerriesSchedules.FERRIES_SCHEDULE_UPDATED,
 				FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED };
 		
@@ -243,6 +247,27 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 							);
 				}
 			});
+            
+			String alerts = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_ALERT));
+			
+			if (alerts.equals("[]")) {
+				viewholder.alert_button.setVisibility(View.GONE);
+			} else {
+				viewholder.alert_button.setTag(cursor.getPosition());
+				viewholder.alert_button.setImageResource(R.drawable.btn_alert_on_holo_light);
+	            viewholder.alert_button.setOnClickListener(new OnClickListener() {
+					public void onClick(View v) {
+	                	int position = (Integer) v.getTag();
+	                	Cursor c = (Cursor) adapter.getItem(position);
+	            		Bundle b = new Bundle();
+	            		Intent intent = new Intent(getActivity(), FerriesRouteAlertsBulletinsActivity.class);
+	            		b.putString("title", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE)));
+	            		b.putString("alert", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_ALERT)));
+	            		intent.putExtras(b);
+	            		startActivity(intent);
+					}
+				});	            
+			}
 			
 		}
 
@@ -256,14 +281,16 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 		}
 
     	public class ViewHolder {
-    		public TextView title;
-    		public TextView created_at;
-    		public CheckBox star_button;
+    		TextView title;
+    		TextView created_at;
+    		CheckBox star_button;
+    		ImageButton alert_button;
     		
     		public ViewHolder(View view) {
     			title = (TextView) view.findViewById(R.id.title);
     			created_at = (TextView) view.findViewById(R.id.created_at);   			
     			star_button = (CheckBox) view.findViewById(R.id.star_button);
+    			alert_button = (ImageButton) view.findViewById(R.id.alert_button);
     		}
     	}
         

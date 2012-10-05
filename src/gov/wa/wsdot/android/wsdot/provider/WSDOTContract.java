@@ -83,6 +83,7 @@ public class WSDOTContract {
 		String FERRIES_SCHEDULE_ID = "id";
 		String FERRIES_SCHEDULE_TITLE = "title";
 		String FERRIES_SCHEDULE_DATE = "date";
+		String FERRIES_SCHEDULE_ALERT = "alert";
 		String FERRIES_SCHEDULE_UPDATED = "updated";
 		String FERRIES_SCHEDULE_IS_STARRED = "is_starred";
 	}

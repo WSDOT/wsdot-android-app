@@ -50,6 +50,7 @@
     <string name="description_gotolocation">GoTo Location</string>
     <string name="description_travel_times">Travel Times</string>
     <string name="description_star">Star</string>
+    <string name="description_alert">Alert</string>
     <string name="description_favorites">Favorites</string>
     <string name="description_report_image">Report Image</string>
     
