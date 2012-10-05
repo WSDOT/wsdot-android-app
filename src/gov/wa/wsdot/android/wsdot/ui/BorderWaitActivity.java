@@ -32,6 +32,7 @@ import android.support.v4.view.ViewPager;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class BorderWaitActivity extends SherlockFragmentActivity {
@@ -63,6 +64,13 @@ public class BorderWaitActivity extends SherlockFragmentActivity {
 
     }
 
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+    	getSupportMenuInflater().inflate(R.menu.refresh, menu);
+    	
+    	return super.onCreateOptionsMenu(menu);
+	}
+    
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {

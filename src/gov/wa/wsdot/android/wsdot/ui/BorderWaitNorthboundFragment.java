@@ -33,6 +33,7 @@ import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -48,8 +49,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
 public class BorderWaitNorthboundFragment extends SherlockListFragment
@@ -57,6 +56,7 @@ public class BorderWaitNorthboundFragment extends SherlockListFragment
 	
 	private static final String DEBUG_TAG = "BorderWaitNorthbound";
 	private static BorderWaitItemAdapter adapter;	
+	@SuppressLint("UseSparseArrays")
 	private static HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
 	private static View mLoadingSpinner;
 	
@@ -103,12 +103,6 @@ public class BorderWaitNorthboundFragment extends SherlockListFragment
         getLoaderManager().initLoader(0, null, this);
     }    
     
-    @Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.refresh, menu);  	
-	}
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
