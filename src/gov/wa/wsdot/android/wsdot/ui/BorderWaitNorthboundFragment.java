@@ -19,32 +19,29 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.BorderWaitItem;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
+import gov.wa.wsdot.android.wsdot.service.BorderWaitSyncService;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -52,19 +49,30 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.MenuItem;
 
 public class BorderWaitNorthboundFragment extends SherlockListFragment
-	implements LoaderCallbacks<ArrayList<BorderWaitItem>> {
+	implements LoaderCallbacks<Cursor> {
 	
+	@SuppressWarnings("unused")
 	private static final String DEBUG_TAG = "BorderWaitNorthbound";
-	private static BorderWaitItemAdapter adapter;	
+	private static BorderWaitAdapter adapter;	
 	@SuppressLint("UseSparseArrays")
 	private static HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
 	private static View mLoadingSpinner;
+	private BorderWaitSyncReceiver mBorderWaitSyncReceiver;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		setHasOptionsMenu(true);
+		
+		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.BORDER_WAIT_RESPONSE");
+		filter.addCategory(Intent.CATEGORY_DEFAULT);
+		mBorderWaitSyncReceiver = new BorderWaitSyncReceiver();
+		getActivity().registerReceiver(mBorderWaitSyncReceiver, filter);
+		
+		Intent intent = new Intent(getActivity(), BorderWaitSyncService.class);
+		getActivity().startService(intent);
+		
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Canadian Border/Northbound");
 	}
 
@@ -89,7 +97,7 @@ public class BorderWaitNorthboundFragment extends SherlockListFragment
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        adapter = new BorderWaitItemAdapter(getActivity());
+        adapter = new BorderWaitAdapter(getActivity(), null, false);
         setListAdapter(adapter);
         
         routeImage.put(5, R.drawable.ic_list_i5);
@@ -104,131 +112,86 @@ public class BorderWaitNorthboundFragment extends SherlockListFragment
     }    
     
 	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		
+		getActivity().unregisterReceiver(mBorderWaitSyncReceiver);
+	}
+    
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.menu_refresh:
-			getLoaderManager().restartLoader(0, null, this);
+			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+			Intent intent = new Intent(getActivity(), BorderWaitSyncService.class);
+		    intent.putExtra("forceUpdate", true);
+			getActivity().startService(intent);
 		}
 		
 		return super.onOptionsItemSelected(item);
 	}	
 
-	public Loader<ArrayList<BorderWaitItem>> onCreateLoader(int id, Bundle args) {
-		// This is called when a new Loader needs to be created. There
-        // is only one Loader with no arguments, so it is simple
-		return new BorderWaitItemsLoader(getActivity());
-	}
-
-	public void onLoadFinished(Loader<ArrayList<BorderWaitItem>> loader, ArrayList<BorderWaitItem> data) {
-		mLoadingSpinner.setVisibility(View.GONE);
-		adapter.setData(data);
-	}
-
-	public void onLoaderReset(Loader<ArrayList<BorderWaitItem>> loader) {
-		adapter.setData(null);
-	}    
-    
-	/**
-	 * A custom Loader that loads all of the border wait times from the data server.
-	 */		
-	public static class BorderWaitItemsLoader extends AsyncTaskLoader<ArrayList<BorderWaitItem>> {
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		String[] projection = {
+			BorderWait._ID,
+			BorderWait.BORDER_WAIT_DIRECTION,
+			BorderWait.BORDER_WAIT_ID,
+			BorderWait.BORDER_WAIT_IS_STARRED,
+			BorderWait.BORDER_WAIT_LANE,
+			BorderWait.BORDER_WAIT_ROUTE,
+			BorderWait.BORDER_WAIT_TIME,
+			BorderWait.BORDER_WAIT_TITLE,
+			BorderWait.BORDER_WAIT_UPDATED
+		};
 		
-		public BorderWaitItemsLoader(Context context) {
-			super(context);
+		CursorLoader cursorLoader = new BorderWaitItemsLoader(getActivity(),
+				BorderWait.CONTENT_URI,
+				projection,
+				BorderWait.BORDER_WAIT_DIRECTION + " LIKE ?",
+				new String[] {"northbound"},
+				null
+				);
+
+		return cursorLoader;
+	}
+
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+		if (cursor.moveToFirst()) {
+			mLoadingSpinner.setVisibility(View.GONE);
+		} else {
+			mLoadingSpinner.setVisibility(View.VISIBLE);
 		}
+		
+		adapter.swapCursor(cursor);
+	}
 
-		@Override
-		public ArrayList<BorderWaitItem> loadInBackground() {
-			ArrayList<BorderWaitItem> borderWaitItems = new ArrayList<BorderWaitItem>();
-			BorderWaitItem i = null;
-			
-			try {
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/BorderCrossings.js");
-				URLConnection urlConn = url.openConnection();
-				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-				String jsonFile = "";
-				String line;
-				
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
-				in.close();
-				
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject result = obj.getJSONObject("waittimes");
-				JSONArray items = result.getJSONArray("items");
-							
-				for (int j=0; j < items.length(); j++) {
-					JSONObject item = items.getJSONObject(j);
-					i = new BorderWaitItem();
-					i.setLane(item.getString("lane"));
-					i.setUpdated(ParserUtils.relativeTime(item.getString("updated"), "yyyy-MM-dd h:mm a", false));
-					i.setName(item.getString("name"));
-					i.setRoute(item.getInt("route"));
-					i.setDirection(item.getString("direction"));
-					i.setWait(item.getInt("wait"));
-					
-					if (item.getString("direction").equals("northbound")) {
-						borderWaitItems.add(i);
-					}
-				}			
-
-			} catch (Exception e) {
-				Log.e(DEBUG_TAG, "Error in network call", e);
-			}
-
-			return borderWaitItems;
-		}
-
-		@Override
-		public void deliverResult(ArrayList<BorderWaitItem> data) {
-		    /**
-		     * Called when there is new data to deliver to the client. The
-		     * super class will take care of delivering it; the implementation
-		     * here just adds a little more logic.
-		     */	
-			super.deliverResult(data);
+	public void onLoaderReset(Loader<Cursor> loader) {
+		adapter.swapCursor(null);
+	}   
+    
+	public static class BorderWaitItemsLoader extends CursorLoader {
+		public BorderWaitItemsLoader(Context context, Uri uri,
+				String[] projection, String selection, String[] selectionArgs,
+				String sortOrder) {
+			super(context, uri, projection, selection, selectionArgs, sortOrder);
 		}
 
 		@Override
 		protected void onStartLoading() {
 			super.onStartLoading();
-			
-			adapter.clear();
+
 			mLoadingSpinner.setVisibility(View.VISIBLE);
 			forceLoad();
 		}
-
-		@Override
-		protected void onStopLoading() {
-			super.onStopLoading();
-			
-	        // Attempt to cancel the current load task if possible.
-	        cancelLoad();			
-		}
-		
-		@Override
-		public void onCanceled(ArrayList<BorderWaitItem> data) {
-			super.onCanceled(data);
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-			
-	        // Ensure the loader is stopped
-	        onStopLoading();			
-		}
 	}
 	
-	public class BorderWaitItemAdapter extends ArrayAdapter<BorderWaitItem> {
+	public class BorderWaitAdapter extends CursorAdapter {
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
-
-		private final LayoutInflater mInflater;
 		
-        public BorderWaitItemAdapter(Context context) {
-        	super(context, R.layout.borderwait_row);
-        	mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        public BorderWaitAdapter(Context context, Cursor c, boolean autoRequery) {
+        	super(context, c, autoRequery);
         }
         
         public boolean areAllItemsSelectable() {
@@ -238,65 +201,72 @@ public class BorderWaitNorthboundFragment extends SherlockListFragment
         public boolean isEnabled(int position) {  
         	return false;  
         }
-        
-        public void setData(ArrayList<BorderWaitItem> data) {
-            clear();
-            if (data != null) {
-                //addAll(data); // Only in API level 11
-                notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
-                	add(data.get(i));
-                }
-                notifyDataSetChanged();                
-            }
-        }        
-        
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.borderwait_row, null);
-	        }
-	        
-	        BorderWaitItem item = getItem(position);
-	        
-	        if (item != null) {
-	            TextView tt = (TextView) convertView.findViewById(R.id.toptext);
-	            tt.setTypeface(tfb);
-	            TextView bt = (TextView) convertView.findViewById(R.id.bottomtext);
-	            bt.setTypeface(tf);
-	            TextView rt = (TextView) convertView.findViewById(R.id.righttext);
-	            rt.setTypeface(tfb);
-	            ImageView iv = (ImageView) convertView.findViewById(R.id.icon);
 
-	            if (tt != null) {
-	            	tt.setText(item.getName() + " (" + item.getLane() + ")");
-	            }
+		@Override
+		public void bindView(View view, Context context, final Cursor cursor) {
+			ViewHolder viewholder = (ViewHolder) view.getTag();
+			
+			String title = cursor.getString(cursor.getColumnIndex(BorderWait.BORDER_WAIT_TITLE));
+			String lane = cursor.getString(cursor.getColumnIndex(BorderWait.BORDER_WAIT_LANE));
+			
+			viewholder.tt.setText(title + " (" + lane + ")");
+			viewholder.tt.setTypeface(tfb);
+			
+			String created_at = cursor.getString(cursor.getColumnIndex(BorderWait.BORDER_WAIT_UPDATED));
+			viewholder.bt.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
+			viewholder.bt.setTypeface(tf);
+			
+			int wait = cursor.getInt(cursor.getColumnIndex(BorderWait.BORDER_WAIT_TIME));
+        	if (wait == -1) {
+        		viewholder.rt.setText("N/A");
+        	} else if (wait < 5) {
+        		viewholder.rt.setText("< 5 min");
+        	} else {
+        		viewholder.rt.setText(wait + " min");
+        	}
+        	viewholder.rt.setTypeface(tfb);
+        	
+			viewholder.iv.setImageResource(routeImage.get(cursor.getInt(cursor
+					.getColumnIndex(BorderWait.BORDER_WAIT_ROUTE))));
+			
+		}
 
-	            if (bt != null) {
-            		bt.setText(item.getUpdated());
-	            }
-
-	            if (rt != null) {
-	            	if (item.getWait() == -1) {
-	            		rt.setText("N/A");
-	            	} else if (item.getWait() < 5) {
-	            		rt.setText("< 5 min");
-	            	} else {
-	            		rt.setText(item.getWait() + " min");
-	            	}
-	            }
-
-	            iv.setImageResource(routeImage.get(item.getRoute()));
-	        }
-	        
-	        return convertView;
-        }
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            View view = LayoutInflater.from(context).inflate(R.layout.borderwait_row, null);
+            ViewHolder viewholder = new ViewHolder(view);
+            view.setTag(viewholder);
+            
+            return view;
+		}
+		
+		private class ViewHolder {
+			TextView tt;
+			TextView bt;
+			TextView rt;
+			ImageView iv;
+			
+			public ViewHolder(View view) {
+				tt = (TextView) view.findViewById(R.id.toptext);
+				bt = (TextView) view.findViewById(R.id.bottomtext);		
+				rt = (TextView) view.findViewById(R.id.righttext);
+				iv = (ImageView) view.findViewById(R.id.icon);
+			}
+		}
 	}
 	
-	public static class ViewHolder {
-		public TextView tt;
-		public TextView bt;
-		public TextView rt;
-		public ImageView iv;
+	public class BorderWaitSyncReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String responseString = intent.getStringExtra("responseString");
+			if (responseString.equals("OK")) {
+				getLoaderManager().restartLoader(0, null, BorderWaitNorthboundFragment.this);
+			} else if (responseString.equals("NOOP")) {
+				// Nothing to do.
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			}
+		}
 	}
+
 }

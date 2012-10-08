@@ -88,6 +88,17 @@ public class WSDOTContract {
 		String FERRIES_SCHEDULE_IS_STARRED = "is_starred";
 	}
 	
+	interface BorderWaitColumns {
+		String BORDER_WAIT_ID = "id";
+		String BORDER_WAIT_TITLE = "title";
+		String BORDER_WAIT_UPDATED = "updated";
+		String BORDER_WAIT_LANE = "lane";
+		String BORDER_WAIT_ROUTE = "route";
+		String BORDER_WAIT_DIRECTION = "direction";
+		String BORDER_WAIT_TIME = "wait";
+		String BORDER_WAIT_IS_STARRED = "is_starred";
+	}
+	
 	public static final String CONTENT_AUTHORITY = "gov.wa.wsdot.android.wsdot.provider.WSDOTProvider";
 	public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
@@ -97,8 +108,9 @@ public class WSDOTContract {
 	private static final String PATH_HIGHWAY_ALERTS = "highway_alerts";
 	private static final String PATH_MOUNTAIN_PASSES = "mountain_passes";
 	private static final String PATH_TRAVEL_TIMES = "travel_times";
+	private static final String PATH_TRAVEL_TIMES_SEARCH = "search";
 	private static final String PATH_FERRIES_SCHEDULES = "ferries_schedules";
-	private static final String PATH_SEARCH = "search";
+	private static final String PATH_BORDER_WAIT = "border_wait";
 	
 	public static class Caches implements BaseColumns, CachesColumns {
 		public static final Uri CONTENT_URI =
@@ -151,7 +163,7 @@ public class WSDOTContract {
 				BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAVEL_TIMES).build();
 		
 		public static final Uri CONTENT_FILTER_URI =
-				BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAVEL_TIMES).appendPath(PATH_SEARCH).build();
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAVEL_TIMES).appendPath(PATH_TRAVEL_TIMES_SEARCH).build();
 		
 	    public static final String CONTENT_TYPE =
 	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/travel_time";
@@ -168,6 +180,17 @@ public class WSDOTContract {
 	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/ferries_schedule";
 	    public static final String CONTENT_ITEM_TYPE =
 	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/ferries_schedule";
+
+	}
+
+	public static class BorderWait implements BaseColumns, BorderWaitColumns {
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_BORDER_WAIT).build();
+		
+	    public static final String CONTENT_TYPE =
+	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/border_wait";
+	    public static final String CONTENT_ITEM_TYPE =
+	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/border_wait";
 
 	}
 	

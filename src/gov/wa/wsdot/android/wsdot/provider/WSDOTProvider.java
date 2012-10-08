@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot.provider;
 
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
@@ -66,6 +67,9 @@ public class WSDOTProvider extends ContentProvider {
     private static final int FERRIES_SCHEDULES = 600;
     private static final int FERRIES_SCHEDULES_ID = 601;
     
+    private static final int BORDER_WAIT = 700;
+    private static final int BORDER_WAIT_ID = 701;
+    
     private static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = WSDOTContract.CONTENT_AUTHORITY;
@@ -84,6 +88,8 @@ public class WSDOTProvider extends ContentProvider {
         matcher.addURI(authority, "travel_times/search/*", TRAVEL_TIMES_SEARCH);
         matcher.addURI(authority, "ferries_schedules", FERRIES_SCHEDULES);
         matcher.addURI(authority, "ferries_schedules/#", FERRIES_SCHEDULES_ID);
+        matcher.addURI(authority, "border_wait", BORDER_WAIT);
+        matcher.addURI(authority, "border_wait/#", BORDER_WAIT_ID);
         
         return matcher;
 	}
@@ -126,6 +132,10 @@ public class WSDOTProvider extends ContentProvider {
         	return FerriesSchedules.CONTENT_TYPE;
         case FERRIES_SCHEDULES_ID:
         	return FerriesSchedules.CONTENT_ITEM_TYPE;
+        case BORDER_WAIT:
+        	return BorderWait.CONTENT_TYPE;
+        case BORDER_WAIT_ID:
+        	return BorderWait.CONTENT_ITEM_TYPE;
         default:
         	throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -196,6 +206,14 @@ public class WSDOTProvider extends ContentProvider {
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.FERRIES_SCHEDULES);
 	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
 	        break;
+	    case BORDER_WAIT:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.BORDER_WAIT);
+	    	// no filter
+	        break;
+	    case BORDER_WAIT_ID:
+	    	queryBuilder.setTables(WSDOTDatabase.Tables.BORDER_WAIT);
+	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
+	        break;	        
 	        
 	    default:
 	    	throw new IllegalArgumentException("Unknown URI " + uri);
@@ -294,6 +312,20 @@ public class WSDOTProvider extends ContentProvider {
                         selectionArgs);
             }
             break;
+        case BORDER_WAIT:
+            rowsAffected = sqlDB.delete(Tables.BORDER_WAIT, selection, selectionArgs);
+            break;
+        case BORDER_WAIT_ID:
+            id = uri.getLastPathSegment();
+            if (TextUtils.isEmpty(selection)) {
+                rowsAffected = sqlDB.delete(Tables.BORDER_WAIT, BaseColumns._ID + "=" + id, null);
+            } else {
+                rowsAffected = sqlDB.delete(Tables.BORDER_WAIT,
+                        selection + " and " + BaseColumns._ID + "=" + id,
+                        selectionArgs);
+            }
+            break;
+        
         default:
             throw new IllegalArgumentException("Unknown or Invalid URI " + uri);
         }
@@ -378,6 +410,21 @@ public class WSDOTProvider extends ContentProvider {
             }
             
             return rowsAdded;
+        case BORDER_WAIT:
+        	sqlDB.beginTransaction();
+            try {
+            	for (ContentValues value : values) {
+	                sqlDB.insert(Tables.BORDER_WAIT, null, value);
+            	}
+            	sqlDB.setTransactionSuccessful();
+            	rowsAdded = values.length;
+            } finally {
+                getContext().getContentResolver().notifyChange(uri, null);
+                sqlDB.endTransaction();
+            }
+            
+            return rowsAdded;
+        
         default:
     		throw new UnsupportedOperationException("Unknown uri: " + uri);
     	}
@@ -468,6 +515,19 @@ public class WSDOTProvider extends ContentProvider {
             } catch (SQLiteConstraintException e) {
                 Log.i(DEBUG_TAG, "Ignoring constraint failure.");
             }
+        case BORDER_WAIT:
+            try {
+                long rowId = sqlDB.insertOrThrow(Tables.BORDER_WAIT, null, values);
+                if (rowId > 0) {
+                    Uri newUri = ContentUris.withAppendedId(uri, rowId);
+                    getContext().getContentResolver().notifyChange(uri, null);
+                    return newUri;
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+            } catch (SQLiteConstraintException e) {
+                Log.i(DEBUG_TAG, "Ignoring constraint failure.");
+            }
         default:
     		throw new UnsupportedOperationException("Unknown uri: " + uri);
     	}
@@ -496,6 +556,9 @@ public class WSDOTProvider extends ContentProvider {
         case FERRIES_SCHEDULES:
         	rowsAffected = sqlDB.update(Tables.FERRIES_SCHEDULES, values, selection, selectionArgs);
         	break;
+        case BORDER_WAIT:
+        	rowsAffected = sqlDB.update(Tables.BORDER_WAIT, values, selection, selectionArgs);
+        	break;        
         default:
             throw new IllegalArgumentException("Unknown or Invalid URI");
         }
