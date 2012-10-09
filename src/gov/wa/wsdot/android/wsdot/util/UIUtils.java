@@ -24,6 +24,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.view.ViewConfiguration;
 
@@ -116,6 +118,17 @@ public class UIUtils {
 				// Simply ignore. This is a hack anyways.
 			}
 		}
+	}
+	
+	public static boolean isNetworkAvailable(Context context) {
+	    ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+
+	    if (networkInfo != null && networkInfo.isConnected()) {
+	        return true;
+	    }
+
+	    return false;
 	}
 	
 }
