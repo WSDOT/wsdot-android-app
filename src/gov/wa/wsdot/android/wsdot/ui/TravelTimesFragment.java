@@ -23,6 +23,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -38,6 +39,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,6 +66,8 @@ public class TravelTimesFragment extends SherlockListFragment
 	//private View mEmptyView;
 	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
 	private String mFilter;
+	private View mEmptyView;
+	private boolean mIsQuery = false;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -77,6 +81,7 @@ public class TravelTimesFragment extends SherlockListFragment
 		getActivity().registerReceiver(mTravelTimesSyncReceiver, filter);
 		
 		Intent intent = new Intent(getActivity(), TravelTimesSyncService.class);
+		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
 		
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Traffic Map/Travel Times");
@@ -95,7 +100,7 @@ public class TravelTimesFragment extends SherlockListFragment
                 ViewGroup.LayoutParams.FILL_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
-        //mEmptyView = root.findViewById( R.id.empty_list_view );
+        mEmptyView = root.findViewById(R.id.empty_list_view);
 
         return root;
 	}
@@ -148,6 +153,7 @@ public class TravelTimesFragment extends SherlockListFragment
 
 	public boolean onQueryTextSubmit(String query) {
 		getLoaderManager().restartLoader(0, null, this);
+		mIsQuery = true;
 		
 		return false;
 	}
@@ -197,9 +203,20 @@ public class TravelTimesFragment extends SherlockListFragment
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+		if (cursor.moveToFirst()) {
+			mLoadingSpinner.setVisibility(View.GONE);
+			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+		} else {
+			if (mIsQuery) {
+				mIsQuery = false;
+				mLoadingSpinner.setVisibility(View.GONE);
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			    TextView t = (TextView) mEmptyView;
+				t.setText(R.string.no_matching_travel_times);
+				getListView().setEmptyView(mEmptyView);
+			}
+		}
 		
-		mLoadingSpinner.setVisibility(View.GONE);
 		adapter.swapCursor(cursor);
 	}
 
@@ -339,10 +356,27 @@ public class TravelTimesFragment extends SherlockListFragment
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
 			if (responseString.equals("OK")) {
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 				getLoaderManager().restartLoader(0, null, TravelTimesFragment.this);
-			} else if (responseString.equals("NOOP")) {
-				// Nothing to do.
+			} else if (responseString.equals("NOP")) {
 				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				mLoadingSpinner.setVisibility(View.GONE);
+			} else {
+				Log.e("TravelTimesSyncReceiver", responseString);
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				mLoadingSpinner.setVisibility(View.GONE);
+
+				if (!UIUtils.isNetworkAvailable(context)) {
+					responseString = getString(R.string.no_connection);
+				}
+				
+				if (getListView().getCount() > 0) {
+					Toast.makeText(context, responseString, Toast.LENGTH_LONG).show();
+				} else {
+				    TextView t = (TextView) mEmptyView;
+					t.setText(responseString);
+					getListView().setEmptyView(mEmptyView);
+				}
 			}
 		}
 	}

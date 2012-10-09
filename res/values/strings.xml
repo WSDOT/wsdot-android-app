@@ -59,6 +59,8 @@
     
     <string name="high_impact_alerts_inactive">No highest impact travel alerts</string>
     <string name="no_favorites">No favorites added yet.</string>
+    <string name="no_connection">Can\'t load data. Check your connection.</string>
+    <string name="no_matching_travel_times">No matching travel times.</string>
     
     <string name="search_title">Search</string>
     <string name="search_hint">Search Travel Times</string>

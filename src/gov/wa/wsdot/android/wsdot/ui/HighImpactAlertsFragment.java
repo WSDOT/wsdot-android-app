@@ -22,6 +22,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -150,7 +151,8 @@ public class HighImpactAlertsFragment extends SherlockFragment
         private Runnable runnable = new Runnable() {
             public void run() {
             	Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-    			getActivity().startService(intent);
+            	getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+            	getActivity().startService(intent);
             }
         };
 
@@ -319,25 +321,33 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	}
 	
 	public class HighwayAlertsSyncReceiver extends BroadcastReceiver {
-		public static final String PROCESS_RESPONSE = "gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE";
 		
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
+			
 			if (responseString.equals("OK")) {
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 				getLoaderManager().restartLoader(0, null, HighImpactAlertsFragment.this); // We've got alerts, now add them.
-			} else if (responseString.equals("NOOP")) {
+			} else if (responseString.equals("NOP")) {
 				// Move along. Nothing to see here.
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
 			} else {
-				Log.e("HighwayAlertsSyncReceiver", "Received an error. Not restarting Loader.");
+				Log.e("HighwayAlertsSyncReceiver", responseString);
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				mLoadingSpinner.setVisibility(View.GONE);
+				
 				alertItems.clear();
 				HighwayAlertsItem item = new HighwayAlertsItem();
 				item.setEventCategory("error");
+				
+				if (!UIUtils.isNetworkAvailable(context)) {
+					responseString = getString(R.string.no_connection);
+				}
+				
 				item.setExtendedDescription(responseString);
 				alertItems.add(item);
 
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
-				mLoadingSpinner.setVisibility(View.GONE);
 				mPager.setVisibility(View.VISIBLE);
 				mIndicator.setVisibility(View.VISIBLE);
 				mAdapter = new ViewPagerAdapter(getActivity(), alertItems);

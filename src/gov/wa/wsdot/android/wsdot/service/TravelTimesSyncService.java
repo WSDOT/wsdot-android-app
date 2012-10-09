@@ -149,7 +149,7 @@ public class TravelTimesSyncService extends IntentService {
 			}
 			
 		} else {
-			responseString = "NOOP";
+			responseString = "NOP";
 		}
 		
         Intent broadcastIntent = new Intent();

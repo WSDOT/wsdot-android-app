@@ -152,7 +152,7 @@ public class FerriesSchedulesSyncService extends IntentService {
 			}
 			
 		} else {
-			responseString = "NOOP";
+			responseString = "NOP";
 		}
 		
         Intent broadcastIntent = new Intent();

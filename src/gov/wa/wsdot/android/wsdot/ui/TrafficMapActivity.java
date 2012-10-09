@@ -120,9 +120,11 @@ public class TrafficMapActivity extends SherlockMapActivity {
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
     
 		camerasIntent = new Intent(TrafficMapActivity.this, CamerasSyncService.class);
+		setSupportProgressBarIndeterminateVisibility(true);
 		startService(camerasIntent);        
 
 		Intent alertsIntent = new Intent(TrafficMapActivity.this, HighwayAlertsSyncService.class);
+		setSupportProgressBarIndeterminateVisibility(true);
 		startService(alertsIntent);
     }
 	
@@ -185,7 +187,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
-			if (responseString.equals("OK") || responseString.equals("NOOP")) {
+			if (responseString.equals("OK") || responseString.equals("NOP")) {
 				// We've got cameras, now add them.
 				if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
 					mCamerasOverlayTask = new CamerasOverlayTask().execute();
@@ -193,8 +195,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 					mCamerasOverlayTask.execute();
 				}
 			} else {
-				Log.e("CameraDownloadReceiver", "Received an error. Not executing OverlayTask.");
-				Toast.makeText(TrafficMapActivity.this, responseString, Toast.LENGTH_LONG).show();
+				Log.e("CameraDownloadReceiver", responseString);
 			}
 		}
 	}
@@ -204,11 +205,16 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
-			if (responseString.equals("OK") || responseString.equals("NOOP")) {
+			if (responseString.equals("OK") || responseString.equals("NOP")) {
 				new HighwayAlertsOverlayTask().execute(); // We've got alerts, now add them.
 			} else {
-				Log.e("HighwayAlertsSyncReceiver", "Received an error. Not executing OverlayTask.");
-				Toast.makeText(TrafficMapActivity.this, responseString, Toast.LENGTH_LONG).show();
+				Log.e("HighwayAlertsSyncReceiver", responseString);
+				
+				if (!UIUtils.isNetworkAvailable(context)) {
+					responseString = getString(R.string.no_connection);
+				}
+				
+				Toast.makeText(context, responseString, Toast.LENGTH_LONG).show();
 			}
 		}
 	}

@@ -34,6 +34,7 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 
 public class BorderWaitActivity extends SherlockFragmentActivity {
 	
@@ -44,6 +45,8 @@ public class BorderWaitActivity extends SherlockFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        
 		mViewPager = new ViewPager(this);
 		mViewPager.setId(R.id.pager);
 		

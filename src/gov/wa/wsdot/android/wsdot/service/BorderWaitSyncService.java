@@ -145,7 +145,7 @@ public class BorderWaitSyncService extends IntentService {
 	    		responseString = e.getMessage();
 			}
 		} else {
-			responseString = "NOOP";
+			responseString = "NOP";
 		}
 		
         Intent broadcastIntent = new Intent();

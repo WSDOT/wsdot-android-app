@@ -23,6 +23,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -36,6 +37,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -61,6 +63,7 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 	private static RouteSchedulesAdapter adapter;
 	private static View mLoadingSpinner;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
+	private View mEmptyView;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -74,6 +77,7 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 		getActivity().registerReceiver(mFerriesSchedulesSyncReceiver, filter);
 		
 		Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
+		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
         
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/Ferries/Route Schedules");
@@ -92,6 +96,7 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
                 ViewGroup.LayoutParams.FILL_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
 	}
@@ -157,16 +162,12 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
-		
 		if (cursor.moveToFirst()) {
 			mLoadingSpinner.setVisibility(View.GONE);
-		} else {
-			mLoadingSpinner.setVisibility(View.VISIBLE);
+			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
 		}
 		
 		adapter.swapCursor(cursor);
-		
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
@@ -302,10 +303,27 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
 			if (responseString.equals("OK")) {
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 				getLoaderManager().restartLoader(0, null, FerriesRouteSchedulesFragment.this);
-			} else if (responseString.equals("NOOP")) {
-				// Nothing to do.
+			} else if (responseString.equals("NOP")) {
 				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				mLoadingSpinner.setVisibility(View.GONE);
+			} else {
+				Log.e("FerriesSchedulesSyncReceiver", responseString);
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				mLoadingSpinner.setVisibility(View.GONE);
+
+				if (!UIUtils.isNetworkAvailable(context)) {
+					responseString = getString(R.string.no_connection);
+				}
+				
+				if (getListView().getCount() > 0) {
+					Toast.makeText(context, responseString, Toast.LENGTH_LONG).show();
+				} else {
+				    TextView t = (TextView) mEmptyView;
+					t.setText(responseString);
+					getListView().setEmptyView(mEmptyView);
+				}
 			}
 		}
 	}

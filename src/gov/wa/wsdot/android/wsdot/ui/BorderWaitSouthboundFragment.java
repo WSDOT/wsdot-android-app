@@ -23,6 +23,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
 import gov.wa.wsdot.android.wsdot.service.BorderWaitSyncService;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 import java.util.HashMap;
 
@@ -39,6 +40,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,6 +60,7 @@ public class BorderWaitSouthboundFragment extends SherlockListFragment
 	private static HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
 	private static View mLoadingSpinner;
 	private BorderWaitSyncReceiver mBorderWaitSyncReceiver;
+	private View mEmptyView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -71,6 +74,7 @@ public class BorderWaitSouthboundFragment extends SherlockListFragment
 		getActivity().registerReceiver(mBorderWaitSyncReceiver, filter);
 
 		Intent intent = new Intent(getActivity(), BorderWaitSyncService.class);
+		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
 
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Canadian Border/Southbound");
@@ -89,6 +93,7 @@ public class BorderWaitSouthboundFragment extends SherlockListFragment
 				ViewGroup.LayoutParams.FILL_PARENT));
 
 		mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+		mEmptyView = root.findViewById( R.id.empty_list_view );
 
 		return root;
 	} 	
@@ -156,13 +161,11 @@ public class BorderWaitSouthboundFragment extends SherlockListFragment
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
 		if (cursor.moveToFirst()) {
 			mLoadingSpinner.setVisibility(View.GONE);
-		} else {
-			mLoadingSpinner.setVisibility(View.VISIBLE);
+			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
 		}
-
+		
 		adapter.swapCursor(cursor);
 	}
 
@@ -260,11 +263,27 @@ public class BorderWaitSouthboundFragment extends SherlockListFragment
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
+			
 			if (responseString.equals("OK")) {
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 				getLoaderManager().restartLoader(0, null, BorderWaitSouthboundFragment.this);
-			} else if (responseString.equals("NOOP")) {
-				// Nothing to do.
+			} else if (responseString.equals("NOP")) {
 				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				mLoadingSpinner.setVisibility(View.GONE);
+			} else {
+				Log.e("BorderWaitSyncReceiver", responseString);
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				mLoadingSpinner.setVisibility(View.GONE);
+
+				if (!UIUtils.isNetworkAvailable(context)) {
+					responseString = getString(R.string.no_connection);
+				}
+				
+				if (getListView().getCount() == 0) {
+				    TextView t = (TextView) mEmptyView;
+					t.setText(responseString);
+					getListView().setEmptyView(mEmptyView);
+				}
 			}
 		}
 	}
