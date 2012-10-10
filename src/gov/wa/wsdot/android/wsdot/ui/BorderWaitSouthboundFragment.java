@@ -105,11 +105,11 @@ public class BorderWaitSouthboundFragment extends SherlockListFragment
 		adapter = new BorderWaitAdapter(getActivity(), null, false);
 		setListAdapter(adapter);
 
-		routeImage.put(5, R.drawable.ic_list_i5);
-		routeImage.put(9, R.drawable.ic_list_sr9);
-		routeImage.put(539, R.drawable.ic_list_sr539);
-		routeImage.put(543, R.drawable.ic_list_sr543);
-		routeImage.put(97, R.drawable.ic_list_us97);        
+		routeImage.put(5, R.drawable.ic_list_bc99);
+		routeImage.put(9, R.drawable.ic_list_bc11);
+		routeImage.put(539, R.drawable.ic_list_bc13);
+		routeImage.put(543, R.drawable.ic_list_bc15);
+		routeImage.put(97, R.drawable.ic_list_bc97);        
 
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.        
