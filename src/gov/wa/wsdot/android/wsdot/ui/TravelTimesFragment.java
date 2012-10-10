@@ -53,6 +53,7 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem.OnActionExpandListener;
 import com.actionbarsherlock.widget.SearchView;
 import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
 
@@ -111,10 +112,6 @@ public class TravelTimesFragment extends SherlockListFragment
 		
 		adapter = new TravelTimesAdapter(getActivity(), null, false);
 		setListAdapter(adapter);
-
-		//TextView t = (TextView) mEmptyView;
-		//t.setText(R.string.no_favorites);
-		//getListView().setEmptyView(mEmptyView);	
 		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.        
@@ -142,11 +139,28 @@ public class TravelTimesFragment extends SherlockListFragment
         	.setIcon(R.drawable.ic_menu_search)
         	.setActionView(searchView)
         	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        
+        MenuItem searchMenuItem = menu.getItem(0);
+        searchMenuItem.setOnActionExpandListener(new OnActionExpandListener() {
+			public boolean onMenuItemActionCollapse(MenuItem item) {
+				mFilter = null;
+				getLoaderManager().restartLoader(0, null, TravelTimesFragment.this);
+				
+				return true;
+			}
+
+			public boolean onMenuItemActionExpand(MenuItem item) {
+				// TODO Auto-generated method stub
+				return true;
+			}});
 	}
 
 	public boolean onQueryTextChange(String newText) {
-        // Called when the action bar search text has changed. Update the search filter.
+        // Called when the action bar search text has changed.
+		// Update the search filter and restart the loader.
         mFilter = !TextUtils.isEmpty(newText) ? newText : null;
+        mIsQuery = true;
+        getLoaderManager().restartLoader(0, null, this);
         
         return true;
 	}
@@ -157,7 +171,7 @@ public class TravelTimesFragment extends SherlockListFragment
 		
 		return false;
 	}
-    
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
