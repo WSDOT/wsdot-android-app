@@ -166,7 +166,7 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
-			if (responseString.equals("OK") || responseString.equals("NOOP")) {
+			if (responseString.equals("OK") || responseString.equals("NOP")) {
 				// We've got cameras, now add them.
 				if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
 					mCamerasOverlayTask = new CamerasOverlayTask().execute();

@@ -52,9 +52,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.viewpagerindicator.LinePageIndicator;
 
 public class HighImpactAlertsFragment extends SherlockFragment
@@ -79,8 +76,6 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setHasOptionsMenu(true);
-		
         IntentFilter alertsFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
         alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
         mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
@@ -128,30 +123,10 @@ public class HighImpactAlertsFragment extends SherlockFragment
 		getActivity().unregisterReceiver(mHighwayAlertsSyncReceiver);
 	}
 	
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.refresh, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.menu_refresh:
-			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
-			Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-		    intent.putExtra("forceUpdate", true);
-			getActivity().startService(intent);
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}
-	
     public class MyTimerTask extends TimerTask {
         private Runnable runnable = new Runnable() {
             public void run() {
             	Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-            	getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
             	getActivity().startService(intent);
             }
         };
@@ -202,7 +177,6 @@ public class HighImpactAlertsFragment extends SherlockFragment
 			alertItems.add(item);
 		}
 			
-		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
 		mLoadingSpinner.setVisibility(View.GONE);
 		mPager.setVisibility(View.VISIBLE);
 		mIndicator.setVisibility(View.VISIBLE);
@@ -327,14 +301,11 @@ public class HighImpactAlertsFragment extends SherlockFragment
 			String responseString = intent.getStringExtra("responseString");
 			
 			if (responseString.equals("OK")) {
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 				getLoaderManager().restartLoader(0, null, HighImpactAlertsFragment.this); // We've got alerts, now add them.
 			} else if (responseString.equals("NOP")) {
-				// Move along. Nothing to see here.
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				// Nothing to do.
 			} else {
 				Log.e("HighwayAlertsSyncReceiver", responseString);
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
 				mLoadingSpinner.setVisibility(View.GONE);
 				
 				alertItems.clear();

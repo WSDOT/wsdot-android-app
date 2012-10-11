@@ -254,6 +254,7 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 			if (alerts.equals("[]")) {
 				viewholder.alert_button.setVisibility(View.GONE);
 			} else {
+				viewholder.alert_button.setVisibility(View.VISIBLE);
 				viewholder.alert_button.setTag(cursor.getPosition());
 				viewholder.alert_button.setImageResource(R.drawable.btn_alert_on_holo_light);
 	            viewholder.alert_button.setOnClickListener(new OnClickListener() {

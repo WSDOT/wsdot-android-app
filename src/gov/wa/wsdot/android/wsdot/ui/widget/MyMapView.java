@@ -20,6 +20,7 @@
  * http://bricolsoftconsulting.com/2011/10/31/extending-mapview-to-add-a-change-event/
  * 
  */
+
 package gov.wa.wsdot.android.wsdot.ui.widget;
 
 import android.content.Context;

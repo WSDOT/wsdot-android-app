@@ -107,13 +107,6 @@ public class TrafficMapActivity extends SherlockMapActivity {
          */
 		myLocationOverlay = new FixedMyLocationOverlay(this, map);
 		map.getOverlays().add(myLocationOverlay);
-		
-		// Will be executed as soon as we have a location fix
-        myLocationOverlay.runOnFirstFix(new Runnable() {
-            public void run() {
-            	map.getController().animateTo(myLocationOverlay.getMyLocation());
-            }
-        });
         
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -257,6 +250,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	    	return true;
 	    case R.id.my_location:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/My Location");
+	    	// Will be executed as soon as we have a location fix.
 	    	myLocationOverlay.runOnFirstFix(new Runnable() {
 	            public void run() {	    	
 	            	map.getController().animateTo(myLocationOverlay.getMyLocation());
