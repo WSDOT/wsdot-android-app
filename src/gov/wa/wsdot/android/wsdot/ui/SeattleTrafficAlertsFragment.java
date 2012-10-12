@@ -61,7 +61,8 @@ public class SeattleTrafficAlertsFragment extends SherlockListFragment
     private static View mLoadingSpinner;
     private static List<Integer> blockingCategory = new ArrayList<Integer>();
     private static List<Integer> constructionCategory = new ArrayList<Integer>();
-    private static List<Integer> specialCategory = new ArrayList<Integer>();    
+    private static List<Integer> specialCategory = new ArrayList<Integer>();
+	private static View mEmptyView;    
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -88,6 +89,7 @@ public class SeattleTrafficAlertsFragment extends SherlockListFragment
                 ViewGroup.LayoutParams.FILL_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
     }
@@ -147,13 +149,20 @@ public class SeattleTrafficAlertsFragment extends SherlockListFragment
 	
 	public Loader<ArrayList<SeattleIncidentItem>> onCreateLoader(int id, Bundle args) {
 		// This is called when a new Loader needs to be created. There
-        // is only one Loader with no arguments, so it is simple
+        // is only one Loader with no arguments, so it is simple.
 		return new SeattleIncidentItemsLoader(getActivity());
 	}
 
 	public void onLoadFinished(Loader<ArrayList<SeattleIncidentItem>> loader, ArrayList<SeattleIncidentItem> data) {
 		mLoadingSpinner.setVisibility(View.GONE);
-		mAdapter.setData(data);		
+		
+		if (!data.isEmpty()) {
+			mAdapter.setData(data);
+		} else {
+		    TextView t = (TextView) mEmptyView;
+			t.setText(R.string.no_connection);
+			getListView().setEmptyView(mEmptyView);
+		}
 	}
 
 	public void onLoaderReset(Loader<ArrayList<SeattleIncidentItem>> loader) {

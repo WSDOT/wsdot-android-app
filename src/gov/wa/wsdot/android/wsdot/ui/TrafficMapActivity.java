@@ -234,8 +234,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 
 		    menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes")
-		    	.setIcon(R.drawable.ic_menu_express_lanes)
-		    	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		    	.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 		}
 	    
 		return super.onPrepareOptionsMenu(menu);

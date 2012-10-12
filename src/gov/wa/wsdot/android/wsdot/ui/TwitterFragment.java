@@ -71,6 +71,7 @@ public class TwitterFragment extends SherlockListFragment
 	private static String mScreenName;
 	private HashMap<String, Integer> mTwitterProfileImages = new HashMap<String, Integer>();
 	ActionMode mActionMode;
+	private View mEmptyView;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -107,6 +108,7 @@ public class TwitterFragment extends SherlockListFragment
                 ViewGroup.LayoutParams.FILL_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
     }    
@@ -216,7 +218,14 @@ public class TwitterFragment extends SherlockListFragment
 
 	public void onLoadFinished(Loader<ArrayList<TwitterItem>> loader, ArrayList<TwitterItem> data) {
 		mLoadingSpinner.setVisibility(View.GONE);
-		mAdapter.setData(data);
+		
+		if (!data.isEmpty()) {
+			mAdapter.setData(data);
+		} else {
+		    TextView t = (TextView) mEmptyView;
+			t.setText(R.string.no_connection);
+			getListView().setEmptyView(mEmptyView);
+		}
 	}
 
 	public void onLoaderReset(Loader<ArrayList<TwitterItem>> loader) {

@@ -61,6 +61,7 @@ public class BlogFragment extends SherlockListFragment
 	private static ArrayList<BlogItem> blogItems = null;
 	private static BlogItemAdapter mAdapter;
 	private static View mLoadingSpinner;
+	private View mEmptyView;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,7 @@ public class BlogFragment extends SherlockListFragment
                 ViewGroup.LayoutParams.FILL_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
     }
@@ -127,7 +129,14 @@ public class BlogFragment extends SherlockListFragment
 
 	public void onLoadFinished(Loader<ArrayList<BlogItem>> loader, ArrayList<BlogItem> data) {
 		mLoadingSpinner.setVisibility(View.GONE);
-		mAdapter.setData(data);
+
+		if (!data.isEmpty()) {
+			mAdapter.setData(data);
+		} else {
+		    TextView t = (TextView) mEmptyView;
+			t.setText(R.string.no_connection);
+			getListView().setEmptyView(mEmptyView);
+		}		
 	}
 
 	public void onLoaderReset(Loader<ArrayList<BlogItem>> loader) {

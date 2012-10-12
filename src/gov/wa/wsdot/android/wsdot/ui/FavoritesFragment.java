@@ -484,7 +484,7 @@ public class FavoritesFragment extends SherlockListFragment
 		public TravelTimesAdapter(Context context, Cursor c, boolean autoRequery) {
 			super(context, c, autoRequery);
 		}
-
+		
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
             ViewHolder viewholder = (ViewHolder) ((Object[]) view.getTag())[0];
@@ -633,8 +633,6 @@ public class FavoritesFragment extends SherlockListFragment
 			} else {
 				Log.e("MountainPassesSyncReceiver", responseString);
 			}
-			
-			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
 		}
 	}
 	
@@ -649,8 +647,6 @@ public class FavoritesFragment extends SherlockListFragment
 			} else {
 				Log.e("FerriesSchedulesSyncReceiver", responseString);
 			}
-			
-			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
 		}
 	}
 	

@@ -35,6 +35,7 @@ import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -58,7 +59,9 @@ public class SeattleExpressLanesFragment extends SherlockListFragment
 	implements LoaderCallbacks<ArrayList<ExpressLaneItem>> {
 	
 	private static ExpressLaneItemAdapter adapter;
+	@SuppressLint("UseSparseArrays")
 	private HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
+	private View mEmptyView;
 	private static View mLoadingSpinner;
 	
 	@Override
@@ -85,6 +88,7 @@ public class SeattleExpressLanesFragment extends SherlockListFragment
                 ViewGroup.LayoutParams.FILL_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
     } 	
@@ -129,7 +133,14 @@ public class SeattleExpressLanesFragment extends SherlockListFragment
 
 	public void onLoadFinished(Loader<ArrayList<ExpressLaneItem>> loader, ArrayList<ExpressLaneItem> data) {
 		mLoadingSpinner.setVisibility(View.GONE);
-		adapter.setData(data);
+
+		if (!data.isEmpty()) {
+			adapter.setData(data);
+		} else {
+		    TextView t = (TextView) mEmptyView;
+			t.setText(R.string.no_connection);
+			getListView().setEmptyView(mEmptyView);
+		}
 	}
 
 	public void onLoaderReset(Loader<ArrayList<ExpressLaneItem>> loader) {

@@ -54,6 +54,7 @@ public class AboutActivity extends SherlockFragmentActivity {
 		setContentView(R.layout.webview);
 		
 		webview = (WebView)findViewById(R.id.webview);
+		webview.getSettings().setJavaScriptEnabled(true);
 		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);
 	}
 	
@@ -77,8 +78,16 @@ public class AboutActivity extends SherlockFragmentActivity {
 				"about Washington's transportation system.</p>" +
 				"<p>Questions, comments or suggestions about this app can be e-mailed to the " +
 				"<a href=\"mailto:webfeedback@wsdot.wa.gov?subject=WSDOT Android App\">WSDOT " +
-				"Communications Office</a>.</p><br />" +
-				"<p style=\"color:#959595;\">App Version: " + versionName);
+				"Communications Office</a>.</p>" +
+				"<div class=\"g-plus\" data-height=\"69\" data-href=\"https://plus.google.com/103669336535896913187\" data-rel=\"publisher\"></div>" +
+				"<script type=\"text/javascript\">" +
+				"(function() {" +
+				"var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;" +
+				"po.src = 'https://apis.google.com/js/plusone.js';" +
+				"var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);" +
+				" })();" +
+				"</script>" +
+				"<br /><p style=\"color:#959595;\">App Version: " + versionName);
 			
 		return sb.toString();
 	}

@@ -77,6 +77,7 @@ public class VideoFragment extends SherlockListFragment
 	private static VideoItemAdapter mAdapter;
 	private static View mLoadingSpinner;
 	ActionMode mActionMode;
+	private View mEmptyView;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -107,6 +108,7 @@ public class VideoFragment extends SherlockListFragment
                 ViewGroup.LayoutParams.FILL_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
     }
@@ -204,7 +206,14 @@ public class VideoFragment extends SherlockListFragment
 
 	public void onLoadFinished(Loader<ArrayList<VideoItem>> loader, ArrayList<VideoItem> data) {
 		mLoadingSpinner.setVisibility(View.GONE);
-		mAdapter.setData(data);
+
+		if (!data.isEmpty()) {
+			mAdapter.setData(data);
+		} else {
+		    TextView t = (TextView) mEmptyView;
+			t.setText(R.string.no_connection);
+			getListView().setEmptyView(mEmptyView);
+		}
 	}
 
 	public void onLoaderReset(Loader<ArrayList<VideoItem>> loader) {
