@@ -69,11 +69,6 @@ public class MountainPassesFragment extends SherlockListFragment
         super.onCreate(savedInstanceState);
         
 		setHasOptionsMenu(true);         
-        
-		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
-		filter.addCategory(Intent.CATEGORY_DEFAULT);
-		mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
-		getActivity().registerReceiver(mMountainPassesSyncReceiver, filter);
 		
 		Intent intent = new Intent(getActivity(), MountainPassesSyncService.class);
 		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
@@ -111,15 +106,25 @@ public class MountainPassesFragment extends SherlockListFragment
 		// or start a new one.
         getLoaderManager().initLoader(0, null, this);        
 	}
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
+
+    @Override
+	public void onPause() {
+		super.onPause();
 		
 		getActivity().unregisterReceiver(mMountainPassesSyncReceiver);
 	}
 
-    @Override
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
+		filter.addCategory(Intent.CATEGORY_DEFAULT);
+		mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
+		getActivity().registerReceiver(mMountainPassesSyncReceiver, filter);
+	}
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     	super.onCreateOptionsMenu(menu, inflater);
     	inflater.inflate(R.menu.refresh, menu);

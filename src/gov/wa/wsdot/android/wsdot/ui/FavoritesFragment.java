@@ -135,30 +135,12 @@ public class FavoritesFragment extends SherlockListFragment
 
 		setHasOptionsMenu(true);
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Favorites");
-
-        // Ferries Route Schedules
-		IntentFilter ferriesSchedulesFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
-		ferriesSchedulesFilter.addCategory(Intent.CATEGORY_DEFAULT);
-		mFerriesSchedulesSyncReceiver = new FerriesSchedulesSyncReceiver();
-		getActivity().registerReceiver(mFerriesSchedulesSyncReceiver, ferriesSchedulesFilter);
 		
 		mFerriesSchedulesIntent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
 		getActivity().startService(mFerriesSchedulesIntent);
-        
-		// Mountain Passes
-        IntentFilter mountainPassesFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
-        mountainPassesFilter.addCategory(Intent.CATEGORY_DEFAULT);
-		mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
-		getActivity().registerReceiver(mMountainPassesSyncReceiver, mountainPassesFilter);
 		
 		mMountainPassesIntent = new Intent(getActivity(), MountainPassesSyncService.class);
 		getActivity().startService(mMountainPassesIntent);
-		
-		// Travel Times
-		IntentFilter travelTimesfilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
-		travelTimesfilter.addCategory(Intent.CATEGORY_DEFAULT);
-		mTravelTimesSyncReceiver = new TravelTimesSyncReceiver();
-		getActivity().registerReceiver(mTravelTimesSyncReceiver, travelTimesfilter);
 		
 		mTravelTimesIntent = new Intent(getActivity(), TravelTimesSyncService.class);
 		getActivity().startService(mTravelTimesIntent);
@@ -202,14 +184,37 @@ public class FavoritesFragment extends SherlockListFragment
 	}
 	
 	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		
+	public void onPause() {
+		super.onPause();
+
 		getActivity().unregisterReceiver(mFerriesSchedulesSyncReceiver);
 		getActivity().unregisterReceiver(mMountainPassesSyncReceiver);
 		getActivity().unregisterReceiver(mTravelTimesSyncReceiver);
 	}
-	
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+        // Ferries Route Schedules
+		IntentFilter ferriesSchedulesFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
+		ferriesSchedulesFilter.addCategory(Intent.CATEGORY_DEFAULT);
+		mFerriesSchedulesSyncReceiver = new FerriesSchedulesSyncReceiver();
+		getActivity().registerReceiver(mFerriesSchedulesSyncReceiver, ferriesSchedulesFilter);
+		
+		// Mountain Passes
+        IntentFilter mountainPassesFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
+        mountainPassesFilter.addCategory(Intent.CATEGORY_DEFAULT);
+		mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
+		getActivity().registerReceiver(mMountainPassesSyncReceiver, mountainPassesFilter);
+		
+		// Travel Times
+		IntentFilter travelTimesfilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
+		travelTimesfilter.addCategory(Intent.CATEGORY_DEFAULT);
+		mTravelTimesSyncReceiver = new TravelTimesSyncReceiver();
+		getActivity().registerReceiver(mTravelTimesSyncReceiver, travelTimesfilter);
+	}
+
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     	super.onCreateOptionsMenu(menu, inflater);

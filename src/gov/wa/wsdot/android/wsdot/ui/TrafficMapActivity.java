@@ -85,16 +85,6 @@ public class TrafficMapActivity extends SherlockMapActivity {
         // Initialize AsyncTask
         mCamerasOverlayTask = new CamerasOverlayTask();
         
-        IntentFilter camerasFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
-        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mCamerasReceiver = new CamerasSyncReceiver();
-        registerReceiver(mCamerasReceiver, camerasFilter); 
-        
-        IntentFilter alertsFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
-        alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
-        registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);         
-        
         /**
          * Using an extended version of MyLocationOverlay class because it has been
          * reported the Motorola Droid X phones throw an exception when they try to
@@ -144,22 +134,29 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+
 		myLocationOverlay.enableMyLocation();
+        
+        IntentFilter camerasFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
+        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mCamerasReceiver = new CamerasSyncReceiver();
+        registerReceiver(mCamerasReceiver, camerasFilter); 
+        
+        IntentFilter alertsFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
+        alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
+        registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter); 
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
+		
 		myLocationOverlay.disableMyLocation();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
 		this.unregisterReceiver(mCamerasReceiver);
 		this.unregisterReceiver(mHighwayAlertsSyncReceiver);
 	}
-	
+
 	private class MapViewChangeListener implements MyMapView.OnChangeListener {
 
 		public void onChange(MapView view, GeoPoint newCenter, GeoPoint oldCenter, int newZoom, int oldZoom) {

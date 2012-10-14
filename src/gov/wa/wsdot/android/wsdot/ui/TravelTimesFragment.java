@@ -76,11 +76,6 @@ public class TravelTimesFragment extends SherlockListFragment
 		
 		setHasOptionsMenu(true);
 		
-		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
-		filter.addCategory(Intent.CATEGORY_DEFAULT);
-		mTravelTimesSyncReceiver = new TravelTimesSyncReceiver();
-		getActivity().registerReceiver(mTravelTimesSyncReceiver, filter);
-		
 		Intent intent = new Intent(getActivity(), TravelTimesSyncService.class);
 		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
@@ -118,14 +113,24 @@ public class TravelTimesFragment extends SherlockListFragment
         getLoaderManager().initLoader(0, null, this);
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
+    @Override
+	public void onPause() {
+		super.onPause();
 		
 		getActivity().unregisterReceiver(mTravelTimesSyncReceiver);
 	}
-	
-    @Override
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
+		filter.addCategory(Intent.CATEGORY_DEFAULT);
+		mTravelTimesSyncReceiver = new TravelTimesSyncReceiver();
+		getActivity().registerReceiver(mTravelTimesSyncReceiver, filter);
+	}
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     	super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.refresh, menu);

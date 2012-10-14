@@ -70,11 +70,6 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 		super.onCreate(savedInstanceState);
 		
         setHasOptionsMenu(true);
-        
-		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
-		filter.addCategory(Intent.CATEGORY_DEFAULT);
-		mFerriesSchedulesSyncReceiver = new FerriesSchedulesSyncReceiver();
-		getActivity().registerReceiver(mFerriesSchedulesSyncReceiver, filter);
 		
 		Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
 		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
@@ -114,14 +109,24 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 	
 	}	
 	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
+    @Override
+	public void onPause() {
+		super.onPause();
 		
 		getActivity().unregisterReceiver(mFerriesSchedulesSyncReceiver);
 	}
-	
-    @Override
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
+		filter.addCategory(Intent.CATEGORY_DEFAULT);
+		mFerriesSchedulesSyncReceiver = new FerriesSchedulesSyncReceiver();
+		getActivity().registerReceiver(mFerriesSchedulesSyncReceiver, filter);
+	}
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     	super.onCreateOptionsMenu(menu, inflater);
     	inflater.inflate(R.menu.refresh, menu);

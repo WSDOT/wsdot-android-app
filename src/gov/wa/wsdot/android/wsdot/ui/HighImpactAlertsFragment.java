@@ -74,12 +74,7 @@ public class HighImpactAlertsFragment extends SherlockFragment
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-        IntentFilter alertsFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
-        alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
-        getActivity().registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);		
+		super.onCreate(savedInstanceState);		
 	}
 
 	@Override
@@ -105,6 +100,11 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	public void onResume() {
 		super.onResume();
 		
+        IntentFilter alertsFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
+        alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
+        getActivity().registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
+		
 		timer = new Timer();
 		timer.schedule(new MyTimerTask(), 0, (1 * DateUtils.MINUTE_IN_MILLIS)); // Update every 1 minute
 	}
@@ -114,12 +114,6 @@ public class HighImpactAlertsFragment extends SherlockFragment
 		super.onPause();
 		
 		timer.cancel();
-	}
-
-    @Override
-	public void onDestroy() {
-		super.onDestroy();
-
 		getActivity().unregisterReceiver(mHighwayAlertsSyncReceiver);
 	}
 	

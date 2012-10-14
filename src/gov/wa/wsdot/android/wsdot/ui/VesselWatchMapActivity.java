@@ -79,11 +79,6 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
         
         // Initialize AsyncTask
         mCamerasOverlayTask = new CamerasOverlayTask();
-        
-        IntentFilter camerasFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
-        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mCamerasReceiver = new CamerasSyncReceiver();
-        registerReceiver(mCamerasReceiver, camerasFilter); 
 
         /**
          * Using an extended version of MyLocationOverlay class because it has been
@@ -129,21 +124,20 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 		super.onPause();
 		timer.cancel();
 		myLocationOverlay.disableMyLocation();
+		this.unregisterReceiver(mCamerasReceiver);
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		 timer = new Timer();
-		 timer.schedule(new VesselsTimerTask(), 0, 30000); // Schedule vessels to update every 30 seconds
+		timer = new Timer();
+		timer.schedule(new VesselsTimerTask(), 0, 30000); // Schedule vessels to update every 30 seconds
 		myLocationOverlay.enableMyLocation();
-	}
-	
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
 		
-		this.unregisterReceiver(mCamerasReceiver);
+        IntentFilter camerasFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
+        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mCamerasReceiver = new CamerasSyncReceiver();
+        registerReceiver(mCamerasReceiver, camerasFilter); 
 	}
 	
 	private class MapViewChangeListener implements MyMapView.OnChangeListener {

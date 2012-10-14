@@ -69,11 +69,6 @@ public class BorderWaitNorthboundFragment extends SherlockListFragment
 		
 		setHasOptionsMenu(true);
 		
-		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.BORDER_WAIT_RESPONSE");
-		filter.addCategory(Intent.CATEGORY_DEFAULT);
-		mBorderWaitSyncReceiver = new BorderWaitSyncReceiver();
-		getActivity().registerReceiver(mBorderWaitSyncReceiver, filter);
-		
 		Intent intent = new Intent(getActivity(), BorderWaitSyncService.class);
 		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
@@ -116,14 +111,24 @@ public class BorderWaitNorthboundFragment extends SherlockListFragment
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);
     }    
-    
+	
 	@Override
-	public void onDestroy() {
-		super.onDestroy();
+	public void onPause() {
+		super.onPause();
 		
 		getActivity().unregisterReceiver(mBorderWaitSyncReceiver);
 	}
-    
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.BORDER_WAIT_RESPONSE");
+		filter.addCategory(Intent.CATEGORY_DEFAULT);
+		mBorderWaitSyncReceiver = new BorderWaitSyncReceiver();
+		getActivity().registerReceiver(mBorderWaitSyncReceiver, filter);
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
