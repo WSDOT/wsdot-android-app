@@ -20,12 +20,16 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
@@ -35,7 +39,9 @@ public class AboutActivity extends SherlockFragmentActivity {
 	WebView webview;
 	String versionName = "Not available";
 	PackageInfo packageInfo;
+	private View mLoadingSpinner;
 
+	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -51,9 +57,11 @@ public class AboutActivity extends SherlockFragmentActivity {
 	        Log.e(DEBUG_TAG, "Not found", e);
 	    }		
 		
-		setContentView(R.layout.webview);
-		
+		setContentView(R.layout.fragment_webview_with_spinner);
+		mLoadingSpinner = findViewById(R.id.loading_spinner);
+		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)findViewById(R.id.webview);
+		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);
 	}
@@ -99,5 +107,27 @@ public class AboutActivity extends SherlockFragmentActivity {
 	        return true;
 	    }
 	    return super.onKeyDown(keyCode, event);
-	}		
+	}
+	
+	public class myWebViewClient extends WebViewClient {
+
+		@Override
+		public void onPageStarted(WebView view, String url, Bitmap favicon) {
+			super.onPageStarted(view, url, favicon);
+		}
+
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+			view.loadUrl(url);
+			
+			return true;
+		}
+		
+		@Override
+		public void onPageFinished(WebView view, String url) {
+			super.onPageFinished(view, url);
+			
+			mLoadingSpinner.setVisibility(View.GONE);
+		}
+	}
 }

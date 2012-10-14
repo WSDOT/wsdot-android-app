@@ -19,9 +19,13 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -33,8 +37,10 @@ public class HighwayAlertDetailsActivity extends SherlockActivity {
 	private WebView webview;
 	private String mTitle;
 	private String mDescription;
-	private String mContent;	
+	private String mContent;
+	private View mLoadingSpinner;	
 
+	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -46,9 +52,11 @@ public class HighwayAlertDetailsActivity extends SherlockActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setTitle(mTitle);
 		
-		setContentView(R.layout.webview);
-					
+		setContentView(R.layout.fragment_webview_with_spinner);
+		mLoadingSpinner = findViewById(R.id.loading_spinner);
+		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)findViewById(R.id.webview);
+		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		
 		mContent = "<p>" + mDescription + "</p>";
@@ -88,6 +96,28 @@ public class HighwayAlertDetailsActivity extends SherlockActivity {
 	    	return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}	
+	}
+	
+	public class myWebViewClient extends WebViewClient {
+
+		@Override
+		public void onPageStarted(WebView view, String url, Bitmap favicon) {
+			super.onPageStarted(view, url, favicon);
+		}
+
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+			view.loadUrl(url);
+			
+			return true;
+		}
+		
+		@Override
+		public void onPageFinished(WebView view, String url) {
+			super.onPageFinished(view, url);
+			
+			mLoadingSpinner.setVisibility(View.GONE);
+		}
+	}
 	
 }

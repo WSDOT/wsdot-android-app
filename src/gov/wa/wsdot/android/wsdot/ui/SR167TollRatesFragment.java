@@ -20,18 +20,22 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
 public class SR167TollRatesFragment extends SherlockFragment {
 	WebView webview;
 	private ViewGroup mRootView;
+	private View mLoadingSpinner;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -44,10 +48,15 @@ public class SR167TollRatesFragment extends SherlockFragment {
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Toll Rates/SR 167");		
 	}
 	
+	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mRootView = (ViewGroup) inflater.inflate(R.layout.webview, null);
+		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_webview_with_spinner, null);
+		mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);
+		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)mRootView.findViewById(R.id.webview);
+		webview.setWebViewClient(new myWebViewClient());
+		webview.getSettings().setJavaScriptEnabled(true);
 		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);	
 		
 		return mRootView;
@@ -69,5 +78,27 @@ public class SR167TollRatesFragment extends SherlockFragment {
 				"<p><em>Good To Go!</em> customers who use the HOT lane should look for the electronic sign above the lane that displays the actual toll rate and make a choice to enter the lane.</p>");
 			
 		return sb.toString();
+	}
+	
+	public class myWebViewClient extends WebViewClient {
+
+		@Override
+		public void onPageStarted(WebView view, String url, Bitmap favicon) {
+			super.onPageStarted(view, url, favicon);
+		}
+
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+			view.loadUrl(url);
+			
+			return true;
+		}
+		
+		@Override
+		public void onPageFinished(WebView view, String url) {
+			super.onPageFinished(view, url);
+			
+			mLoadingSpinner.setVisibility(View.GONE);
+		}
 	}
 }

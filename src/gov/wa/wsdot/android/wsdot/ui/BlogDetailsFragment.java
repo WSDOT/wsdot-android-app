@@ -19,13 +19,16 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
@@ -39,6 +42,7 @@ public class BlogDetailsFragment extends SherlockFragment {
 	private String mTitle;
 	private String mContent;
 	private String mLink;
+	private View mLoadingSpinner;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -60,12 +64,16 @@ public class BlogDetailsFragment extends SherlockFragment {
 		setHasOptionsMenu(true); 		
 	}
 
+	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
-		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.webview, null);
+		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_webview_with_spinner, null);
+		mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)root.findViewById(R.id.webview);
+		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);	
 
 		return root;
@@ -98,6 +106,28 @@ public class BlogDetailsFragment extends SherlockFragment {
         shareIntent.putExtra(Intent.EXTRA_TEXT, mTitle + " " + mLink);
         
         return shareIntent;
+	}
+	
+	public class myWebViewClient extends WebViewClient {
+
+		@Override
+		public void onPageStarted(WebView view, String url, Bitmap favicon) {
+			super.onPageStarted(view, url, favicon);
+		}
+
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+			view.loadUrl(url);
+			
+			return true;
+		}
+		
+		@Override
+		public void onPageFinished(WebView view, String url) {
+			super.onPageFinished(view, url);
+			
+			mLoadingSpinner.setVisibility(View.GONE);
+		}
 	}
 	
 }

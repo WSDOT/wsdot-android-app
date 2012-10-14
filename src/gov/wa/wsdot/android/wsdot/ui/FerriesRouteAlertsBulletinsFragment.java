@@ -20,7 +20,6 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.FerriesRouteAlertItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesRouteItem;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 import java.util.ArrayList;
@@ -52,7 +51,6 @@ public class FerriesRouteAlertsBulletinsFragment extends SherlockListFragment
 	implements LoaderCallbacks<ArrayList<FerriesRouteAlertItem>> {
 
 	private static final String DEBUG_TAG = "RouteAlertsBulletins";
-	private static FerriesRouteItem routeItems;
 	private static ArrayList<FerriesRouteAlertItem> routeAlertItems;
 	private static RouteAlertItemAdapter adapter;
 	private static View mLoadingSpinner;
