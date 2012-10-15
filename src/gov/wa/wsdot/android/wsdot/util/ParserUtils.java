@@ -37,7 +37,7 @@ public class ParserUtils {
 		try {
 			parseDate = parseDateFormat.parse(createdAt);
 		} catch (ParseException e) {
-			return "Error with date";
+			return "Unavailable";
 		}
 		
 		return getRelative(parseDate);
