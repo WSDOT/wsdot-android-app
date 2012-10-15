@@ -19,8 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -32,6 +30,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 
 public class MountainPassItemReportFragment extends SherlockFragment {
+	@SuppressWarnings("unused")
 	private static final String DEBUG_TAG = "MountainPassItemDetails";	
 	private ViewGroup mRootView;
 	private String mWeatherCondition;
@@ -49,8 +48,6 @@ public class MountainPassItemReportFragment extends SherlockFragment {
 		super.onAttach(activity);
 		
 		Bundle args = activity.getIntent().getExtras();
-        String pageView = "/Mountain Passes/" + args.getString("MountainPassName") + "/Info";
-        AnalyticsUtils.getInstance(getActivity()).trackPageView(pageView);			
 		
 		mWeatherCondition = args.getString("WeatherCondition");
 		mTemperatureInFahrenheit = args.getString("TemperatureInFahrenheit");

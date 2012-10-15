@@ -98,6 +98,13 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		myLocationOverlay = new FixedMyLocationOverlay(this, map);
 		map.getOverlays().add(myLocationOverlay);
         
+		// Will be executed as soon as we have a location fix
+        myLocationOverlay.runOnFirstFix(new Runnable() {
+            public void run() {
+            	map.getController().animateTo(myLocationOverlay.getMyLocation());
+            }
+        });
+		
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 

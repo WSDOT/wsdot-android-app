@@ -20,7 +20,6 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.util.ArrayList;
 
@@ -52,8 +51,6 @@ public class MountainPassItemForecastFragment extends SherlockListFragment {
 		
 		Bundle args = activity.getIntent().getExtras();
 		forecastsArray = args.getString("Forecasts");
-        String pageView = "/Mountain Passes/" + args.getString("MountainPassName") + "/Forecast";
-        AnalyticsUtils.getInstance(getActivity()).trackPageView(pageView);
         
         JSONArray forecasts;
         ForecastItem f = null;

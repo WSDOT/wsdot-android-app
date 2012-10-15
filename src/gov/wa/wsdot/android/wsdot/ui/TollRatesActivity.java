@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui;
 import java.util.ArrayList;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -47,6 +48,8 @@ public class TollRatesActivity extends SherlockFragmentActivity {
 		
 		setContentView(mViewPager);
 	    
+		AnalyticsUtils.getInstance(this).trackPageView("/Toll Rates");
+		
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 

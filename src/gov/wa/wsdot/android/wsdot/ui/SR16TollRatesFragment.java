@@ -19,7 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,8 +39,7 @@ public class SR16TollRatesFragment extends SherlockListFragment {
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/Toll Rates/SR 16");        
+        super.onCreate(savedInstanceState);       
     }
 
     @SuppressWarnings("deprecation")

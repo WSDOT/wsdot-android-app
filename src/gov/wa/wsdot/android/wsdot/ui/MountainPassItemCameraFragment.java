@@ -21,7 +21,6 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.ui.widget.ResizeableImageView;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -76,8 +75,6 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 		
 		Bundle args = activity.getIntent().getExtras();
 		camerasArray = args.getString("Cameras");
-		String pageView = "/Mountain Passes/" + args.getString("MountainPassName") + "/Cameras";
-	    AnalyticsUtils.getInstance(getActivity()).trackPageView(pageView);
 	    
 	    remoteImages = new ArrayList<CameraItem>();
 	    bitmapImages  = new ArrayList<Drawable>();

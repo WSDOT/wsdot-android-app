@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.util.ArrayList;
 
@@ -54,6 +55,8 @@ public class BorderWaitActivity extends SherlockFragmentActivity {
         
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        
+		AnalyticsUtils.getInstance(this).trackPageView("/Canadian Border/");
         
         mTabsAdapter = new TabsAdapter(this, mViewPager);
 		mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Northbound"),

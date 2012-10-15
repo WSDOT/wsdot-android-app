@@ -21,7 +21,6 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
 import gov.wa.wsdot.android.wsdot.service.BorderWaitSyncService;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
@@ -72,8 +71,6 @@ public class BorderWaitNorthboundFragment extends SherlockListFragment
 		Intent intent = new Intent(getActivity(), BorderWaitSyncService.class);
 		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
-		
-		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Canadian Border/Northbound");
 	}
 
     @SuppressWarnings("deprecation")

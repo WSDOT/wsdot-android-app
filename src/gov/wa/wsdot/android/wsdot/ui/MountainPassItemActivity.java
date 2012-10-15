@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -70,6 +71,9 @@ public class MountainPassItemActivity extends SherlockFragmentActivity {
 	    String cameras = b.getString("Cameras");
 	    String forecast = b.getString("Forecasts");
 	    mIsStarred = b.getInt("isStarred") != 0;
+	    
+		String pageView = "/Mountain Passes/" + mountainPassName;
+	    AnalyticsUtils.getInstance(this).trackPageView(pageView);
 	    
         getSupportActionBar().setTitle(mountainPassName);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

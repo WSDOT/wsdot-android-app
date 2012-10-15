@@ -19,7 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -44,8 +43,7 @@ public class SR167TollRatesFragment extends SherlockFragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Toll Rates/SR 167");		
+		super.onCreate(savedInstanceState);	
 	}
 	
 	@SuppressLint("SetJavaScriptEnabled")
