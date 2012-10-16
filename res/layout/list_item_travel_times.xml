@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="14dp">
+
+	<CheckBox
+    	android:id="@+id/star_button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="7dp"    	
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/description_star"
+        style="@style/StarButton" />    
+    
+	<TextView
+	    android:id="@+id/title"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentTop="true"
+	    android:layout_marginRight="7dp"
+	    android:layout_toLeftOf="@+id/star_button"
+	    android:textSize="@dimen/text_size_medium" />
+		
+	<TextView
+		android:id="@+id/current_time"
+		android:textSize="@dimen/text_size_large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/star_button"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentBottom="true" />	
+	
+	<TextView
+	    android:id="@+id/distance_average_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+		android:layout_below="@+id/title"
+		android:textSize="@dimen/text_size_small" />
+
+    <TextView
+        android:id="@+id/updated"
+        android:textSize="@dimen/text_size_small"
+        android:textColor="@color/semi_black"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+		android:layout_marginTop="7dp"
+        android:layout_below="@+id/distance_average_time" />	
+    	
+</RelativeLayout>

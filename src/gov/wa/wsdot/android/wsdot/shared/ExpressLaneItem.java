@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ public class ExpressLaneItem implements Serializable {
 	private String title;
 	private Integer route;
 	private String status;
-	private String pubDate;
+	private String updated;
 	
 	public void setTitle(String title) {
 		this.title = title;
@@ -48,10 +48,10 @@ public class ExpressLaneItem implements Serializable {
 	public String getStatus() {
 		return status;
 	}
-	public void setPubDate(String pubDate) {
-		this.pubDate = pubDate;
+	public String getUpdated() {
+		return updated;
 	}
-	public String getPubDate() {
-		return pubDate;
+	public void setUpdated(String updated) {
+		this.updated = updated;
 	}
 }

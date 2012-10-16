@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/description"
-    android:layout_width="fill_parent"
-    android:padding="5dp"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    />
+    android:padding="14dp">
+    
+	<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+		android:id="@+id/description"
+		android:textSize="@dimen/text_size_medium"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    />
+
+</RelativeLayout>

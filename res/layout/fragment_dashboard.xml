@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gov.wa.wsdot.android.wsdot.ui.widget.DashboardLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <Button android:id="@+id/home_btn_traffic"
+        style="@style/DashboardButton"
+        android:text="@string/btn_traffic"
+        android:drawableTop="@drawable/home_btn_traffic" />
+    <Button android:id="@+id/home_btn_ferries"
+        style="@style/DashboardButton"
+        android:text="@string/btn_ferries"
+        android:drawableTop="@drawable/home_btn_ferries" />
+    <Button android:id="@+id/home_btn_passes"
+        style="@style/DashboardButton"
+        android:text="@string/btn_passes"
+        android:drawableTop="@drawable/home_btn_passes" />
+    <Button android:id="@+id/home_btn_social"
+        style="@style/DashboardButton"
+        android:text="@string/btn_social"
+        android:drawableTop="@drawable/home_btn_social" />
+    <Button android:id="@+id/home_btn_tolling"
+        style="@style/DashboardButton"
+        android:text="@string/btn_tolling"
+        android:drawableTop="@drawable/home_btn_tolling" />
+    <Button android:id="@+id/home_btn_border"
+        style="@style/DashboardButton"
+        android:text="@string/btn_border"
+        android:drawableTop="@drawable/home_btn_border" />
+
+</gov.wa.wsdot.android.wsdot.ui.widget.DashboardLayout>

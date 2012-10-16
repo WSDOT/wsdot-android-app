@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,16 +23,14 @@ import java.io.Serializable;
 import android.graphics.drawable.Drawable;
 
 public class CameraItem implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6303369840501629538L;
+	private static final long serialVersionUID = 7852844361445836316L;
 	private String title;
 	private String imageUrl;
 	private String roadName;
 	private Double longitude;
 	private Double latitude;
 	private Drawable image;
+	private Integer cameraId;
 	
 	public String getTitle() {
 		return title;
@@ -69,5 +67,11 @@ public class CameraItem implements Serializable {
 	}
 	public void setImage(Drawable image) {
 		this.image = image;
+	}
+	public Integer getCameraId() {
+		return cameraId;
+	}
+	public void setCameraId(Integer cameraId) {
+		this.cameraId = cameraId;
 	}
 }

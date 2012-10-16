@@ -2,22 +2,44 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="gov.wa.wsdot.android.wsdot"
       android:installLocation="auto"
-      android:versionCode="45"
-      android:versionName="1.5.29">
+      android:versionCode="0814200"
+      android:versionName="2.0.0">
 
-    <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="4" />
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />    
-    
-    <application
-	 	android:icon="@drawable/icon"
-	 	android:label="@string/app_name"
-		android:debuggable="false"
-		android:theme="@android:style/Theme.Light.NoTitleBar" >
 
+    <application
+	 	android:icon="@drawable/ic_launcher"
+	 	android:label="@string/app_name"
+		android:theme="@style/Theme.Sherlock.Light.DarkActionBar.ForceOverflow" >
+
+        <provider
+            android:name=".provider.WSDOTProvider"
+            android:authorities="gov.wa.wsdot.android.wsdot.provider.WSDOTProvider"
+            android:exported="false" />
+        
+        <service
+            android:name=".service.CamerasSyncService" />
+        
+        <service
+            android:name=".service.HighwayAlertsSyncService" />
+        
+        <service
+            android:name=".service.MountainPassesSyncService" />
+        
+        <service
+            android:name=".service.TravelTimesSyncService" />
+        
+        <service
+            android:name=".service.FerriesSchedulesSyncService" />
+
+        <service
+            android:name=".service.BorderWaitSyncService" />
+        
         <activity
-            android:name=".WSDOT"
+            android:name=".ui.HomeActivity"
             android:label="@string/app_name" >
         	<intent-filter>
             	<action android:name="android.intent.action.MAIN" />
@@ -25,48 +47,126 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="News" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="NewsItemDetails" />
-   		<activity android:name="Blog" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="BlogItemDetails" />
-   		<activity android:name="Twitter" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="TwitterItemDetails" />
-   		<activity android:name="Photos" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="PhotoItemDetails" />
-   		<activity android:name="About" />
-   		<activity android:name="SocialMedia" />
-   		<activity android:name="MountainPassConditions" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="MountainPassItemDetails" />
-   		<activity android:name="MountainPassItemTabs" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="MountainPassItemCamera" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="MountainPassItemForecast" />
-   		<activity android:name="MountainPassItemMap" />
-   		<activity android:name="TrafficMap" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="SeattleTrafficAlerts" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="SeattleTrafficTravelTimes" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="SeattleExpressLanes" android:theme="@android:style/Theme.Dialog" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="EditPreferences" />
-   		<activity android:name="BorderWaitTabs" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="BorderWaitNorthbound" />
-   		<activity android:name="BorderWaitSouthbound" />
-   		<activity android:name="Ferries" />
-   		<activity android:name="RouteAlerts" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="RouteAlertsItems" />
-   		<activity android:name="RouteAlertsItemDetails" />
-   		<activity android:name="RouteSchedules" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="RouteSchedulesDays" />
-   		<activity android:name="RouteSchedulesDaySailings" />
-   		<activity android:name="RouteScheduleDayDepartures" />
-   		<activity android:name="VesselWatchMap" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="TollRatesTabActivity" />
-   		<activity android:name="SR520TollRatesActivity" />
-   		<activity android:name="SR16TollRatesActivity" />
-   		<activity android:name="SR167TollRatesActivity" />
-   		<activity android:name="Video" android:configChanges="orientation|keyboardHidden" />
-   		<activity android:name="CameraVideo" />
+        <activity
+            android:name=".ui.NewsActivity"
+            android:label="@string/title_news" />
+        
+   		<activity
+   		    android:name=".ui.NewsDetailsActivity" />
 
-   		<uses-library android:name="com.google.android.maps" />
+   		<activity
+   		    android:name=".ui.AboutActivity"
+   		    android:label="@string/title_about" />   		
+   				
+   		<activity
+   		    android:name=".ui.BlogActivity"
+   		    android:label="@string/title_blog" />
+   		
+   		<activity
+   		    android:name=".ui.BlogDetailsActivity" />
+   		
+   		<activity
+   		    android:name=".ui.TwitterActivity"
+   		    android:label="@string/title_twitter" />
+   		
+   		<activity
+   		    android:name=".ui.TwitterDetailsActivity"
+   		    android:label="@string/title_twitter" />
 
+   		<activity
+   		    android:name=".ui.FacebookActivity"
+   		    android:label="@string/title_facebook" />
+   		
+   		<activity
+   		    android:name=".ui.FacebookDetailsActivity"
+   		    android:label="@string/title_facebook" />   		
+   				
+   		<activity
+   		    android:name=".ui.PhotosActivity"
+   		    android:label="@string/title_photos" />
+   		
+   		<activity
+   		    android:name=".ui.PhotoDetailsActivity" />
+   		
+   		<activity
+   		    android:name=".ui.SocialMediaActivity"
+   		    android:label="@string/title_socialmedia" />
+   		
+   		<activity
+   		    android:name=".ui.MountainPassesActivity"
+   		    android:label="@string/title_mountainpasses" />
+   		
+   		<activity
+   		    android:name=".ui.MountainPassItemActivity" />
+   		
+   		<activity
+   		    android:name=".ui.TrafficMapActivity"
+   		    android:label="@string/title_trafficmap" />
+   		
+   		<activity
+   		    android:name=".ui.SeattleTrafficAlertsActivity"
+   		    android:label="@string/title_seattlealerts" />
+   		
+   		<activity
+   		    android:name=".ui.TravelTimesActivity"
+   		    android:label="@string/title_traveltimes" />
+   		
+   		<activity
+   		    android:name=".ui.SeattleExpressLanesActivity"
+   		    android:label="@string/title_expresslanes" />
+   		
+   		<activity
+   		    android:name=".ui.PreferencesActivity"
+   		    android:label="@string/title_preferences" />
+   		
+   		<activity
+   		    android:name=".ui.BorderWaitActivity"
+   		    android:label="@string/title_borderwait" />
+   		   		
+   		<activity
+   		    android:name=".ui.FerriesActivity"
+   		    android:label="@string/title_ferries" />
+   		
+   		<activity
+   		    android:name=".ui.FerriesRouteAlertsBulletinsActivity" />
+   		
+   		<activity
+   		    android:name=".ui.FerriesRouteAlertsBulletinDetailsActivity" />
+   		
+   		<activity
+   		    android:name=".ui.FerriesRouteSchedulesActivity"
+   		    android:label="@string/title_ferriesrouteschedules" />
+   		
+   		<activity
+   		    android:name=".ui.FerriesRouteSchedulesDaySailingsActivity" />
+   		
+   		<activity
+   		    android:name=".ui.FerriesRouteSchedulesDayDeparturesActivity" />
+   		
+   		<activity
+   		    android:name=".ui.VesselWatchMapActivity"
+   		    android:label="@string/title_vesselwatch" />
+   		
+   		<activity
+   		    android:name=".ui.VesselWatchDetailsActivity" />
+   		
+   		<activity
+   		    android:name=".ui.TollRatesActivity"
+   		    android:label="@string/title_tollrates" />
+   		
+   		<activity
+   		    android:name=".ui.VideoActivity"
+   		    android:label="@string/title_video" />
+   		
+   		<activity
+   		 	android:name=".ui.CameraActivity"
+   		    android:uiOptions="splitActionBarWhenNarrow" />
+
+   		<activity
+   		    android:name=".ui.HighwayAlertDetailsActivity" />
+   				
+   		<uses-library android:name="com.google.android.maps" />   		
+   		
     </application>
 
 </manifest> 

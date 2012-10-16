@@ -42,6 +42,7 @@ public class MountainPassItem implements Serializable {
 	private String restrictionTwoText;
 	private String restrictionTwoTravelDirection;
 	private Integer weatherIcon;
+	private boolean selected;
 	private ArrayList<CameraItem> camera = new ArrayList<CameraItem>();
 	private ArrayList<ForecastItem> forecast = new ArrayList<ForecastItem>();
 	
@@ -146,5 +147,11 @@ public class MountainPassItem implements Serializable {
 	}
 	public void setForecastItem(ForecastItem forecast) {
 		this.forecast.add(forecast);
+	}
+	public boolean isSelected() {
+		return selected;
+	}
+	public void setSelected(boolean selected) {
+		this.selected = selected;
 	}	
 }

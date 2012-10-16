@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+	    android:id="@+id/my_location"
+		android:title="@string/description_mylocation"
+		android:icon="@drawable/ic_menu_mylocation"
+		android:orderInCategory="1"
+		android:showAsAction="ifRoom|withText" />
+
+	<item
+	    android:id="@+id/toggle_cameras"
+		android:title="@string/description_cameras"
+		android:icon="@drawable/ic_menu_camera"
+		android:orderInCategory="2"
+		android:showAsAction="ifRoom|withText" />
+		
+	<item
+	    android:id="@+id/goto_location"
+		android:title="@string/description_gotolocation"
+		android:icon="@drawable/ic_menu_goto"
+		android:orderInCategory="3"
+		android:showAsAction="ifRoom|withText" >
+		<menu>
+			<item android:orderInCategory="1" android:title="Anacortes / San Juan Islands / Sidney BC" android:id="@+id/goto_anacortes" />
+			<item android:orderInCategory="2" android:title="Edmonds / Kingston" android:id="@+id/goto_edmonds" />		
+			<item android:orderInCategory="3" android:title="Fauntleroy / Vashon / Southworth" android:id="@+id/goto_fauntleroy" />
+			<item android:orderInCategory="4" android:title="Mukilteo / Clinton" android:id="@+id/goto_mukilteo" />
+			<item android:orderInCategory="5" android:title="Point Defiance / Tahlequah" android:id="@+id/goto_pointdefiance" />
+			<item android:orderInCategory="6" android:title="Port Townsend / Coupeville" android:id="@+id/goto_porttownsend" />
+			<item android:orderInCategory="7" android:title="San Juan Islands Inter-Island" android:id="@+id/goto_sanjuanislands" />
+			<item android:orderInCategory="8" android:title="Seattle" android:id="@+id/goto_seattle" />
+			<item android:orderInCategory="9" android:title="Seattle / Bainbridge" android:id="@+id/goto_seattlebainbridge" />
+		</menu>
+	</item>
+	
+</menu>

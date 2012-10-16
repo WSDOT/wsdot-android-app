@@ -4,25 +4,13 @@
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
-	
-	<include layout="@layout/header" />
-
-	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:id="@+id/mainlayout"
-	    android:orientation="vertical"
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent" >
-	
-		<!-- Replace the apiKey with your own. See this link for more information, 
-			 http://code.google.com/android/add-ons/google-apis/mapkey.html
-		-->
-	    <com.google.android.maps.MapView xmlns:android="http://schemas.android.com/apk/res/android"
-	    	android:id="@+id/mapview"
-			android:layout_width="fill_parent"
-	   		android:layout_height="fill_parent"
-	   		android:clickable="true"
-	   		android:apiKey="0dZ0POtoHDkMBUJZ1PxSFb7OZpVtgAyT-VEmBiw" />
-	   
-	</RelativeLayout>
+		
+    <gov.wa.wsdot.android.wsdot.ui.widget.MyMapView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:id="@+id/mapview"
+		android:layout_width="fill_parent"
+   		android:layout_height="fill_parent"
+   		android:clickable="true"
+   		android:apiKey="@string/googlemaps_api_key" />
 	
 </LinearLayout>
