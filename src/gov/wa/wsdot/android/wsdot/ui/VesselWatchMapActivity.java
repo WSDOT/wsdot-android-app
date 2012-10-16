@@ -249,13 +249,17 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 	private void toggleCameras(MenuItem item) {
 		if (showCameras) {
 			AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/Hide Cameras");
-			map.getOverlays().remove(cameras);
+			if (cameras != null) {
+				map.getOverlays().remove(cameras);
+			}
 			map.invalidate();
 			item.setTitle("Show Cameras");
 			showCameras = false;
 		} else {
 			AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/Show Cameras");
-			map.getOverlays().add(cameras);
+			if (cameras != null) {
+				map.getOverlays().add(cameras);
+			}
 			map.invalidate();
 			item.setTitle("Hide Cameras");
 			showCameras = true;
