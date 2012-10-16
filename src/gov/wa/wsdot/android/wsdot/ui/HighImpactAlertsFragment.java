@@ -25,8 +25,6 @@ import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -65,7 +63,6 @@ public class HighImpactAlertsFragment extends SherlockFragment
 	private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
 	private ArrayList<HighwayAlertsItem> alertItems = new ArrayList<HighwayAlertsItem>();
 	private Handler mHandler = new Handler();
-	private Timer timer;
     
     @Override
     public void onAttach(Activity activity) {
@@ -105,30 +102,24 @@ public class HighImpactAlertsFragment extends SherlockFragment
         mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
         getActivity().registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
 		
-		timer = new Timer();
-		timer.schedule(new MyTimerTask(), 0, (1 * DateUtils.MINUTE_IN_MILLIS)); // Update every 1 minute
+        mHandler.post(runnable);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
 		
-		timer.cancel();
+		mHandler.removeCallbacks(runnable);
 		getActivity().unregisterReceiver(mHighwayAlertsSyncReceiver);
 	}
 	
-    public class MyTimerTask extends TimerTask {
-        private Runnable runnable = new Runnable() {
-            public void run() {
-            	Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-            	getActivity().startService(intent);
-            }
-        };
-
+    private Runnable runnable = new Runnable() {
         public void run() {
-            mHandler.post(runnable);
+        	Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
+        	getActivity().startService(intent);
+        	mHandler.postDelayed(runnable, (1 * DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
         }
-    }	
+    };
     
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         // This is called when a new Loader needs to be created.
