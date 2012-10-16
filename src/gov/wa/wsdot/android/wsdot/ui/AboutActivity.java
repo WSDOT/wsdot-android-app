@@ -21,9 +21,11 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -85,7 +87,7 @@ public class AboutActivity extends SherlockFragmentActivity {
 				"<p>The WSDOT mobile app was created to make it easier for you to know the latest " +
 				"about Washington's transportation system.</p>" +
 				"<p>Questions, comments or suggestions about this app can be e-mailed to the " +
-				"<a href=\"mailto:webfeedback@wsdot.wa.gov?subject=WSDOT Android App\">WSDOT " +
+				"<a href=\"mailto:webfeedback@wsdot.wa.gov\">WSDOT " +
 				"Communications Office</a>.</p>" +
 				"<div class=\"g-plus\" data-height=\"69\" data-href=\"https://plus.google.com/103669336535896913187\" data-rel=\"publisher\"></div>" +
 				"<script type=\"text/javascript\">" +
@@ -118,7 +120,18 @@ public class AboutActivity extends SherlockFragmentActivity {
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
-			view.loadUrl(url);
+			if (url.startsWith("http:") || url.startsWith("https:")) {
+				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+				startActivity(browserIntent);
+			} else if (url.startsWith("mailto:")) {
+				Intent emailIntent = new Intent(Intent.ACTION_SEND);
+				emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {"webfeedback@wsdot.wa.gov"});
+				emailIntent.putExtra(Intent.EXTRA_SUBJECT, "WSDOT Android App");
+				emailIntent.setType("message/rfc822"); // this prompts email client only
+				startActivity(Intent.createChooser(emailIntent, "Send Email using"));
+			} else {
+				view.loadUrl(url);
+			}
 			
 			return true;
 		}
