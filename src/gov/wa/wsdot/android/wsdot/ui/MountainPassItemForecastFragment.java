@@ -118,34 +118,35 @@ public class MountainPassItemForecastFragment extends SherlockListFragment {
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
+	        ViewHolder holder = null;
+        	
+        	if (convertView == null) {
 	            convertView = getActivity().getLayoutInflater().inflate(R.layout.simple_list_item_with_icon, null);
+	            holder = new ViewHolder();
+	            holder.title = (TextView) convertView.findViewById(R.id.title);
+	            holder.title.setTypeface(tfb);
+	            holder.text = (TextView) convertView.findViewById(R.id.text);
+	            holder.text.setTypeface(tf);
+	            holder.icon = (ImageView) convertView.findViewById(R.id.icon);
+	            
+	            convertView.setTag(holder);
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
+        	
 	        ForecastItem o = items.get(position);
-	        if (o != null) {
-	            TextView tt = (TextView) convertView.findViewById(R.id.title);
-	            tt.setTypeface(tfb);
-	            TextView bt = (TextView) convertView.findViewById(R.id.text);
-	            bt.setTypeface(tf);
-	            ImageView iv = (ImageView) convertView.findViewById(R.id.icon);
-	            
-	            if (tt != null) {
-	            	tt.setText(o.getDay());
-	            }
-	            
-	            if(bt != null) {
-            		bt.setText(o.getForecastText());
-	            }
-	            
-	            iv.setImageResource(o.getWeatherIcon());
-	        }
+
+           	holder.title.setText(o.getDay());
+       		holder.text.setText(o.getForecastText());
+            holder.icon.setImageResource(o.getWeatherIcon());
+
 	        return convertView;
         }
 	}
 	
 	public static class ViewHolder {
-		public TextView tt;
-		public TextView bt;
-		public ImageView iv;
+		public TextView title;
+		public TextView text;
+		public ImageView icon;
 	}
 }

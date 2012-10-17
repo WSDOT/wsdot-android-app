@@ -384,39 +384,31 @@ public class TwitterFragment extends SherlockListFragment
 
 		@Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
+	        ViewHolder holder = null;
+			
+			if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.twitter_list_item_with_icon, null);
+	            holder = new ViewHolder();
+	            holder.icon = (ImageView) convertView.findViewById(R.id.icon);
+	            holder.userName = (TextView) convertView.findViewById(R.id.user_name);
+	            holder.userName.setTypeface(tfb);
+	            holder.createdAt = (TextView) convertView.findViewById(R.id.created_at);
+	            holder.createdAt.setTypeface(tf);
+	            holder.text = (TextView) convertView.findViewById(R.id.text);
+	            holder.text.setMovementMethod(LinkMovementMethod.getInstance());
+	            holder.text.setTypeface(tf);
+	            
+	            convertView.setTag(holder);
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
 	        
 	        TwitterItem item = getItem(position);
 	        
-	        if (item != null) {
-	        	ImageView icon = (ImageView) convertView.findViewById(R.id.icon);
-                TextView userName = (TextView) convertView.findViewById(R.id.user_name);
-                userName.setTypeface(tfb);
-	        	TextView createdAt = (TextView) convertView.findViewById(R.id.created_at);
-                createdAt.setTypeface(tf);
-	        	TextView text = (TextView) convertView.findViewById(R.id.text);
-                text.setMovementMethod(LinkMovementMethod.getInstance());
-                text.setTypeface(tf);
-
-                if (icon != null) {
-                	icon.setImageResource(mTwitterProfileImages.get(item.getScreenName()));
-                }                
-                
-                if (userName != null) {
-                	userName.setText(item.getUserName());
-                }
-                
-                if (createdAt != null) {
-                	createdAt.setText(item.getCreatedAt());
-                }
-                
-                if (text != null) {
-                	text.setText(Html.fromHtml(item.getFormatedHtmlText()));
-                }
-                
-	        }
+        	holder.icon.setImageResource(mTwitterProfileImages.get(item.getScreenName()));
+        	holder.userName.setText(item.getUserName());
+        	holder.createdAt.setText(item.getCreatedAt());
+        	holder.text.setText(Html.fromHtml(item.getFormatedHtmlText()));
 	        
 	        return convertView;
         }

@@ -354,37 +354,36 @@ public class VideoFragment extends SherlockListFragment
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
+	        ViewHolder holder = null;
+        	
+        	if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.video_row, null);
+	            holder = new ViewHolder();
+	            holder.title = (TextView) convertView.findViewById(R.id.title);
+	            holder.title.setTypeface(tfb);
+	            holder.description = (TextView) convertView.findViewById(R.id.description);
+	            holder.description.setTypeface(tf);
+	            holder.icon = (ImageView) convertView.findViewById(R.id.icon);
+	            
+	            convertView.setTag(holder);
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
 	        
 	        VideoItem item = getItem(position);
+
+	        holder.title.setText(item.getTitle());
+        	holder.description.setText(item.getDescription());
+        	holder.icon.setImageDrawable(item.getThumbNail());	        
 	        
-	        if (item != null) {
-	        	ImageView ic = (ImageView) convertView.findViewById(R.id.icon);
-                TextView tt = (TextView) convertView.findViewById(R.id.toptext);
-                tt.setTypeface(tfb);
-                TextView bt = (TextView) convertView.findViewById(R.id.bottomtext);
-                bt.setTypeface(tf);
-                if (ic != null) {
-                	ic.setImageDrawable(item.getThumbNail());
-                }
-                if (tt != null) {
-                	tt.setText(item.getTitle());
-                }
-                if(bt != null) {
-                	bt.setText(item.getDescription());
-                }
-	        }
-	        
-	        return convertView;
+        	return convertView;
         }
 	}
 	
 	public static class ViewHolder {
-		public ImageView ic;
-		public TextView tt;
-		public TextView bt;
+		public TextView title;
+		public TextView description;
+		public ImageView icon;
 	}
 	
     /**

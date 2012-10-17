@@ -230,35 +230,39 @@ public class FerriesRouteAlertsBulletinsFragment extends SherlockListFragment
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
+	        ViewHolder holder = null;
+        	
+        	if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.simple_list_item, null);
+	            holder = new ViewHolder();
+	            holder.title = (TextView) convertView.findViewById(R.id.title);
+	            holder.title.setTypeface(tfb);
+	            holder.description = (TextView) convertView.findViewById(R.id.description);
+	            holder.description.setTypeface(tf);
+	            
+	            convertView.setTag(holder);
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
 	        
 	        FerriesRouteAlertItem item = getItem(position);
 	        
-	        if (item != null) {
-	            TextView tt = (TextView) convertView.findViewById(R.id.title);
-	            tt.setTypeface(tfb);
-	            TextView bt = (TextView) convertView.findViewById(R.id.description);
-	            bt.setTypeface(tf);
-	            
-            	tt.setText(item.getAlertFullTitle());
-	            
-            	try {
-            		Date date = new Date(Long.parseLong(item.getPublishDate()));
-            		bt.setText(ParserUtils.relativeTime(date));
-            	} catch (Exception e) {
-            		Log.e(DEBUG_TAG, "Error parsing date", e);
-            	}	            	
-	        }
+        	holder.title.setText(item.getAlertFullTitle());
+            
+        	try {
+        		Date date = new Date(Long.parseLong(item.getPublishDate()));
+        		holder.description.setText(ParserUtils.relativeTime(date));
+        	} catch (Exception e) {
+        		Log.e(DEBUG_TAG, "Error parsing date", e);
+        	}	            	
 
 	        return convertView;
         }
 	}
 	
 	public static class ViewHolder {
-		public TextView tt;
-		public TextView bt;
+		public TextView title;
+		public TextView description;
 	}
 	
 }

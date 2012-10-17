@@ -280,32 +280,33 @@ public class BlogFragment extends SherlockListFragment
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
+	        ViewHolder holder = null;
+        	
+        	if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.simple_list_item, null);
+	            holder = new ViewHolder();
+	            holder.title = (TextView) convertView.findViewById(R.id.title);
+	            holder.title.setTypeface(tfb);
+	            holder.description = (TextView) convertView.findViewById(R.id.description);
+	            holder.description.setTypeface(tf);
+	            
+	            convertView.setTag(holder);
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
 	        
 	        BlogItem item = getItem(position);
 	        
-	        if (item != null) {
-	            TextView tt = (TextView) convertView.findViewById(R.id.title);
-	            tt.setTypeface(tfb);
-	            TextView bt = (TextView) convertView.findViewById(R.id.description);
-	            bt.setTypeface(tf);
-	            if (tt != null) {
-	            	tt.setText(item.getTitle());
-	            }
-	            if(bt != null){
-            		bt.setText(item.getPublished());
-            	}
-	        }
+           	holder.title.setText(item.getTitle());
+       		holder.description.setText(item.getPublished());
 	        
 	        return convertView;
         }
 	}
 	
 	public static class ViewHolder {
-		public TextView tt;
-		public TextView bt;
+		public TextView title;
+		public TextView description;
 	}
 	
 }

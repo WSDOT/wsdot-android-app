@@ -273,24 +273,29 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
+	        ViewHolder holder = null;
+        	
+        	if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.list_item, null);
+	            holder = new ViewHolder();
+	            holder.title = (TextView) convertView.findViewById(R.id.title);
+	            holder.title.setTypeface(tf);
+	            
+	            convertView.setTag(holder);
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
 	        
 	        FerriesTerminalItem item = getItem(position);
 	        
-	        if (item != null) {
-	            TextView tt = (TextView) convertView.findViewById(R.id.title);
-	            tt.setTypeface(tf);
-            	tt.setText(item.getDepartingTerminalName() + " to " + item.getArrivingTerminalName());
-	        }
+        	holder.title.setText(item.getDepartingTerminalName() + " to " + item.getArrivingTerminalName());
 	        
 	        return convertView;
         }
 	}
 	
 	public static class ViewHolder {
-		public TextView tt;
+		public TextView title;
 	}	
 	
 }

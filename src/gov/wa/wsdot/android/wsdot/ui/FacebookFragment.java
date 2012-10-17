@@ -352,28 +352,26 @@ public class FacebookFragment extends SherlockListFragment
 
 		@Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
+	        ViewHolder holder = null;
+			
+			if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.simple_list_item, null);
+	            holder = new ViewHolder();
+	            holder.title = (TextView) convertView.findViewById(R.id.title);
+	            holder.title.setMovementMethod(LinkMovementMethod.getInstance());
+	            holder.title.setTypeface(tf);
+	            holder.description = (TextView) convertView.findViewById(R.id.description);
+	            holder.description.setTypeface(tf);
+	            
+	            convertView.setTag(holder);
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
 	        
 	        FacebookItem item = getItem(position);
 	        
-	        if (item != null) {
-	        	TextView message = (TextView) convertView.findViewById(R.id.title);
-                message.setMovementMethod(LinkMovementMethod.getInstance());
-                message.setTypeface(tf);
-	        	TextView createdAt = (TextView) convertView.findViewById(R.id.description);
-                createdAt.setTypeface(tf);
-                
-                if (message != null) {
-                	message.setText(Html.fromHtml(item.getmHtmlFormattedMessage()));
-                }
-
-                if (createdAt != null) {
-                	createdAt.setText(item.getCreatedAt());
-                }
-                
-	        }
+           	holder.title.setText(Html.fromHtml(item.getmHtmlFormattedMessage()));
+           	holder.description.setText(item.getCreatedAt());
 	        
 	        return convertView;
         }
@@ -381,7 +379,7 @@ public class FacebookFragment extends SherlockListFragment
 	}
 	
 	public static class ViewHolder {
-		public TextView text;
-		public TextView createdAt;
+		public TextView title;
+		public TextView description;
 	}
 }

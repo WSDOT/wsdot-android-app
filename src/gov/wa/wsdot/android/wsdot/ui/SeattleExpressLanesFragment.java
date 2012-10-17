@@ -287,38 +287,36 @@ public class SeattleExpressLanesFragment extends SherlockListFragment
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
+        	ViewHolder holder = null;
+        	
+        	if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.simple_list_item_with_icon, null);
+        		holder = new ViewHolder();
+        		holder.title = (TextView) convertView.findViewById(R.id.title);
+        		holder.title.setTypeface(tfb);
+        		holder.text = (TextView) convertView.findViewById(R.id.text);
+        		holder.text.setTypeface(tf);
+        		holder.icon = (ImageView) convertView.findViewById(R.id.icon);
+        		
+        		convertView.setTag(holder);
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
 	        
 	        ExpressLaneItem item = getItem(position);
-	        
-	        if (item != null) {
-	            TextView tt = (TextView) convertView.findViewById(R.id.title);
-	            tt.setTypeface(tfb);
-	            TextView bt = (TextView) convertView.findViewById(R.id.text);
-	            bt.setTypeface(tf);
-	            ImageView iv = (ImageView) convertView.findViewById(R.id.icon);
-	            
-	            if (tt != null) {
-	            	tt.setText(item.getTitle() + " " + item.getStatus());
-	            }
-	            
-	            if (bt != null) {
-            		bt.setText(item.getUpdated());
-	            }
-	            
-	       		iv.setImageResource(routeImage.get(item.getRoute()));
-	        }
+           	
+	        holder.title.setText(item.getTitle() + " " + item.getStatus());
+        	holder.text.setText(item.getUpdated());
+            holder.icon.setImageResource(routeImage.get(item.getRoute()));
 	        
 	        return convertView;
         }
 	}
 	
 	public static class ViewHolder {
-		public TextView tt;
-		public TextView bt;
-		public ImageView iv;
+		public TextView title;
+		public TextView text;
+		public ImageView icon;
 	}
 
 }

@@ -13,7 +13,7 @@
         />
 
     <TextView
-        android:id="@+id/toptext"
+        android:id="@+id/title"
 		android:textSize="@dimen/text_size_medium"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -23,14 +23,14 @@
         />
 
     <TextView
-        android:id="@+id/bottomtext"
+        android:id="@+id/description"
 		android:textSize="@dimen/text_size_medium"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/icon"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/toptext"
+        android:layout_below="@id/title"
         />
 
 </RelativeLayout>

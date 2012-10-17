@@ -22,6 +22,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -114,7 +115,12 @@ public class PhotoDetailsActivity extends SherlockActivity {
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
-			view.loadUrl(url);
+			if (url.startsWith("http:") || url.startsWith("https:")) {
+				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+				startActivity(browserIntent);
+			} else {
+				view.loadUrl(url);
+			}
 			
 			return true;
 		}
