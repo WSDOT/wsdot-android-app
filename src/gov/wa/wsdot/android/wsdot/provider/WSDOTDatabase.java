@@ -134,6 +134,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.d(DEBUG_TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
+		/*
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CACHES);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMERAS);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.HIGHWAY_ALERTS);
@@ -141,7 +142,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.FERRIES_SCHEDULES);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.BORDER_WAIT);
         
-        onCreate(db);		
+        onCreate(db);
+        */		
 	}
 	
 	private void seedData(SQLiteDatabase db) {
