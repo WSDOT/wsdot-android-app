@@ -34,7 +34,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
 
-public class PhotoDetailsActivity extends SherlockActivity {
+public class FlickrDetailsActivity extends SherlockActivity {
 	WebView webview;
 	private String mTitle;
 	private String mLink;

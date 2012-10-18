@@ -5,8 +5,8 @@
     android:layout_height="fill_parent">
 
     <fragment
-        android:name="gov.wa.wsdot.android.wsdot.ui.VideoFragment"
-        android:id="@+id/fragment_video"
+        android:name="gov.wa.wsdot.android.wsdot.ui.YouTubeFragment"
+        android:id="@+id/fragment_youtube"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         />

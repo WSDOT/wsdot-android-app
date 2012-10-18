@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ package gov.wa.wsdot.android.wsdot.shared;
 
 import android.graphics.drawable.Drawable;
 
-public class PhotoItem {
+public class FlickrItem {
 	private String title;
 	private String published;
 	private String link;

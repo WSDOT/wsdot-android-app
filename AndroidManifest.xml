@@ -82,11 +82,11 @@
    		    android:label="@string/title_facebook" />   		
    				
    		<activity
-   		    android:name=".ui.PhotosActivity"
-   		    android:label="@string/title_photos" />
+   		    android:name=".ui.FlickrActivity"
+   		    android:label="@string/title_flickr" />
    		
    		<activity
-   		    android:name=".ui.PhotoDetailsActivity" />
+   		    android:name=".ui.FlickrDetailsActivity" />
    		
    		<activity
    		    android:name=".ui.SocialMediaActivity"
@@ -155,8 +155,8 @@
    		    android:label="@string/title_tollrates" />
    		
    		<activity
-   		    android:name=".ui.VideoActivity"
-   		    android:label="@string/title_video" />
+   		    android:name=".ui.YouTubeActivity"
+   		    android:label="@string/title_youtube" />
    		
    		<activity
    		 	android:name=".ui.CameraActivity"

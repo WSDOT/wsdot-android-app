@@ -19,7 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.PhotoItem;
+import gov.wa.wsdot.android.wsdot.shared.FlickrItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedInputStream;
@@ -64,10 +64,10 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-public class PhotosActivity extends SherlockActivity {
+public class FlickrActivity extends SherlockActivity {
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "Photos";
-    private ArrayList<PhotoItem> photoItems = null;
+    private ArrayList<FlickrItem> mFlickrItems = null;
 	private ImageAdapter adapter;
 	private View mLoadingSpinner;
     
@@ -79,7 +79,7 @@ public class PhotosActivity extends SherlockActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
-        setContentView(R.layout.photos);
+        setContentView(R.layout.activity_flickr);
         mLoadingSpinner = findViewById(R.id.loading_spinner);
 
         this.adapter = new ImageAdapter(this);
@@ -100,7 +100,7 @@ public class PhotosActivity extends SherlockActivity {
 	    	finish();
 	    	return true;		
 		case R.id.menu_refresh:
-			photoItems.clear();
+			mFlickrItems.clear();
 			this.adapter.notifyDataSetChanged();
 			new GetRSSItems().execute();
 		}
@@ -116,7 +116,7 @@ public class PhotosActivity extends SherlockActivity {
 		}
     	
 	    protected void onCancelled() {
-	        Toast.makeText(PhotosActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
+	        Toast.makeText(FlickrActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
 	    }
 
 		@Override
@@ -145,13 +145,13 @@ public class PhotosActivity extends SherlockActivity {
 				
 				JSONObject obj = new JSONObject(jsonFile);
 				JSONArray items = obj.getJSONArray("items");
-				photoItems = new ArrayList<PhotoItem>();
-				PhotoItem i = null;
+				mFlickrItems = new ArrayList<FlickrItem>();
+				FlickrItem i = null;
 				
 				for (int j=0; j < items.length(); j++) {
 					if (!this.isCancelled()) {
 						JSONObject item = items.getJSONObject(j);
-						i = new PhotoItem();
+						i = new FlickrItem();
 						i.setTitle(item.getString("title"));
 						i.setLink(item.getString("link"));
 						i.setPublished(item.getString("published"));
@@ -177,7 +177,7 @@ public class PhotosActivity extends SherlockActivity {
 	                        i.setImage(image);
 	                	}
 	                	
-						photoItems.add(i);
+	                	mFlickrItems.add(i);
 						publishProgress(1);
 					} else {
 						break;
@@ -204,10 +204,10 @@ public class PhotosActivity extends SherlockActivity {
             gridView.setOnItemClickListener(new OnItemClickListener() {
             	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 	        		Bundle b = new Bundle();
-	        		Intent intent = new Intent(PhotosActivity.this, PhotoDetailsActivity.class);
-	        		b.putString("title", photoItems.get(position).getTitle());
-	        		b.putString("link", photoItems.get(position).getLink());
-	        		b.putString("content", photoItems.get(position).getContent());
+	        		Intent intent = new Intent(FlickrActivity.this, FlickrDetailsActivity.class);
+	        		b.putString("title", mFlickrItems.get(position).getTitle());
+	        		b.putString("link", mFlickrItems.get(position).getLink());
+	        		b.putString("content", mFlickrItems.get(position).getContent());
 	        		intent.putExtras(b);
 	        		startActivity(intent);
 	            }
@@ -238,7 +238,7 @@ public class PhotosActivity extends SherlockActivity {
         }
 
         public int getCount() {
-        	return photoItems.size();
+        	return mFlickrItems.size();
         }
         
         public Object getItem(int position) {
@@ -260,7 +260,7 @@ public class PhotosActivity extends SherlockActivity {
                 imageView = (ImageView) convertView;
             }
 
-            imageView.setImageDrawable(photoItems.get(position).getImage());
+            imageView.setImageDrawable(mFlickrItems.get(position).getImage());
 
             return imageView;
         }

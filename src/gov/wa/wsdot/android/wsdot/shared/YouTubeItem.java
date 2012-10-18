@@ -20,7 +20,7 @@ package gov.wa.wsdot.android.wsdot.shared;
 
 import android.graphics.drawable.Drawable;
 
-public class VideoItem {
+public class YouTubeItem {
 	private String id;
 	private String uploaded;
 	private String title;

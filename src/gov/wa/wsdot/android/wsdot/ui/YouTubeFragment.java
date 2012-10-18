@@ -19,7 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.VideoItem;
+import gov.wa.wsdot.android.wsdot.shared.YouTubeItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedInputStream;
@@ -68,12 +68,12 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
 
-public class VideoFragment extends SherlockListFragment
-	implements LoaderCallbacks<ArrayList<VideoItem>> {
+public class YouTubeFragment extends SherlockListFragment
+	implements LoaderCallbacks<ArrayList<YouTubeItem>> {
 
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
-	private static final String DEBUG_TAG = "Video";
-	private static ArrayList<VideoItem> videoItems = null;
+	private static final String DEBUG_TAG = "YouTubeFragment";
+	private static ArrayList<YouTubeItem> mYouTubeItems = null;
 	private static VideoItemAdapter mAdapter;
 	private static View mLoadingSpinner;
 	ActionMode mActionMode;
@@ -121,7 +121,7 @@ public class VideoFragment extends SherlockListFragment
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				
-				String videoId = videoItems.get(position).getId();
+				String videoId = mYouTubeItems.get(position).getId();
 				String url = "http://www.youtube.com/watch?v=" + videoId;				
 				mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(url));
 				
@@ -200,11 +200,11 @@ public class VideoFragment extends SherlockListFragment
 		return super.onOptionsItemSelected(item);
 	}
 	
-	public Loader<ArrayList<VideoItem>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<YouTubeItem>> onCreateLoader(int id, Bundle args) {
 		return new VideoItemsLoader(getActivity());
 	}
 
-	public void onLoadFinished(Loader<ArrayList<VideoItem>> loader, ArrayList<VideoItem> data) {
+	public void onLoadFinished(Loader<ArrayList<YouTubeItem>> loader, ArrayList<YouTubeItem> data) {
 		mLoadingSpinner.setVisibility(View.GONE);
 
 		if (!data.isEmpty()) {
@@ -216,23 +216,23 @@ public class VideoFragment extends SherlockListFragment
 		}
 	}
 
-	public void onLoaderReset(Loader<ArrayList<VideoItem>> loader) {
+	public void onLoaderReset(Loader<ArrayList<YouTubeItem>> loader) {
 		mAdapter.setData(null);
 	}
 	
 	/**
 	 * A custom Loader that loads the YouTube videos from the server.
 	 */	
-	public static class VideoItemsLoader extends AsyncTaskLoader<ArrayList<VideoItem>> {
+	public static class VideoItemsLoader extends AsyncTaskLoader<ArrayList<YouTubeItem>> {
 
 		public VideoItemsLoader(Context context) {
 			super(context);
 		}
 
 		@Override
-		public ArrayList<VideoItem> loadInBackground() {
-			videoItems = new ArrayList<VideoItem>();
-			VideoItem i = null;
+		public ArrayList<YouTubeItem> loadInBackground() {
+			mYouTubeItems = new ArrayList<YouTubeItem>();
+			YouTubeItem i = null;
 			
 			try {
 				URL url = new URL("http://gdata.youtube.com/feeds/api/users/wsdot/uploads?v=2&alt=jsonc&max-results=10");
@@ -252,7 +252,7 @@ public class VideoFragment extends SherlockListFragment
 				for (int j=0; j < items.length(); j++) {
 					JSONObject item = items.getJSONObject(j);
 					JSONObject thumbnail = item.getJSONObject("thumbnail");
-					i = new VideoItem();
+					i = new YouTubeItem();
 					i.setId(item.getString("id"));
 					i.setTitle(item.getString("title"));
 					i.setDescription(item.getString("description"));
@@ -270,17 +270,17 @@ public class VideoFragment extends SherlockListFragment
 					final Drawable image = new BitmapDrawable(bitmap);
                     i.setThumbNail(image);
 					
-					videoItems.add(i);
+                    mYouTubeItems.add(i);
 				}				
 			} catch (Exception e) {
 				Log.e(DEBUG_TAG, "Error in network call", e);
 			}
 			
-			return videoItems;
+			return mYouTubeItems;
 		}
 
 		@Override
-		public void deliverResult(ArrayList<VideoItem> data) {
+		public void deliverResult(ArrayList<YouTubeItem> data) {
 		    /**
 		     * Called when there is new data to deliver to the client. The
 		     * super class will take care of delivering it; the implementation
@@ -307,7 +307,7 @@ public class VideoFragment extends SherlockListFragment
 		}
 		
 		@Override
-		public void onCanceled(ArrayList<VideoItem> data) {
+		public void onCanceled(ArrayList<YouTubeItem> data) {
 			super.onCanceled(data);
 		}
 
@@ -324,23 +324,23 @@ public class VideoFragment extends SherlockListFragment
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		String videoId = videoItems.get(position).getId();
+		String videoId = mYouTubeItems.get(position).getId();
 		String url = "http://www.youtube.com/watch?v=" + videoId;
 		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 		startActivity(intent);
 	}
 	
-	private class VideoItemAdapter extends ArrayAdapter<VideoItem> {
+	private class VideoItemAdapter extends ArrayAdapter<YouTubeItem> {
 		private final LayoutInflater mInflater;
 		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
 		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");		
 
         public VideoItemAdapter(Context context) {
-        	super(context, R.layout.video_row);
+        	super(context, R.layout.list_item_youtube);
         	mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
-        public void setData(ArrayList<VideoItem> data) {
+        public void setData(ArrayList<YouTubeItem> data) {
             clear();
             if (data != null) {
                 //addAll(data); // Only in API level 11
@@ -357,7 +357,7 @@ public class VideoFragment extends SherlockListFragment
 	        ViewHolder holder = null;
         	
         	if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.video_row, null);
+	            convertView = mInflater.inflate(R.layout.list_item_youtube, null);
 	            holder = new ViewHolder();
 	            holder.title = (TextView) convertView.findViewById(R.id.title);
 	            holder.title.setTypeface(tfb);
@@ -370,7 +370,7 @@ public class VideoFragment extends SherlockListFragment
 	        	holder = (ViewHolder) convertView.getTag();
 	        }
 	        
-	        VideoItem item = getItem(position);
+	        YouTubeItem item = getItem(position);
 
 	        holder.title.setText(item.getTitle());
         	holder.description.setText(item.getDescription());
