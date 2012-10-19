@@ -21,15 +21,10 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.YouTubeItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.ImageManager;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -40,11 +35,7 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -71,7 +62,6 @@ import com.actionbarsherlock.widget.ShareActionProvider;
 public class YouTubeFragment extends SherlockListFragment
 	implements LoaderCallbacks<ArrayList<YouTubeItem>> {
 
-	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private static final String DEBUG_TAG = "YouTubeFragment";
 	private static ArrayList<YouTubeItem> mYouTubeItems = null;
 	private static VideoItemAdapter mAdapter;
@@ -224,7 +214,7 @@ public class YouTubeFragment extends SherlockListFragment
 	 * A custom Loader that loads the YouTube videos from the server.
 	 */	
 	public static class VideoItemsLoader extends AsyncTaskLoader<ArrayList<YouTubeItem>> {
-
+		
 		public VideoItemsLoader(Context context) {
 			super(context);
 		}
@@ -257,18 +247,7 @@ public class YouTubeFragment extends SherlockListFragment
 					i.setTitle(item.getString("title"));
 					i.setDescription(item.getString("description"));
 					i.setViewCount(item.getString("viewCount"));
-					
-					BufferedInputStream ins = new BufferedInputStream(new URL(thumbnail.getString("sqDefault")).openStream(), IO_BUFFER_SIZE);
-                    final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-                    BufferedOutputStream out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
-                    copy(ins, out);
-                    out.flush();
-                    final byte[] rawData = dataStream.toByteArray();
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);                        
-
-                    @SuppressWarnings("deprecation")
-					final Drawable image = new BitmapDrawable(bitmap);
-                    i.setThumbNail(image);
+					i.setThumbNailUrl(thumbnail.getString("hqDefault"));
 					
                     mYouTubeItems.add(i);
 				}				
@@ -333,11 +312,14 @@ public class YouTubeFragment extends SherlockListFragment
 	private class VideoItemAdapter extends ArrayAdapter<YouTubeItem> {
 		private final LayoutInflater mInflater;
 		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");		
+		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+		public ImageManager imageManager;
 
         public VideoItemAdapter(Context context) {
         	super(context, R.layout.list_item_youtube);
+        	
         	mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        	imageManager = new ImageManager(context);
         }
 
         public void setData(ArrayList<YouTubeItem> data) {
@@ -363,7 +345,7 @@ public class YouTubeFragment extends SherlockListFragment
 	            holder.title.setTypeface(tfb);
 	            holder.description = (TextView) convertView.findViewById(R.id.description);
 	            holder.description.setTypeface(tf);
-	            holder.icon = (ImageView) convertView.findViewById(R.id.icon);
+	            holder.image = (ImageView) convertView.findViewById(R.id.image);
 	            
 	            convertView.setTag(holder);
 	        } else {
@@ -374,7 +356,8 @@ public class YouTubeFragment extends SherlockListFragment
 
 	        holder.title.setText(item.getTitle());
         	holder.description.setText(item.getDescription());
-        	holder.icon.setImageDrawable(item.getThumbNail());	        
+        	holder.image.setTag(item.getThumbNailUrl());
+        	imageManager.displayImage(item.getThumbNailUrl(), getActivity(), holder.image);
 	        
         	return convertView;
         }
@@ -383,24 +366,7 @@ public class YouTubeFragment extends SherlockListFragment
 	public static class ViewHolder {
 		public TextView title;
 		public TextView description;
-		public ImageView icon;
+		public ImageView image;
 	}
-	
-    /**
-     * Copy the content of the input stream into the output stream, using a
-     * temporary byte array buffer whose size is defined by
-     * {@link #IO_BUFFER_SIZE}.
-     * 
-     * @param in The input stream to copy from.
-     * @param out The output stream to copy to.
-     * @throws IOException If any error occurs during the copy.
-     */
-    private static void copy(InputStream in, OutputStream out) throws IOException {
-        byte[] b = new byte[IO_BUFFER_SIZE];
-        int read;
-        while ((read = in.read(b)) != -1) {
-            out.write(b, 0, read);
-        }
-    }	
 
 }

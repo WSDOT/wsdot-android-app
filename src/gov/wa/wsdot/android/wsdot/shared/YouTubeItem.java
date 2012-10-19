@@ -27,6 +27,7 @@ public class YouTubeItem {
 	private String description;
 	private Drawable thumbNail;
 	private String viewCount;
+	private String thumbNailUrl;
 	
 	public void setId(String id) {
 		this.id = id;
@@ -63,5 +64,11 @@ public class YouTubeItem {
 	}
 	public String getViewCount() {
 		return viewCount;
+	}
+	public String getThumbNailUrl() {
+		return thumbNailUrl;
+	}
+	public void setThumbNailUrl(String thumbNailUrl) {
+		this.thumbNailUrl = thumbNailUrl;
 	}
 }
