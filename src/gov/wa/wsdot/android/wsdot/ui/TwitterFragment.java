@@ -139,6 +139,7 @@ public class TwitterFragment extends SherlockListFragment
 		mTwitterProfileImages.put("GoodToGoWSDOT", R.drawable.ic_list_wsdot_goodtogo);
 		mTwitterProfileImages.put("SnoqualmiePass", R.drawable.ic_list_wsdot_snoqualmie_pass);
 		mTwitterProfileImages.put("wsdot", R.drawable.ic_list_wsdot);
+		mTwitterProfileImages.put("wsdot_north", R.drawable.ic_list_wsdot_north);
 		mTwitterProfileImages.put("wsdot_sw", R.drawable.ic_list_wsdot_sw);
 		mTwitterProfileImages.put("wsdot_tacoma", R.drawable.ic_list_wsdot_tacoma);
 		mTwitterProfileImages.put("wsdot_traffic", R.drawable.ic_list_wsdot_traffic);		
@@ -405,7 +406,13 @@ public class TwitterFragment extends SherlockListFragment
 	        
 	        TwitterItem item = getItem(position);
 	        
-        	holder.icon.setImageResource(mTwitterProfileImages.get(item.getScreenName()));
+        	try {
+				holder.icon.setImageResource(mTwitterProfileImages.get(item.getScreenName()));
+			} catch (Exception e) {
+				// Use regular WSDOT icon if we add an additional Twitter feed
+				// and have not updated the app to include the new icon.
+				holder.icon.setImageResource(mTwitterProfileImages.get("wsdot"));
+			}
         	holder.userName.setText(item.getUserName());
         	holder.createdAt.setText(item.getCreatedAt());
         	holder.text.setText(Html.fromHtml(item.getFormatedHtmlText()));
