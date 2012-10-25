@@ -41,6 +41,7 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -319,7 +320,7 @@ public class YouTubeFragment extends SherlockListFragment
         	super(context, R.layout.list_item_youtube);
         	
         	mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        	imageManager = new ImageManager(context);
+        	imageManager = new ImageManager(context, 5 * DateUtils.MINUTE_IN_MILLIS);
         }
 
         public void setData(ArrayList<YouTubeItem> data) {

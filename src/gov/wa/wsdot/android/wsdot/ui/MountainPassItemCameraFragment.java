@@ -21,16 +21,9 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.ui.widget.ResizeableImageView;
+import gov.wa.wsdot.android.wsdot.util.ImageManager;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,32 +32,28 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
 public class MountainPassItemCameraFragment extends SherlockListFragment
-	implements LoaderCallbacks<ArrayList<Drawable>> {
+	implements LoaderCallbacks<ArrayList<CameraItem>> {
 	
-	private static final int IO_BUFFER_SIZE = 4 * 1024;
+	@SuppressWarnings("unused")
 	private static final String DEBUG_TAG = "MountainPassItemPhotos";
-	private static List<CameraItem> remoteImages;
-    private static ArrayList<Drawable> bitmapImages;
-    private ViewGroup mRootView;
+    private static ArrayList<CameraItem> bitmapImages;
+	private View mEmptyView;
     private static String camerasArray;
     private static CameraImageAdapter mAdapter;
 	private static View mLoadingSpinner;
@@ -75,9 +64,6 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 		
 		Bundle args = activity.getIntent().getExtras();
 		camerasArray = args.getString("Cameras");
-	    
-	    remoteImages = new ArrayList<CameraItem>();
-	    bitmapImages  = new ArrayList<Drawable>();
 	}    
     
 	@Override
@@ -88,16 +74,17 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 	@SuppressWarnings("deprecation")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
 		
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
                 ViewGroup.LayoutParams.FILL_PARENT));
 
-        mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);
+        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mEmptyView = root.findViewById( R.id.empty_list_view );
 		
-		return mRootView;
+		return root;
 	}    
     
     @Override
@@ -111,21 +98,25 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 		getLoaderManager().initLoader(0, null, this);
 	}
 
-	public Loader<ArrayList<Drawable>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<CameraItem>> onCreateLoader(int id, Bundle args) {
         // This is called when a new Loader needs to be created. There
         // is only one Loader with no arguments, so it is simple.
 		return new CameraImagesLoader(getActivity());
 	}
 
-	public void onLoadFinished(Loader<ArrayList<Drawable>> loader,
-			ArrayList<Drawable> data) {
-
+	public void onLoadFinished(Loader<ArrayList<CameraItem>> loader, ArrayList<CameraItem> data) {
 		mLoadingSpinner.setVisibility(View.GONE);
-		mAdapter.setData(data);	
+
+		if (!data.isEmpty()) {
+			mAdapter.setData(data);
+		} else {
+		    TextView t = (TextView) mEmptyView;
+			t.setText(R.string.no_connection);
+			getListView().setEmptyView(mEmptyView);
+		}
 	}
 
-	public void onLoaderReset(Loader<ArrayList<Drawable>> loader) {
-		bitmapImages.clear();
+	public void onLoaderReset(Loader<ArrayList<CameraItem>> loader) {
 		mAdapter.setData(null);
 	}
 	
@@ -135,7 +126,7 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 
 		Bundle b = new Bundle();
 		Intent intent = new Intent(getActivity(), CameraActivity.class);
-		b.putInt("id", remoteImages.get(position).getCameraId());
+		b.putInt("id", bitmapImages.get(position).getCameraId());
 		intent.putExtras(b);
 		
 		startActivity(intent);
@@ -144,19 +135,15 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 	/**
 	 * A custom Loader that loads all of the camera images for this mountain pass.
 	 */		
-	public static class CameraImagesLoader extends AsyncTaskLoader<ArrayList<Drawable>> {
-		private Context mContext;
+	public static class CameraImagesLoader extends AsyncTaskLoader<ArrayList<CameraItem>> {
 		
 		public CameraImagesLoader(Context context) {
 			super(context);
-			
-			this.mContext = context;
 		}
 
 		@Override
-		public ArrayList<Drawable> loadInBackground() {
-		   	BufferedInputStream in;
-	        BufferedOutputStream out;
+		public ArrayList<CameraItem> loadInBackground() {
+			bitmapImages  = new ArrayList<CameraItem>();
 	        JSONArray cameras;
 	        CameraItem c = null;
 
@@ -167,31 +154,12 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 					c = new CameraItem();
 					c.setImageUrl(camera.getString("url"));
 					c.setCameraId(camera.getInt("id"));
-					remoteImages.add(c);
+					
+					bitmapImages.add(c);
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-	        
-	    	for (int i=0; i < remoteImages.size(); i++) {
-	    		Bitmap bitmap = null;
-	            try {
-	                in = new BufferedInputStream(new URL(remoteImages.get(i).getImageUrl()).openStream(), IO_BUFFER_SIZE);
-	                final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-	                out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
-	                copy(in, out);
-	                out.flush();
-	                final byte[] data = dataStream.toByteArray();
-	                bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-	    	    } catch (Exception e) {
-	    	        Log.e(DEBUG_TAG, "Error retrieving camera images", e);
-	    	        bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.camera_offline);
-	    	    } finally {
-	    	    	@SuppressWarnings("deprecation")
-	    	    	final Drawable image = new BitmapDrawable(bitmap);
-	    	    	bitmapImages.add(image);
-	    	    }
-	    	}
 
 			return bitmapImages;
 		}
@@ -202,7 +170,7 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 	     * here just adds a little more logic.
 	     */
 		@Override
-		public void deliverResult(ArrayList<Drawable> data) {
+		public void deliverResult(ArrayList<CameraItem> data) {
 			super.deliverResult(data);
 		}
 
@@ -210,8 +178,8 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 		protected void onStartLoading() {
 			super.onStartLoading();
 
+			mAdapter.clear();
 			mLoadingSpinner.setVisibility(View.VISIBLE);
-
 			forceLoad();		
 		}
 
@@ -224,7 +192,7 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 		}
 		
 		@Override
-		public void onCanceled(ArrayList<Drawable> data) {
+		public void onCanceled(ArrayList<CameraItem> data) {
 			super.onCanceled(data);
 		}
 
@@ -238,15 +206,18 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 		
 	}
 
-	private class CameraImageAdapter extends ArrayAdapter<Drawable> {
+	private class CameraImageAdapter extends ArrayAdapter<CameraItem> {
 		private final LayoutInflater mInflater;
+		private ImageManager imageManager;
 		
 		public CameraImageAdapter(Context context) {
 			super(context, R.layout.list_item_resizeable_image);
+			
 			mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			imageManager = new ImageManager(context, 5 * DateUtils.MINUTE_IN_MILLIS);
 		}
 		
-        public void setData(ArrayList<Drawable> data) {
+        public void setData(ArrayList<CameraItem> data) {
             clear();
             if (data != null) {
                 //addAll(data); // Only in API level 11
@@ -260,40 +231,29 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
         
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-	        if (convertView == null) {
+        	ViewHolder holder = null;
+        	
+        	if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.list_item_resizeable_image, null);
+	            holder = new ViewHolder();
+	            holder.image = (ResizeableImageView) convertView.findViewById(R.id.image);
+	            
+	            convertView.setTag(holder);
+	        } else {
+	        	holder = (ViewHolder) convertView.getTag();
 	        }
 	        
-	        Drawable item = getItem(position);
+	        CameraItem item = getItem(position);
 	        
-	        if (item != null) {
-	        	ResizeableImageView iv = (ResizeableImageView) convertView.findViewById(R.id.image);
-	        	iv.setImageDrawable(item.getCurrent());
-	        }
+        	holder.image.setTag(item.getImageUrl());
+        	imageManager.displayImage(item.getImageUrl(), getActivity(), holder.image);
 	        
 	        return convertView;
         }
 	}
 	
 	public static class ViewHolder {
-		public ImageView iv;
+		public ImageView image;
 	}        
-	
-    /**
-     * Copy the content of the input stream into the output stream, using a
-     * temporary byte array buffer whose size is defined by
-     * {@link #IO_BUFFER_SIZE}.
-     * 
-     * @param in The input stream to copy from.
-     * @param out The output stream to copy to.
-     * @throws IOException If any error occurs during the copy.
-     */
-    private static void copy(InputStream in, OutputStream out) throws IOException {
-        byte[] b = new byte[IO_BUFFER_SIZE];
-        int read;
-        while ((read = in.read(b)) != -1) {
-            out.write(b, 0, read);
-        }
-    }
    
 }

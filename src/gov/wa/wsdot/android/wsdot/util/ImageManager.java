@@ -22,8 +22,10 @@ public class ImageManager {
 	private File cacheDir;
 	private ImageQueue imageQueue = new ImageQueue();
 	private Thread imageLoaderThread = new Thread(new ImageQueueManager());
+	private long mCacheDuration;
 
-	public ImageManager(Context context) {
+	public ImageManager(Context context, long cacheDuration) {
+		mCacheDuration = cacheDuration;
 		// Make background thread low priority, to avoid affecting UI performance
 		imageLoaderThread.setPriority(Thread.NORM_PRIORITY-1);
 		cacheDir = context.getCacheDir();
@@ -64,17 +66,25 @@ public class ImageManager {
 
 	private Bitmap getBitmap(String url) {
 		String filename = String.valueOf(url.hashCode());
-		File f = new File(cacheDir, filename);
-
+		File bitmapFile = new File(cacheDir, filename);
+		
 		// Is the bitmap in our cache?
-		Bitmap bitmap = BitmapFactory.decodeFile(f.getPath());
-		if(bitmap != null) return bitmap;
+		Bitmap bitmap = BitmapFactory.decodeFile(bitmapFile.getPath());
+
+		if(bitmap != null) {
+			long currentTimeMillis = System.currentTimeMillis();
+			// Has it expired?
+			long bitmapTimeMillis = bitmapFile.lastModified();
+			if ((currentTimeMillis - bitmapTimeMillis) < mCacheDuration) {
+				return bitmap;				
+			}
+		}
 
 		// Nope, have to download it
 		try {
 			bitmap = BitmapFactory.decodeStream(new URL(url).openConnection().getInputStream());
 			// save bitmap to cache for later
-			writeFile(bitmap, f);
+			writeFile(bitmap, bitmapFile);
 
 			return bitmap;
 		} catch (Exception ex) {
