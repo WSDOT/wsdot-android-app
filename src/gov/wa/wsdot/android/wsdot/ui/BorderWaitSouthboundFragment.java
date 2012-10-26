@@ -67,7 +67,7 @@ public class BorderWaitSouthboundFragment extends SherlockListFragment
 
 		setHasOptionsMenu(true);
 
-		Intent intent = new Intent(getActivity(), BorderWaitSyncService.class);
+		Intent intent = new Intent(getActivity().getApplicationContext(), BorderWaitSyncService.class);
 		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
 	}

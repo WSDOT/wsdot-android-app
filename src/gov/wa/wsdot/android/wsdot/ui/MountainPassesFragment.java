@@ -70,7 +70,7 @@ public class MountainPassesFragment extends SherlockListFragment
         
 		setHasOptionsMenu(true);         
 		
-		Intent intent = new Intent(getActivity(), MountainPassesSyncService.class);
+		Intent intent = new Intent(getActivity().getApplicationContext(), MountainPassesSyncService.class);
 		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
 		

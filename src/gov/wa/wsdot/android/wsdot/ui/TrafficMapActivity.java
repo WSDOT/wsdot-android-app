@@ -109,11 +109,11 @@ public class TrafficMapActivity extends SherlockMapActivity {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
     
-		camerasIntent = new Intent(TrafficMapActivity.this, CamerasSyncService.class);
+		camerasIntent = new Intent(this.getApplicationContext(), CamerasSyncService.class);
 		setSupportProgressBarIndeterminateVisibility(true);
 		startService(camerasIntent);        
 
-		Intent alertsIntent = new Intent(TrafficMapActivity.this, HighwayAlertsSyncService.class);
+		Intent alertsIntent = new Intent(this.getApplicationContext(), HighwayAlertsSyncService.class);
 		setSupportProgressBarIndeterminateVisibility(true);
 		startService(alertsIntent);
     }

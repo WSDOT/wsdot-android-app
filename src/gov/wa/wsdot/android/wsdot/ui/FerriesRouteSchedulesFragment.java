@@ -71,7 +71,7 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 		
         setHasOptionsMenu(true);
 		
-		Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
+		Intent intent = new Intent(getActivity().getApplicationContext(), FerriesSchedulesSyncService.class);
 		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
         

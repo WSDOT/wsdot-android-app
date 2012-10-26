@@ -98,7 +98,7 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
         showShadows = settings.getBoolean("KEY_SHOW_MARKER_SHADOWS", true);
         
-		camerasIntent = new Intent(VesselWatchMapActivity.this, CamerasSyncService.class);
+		camerasIntent = new Intent(this.getApplicationContext(), CamerasSyncService.class);
 		startService(camerasIntent);
     }
 	

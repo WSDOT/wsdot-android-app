@@ -76,7 +76,7 @@ public class TravelTimesFragment extends SherlockListFragment
 		
 		setHasOptionsMenu(true);
 		
-		Intent intent = new Intent(getActivity(), TravelTimesSyncService.class);
+		Intent intent = new Intent(getActivity().getApplicationContext(), TravelTimesSyncService.class);
 		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
 		

@@ -221,7 +221,7 @@ public class CameraImageFragment extends SherlockFragment
 
 	
 	public Loader<Drawable> onCreateLoader(int id, Bundle args) {	
-		return new CameraImageLoader(getActivity());
+		return new CameraImageLoader(getActivity().getApplicationContext());
 	}
 	
 

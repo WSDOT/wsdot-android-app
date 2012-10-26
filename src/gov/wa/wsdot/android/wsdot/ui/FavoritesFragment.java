@@ -136,13 +136,13 @@ public class FavoritesFragment extends SherlockListFragment
 		setHasOptionsMenu(true);
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Favorites");
 		
-		mFerriesSchedulesIntent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
+		mFerriesSchedulesIntent = new Intent(getActivity().getApplicationContext(), FerriesSchedulesSyncService.class);
 		getActivity().startService(mFerriesSchedulesIntent);
 		
-		mMountainPassesIntent = new Intent(getActivity(), MountainPassesSyncService.class);
+		mMountainPassesIntent = new Intent(getActivity().getApplicationContext(), MountainPassesSyncService.class);
 		getActivity().startService(mMountainPassesIntent);
 		
-		mTravelTimesIntent = new Intent(getActivity(), TravelTimesSyncService.class);
+		mTravelTimesIntent = new Intent(getActivity().getApplicationContext(), TravelTimesSyncService.class);
 		getActivity().startService(mTravelTimesIntent);
 	}
 	

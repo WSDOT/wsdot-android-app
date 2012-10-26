@@ -320,7 +320,7 @@ public class YouTubeFragment extends SherlockListFragment
         	super(context, R.layout.list_item_youtube);
         	
         	mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        	imageManager = new ImageManager(context, 5 * DateUtils.MINUTE_IN_MILLIS);
+        	imageManager = new ImageManager(getActivity().getApplicationContext(), 5 * DateUtils.MINUTE_IN_MILLIS);
         }
 
         public void setData(ArrayList<YouTubeItem> data) {
