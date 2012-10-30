@@ -176,7 +176,8 @@ public class SeattleExpressLanesFragment extends SherlockListFragment
 				JSONObject result = obj.getJSONObject("express_lanes");
 				JSONArray items = result.getJSONArray("routes");
 							
-				for (int j=0; j < items.length(); j++) {
+				int numItems = items.length();
+				for (int j=0; j < numItems; j++) {
 					JSONObject item = items.getJSONObject(j);
 					i = new ExpressLaneItem();
 					i.setTitle(item.getString("title"));
@@ -278,7 +279,8 @@ public class SeattleExpressLanesFragment extends SherlockListFragment
             if (data != null) {
                 //addAll(data); // Only in API level 11
                 notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
+                int size = data.size();
+                for (int i=0; i < size; i++) {
                 	add(data.get(i));
                 }
                 notifyDataSetChanged();                

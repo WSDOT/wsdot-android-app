@@ -114,7 +114,8 @@ public class FerriesSchedulesSyncService extends IntentService {
 				JSONArray items = new JSONArray(jsonFile);
 				List<ContentValues> schedules = new ArrayList<ContentValues>();
 				
-				for (int i=0; i < items.length(); i++) {
+				int numItems = items.length();
+				for (int i=0; i < numItems; i++) {
 					JSONObject item = items.getJSONObject(i);
 					ContentValues schedule = new ContentValues();
 					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_ID, item.getInt("RouteID"));

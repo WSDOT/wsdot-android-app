@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.TwitterItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 import java.io.BufferedReader;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
@@ -90,7 +92,7 @@ public class TwitterFragment extends SherlockListFragment
         
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
-        setRetainInstance(true);
+        //setRetainInstance(true);
 		setHasOptionsMenu(true);        
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Twitter");
     }
@@ -118,8 +120,8 @@ public class TwitterFragment extends SherlockListFragment
 		super.onActivityCreated(savedInstanceState);
 		
 		// Remove the separator between items in the ListView
-		//getListView().setDivider(null);
-		//getListView().setDividerHeight(0);
+		getListView().setDivider(null);
+		getListView().setDividerHeight(0);
 		
 		getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
@@ -238,6 +240,8 @@ public class TwitterFragment extends SherlockListFragment
 	 */	
 	public static class TwitterItemsLoader extends AsyncTaskLoader<ArrayList<TwitterItem>> {
 
+		private ArrayList<TwitterItem> mItems = null;
+		
 		public TwitterItemsLoader(Context context) {
 			super(context);
 		}
@@ -250,7 +254,7 @@ public class TwitterFragment extends SherlockListFragment
 			String text;
 			String htmlText;
 
-	    	twitterItems = new ArrayList<TwitterItem>();
+	    	mItems = new ArrayList<TwitterItem>();
 			TwitterItem i = null;
 			URL url;
 			
@@ -272,36 +276,60 @@ public class TwitterFragment extends SherlockListFragment
 				
 				JSONArray items = new JSONArray(jsonFile);
 				
-				for (int j=0; j < items.length(); j++) {
-						JSONObject item = items.getJSONObject(j);
-						i = new TwitterItem();
-						htmlText = "";
-						text = item.getString("text");
-						htmlText = text.replaceAll(urlPattern, "<a href=\"$1\">$1</a>");
-						htmlText = htmlText.replaceAll(atPattern, "<a href=\"http://twitter.com/#!/$1\">@$1</a>");
-						htmlText = htmlText.replaceAll(hashPattern, "<a href=\"http://twitter.com/#!/search?q=%23$1\">#$1</a>");
+				int numItems = items.length();
+				for (int j=0; j < numItems; j++) {
+					JSONObject item = items.getJSONObject(j);
+					i = new TwitterItem();
+					htmlText = "";
+					text = item.getString("text");
+					htmlText = text.replaceAll(urlPattern, "<a href=\"$1\">$1</a>");
+					htmlText = htmlText.replaceAll(atPattern, "<a href=\"http://twitter.com/#!/$1\">@$1</a>");
+					htmlText = htmlText.replaceAll(hashPattern, "<a href=\"http://twitter.com/#!/search?q=%23$1\">#$1</a>");
+					
+					JSONObject entities = item.getJSONObject("entities");
+					
+					try {
+						JSONArray media = entities.getJSONArray("media");
+						JSONObject mediaItem = media.getJSONObject(0);
+						i.setMediaUrl(mediaItem.getString("media_url"));
+					} catch (JSONException e) {
+						// TODO Nothing.
+					}
+					
+					if (i.getMediaUrl() == null) {
+						try {
+							JSONArray urls = entities.getJSONArray("urls");
+							JSONObject urlItem = urls.getJSONObject(0);
+							String expanded_url = urlItem.getString("expanded_url");
+							if (expanded_url.matches("(.*)twitpic.com(.*)")) {
+								i.setMediaUrl(urlItem.getString("expanded_url"));
+							}
+						} catch (Exception e1) {
+							// TODO Nothing.
+						}
+					}
+					
+					i.setText(text);
+					i.setFormatedHtmlText(htmlText);
 
-						i.setText(text);
-						i.setFormatedHtmlText(htmlText);
-
-		            	JSONObject user = item.getJSONObject("user");
-		            	i.setUserName(user.getString("name"));
-		            	i.setScreenName(user.getString("screen_name"));
-						
-		            	try {
-		            		i.setCreatedAt(ParserUtils.relativeTime(item.getString("created_at"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
-		            	} catch (Exception e) {
-		            		i.setCreatedAt("");
-		            		Log.e(DEBUG_TAG, "Error parsing date", e);
-		            	}
-		            	
-						twitterItems.add(i);
+	            	JSONObject user = item.getJSONObject("user");
+	            	i.setUserName(user.getString("name"));
+	            	i.setScreenName(user.getString("screen_name"));
+					
+	            	try {
+	            		i.setCreatedAt(ParserUtils.relativeTime(item.getString("created_at"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
+	            	} catch (Exception e) {
+	            		i.setCreatedAt("");
+	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            	}
+	            	
+					mItems.add(i);
 				}				
 			} catch (Exception e) {
 				Log.e(DEBUG_TAG, "Error in network call", e);
 			}
 			
-			return twitterItems;
+			return mItems;
 		}
 
 		@Override
@@ -311,6 +339,8 @@ public class TwitterFragment extends SherlockListFragment
 		     * super class will take care of delivering it; the implementation
 		     * here just adds a little more logic.
 		     */	
+			twitterItems = data;
+			
 			super.deliverResult(data);
 		}
 
@@ -342,6 +372,10 @@ public class TwitterFragment extends SherlockListFragment
 			
 	        // Ensure the loader is stopped
 	        onStopLoading();
+	        
+	        if (mItems != null) {
+	        	mItems = null;
+	        }
 		}
 		
 	}
@@ -364,11 +398,13 @@ public class TwitterFragment extends SherlockListFragment
 	private class TwitterItemAdapter extends ArrayAdapter<TwitterItem> {
 		private final LayoutInflater mInflater;
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");		
+        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+        private ImageManager imageManager;
 
         public TwitterItemAdapter(Context context) {
         	super(context, R.layout.twitter_list_item_with_icon);
-        	mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        	mInflater = LayoutInflater.from(context);
+        	imageManager = new ImageManager(getActivity(), 0);
         }
 
         public void setData(ArrayList<TwitterItem> data) {
@@ -376,7 +412,8 @@ public class TwitterFragment extends SherlockListFragment
             if (data != null) {
                 //addAll(data); // Only in API level 11
                 notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
+                int size = data.size();
+                for (int i=0; i < size; i++) {
                 	add(data.get(i));
                 }
                 notifyDataSetChanged();                
@@ -390,6 +427,7 @@ public class TwitterFragment extends SherlockListFragment
 			if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.twitter_list_item_with_icon, null);
 	            holder = new ViewHolder();
+	            holder.image = (ImageView) convertView.findViewById(R.id.image);
 	            holder.icon = (ImageView) convertView.findViewById(R.id.icon);
 	            holder.userName = (TextView) convertView.findViewById(R.id.user_name);
 	            holder.userName.setTypeface(tfb);
@@ -405,6 +443,14 @@ public class TwitterFragment extends SherlockListFragment
 	        }
 	        
 	        TwitterItem item = getItem(position);
+	        
+	        if (item.getMediaUrl() == null) {
+	        	holder.image.setVisibility(View.GONE);
+	        } else {
+	        	holder.image.setVisibility(View.VISIBLE);
+	        	holder.image.setTag(item.getMediaUrl());
+	        	imageManager.displayImage(item.getMediaUrl(), getActivity(), holder.image);
+	        }
 	        
         	try {
 				holder.icon.setImageResource(mTwitterProfileImages.get(item.getScreenName()));
@@ -423,6 +469,7 @@ public class TwitterFragment extends SherlockListFragment
 	}
 	
 	public static class ViewHolder {
+		public ImageView image;
 		public ImageView icon;
 		public TextView userName;
 		public TextView createdAt;

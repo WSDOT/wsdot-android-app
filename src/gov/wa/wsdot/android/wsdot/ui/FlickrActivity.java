@@ -148,7 +148,8 @@ public class FlickrActivity extends SherlockActivity {
 				mFlickrItems = new ArrayList<FlickrItem>();
 				FlickrItem i = null;
 				
-				for (int j=0; j < items.length(); j++) {
+				int numItems = items.length();
+				for (int j=0; j < numItems; j++) {
 					if (!this.isCancelled()) {
 						JSONObject item = items.getJSONObject(j);
 						i = new FlickrItem();

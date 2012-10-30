@@ -21,21 +21,24 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.BlogItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.ImageManager;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -46,7 +49,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -67,11 +72,7 @@ public class BlogFragment extends SherlockListFragment
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-        setRetainInstance(true);
-        setHasOptionsMenu(true);
-        
+        setHasOptionsMenu(true);      
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Blog");
 	}	
 	
@@ -96,6 +97,10 @@ public class BlogFragment extends SherlockListFragment
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		
+		// Remove the separator between items in the ListView
+		getListView().setDivider(null);
+		getListView().setDividerHeight(0);
 		
 		mAdapter = new BlogItemAdapter(getActivity());
 		setListAdapter(mAdapter);
@@ -148,19 +153,19 @@ public class BlogFragment extends SherlockListFragment
 	 */	
 	public static class BlogItemsLoader extends AsyncTaskLoader<ArrayList<BlogItem>> {
 
+		private ArrayList<BlogItem> mItems = null;
+		
 		public BlogItemsLoader(Context context) {
 			super(context);
 		}
 
 		@Override
 		public ArrayList<BlogItem> loadInBackground() {
-			DateFormat parseDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSz"); //e.g. 2010-08-20T10:11:00.000-07:00
-			DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
-			blogItems = new ArrayList<BlogItem>();
+			mItems = new ArrayList<BlogItem>();
 			BlogItem i = null;
 			
 			try {
-				URL url = new URL("http://wsdotblog.blogspot.com/feeds/posts/default?alt=json");
+				URL url = new URL("http://wsdotblog.blogspot.com/feeds/posts/default?alt=json&max-results=10");
 				URLConnection urlConn = url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String jsonFile = "";
@@ -174,30 +179,41 @@ public class BlogFragment extends SherlockListFragment
 				JSONObject data = obj.getJSONObject("feed");			
 				JSONArray entries = data.getJSONArray("entry");
 				
-				for (int j=0; j < entries.length(); j++) {
+				int numEntries = entries.length();
+				for (int j=0; j < numEntries; j++) {
 					JSONObject entry = entries.getJSONObject(j);
 					i = new BlogItem();
 					i.setTitle(entry.getJSONObject("title").getString("$t"));
 
 	            	try {
-	            		Date date = parseDateFormat.parse(entry.getJSONObject("published").getString("$t"));
-	            		i.setPublished(displayDateFormat.format(date));
+	            		i.setPublished(ParserUtils.relativeTime(entry.getJSONObject("published").getString("$t"), "yyyy-MM-dd'T'HH:mm:ss.SSSz", true));
 	            	} catch (Exception e) {
-	            		i.setPublished("N/A");
+	            		i.setPublished("Unavailable");
 	            		Log.e(DEBUG_TAG, "Error parsing date", e);
 	            	}					
 					
-					i.setContent(entry.getJSONObject("content").getString("$t"));
+	            	String content = entry.getJSONObject("content").getString("$t");
+					i.setContent(content);
+					
+					Document doc = Jsoup.parse(content);
+					Element img = doc.select("table img").first();
+					if (img != null) {
+						String imgSrc = img.attr("src");
+						i.setImageUrl(imgSrc);
+					}
+					
+					i.setDescription("");
+					
 					i.setLink(entry.getJSONArray("link").getJSONObject(4).getString("href"));
 					
-					blogItems.add(i);
+					mItems.add(i);
 				}
 
 			} catch (Exception e) {
 				Log.e(DEBUG_TAG, "Error in network call", e);
 			}
 
-			return blogItems;
+			return mItems;
 		}
 		
 		@Override
@@ -206,14 +222,16 @@ public class BlogFragment extends SherlockListFragment
 		     * Called when there is new data to deliver to the client. The
 		     * super class will take care of delivering it; the implementation
 		     * here just adds a little more logic.
-		     */	
+		     */
+			blogItems = data;
+			
 			super.deliverResult(data);
 		}
 
 		@Override
 		protected void onStartLoading() {
 			super.onStartLoading();
-			
+
 			mAdapter.clear();
 			mLoadingSpinner.setVisibility(View.VISIBLE);
 			forceLoad();
@@ -238,6 +256,10 @@ public class BlogFragment extends SherlockListFragment
 			
 	        // Ensure the loader is stopped
 	        onStopLoading();
+	        
+	        if (mItems != null) {
+	        	mItems = null;
+	        }
 		}		
 		
 	}
@@ -260,10 +282,12 @@ public class BlogFragment extends SherlockListFragment
 		private final LayoutInflater mInflater;
 		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
-
+        private ImageManager imageManager;
+        
         public BlogItemAdapter(Context context) {
 	        super(context, R.layout.simple_list_item);
-	        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	        mInflater = LayoutInflater.from(context);
+	        imageManager = new ImageManager(getActivity(), 0);
         }
         
         public void setData(ArrayList<BlogItem> data) {
@@ -271,7 +295,8 @@ public class BlogFragment extends SherlockListFragment
             if (data != null) {
                 //addAll(data); // Only in API level 11
                 notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
+                int size = data.size();
+                for (int i=0; i < size; i++) {
                 	add(data.get(i));
                 }
                 notifyDataSetChanged();                
@@ -283,12 +308,15 @@ public class BlogFragment extends SherlockListFragment
 	        ViewHolder holder = null;
         	
         	if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.simple_list_item, null);
+	            convertView = mInflater.inflate(R.layout.list_item_with_image, null);
 	            holder = new ViewHolder();
+	            holder.image = (ImageView) convertView.findViewById(R.id.image);
 	            holder.title = (TextView) convertView.findViewById(R.id.title);
 	            holder.title.setTypeface(tfb);
 	            holder.description = (TextView) convertView.findViewById(R.id.description);
 	            holder.description.setTypeface(tf);
+	            holder.created_at = (TextView) convertView.findViewById(R.id.created_at);
+	            holder.created_at.setTypeface(tf);
 	            
 	            convertView.setTag(holder);
 	        } else {
@@ -297,16 +325,46 @@ public class BlogFragment extends SherlockListFragment
 	        
 	        BlogItem item = getItem(position);
 	        
+	        if (item.getImageUrl() == null) {
+	        	holder.image.setVisibility(View.GONE);
+	        	RelativeLayout.LayoutParams titleLayoutParams = (RelativeLayout.LayoutParams)holder.title.getLayoutParams();
+	        	titleLayoutParams.setMargins(0, 5, 0, 0);
+	        	holder.title.setLayoutParams(titleLayoutParams);
+	        	holder.title.setTextSize(18);
+	        	holder.title.setTextColor(Color.parseColor("#ff000000"));
+	        	holder.title.setBackgroundDrawable(null);
+	        	RelativeLayout.LayoutParams descriptionLayoutParams = (RelativeLayout.LayoutParams)holder.description.getLayoutParams();
+	        	descriptionLayoutParams.addRule(RelativeLayout.BELOW, holder.title.getId());
+	        	holder.description.setLayoutParams(descriptionLayoutParams);
+	        } else {
+	        	holder.image.setVisibility(View.VISIBLE);
+	        	holder.image.setTag(item.getImageUrl());
+	        	imageManager.displayImage(item.getImageUrl(), getActivity(), holder.image);
+	        	RelativeLayout.LayoutParams titleLayoutParams = (RelativeLayout.LayoutParams)holder.title.getLayoutParams();
+	        	titleLayoutParams.setMargins(8, 8, 8, 8);
+	        	holder.title.setLayoutParams(titleLayoutParams);
+	        	holder.title.setTextSize(14);
+	        	holder.title.setTextColor(Color.parseColor("#ffffffff"));
+	        	holder.title.setBackgroundResource(R.drawable.rect_semitransparent);
+	        	RelativeLayout.LayoutParams descriptionLayoutParams = (RelativeLayout.LayoutParams)holder.description.getLayoutParams();
+	        	descriptionLayoutParams.addRule(RelativeLayout.BELOW, holder.image.getId());
+	        	holder.description.setLayoutParams(descriptionLayoutParams);
+	        	
+	        }	        
+	        
            	holder.title.setText(item.getTitle());
-       		holder.description.setText(item.getPublished());
+           	holder.description.setText(item.getDescription());
+       		holder.created_at.setText(item.getPublished());
 	        
 	        return convertView;
         }
 	}
 	
 	public static class ViewHolder {
+		public ImageView image;
 		public TextView title;
 		public TextView description;
+		public TextView created_at;
 	}
 	
 }

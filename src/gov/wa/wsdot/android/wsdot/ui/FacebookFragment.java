@@ -115,7 +115,9 @@ public class FacebookFragment extends SherlockListFragment
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				
-				mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(mFacebookItems.get(position).getMessage()));
+				mActionMode = getSherlockActivity().startActionMode(
+						new ActionModeCallback(mFacebookItems.get(position)
+								.getMessage()));
 				
 				return true;
 			}
@@ -246,7 +248,8 @@ public class FacebookFragment extends SherlockListFragment
 				
 				JSONArray items = new JSONArray(jsonFile);
 				
-				for (int j=0; j < items.length(); j++) {
+				int numItems = items.length();
+				for (int j=0; j < numItems; j++) {
 						JSONObject item = items.getJSONObject(j);
 						i = new FacebookItem();
 						htmlText = "";
@@ -343,7 +346,8 @@ public class FacebookFragment extends SherlockListFragment
             if (data != null) {
                 //addAll(data); // Only in API level 11
                 notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
+                int size = data.size();
+                for (int i=0; i < size; i++) {
                 	add(data.get(i));
                 }
                 notifyDataSetChanged();                

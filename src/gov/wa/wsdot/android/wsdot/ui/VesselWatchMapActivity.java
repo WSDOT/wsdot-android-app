@@ -363,9 +363,11 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-			if (vessels.size() != 0) {
-				 map.getOverlays().add(vessels);
-				 map.invalidate();
+			if (vessels != null) {
+				if (vessels.size() != 0) {
+					map.getOverlays().add(vessels);
+					map.invalidate();
+				}
 			}
 			
 			setSupportProgressBarIndeterminateVisibility(false);

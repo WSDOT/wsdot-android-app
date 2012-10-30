@@ -175,7 +175,8 @@ public class NewsFragment extends SherlockListFragment
 				JSONArray items = result.getJSONArray("items");
 				newsItems = new ArrayList<NewsItem>();
 				
-				for (int j=0; j < items.length(); j++) {
+				int numItems = items.length();
+				for (int j=0; j < numItems; j++) {
 					JSONObject item = items.getJSONObject(j);
 					i = new NewsItem();
 					i.setTitle(item.getString("title"));
@@ -271,7 +272,8 @@ public class NewsFragment extends SherlockListFragment
             if (data != null) {
                 //addAll(data); // Only in API level 11
                 notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
+                int size = data.size();
+                for (int i=0; i < size; i++) {
                 	add(data.get(i));
                 }
                 notifyDataSetChanged();                

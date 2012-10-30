@@ -133,7 +133,8 @@ public class MountainPassesSyncService extends IntentService {
 				Integer forecast_weather_image;
 				List<ContentValues> passes = new ArrayList<ContentValues>();
 				
-				for (int j=0; j < passConditions.length(); j++) {
+				int numConditions = passConditions.length();
+				for (int j=0; j < numConditions; j++) {
 					JSONObject pass = passConditions.getJSONObject(j);
 					ContentValues passData = new ContentValues();
 					weatherCondition = pass.getString("WeatherCondition");
@@ -163,7 +164,8 @@ public class MountainPassesSyncService extends IntentService {
 					JSONArray forecasts = pass.getJSONArray("Forecast");
 					JSONArray forecastItems = new JSONArray();
 					
-					for (int l=0; l < forecasts.length(); l++) {
+					int numForecasts = forecasts.length();
+					for (int l=0; l < numForecasts; l++) {
 						JSONObject forecast = forecasts.getJSONObject(l);
 						
 						if (isNight(forecast.getString("Day"))) {

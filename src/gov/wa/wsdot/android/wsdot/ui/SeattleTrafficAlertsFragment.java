@@ -198,7 +198,8 @@ public class SeattleTrafficAlertsFragment extends SherlockListFragment
 				JSONObject result = obj.getJSONObject("incidents");
 				JSONArray items = result.getJSONArray("items");
 				
-				for (int j=0; j < items.length(); j++) {
+				int numItems = items.length();
+				for (int j=0; j < numItems; j++) {
 					JSONObject item = items.getJSONObject(j);
 					i = new SeattleIncidentItem();
 					i.setTitle(item.getString("title"));
@@ -281,7 +282,8 @@ public class SeattleTrafficAlertsFragment extends SherlockListFragment
         public void setData(ArrayList<SeattleIncidentItem> data) {
     		mData.clear();
     		if (data != null) {
-                for (int i=0; i < data.size(); i++) {
+    			int size = data.size();
+                for (int i=0; i < size; i++) {
                 	// Check if Traffic Management Center is closed
 					if (data.get(i).getCategory().equals(27)) {
 						closed.push(data.get(i).getDescription());

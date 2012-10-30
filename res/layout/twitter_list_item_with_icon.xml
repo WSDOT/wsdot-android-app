@@ -2,15 +2,30 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
-	android:padding="14dp"
-	android:descendantFocusability="blocksDescendants" >
+	android:paddingTop="8dp"
+	android:paddingRight="10dp"
+	android:paddingBottom="8dp"
+	android:paddingLeft="10dp"
+	android:descendantFocusability="blocksDescendants"
+	android:background="@drawable/listview_background" >
 
+    <gov.wa.wsdot.android.wsdot.ui.widget.ResizeableImageView
+	    xmlns:android="http://schemas.android.com/apk/res/android"
+		android:id="@+id/image"
+		android:adjustViewBounds="true"
+        android:layout_alignParentTop="true"
+		android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+	    />
+    
     <ImageView
         android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="14dp"
+        android:layout_below="@+id/image"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
         />
 
     <TextView
@@ -18,7 +33,22 @@
         android:textSize="@dimen/text_size_large"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/image"
         android:layout_toRightOf="@+id/icon"
+        android:layout_marginTop="8dp"        
+		android:paddingRight="8dp"
+		android:paddingBottom="7dp"
+        />
+
+     <TextView
+     	android:id="@+id/text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/user_name"
+        android:layout_below="@+id/user_name"
+        android:textSize="@dimen/text_size_medium"
+		android:paddingRight="8dp"
+		android:paddingBottom="7dp"
         />
 
     <TextView
@@ -27,19 +57,11 @@
         android:textColor="@color/semi_black"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
         android:layout_toRightOf="@+id/icon"
-        android:layout_below="@+id/user_name"
-        />
-
-     <TextView
-         android:id="@+id/text"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content"
-         android:layout_alignLeft="@+id/created_at"
-         android:layout_below="@+id/created_at"
-         android:textSize="@dimen/text_size_medium"
-         />
-	         
+        android:layout_below="@+id/text"
+		android:paddingRight="8dp"
+		android:paddingBottom="7dp"        
+        />     
+     	         
 </RelativeLayout>
 	     

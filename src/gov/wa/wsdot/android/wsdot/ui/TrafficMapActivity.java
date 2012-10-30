@@ -440,12 +440,13 @@ public class TrafficMapActivity extends SherlockMapActivity {
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-			 if (cameras.size() != 0) {
-				 map.getOverlays().add(cameras);
-			 }
-			 
-			 if (!showCameras) {
-				 map.getOverlays().remove(cameras);
+			 if (cameras != null) {
+				 if (cameras.size() != 0) {
+					 map.getOverlays().add(cameras);
+				 }
+				 if (!showCameras) {
+					 map.getOverlays().remove(cameras);
+				 }
 			 }
 			
 			setSupportProgressBarIndeterminateVisibility(false);
@@ -475,8 +476,10 @@ public class TrafficMapActivity extends SherlockMapActivity {
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-			if (alerts.size() != 0) {
-				 map.getOverlays().add(alerts);				
+			if (alerts != null) {
+				if (alerts.size() != 0) {
+					map.getOverlays().add(alerts);
+				}
 			}
 			
 			setSupportProgressBarIndeterminateVisibility(false);

@@ -22,6 +22,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.YouTubeItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import gov.wa.wsdot.android.wsdot.util.ImageManager;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -41,7 +42,6 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -107,6 +107,10 @@ public class YouTubeFragment extends SherlockListFragment
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		
+		// Remove the separator between items in the ListView
+		getListView().setDivider(null);
+		getListView().setDividerHeight(0);
 		
 		getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
@@ -216,13 +220,15 @@ public class YouTubeFragment extends SherlockListFragment
 	 */	
 	public static class VideoItemsLoader extends AsyncTaskLoader<ArrayList<YouTubeItem>> {
 		
+		private ArrayList<YouTubeItem> mItems;
+		
 		public VideoItemsLoader(Context context) {
 			super(context);
 		}
 
 		@Override
 		public ArrayList<YouTubeItem> loadInBackground() {
-			mYouTubeItems = new ArrayList<YouTubeItem>();
+			mItems = new ArrayList<YouTubeItem>();
 			YouTubeItem i = null;
 			
 			try {
@@ -240,7 +246,8 @@ public class YouTubeFragment extends SherlockListFragment
 				JSONObject data = obj.getJSONObject("data");			
 				JSONArray items = data.getJSONArray("items");
 				
-				for (int j=0; j < items.length(); j++) {
+				int numItems = items.length();
+				for (int j=0; j < numItems; j++) {
 					JSONObject item = items.getJSONObject(j);
 					JSONObject thumbnail = item.getJSONObject("thumbnail");
 					i = new YouTubeItem();
@@ -250,13 +257,20 @@ public class YouTubeFragment extends SherlockListFragment
 					i.setViewCount(item.getString("viewCount"));
 					i.setThumbNailUrl(thumbnail.getString("hqDefault"));
 					
-                    mYouTubeItems.add(i);
+	            	try {
+	            		i.setUploaded(ParserUtils.relativeTime(item.getString("uploaded"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
+	            	} catch (Exception e) {
+	            		i.setUploaded("Unavailable");
+	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            	}					
+					
+                    mItems.add(i);
 				}				
 			} catch (Exception e) {
 				Log.e(DEBUG_TAG, "Error in network call", e);
 			}
 			
-			return mYouTubeItems;
+			return mItems;
 		}
 
 		@Override
@@ -265,7 +279,9 @@ public class YouTubeFragment extends SherlockListFragment
 		     * Called when there is new data to deliver to the client. The
 		     * super class will take care of delivering it; the implementation
 		     * here just adds a little more logic.
-		     */	
+		     */
+			mYouTubeItems = data;
+			
 			super.deliverResult(data);
 		}		
 
@@ -297,6 +313,10 @@ public class YouTubeFragment extends SherlockListFragment
 			
 	        // Ensure the loader is stopped
 	        onStopLoading();
+	        
+	        if (mItems != null) {
+	        	mItems = null;
+	        }
 		}
 		
 	}
@@ -320,7 +340,7 @@ public class YouTubeFragment extends SherlockListFragment
         	super(context, R.layout.list_item_youtube);
         	
         	mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        	imageManager = new ImageManager(getActivity().getApplicationContext(), 5 * DateUtils.MINUTE_IN_MILLIS);
+        	imageManager = new ImageManager(getActivity(), 0);
         }
 
         public void setData(ArrayList<YouTubeItem> data) {
@@ -328,7 +348,8 @@ public class YouTubeFragment extends SherlockListFragment
             if (data != null) {
                 //addAll(data); // Only in API level 11
                 notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
+                int size = data.size();
+                for (int i=0; i < size; i++) {
                 	add(data.get(i));
                 }
                 notifyDataSetChanged();                
@@ -347,6 +368,7 @@ public class YouTubeFragment extends SherlockListFragment
 	            holder.description = (TextView) convertView.findViewById(R.id.description);
 	            holder.description.setTypeface(tf);
 	            holder.image = (ImageView) convertView.findViewById(R.id.image);
+	            holder.uploaded = (TextView) convertView.findViewById(R.id.uploaded);
 	            
 	            convertView.setTag(holder);
 	        } else {
@@ -359,6 +381,7 @@ public class YouTubeFragment extends SherlockListFragment
         	holder.description.setText(item.getDescription());
         	holder.image.setTag(item.getThumbNailUrl());
         	imageManager.displayImage(item.getThumbNailUrl(), getActivity(), holder.image);
+        	holder.uploaded.setText(item.getUploaded());
 	        
         	return convertView;
         }
@@ -368,6 +391,7 @@ public class YouTubeFragment extends SherlockListFragment
 		public TextView title;
 		public TextView description;
 		public ImageView image;
+		public TextView uploaded;
 	}
 
 }

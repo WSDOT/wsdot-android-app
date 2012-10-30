@@ -58,7 +58,8 @@ public class MountainPassItemForecastFragment extends SherlockListFragment {
         
         try {
 			forecasts = new JSONArray(forecastsArray);
-			for (int i=0; i < forecasts.length(); i++) {
+			int numForecasts = forecasts.length();
+			for (int i=0; i < numForecasts; i++) {
 				JSONObject forecast = forecasts.getJSONObject(i);
 				f = new ForecastItem();
 				f.setDay(forecast.getString("Day"));

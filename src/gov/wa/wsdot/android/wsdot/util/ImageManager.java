@@ -4,10 +4,16 @@ import gov.wa.wsdot.android.wsdot.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Stack;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import android.app.Activity;
 import android.content.Context;
@@ -75,14 +81,32 @@ public class ImageManager {
 			long currentTimeMillis = System.currentTimeMillis();
 			// Has it expired?
 			long bitmapTimeMillis = bitmapFile.lastModified();
-			if ((currentTimeMillis - bitmapTimeMillis) < mCacheDuration) {
+			if (mCacheDuration == 0) { // Don't update. Always return the cached version.
+				return bitmap;
+			} else if ((currentTimeMillis - bitmapTimeMillis) < mCacheDuration) { // Within our cache time.
 				return bitmap;				
 			}
 		}
 
 		// Nope, have to download it
 		try {
-			bitmap = BitmapFactory.decodeStream(new URL(url).openConnection().getInputStream());
+			if (url.matches("(.*)twitpic.com(.*)")) {
+				url = getTwitPicImage(url);
+				if (url == null) return null;
+			}			
+			
+		    // First decode with inJustDecodeBounds=true to check dimensions
+		    final BitmapFactory.Options options = new BitmapFactory.Options();
+		    options.inJustDecodeBounds = true;
+		    BitmapFactory.decodeStream(new URL(url).openConnection().getInputStream(), null, options);
+		    
+		    // Calculate inSampleSize
+		    options.inSampleSize = calculateInSampleSize(options, 320, 240); // no bigger than this.
+		    
+		    // Decode bitmap with inSampleSize set
+		    options.inJustDecodeBounds = false;
+		    bitmap = BitmapFactory.decodeStream(new URL(url).openConnection().getInputStream(), null, options);
+			
 			// save bitmap to cache for later
 			writeFile(bitmap, bitmapFile);
 
@@ -93,6 +117,42 @@ public class ImageManager {
 		}
 	}
 
+	private String getTwitPicImage(String url) {
+		try {
+			Document doc = Jsoup.connect(url)
+					.userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1309.0 Safari/537.17")
+					.get();
+			Elements metas = doc.getElementsByTag("meta");
+			for (Element meta : metas) {
+				if (meta.attr("name").equals("twitter:image")) {
+					return meta.attr("value");
+				}
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+
+	public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+	    // Raw height and width of original image
+	    final int height = options.outHeight;
+	    final int width = options.outWidth;
+	    int inSampleSize = 1;
+	
+	    if (height > reqHeight || width > reqWidth) {
+	        if (width > height) {
+	            inSampleSize = Math.round((float)height / (float)reqHeight);
+	        } else {
+	            inSampleSize = Math.round((float)width / (float)reqWidth);
+	        }
+	    }
+	    
+	    return inSampleSize;
+	}
+	
 	private void writeFile(Bitmap bmp, File f) {
 		FileOutputStream out = null;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2012 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@ public class BlogItem {
 	private String published;
 	private String link;
 	private String content;
+	private String description;
+	private String imageUrl;
 	
 	public String getTitle() {
 		return title;
@@ -47,5 +49,17 @@ public class BlogItem {
 	}
 	public void setContent(String content) {
 		this.content = content;
+	}
+	public String getImageUrl() {
+		return imageUrl;
+	}
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

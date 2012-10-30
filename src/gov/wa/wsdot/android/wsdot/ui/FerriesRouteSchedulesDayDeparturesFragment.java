@@ -134,17 +134,18 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 	    	times = new ArrayList<FerriesScheduleTimesItem>();
 			
 	    	try {
-	    		for (int i=0; i<numAnnotations; i++) {
+	    		for (int i=0; i < numAnnotations; i++) {
 	    			FerriesAnnotationsItem annotationItem = new FerriesAnnotationsItem();
 	    			annotationItem.setAnnotation(terminalItem.getAnnotations().get(i).getAnnotation());
 	    			annotations.add(annotationItem);
 	    		}
 	    		
-				for (int i=0; i<numTimes; i++) {
+				for (int i=0; i < numTimes; i++) {
 					FerriesScheduleTimesItem timesItem = new FerriesScheduleTimesItem();
 					timesItem.setDepartingTime(terminalItem.getScheduleTimes().get(i).getDepartingTime());
 					
-					for (int j=0; j<terminalItem.getScheduleTimes().get(i).getAnnotationIndexes().size(); j++) {
+					int numIndexes = terminalItem.getScheduleTimes().get(i).getAnnotationIndexes().size();
+					for (int j=0; j < numIndexes; j++) {
 						FerriesAnnotationIndexesItem index = new FerriesAnnotationIndexesItem();
 						index.setIndex(terminalItem.getScheduleTimes().get(i).getAnnotationIndexes().get(j).getIndex());
 						timesItem.setAnnotationIndexes(index);
@@ -224,7 +225,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
         	if (data != null) {
                 //addAll(data); // Only in API level 11
                 notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
+                int size = data.size();
+                for (int i=0; i < size; i++) {
                 	add(data.get(i));
                 }
                 notifyDataSetChanged();                
@@ -252,7 +254,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 	        FerriesScheduleTimesItem item = getItem(position);
 	        String annotation = "";
 
-	        for (int i=0; i < item.getAnnotationIndexes().size(); i++) {
+	        int numIndexes = item.getAnnotationIndexes().size();
+	        for (int i=0; i < numIndexes; i++) {
 	        	FerriesAnnotationsItem p = annotations.get(item.getAnnotationIndexes().get(i).getIndex());
 	        	annotation += p.getAnnotation();
 	        }

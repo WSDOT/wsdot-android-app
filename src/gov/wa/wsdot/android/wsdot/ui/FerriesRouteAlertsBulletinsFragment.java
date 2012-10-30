@@ -146,7 +146,8 @@ public class FerriesRouteAlertsBulletinsFragment extends SherlockListFragment
 			
 	        try {
 				JSONArray alerts = new JSONArray(mAlerts);
-				for (int j=0; j<alerts.length(); j++)	{
+				int numAlerts = alerts.length();
+				for (int j=0; j < numAlerts; j++)	{
 					JSONObject alert = alerts.getJSONObject(j);
 					FerriesRouteAlertItem i = new FerriesRouteAlertItem();
 					i.setAlertFullTitle(alert.getString("AlertFullTitle"));
@@ -221,7 +222,8 @@ public class FerriesRouteAlertsBulletinsFragment extends SherlockListFragment
             if (data != null) {
                 //addAll(data); // Only in API level 11
                 notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
+                int size = data.size();
+                for (int i=0; i < size; i++) {
                 	add(data.get(i));
                 }
                 notifyDataSetChanged();                

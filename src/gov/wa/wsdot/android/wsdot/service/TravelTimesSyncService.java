@@ -112,7 +112,8 @@ public class TravelTimesSyncService extends IntentService {
 				JSONArray items = result.getJSONArray("items");
 				List<ContentValues> times = new ArrayList<ContentValues>();
 							
-				for (int j=0; j < items.length(); j++) {
+				int numItems = items.length();
+				for (int j=0; j < numItems; j++) {
 					JSONObject item = items.getJSONObject(j);
 					ContentValues timesValues = new ContentValues();
 					timesValues.put(TravelTimes.TRAVEL_TIMES_TITLE, item.getString("title"));

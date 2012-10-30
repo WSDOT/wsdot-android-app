@@ -149,7 +149,8 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 
 	        try {
 				cameras = new JSONArray(camerasArray);
-				for (int k=0; k < cameras.length(); k++) {
+				int numCameras = cameras.length();
+				for (int k=0; k < numCameras; k++) {
 					JSONObject camera = cameras.getJSONObject(k);
 					c = new CameraItem();
 					c.setImageUrl(camera.getString("url"));
@@ -214,7 +215,7 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
 			super(context, R.layout.list_item_resizeable_image);
 			
 			mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			imageManager = new ImageManager(context, 5 * DateUtils.MINUTE_IN_MILLIS);
+			imageManager = new ImageManager(context, 5 * DateUtils.MINUTE_IN_MILLIS); // Cache for 5 minutes.
 		}
 		
         public void setData(ArrayList<CameraItem> data) {
@@ -222,7 +223,8 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
             if (data != null) {
                 //addAll(data); // Only in API level 11
                 notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
+                int size = data.size();
+                for (int i=0; i < size; i++) {
                 	add(data.get(i));
                 }
                 notifyDataSetChanged();                

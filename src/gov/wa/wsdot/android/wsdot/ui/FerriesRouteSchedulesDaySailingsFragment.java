@@ -140,13 +140,15 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
 			
 	    	try {   		
 				JSONArray dates = new JSONArray(mDates);
-				for (int j=0; j < dates.length(); j++) {
+				int numDates = dates.length();
+				for (int j=0; j < numDates; j++) {
 					JSONObject date = dates.getJSONObject(j);
 					scheduleDate = new FerriesScheduleDateItem();
 					scheduleDate.setDate(date.getString("Date").substring(6, 19));
 					
 					JSONArray sailings = date.getJSONArray("Sailings");
-					for (int k=0; k < sailings.length(); k++) {
+					int numSailings = sailings.length();
+					for (int k=0; k < numSailings; k++) {
 						JSONObject sailing = sailings.getJSONObject(k);
 						terminal = new FerriesTerminalItem();
 						terminal.setArrivingTerminalID(sailing.getInt("ArrivingTerminalID"));
@@ -155,21 +157,24 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
 						terminal.setDepartingTerminalName(sailing.getString("DepartingTerminalName"));
 						
 						JSONArray annotations = sailing.getJSONArray("Annotations");
-						for (int l=0; l < annotations.length(); l++) {
+						int numAnnotations = annotations.length();
+						for (int l=0; l < numAnnotations; l++) {
 							notes = new FerriesAnnotationsItem();
 							notes.setAnnotation(annotations.getString(l));
 							terminal.setAnnotations(notes);	
 						}
 						
 						JSONArray times = sailing.getJSONArray("Times");
-						for (int m=0; m < times.length(); m++) {
+						int numTimes = times.length();
+						for (int m=0; m < numTimes; m++) {
 							JSONObject time = times.getJSONObject(m);
 							timesItem = new FerriesScheduleTimesItem();
 							timesItem.setDepartingTime(time.getString("DepartingTime").substring(6, 19));
 							
 							
 							JSONArray annotationIndexes = time.getJSONArray("AnnotationIndexes");
-							for (int n=0; n < annotationIndexes.length(); n++) {
+							int numIndexes = annotationIndexes.length();
+							for (int n=0; n < numIndexes; n++) {
 								indexesItem = new FerriesAnnotationIndexesItem();
 								indexesItem.setIndex(annotationIndexes.getInt(n));
 								timesItem.setAnnotationIndexes(indexesItem);									
@@ -264,7 +269,8 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
             if (data != null) {
                 //addAll(data); // Only in API level 11
                 notifyDataSetChanged();
-                for (int i=0; i < data.size(); i++) {
+                int size = data.size();
+                for (int i=0; i < size; i++) {
                 	add(data.get(i));
                 }
                 notifyDataSetChanged();                
