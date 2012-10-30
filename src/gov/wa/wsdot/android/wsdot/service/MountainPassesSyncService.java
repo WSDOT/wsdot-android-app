@@ -175,9 +175,9 @@ public class MountainPassesSyncService extends IntentService {
 						forecast.put("weather_icon", forecast_weather_image);
 						
 						if (l == 0) {
-							weather_image = forecast_weather_image;
 							if (weatherCondition.equals("")) {
 								weatherCondition = forecast.getString("ForecastText").split("\\.")[0] + ".";
+								weather_image = forecast_weather_image;
 							}
 						}
 						
