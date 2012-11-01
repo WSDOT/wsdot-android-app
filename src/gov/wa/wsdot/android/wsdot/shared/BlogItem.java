@@ -25,6 +25,7 @@ public class BlogItem {
 	private String content;
 	private String description;
 	private String imageUrl;
+	private String imageCaption;
 	
 	public String getTitle() {
 		return title;
@@ -61,5 +62,11 @@ public class BlogItem {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public String getImageCaption() {
+		return imageCaption;
+	}
+	public void setImageCaption(String imageCaption) {
+		this.imageCaption = imageCaption;
 	}
 }

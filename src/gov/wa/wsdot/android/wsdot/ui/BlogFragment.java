@@ -38,7 +38,6 @@ import org.jsoup.nodes.Element;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -51,7 +50,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -190,20 +188,41 @@ public class BlogFragment extends SherlockListFragment
 	            	} catch (Exception e) {
 	            		i.setPublished("Unavailable");
 	            		Log.e(DEBUG_TAG, "Error parsing date", e);
-	            	}					
+	            	}
 					
 	            	String content = entry.getJSONObject("content").getString("$t");
 					i.setContent(content);
 					
 					Document doc = Jsoup.parse(content);
-					Element img = doc.select("table img").first();
-					if (img != null) {
-						String imgSrc = img.attr("src");
+					Element imgTable = doc.select("table img").first();
+					Element imgDiv = doc.select("div:not(.blogger-post-footer) img").first();
+					Element table = doc.select("table").first();
+					if (imgTable != null) {
+						String imgSrc = imgTable.attr("src");
+						i.setImageUrl(imgSrc);
+						if (table != null) {
+							try {
+								String caption = table.text();
+								i.setImageCaption(caption);
+							} catch (NullPointerException e) {
+								// TODO Auto-generated catch block
+							}
+						}
+					} else if (imgDiv != null) {
+						String imgSrc = imgDiv.attr("src");
 						i.setImageUrl(imgSrc);
 					}
 					
-					i.setDescription("");
-					
+					String temp = content.replaceFirst("<i>(.*)</i><br /><br />", "");
+					temp = temp.replaceFirst("<table(.*?)>.*?</table>", "");
+					String tempDoc = Jsoup.parse(temp).text();
+					try {
+						String description = tempDoc.split("\\.", 2)[0] + ".";
+						i.setDescription(description);
+					} catch (ArrayIndexOutOfBoundsException e) {
+						i.setDescription("");
+					}
+
 					i.setLink(entry.getJSONArray("link").getJSONObject(4).getString("href"));
 					
 					mItems.add(i);
@@ -311,6 +330,7 @@ public class BlogFragment extends SherlockListFragment
 	            convertView = mInflater.inflate(R.layout.list_item_with_image, null);
 	            holder = new ViewHolder();
 	            holder.image = (ImageView) convertView.findViewById(R.id.image);
+	            holder.caption = (TextView) convertView.findViewById(R.id.caption);
 	            holder.title = (TextView) convertView.findViewById(R.id.title);
 	            holder.title.setTypeface(tfb);
 	            holder.description = (TextView) convertView.findViewById(R.id.description);
@@ -327,29 +347,17 @@ public class BlogFragment extends SherlockListFragment
 	        
 	        if (item.getImageUrl() == null) {
 	        	holder.image.setVisibility(View.GONE);
-	        	RelativeLayout.LayoutParams titleLayoutParams = (RelativeLayout.LayoutParams)holder.title.getLayoutParams();
-	        	titleLayoutParams.setMargins(0, 5, 0, 0);
-	        	holder.title.setLayoutParams(titleLayoutParams);
-	        	holder.title.setTextSize(18);
-	        	holder.title.setTextColor(Color.parseColor("#ff000000"));
-	        	holder.title.setBackgroundDrawable(null);
-	        	RelativeLayout.LayoutParams descriptionLayoutParams = (RelativeLayout.LayoutParams)holder.description.getLayoutParams();
-	        	descriptionLayoutParams.addRule(RelativeLayout.BELOW, holder.title.getId());
-	        	holder.description.setLayoutParams(descriptionLayoutParams);
+	        	holder.caption.setVisibility(View.GONE);
 	        } else {
 	        	holder.image.setVisibility(View.VISIBLE);
 	        	holder.image.setTag(item.getImageUrl());
 	        	imageManager.displayImage(item.getImageUrl(), getActivity(), holder.image);
-	        	RelativeLayout.LayoutParams titleLayoutParams = (RelativeLayout.LayoutParams)holder.title.getLayoutParams();
-	        	titleLayoutParams.setMargins(8, 8, 8, 8);
-	        	holder.title.setLayoutParams(titleLayoutParams);
-	        	holder.title.setTextSize(14);
-	        	holder.title.setTextColor(Color.parseColor("#ffffffff"));
-	        	holder.title.setBackgroundResource(R.drawable.rect_semitransparent);
-	        	RelativeLayout.LayoutParams descriptionLayoutParams = (RelativeLayout.LayoutParams)holder.description.getLayoutParams();
-	        	descriptionLayoutParams.addRule(RelativeLayout.BELOW, holder.image.getId());
-	        	holder.description.setLayoutParams(descriptionLayoutParams);
-	        	
+	        	if (item.getImageCaption() == null) {
+	        		holder.caption.setVisibility(View.GONE);
+	        	} else {
+	        		holder.caption.setVisibility(View.VISIBLE);
+	        		holder.caption.setText(item.getImageCaption().toUpperCase());
+	        	}
 	        }	        
 	        
            	holder.title.setText(item.getTitle());
@@ -362,6 +370,7 @@ public class BlogFragment extends SherlockListFragment
 	
 	public static class ViewHolder {
 		public ImageView image;
+		public TextView caption;
 		public TextView title;
 		public TextView description;
 		public TextView created_at;

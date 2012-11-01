@@ -377,7 +377,7 @@ public class YouTubeFragment extends SherlockListFragment
 	        
 	        YouTubeItem item = getItem(position);
 
-	        holder.title.setText(item.getTitle());
+	        holder.title.setText(item.getTitle().toUpperCase());
         	holder.description.setText(item.getDescription());
         	holder.image.setTag(item.getThumbNailUrl());
         	imageManager.displayImage(item.getThumbNailUrl(), getActivity(), holder.image);
