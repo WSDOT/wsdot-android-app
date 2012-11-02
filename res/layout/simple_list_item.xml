@@ -9,6 +9,7 @@
          android:id="@+id/title"
          android:textSize="@dimen/text_size_medium"
          android:layout_alignParentTop="true"
+         android:paddingBottom="7dp"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
          />
@@ -16,7 +17,8 @@
      <TextView
          android:id="@+id/description"
          android:textSize="@dimen/text_size_small"
-         android:layout_below="@id/title"
+         android:textColor="@color/semi_black"
+         android:layout_below="@+id/title"
          android:layout_alignParentBottom="true"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"

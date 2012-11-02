@@ -304,7 +304,7 @@ public class BlogFragment extends SherlockListFragment
         private ImageManager imageManager;
         
         public BlogItemAdapter(Context context) {
-	        super(context, R.layout.simple_list_item);
+	        super(context, R.layout.list_item_with_image);
 	        mInflater = LayoutInflater.from(context);
 	        imageManager = new ImageManager(getActivity(), 0);
         }
