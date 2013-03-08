@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2013 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class FerriesScheduleTimesItem implements Serializable {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -4358683796023869875L;
 	private String departingTime;
+	private String arrivingTime;
 	private ArrayList<FerriesAnnotationIndexesItem> annotationIndexes = new ArrayList<FerriesAnnotationIndexesItem>();
 	
 	public String getDepartingTime() {
@@ -36,11 +35,19 @@ public class FerriesScheduleTimesItem implements Serializable {
 	public void setDepartingTime(String departingTime) {
 		this.departingTime = departingTime;
 	}
-
+	
+	public String getArrivingTime() {
+		return arrivingTime;
+	}
+	public void setArrivingTime(String arrivingTime) {
+		this.arrivingTime = arrivingTime;
+	}
+	
 	public ArrayList<FerriesAnnotationIndexesItem> getAnnotationIndexes() {
 		return annotationIndexes;
 	}
 	public void setAnnotationIndexes(FerriesAnnotationIndexesItem annotationIndexes) {
 		this.annotationIndexes.add(annotationIndexes);
 	}
+
 }

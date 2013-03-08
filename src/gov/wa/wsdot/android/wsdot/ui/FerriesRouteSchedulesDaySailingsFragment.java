@@ -171,6 +171,11 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
 							timesItem = new FerriesScheduleTimesItem();
 							timesItem.setDepartingTime(time.getString("DepartingTime").substring(6, 19));
 							
+							try {
+								timesItem.setArrivingTime(time.getString("ArrivingTime").substring(6, 19));	
+							} catch (StringIndexOutOfBoundsException e) {
+								timesItem.setArrivingTime("N/A");
+							}
 							
 							JSONArray annotationIndexes = time.getJSONArray("AnnotationIndexes");
 							int numIndexes = annotationIndexes.length();

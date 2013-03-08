@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2013 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,6 +54,9 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 	private static ArrayList<FerriesScheduleTimesItem> times;
 	private static DepartureTimesAdapter adapter;
 	private static View mLoadingSpinner;
+	private View mHeaderView;
+	private Typeface tf;
+	private Typeface tfb;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -75,6 +78,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		
+		Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
 
@@ -84,6 +89,12 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
                 ViewGroup.LayoutParams.FILL_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        
+        mHeaderView = inflater.inflate(R.layout.list_item_departure_times_header, null);
+        TextView departing_title = (TextView) mHeaderView.findViewById(R.id.departing_title);
+        departing_title.setTypeface(tfb);
+        TextView arriving_title = (TextView) mHeaderView.findViewById(R.id.arriving_title);
+        arriving_title.setTypeface(tfb);
 
         return root;
 	}
@@ -92,8 +103,12 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-        adapter = new DepartureTimesAdapter(getActivity());
-        setListAdapter(adapter);
+		tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+		tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+		
+		adapter = new DepartureTimesAdapter(getActivity());
+		this.getListView().addHeaderView(mHeaderView);
+		setListAdapter(adapter);
         
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
@@ -143,6 +158,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 				for (int i=0; i < numTimes; i++) {
 					FerriesScheduleTimesItem timesItem = new FerriesScheduleTimesItem();
 					timesItem.setDepartingTime(terminalItem.getScheduleTimes().get(i).getDepartingTime());
+					timesItem.setArrivingTime(terminalItem.getScheduleTimes().get(i).getArrivingTime());
 					
 					int numIndexes = terminalItem.getScheduleTimes().get(i).getAnnotationIndexes().size();
 					for (int j=0; j < numIndexes; j++) {
@@ -204,11 +220,9 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 	
 	private class DepartureTimesAdapter extends ArrayAdapter<FerriesScheduleTimesItem> {
 		private final LayoutInflater mInflater;
-		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
         public DepartureTimesAdapter(Context context) {
-	        super(context, R.layout.simple_list_item);
+	        super(context, R.layout.list_item_departure_times);
 	        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
@@ -241,10 +255,12 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 	        if (convertView == null) {
 	            convertView = mInflater.inflate(R.layout.list_item_departure_times, null);
 	            holder = new ViewHolder();
-	            holder.title = (TextView) convertView.findViewById(R.id.title);
-	            holder.title.setTypeface(tfb);
-	            holder.description = (TextView) convertView.findViewById(R.id.description);
-	            holder.description.setTypeface(tf);
+	            holder.departing = (TextView) convertView.findViewById(R.id.departing);
+	            holder.departing.setTypeface(tfb);
+	            holder.arriving = (TextView) convertView.findViewById(R.id.arriving);
+	            holder.arriving.setTypeface(tfb);
+	            holder.annotation = (TextView) convertView.findViewById(R.id.annotation);
+	            holder.annotation.setTypeface(tf);
 	            
 	            convertView.setTag(holder);
 	        } else {
@@ -260,15 +276,21 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 	        	annotation += p.getAnnotation();
 	        }
 	        
-        	holder.title.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
-       		holder.description.setText(android.text.Html.fromHtml(annotation));
+        	holder.departing.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
+        	
+        	if (!item.getArrivingTime().equals("N/A")) {
+        		holder.arriving.setText(dateFormat.format(new Date(Long.parseLong(item.getArrivingTime()))));
+        	}
+        	
+       		holder.annotation.setText(android.text.Html.fromHtml(annotation));
 	        
 	        return convertView;
         }
         
     	private class ViewHolder {
-    		public TextView title;
-    		public TextView description;
+    		public TextView departing;
+    		public TextView arriving;
+    		public TextView annotation;
     	}
 	}
 	
