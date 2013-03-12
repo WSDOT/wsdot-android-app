@@ -90,12 +90,21 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
 
         return root;
 	}
-
+	
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		
+		setListAdapter(null);
+	}
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-        adapter = new SailingsAdapter(getActivity());
+        if (adapter == null) {
+        	adapter = new SailingsAdapter(getActivity());
+        }
         setListAdapter(adapter);
         
 		// Prepare the loader. Either re-connect with an existing one,

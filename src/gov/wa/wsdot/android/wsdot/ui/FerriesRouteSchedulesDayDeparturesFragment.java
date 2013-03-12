@@ -100,13 +100,22 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends SherlockListFrag
 	}
 
 	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		
+		setListAdapter(null);
+	}
+
+	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
 		tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
 		tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 		
-		adapter = new DepartureTimesAdapter(getActivity());
+		if (adapter == null) {
+			adapter = new DepartureTimesAdapter(getActivity());
+		}
 		this.getListView().addHeaderView(mHeaderView);
 		setListAdapter(adapter);
         
