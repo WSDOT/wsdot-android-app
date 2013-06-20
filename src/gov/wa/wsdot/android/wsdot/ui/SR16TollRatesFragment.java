@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2013 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,11 +63,11 @@ public class SR16TollRatesFragment extends SherlockListFragment {
 		
         HashMap<String, String> map = null;
         String[][] vehicleTypeData = {
-           		{"Two (includes motorcycle)", "$4.00", "$5.00", "$6.00"},
-        		{"Three", "$6.00", "$7.50", "$9.00"},
-        		{"Four", "$8.00", "$10.00", "$12.00"},
-        		{"Five", "$10.00", "$12.50", "$15.00"},
-        		{"Six or more", "$12.00", "$15.00", "$18.00"}
+           		{"Two (includes motorcycle)", "$4.25", "$5.25", "$6.25"},
+        		{"Three", "$6.40", "$7.90", "$9.40"},
+        		{"Four", "$8.50", "$10.50", "$12.50"},
+        		{"Five", "$10.65", "$13.15", "$15.65"},
+        		{"Six or more", "$12.75", "$15.75", "$18.75"}
         		};
         
         adapter = new MyCustomAdapter();

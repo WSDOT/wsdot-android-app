@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2013 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,26 +65,26 @@ public class SR520TollRatesFragment extends SherlockListFragment {
         HashMap<String, String> map = null;
         String[][] weekdayData = {
         		{"Midnight to 5 AM", "0", "0"},
-        		{"5 AM to 6 AM", "$1.64", "$3.18"},
-        		{"6 AM to 7 AM", "$2.87", "$4.41"},
-        		{"7 AM to 9 AM", "$3.59", "$5.13"},
-        		{"9 AM to 10 AM", "$2.87", "$4.41"},
-        		{"10 AM to 2 PM", " $2.31", "$3.84"},
-        		{"2 PM to 3 PM", "$2.87", "$4.41"},
-        		{"3 PM to 6 PM", "$3.59", "$5.13"},
-        		{"6 PM to 7 PM", "$2.87", "$4.41"},
-        		{"7 PM to 9 PM", "$2.31", "$3.84"},
-        		{"9 PM to 11 PM", "$1.64", "$3.18"},
+        		{"5 AM to 6 AM", "$1.70", "$3.25"},
+        		{"6 AM to 7 AM", "$2.95", "$4.50"},
+        		{"7 AM to 9 AM", "$3.70", "$5.25"},
+        		{"9 AM to 10 AM", "$2.95", "$4.50"},
+        		{"10 AM to 2 PM", " $2.35", "$3.95"},
+        		{"2 PM to 3 PM", "$2.95", "$4.50"},
+        		{"3 PM to 6 PM", "$3.70", "$5.25"},
+        		{"6 PM to 7 PM", "$2.95", "$4.50"},
+        		{"7 PM to 9 PM", "$2.35", "$3.95"},
+        		{"9 PM to 11 PM", "$1.70", "$3.25"},
         		{"11 PM to 11:59 PM", "0", "0"}
         		};
 
         String[][] weekendData = {
         		{"Midnight to 5 AM", "0", "0"},
-        		{"5 AM to 8 AM", "$1.13", "$2.67"},
-        		{"8 AM to 11 AM", "$1.69", "$3.23"},
-        		{"11 AM to 6 PM", "$2.26", "$3.79"},
-        		{"6 PM to 9 PM", "$1.69", "$3.23"},
-        		{"9 PM to 11 PM", " $1.13", "$2.67"},
+        		{"5 AM to 8 AM", "$1.15", "$2.75"},
+        		{"8 AM to 11 AM", "$1.75", "$3.30"},
+        		{"11 AM to 6 PM", "$2.30", "$3.90"},
+        		{"6 PM to 9 PM", "$1.75", "$3.30"},
+        		{"9 PM to 11 PM", " $1.15", "$2.75"},
         		{"11 PM to 11:59 PM", "0", "0"}
         		};
                 
@@ -100,7 +100,7 @@ public class SR520TollRatesFragment extends SherlockListFragment {
         BuildAdapterData(weekdayData);
         
         map = new HashMap<String, String>();
-        map.put("hours", "Saturday and Sunday");
+        map.put("hours", "Weekends and Holidays");
         map.put("goodtogo_pass", "Good To Go! Pass");
         map.put("pay_by_mail", "Pay By Mail");
         adapter.addSeparatorItem(map);
