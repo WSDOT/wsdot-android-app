@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2013 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -95,7 +96,16 @@ public class FerriesActivity extends SherlockListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		Intent intent = new Intent(this, (Class<?>) listViewItems.get(position).getClz());
+
+		Intent intent = new Intent();
+		
+		if (listViewItems.get(position).getClz() instanceof Class<?>) {
+		    intent.setClass(this, (Class<?>) listViewItems.get(position).getClz());
+		} else {
+		    intent.setAction(Intent.ACTION_VIEW);
+		    intent.setData(Uri.parse(listViewItems.get(position).getUrl()));
+		}
+		
 		startActivity(intent);
 	}
 
@@ -112,6 +122,7 @@ public class FerriesActivity extends SherlockListActivity {
 			listViewItems = new ArrayList<ListViewItem>();
 			
 	        listViewItems.add(new ListViewItem("Route Schedules", FerriesRouteSchedulesActivity.class));
+	        listViewItems.add(new ListViewItem("Vehicle Reservations", "http://www.wsdot.wa.gov/ferries/reservations"));
 	        listViewItems.add(new ListViewItem("Vessel Watch", VesselWatchMapActivity.class));
 	        
 			return null;
@@ -169,12 +180,17 @@ public class FerriesActivity extends SherlockListActivity {
 	public class ListViewItem {
 		private String title;
 		private Object clz;
+		private String url;
 		
 		public ListViewItem(String title, Class<?> clz) {
 			this.title = title;
 			this.clz = clz;
 		}
-		public String getTitle() {
+		public ListViewItem(String title, String url) {
+            this.title = title;
+            this.url = url;
+        }
+        public String getTitle() {
 			return title;
 		}
 		public void setTitle(String title) {
@@ -186,5 +202,11 @@ public class FerriesActivity extends SherlockListActivity {
 		public void setClz(Object clz) {
 			this.clz = clz;
 		}
+        public String getUrl() {
+            return url;
+        }
+        public void setUrl(String url) {
+            this.url = url;
+        }
 	}
 }
