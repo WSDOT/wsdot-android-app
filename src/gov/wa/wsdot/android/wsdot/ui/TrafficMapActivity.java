@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2013 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -333,6 +333,21 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	    	goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
+        case R.id.goto_snoqualmiepass:
+            AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Snoqualmie Pass");
+            goToLocation("Snoqualmie Pass Traffic", 47.4216734, -121.4232569, 13);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
+        case R.id.goto_tricities:
+            AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Tri-Cities");
+            goToLocation("Tri-Cities Traffic", 46.2577199, -119.1813155, 13);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
+        case R.id.goto_yakima:
+            AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Yakima");
+            goToLocation("Yakima Traffic", 46.6063273, -120.4886952, 13);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
 	    case MENU_ITEM_SEATTLE_ALERTS:
 	    	Intent alertsIntent = new Intent(this, SeattleTrafficAlertsActivity.class);
 	    	startActivity(alertsIntent);
