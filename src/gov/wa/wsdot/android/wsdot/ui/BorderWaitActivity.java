@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,15 +29,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 
-public class BorderWaitActivity extends SherlockFragmentActivity {
+public class BorderWaitActivity extends ActionBarActivity {
 	
     ViewPager mViewPager;
     TabsAdapter mTabsAdapter;
@@ -46,7 +46,7 @@ public class BorderWaitActivity extends SherlockFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
 		mViewPager = new ViewPager(this);
 		mViewPager.setId(R.id.pager);
@@ -72,7 +72,7 @@ public class BorderWaitActivity extends SherlockFragmentActivity {
 
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-    	getSupportMenuInflater().inflate(R.menu.refresh, menu);
+    	getMenuInflater().inflate(R.menu.refresh, menu);
     	
     	return super.onCreateOptionsMenu(menu);
 	}
@@ -112,7 +112,7 @@ public class BorderWaitActivity extends SherlockFragmentActivity {
 			}
 		}
 
-		public TabsAdapter(SherlockFragmentActivity activity, ViewPager pager) {
+		public TabsAdapter(ActionBarActivity activity, ViewPager pager) {
 			super(activity.getSupportFragmentManager());
 			mContext = activity;
 			mActionBar = activity.getSupportActionBar();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,32 +37,28 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.view.ActionMode;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.ShareActionProvider;
-
-public class FacebookFragment extends SherlockListFragment
+public class FacebookFragment extends ListFragment
 	implements LoaderCallbacks<ArrayList<FacebookItem>> {
 	
-	private static final String DEBUG_TAG = "Facebook";
+	private static final String TAG = FacebookFragment.class.getName();
 	private static ArrayList<FacebookItem> mFacebookItems = null;
 	private static FacebookItemAdapter mAdapter;
 	private static View mLoadingSpinner;
@@ -85,7 +81,6 @@ public class FacebookFragment extends SherlockListFragment
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Facebook");
     }
 
-    @SuppressWarnings("deprecation")
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -94,8 +89,8 @@ public class FacebookFragment extends SherlockListFragment
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mEmptyView = root.findViewById( R.id.empty_list_view );
@@ -107,23 +102,6 @@ public class FacebookFragment extends SherlockListFragment
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-		// Remove the separator between items in the ListView
-		//getListView().setDivider(null);
-		//getListView().setDividerHeight(0);
-		
-		getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
-			public boolean onItemLongClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				
-				mActionMode = getSherlockActivity().startActionMode(
-						new ActionModeCallback(mFacebookItems.get(position)
-								.getMessage()));
-				
-				return true;
-			}
-			
-		});
-		
 		mAdapter = new FacebookItemAdapter(getActivity());
 		setListAdapter(mAdapter);
 		
@@ -131,52 +109,6 @@ public class FacebookFragment extends SherlockListFragment
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);		
 	}    
-	
-	private final class ActionModeCallback implements ActionMode.Callback {
-		private String mText;
-		
-		public ActionModeCallback(String text) {
-			this.mText = text;
-		}
-
-		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-			MenuInflater inflater = mode.getMenuInflater();
-			inflater.inflate(R.menu.share_action_provider, menu);
-	        // Set file with share history to the provider and set the share intent.
-	        MenuItem actionItem = menu.findItem(R.id.menu_item_share_action_provider_action_bar);
-	        ShareActionProvider actionProvider = (ShareActionProvider) actionItem.getActionProvider();
-	        //actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
-	        actionProvider.setShareHistoryFileName(null);
-	        // Note that you can set/change the intent any time,
-	        // say when the user has selected an image.
-	        actionProvider.setShareIntent(createShareIntent(mText));
-			
-	        return true;
-		}
-
-		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-			return false;
-		}
-
-		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-			mode.finish();
-			return true;
-		}
-
-		public void onDestroyActionMode(ActionMode mode) {
-			mActionMode = null;
-		}
-		
-	}
-
-	private Intent createShareIntent(String mText) {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mText);
-        
-        return shareIntent;
-	}	
 	
     @Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -217,7 +149,7 @@ public class FacebookFragment extends SherlockListFragment
 	}	
 	
 	/**
-	 * A custom Loader that loads all of the border wait times from the data server.
+	 * A custom Loader that loads Facebook posts from the data server.
 	 */	
 	public static class FacebookItemsLoader extends AsyncTaskLoader<ArrayList<FacebookItem>> {
 
@@ -263,13 +195,13 @@ public class FacebookFragment extends SherlockListFragment
 		            		i.setCreatedAt(ParserUtils.relativeTime(item.getString("created_at"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
 		            	} catch (Exception e) {
 		            		i.setCreatedAt("");
-		            		Log.e(DEBUG_TAG, "Error parsing date", e);
+		            		Log.e(TAG, "Error parsing date", e);
 		            	}
 		            	
 						mFacebookItems.add(i);
 				}				
 			} catch (Exception e) {
-				Log.e(DEBUG_TAG, "Error in network call", e);
+				Log.e(TAG, "Error in network call", e);
 			}
 			
 			return mFacebookItems;
@@ -334,11 +266,10 @@ public class FacebookFragment extends SherlockListFragment
 	private class FacebookItemAdapter extends ArrayAdapter<FacebookItem> {
 		private final LayoutInflater mInflater;
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-        //private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");		
 
         public FacebookItemAdapter(Context context) {
         	super(context, R.layout.simple_list_item);
-        	mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        	mInflater = LayoutInflater.from(context);
         }
 
         public void setData(ArrayList<FacebookItem> data) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,19 +39,21 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Toast;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
 
-import com.actionbarsherlock.app.SherlockMapActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 
-public class TrafficMapActivity extends SherlockMapActivity {
-	private MyMapView map = null;
+public class TrafficMapActivity extends ActionBarActivity {
+	
+    private MyMapView map = null;
 	protected MapController mapController = null;
 	private HighwayAlertsOverlay alerts = null;
 	private CamerasOverlay cameras = null;
@@ -220,7 +222,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
 		GeoPoint p = map.getMapCenter();
-	    getSupportMenuInflater().inflate(R.menu.traffic, menu);
+	    getMenuInflater().inflate(R.menu.traffic, menu);
 	    
 	    if (showCameras) {
 	    	menu.getItem(1).setTitle("Hide Cameras");
@@ -233,12 +235,14 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	     * the greater Seattle area.
 	     */
 		if (inPolygon(seattleArea, p.getLatitudeE6(), p.getLongitudeE6())) {
-			menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts")
-				.setIcon(R.drawable.ic_menu_alerts)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+			MenuItem menuItem_Alerts = menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts")
+				.setIcon(R.drawable.ic_menu_alerts);
+			
+            MenuItemCompat.setShowAsAction(menuItem_Alerts,
+                    MenuItemCompat.SHOW_AS_ACTION_IF_ROOM | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
 
-		    menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes")
-		    	.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+		    MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
+		    MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
 		}
 	    
 		return super.onPrepareOptionsMenu(menu);
@@ -417,10 +421,12 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		return inPoly;
 	}
 	
+	/*
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
-	}	
+	}
+	*/	
 	
 	class CamerasOverlayTask extends AsyncTask<Void, Void, Void> {
 		

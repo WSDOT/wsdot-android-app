@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,17 +20,17 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
+import android.view.MenuItem;
+import android.view.Window;
 
-public class FerriesRouteSchedulesActivity extends SherlockFragmentActivity {
+public class FerriesRouteSchedulesActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);		
+		supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);		
 		setContentView(R.layout.activity_ferries_route_schedules);		
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}

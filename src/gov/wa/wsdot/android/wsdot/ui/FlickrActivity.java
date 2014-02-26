@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,10 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -60,13 +63,10 @@ import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+public class FlickrActivity extends ActionBarActivity {
 
-public class FlickrActivity extends SherlockActivity {
-	private static final int IO_BUFFER_SIZE = 4 * 1024;
-	private static final String DEBUG_TAG = "Photos";
+    private static final String TAG = FlickrActivity.class.getName();
+    private static final int IO_BUFFER_SIZE = 4 * 1024;
     private ArrayList<FlickrItem> mFlickrItems = null;
 	private ImageAdapter adapter;
 	private View mLoadingSpinner;
@@ -88,7 +88,7 @@ public class FlickrActivity extends SherlockActivity {
 
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-    	getSupportMenuInflater().inflate(R.menu.refresh, menu);
+    	getMenuInflater().inflate(R.menu.refresh, menu);
     	
     	return super.onCreateOptionsMenu(menu);
 	}
@@ -185,7 +185,7 @@ public class FlickrActivity extends SherlockActivity {
 					}
 				}
 	        } catch (Exception e) {
-	            Log.e(DEBUG_TAG, "Error parsing Flickr JSON feed", e);
+	            Log.e(TAG, "Error parsing Flickr JSON feed", e);
 	        }
 			return null;
 		}

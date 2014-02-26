@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -33,20 +34,20 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Toast;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
+import android.view.Menu;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-
-public class MountainPassItemActivity extends SherlockFragmentActivity {
+public class MountainPassItemActivity extends ActionBarActivity {
 	
-	DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m"); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
-	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+	DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m", Locale.US); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
+	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a", Locale.US);
 	
     private ViewPager mViewPager;
 	private TabsAdapter mTabsAdapter;
@@ -100,8 +101,8 @@ public class MountainPassItemActivity extends SherlockFragmentActivity {
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star)
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
+		MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
 	
 		if (mIsStarred) {
 			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
@@ -193,7 +194,7 @@ public class MountainPassItemActivity extends SherlockFragmentActivity {
 			}
 		}
 
-		public TabsAdapter(SherlockFragmentActivity activity, ViewPager pager) {
+		public TabsAdapter(ActionBarActivity activity, ViewPager pager) {
 			super(activity.getSupportFragmentManager());
 			mContext = activity;
 			mActionBar = activity.getSupportActionBar();

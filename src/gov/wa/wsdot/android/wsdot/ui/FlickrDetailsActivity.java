@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,18 +24,19 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.support.v7.widget.ShareActionProvider;
 
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.ShareActionProvider;
-
-public class FlickrDetailsActivity extends SherlockActivity {
-	WebView webview;
+public class FlickrDetailsActivity extends ActionBarActivity {
+	
+    WebView webview;
 	private String mTitle;
 	private String mLink;
 	private String mContent;
@@ -65,15 +66,15 @@ public class FlickrDetailsActivity extends SherlockActivity {
 	
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.share_action_provider, menu);
+        getMenuInflater().inflate(R.menu.share_action_provider, menu);
 
         // Set file with share history to the provider and set the share intent.
-        MenuItem actionItem = menu.findItem(R.id.menu_item_share_action_provider_action_bar);
-        ShareActionProvider actionProvider = (ShareActionProvider) actionItem.getActionProvider();
-        actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
+        MenuItem menuItem_Share = menu.findItem(R.id.action_share);
+        ShareActionProvider shareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem_Share);
+        shareAction.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
         // Note that you can set/change the intent any time,
         // say when the user has selected an image.
-        actionProvider.setShareIntent(createShareIntent());
+        shareAction.setShareIntent(createShareIntent());
     	
     	return super.onCreateOptionsMenu(menu);
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,16 +38,16 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
 
-import com.actionbarsherlock.app.SherlockMapActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 
-public class VesselWatchMapActivity extends SherlockMapActivity {
+public class VesselWatchMapActivity extends ActionBarActivity {
 
 	@SuppressWarnings("unused")
 	private static final String DEBUG_TAG = "VesselWatchMap";
@@ -176,7 +176,7 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
-	    getSupportMenuInflater().inflate(R.menu.vessel_watch, menu);
+	    getMenuInflater().inflate(R.menu.vessel_watch, menu);
 
 	    if (showCameras) {
 	    	menu.getItem(1).setTitle("Hide Cameras");
@@ -290,10 +290,12 @@ public class VesselWatchMapActivity extends SherlockMapActivity {
         }
     }
 	
+    /*
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
 	}
+	*/
 	
 	class CamerasOverlayTask extends AsyncTask<Void, Void, Void> {
 		

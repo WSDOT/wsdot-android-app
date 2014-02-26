@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,30 +37,28 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
-public class FavoritesFragment extends SherlockListFragment
+public class FavoritesFragment extends ListFragment
 	implements LoaderCallbacks<Cursor>{
 
-	@SuppressWarnings("unused")
 	private View mLoadingSpinner;
 	private View mEmptyView;
 	private SeparatedListAdapter mAdapter;
@@ -146,7 +144,6 @@ public class FavoritesFragment extends SherlockListFragment
 		getActivity().startService(mTravelTimesIntent);
 	}
 	
-    @SuppressWarnings("deprecation")
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -155,8 +152,8 @@ public class FavoritesFragment extends SherlockListFragment
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mEmptyView = root.findViewById( R.id.empty_list_view );
@@ -225,7 +222,7 @@ public class FavoritesFragment extends SherlockListFragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.menu_refresh:
-			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+			getActivity().setProgressBarIndeterminateVisibility(true);
 			getActivity().startService(mFerriesSchedulesIntent);
 			getActivity().startService(mMountainPassesIntent);
 			getActivity().startService(mTravelTimesIntent);
@@ -283,7 +280,7 @@ public class FavoritesFragment extends SherlockListFragment
 
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 	    CursorLoader cursorLoader = null;
-	    getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+	    getActivity().setProgressBarIndeterminateVisibility(true);
 	    
 		switch(id) {
 	    case 0:
@@ -362,7 +359,7 @@ public class FavoritesFragment extends SherlockListFragment
 			mAdapter.addSection("Travel Times", mTravelTimesAdapter);
 		}
 		
-		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+		getActivity().setProgressBarIndeterminateVisibility(false);
 		setListAdapter(mAdapter);
 		
 	}
@@ -667,7 +664,7 @@ public class FavoritesFragment extends SherlockListFragment
 				Log.e("TravelTimesSyncReceiver", responseString);
 			}
 			
-			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			getActivity().setProgressBarIndeterminateVisibility(false);
 		}
 	}
     

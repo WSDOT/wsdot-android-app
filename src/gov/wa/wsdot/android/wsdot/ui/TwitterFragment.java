@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,13 +40,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
+import android.support.v7.widget.ShareActionProvider;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -56,14 +64,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.ShareActionProvider;
-
-public class TwitterFragment extends SherlockListFragment
+public class TwitterFragment extends ListFragment
 	implements LoaderCallbacks<ArrayList<TwitterItem>> {
 	
 	private static final String DEBUG_TAG = "Twitter";
@@ -74,6 +75,7 @@ public class TwitterFragment extends SherlockListFragment
 	private HashMap<String, Integer> mTwitterProfileImages = new HashMap<String, Integer>();
 	ActionMode mActionMode;
 	private View mEmptyView;
+	private ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -127,7 +129,8 @@ public class TwitterFragment extends SherlockListFragment
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				
-				mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(twitterItems.get(position).getText()));
+                mActionMode = actionBarActivity.startSupportActionMode(
+                        new ActionModeCallback(twitterItems.get(position).getText()));
 				
 				return true;
 			}
@@ -162,13 +165,12 @@ public class TwitterFragment extends SherlockListFragment
 			MenuInflater inflater = mode.getMenuInflater();
 			inflater.inflate(R.menu.share_action_provider, menu);
 	        // Set file with share history to the provider and set the share intent.
-	        MenuItem actionItem = menu.findItem(R.id.menu_item_share_action_provider_action_bar);
-	        ShareActionProvider actionProvider = (ShareActionProvider) actionItem.getActionProvider();
-	        //actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
-	        actionProvider.setShareHistoryFileName(null);
+	        MenuItem menuItem_Share = menu.findItem(R.id.action_share);
+	        ShareActionProvider shareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem_Share);
+	        shareAction.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
 	        // Note that you can set/change the intent any time,
 	        // say when the user has selected an image.
-	        actionProvider.setShareIntent(createShareIntent(mText));
+	        shareAction.setShareIntent(createShareIntent(mText));
 			
 	        return true;
 		}

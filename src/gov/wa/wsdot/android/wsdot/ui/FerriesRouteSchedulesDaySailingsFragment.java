@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -46,12 +47,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-
-public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragment
+public class FerriesRouteSchedulesDaySailingsFragment extends ListFragment
 	implements LoaderCallbacks<ArrayList<FerriesScheduleDateItem>> {
 	
-	private static final String DEBUG_TAG = "RouteSchedulesDaySailings";
+	private static final String TAG = FerriesRouteSchedulesDaySailingsFragment.class.getName();
 	private static ArrayList<FerriesScheduleDateItem> scheduleDateItems;
 	private static SailingsAdapter adapter;
 	private static View mLoadingSpinner;
@@ -74,7 +73,6 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
 		setRetainInstance(true);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -83,8 +81,8 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
 
@@ -201,7 +199,7 @@ public class FerriesRouteSchedulesDaySailingsFragment extends SherlockListFragme
 					scheduleDateItems.add(scheduleDate);
 				}
 			} catch (Exception e) {
-				Log.e(DEBUG_TAG, "Error adding schedule date items", e);
+				Log.e(TAG, "Error adding schedule date items", e);
 			}
 		
 	    	return scheduleDateItems;		

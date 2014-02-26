@@ -30,19 +30,19 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.ShareActionProvider;
-
-public class FerriesRouteAlertsBulletinDetailsFragment extends SherlockFragment {
+public class FerriesRouteAlertsBulletinDetailsFragment extends Fragment {
 
 	WebView webview;
 	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
@@ -102,12 +102,12 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends SherlockFragment 
         inflater.inflate(R.menu.share_action_provider, menu);
 
         // Set file with share history to the provider and set the share intent.
-        MenuItem actionItem = menu.findItem(R.id.menu_item_share_action_provider_action_bar);
-        ShareActionProvider actionProvider = (ShareActionProvider) actionItem.getActionProvider();
-        actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
+        MenuItem menuItem_Share = menu.findItem(R.id.action_share);
+        ShareActionProvider shareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem_Share);
+        shareAction.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
         // Note that you can set/change the intent any time,
         // say when the user has selected an image.
-        actionProvider.setShareIntent(createShareIntent());
+        shareAction.setShareIntent(createShareIntent());
 	}
     
 	private Intent createShareIntent() {

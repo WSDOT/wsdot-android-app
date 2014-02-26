@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,23 +18,23 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import java.util.ArrayList;
-
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.app.ActionBar.Tab;
-import com.actionbarsherlock.view.MenuItem;
-
-public class TollRatesActivity extends SherlockFragmentActivity {
+public class TollRatesActivity extends ActionBarActivity {
 	
     private ViewPager mViewPager;
 	private TabsAdapter mTabsAdapter;
@@ -102,8 +102,9 @@ public class TollRatesActivity extends SherlockFragmentActivity {
 			}
 		}
 
-		public TabsAdapter(SherlockFragmentActivity activity, ViewPager pager) {
+		public TabsAdapter(ActionBarActivity activity, ViewPager pager) {
 			super(activity.getSupportFragmentManager());
+			
 			mContext = activity;
 			mActionBar = activity.getSupportActionBar();
 			mViewPager = pager;

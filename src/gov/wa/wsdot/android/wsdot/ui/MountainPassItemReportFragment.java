@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,16 +22,15 @@ import gov.wa.wsdot.android.wsdot.R;
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
+public class MountainPassItemReportFragment extends Fragment {
 
-public class MountainPassItemReportFragment extends SherlockFragment {
-	@SuppressWarnings("unused")
-	private static final String DEBUG_TAG = "MountainPassItemDetails";	
+	private static final String TAG = MountainPassItemReportFragment.class.getName();	
 	private ViewGroup mRootView;
 	private String mWeatherCondition;
 	private String mTemperatureInFahrenheit;

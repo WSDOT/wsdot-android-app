@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,12 +33,16 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -50,16 +54,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
-public class FerriesRouteSchedulesFragment extends SherlockListFragment
+public class FerriesRouteSchedulesFragment extends ListFragment
 	implements LoaderCallbacks<Cursor> {
 
-	@SuppressWarnings("unused")
-	private static final String DEBUG_TAG = "RouteSchedules";
+	private static final String TAG = FerriesRouteSchedulesFragment.class.getName();
 	private static RouteSchedulesAdapter adapter;
 	private static View mLoadingSpinner;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
@@ -72,13 +70,12 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
         setHasOptionsMenu(true);
 		
 		Intent intent = new Intent(getActivity().getApplicationContext(), FerriesSchedulesSyncService.class);
-		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+		getActivity().setProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
         
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/Ferries/Route Schedules");
 	}	
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -87,8 +84,8 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mEmptyView = root.findViewById( R.id.empty_list_view );
@@ -136,7 +133,7 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.menu_refresh:
-			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+			getActivity().setProgressBarIndeterminateVisibility(true);
 			Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
 		    intent.putExtra("forceUpdate", true);
 			getActivity().startService(intent);
@@ -169,7 +166,7 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (cursor.moveToFirst()) {
 			mLoadingSpinner.setVisibility(View.GONE);
-			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			getActivity().setProgressBarIndeterminateVisibility(false);
 		}
 		
 		adapter.swapCursor(cursor);
@@ -309,14 +306,14 @@ public class FerriesRouteSchedulesFragment extends SherlockListFragment
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
 			if (responseString.equals("OK")) {
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+				getActivity().setProgressBarIndeterminateVisibility(true);
 				getLoaderManager().restartLoader(0, null, FerriesRouteSchedulesFragment.this);
 			} else if (responseString.equals("NOP")) {
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				getActivity().setProgressBarIndeterminateVisibility(false);
 				mLoadingSpinner.setVisibility(View.GONE);
 			} else {
 				Log.e("FerriesSchedulesSyncReceiver", responseString);
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				getActivity().setProgressBarIndeterminateVisibility(false);
 				mLoadingSpinner.setVisibility(View.GONE);
 
 				if (!UIUtils.isNetworkAvailable(context)) {

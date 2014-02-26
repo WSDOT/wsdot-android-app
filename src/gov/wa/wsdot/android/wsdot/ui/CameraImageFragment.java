@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,24 +40,24 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.ShareActionProvider;
-
-public class CameraImageFragment extends SherlockFragment
+public class CameraImageFragment extends Fragment
 	implements LoaderCallbacks<Drawable> {
 
 	private static String mUrl;
@@ -67,7 +67,7 @@ public class CameraImageFragment extends SherlockFragment
 	private String mTitle;
 	private int mId;
 	private static String mCameraName = "cameraImage.jpg";
-	private ShareActionProvider actionProvider;
+	private ShareActionProvider shareAction;
 	private boolean mIsStarred = false;
 	private ContentResolver resolver;
 	
@@ -95,15 +95,14 @@ public class CameraImageFragment extends SherlockFragment
 		setHasOptionsMenu(true);
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mRootView = (ViewGroup) inflater.inflate(R.layout.camera_dialog, null);
 		
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = (ProgressBar) mRootView.findViewById(R.id.loading_spinner);		
         mImage = (ImageView) mRootView.findViewById(R.id.image);
@@ -125,16 +124,18 @@ public class CameraImageFragment extends SherlockFragment
         inflater.inflate(R.menu.share_action_provider, menu);
 
         // Set file with share history to the provider and set the share intent.
-        MenuItem actionItem = menu.findItem(R.id.menu_item_share_action_provider_action_bar);
-        actionProvider = (ShareActionProvider) actionItem.getActionProvider();
-        actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
+        MenuItem menuItem_Share = menu.findItem(R.id.action_share);
+        shareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem_Share); 
+        shareAction.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
     	
-		menu.add(0, MENU_ITEM_REFRESH, menu.size(), R.string.description_refresh)
-			.setIcon(R.drawable.ic_menu_refresh)
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        MenuItem menuItem_Refresh = menu.add(0, MENU_ITEM_REFRESH, menu.size(),
+                R.string.description_refresh).setIcon(
+                R.drawable.ic_menu_refresh);
+        MenuItemCompat.setShowAsAction(menuItem_Refresh,
+                MenuItemCompat.SHOW_AS_ACTION_IF_ROOM | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
 		
-		menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star)
-		.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
+		MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
 	
 		if (mIsStarred) {
 			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
@@ -174,10 +175,10 @@ public class CameraImageFragment extends SherlockFragment
 						new String[] {Integer.toString(mId)}
 						);
 				
-				Toast.makeText(getSherlockActivity(), R.string.remove_favorite, Toast.LENGTH_SHORT).show();			
+				Toast.makeText(getActivity(), R.string.remove_favorite, Toast.LENGTH_SHORT).show();			
 				mIsStarred = false;
 	    	} catch (Exception e) {
-	    		Toast.makeText(getSherlockActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+	    		Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
 	    		Log.e("CameraImageFragment", "Error: " + e.getMessage());
 	    	}
 		} else {
@@ -192,10 +193,10 @@ public class CameraImageFragment extends SherlockFragment
 						new String[] {Integer.toString(mId)}
 						);			
 				
-				Toast.makeText(getSherlockActivity(), R.string.add_favorite, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity(), R.string.add_favorite, Toast.LENGTH_SHORT).show();
 				mIsStarred = true;
 			} catch (Exception e) {
-				Toast.makeText(getSherlockActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
 	    		Log.e("CameraImageFragment", "Error: " + e.getMessage());
 	    	}
 		}		
@@ -221,14 +222,14 @@ public class CameraImageFragment extends SherlockFragment
 
 	
 	public Loader<Drawable> onCreateLoader(int id, Bundle args) {	
-		return new CameraImageLoader(getSherlockActivity());
+		return new CameraImageLoader(getActivity());
 	}
 	
 
 	public void onLoadFinished(Loader<Drawable> loader, Drawable data) {
 		mLoadingSpinner.setVisibility(View.GONE);	
 		mImage.setImageDrawable(data);
-		actionProvider.setShareIntent(createShareIntent());		
+		shareAction.setShareIntent(createShareIntent());		
 	}
 
 	public void onLoaderReset(Loader<Drawable> loader) {

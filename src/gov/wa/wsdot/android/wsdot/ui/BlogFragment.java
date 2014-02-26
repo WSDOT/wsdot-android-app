@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,27 +40,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.view.Menu;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
-public class BlogFragment extends SherlockListFragment
+public class BlogFragment extends ListFragment
 	implements LoaderCallbacks<ArrayList<BlogItem>> {
 
-	private static final String DEBUG_TAG = "Blog";
+	private static final String TAG = BlogFragment.class.getName();
 	private static ArrayList<BlogItem> blogItems = null;
 	private static BlogItemAdapter mAdapter;
 	private static View mLoadingSpinner;
@@ -74,7 +73,6 @@ public class BlogFragment extends SherlockListFragment
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Blog");
 	}	
 	
-    @SuppressWarnings("deprecation")
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -83,8 +81,8 @@ public class BlogFragment extends SherlockListFragment
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mEmptyView = root.findViewById( R.id.empty_list_view );
@@ -187,7 +185,7 @@ public class BlogFragment extends SherlockListFragment
 	            		i.setPublished(ParserUtils.relativeTime(entry.getJSONObject("published").getString("$t"), "yyyy-MM-dd'T'HH:mm:ss.SSSz", true));
 	            	} catch (Exception e) {
 	            		i.setPublished("Unavailable");
-	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            		Log.e(TAG, "Error parsing date", e);
 	            	}
 					
 	            	String content = entry.getJSONObject("content").getString("$t");
@@ -229,7 +227,7 @@ public class BlogFragment extends SherlockListFragment
 				}
 
 			} catch (Exception e) {
-				Log.e(DEBUG_TAG, "Error in network call", e);
+				Log.e(TAG, "Error in network call", e);
 			}
 
 			return mItems;

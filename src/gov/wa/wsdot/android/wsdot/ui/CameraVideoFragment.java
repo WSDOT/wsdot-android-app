@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -47,9 +48,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.actionbarsherlock.app.SherlockFragment;
-
-public class CameraVideoFragment extends SherlockFragment
+public class CameraVideoFragment extends Fragment
 	implements LoaderCallbacks<Boolean> {
 	
 	private static String mVideoPath;
@@ -82,15 +81,14 @@ public class CameraVideoFragment extends SherlockFragment
         setHasOptionsMenu(true);
     }
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mRootView = (ViewGroup) inflater.inflate(R.layout.videoview, null);
 		
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = (ProgressBar) mRootView.findViewById(R.id.loading_spinner);		
         mVideoView = (VideoView) mRootView.findViewById(R.id.surface_view);
@@ -150,7 +148,6 @@ public class CameraVideoFragment extends SherlockFragment
 			this.mContext = context;
 		}
 
-		@SuppressLint("WorldReadableFiles")
 		@Override
 		public Boolean loadInBackground() {
 	    	FileOutputStream fos = null;
