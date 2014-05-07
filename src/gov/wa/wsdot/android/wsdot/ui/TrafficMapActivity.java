@@ -39,6 +39,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -47,19 +48,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
+import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.model.*;
 
 public class TrafficMapActivity extends ActionBarActivity {
 	
-    private MyMapView map = null;
-	protected MapController mapController = null;
-	private HighwayAlertsOverlay alerts = null;
-	private CamerasOverlay cameras = null;
+    private GoogleMap map = null;
+    private int mapType = GoogleMap.MAP_TYPE_NORMAL;
+	//protected MapController mapController = null;
+	//private HighwayAlertsOverlay alerts = null;
+	//private CamerasOverlay cameras = null;
 	boolean showCameras;
 	boolean showShadows;
-	private FixedMyLocationOverlay myLocationOverlay;
+	//private FixedMyLocationOverlay myLocationOverlay;
 	private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
 	
 	static final private int MENU_ITEM_SEATTLE_ALERTS = Menu.FIRST;
@@ -74,7 +75,7 @@ public class TrafficMapActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map");
         
@@ -85,7 +86,7 @@ public class TrafficMapActivity extends ActionBarActivity {
         prepareBoundingBox();
         
         // Initialize AsyncTask
-        mCamerasOverlayTask = new CamerasOverlayTask();
+        //mCamerasOverlayTask = new CamerasOverlayTask();
         
         /**
          * Using an extended version of MyLocationOverlay class because it has been
@@ -97,6 +98,7 @@ public class TrafficMapActivity extends ActionBarActivity {
          * 
          * http://dimitar.me/applications-that-use-the-mylocationoverlay-class-crash-on-the-new-droid-x/
          */
+        /*
 		myLocationOverlay = new FixedMyLocationOverlay(this, map);
 		map.getOverlays().add(myLocationOverlay);
         
@@ -106,17 +108,18 @@ public class TrafficMapActivity extends ActionBarActivity {
             	map.getController().animateTo(myLocationOverlay.getMyLocation());
             }
         });
+        */
 		
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
     
 		camerasIntent = new Intent(this.getApplicationContext(), CamerasSyncService.class);
-		setSupportProgressBarIndeterminateVisibility(true);
+		//setSupportProgressBarIndeterminateVisibility(true);
 		startService(camerasIntent);        
 
 		Intent alertsIntent = new Intent(this.getApplicationContext(), HighwayAlertsSyncService.class);
-		setSupportProgressBarIndeterminateVisibility(true);
+		//setSupportProgressBarIndeterminateVisibility(true);
 		startService(alertsIntent);
     }
 	
@@ -129,22 +132,46 @@ public class TrafficMapActivity extends ActionBarActivity {
 	
 	public void prepareMap() {
 		setContentView(R.layout.map);
-		setSupportProgressBarIndeterminateVisibility(false);
+		//setSupportProgressBarIndeterminateVisibility(false);
 	
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        SupportMapFragment mapFragment =  (SupportMapFragment)
+            fragmentManager.findFragmentById(R.id.mapview);
+        
+        map = mapFragment.getMap();
+        
+        LatLng sfLatLng = new LatLng(37.7750, -122.4183);
+        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        Marker marker = map.addMarker(new MarkerOptions()
+            .position(sfLatLng)
+            .title("San Francisco")
+            .snippet("Population: 776733")
+            .icon(BitmapDescriptorFactory.fromResource(R.drawable.camera)));
+		
+        map.getUiSettings().setCompassEnabled(true);
+        map.getUiSettings().setZoomControlsEnabled(true);
+        map.getUiSettings().setMyLocationButtonEnabled(true);
+        map.setMapType(mapType);
+        map.setTrafficEnabled(true);
+        map.setMyLocationEnabled(true);
+        
+        //LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
+        
+		/*
         map = (MyMapView) findViewById(R.id.mapview);
         map.setSatellite(false);
         map.setBuiltInZoomControls(true);
         map.setTraffic(true);
         map.getController().setZoom(13);
-        
         map.setOnChangeListener(new MapViewChangeListener());
+        */
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 
-		myLocationOverlay.enableMyLocation();
+		//myLocationOverlay.enableMyLocation();
         
         IntentFilter camerasFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
         camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -161,11 +188,12 @@ public class TrafficMapActivity extends ActionBarActivity {
 	protected void onPause() {
 		super.onPause();
 		
-		myLocationOverlay.disableMyLocation();
+		//myLocationOverlay.disableMyLocation();
 		this.unregisterReceiver(mCamerasReceiver);
 		this.unregisterReceiver(mHighwayAlertsSyncReceiver);
 	}
 
+	/*
 	private class MapViewChangeListener implements MyMapView.OnChangeListener {
 
 		public void onChange(MapView view, GeoPoint newCenter, GeoPoint oldCenter, int newZoom, int oldZoom) {
@@ -180,6 +208,7 @@ public class TrafficMapActivity extends ActionBarActivity {
 			}
 		}	
 	}
+	*/
 	
 	public class CamerasSyncReceiver extends BroadcastReceiver {
 
@@ -188,11 +217,13 @@ public class TrafficMapActivity extends ActionBarActivity {
 			String responseString = intent.getStringExtra("responseString");
 			if (responseString.equals("OK") || responseString.equals("NOP")) {
 				// We've got cameras, now add them.
-				if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+				/*
+			    if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
 					mCamerasOverlayTask = new CamerasOverlayTask().execute();
 				} else if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
 					mCamerasOverlayTask.execute();
 				}
+				*/
 			} else {
 				Log.e("CameraDownloadReceiver", responseString);
 			}
@@ -204,6 +235,7 @@ public class TrafficMapActivity extends ActionBarActivity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
+			/*
 			if (responseString.equals("OK") || responseString.equals("NOP")) {
 				new HighwayAlertsOverlayTask().execute(); // We've got alerts, now add them.
 			} else {
@@ -215,13 +247,14 @@ public class TrafficMapActivity extends ActionBarActivity {
 				
 				Toast.makeText(context, responseString, Toast.LENGTH_LONG).show();
 			}
+			*/
 		}
 	}
 	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
-		GeoPoint p = map.getMapCenter();
+		//GeoPoint p = map.getMapCenter();
 	    getMenuInflater().inflate(R.menu.traffic, menu);
 	    
 	    if (showCameras) {
@@ -234,6 +267,7 @@ public class TrafficMapActivity extends ActionBarActivity {
 	     * Check if current location is within a lat/lon bounding box surrounding
 	     * the greater Seattle area.
 	     */
+	    /*
 		if (inPolygon(seattleArea, p.getLatitudeE6(), p.getLongitudeE6())) {
 			MenuItem menuItem_Alerts = menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts")
 				.setIcon(R.drawable.ic_menu_alerts);
@@ -244,6 +278,7 @@ public class TrafficMapActivity extends ActionBarActivity {
 		    MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
 		    MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
 		}
+		*/
 	    
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -258,11 +293,13 @@ public class TrafficMapActivity extends ActionBarActivity {
 	    case R.id.my_location:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/My Location");
 	    	// Will be executed as soon as we have a location fix.
+	    	/*
 	    	myLocationOverlay.runOnFirstFix(new Runnable() {
 	            public void run() {	    	
 	            	map.getController().animateTo(myLocationOverlay.getMyLocation());
 	            }
 	        });
+	        */
 	        UIUtils.refreshActionBarMenu(this);
 	        return true;
 	    case R.id.toggle_cameras:
@@ -368,18 +405,22 @@ public class TrafficMapActivity extends ActionBarActivity {
 	private void toggleCameras(MenuItem item) {
 		if (showCameras) {
 			AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Hide Cameras");
+			/*
 			if (cameras != null) {
 				map.getOverlays().remove(cameras);
 			}
 			map.invalidate();
+			*/
 			item.setTitle("Show Cameras");
 			showCameras = false;
 		} else {
 			AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Show Cameras");
+			/*
 			if (cameras != null) {
 				map.getOverlays().add(cameras);
 			}
 			map.invalidate();
+			*/
 			item.setTitle("Hide Cameras");
 			showCameras = true;
 		}		
@@ -392,9 +433,11 @@ public class TrafficMapActivity extends ActionBarActivity {
 	}
 
 	public void goToLocation(String title, double latitude, double longitude, int zoomLevel) {	
-        GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
+        /*
+	    GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
         map.getController().setZoom(zoomLevel);
         map.getController().setCenter(newPoint);
+        */
 	}
 
 	/**
@@ -428,6 +471,7 @@ public class TrafficMapActivity extends ActionBarActivity {
 	}
 	*/	
 	
+	/*
 	class CamerasOverlayTask extends AsyncTask<Void, Void, Void> {
 		
 		@Override
@@ -507,5 +551,6 @@ public class TrafficMapActivity extends ActionBarActivity {
 			map.invalidate();
 		 }
 	}
+	*/
 	
 }
