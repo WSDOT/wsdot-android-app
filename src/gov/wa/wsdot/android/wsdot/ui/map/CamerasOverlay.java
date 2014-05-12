@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,39 +20,28 @@ package gov.wa.wsdot.android.wsdot.ui.map;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
-import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
-import gov.wa.wsdot.android.wsdot.ui.CameraActivity;
+import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.MapView;
-import com.google.android.maps.OverlayItem;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
-public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
-	private static final String DEBUG_TAG = "CamerasOverlay";
-	private ArrayList<CameraItem> mCameraItems = new ArrayList<CameraItem>();
+public class CamerasOverlay {
+	private static final String TAG = CamerasOverlay.class.getSimpleName();
+	private List<CameraItem> cameraItems = new ArrayList<CameraItem>();
 	private final Activity mActivity;
-	private double mTopLatitude;
-	private double mLeftLongitude;
-	private double mBottomLatitude;
-	private double mRightLongitude;
 	private String mRoadName;
 	boolean showCameras;
 	boolean showShadows;
-	private ArrayList<LatLonItem> mViewableMapArea = new ArrayList<LatLonItem>();
 
 	private String[] projection = {
 			Cameras.CAMERA_LATITUDE,
@@ -64,24 +53,12 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 			Cameras.CAMERA_ROAD_NAME
 			};
 	
-	public CamerasOverlay(Activity activity, double topLatitude, double leftLongitude,
-			double bottomLatitude, double rightLongitude, String roadName) {
-		
-		super(null);
+	public CamerasOverlay(Activity activity, LatLngBounds bounds, String roadName) {
 		
 		this.mActivity = activity;
-		this.mTopLatitude = topLatitude;
-		this.mLeftLongitude = leftLongitude;
-		this.mBottomLatitude = bottomLatitude;
-		this.mRightLongitude = rightLongitude;
 		this.mRoadName = roadName;
 		
 		Cursor cameraCursor = null;
-		
-		mViewableMapArea.add(new LatLonItem(mTopLatitude, mLeftLongitude));
-		mViewableMapArea.add(new LatLonItem(mTopLatitude, mRightLongitude));
-		mViewableMapArea.add(new LatLonItem(mBottomLatitude, mRightLongitude));
-		mViewableMapArea.add(new LatLonItem(mBottomLatitude, mLeftLongitude));
 		
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
@@ -106,122 +83,38 @@ public class CamerasOverlay extends ItemizedOverlay<OverlayItem> {
 			
 			if (cameraCursor.moveToFirst()) {
 				while (!cameraCursor.isAfterLast()) {
-					if (inPolygon(mViewableMapArea, cameraCursor.getDouble(0), cameraCursor.getDouble(1))) {
-						//Log.d(DEBUG_TAG, "Camera: " + cameraCursor.getString(2));
+				    LatLng cameraLocation = new LatLng(cameraCursor.getDouble(0), cameraCursor.getDouble(1));
+
+				    if (bounds.contains(cameraLocation)) {
 						int video = cameraCursor.getInt(4);
 						int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
 						
-						mCameraItems.add(new CameraItem(
-								getPoint(cameraCursor.getDouble(0), cameraCursor.getDouble(1)),
-								null,
-								null,
-								getMarker(cameraIcon),
-								cameraCursor.getInt(5)
+						cameraItems.add(new CameraItem(
+						        cameraCursor.getDouble(0),
+						        cameraCursor.getDouble(1),
+						        cameraCursor.getString(2),
+								cameraCursor.getInt(5),
+								cameraIcon
 								));
 					}
 					cameraCursor.moveToNext();
 				}
-				//Log.d(DEBUG_TAG, "Done adding cameras");
 			}
-		 } catch (Exception e) {
-			 Log.e(DEBUG_TAG, "Error in network call", e);
+
+        } catch (Exception e) {
+			 Log.e(TAG, "Error in network call", e);
 		 } finally {
 			 if (cameraCursor != null) {
 				 cameraCursor.close();
 			 }
 		 }
-		 
-		 populate();
 	}
 	
-	private GeoPoint getPoint(double lat, double lon) {
-		return(new GeoPoint((int)(lat*1E6), (int)(lon*1E6)));
-	}
-	
-	class CameraItem extends OverlayItem {
-		 Drawable marker = null;
-		 int id;
-	
-		 CameraItem(GeoPoint pt, String title, String description, Drawable marker, int id) {
-			 super(pt, title, description);
-			 this.marker = marker;
-			 this.id = id;
-		 }
-
-		 @Override
-		 public Drawable getMarker(int stateBitset) {
-			 Drawable result = marker;
-			 setState(result, stateBitset);
-
-			 return result;
-		 }
-	}	
-	
-	@Override
-	protected CameraItem createItem(int i) {
-		return(mCameraItems.get(i));
-	}
-	
-	@Override
-	public void draw(Canvas canvas, MapView mapView, boolean shadow) {
-		if (!showShadows) {
-			shadow = false;
-		}
-		super.draw(canvas, mapView, shadow);
+	public List<CameraItem> getCameraMarkers() {
+	    return cameraItems;
 	}
 
-	@Override
-	protected boolean onTap(int i) {
-		Bundle b = new Bundle();
-		Intent intent = new Intent(mActivity, CameraActivity.class);
-		b.putInt("id", this.mCameraItems.get(i).id);
-		intent.putExtras(b);
-		mActivity.startActivity(intent);
-
-		return true;
-	} 
-	 
-	 @Override
-	 public int size() {
-		 return(mCameraItems.size());
-	 }
-	 
-	 public void clear() {
-		 mCameraItems.clear();
-		 populate();
-	 }
-	 
-	 private Drawable getMarker(int resource) {
-		 Drawable marker = mActivity.getResources().getDrawable(resource);
-		 marker.setBounds(0, 0, marker.getIntrinsicWidth(),
-		 marker.getIntrinsicHeight());
-		 boundCenterBottom(marker);
-
-		 return(marker);
-	 }
-	 
-	 /**
-	  * Iterate through collection of LatLon objects in arrayList and see
-	  * if passed latitude and longitude point is within the collection.
-	  */	
-	 private boolean inPolygon(ArrayList<LatLonItem> points, double latitude, double longitude) {	
-		 int j = points.size() - 1;
-		 double lat = latitude;
-		 double lon = longitude;		
-		 boolean inPoly = false;
-
-		 for (int i = 0; i < points.size(); i++) {
-			 if ((points.get(i).getLongitude() < lon && points.get(j).getLongitude() >= lon) || 
-					 (points.get(j).getLongitude() < lon && points.get(i).getLongitude() >= lon)) {
-				 if (points.get(i).getLatitude() + (lon - points.get(i).getLongitude()) / 
-						 (points.get(j).getLongitude() - points.get(i).getLongitude()) * 
-						 (points.get(j).getLatitude() - points.get(i).getLatitude()) < lat) {
-					 inPoly = !inPoly;
-				 }
-			 }
-			 j = i;
-		 }
-		 return inPoly;
-	 }
-	 
+	public int size() {
+	    return cameraItems.size();
+	}
 }

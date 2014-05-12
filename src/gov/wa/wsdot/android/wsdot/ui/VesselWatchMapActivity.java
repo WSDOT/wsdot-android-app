@@ -20,12 +20,13 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
+import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.ui.map.CamerasOverlay;
 import gov.wa.wsdot.android.wsdot.ui.map.VesselsOverlay;
-import gov.wa.wsdot.android.wsdot.ui.widget.MyMapView;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,37 +39,45 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapView;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class VesselWatchMapActivity extends ActionBarActivity {
 
-	@SuppressWarnings("unused")
-	private static final String DEBUG_TAG = "VesselWatchMap";
-	private MyMapView map = null;
+	private static final String TAG = VesselWatchMapActivity.class.getSimpleName();
+	private GoogleMap map = null;
 	private Handler handler = new Handler();
 	private Timer timer;
-	private FixedMyLocationOverlay myLocationOverlay;
 	private VesselsOverlay vessels = null;
-	private CamerasOverlay cameras = null;
+	private CamerasOverlay camerasOverlay = null;
+	private List<CameraItem> cameras = new ArrayList<CameraItem>();
+	private List<Marker> markers = new ArrayList<Marker>();	
 	boolean showCameras;
 	boolean showShadows;
 	
 	private CamerasSyncReceiver mCamerasReceiver;
 	private Intent camerasIntent;
 	private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
+	private LatLngBounds bounds;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch");
         
@@ -80,23 +89,9 @@ public class VesselWatchMapActivity extends ActionBarActivity {
         // Initialize AsyncTask
         mCamerasOverlayTask = new CamerasOverlayTask();
 
-        /**
-         * Using an extended version of MyLocationOverlay class because it has been
-         * reported the Motorola Droid X phones throw an exception when they try to
-         * draw the dot showing the location of the device.
-         * 
-         * See this post titled, "Android applications that use the MyLocationOverlay
-         * class crash on the new Droid X"
-         * 
-         * http://dimitar.me/applications-that-use-the-mylocationoverlay-class-crash-on-the-new-droid-x/
-         */
-		myLocationOverlay = new FixedMyLocationOverlay(this, map);
-		map.getOverlays().add(myLocationOverlay);		
-
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
-        showShadows = settings.getBoolean("KEY_SHOW_MARKER_SHADOWS", true);
         
 		camerasIntent = new Intent(this.getApplicationContext(), CamerasSyncService.class);
 		startService(camerasIntent);
@@ -104,26 +99,48 @@ public class VesselWatchMapActivity extends ActionBarActivity {
 	
 	public void prepareMap() {
 		setContentView(R.layout.map);
-		setSupportProgressBarIndeterminateVisibility(false);
+		//setSupportProgressBarIndeterminateVisibility(false);
 		
-		Double latitude = 47.565125;
-        Double longitude = -122.480508;
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        SupportMapFragment mapFragment =  (SupportMapFragment)
+            fragmentManager.findFragmentById(R.id.mapview);
+
+        map = mapFragment.getMap();
+        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        map.getUiSettings().setCompassEnabled(true);
+        map.getUiSettings().setZoomControlsEnabled(true);
+        map.getUiSettings().setMyLocationButtonEnabled(true);
+        map.setTrafficEnabled(true);
+        map.setMyLocationEnabled(true);
         
-        map = (MyMapView) findViewById(R.id.mapview);
-        map.setSatellite(false);
-        map.getController().setZoom(11);
-        map.setBuiltInZoomControls(true);
-        map.setTraffic(false);
-        GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
-        map.getController().animateTo(newPoint);
-        map.setOnChangeListener(new MapViewChangeListener());
+        LatLng latLng = new LatLng(47.565125, -122.480508);
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        map.animateCamera(CameraUpdateFactory.zoomTo(11));
+        
+        map.setOnMarkerClickListener(new OnMarkerClickListener() {
+            public boolean onMarkerClick(Marker marker) {
+               Bundle b = new Bundle();
+               Intent intent = new Intent(VesselWatchMapActivity.this, CameraActivity.class);
+               b.putInt("id", Integer.parseInt(marker.getSnippet()));
+               intent.putExtras(b);
+               VesselWatchMapActivity.this.startActivity(intent);
+
+               return true;
+            }
+        });
+        
+        map.setOnCameraChangeListener(new OnCameraChangeListener() {
+            public void onCameraChange(CameraPosition cameraPosition) {
+                Log.d(TAG, "onCameraChange");
+                startService(camerasIntent);
+            }
+        });
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		timer.cancel();
-		myLocationOverlay.disableMyLocation();
 		this.unregisterReceiver(mCamerasReceiver);
 	}
 	
@@ -132,27 +149,11 @@ public class VesselWatchMapActivity extends ActionBarActivity {
 		super.onResume();
 		timer = new Timer();
 		timer.schedule(new VesselsTimerTask(), 0, 30000); // Schedule vessels to update every 30 seconds
-		myLocationOverlay.enableMyLocation();
 		
         IntentFilter camerasFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
         camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
         mCamerasReceiver = new CamerasSyncReceiver();
         registerReceiver(mCamerasReceiver, camerasFilter); 
-	}
-	
-	private class MapViewChangeListener implements MyMapView.OnChangeListener {
-
-		public void onChange(MapView view, GeoPoint newCenter, GeoPoint oldCenter, int newZoom, int oldZoom) {
-			if ((!newCenter.equals(oldCenter)) && (newZoom != oldZoom)) {
-				startService(camerasIntent);
-			}
-			else if (!newCenter.equals(oldCenter)) {
-				startService(camerasIntent);
-			}
-			else if (newZoom != oldZoom) {
-				startService(camerasIntent);
-			}
-		}	
 	}
 	
 	public class CamerasSyncReceiver extends BroadcastReceiver {
@@ -179,9 +180,9 @@ public class VesselWatchMapActivity extends ActionBarActivity {
 	    getMenuInflater().inflate(R.menu.vessel_watch, menu);
 
 	    if (showCameras) {
-	    	menu.getItem(1).setTitle("Hide Cameras");
+	    	menu.getItem(0).setTitle("Hide Cameras");
 	    } else {
-	    	menu.getItem(1).setTitle("Show Cameras");
+	    	menu.getItem(0).setTitle("Show Cameras");
 	    }	    
 	    
 		return super.onPrepareOptionsMenu(menu);
@@ -194,14 +195,6 @@ public class VesselWatchMapActivity extends ActionBarActivity {
 	    case android.R.id.home:
 	    	finish();
 	    	return true;	    
-	    case R.id.my_location:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/My Location");
-	        myLocationOverlay.runOnFirstFix(new Runnable() {
-	            public void run() {	    	
-	            	map.getController().animateTo(myLocationOverlay.getMyLocation());
-	            }
-	        });
-	        return true;
 	    case R.id.goto_anacortes:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Anacortes");
 	    	goToLocation(48.535868, -123.013808, 10);
@@ -249,18 +242,20 @@ public class VesselWatchMapActivity extends ActionBarActivity {
 	private void toggleCameras(MenuItem item) {
 		if (showCameras) {
 			AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/Hide Cameras");
-			if (cameras != null) {
-				map.getOverlays().remove(cameras);
-			}
-			map.invalidate();
+            
+			for (Marker marker: markers) {
+                marker.setVisible(false);
+            }
+			
 			item.setTitle("Show Cameras");
 			showCameras = false;
 		} else {
 			AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/Show Cameras");
-			if (cameras != null) {
-				map.getOverlays().add(cameras);
-			}
-			map.invalidate();
+            
+			for (Marker marker: markers) {
+                marker.setVisible(true);
+            }
+            
 			item.setTitle("Hide Cameras");
 			showCameras = true;
 		}		
@@ -273,15 +268,15 @@ public class VesselWatchMapActivity extends ActionBarActivity {
 	}	
 	
 	public void goToLocation(double latitude, double longitude, int zoomLevel) {	
-        GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
-        map.getController().setZoom(zoomLevel);
-        map.getController().setCenter(newPoint);
+        LatLng latLng = new LatLng(latitude, longitude);
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        map.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
 	}	
 	
     public class VesselsTimerTask extends TimerTask {
         private Runnable runnable = new Runnable() {
             public void run() {
-                new VesselsOverlayTask().execute();
+                //new VesselsOverlayTask().execute();
             }
         };
 
@@ -290,59 +285,60 @@ public class VesselWatchMapActivity extends ActionBarActivity {
         }
     }
 	
-    /*
-	@Override
-	protected boolean isRouteDisplayed() {
-		return false;
-	}
-	*/
-	
 	class CamerasOverlayTask extends AsyncTask<Void, Void, Void> {
 		
 		@Override
 		public void onPreExecute() {
 			setSupportProgressBarIndeterminateVisibility(true);
 
-			if (cameras != null) {
-				map.getOverlays().remove(cameras);
-				cameras = null;
+			if (camerasOverlay != null) {
+                for (Marker marker: markers) {
+                    marker.remove();
+                }
+				camerasOverlay = null;
 			}
+			
+			bounds = map.getProjection().getVisibleRegion().latLngBounds;
 
 		 }
 		
 		 @Override
 		 public Void doInBackground(Void... unused) {
-			 GeoPoint mapTopLeft = map.getProjection().fromPixels(0, 0);
-			 double topLatitude = (double)(mapTopLeft.getLatitudeE6())/1E6;
-			 double leftLongitude = (double)(mapTopLeft.getLongitudeE6())/1E6;
-   			 GeoPoint mapBottomRight = map.getProjection().fromPixels(map.getWidth(), map.getHeight());
-			 double bottomLatitude = (double)(mapBottomRight.getLatitudeE6())/1E6;
-			 double rightLongitude = (double)(mapBottomRight.getLongitudeE6())/1E6;			 
-			 
-			 cameras = new CamerasOverlay(
+			 camerasOverlay = new CamerasOverlay(
 					 VesselWatchMapActivity.this,
-					 topLatitude, leftLongitude,
-					 bottomLatitude, rightLongitude,
+					 bounds,
 					 "ferries");		 
-
+			 
 			 return null;
 		 }
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-			 if (cameras.size() != 0) {
-				 map.getOverlays().add(cameras);
-			 }
-			 
-			 if (!showCameras) {
-				 map.getOverlays().remove(cameras);
-			 }
-			
-			setSupportProgressBarIndeterminateVisibility(false);
-			map.invalidate();
+             markers.clear();
+             cameras.clear();
+             cameras = camerasOverlay.getCameraMarkers();
+             
+             if (cameras != null) {
+                 if (cameras.size() != 0) {
+                     for (int i = 0; i < cameras.size(); i++) {
+                         LatLng latLng = new LatLng(cameras.get(i).getLatitude(), cameras.get(i).getLongitude());
+                         Marker marker = map.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(cameras.get(i).getTitle())
+                            .snippet(cameras.get(i).getCameraId().toString())
+                            .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
+                            .visible(showCameras));
+                         
+                         markers.add(marker);
+                     }
+                 }
+             }
+            
+            setSupportProgressBarIndeterminateVisibility(false);
 		 }
 	}
 	
+	/*
 	class VesselsOverlayTask extends AsyncTask<Void, Void, Void> {
 		
 		@Override
@@ -375,5 +371,6 @@ public class VesselWatchMapActivity extends ActionBarActivity {
 			setSupportProgressBarIndeterminateVisibility(false);
 		 }
 	}
+	*/
 
 }

@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:wsdot="http://schemas.android.com/apk/res-auto">
-      
-	<item
-	    android:id="@+id/my_location"
-		android:title="@string/description_mylocation"
-		android:icon="@drawable/ic_menu_mylocation"
-		android:orderInCategory="1"
-		wsdot:showAsAction="ifRoom|withText" />
 
 	<item
 	    android:id="@+id/toggle_cameras"
 		android:title="@string/description_cameras"
 		android:icon="@drawable/ic_menu_camera"
-		android:orderInCategory="2"
+		android:orderInCategory="1"
 		wsdot:showAsAction="ifRoom|withText" />
 		
 	<item
 	    android:id="@+id/goto_location"
 		android:title="@string/description_gotolocation"
 		android:icon="@drawable/ic_menu_goto"
-		android:orderInCategory="3"
+		android:orderInCategory="2"
 		wsdot:showAsAction="ifRoom|withText" >
 		<menu>
 			<item android:orderInCategory="1" android:title="Anacortes / San Juan Islands / Sidney BC" android:id="@+id/goto_anacortes" />
