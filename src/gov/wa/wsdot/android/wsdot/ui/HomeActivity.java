@@ -76,10 +76,6 @@ public class HomeActivity extends ActionBarActivity {
             case R.id.menu_about:
             	startActivity(new Intent(this, AboutActivity.class));
                 break;
-
-            case R.id.menu_preferences:
-                startActivity(new Intent(this, PreferencesActivity.class));
-                break;
         }
         return super.onOptionsItemSelected(item);
     }
