@@ -26,10 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -54,16 +52,10 @@ public class CamerasOverlay {
 			};
 	
 	public CamerasOverlay(Activity activity, LatLngBounds bounds, String roadName) {
-		
 		this.mActivity = activity;
 		this.mRoadName = roadName;
 		
 		Cursor cameraCursor = null;
-		
-        // Check preferences
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
-        showShadows = settings.getBoolean("KEY_SHOW_MARKER_SHADOWS", true);
-        
         Uri baseUri;
         
         if (mRoadName != null) {
