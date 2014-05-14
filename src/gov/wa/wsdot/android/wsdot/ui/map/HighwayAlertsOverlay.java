@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui.map;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
-import gov.wa.wsdot.android.wsdot.ui.HighwayAlertDetailsActivity;
+import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,27 +33,19 @@ import java.util.regex.Pattern;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.MapView;
-import com.google.android.maps.OverlayItem;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
-public class HighwayAlertsOverlay extends ItemizedOverlay<OverlayItem> {
-	private static final String DEBUG_TAG = "HighwayAlertsOverlay";
-	private List<AlertItem> mAlertItems = new ArrayList<AlertItem>();
+public class HighwayAlertsOverlay {
+	private static final String TAG = HighwayAlertsOverlay.class.getSimpleName();
+	private List<HighwayAlertsItem> mAlertItems = new ArrayList<HighwayAlertsItem>();
+
 	@SuppressLint("UseSparseArrays")
 	private HashMap<Integer, String[]> eventCategories = new HashMap<Integer, String[]>();
 	private final Activity mActivity;
-	private boolean showShadows;
 
 	private String[] projection = {
 			HighwayAlerts.HIGHWAY_ALERT_LATITUDE,
@@ -62,14 +54,9 @@ public class HighwayAlertsOverlay extends ItemizedOverlay<OverlayItem> {
 			HighwayAlerts.HIGHWAY_ALERT_HEADLINE
 			};
 	
-	private GeoPoint getPoint(double lat, double lon) {
-		return(new GeoPoint((int)(lat*1E6), (int)(lon*1E6)));
-	}
-	
-	public HighwayAlertsOverlay(Activity activity) {
-		super(null);
+	public HighwayAlertsOverlay(Activity activity, LatLngBounds bounds) {
+		this.mActivity = activity;
 		
-		mActivity = activity;
 		Cursor alertCursor = null;
 		String[] event_construction = {"construction", "maintenance"};
 		String[] event_closure = {
@@ -86,10 +73,6 @@ public class HighwayAlertsOverlay extends ItemizedOverlay<OverlayItem> {
 		eventCategories.put(R.drawable.closed, event_closure);
 		eventCategories.put(R.drawable.construction_high, event_construction);
 		
-        // Check preferences
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
-        showShadows = settings.getBoolean("KEY_SHOW_MARKER_SHADOWS", true);
-		
         try {
 			alertCursor = mActivity.getContentResolver().query(
 					HighwayAlerts.CONTENT_URI,
@@ -101,88 +84,36 @@ public class HighwayAlertsOverlay extends ItemizedOverlay<OverlayItem> {
 			
 			if (alertCursor.moveToFirst()) {
 				while (!alertCursor.isAfterLast()) {
-					mAlertItems.add(new AlertItem(
-							getPoint(alertCursor.getDouble(0), alertCursor.getDouble(1)),
+				    LatLng alertLocation = new LatLng(alertCursor.getDouble(0), alertCursor.getDouble(1));
+					
+				    if (bounds.contains(alertLocation)) {
+				    mAlertItems.add(new HighwayAlertsItem(
+							alertCursor.getDouble(0),
+							alertCursor.getDouble(1),
 							alertCursor.getString(2),
 							alertCursor.getString(3),
-							getMarker(getCategoryIcon(eventCategories, alertCursor.getString(2)))));
-					
+							getCategoryIcon(eventCategories, alertCursor.getString(2))));
+				    }
 					alertCursor.moveToNext();
 				}
 			}
 			
         } catch (Exception e) {
-        	Log.e(DEBUG_TAG, "Error in network call", e);
+        	Log.e(TAG, "Error in network call", e);
         } finally {
 			 if (alertCursor != null) {
 				 alertCursor.close();
 			 }
         }
-        
-        populate();
 
 	}
 	
-	public class AlertItem extends OverlayItem {
-		 Drawable marker = null;
-
-		 AlertItem(GeoPoint pt, String title, String description, Drawable marker) {
-			 super(pt, title, description);
-			 this.marker = marker;
-		 }
-
-		 @Override
-		 public Drawable getMarker(int stateBitset) {
-			 Drawable result = marker;
-			 setState(result, stateBitset);
-
-			 return result;
-		 }
-	}	
-	
-	@Override
-	protected AlertItem createItem(int i) {
-		return(mAlertItems.get(i));
-	}
-	
-	@Override
-	public void draw(Canvas canvas, MapView mapView, boolean shadow) {
-		if (!showShadows) {
-			shadow = false;
-		}
-		super.draw(canvas, mapView, shadow);
-	}
-
-	@Override
-	protected boolean onTap(int i) {
-		OverlayItem item = getItem(i);
-		Bundle b = new Bundle();
-		Intent intent = new Intent(mActivity, HighwayAlertDetailsActivity.class);
-		b.putString("title", item.getTitle());
-		b.putString("description", item.getSnippet());
-		intent.putExtras(b);
-		mActivity.startActivity(intent);
-
-		return true;
-	} 
-	 
-	 @Override
 	 public int size() {
-		 return(mAlertItems.size());
+		 return mAlertItems.size();
 	 }
 	 
-	 public void clear() {
-		 mAlertItems.clear();
-		 populate();
-	 }
-	 
-	 private Drawable getMarker(int resource) {
-		 Drawable marker = mActivity.getResources().getDrawable(resource);
-		 marker.setBounds(0, 0, marker.getIntrinsicWidth(),
-		 marker.getIntrinsicHeight());
-		 boundCenterBottom(marker);
-
-		 return(marker);
+	 public List<HighwayAlertsItem> getAlertMarkers() {
+	     return mAlertItems;
 	 }
 	 
 	 private static Integer getCategoryIcon(HashMap<Integer, String[]> eventCategories, String category) {
