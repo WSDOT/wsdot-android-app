@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,15 +21,18 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
 import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
+import gov.wa.wsdot.android.wsdot.shared.CameraItem;
+import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
 import gov.wa.wsdot.android.wsdot.ui.map.CamerasOverlay;
 import gov.wa.wsdot.android.wsdot.ui.map.HighwayAlertsOverlay;
-import gov.wa.wsdot.android.wsdot.ui.widget.MyMapView;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import gov.wa.wsdot.android.wsdot.util.FixedMyLocationOverlay;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -39,25 +42,33 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockMapActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
+import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.model.*;
 
-public class TrafficMapActivity extends SherlockMapActivity {
-	private MyMapView map = null;
-	protected MapController mapController = null;
-	private HighwayAlertsOverlay alerts = null;
-	private CamerasOverlay cameras = null;
+public class TrafficMapActivity extends ActionBarActivity implements OnMarkerClickListener {
+	
+    private static final String TAG = TrafficMapActivity.class.getSimpleName();
+    private GoogleMap map = null;
+	private HighwayAlertsOverlay alertsOverlay = null;
+	private CamerasOverlay camerasOverlay = null;
+	private List<CameraItem> cameras = new ArrayList<CameraItem>();
+	private List<HighwayAlertsItem> highwayAlerts = new ArrayList<HighwayAlertsItem>();
+	private List<Marker> cameraMarkers = new ArrayList<Marker>();
+	private List<Marker> alertMarkers = new ArrayList<Marker>();
+	private Marker cameraMarker;
+	private Marker alertMarker;
 	boolean showCameras;
-	boolean showShadows;
-	private FixedMyLocationOverlay myLocationOverlay;
 	private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
 	
 	static final private int MENU_ITEM_SEATTLE_ALERTS = Menu.FIRST;
@@ -66,13 +77,16 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	private CamerasSyncReceiver mCamerasReceiver;
 	private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
 	private Intent camerasIntent;
+	private Intent alertsIntent;
 	private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
+	private static AsyncTask<Void, Void, Void> mHighwayAlertsOverlayTask = null;
+	private LatLngBounds bounds;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map");
         
@@ -84,26 +98,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
         
         // Initialize AsyncTask
         mCamerasOverlayTask = new CamerasOverlayTask();
-        
-        /**
-         * Using an extended version of MyLocationOverlay class because it has been
-         * reported the Motorola Droid X phones throw an exception when they try to
-         * draw the dot showing the location of the device.
-         * 
-         * See this post titled, "Android applications that use the MyLocationOverlay
-         * class crash on the new Droid X"
-         * 
-         * http://dimitar.me/applications-that-use-the-mylocationoverlay-class-crash-on-the-new-droid-x/
-         */
-		myLocationOverlay = new FixedMyLocationOverlay(this, map);
-		map.getOverlays().add(myLocationOverlay);
-        
-		// Will be executed as soon as we have a location fix
-        myLocationOverlay.runOnFirstFix(new Runnable() {
-            public void run() {
-            	map.getController().animateTo(myLocationOverlay.getMyLocation());
-            }
-        });
+        mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask();
 		
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -111,9 +106,9 @@ public class TrafficMapActivity extends SherlockMapActivity {
     
 		camerasIntent = new Intent(this.getApplicationContext(), CamerasSyncService.class);
 		setSupportProgressBarIndeterminateVisibility(true);
-		startService(camerasIntent);        
+		startService(camerasIntent);
 
-		Intent alertsIntent = new Intent(this.getApplicationContext(), HighwayAlertsSyncService.class);
+		alertsIntent = new Intent(this.getApplicationContext(), HighwayAlertsSyncService.class);
 		setSupportProgressBarIndeterminateVisibility(true);
 		startService(alertsIntent);
     }
@@ -127,22 +122,52 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	
 	public void prepareMap() {
 		setContentView(R.layout.map);
-		setSupportProgressBarIndeterminateVisibility(false);
 	
-        map = (MyMapView) findViewById(R.id.mapview);
-        map.setSatellite(false);
-        map.setBuiltInZoomControls(true);
-        map.setTraffic(true);
-        map.getController().setZoom(13);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        SupportMapFragment mapFragment =  (SupportMapFragment)
+            fragmentManager.findFragmentById(R.id.mapview);
         
-        map.setOnChangeListener(new MapViewChangeListener());
+        map = mapFragment.getMap();
+        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        map.getUiSettings().setCompassEnabled(true);
+        map.getUiSettings().setZoomControlsEnabled(true);
+        map.getUiSettings().setMyLocationButtonEnabled(true);
+        map.setTrafficEnabled(true);
+        map.setMyLocationEnabled(true);    
+        map.setOnMarkerClickListener(this);
+        
+        map.setOnCameraChangeListener(new OnCameraChangeListener() {
+            public void onCameraChange(CameraPosition cameraPosition) {
+                Log.d(TAG, "onCameraChange");
+                startService(camerasIntent);
+                startService(alertsIntent);
+            }
+        });
 	}
+
+    public boolean onMarkerClick(Marker marker) {
+        Bundle b = new Bundle();
+
+        // This doesn't work.
+        if (marker.equals(cameraMarker)) {
+            Intent intent = new Intent(TrafficMapActivity.this, CameraActivity.class);
+            b.putInt("id", Integer.parseInt(marker.getSnippet()));
+            intent.putExtras(b);
+            TrafficMapActivity.this.startActivity(intent);            
+        } else if (marker.equals(alertMarker)) {
+            Intent intent = new Intent(TrafficMapActivity.this, HighwayAlertDetailsActivity.class);
+            b.putString("title", marker.getTitle());
+            b.putString("description", marker.getSnippet());
+            intent.putExtras(b);
+            TrafficMapActivity.this.startActivity(intent);    
+        }
+        
+        return true;
+    }
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-
-		myLocationOverlay.enableMyLocation();
         
         IntentFilter camerasFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
         camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -159,26 +184,10 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	protected void onPause() {
 		super.onPause();
 		
-		myLocationOverlay.disableMyLocation();
 		this.unregisterReceiver(mCamerasReceiver);
 		this.unregisterReceiver(mHighwayAlertsSyncReceiver);
 	}
 
-	private class MapViewChangeListener implements MyMapView.OnChangeListener {
-
-		public void onChange(MapView view, GeoPoint newCenter, GeoPoint oldCenter, int newZoom, int oldZoom) {
-			if ((!newCenter.equals(oldCenter)) && (newZoom != oldZoom)) {
-				startService(camerasIntent);
-			}
-			else if (!newCenter.equals(oldCenter)) {
-				startService(camerasIntent);
-			}
-			else if (newZoom != oldZoom) {
-				startService(camerasIntent);
-			}
-		}	
-	}
-	
 	public class CamerasSyncReceiver extends BroadcastReceiver {
 
 		@Override
@@ -186,7 +195,7 @@ public class TrafficMapActivity extends SherlockMapActivity {
 			String responseString = intent.getStringExtra("responseString");
 			if (responseString.equals("OK") || responseString.equals("NOP")) {
 				// We've got cameras, now add them.
-				if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+			    if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
 					mCamerasOverlayTask = new CamerasOverlayTask().execute();
 				} else if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
 					mCamerasOverlayTask.execute();
@@ -203,15 +212,20 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
 			if (responseString.equals("OK") || responseString.equals("NOP")) {
-				new HighwayAlertsOverlayTask().execute(); // We've got alerts, now add them.
+			    // We've got alerts, now add them.
+				if (mHighwayAlertsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+				    mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask().execute();
+				} else if (mHighwayAlertsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+				    mHighwayAlertsOverlayTask.execute();
+				}
 			} else {
 				Log.e("HighwayAlertsSyncReceiver", responseString);
-				
+				/*
 				if (!UIUtils.isNetworkAvailable(context)) {
 					responseString = getString(R.string.no_connection);
 				}
-				
 				Toast.makeText(context, responseString, Toast.LENGTH_LONG).show();
+				*/
 			}
 		}
 	}
@@ -219,26 +233,28 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
-		GeoPoint p = map.getMapCenter();
-	    getSupportMenuInflater().inflate(R.menu.traffic, menu);
+		LatLng center = map.getCameraPosition().target;
+	    getMenuInflater().inflate(R.menu.traffic, menu);
 	    
 	    if (showCameras) {
-	    	menu.getItem(1).setTitle("Hide Cameras");
+	    	menu.getItem(0).setTitle("Hide Cameras");
 	    } else {
-	    	menu.getItem(1).setTitle("Show Cameras");
+	    	menu.getItem(0).setTitle("Show Cameras");
 	    }
 
 	    /**
 	     * Check if current location is within a lat/lon bounding box surrounding
 	     * the greater Seattle area.
 	     */
-		if (inPolygon(seattleArea, p.getLatitudeE6(), p.getLongitudeE6())) {
-			menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts")
-				.setIcon(R.drawable.ic_menu_alerts)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		if (inPolygon(seattleArea, center.latitude, center.longitude)) {
+			MenuItem menuItem_Alerts = menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts")
+				.setIcon(R.drawable.ic_menu_alerts);
+			
+            MenuItemCompat.setShowAsAction(menuItem_Alerts,
+                    MenuItemCompat.SHOW_AS_ACTION_IF_ROOM | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
 
-		    menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes")
-		    	.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+		    MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
+		    MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
 		}
 	    
 		return super.onPrepareOptionsMenu(menu);
@@ -251,16 +267,6 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	    case android.R.id.home:
 	    	finish();
 	    	return true;
-	    case R.id.my_location:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/My Location");
-	    	// Will be executed as soon as we have a location fix.
-	    	myLocationOverlay.runOnFirstFix(new Runnable() {
-	            public void run() {	    	
-	            	map.getController().animateTo(myLocationOverlay.getMyLocation());
-	            }
-	        });
-	        UIUtils.refreshActionBarMenu(this);
-	        return true;
 	    case R.id.toggle_cameras:
 	    	toggleCameras(item);
 	    	return true;	        
@@ -333,6 +339,21 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	    	goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
+        case R.id.goto_snoqualmiepass:
+            AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Snoqualmie Pass");
+            goToLocation("Snoqualmie Pass Traffic", 47.4216734, -121.4232569, 13);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
+        case R.id.goto_tricities:
+            AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Tri-Cities");
+            goToLocation("Tri-Cities Traffic", 46.2577199, -119.1813155, 13);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
+        case R.id.goto_yakima:
+            AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Yakima");
+            goToLocation("Yakima Traffic", 46.6063273, -120.4886952, 13);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
 	    case MENU_ITEM_SEATTLE_ALERTS:
 	    	Intent alertsIntent = new Intent(this, SeattleTrafficAlertsActivity.class);
 	    	startActivity(alertsIntent);
@@ -349,18 +370,20 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	private void toggleCameras(MenuItem item) {
 		if (showCameras) {
 			AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Hide Cameras");
-			if (cameras != null) {
-				map.getOverlays().remove(cameras);
+
+			for (Marker marker: cameraMarkers) {
+			    marker.setVisible(false);
 			}
-			map.invalidate();
+			
 			item.setTitle("Show Cameras");
 			showCameras = false;
 		} else {
 			AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Show Cameras");
-			if (cameras != null) {
-				map.getOverlays().add(cameras);
+
+			for (Marker marker: cameraMarkers) {
+			    marker.setVisible(true);
 			}
-			map.invalidate();
+			
 			item.setTitle("Hide Cameras");
 			showCameras = true;
 		}		
@@ -373,19 +396,19 @@ public class TrafficMapActivity extends SherlockMapActivity {
 	}
 
 	public void goToLocation(String title, double latitude, double longitude, int zoomLevel) {	
-        GeoPoint newPoint = new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
-        map.getController().setZoom(zoomLevel);
-        map.getController().setCenter(newPoint);
+        LatLng latLng = new LatLng(latitude, longitude);
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        map.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
 	}
 
 	/**
 	 * Iterate through collection of LatLon objects in arrayList and see
 	 * if passed latitude and longitude point is within the collection.
-	 */	
-	public boolean inPolygon(ArrayList<LatLonItem> points, int latitude, int longitude) {	
+	 */
+	public boolean inPolygon(ArrayList<LatLonItem> points, double latitude, double longitude) {	
 		int j = points.size() - 1;
-		double lat = (double)(latitude / 1E6);
-		double lon = (double)(longitude / 1E6);		
+		double lat = latitude;
+		double lon = longitude;		
 		boolean inPoly = false;
 		
 		for (int i = 0; i < points.size(); i++) {
@@ -402,55 +425,55 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		return inPoly;
 	}
 	
-	@Override
-	protected boolean isRouteDisplayed() {
-		return false;
-	}	
-	
 	class CamerasOverlayTask extends AsyncTask<Void, Void, Void> {
 		
 		@Override
 		public void onPreExecute() {
 			setSupportProgressBarIndeterminateVisibility(true);
 
-			if (cameras != null) {
-				map.getOverlays().remove(cameras);
-				cameras = null;
+			if (camerasOverlay != null) {
+			    for (Marker marker: cameraMarkers) {
+			        marker.remove();
+			    }
+				camerasOverlay = null;
 			}
 
+	        bounds = map.getProjection().getVisibleRegion().latLngBounds;
 		 }
 		
 		 @Override
 		 public Void doInBackground(Void... unused) {
-			 GeoPoint mapTopLeft = map.getProjection().fromPixels(0, 0);
-			 double topLatitude = (double)(mapTopLeft.getLatitudeE6())/1E6;
-			 double leftLongitude = (double)(mapTopLeft.getLongitudeE6())/1E6;
-   			 GeoPoint mapBottomRight = map.getProjection().fromPixels(map.getWidth(), map.getHeight());
-			 double bottomLatitude = (double)(mapBottomRight.getLatitudeE6())/1E6;
-			 double rightLongitude = (double)(mapBottomRight.getLongitudeE6())/1E6;			 
-			 
-			 cameras = new CamerasOverlay(
+			 camerasOverlay = new CamerasOverlay(
 					 TrafficMapActivity.this,
-					 topLatitude, leftLongitude,
-					 bottomLatitude, rightLongitude,
-					 null);		 
+					 bounds,
+					 null);
 
 			 return null;
 		 }
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-			 if (cameras != null) {
+		     cameraMarkers.clear();
+		     cameras.clear();
+			 cameras = camerasOverlay.getCameraMarkers();
+             
+		     if (cameras != null) {
 				 if (cameras.size() != 0) {
-					 map.getOverlays().add(cameras);
-				 }
-				 if (!showCameras) {
-					 map.getOverlays().remove(cameras);
+				     for (int i = 0; i < cameras.size(); i++) {
+				         LatLng latLng = new LatLng(cameras.get(i).getLatitude(), cameras.get(i).getLongitude());
+				         cameraMarker = map.addMarker(new MarkerOptions()
+				            .position(latLng)
+				            .title(cameras.get(i).getTitle())
+				            .snippet(cameras.get(i).getCameraId().toString())
+				            .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
+				            .visible(showCameras));
+				         
+				         cameraMarkers.add(cameraMarker);
+				     }
 				 }
 			 }
 			
 			setSupportProgressBarIndeterminateVisibility(false);
-			map.invalidate();
 		 }
 	}
 
@@ -460,30 +483,46 @@ public class TrafficMapActivity extends SherlockMapActivity {
 		public void onPreExecute() {
 			setSupportProgressBarIndeterminateVisibility(true);
 			
-			if (alerts != null) {
-				map.getOverlays().remove(alerts);
-				alerts = null;
+			if (alertsOverlay != null) {
+				for (Marker marker: alertMarkers) {
+				    marker.remove();
+				}
+				alertsOverlay = null;
 			}
-
+			
+			bounds = map.getProjection().getVisibleRegion().latLngBounds;
 		 }
 		
 		 @Override
 		 public Void doInBackground(Void... unused) {
-			 alerts = new HighwayAlertsOverlay(TrafficMapActivity.this);
+			 alertsOverlay = new HighwayAlertsOverlay(TrafficMapActivity.this, bounds);
 			 
 			 return null;
 		 }
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-			if (alerts != null) {
-				if (alerts.size() != 0) {
-					map.getOverlays().add(alerts);
+		     alertMarkers.clear();
+		     highwayAlerts.clear();
+		     highwayAlerts = alertsOverlay.getAlertMarkers();
+		     
+			if (highwayAlerts != null) {
+				if (highwayAlerts.size() != 0) {
+				    for (int i = 0; i < highwayAlerts.size(); i++) {
+				        LatLng latLng = new LatLng(highwayAlerts.get(i).getStartLatitude(), highwayAlerts.get(i).getStartLongitude());
+				        alertMarker = map.addMarker(new MarkerOptions()
+				            .position(latLng)
+				            .title(highwayAlerts.get(i).getEventCategory())
+				            .snippet(highwayAlerts.get(i).getHeadlineDescription())
+				            .icon(BitmapDescriptorFactory.fromResource(highwayAlerts.get(i).getCategoryIcon()))
+				            .visible(true));
+				        
+				        alertMarkers.add(alertMarker);
+				    }
 				}
 			}
 			
 			setSupportProgressBarIndeterminateVisibility(false);
-			map.invalidate();
 		 }
 	}
 	

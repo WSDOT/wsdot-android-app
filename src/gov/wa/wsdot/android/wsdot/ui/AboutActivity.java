@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,17 +27,16 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
-
-public class AboutActivity extends SherlockFragmentActivity {
-	private static final String DEBUG_TAG = "About";
+public class AboutActivity extends ActionBarActivity {
+	private static final String TAG = AboutActivity.class.getName();
 	WebView webview;
 	String versionName = "Not available";
 	PackageInfo packageInfo;
@@ -56,7 +55,7 @@ public class AboutActivity extends SherlockFragmentActivity {
 	        packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
 	    	versionName = "v" + packageInfo.versionName;
 	    } catch (NameNotFoundException e) {
-	        Log.e(DEBUG_TAG, "Not found", e);
+	        Log.e(TAG, "Not found", e);
 	    }		
 		
 		setContentView(R.layout.fragment_webview_with_spinner);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -45,13 +46,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-
-public class MountainPassItemCameraFragment extends SherlockListFragment
+public class MountainPassItemCameraFragment extends ListFragment
 	implements LoaderCallbacks<ArrayList<CameraItem>> {
 	
-	@SuppressWarnings("unused")
-	private static final String DEBUG_TAG = "MountainPassItemPhotos";
+	private static final String TAG = MountainPassItemCameraFragment.class.getName();
     private static ArrayList<CameraItem> bitmapImages;
 	private View mEmptyView;
     private static String camerasArray;
@@ -71,15 +69,14 @@ public class MountainPassItemCameraFragment extends SherlockListFragment
         super.onCreate(savedInstanceState);
     }
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
 		
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mEmptyView = root.findViewById( R.id.empty_list_view );

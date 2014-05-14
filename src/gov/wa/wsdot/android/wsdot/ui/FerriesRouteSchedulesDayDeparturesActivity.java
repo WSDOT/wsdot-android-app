@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,14 +29,13 @@ import java.util.Date;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
-
-public class FerriesRouteSchedulesDayDeparturesActivity extends SherlockFragmentActivity
+public class FerriesRouteSchedulesDayDeparturesActivity extends ActionBarActivity
 	implements ActionBar.OnNavigationListener {
 
 	private static ArrayList<FerriesScheduleDateItem> mScheduleDateItems;
@@ -66,8 +65,8 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends SherlockFragment
         }
         
         Context context = getSupportActionBar().getThemedContext();
-        ArrayAdapter<String> list = new ArrayAdapter<String>(context, R.layout.sherlock_spinner_item, mDaysOfWeek);
-        list.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
+        ArrayAdapter<String> list = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, mDaysOfWeek);
+        list.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         getSupportActionBar().setListNavigationCallbacks(list, this);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,19 @@ public class CameraItem implements Serializable {
 	private Double latitude;
 	private Drawable image;
 	private Integer cameraId;
+	private Integer cameraIcon;
+	
+	public CameraItem() {
+	}
+	
+    public CameraItem(Double latitude, Double longitude, String title,
+            Integer cameraId, Integer cameraIcon) {
+	    this.latitude = latitude;
+	    this.longitude = longitude;
+	    this.title = title;
+	    this.cameraId = cameraId;
+	    this.cameraIcon = cameraIcon;
+	}
 	
 	public String getTitle() {
 		return title;
@@ -74,4 +87,12 @@ public class CameraItem implements Serializable {
 	public void setCameraId(Integer cameraId) {
 		this.cameraId = cameraId;
 	}
+
+    public Integer getCameraIcon() {
+        return cameraIcon;
+    }
+
+    public void setCameraIcon(Integer cameraIcon) {
+        this.cameraIcon = cameraIcon;
+    }
 }

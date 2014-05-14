@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -39,11 +40,19 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -53,14 +62,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.ShareActionProvider;
-
-public class YouTubeFragment extends SherlockListFragment
+public class YouTubeFragment extends ListFragment
 	implements LoaderCallbacks<ArrayList<YouTubeItem>> {
 
 	private static final String DEBUG_TAG = "YouTubeFragment";
@@ -69,6 +71,7 @@ public class YouTubeFragment extends SherlockListFragment
 	private static View mLoadingSpinner;
 	ActionMode mActionMode;
 	private View mEmptyView;
+	private ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -118,7 +121,7 @@ public class YouTubeFragment extends SherlockListFragment
 				
 				String videoId = mYouTubeItems.get(position).getId();
 				String url = "http://www.youtube.com/watch?v=" + videoId;				
-				mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(url));
+				mActionMode = actionBarActivity.startSupportActionMode(new ActionModeCallback(url));
 				
 				return true;
 			}
@@ -144,13 +147,12 @@ public class YouTubeFragment extends SherlockListFragment
 			MenuInflater inflater = mode.getMenuInflater();
 			inflater.inflate(R.menu.share_action_provider, menu);
 	        // Set file with share history to the provider and set the share intent.
-	        MenuItem actionItem = menu.findItem(R.id.menu_item_share_action_provider_action_bar);
-	        ShareActionProvider actionProvider = (ShareActionProvider) actionItem.getActionProvider();
-	        //actionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
-	        actionProvider.setShareHistoryFileName(null);
+	        MenuItem menuItem_Share = menu.findItem(R.id.action_share);
+	        ShareActionProvider shareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem_Share);
+	        shareAction.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
 	        // Note that you can set/change the intent any time,
 	        // say when the user has selected an image.
-	        actionProvider.setShareIntent(createShareIntent(mText));
+	        shareAction.setShareIntent(createShareIntent(mText));
 			
 	        return true;
 		}
@@ -377,7 +379,7 @@ public class YouTubeFragment extends SherlockListFragment
 	        
 	        YouTubeItem item = getItem(position);
 
-	        holder.title.setText(item.getTitle().toUpperCase());
+	        holder.title.setText(item.getTitle().toUpperCase(Locale.US));
         	holder.description.setText(item.getDescription());
         	holder.image.setTag(item.getThumbNailUrl());
         	imageManager.displayImage(item.getThumbNailUrl(), getActivity(), holder.image);

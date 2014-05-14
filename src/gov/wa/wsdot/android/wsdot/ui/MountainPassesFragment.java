@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,10 +33,12 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,13 +50,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
-public class MountainPassesFragment extends SherlockListFragment
+public class MountainPassesFragment extends ListFragment
 	implements LoaderCallbacks<Cursor> {
 	
 	@SuppressWarnings("unused")
@@ -71,13 +71,13 @@ public class MountainPassesFragment extends SherlockListFragment
 		setHasOptionsMenu(true);         
 		
 		Intent intent = new Intent(getActivity().getApplicationContext(), MountainPassesSyncService.class);
-		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+		ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
+		actionBarActivity.setSupportProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
 		
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Mountain Passes");
     }
 
-    @SuppressWarnings("deprecation")
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -86,8 +86,8 @@ public class MountainPassesFragment extends SherlockListFragment
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mEmptyView = root.findViewById( R.id.empty_list_view );
@@ -134,7 +134,8 @@ public class MountainPassesFragment extends SherlockListFragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.menu_refresh:
-			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+		    ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
+		    actionBarActivity.setSupportProgressBarIndeterminateVisibility(true);
 			Intent intent = new Intent(getActivity(), MountainPassesSyncService.class);
 		    intent.putExtra("forceUpdate", true);
 			getActivity().startService(intent);			
@@ -204,7 +205,8 @@ public class MountainPassesFragment extends SherlockListFragment
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (cursor.moveToFirst()) {
 			mLoadingSpinner.setVisibility(View.GONE);
-			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
+			actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
 		}
 		
 		adapter.swapCursor(cursor);
@@ -322,15 +324,16 @@ public class MountainPassesFragment extends SherlockListFragment
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
+			ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
 			if (responseString.equals("OK")) {
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+			    actionBarActivity.setSupportProgressBarIndeterminateVisibility(true);
 				getLoaderManager().restartLoader(0, null, MountainPassesFragment.this);
 			} else if (responseString.equals("NOP")) {
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			    actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
 				mLoadingSpinner.setVisibility(View.GONE);
 			} else {
 				Log.e("MountainPassesSyncReceiver", responseString);
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
 				mLoadingSpinner.setVisibility(View.GONE);
 
 				if (!UIUtils.isNetworkAvailable(context)) {

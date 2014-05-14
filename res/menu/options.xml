@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-		android:id="@+id/menu_preferences"
-		android:title="@string/description_preferences"
-		android:icon="@drawable/ic_menu_preferences"
-		android:orderInCategory="2"
-		android:showAsAction="never" />				
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:wsdot="http://schemas.android.com/apk/res-auto">
     
     <item
 		android:id="@+id/menu_about"
 		android:title="@string/description_about"
 		android:icon="@drawable/ic_menu_info_details"
-		android:orderInCategory="3"
-		android:showAsAction="never" />
+		android:orderInCategory="1"
+		wsdot:showAsAction="never" />
 </menu>

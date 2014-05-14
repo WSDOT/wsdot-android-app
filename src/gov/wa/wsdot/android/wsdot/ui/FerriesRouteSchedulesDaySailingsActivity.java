@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,14 +23,14 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-
-public class FerriesRouteSchedulesDaySailingsActivity extends SherlockFragmentActivity {
+public class FerriesRouteSchedulesDaySailingsActivity extends ActionBarActivity {
 	
 	private boolean mIsStarred = false;
 	private ContentResolver resolver;
@@ -55,8 +55,8 @@ public class FerriesRouteSchedulesDaySailingsActivity extends SherlockFragmentAc
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star)
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
+		MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
 	
 		if (mIsStarred) {
 			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);

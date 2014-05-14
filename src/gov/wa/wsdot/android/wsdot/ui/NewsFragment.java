@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -38,26 +39,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
-public class NewsFragment extends SherlockListFragment
+public class NewsFragment extends ListFragment
 	implements LoaderCallbacks<ArrayList<NewsItem>> {
 
-	private static final String DEBUG_TAG = "News";
+	private static final String TAG = NewsFragment.class.getName();
 	private static ArrayList<NewsItem> newsItems = null;	
 	private static View mLoadingSpinner;
 	private static NewsItemAdapter mAdapter;
@@ -75,7 +75,6 @@ public class NewsFragment extends SherlockListFragment
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/News");
 	}
 	
-    @SuppressWarnings("deprecation")
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -84,8 +83,8 @@ public class NewsFragment extends SherlockListFragment
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mEmptyView = root.findViewById( R.id.empty_list_view );
@@ -144,7 +143,7 @@ public class NewsFragment extends SherlockListFragment
 	}	
 
 	/**
-	 * A custom Loader that loads all of the border wait times from the data server.
+	 * A custom Loader that loads all of the news items from the data server.
 	 */	
 	public static class NewsItemsLoader extends AsyncTaskLoader<ArrayList<NewsItem>> {
 
@@ -154,8 +153,8 @@ public class NewsFragment extends SherlockListFragment
 
 		@Override
 		public ArrayList<NewsItem> loadInBackground() {
-			DateFormat parseDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
-			DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+			DateFormat parseDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z", Locale.US);
+			DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a", Locale.US);
 	    	newsItems = new ArrayList<NewsItem>();
 			NewsItem i = null;
 			
@@ -188,14 +187,14 @@ public class NewsFragment extends SherlockListFragment
 	            		i.setPubDate(displayDateFormat.format(date));
 	            	} catch (Exception e) {
 	            		i.setPubDate("");
-	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            		Log.e(TAG, "Error parsing date", e);
 	            	}				
 					
 					newsItems.add(i);
 				}			
 
 			} catch (Exception e) {
-				Log.e(DEBUG_TAG, "Error in network call", e);
+				Log.e(TAG, "Error in network call", e);
 			}
 			return newsItems;
 		}

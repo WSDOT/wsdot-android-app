@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,13 +34,21 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -49,26 +57,17 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.MenuItem.OnActionExpandListener;
-import com.actionbarsherlock.widget.SearchView;
-import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
-
-public class TravelTimesFragment extends SherlockListFragment
+public class TravelTimesFragment extends ListFragment
 	implements LoaderCallbacks<Cursor>, OnQueryTextListener {
 
-	@SuppressWarnings("unused")
-	private static final String DEBUG_TAG = "TravelTimes";
+	private static final String TAG = TravelTimesFragment.class.getName();
 	private static TravelTimesAdapter adapter;
 	private static View mLoadingSpinner;
-	//private View mEmptyView;
 	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
 	private String mFilter;
 	private View mEmptyView;
 	private boolean mIsQuery = false;
+	private ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -77,7 +76,7 @@ public class TravelTimesFragment extends SherlockListFragment
 		setHasOptionsMenu(true);
 		
 		Intent intent = new Intent(getActivity().getApplicationContext(), TravelTimesSyncService.class);
-		getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+		actionBarActivity.setSupportProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
 		
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Traffic Map/Travel Times");
@@ -136,17 +135,18 @@ public class TravelTimesFragment extends SherlockListFragment
 		inflater.inflate(R.menu.refresh, menu);
 		
         //Create the search view
-        SearchView searchView = new SearchView(getSherlockActivity().getSupportActionBar().getThemedContext());
+        SearchView searchView = new SearchView(actionBarActivity.getSupportActionBar().getThemedContext());
         searchView.setQueryHint("Search Travel Times");
         searchView.setOnQueryTextListener(this);
 		
-        menu.add(R.string.search_title)
-        	.setIcon(R.drawable.ic_menu_search)
-        	.setActionView(searchView)
-        	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        MenuItem menuItem_Search = menu.add(R.string.search_title).setIcon(R.drawable.ic_menu_search);
+        MenuItemCompat.setActionView(menuItem_Search, searchView);
+        MenuItemCompat.setShowAsAction(menuItem_Search,
+                MenuItemCompat.SHOW_AS_ACTION_IF_ROOM
+                        | MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         
-        MenuItem searchMenuItem = menu.getItem(0);
-        searchMenuItem.setOnActionExpandListener(new OnActionExpandListener() {
+        //MenuItem searchMenuItem = menu.getItem(0);
+        MenuItemCompat.setOnActionExpandListener(menuItem_Search, new MenuItemCompat.OnActionExpandListener() {
 			public boolean onMenuItemActionCollapse(MenuItem item) {
 				mFilter = null;
 				getLoaderManager().restartLoader(0, null, TravelTimesFragment.this);
@@ -157,7 +157,8 @@ public class TravelTimesFragment extends SherlockListFragment
 			public boolean onMenuItemActionExpand(MenuItem item) {
 				// TODO Auto-generated method stub
 				return true;
-			}});
+			}
+		});
 	}
 
 	public boolean onQueryTextChange(String newText) {
@@ -181,7 +182,7 @@ public class TravelTimesFragment extends SherlockListFragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.menu_refresh:
-			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+			actionBarActivity.setSupportProgressBarIndeterminateVisibility(true);
 			Intent intent = new Intent(getActivity(), TravelTimesSyncService.class);
 		    intent.putExtra("forceUpdate", true);
 			getActivity().startService(intent);
@@ -224,12 +225,12 @@ public class TravelTimesFragment extends SherlockListFragment
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (cursor.moveToFirst()) {
 			mLoadingSpinner.setVisibility(View.GONE);
-			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
 		} else {
 			if (mIsQuery) {
 				mIsQuery = false;
 				mLoadingSpinner.setVisibility(View.GONE);
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
 			    TextView t = (TextView) mEmptyView;
 				t.setText(R.string.no_matching_travel_times);
 				getListView().setEmptyView(mEmptyView);
@@ -375,14 +376,14 @@ public class TravelTimesFragment extends SherlockListFragment
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
 			if (responseString.equals("OK")) {
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+			    actionBarActivity.setSupportProgressBarIndeterminateVisibility(true);
 				getLoaderManager().restartLoader(0, null, TravelTimesFragment.this);
 			} else if (responseString.equals("NOP")) {
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+			    actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
 				mLoadingSpinner.setVisibility(View.GONE);
 			} else {
 				Log.e("TravelTimesSyncReceiver", responseString);
-				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+				actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
 				mLoadingSpinner.setVisibility(View.GONE);
 
 				if (!UIUtils.isNetworkAvailable(context)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +24,12 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
-
-public class CameraActivity extends SherlockFragmentActivity {
+public class CameraActivity extends ActionBarActivity {
 	private ContentResolver resolver;
 	
 	@Override
@@ -125,7 +124,7 @@ public class CameraActivity extends SherlockFragmentActivity {
     
     public class TabListener<T extends Fragment> implements ActionBar.TabListener {
         private Fragment mFragment;
-        private final SherlockFragmentActivity mActivity;
+        private final ActionBarActivity mActivity;
         private final String mTag;
         private final Class<T> mClass;
         private final Bundle mArgs;
@@ -136,7 +135,7 @@ public class CameraActivity extends SherlockFragmentActivity {
           * @param clz  The fragment's Class, used to instantiate the fragment
           * @param args The fragment's passed arguments
           */
-        public TabListener(SherlockFragmentActivity activity, String tag, Class<T> clz, Bundle args) {
+        public TabListener(ActionBarActivity activity, String tag, Class<T> clz, Bundle args) {
             mActivity = activity;
             mTag = tag;
             mClass = clz;
