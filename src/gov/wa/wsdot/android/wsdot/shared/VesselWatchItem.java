@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ public class VesselWatchItem {
 	private Integer vesselID;
 	private String name;
 	private String route;
+    private String description;
 	private String lastdock;
 	private String arrivingTerminal;
 	private String nextdep;
@@ -33,7 +34,19 @@ public class VesselWatchItem {
 	private Integer head;
 	private String headtxt;
 	private String datetime;
-	private String icon;
+	private Integer icon;
+	
+	public VesselWatchItem() {
+	}
+	
+    public VesselWatchItem(Double latitude, Double longitude, String name,
+            String description, Integer icon) {
+	    this.lat = latitude;
+	    this.lon = longitude;
+	    this.name = name;
+	    this.description = description;
+	    this.icon = icon;
+	}
 	
 	public String getInService() {
 		return inservice;
@@ -113,10 +126,18 @@ public class VesselWatchItem {
 	public void setDateTime(String datetime) {
 		this.datetime = datetime;
 	}
-	public String getIcon() {
+	public Integer getIcon() {
 		return icon;
 	}
-	public void setIcon(String icon) {
+	public void setIcon(Integer icon) {
 		this.icon = icon;
 	}
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

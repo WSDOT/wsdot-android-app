@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui.map;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.ui.VesselWatchDetailsActivity;
+import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -33,38 +33,18 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.MapView;
-import com.google.android.maps.OverlayItem;
-
-public class VesselsOverlay extends ItemizedOverlay<OverlayItem> {
-	private static final String DEBUG_TAG = "VesselsOverlay";
-	private List<VesselItem> mVesselItems = new ArrayList<VesselItem>();
+public class VesselsOverlay {
+	private static final String TAG = VesselsOverlay.class.getSimpleName();
+	private List<VesselWatchItem> vesselWatchItems = new ArrayList<VesselWatchItem>();
+	
 	@SuppressLint("UseSparseArrays")
 	private HashMap<Integer, Integer> ferryIcons = new HashMap<Integer, Integer>();
-	private final Activity mActivity;
-	private boolean showShadows;
 	
-	public VesselsOverlay(Activity activity) {
-		super(null);
-		
-		mActivity = activity;
-		
-        // Check preferences
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
-        showShadows = settings.getBoolean("KEY_SHOW_MARKER_SHADOWS", true);
+	public VesselsOverlay() {
 
-		ferryIcons.put(0, R.drawable.ferry_0);
+	    ferryIcons.put(0, R.drawable.ferry_0);
 		ferryIcons.put(30, R.drawable.ferry_30);
 		ferryIcons.put(60, R.drawable.ferry_60);
 		ferryIcons.put(90, R.drawable.ferry_90);
@@ -115,7 +95,9 @@ public class VesselsOverlay extends ItemizedOverlay<OverlayItem> {
 					actualDeparture = leftDock + " " + item.getString("leftdockAMPM");
 				}
 				
-				mVesselItems.add(new VesselItem(getPoint(item.getDouble("lat"), item.getDouble("lon")),
+				vesselWatchItems.add(new VesselWatchItem(
+				        item.getDouble("lat"),
+				        item.getDouble("lon"),
 						item.getString("name"),
 						"<b>Route:</b> " + route
 							+ "<br><b>Departing:</b> " + lastDock
@@ -127,76 +109,21 @@ public class VesselsOverlay extends ItemizedOverlay<OverlayItem> {
 							+ "<br><b>Speed:</b> " + Double.toString(item.getDouble("speed")) + " knots"
 							+ "<br><br><a href=\"http://www.wsdot.com/ferries/vesselwatch/VesselDetail.aspx?vessel_id="
 							+ item.getInt("vesselID") + "\">" + item.getString("name") + " Web page</a>",
-							getMarker(ferryIcon)));
+						ferryIcon));
 			}
 			
 		} catch (Exception e) {
-			Log.e(DEBUG_TAG, "Error in network call", e);
+			Log.e(TAG, "Error in network call", e);
 		}
 
-		populate();
 	}
 
-	private GeoPoint getPoint(double lat, double lon) {
-		return(new GeoPoint((int)(lat*1E6), (int)(lon*1E6)));
-	}
-	
-	class VesselItem extends OverlayItem {
-		Drawable marker = null;
-
-		VesselItem(GeoPoint pt, String title, String description, Drawable marker) {
-			super(pt, title, description);
-			this.marker = marker;
-		}
-		
-		@Override
-		public Drawable getMarker(int stateBitset) {
-			 Drawable result = marker;
-			 setState(result, stateBitset);
-
-			 return result;
-		}
-		
-	}
-	
-	@Override
-	protected VesselItem createItem(int i) {
-		return(mVesselItems.get(i));
-	}
-	
-	@Override
-	public void draw(Canvas canvas, MapView mapView, boolean shadow) {
-		if (!showShadows) {
-			shadow = false;
-		}
-		super.draw(canvas, mapView, shadow);
-	}
-
-	@Override
-	protected boolean onTap(int i) {
-		OverlayItem item = getItem(i);
-		Bundle b = new Bundle();
-		Intent intent = new Intent(mActivity, VesselWatchDetailsActivity.class);
-		b.putString("title", item.getTitle());
-		b.putString("description", item.getSnippet());
-		intent.putExtras(b);
-		mActivity.startActivity(intent);
-		
-		return true;
-	}
-	
-	@Override
-	public int size() {
-		return(mVesselItems.size());
-	}
-
-	private Drawable getMarker(int resource) {
-		Drawable marker = mActivity.getResources().getDrawable(resource);
-		marker.setBounds(0, 0, marker.getIntrinsicWidth(),
-				marker.getIntrinsicHeight());
-		boundCenterBottom(marker);
-
-		return(marker);
-	}
+    public List<VesselWatchItem> getVesselWatchItems() {
+        return vesselWatchItems;
+    }
+    
+    public int size() {
+        return vesselWatchItems.size();
+    }
 
 }
