@@ -31,8 +31,10 @@ import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -49,12 +51,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
-import android.widget.Toast;
 
-import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.model.*;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class TrafficMapActivity extends ActionBarActivity implements OnMarkerClickListener {
 	
@@ -63,11 +71,8 @@ public class TrafficMapActivity extends ActionBarActivity implements OnMarkerCli
 	private HighwayAlertsOverlay alertsOverlay = null;
 	private CamerasOverlay camerasOverlay = null;
 	private List<CameraItem> cameras = new ArrayList<CameraItem>();
-	private List<HighwayAlertsItem> highwayAlerts = new ArrayList<HighwayAlertsItem>();
-	private List<Marker> cameraMarkers = new ArrayList<Marker>();
-	private List<Marker> alertMarkers = new ArrayList<Marker>();
-	private Marker cameraMarker;
-	private Marker alertMarker;
+	private List<HighwayAlertsItem> alerts = new ArrayList<HighwayAlertsItem>();
+	private HashMap<Marker, String> markers = new HashMap<Marker, String>();
 	boolean showCameras;
 	private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
 	
@@ -147,15 +152,15 @@ public class TrafficMapActivity extends ActionBarActivity implements OnMarkerCli
 
     public boolean onMarkerClick(Marker marker) {
         Bundle b = new Bundle();
+        Intent intent = new Intent();   
 
-        // This doesn't work.
-        if (marker.equals(cameraMarker)) {
-            Intent intent = new Intent(TrafficMapActivity.this, CameraActivity.class);
+        if (markers.get(marker).equalsIgnoreCase("camera")) {
+            intent = new Intent(TrafficMapActivity.this, CameraActivity.class);
             b.putInt("id", Integer.parseInt(marker.getSnippet()));
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);            
-        } else if (marker.equals(alertMarker)) {
-            Intent intent = new Intent(TrafficMapActivity.this, HighwayAlertDetailsActivity.class);
+        } else if (markers.get(marker).equalsIgnoreCase("alert")) {
+            intent = new Intent(TrafficMapActivity.this, HighwayAlertDetailsActivity.class);
             b.putString("title", marker.getTitle());
             b.putString("description", marker.getSnippet());
             intent.putExtras(b);
@@ -371,18 +376,28 @@ public class TrafficMapActivity extends ActionBarActivity implements OnMarkerCli
 		if (showCameras) {
 			AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Hide Cameras");
 
-			for (Marker marker: cameraMarkers) {
-			    marker.setVisible(false);
-			}
+            for(Entry<Marker, String> entry : markers.entrySet()) {
+                Marker key = entry.getKey();
+                String value = entry.getValue();
+                
+                if (value.equalsIgnoreCase("camera")) {
+                    key.setVisible(false);
+                }
+            }
 			
 			item.setTitle("Show Cameras");
 			showCameras = false;
 		} else {
 			AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Show Cameras");
 
-			for (Marker marker: cameraMarkers) {
-			    marker.setVisible(true);
-			}
+            for(Entry<Marker, String> entry : markers.entrySet()) {
+                Marker key = entry.getKey();
+                String value = entry.getValue();
+                
+                if (value.equalsIgnoreCase("camera")) {
+                    key.setVisible(true);
+                }
+            }
 			
 			item.setTitle("Hide Cameras");
 			showCameras = true;
@@ -431,13 +446,7 @@ public class TrafficMapActivity extends ActionBarActivity implements OnMarkerCli
 		public void onPreExecute() {
 			setSupportProgressBarIndeterminateVisibility(true);
 
-			if (camerasOverlay != null) {
-			    for (Marker marker: cameraMarkers) {
-			        marker.remove();
-			    }
-				camerasOverlay = null;
-			}
-
+			camerasOverlay = null;
 	        bounds = map.getProjection().getVisibleRegion().latLngBounds;
 		 }
 		
@@ -453,7 +462,14 @@ public class TrafficMapActivity extends ActionBarActivity implements OnMarkerCli
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-		     cameraMarkers.clear();
+            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry<Marker, String> entry = iter.next();
+                if (entry.getValue().equalsIgnoreCase("camera")) {
+                    entry.getKey().remove();
+                    iter.remove();
+                }
+            }
 		     cameras.clear();
 			 cameras = camerasOverlay.getCameraMarkers();
              
@@ -461,14 +477,14 @@ public class TrafficMapActivity extends ActionBarActivity implements OnMarkerCli
 				 if (cameras.size() != 0) {
 				     for (int i = 0; i < cameras.size(); i++) {
 				         LatLng latLng = new LatLng(cameras.get(i).getLatitude(), cameras.get(i).getLongitude());
-				         cameraMarker = map.addMarker(new MarkerOptions()
+				         Marker marker = map.addMarker(new MarkerOptions()
 				            .position(latLng)
 				            .title(cameras.get(i).getTitle())
 				            .snippet(cameras.get(i).getCameraId().toString())
 				            .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
 				            .visible(showCameras));
 				         
-				         cameraMarkers.add(cameraMarker);
+				         markers.put(marker, "camera");
 				     }
 				 }
 			 }
@@ -483,13 +499,7 @@ public class TrafficMapActivity extends ActionBarActivity implements OnMarkerCli
 		public void onPreExecute() {
 			setSupportProgressBarIndeterminateVisibility(true);
 			
-			if (alertsOverlay != null) {
-				for (Marker marker: alertMarkers) {
-				    marker.remove();
-				}
-				alertsOverlay = null;
-			}
-			
+			alertsOverlay = null;
 			bounds = map.getProjection().getVisibleRegion().latLngBounds;
 		 }
 		
@@ -502,22 +512,29 @@ public class TrafficMapActivity extends ActionBarActivity implements OnMarkerCli
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-		     alertMarkers.clear();
-		     highwayAlerts.clear();
-		     highwayAlerts = alertsOverlay.getAlertMarkers();
+            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry<Marker, String> entry = iter.next();
+                if (entry.getValue().equalsIgnoreCase("alert")) {
+                    entry.getKey().remove();
+                    iter.remove();
+                }
+            }
+		     alerts.clear();
+		     alerts = alertsOverlay.getAlertMarkers();
 		     
-			if (highwayAlerts != null) {
-				if (highwayAlerts.size() != 0) {
-				    for (int i = 0; i < highwayAlerts.size(); i++) {
-				        LatLng latLng = new LatLng(highwayAlerts.get(i).getStartLatitude(), highwayAlerts.get(i).getStartLongitude());
-				        alertMarker = map.addMarker(new MarkerOptions()
+			if (alerts != null) {
+				if (alerts.size() != 0) {
+				    for (int i = 0; i < alerts.size(); i++) {
+				        LatLng latLng = new LatLng(alerts.get(i).getStartLatitude(), alerts.get(i).getStartLongitude());
+				        Marker marker = map.addMarker(new MarkerOptions()
 				            .position(latLng)
-				            .title(highwayAlerts.get(i).getEventCategory())
-				            .snippet(highwayAlerts.get(i).getHeadlineDescription())
-				            .icon(BitmapDescriptorFactory.fromResource(highwayAlerts.get(i).getCategoryIcon()))
+				            .title(alerts.get(i).getEventCategory())
+				            .snippet(alerts.get(i).getHeadlineDescription())
+				            .icon(BitmapDescriptorFactory.fromResource(alerts.get(i).getCategoryIcon()))
 				            .visible(true));
 				        
-				        alertMarkers.add(alertMarker);
+				        markers.put(marker, "alert");
 				    }
 				}
 			}
