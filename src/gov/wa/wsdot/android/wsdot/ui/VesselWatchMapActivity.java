@@ -27,7 +27,11 @@ import gov.wa.wsdot.android.wsdot.ui.map.VesselsOverlay;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -70,11 +74,7 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 	private CamerasOverlay camerasOverlay = null;
 	private List<CameraItem> cameras = new ArrayList<CameraItem>();
 	private List<VesselWatchItem> vessels = new ArrayList<VesselWatchItem>();
-	private List<Marker> markers = new ArrayList<Marker>();
-	private List<Marker> cameraMarkers = new ArrayList<Marker>();
-	private List<Marker> vesselMarkers = new ArrayList<Marker>();
-	private Marker cameraMarker;
-	private Marker vesselMarker;
+	private HashMap<Marker, String> markers = new HashMap<Marker, String>();
 	boolean showCameras;
 	
 	private CamerasSyncReceiver mCamerasReceiver;
@@ -110,7 +110,6 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 	
 	public void prepareMap() {
 		setContentView(R.layout.map);
-		//setSupportProgressBarIndeterminateVisibility(false);
 		
         FragmentManager fragmentManager = getSupportFragmentManager();
         SupportMapFragment mapFragment =  (SupportMapFragment)
@@ -141,20 +140,18 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
         Bundle b = new Bundle();
         Intent intent = new Intent();        
         
-        /** Vessel markers
-        intent.setClass(this, VesselWatchDetailsActivity.class);
-        b.putString("title", marker.getTitle());
-        b.putString("description", marker.getSnippet());
-        intent.putExtras(b);
-        this.startActivity(intent);
-        */
-
-        /** Camera markers
-        intent.setClass(this, CameraActivity.class);
-        b.putInt("id", Integer.parseInt(marker.getSnippet()));
-        intent.putExtras(b);
-        this.startActivity(intent);
-        */
+        if (markers.get(marker).equalsIgnoreCase("vessel")) {
+            intent.setClass(this, VesselWatchDetailsActivity.class);
+            b.putString("title", marker.getTitle());
+            b.putString("description", marker.getSnippet());
+            intent.putExtras(b);
+            this.startActivity(intent);
+        } else if (markers.get(marker).equalsIgnoreCase("camera")) {
+            intent.setClass(this, CameraActivity.class);
+            b.putInt("id", Integer.parseInt(marker.getSnippet()));
+            intent.putExtras(b);
+            this.startActivity(intent);            
+        }
         
         return true;
     }
@@ -264,18 +261,28 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 	private void toggleCameras(MenuItem item) {
 		if (showCameras) {
 			AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/Hide Cameras");
-            
-			for (Marker marker: cameraMarkers) {
-                marker.setVisible(false);
-            }
+			
+			for(Entry<Marker, String> entry : markers.entrySet()) {
+			    Marker key = entry.getKey();
+			    String value = entry.getValue();
+			    
+			    if (value.equalsIgnoreCase("camera")) {
+			        key.setVisible(false);
+			    }
+			}
 			
 			item.setTitle("Show Cameras");
 			showCameras = false;
 		} else {
 			AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/Show Cameras");
-            
-			for (Marker marker: cameraMarkers) {
-                marker.setVisible(true);
+			
+            for(Entry<Marker, String> entry : markers.entrySet()) {
+                Marker key = entry.getKey();
+                String value = entry.getValue();
+                
+                if (value.equalsIgnoreCase("camera")) {
+                    key.setVisible(true);
+                }
             }
             
 			item.setTitle("Hide Cameras");
@@ -316,14 +323,8 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 		@Override
 		public void onPreExecute() {
 			setSupportProgressBarIndeterminateVisibility(true);
-
-			if (camerasOverlay != null) {
-                for (Marker marker: cameraMarkers) {
-                    marker.remove();
-                }
-				camerasOverlay = null;
-			}
-			
+            
+			camerasOverlay = null;
 			bounds = map.getProjection().getVisibleRegion().latLngBounds;
 
 		 }
@@ -340,9 +341,16 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-             cameraMarkers.clear();
-             cameras.clear();
-             cameras = camerasOverlay.getCameraMarkers();
+            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry<Marker, String> entry = iter.next();
+                if (entry.getValue().equalsIgnoreCase("camera")) {
+                    entry.getKey().remove();
+                    iter.remove();
+                }
+            }
+            cameras.clear();
+            cameras = camerasOverlay.getCameraMarkers();
              
              if (cameras != null) {
                  if (cameras.size() != 0) {
@@ -355,7 +363,7 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
                             .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
                             .visible(showCameras));
                          
-                         cameraMarkers.add(marker);
+                         markers.put(marker, "camera");
                      }
                  }
              }
@@ -369,14 +377,8 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 		@Override
 		public void onPreExecute() {
 			setSupportProgressBarIndeterminateVisibility(true);
-			
-			if (vesselsOverlay != null) {
-			    for (Marker marker: vesselMarkers) {
-			        marker.remove();
-			    }
-			    vesselsOverlay = null;
-			}
 
+			vesselsOverlay = null;
 		 }
 		
 		 @Override
@@ -388,7 +390,14 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 
 		 @Override
 		 public void onPostExecute(Void unused) {
-		     vesselMarkers.clear();
+            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry<Marker, String> entry = iter.next();
+                if (entry.getValue().equalsIgnoreCase("vessel")) {
+                    entry.getKey().remove();
+                    iter.remove();
+                }
+            }
 		     vessels.clear();
 		     vessels = vesselsOverlay.getVesselWatchItems();
 		     
@@ -396,14 +405,14 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 				if (vessels.size() != 0) {
 				    for (int i = 0; i < vessels.size(); i++) {
 				        LatLng latLng = new LatLng(vessels.get(i).getLat(), vessels.get(i).getLon());
-				        vesselMarker = map.addMarker(new MarkerOptions()
+				        Marker marker = map.addMarker(new MarkerOptions()
 				            .position(latLng)
 				            .title(vessels.get(i).getName())
 				            .snippet(vessels.get(i).getDescription())
 				            .icon(BitmapDescriptorFactory.fromResource(vessels.get(i).getIcon()))
 				            .visible(true));
 				        
-				        vesselMarkers.add(vesselMarker);
+				        markers.put(marker, "vessel");
 				    }
 				}
 			}
