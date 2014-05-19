@@ -40,9 +40,9 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
+import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -60,14 +60,14 @@ import android.widget.Toast;
 public class TravelTimesFragment extends ListFragment
 	implements LoaderCallbacks<Cursor>, OnQueryTextListener {
 
-	private static final String TAG = TravelTimesFragment.class.getName();
+	@SuppressWarnings("unused")
+    private static final String TAG = TravelTimesFragment.class.getName();
 	private static TravelTimesAdapter adapter;
 	private static View mLoadingSpinner;
 	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
 	private String mFilter;
 	private View mEmptyView;
 	private boolean mIsQuery = false;
-	private ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -76,7 +76,7 @@ public class TravelTimesFragment extends ListFragment
 		setHasOptionsMenu(true);
 		
 		Intent intent = new Intent(getActivity().getApplicationContext(), TravelTimesSyncService.class);
-		actionBarActivity.setSupportProgressBarIndeterminateVisibility(true);
+		getActivity().setProgressBarIndeterminateVisibility(true);
 		getActivity().startService(intent);
 		
 		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Traffic Map/Travel Times");
@@ -135,7 +135,7 @@ public class TravelTimesFragment extends ListFragment
 		inflater.inflate(R.menu.refresh, menu);
 		
         //Create the search view
-        SearchView searchView = new SearchView(actionBarActivity.getSupportActionBar().getThemedContext());
+		SearchView searchView = new SearchView(((ActionBarActivity)getActivity()).getSupportActionBar().getThemedContext());
         searchView.setQueryHint("Search Travel Times");
         searchView.setOnQueryTextListener(this);
 		
@@ -145,7 +145,6 @@ public class TravelTimesFragment extends ListFragment
                 MenuItemCompat.SHOW_AS_ACTION_IF_ROOM
                         | MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         
-        //MenuItem searchMenuItem = menu.getItem(0);
         MenuItemCompat.setOnActionExpandListener(menuItem_Search, new MenuItemCompat.OnActionExpandListener() {
 			public boolean onMenuItemActionCollapse(MenuItem item) {
 				mFilter = null;
@@ -155,7 +154,7 @@ public class TravelTimesFragment extends ListFragment
 			}
 
 			public boolean onMenuItemActionExpand(MenuItem item) {
-				// TODO Auto-generated method stub
+
 				return true;
 			}
 		});
@@ -182,7 +181,7 @@ public class TravelTimesFragment extends ListFragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.menu_refresh:
-			actionBarActivity.setSupportProgressBarIndeterminateVisibility(true);
+			getActivity().setProgressBarIndeterminateVisibility(true);
 			Intent intent = new Intent(getActivity(), TravelTimesSyncService.class);
 		    intent.putExtra("forceUpdate", true);
 			getActivity().startService(intent);
@@ -225,12 +224,12 @@ public class TravelTimesFragment extends ListFragment
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (cursor.moveToFirst()) {
 			mLoadingSpinner.setVisibility(View.GONE);
-			actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
+			getActivity().setProgressBarIndeterminateVisibility(false);
 		} else {
 			if (mIsQuery) {
 				mIsQuery = false;
 				mLoadingSpinner.setVisibility(View.GONE);
-				actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
+				getActivity().setProgressBarIndeterminateVisibility(false);
 			    TextView t = (TextView) mEmptyView;
 				t.setText(R.string.no_matching_travel_times);
 				getListView().setEmptyView(mEmptyView);
@@ -376,14 +375,14 @@ public class TravelTimesFragment extends ListFragment
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
 			if (responseString.equals("OK")) {
-			    actionBarActivity.setSupportProgressBarIndeterminateVisibility(true);
+			    getActivity().setProgressBarIndeterminateVisibility(true);
 				getLoaderManager().restartLoader(0, null, TravelTimesFragment.this);
 			} else if (responseString.equals("NOP")) {
-			    actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
+			    getActivity().setProgressBarIndeterminateVisibility(false);
 				mLoadingSpinner.setVisibility(View.GONE);
 			} else {
 				Log.e("TravelTimesSyncReceiver", responseString);
-				actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
+				getActivity().setProgressBarIndeterminateVisibility(false);
 				mLoadingSpinner.setVisibility(View.GONE);
 
 				if (!UIUtils.isNetworkAvailable(context)) {
