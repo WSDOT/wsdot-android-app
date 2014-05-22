@@ -178,10 +178,9 @@
    		<activity
    		    android:name=".ui.YouTubeActivity"
    		    android:label="@string/title_youtube" />
-   		
-   		<activity
-   		 	android:name=".ui.CameraActivity"
-   		    android:uiOptions="splitActionBarWhenNarrow" />
+
+        <activity
+            android:name=".ui.CameraActivity" />
 
    		<activity
    		    android:name=".ui.HighwayAlertDetailsActivity" />
