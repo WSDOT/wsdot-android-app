@@ -41,21 +41,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
+import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -64,11 +72,18 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class TrafficMapActivity extends ActionBarActivity implements OnMarkerClickListener {
+public class TrafficMapActivity extends ActionBarActivity implements
+        OnMarkerClickListener,
+        ConnectionCallbacks,
+        OnConnectionFailedListener,
+        OnMyLocationButtonClickListener {
 	
     private static final String TAG = TrafficMapActivity.class.getSimpleName();
-    private GoogleMap map = null;
-	private HighwayAlertsOverlay alertsOverlay = null;
+    
+    private GoogleMap map;
+    private LocationClient locationClient;
+	
+    private HighwayAlertsOverlay alertsOverlay = null;
 	private CamerasOverlay camerasOverlay = null;
 	private List<CameraItem> cameras = new ArrayList<CameraItem>();
 	private List<HighwayAlertsItem> alerts = new ArrayList<HighwayAlertsItem>();
@@ -86,28 +101,37 @@ public class TrafficMapActivity extends ActionBarActivity implements OnMarkerCli
 	private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
 	private static AsyncTask<Void, Void, Void> mHighwayAlertsOverlayTask = null;
 	private LatLngBounds bounds;
+	private double latitude;
+	private double longitude;
+	private int zoom;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        setContentView(R.layout.map);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map");
         
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
-        // Setup the unique latitude, longitude and zoom level
-        prepareMap();
-        prepareBoundingBox();
+        // Setup bounding box for Seattle area.
+        seattleArea.add(new LatLonItem(48.01749, -122.46185));
+        seattleArea.add(new LatLonItem(48.01565, -121.86584));
+        seattleArea.add(new LatLonItem(47.27737, -121.86310));
+        seattleArea.add(new LatLonItem(47.28109, -122.45911));
         
         // Initialize AsyncTask
         mCamerasOverlayTask = new CamerasOverlayTask();
         mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask();
 		
-        // Check preferences
+        // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
+        latitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LAT", "47.5990"));
+        longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
+        zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
     
 		camerasIntent = new Intent(this.getApplicationContext(), CamerasSyncService.class);
 		setSupportProgressBarIndeterminateVisibility(true);
@@ -117,50 +141,84 @@ public class TrafficMapActivity extends ActionBarActivity implements OnMarkerCli
 		setSupportProgressBarIndeterminateVisibility(true);
 		startService(alertsIntent);
     }
-	
-	public void prepareBoundingBox() {
-		seattleArea.add(new LatLonItem(48.01749, -122.46185));
-		seattleArea.add(new LatLonItem(48.01565, -121.86584));
-		seattleArea.add(new LatLonItem(47.27737, -121.86310));
-		seattleArea.add(new LatLonItem(47.28109, -122.45911));
-	}
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        prepareMap();
+        setupLocationClientIfNeeded();
+        
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        
+        if (ConnectionResult.SUCCESS == resultCode) {
+            locationClient.connect();
+        } else {
+            Toast.makeText(this, "Google Play services not available", Toast.LENGTH_SHORT).show();
+        }
+
+        IntentFilter camerasFilter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
+        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mCamerasReceiver = new CamerasSyncReceiver();
+        registerReceiver(mCamerasReceiver, camerasFilter); 
+        
+        IntentFilter alertsFilter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
+        alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
+        registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter); 
+    }
 	
 	public void prepareMap() {
-		setContentView(R.layout.map);
-	
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        SupportMapFragment mapFragment =  (SupportMapFragment)
-            fragmentManager.findFragmentById(R.id.mapview);
-        
-        map = mapFragment.getMap();
-        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        map.getUiSettings().setCompassEnabled(true);
-        map.getUiSettings().setZoomControlsEnabled(true);
-        map.getUiSettings().setMyLocationButtonEnabled(true);
-        map.setTrafficEnabled(true);
-        map.setMyLocationEnabled(true);    
-        map.setOnMarkerClickListener(this);
-        
-        map.setOnCameraChangeListener(new OnCameraChangeListener() {
-            public void onCameraChange(CameraPosition cameraPosition) {
-                Log.d(TAG, "onCameraChange");
-                startService(camerasIntent);
-                startService(alertsIntent);
+	    if (map == null) {
+            map = ((SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.mapview)).getMap();
+            
+            if (map != null) {
+                map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                map.getUiSettings().setCompassEnabled(true);
+                map.getUiSettings().setZoomControlsEnabled(true);
+                map.getUiSettings().setMyLocationButtonEnabled(true);
+                map.setTrafficEnabled(true);
+                map.setMyLocationEnabled(true);
+                map.setOnMyLocationButtonClickListener(this);
+                map.setOnMarkerClickListener(this);
+                map.setOnCameraChangeListener(new OnCameraChangeListener() {
+                    public void onCameraChange(CameraPosition cameraPosition) {
+                        Log.d(TAG, "onCameraChange");
+                        startService(camerasIntent);
+                        startService(alertsIntent);
+                    }
+                });
+                
+                LatLng latLng = new LatLng(latitude, longitude);
+                map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                map.animateCamera(CameraUpdateFactory.zoomTo(zoom));
             }
-        });
+	    }
 	}
-
+    
+    private void setupLocationClientIfNeeded() {
+        if (locationClient == null) {
+            locationClient = new LocationClient(
+                    this,
+                    this, // ConnectionCallbacks
+                    this); // OnConnectionFailedListener
+        }
+    }
+	
     public boolean onMarkerClick(Marker marker) {
         Bundle b = new Bundle();
         Intent intent = new Intent();   
 
         if (markers.get(marker).equalsIgnoreCase("camera")) {
-            intent = new Intent(TrafficMapActivity.this, CameraActivity.class);
+            intent = new Intent(this, CameraActivity.class);
             b.putInt("id", Integer.parseInt(marker.getSnippet()));
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);            
         } else if (markers.get(marker).equalsIgnoreCase("alert")) {
-            intent = new Intent(TrafficMapActivity.this, HighwayAlertDetailsActivity.class);
+            intent = new Intent(this, HighwayAlertDetailsActivity.class);
             b.putString("title", marker.getTitle());
             b.putString("description", marker.getSnippet());
             intent.putExtras(b);
@@ -171,26 +229,23 @@ public class TrafficMapActivity extends ActionBarActivity implements OnMarkerCli
     }
 
 	@Override
-	protected void onResume() {
-		super.onResume();
-        
-        IntentFilter camerasFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
-        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mCamerasReceiver = new CamerasSyncReceiver();
-        registerReceiver(mCamerasReceiver, camerasFilter); 
-        
-        IntentFilter alertsFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
-        alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
-        registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter); 
-	}
-
-	@Override
 	protected void onPause() {
 		super.onPause();
 		
+        if (locationClient != null) {
+            locationClient.disconnect();
+        }
+		
 		this.unregisterReceiver(mCamerasReceiver);
 		this.unregisterReceiver(mHighwayAlertsSyncReceiver);
+	      
+        // Save last map location and zoom level.
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("KEY_TRAFFICMAP_LAT", String.valueOf(map.getProjection().getVisibleRegion().latLngBounds.getCenter().latitude));
+        editor.putString("KEY_TRAFFICMAP_LON", String.valueOf(map.getProjection().getVisibleRegion().latLngBounds.getCenter().longitude));
+        editor.putInt("KEY_TRAFFICMAP_ZOOM", (int)map.getCameraPosition().zoom);
+        editor.commit();
 	}
 
 	public class CamerasSyncReceiver extends BroadcastReceiver {
@@ -542,5 +597,44 @@ public class TrafficMapActivity extends ActionBarActivity implements OnMarkerCli
 			setSupportProgressBarIndeterminateVisibility(false);
 		 }
 	}
+
+    public boolean onMyLocationButtonClick() {
+        Log.i(TAG, "Last Location: " + locationClient.getLastLocation());
+        if (locationClient.getLastLocation() == null) {
+            Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT).show();            
+        } else {
+            Location location = locationClient.getLastLocation();
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12);
+            map.animateCamera(cameraUpdate);
+        }
+
+        return true;
+    }
+
+    /*
+     * Called by Location Services if the attempt to
+     * Location Services fails.
+     */
+    public void onConnectionFailed(ConnectionResult arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    /*
+     * Called by Location Services when the request to connect the
+     * client finishes successfully. At this point, you can
+     * request the current location or start periodic updates
+     */
+    public void onConnected(Bundle arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    /*
+     * Called by Location Services if the connection to the
+     * location client drops because of an error.
+     */
+    public void onDisconnected() {
+        // TODO Auto-generated method stub
+    }
 	
 }
