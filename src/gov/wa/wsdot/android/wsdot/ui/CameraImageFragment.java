@@ -45,6 +45,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,15 +55,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class CameraImageFragment extends Fragment
-	implements LoaderCallbacks<Drawable> {
+	implements LoaderCallbacks<Drawable>,
+	SwipeRefreshLayout.OnRefreshListener {
 
 	private static String mUrl;
 	private ViewGroup mRootView;
-	private static ProgressBar mLoadingSpinner;
 	private ImageView mImage;
 	private String mTitle;
 	private int mId;
@@ -70,9 +70,9 @@ public class CameraImageFragment extends Fragment
 	private ShareActionProvider shareAction;
 	private boolean mIsStarred = false;
 	private ContentResolver resolver;
-	
-	static final private int MENU_ITEM_REFRESH = Menu.FIRST;
-	static final private int MENU_ITEM_STAR = Menu.FIRST + 1;
+	private static SwipeRefreshLayout swipeRefreshLayout;
+
+	static final private int MENU_ITEM_STAR = Menu.FIRST;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -104,7 +104,14 @@ public class CameraImageFragment extends Fragment
         mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = (ProgressBar) mRootView.findViewById(R.id.loading_spinner);		
+        swipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorScheme(
+                17170451,  // android.R.color.holo_blue_bright 
+                17170452,  // android.R.color.holo_green_light 
+                17170456,  // android.R.color.holo_orange_light 
+                17170454); // android.R.color.holo_red_light)
+        
         mImage = (ImageView) mRootView.findViewById(R.id.image);
         
 		return mRootView;
@@ -127,13 +134,7 @@ public class CameraImageFragment extends Fragment
         MenuItem menuItem_Share = menu.findItem(R.id.action_share);
         shareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem_Share); 
         shareAction.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
-    	
-        MenuItem menuItem_Refresh = menu.add(0, MENU_ITEM_REFRESH, menu.size(),
-                R.string.description_refresh).setIcon(
-                R.drawable.ic_menu_refresh);
-        MenuItemCompat.setShowAsAction(menuItem_Refresh,
-                MenuItemCompat.SHOW_AS_ACTION_IF_ROOM | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
-		
+        
 		MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
 		MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
 	
@@ -148,10 +149,6 @@ public class CameraImageFragment extends Fragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 
-		case MENU_ITEM_REFRESH:
-			mImage.setImageDrawable(null);
-			getLoaderManager().restartLoader(0, null, this);
-			return true;
 		case MENU_ITEM_STAR:
 			toggleStar(item);
 			return true;		
@@ -207,7 +204,8 @@ public class CameraImageFragment extends Fragment
 	    ContentValues values = new ContentValues(2);
 	    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
 	    values.put(MediaStore.Images.Media.DATA, f.getAbsolutePath());
-	    Uri uri = getActivity().getContentResolver().insert(MediaStore.Images.Media.INTERNAL_CONTENT_URI, values);		
+        Uri uri = getActivity().getContentResolver().insert(
+                MediaStore.Images.Media.INTERNAL_CONTENT_URI, values);		
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -227,13 +225,13 @@ public class CameraImageFragment extends Fragment
 	
 
 	public void onLoadFinished(Loader<Drawable> loader, Drawable data) {
-		mLoadingSpinner.setVisibility(View.GONE);	
+	    swipeRefreshLayout.setRefreshing(false);
 		mImage.setImageDrawable(data);
 		shareAction.setShareIntent(createShareIntent());		
 	}
 
 	public void onLoaderReset(Loader<Drawable> loader) {
-		mLoadingSpinner.setVisibility(View.GONE);		
+	    swipeRefreshLayout.setRefreshing(false);
 	}
 	
 	public static class CameraImageLoader extends AsyncTaskLoader<Drawable> {
@@ -284,7 +282,7 @@ public class CameraImageFragment extends Fragment
 		protected void onStartLoading() {
 			super.onStartLoading();
 			
-			mLoadingSpinner.setVisibility(View.VISIBLE);
+			swipeRefreshLayout.setRefreshing(true);
 			forceLoad();
 		}
 
@@ -309,4 +307,9 @@ public class CameraImageFragment extends Fragment
 	        onStopLoading();			
 		}		
 	}
+
+    public void onRefresh() {
+        //mImage.setImageDrawable(null);
+        getLoaderManager().restartLoader(0, null, this);        
+    }
 }
