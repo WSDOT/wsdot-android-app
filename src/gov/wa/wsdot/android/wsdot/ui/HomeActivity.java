@@ -35,7 +35,6 @@ import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
 
 public class HomeActivity extends ActionBarActivity {
 
@@ -47,8 +46,7 @@ public class HomeActivity extends ActionBarActivity {
         
         // Force use of overflow menu on devices with ICS and menu button.
         UIUtils.setHasPermanentMenuKey(this, false);
-        
-        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
         setContentView(R.layout.activity_home);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);

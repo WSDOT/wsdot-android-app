@@ -42,11 +42,9 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -57,9 +55,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class FavoritesFragment extends ListFragment
-	implements LoaderCallbacks<Cursor>{
+	implements LoaderCallbacks<Cursor>,
+	SwipeRefreshLayout.OnRefreshListener {
 
-	private View mLoadingSpinner;
 	private View mEmptyView;
 	private SeparatedListAdapter mAdapter;
 	private CameraAdapter mCameraAdapter;
@@ -70,6 +68,8 @@ public class FavoritesFragment extends ListFragment
 	private Intent mFerriesSchedulesIntent;
 	private Intent mMountainPassesIntent;
 	private Intent mTravelTimesIntent;
+	
+	private static SwipeRefreshLayout swipeRefreshLayout;
 	
 	private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
@@ -148,14 +148,21 @@ public class FavoritesFragment extends ListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorScheme(
+                17170451,  // android.R.color.holo_blue_bright 
+                17170452,  // android.R.color.holo_green_light 
+                17170456,  // android.R.color.holo_orange_light 
+                17170454); // android.R.color.holo_red_light)
+        
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
@@ -212,24 +219,28 @@ public class FavoritesFragment extends ListFragment
 		getActivity().registerReceiver(mTravelTimesSyncReceiver, travelTimesfilter);
 	}
 
+	/*
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     	super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.refresh, menu);
 	}
+	*/
 
+	/*
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.menu_refresh:
-			getActivity().setProgressBarIndeterminateVisibility(true);
-			getActivity().startService(mFerriesSchedulesIntent);
+		    getActivity().setProgressBarIndeterminateVisibility(true);
+		    getActivity().startService(mFerriesSchedulesIntent);
 			getActivity().startService(mMountainPassesIntent);
 			getActivity().startService(mTravelTimesIntent);
 		}
 		
 		return super.onOptionsItemSelected(item);
 	}
+	*/
 	
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
@@ -280,7 +291,7 @@ public class FavoritesFragment extends ListFragment
 
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 	    CursorLoader cursorLoader = null;
-	    getActivity().setProgressBarIndeterminateVisibility(true);
+	    swipeRefreshLayout.setRefreshing(true);
 	    
 		switch(id) {
 	    case 0:
@@ -359,13 +370,15 @@ public class FavoritesFragment extends ListFragment
 			mAdapter.addSection("Travel Times", mTravelTimesAdapter);
 		}
 		
-		getActivity().setProgressBarIndeterminateVisibility(false);
+		swipeRefreshLayout.setRefreshing(false);
 		setListAdapter(mAdapter);
 		
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
-		switch(loader.getId()) {
+	    swipeRefreshLayout.setRefreshing(false);
+	    
+	    switch(loader.getId()) {
 		case 0:
 			mCameraAdapter.swapCursor(null);
 			break;
@@ -664,8 +677,15 @@ public class FavoritesFragment extends ListFragment
 				Log.e("TravelTimesSyncReceiver", responseString);
 			}
 			
-			getActivity().setProgressBarIndeterminateVisibility(false);
+			swipeRefreshLayout.setRefreshing(false);
 		}
 	}
+
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+        getActivity().startService(mFerriesSchedulesIntent);
+        getActivity().startService(mMountainPassesIntent);
+        getActivity().startService(mTravelTimesIntent);        
+    }
     
 }
