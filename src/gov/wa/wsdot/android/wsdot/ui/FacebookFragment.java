@@ -41,14 +41,11 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.view.ActionMode;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -56,14 +53,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class FacebookFragment extends ListFragment
-	implements LoaderCallbacks<ArrayList<FacebookItem>> {
+	implements LoaderCallbacks<ArrayList<FacebookItem>>,
+	SwipeRefreshLayout.OnRefreshListener {
 	
-	private static final String TAG = FacebookFragment.class.getName();
+	private static final String TAG = FacebookFragment.class.getSimpleName();
 	private static ArrayList<FacebookItem> mFacebookItems = null;
 	private static FacebookItemAdapter mAdapter;
-	private static View mLoadingSpinner;
-	ActionMode mActionMode;
 	private View mEmptyView;
+	private static SwipeRefreshLayout swipeRefreshLayout;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -74,25 +71,32 @@ public class FacebookFragment extends ListFragment
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Facebook");
+        
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
-        setRetainInstance(true);
-		setHasOptionsMenu(true);        
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Facebook");
+        setRetainInstance(true);     
     }
 
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorScheme(
+                17170451,  // android.R.color.holo_blue_bright 
+                17170452,  // android.R.color.holo_green_light 
+                17170456,  // android.R.color.holo_orange_light 
+                17170454); // android.R.color.holo_red_light)
+        
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
@@ -109,22 +113,6 @@ public class FacebookFragment extends ListFragment
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);		
 	}    
-	
-    @Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	super.onCreateOptionsMenu(menu, inflater);
-    	inflater.inflate(R.menu.refresh, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.menu_refresh:
-			getLoaderManager().restartLoader(0, null, this);
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}    
 
 	public Loader<ArrayList<FacebookItem>> onCreateLoader(int id, Bundle args) {
 		// This is called when a new Loader needs to be created. There
@@ -133,7 +121,6 @@ public class FacebookFragment extends ListFragment
 	}
 
 	public void onLoadFinished(Loader<ArrayList<FacebookItem>> loader, ArrayList<FacebookItem> data) {
-		mLoadingSpinner.setVisibility(View.GONE);
 		
 		if (!data.isEmpty()) {
 			mAdapter.setData(data);
@@ -142,10 +129,13 @@ public class FacebookFragment extends ListFragment
 			t.setText(R.string.no_connection);
 			getListView().setEmptyView(mEmptyView);
 		}
+		
+		swipeRefreshLayout.setRefreshing(false);
 	}
 
 	public void onLoaderReset(Loader<ArrayList<FacebookItem>> loader) {
-		mAdapter.setData(null);
+	    swipeRefreshLayout.setRefreshing(false);
+	    mAdapter.setData(null);
 	}	
 	
 	/**
@@ -192,7 +182,9 @@ public class FacebookFragment extends ListFragment
 						i.setmHtmlFormattedMessage(htmlText);
 						
 		            	try {
-		            		i.setCreatedAt(ParserUtils.relativeTime(item.getString("created_at"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
+                        i.setCreatedAt(ParserUtils.relativeTime(
+                                item.getString("created_at"),
+                                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
 		            	} catch (Exception e) {
 		            		i.setCreatedAt("");
 		            		Log.e(TAG, "Error parsing date", e);
@@ -222,7 +214,7 @@ public class FacebookFragment extends ListFragment
 			super.onStartLoading();
 			
 			mAdapter.clear();
-			mLoadingSpinner.setVisibility(View.VISIBLE);
+			swipeRefreshLayout.setRefreshing(true);
 			forceLoad();
 		}
 
@@ -317,4 +309,9 @@ public class FacebookFragment extends ListFragment
 		public TextView title;
 		public TextView description;
 	}
+
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+        getLoaderManager().restartLoader(0, null, this);        
+    }
 }

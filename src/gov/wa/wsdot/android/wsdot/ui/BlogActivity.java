@@ -27,8 +27,8 @@ public class BlogActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_blog);
 		
+		setContentView(R.layout.activity_blog);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 	
