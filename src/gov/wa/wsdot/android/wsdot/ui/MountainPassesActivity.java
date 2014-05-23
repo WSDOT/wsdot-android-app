@@ -22,14 +22,12 @@ import gov.wa.wsdot.android.wsdot.R;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
-import android.view.Window;
 
 public class MountainPassesActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.activity_mountain_passes);		
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}

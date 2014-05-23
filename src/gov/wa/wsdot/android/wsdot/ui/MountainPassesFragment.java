@@ -38,7 +38,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,46 +50,47 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
 public class MountainPassesFragment extends ListFragment
-	implements LoaderCallbacks<Cursor> {
+	implements LoaderCallbacks<Cursor>,
+	SwipeRefreshLayout.OnRefreshListener {
 	
 	@SuppressWarnings("unused")
-	private static final String DEBUG_TAG = "MountainPassConditions";
+	private static final String TAG = MountainPassesFragment.class.getSimpleName();
 	private static MountainPassAdapter adapter;
-	private static View mLoadingSpinner;
 	private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
 	private View mEmptyView;
+	private static SwipeRefreshLayout swipeRefreshLayout;
 	
     @Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-		setHasOptionsMenu(true);         
-		
-		Intent intent = new Intent(getActivity().getApplicationContext(), MountainPassesSyncService.class);
-		ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
-		actionBarActivity.setSupportProgressBarIndeterminateVisibility(true);
+        AnalyticsUtils.getInstance(getActivity()).trackPageView("/Mountain Passes");
+        
+		Intent intent = new Intent(getActivity(), MountainPassesSyncService.class);
 		getActivity().startService(intent);
-		
-		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Mountain Passes");
     }
 
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorScheme(
+                17170451,  // android.R.color.holo_blue_bright 
+                17170452,  // android.R.color.holo_green_light 
+                17170456,  // android.R.color.holo_orange_light 
+                17170454); // android.R.color.holo_red_light)
+        
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
@@ -118,31 +119,12 @@ public class MountainPassesFragment extends ListFragment
 	public void onResume() {
 		super.onResume();
 		
-		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
+        IntentFilter filter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
 		filter.addCategory(Intent.CATEGORY_DEFAULT);
 		mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
 		getActivity().registerReceiver(mMountainPassesSyncReceiver, filter);
 	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	super.onCreateOptionsMenu(menu, inflater);
-    	inflater.inflate(R.menu.refresh, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.menu_refresh:
-		    ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
-		    actionBarActivity.setSupportProgressBarIndeterminateVisibility(true);
-			Intent intent = new Intent(getActivity(), MountainPassesSyncService.class);
-		    intent.putExtra("forceUpdate", true);
-			getActivity().startService(intent);			
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}	
 	
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
@@ -203,17 +185,14 @@ public class MountainPassesFragment extends ListFragment
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (cursor.moveToFirst()) {
-			mLoadingSpinner.setVisibility(View.GONE);
-			ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
-			actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
-		}
-		
+		cursor.moveToFirst();
+	    swipeRefreshLayout.setRefreshing(false);
 		adapter.swapCursor(cursor);
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
-		adapter.swapCursor(null);
+		swipeRefreshLayout.setRefreshing(false);
+	    adapter.swapCursor(null);
 	}
     
 	public static class MountainPassItemsLoader extends CursorLoader {
@@ -227,7 +206,7 @@ public class MountainPassesFragment extends ListFragment
 		protected void onStartLoading() {
 			super.onStartLoading();
 
-			mLoadingSpinner.setVisibility(View.VISIBLE);
+			swipeRefreshLayout.setRefreshing(true);
 			forceLoad();
 		}
 	}
@@ -324,18 +303,15 @@ public class MountainPassesFragment extends ListFragment
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
-			ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
+
 			if (responseString.equals("OK")) {
-			    actionBarActivity.setSupportProgressBarIndeterminateVisibility(true);
 				getLoaderManager().restartLoader(0, null, MountainPassesFragment.this);
 			} else if (responseString.equals("NOP")) {
-			    actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
-				mLoadingSpinner.setVisibility(View.GONE);
+			    swipeRefreshLayout.setRefreshing(false);
 			} else {
 				Log.e("MountainPassesSyncReceiver", responseString);
-				actionBarActivity.setSupportProgressBarIndeterminateVisibility(false);
-				mLoadingSpinner.setVisibility(View.GONE);
-
+				swipeRefreshLayout.setRefreshing(false);
+				
 				if (!UIUtils.isNetworkAvailable(context)) {
 					responseString = getString(R.string.no_connection);
 				}
@@ -350,5 +326,12 @@ public class MountainPassesFragment extends ListFragment
 			}
 		}
 	}
+
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+        Intent intent = new Intent(getActivity(), MountainPassesSyncService.class);
+        intent.putExtra("forceUpdate", true);
+        getActivity().startService(intent);        
+    }
 
 }

@@ -38,11 +38,9 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -55,39 +53,45 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class FerriesRouteSchedulesFragment extends ListFragment
-	implements LoaderCallbacks<Cursor> {
+	implements LoaderCallbacks<Cursor>,
+	SwipeRefreshLayout.OnRefreshListener {
 
-	private static final String TAG = FerriesRouteSchedulesFragment.class.getName();
+	@SuppressWarnings("unused")
+    private static final String TAG = FerriesRouteSchedulesFragment.class.getName();
 	private static RouteSchedulesAdapter adapter;
-	private static View mLoadingSpinner;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
 	private View mEmptyView;
+	private static SwipeRefreshLayout swipeRefreshLayout;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-        setHasOptionsMenu(true);
-		
-		Intent intent = new Intent(getActivity().getApplicationContext(), FerriesSchedulesSyncService.class);
-		getActivity().setProgressBarIndeterminateVisibility(true);
-		getActivity().startService(intent);
-        
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/Ferries/Route Schedules");
+        
+		Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
+		getActivity().startService(intent);
 	}	
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorScheme(
+                17170451,  // android.R.color.holo_blue_bright 
+                17170452,  // android.R.color.holo_green_light 
+                17170456,  // android.R.color.holo_orange_light 
+                17170454); // android.R.color.holo_red_light)
+        
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
@@ -103,7 +107,6 @@ public class FerriesRouteSchedulesFragment extends ListFragment
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);
-	
 	}	
 	
     @Override
@@ -117,29 +120,11 @@ public class FerriesRouteSchedulesFragment extends ListFragment
 	public void onResume() {
 		super.onResume();
 		
-		IntentFilter filter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
+        IntentFilter filter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
 		filter.addCategory(Intent.CATEGORY_DEFAULT);
 		mFerriesSchedulesSyncReceiver = new FerriesSchedulesSyncReceiver();
 		getActivity().registerReceiver(mFerriesSchedulesSyncReceiver, filter);
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	super.onCreateOptionsMenu(menu, inflater);
-    	inflater.inflate(R.menu.refresh, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.menu_refresh:
-			getActivity().setProgressBarIndeterminateVisibility(true);
-			Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
-		    intent.putExtra("forceUpdate", true);
-			getActivity().startService(intent);
-		}
-		
-		return super.onOptionsItemSelected(item);
 	}
 	
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -164,15 +149,13 @@ public class FerriesRouteSchedulesFragment extends ListFragment
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (cursor.moveToFirst()) {
-			mLoadingSpinner.setVisibility(View.GONE);
-			getActivity().setProgressBarIndeterminateVisibility(false);
-		}
-		
+	    cursor.moveToFirst();
+	    swipeRefreshLayout.setRefreshing(false);
 		adapter.swapCursor(cursor);
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
+	    swipeRefreshLayout.setRefreshing(false);
 		adapter.swapCursor(null);
 	}
 
@@ -187,7 +170,7 @@ public class FerriesRouteSchedulesFragment extends ListFragment
 		protected void onStartLoading() {
 			super.onStartLoading();
 
-			mLoadingSpinner.setVisibility(View.VISIBLE);
+			swipeRefreshLayout.setRefreshing(true);
 			forceLoad();
 		}
 	}
@@ -297,7 +280,6 @@ public class FerriesRouteSchedulesFragment extends ListFragment
     			alert_button = (ImageButton) view.findViewById(R.id.alert_button);
     		}
     	}
-        
 	}
 	
 	public class FerriesSchedulesSyncReceiver extends BroadcastReceiver {
@@ -305,16 +287,14 @@ public class FerriesRouteSchedulesFragment extends ListFragment
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
+			
 			if (responseString.equals("OK")) {
-				getActivity().setProgressBarIndeterminateVisibility(true);
 				getLoaderManager().restartLoader(0, null, FerriesRouteSchedulesFragment.this);
 			} else if (responseString.equals("NOP")) {
-				getActivity().setProgressBarIndeterminateVisibility(false);
-				mLoadingSpinner.setVisibility(View.GONE);
+			    swipeRefreshLayout.setRefreshing(false);
 			} else {
-				Log.e("FerriesSchedulesSyncReceiver", responseString);
-				getActivity().setProgressBarIndeterminateVisibility(false);
-				mLoadingSpinner.setVisibility(View.GONE);
+                swipeRefreshLayout.setRefreshing(false);
+			    Log.e("FerriesSchedulesSyncReceiver", responseString);
 
 				if (!UIUtils.isNetworkAvailable(context)) {
 					responseString = getString(R.string.no_connection);
@@ -330,5 +310,12 @@ public class FerriesRouteSchedulesFragment extends ListFragment
 			}
 		}
 	}
+
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+        Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
+        intent.putExtra("forceUpdate", true);
+        getActivity().startService(intent);        
+    }
 	
 }

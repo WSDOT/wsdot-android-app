@@ -309,7 +309,6 @@ public class CameraImageFragment extends Fragment
 	}
 
     public void onRefresh() {
-        //mImage.setImageDrawable(null);
         getLoaderManager().restartLoader(0, null, this);        
     }
 }
