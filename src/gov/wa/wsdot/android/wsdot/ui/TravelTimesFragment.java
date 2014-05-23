@@ -184,7 +184,7 @@ public class TravelTimesFragment extends ListFragment
 		
 		return false;
 	}
-	
+
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		String[] projection = {
 				TravelTimes._ID,
