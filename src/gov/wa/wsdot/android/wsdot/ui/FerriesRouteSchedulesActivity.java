@@ -21,16 +21,13 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-
 import android.view.MenuItem;
-import android.view.Window;
 
 public class FerriesRouteSchedulesActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);		
+
 		setContentView(R.layout.activity_ferries_route_schedules);		
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
