@@ -43,25 +43,24 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class NewsFragment extends ListFragment
-	implements LoaderCallbacks<ArrayList<NewsItem>> {
+public class NewsFragment extends ListFragment implements
+        LoaderCallbacks<ArrayList<NewsItem>>,
+        SwipeRefreshLayout.OnRefreshListener {
 
 	private static final String TAG = NewsFragment.class.getName();
 	private static ArrayList<NewsItem> newsItems = null;	
-	private static View mLoadingSpinner;
 	private static NewsItemAdapter mAdapter;
 	private View mEmptyView;
+	private static SwipeRefreshLayout swipeRefreshLayout;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -70,7 +69,6 @@ public class NewsFragment extends ListFragment
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
-        setHasOptionsMenu(true);
         
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/News");
 	}
@@ -79,14 +77,21 @@ public class NewsFragment extends ListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorScheme(
+                17170451,  // android.R.color.holo_blue_bright 
+                17170452,  // android.R.color.holo_green_light 
+                17170456,  // android.R.color.holo_orange_light 
+                17170454); // android.R.color.holo_red_light)
+        
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
@@ -104,6 +109,7 @@ public class NewsFragment extends ListFragment
         getLoaderManager().initLoader(0, null, this);
 	}
 	
+	/*
     @Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     	super.onCreateOptionsMenu(menu, inflater);
@@ -119,6 +125,7 @@ public class NewsFragment extends ListFragment
 		
 		return super.onOptionsItemSelected(item);
 	}
+	*/
 	
 	public Loader<ArrayList<NewsItem>> onCreateLoader(int id, Bundle args) {
 		// This is called when a new Loader needs to be created. There
@@ -127,7 +134,6 @@ public class NewsFragment extends ListFragment
 	}
 
 	public void onLoadFinished(Loader<ArrayList<NewsItem>> loader, ArrayList<NewsItem> data) {
-		mLoadingSpinner.setVisibility(View.GONE);
 
 		if (!data.isEmpty()) {
 			mAdapter.setData(data);
@@ -136,10 +142,13 @@ public class NewsFragment extends ListFragment
 			t.setText(R.string.no_connection);
 			getListView().setEmptyView(mEmptyView);
 		}
+		
+		swipeRefreshLayout.setRefreshing(false);
 	}
 
 	public void onLoaderReset(Loader<ArrayList<NewsItem>> loader) {
-		mAdapter.setData(null);
+	    mAdapter.setData(null);
+	    swipeRefreshLayout.setRefreshing(false);
 	}	
 
 	/**
@@ -214,7 +223,7 @@ public class NewsFragment extends ListFragment
 			super.onStartLoading();
 			
 			mAdapter.clear();
-			mLoadingSpinner.setVisibility(View.VISIBLE);
+			swipeRefreshLayout.setRefreshing(true);
 			forceLoad();
 		}
 
@@ -309,5 +318,9 @@ public class NewsFragment extends ListFragment
 		public TextView title;
 		public TextView description;
 	}
+
+    public void onRefresh() {
+        getLoaderManager().restartLoader(0, null, this);
+    }
 	
 }
