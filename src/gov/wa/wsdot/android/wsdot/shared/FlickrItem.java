@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ public class FlickrItem {
 	private String published;
 	private String link;
 	private String content;
+	private String media;
 	private Drawable image;
 	
 	public String getTitle() {
@@ -51,6 +52,12 @@ public class FlickrItem {
 	public void setContent(String content) {
 		this.content = content;
 	}
+    public String getMedia() {
+        return media;
+    }
+    public void setMedia(String media) {
+        this.media = media;
+    }
 	public void setImage(Drawable image) {
 		this.image = image;
 	}

@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.FlickrItem;
+import gov.wa.wsdot.android.wsdot.ui.widget.SquareImageView;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.BufferedInputStream;
@@ -33,8 +34,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import org.json.JSONArray;
@@ -48,28 +47,28 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Menu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
-import android.widget.Gallery.LayoutParams;
 import android.widget.GridView;
-import android.widget.ImageSwitcher;
-import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class FlickrActivity extends ActionBarActivity {
+public class FlickrActivity extends ActionBarActivity implements
+        SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = FlickrActivity.class.getName();
     private static final int IO_BUFFER_SIZE = 4 * 1024;
     private ArrayList<FlickrItem> mFlickrItems = null;
 	private ImageAdapter adapter;
-	private View mLoadingSpinner;
+	private static SwipeRefreshLayout swipeRefreshLayout;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,18 +79,19 @@ public class FlickrActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
         setContentView(R.layout.activity_flickr);
-        mLoadingSpinner = findViewById(R.id.loading_spinner);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorScheme(
+                17170451,  // android.R.color.holo_blue_bright 
+                17170452,  // android.R.color.holo_green_light 
+                17170456,  // android.R.color.holo_orange_light 
+                17170454); // android.R.color.holo_red_light)
 
         this.adapter = new ImageAdapter(this);
+        
         new GetRSSItems().execute();
     }
-
-    @Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-    	getMenuInflater().inflate(R.menu.refresh, menu);
-    	
-    	return super.onCreateOptionsMenu(menu);
-	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -99,10 +99,6 @@ public class FlickrActivity extends ActionBarActivity {
 	    case android.R.id.home:
 	    	finish();
 	    	return true;		
-		case R.id.menu_refresh:
-			mFlickrItems.clear();
-			this.adapter.notifyDataSetChanged();
-			new GetRSSItems().execute();
 		}
 		
 		return super.onOptionsItemSelected(item);
@@ -112,7 +108,7 @@ public class FlickrActivity extends ActionBarActivity {
 
 		@Override
 		protected void onPreExecute() {
-			mLoadingSpinner.setVisibility(View.VISIBLE);
+		    swipeRefreshLayout.setRefreshing(true);
 		}
     	
 	    protected void onCancelled() {
@@ -121,8 +117,6 @@ public class FlickrActivity extends ActionBarActivity {
 
 		@Override
 		protected String doInBackground(String... params) {
-	    	String patternStr = "http://farm.*jpg";
-	    	Pattern pattern = Pattern.compile(patternStr);
 	    	BufferedInputStream ins;
 	        BufferedOutputStream out;
 	    	String content;
@@ -155,31 +149,27 @@ public class FlickrActivity extends ActionBarActivity {
 						i = new FlickrItem();
 						i.setTitle(item.getString("title"));
 						i.setLink(item.getString("link"));
+						JSONObject media = item.getJSONObject("media");
+	                    i.setMedia(media.getString("m"));
 						i.setPublished(item.getString("published"));
 						tmpContent = item.getString("description");
-						content = tmpContent.replace("<p><a href=\"http://www.flickr.com/people/wsdot/\">WSDOT</a> posted a photo:</p>", "");
+						content = tmpContent.replace(" <p><a href=\"https://www.flickr.com/people/wsdot/\">WSDOT</a> posted a photo:</p> ", "");
 						i.setContent(content);
-	                	Matcher matcher = pattern.matcher(content);
-	                	boolean matchFound = matcher.find();
-	
-	                	if (matchFound) {
-	                		String tmpString = matcher.group();
-	                		String imageSrc = tmpString.replace("_m", "_s"); // We want the small 75x75 images
-	                        ins = new BufferedInputStream(new URL(imageSrc).openStream(), IO_BUFFER_SIZE);
-	                        final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-	                        out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
-	                        copy(ins, out);
-	                        out.flush();
-	                        final byte[] data = dataStream.toByteArray();
-	                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);                        
+						
+                		String imageSrc = i.getMedia();
+                        ins = new BufferedInputStream(new URL(imageSrc).openStream(), IO_BUFFER_SIZE);
+                        final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
+                        out = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
+                        copy(ins, out);
+                        out.flush();
+                        final byte[] data = dataStream.toByteArray();
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);                        
 
-	                        @SuppressWarnings("deprecation")
-							final Drawable image = new BitmapDrawable(bitmap);
-	                        i.setImage(image);
-	                	}
+                        @SuppressWarnings("deprecation")
+						final Drawable image = new BitmapDrawable(bitmap);
+                        i.setImage(image);
 	                	
 	                	mFlickrItems.add(i);
-						publishProgress(1);
 					} else {
 						break;
 					}
@@ -192,7 +182,7 @@ public class FlickrActivity extends ActionBarActivity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			mLoadingSpinner.setVisibility(View.GONE);
+		    swipeRefreshLayout.setRefreshing(false);
 			
 			showImages();
 		}   
@@ -219,23 +209,11 @@ public class FlickrActivity extends ActionBarActivity {
         }	        
     }  
     
-    @SuppressWarnings("deprecation")
-	public View makeView() {
-        ImageView imageView = new ImageView(this);
-        imageView.setBackgroundColor(0xFFFFFFFF);
-        imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        imageView.setLayoutParams(new 
-                ImageSwitcher.LayoutParams(
-                        LayoutParams.FILL_PARENT,
-                        LayoutParams.FILL_PARENT));
-        return imageView;
-    }
-    
     public class ImageAdapter extends BaseAdapter {
-        private Context context;
+        private LayoutInflater inflater;
       
-        public ImageAdapter(Context c) {
-        	context = c;       	
+        public ImageAdapter(Context context) {
+        	inflater = LayoutInflater.from(context);
         }
 
         public int getCount() {
@@ -243,27 +221,31 @@ public class FlickrActivity extends ActionBarActivity {
         }
         
         public Object getItem(int position) {
-        	return null;
+        	return mFlickrItems.get(position);
         }
         
         public long getItemId(int position) {
         	return 0;
         }
         
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ImageView imageView;
+        public View getView(int position, View view, ViewGroup viewGroup) {
+            SquareImageView picture;
+            TextView name;
 
-            if (convertView == null) {
-            	imageView = new ImageView(context);
-                imageView.setLayoutParams(new GridView.LayoutParams(75, 75));
-                imageView.setPadding(5, 5, 5, 5);
-            } else {
-                imageView = (ImageView) convertView;
+            if (view == null) {
+                view = inflater.inflate(R.layout.gridview_item, viewGroup, false);
+                view.setTag(R.id.picture, view.findViewById(R.id.picture));
+                view.setTag(R.id.text, view.findViewById(R.id.text));
             }
+            
+            picture = (SquareImageView)view.getTag(R.id.picture);
+            name = (TextView)view.getTag(R.id.text);
 
-            imageView.setImageDrawable(mFlickrItems.get(position).getImage());
+            FlickrItem item = (FlickrItem)getItem(position);
+            picture.setImageDrawable(item.getImage());
+            name.setText(mFlickrItems.get(position).getTitle());
 
-            return imageView;
+            return view;
         }
     }
     
@@ -282,5 +264,11 @@ public class FlickrActivity extends ActionBarActivity {
         while ((read = in.read(b)) != -1) {
             out.write(b, 0, read);
         }
+    }
+
+    public void onRefresh() {
+        mFlickrItems.clear();
+        this.adapter.notifyDataSetChanged();
+        new GetRSSItems().execute();        
     }    
 }
