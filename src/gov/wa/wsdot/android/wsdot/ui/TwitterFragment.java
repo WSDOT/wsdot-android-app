@@ -45,6 +45,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.ShareActionProvider;
@@ -64,18 +65,21 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class TwitterFragment extends ListFragment
-	implements LoaderCallbacks<ArrayList<TwitterItem>> {
+public class TwitterFragment extends ListFragment implements
+        LoaderCallbacks<ArrayList<TwitterItem>>,
+        SwipeRefreshLayout.OnRefreshListener {
 	
-	private static final String DEBUG_TAG = "Twitter";
+	private static final String TAG = TwitterFragment.class.getSimpleName();
 	private static ArrayList<TwitterItem> twitterItems = null;
 	private static TwitterItemAdapter mAdapter;
-	private static View mLoadingSpinner;
 	private static String mScreenName;
 	private HashMap<String, Integer> mTwitterProfileImages = new HashMap<String, Integer>();
-	ActionMode mActionMode;
+	
+	@SuppressWarnings("unused")
+    private ActionMode mActionMode;
 	private View mEmptyView;
 	private ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
+	private static SwipeRefreshLayout swipeRefreshLayout;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -94,8 +98,6 @@ public class TwitterFragment extends ListFragment
         
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
-        //setRetainInstance(true);
-		setHasOptionsMenu(true);        
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Twitter");
     }
 
@@ -104,14 +106,21 @@ public class TwitterFragment extends ListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
                 ViewGroup.LayoutParams.FILL_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorScheme(
+                17170451,  // android.R.color.holo_blue_bright 
+                17170452,  // android.R.color.holo_green_light 
+                17170456,  // android.R.color.holo_orange_light 
+                17170454); // android.R.color.holo_red_light)
+        
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
@@ -198,22 +207,6 @@ public class TwitterFragment extends ListFragment
         
         return shareIntent;
 	}	
-	
-    @Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	super.onCreateOptionsMenu(menu, inflater);
-    	inflater.inflate(R.menu.refresh, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.menu_refresh:
-			getLoaderManager().restartLoader(0, null, this);
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}    
 
 	public Loader<ArrayList<TwitterItem>> onCreateLoader(int id, Bundle args) {
 		// This is called when a new Loader needs to be created. There
@@ -222,7 +215,6 @@ public class TwitterFragment extends ListFragment
 	}
 
 	public void onLoadFinished(Loader<ArrayList<TwitterItem>> loader, ArrayList<TwitterItem> data) {
-		mLoadingSpinner.setVisibility(View.GONE);
 		
 		if (!data.isEmpty()) {
 			mAdapter.setData(data);
@@ -231,10 +223,13 @@ public class TwitterFragment extends ListFragment
 			t.setText(R.string.no_connection);
 			getListView().setEmptyView(mEmptyView);
 		}
+		
+		swipeRefreshLayout.setRefreshing(false);
 	}
 
 	public void onLoaderReset(Loader<ArrayList<TwitterItem>> loader) {
-		mAdapter.setData(null);
+	    swipeRefreshLayout.setRefreshing(false);
+	    mAdapter.setData(null);
 	}	
 	
 	/**
@@ -322,13 +317,13 @@ public class TwitterFragment extends ListFragment
 	            		i.setCreatedAt(ParserUtils.relativeTime(item.getString("created_at"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
 	            	} catch (Exception e) {
 	            		i.setCreatedAt("");
-	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            		Log.e(TAG, "Error parsing date", e);
 	            	}
 	            	
 					mItems.add(i);
 				}				
 			} catch (Exception e) {
-				Log.e(DEBUG_TAG, "Error in network call", e);
+				Log.e(TAG, "Error in network call", e);
 			}
 			
 			return mItems;
@@ -351,7 +346,7 @@ public class TwitterFragment extends ListFragment
 			super.onStartLoading();
 			
 			mAdapter.clear();
-			mLoadingSpinner.setVisibility(View.VISIBLE);
+			swipeRefreshLayout.setRefreshing(true);
 			forceLoad();
 		}
 
@@ -477,4 +472,8 @@ public class TwitterFragment extends ListFragment
 		public TextView createdAt;
 		public TextView text;
 	}
+
+    public void onRefresh() {
+        getLoaderManager().restartLoader(0, null, this);        
+    }
 }
