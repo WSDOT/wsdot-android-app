@@ -45,6 +45,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.ShareActionProvider;
@@ -62,16 +63,17 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class YouTubeFragment extends ListFragment
-	implements LoaderCallbacks<ArrayList<YouTubeItem>> {
+public class YouTubeFragment extends ListFragment implements
+        LoaderCallbacks<ArrayList<YouTubeItem>>,
+        SwipeRefreshLayout.OnRefreshListener {
 
-	private static final String DEBUG_TAG = "YouTubeFragment";
+	private static final String TAG = YouTubeFragment.class.getSimpleName();
 	private static ArrayList<YouTubeItem> mYouTubeItems = null;
 	private static VideoItemAdapter mAdapter;
-	private static View mLoadingSpinner;
 	ActionMode mActionMode;
 	private View mEmptyView;
 	private ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
+	private static SwipeRefreshLayout swipeRefreshLayout;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -85,23 +87,28 @@ public class YouTubeFragment extends ListFragment
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
-		setHasOptionsMenu(true);        
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Video");
     }
 	
-    @SuppressWarnings("deprecation")
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorScheme(
+                17170451,  // android.R.color.holo_blue_bright 
+                17170452,  // android.R.color.holo_green_light 
+                17170456,  // android.R.color.holo_orange_light 
+                17170454); // android.R.color.holo_red_light)
+
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
@@ -181,28 +188,11 @@ public class YouTubeFragment extends ListFragment
         return shareIntent;
 	}	
 	
-    @Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	super.onCreateOptionsMenu(menu, inflater);
-    	inflater.inflate(R.menu.refresh, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.menu_refresh:
-			getLoaderManager().restartLoader(0, null, this);
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}
-	
 	public Loader<ArrayList<YouTubeItem>> onCreateLoader(int id, Bundle args) {
 		return new VideoItemsLoader(getActivity());
 	}
 
 	public void onLoadFinished(Loader<ArrayList<YouTubeItem>> loader, ArrayList<YouTubeItem> data) {
-		mLoadingSpinner.setVisibility(View.GONE);
 
 		if (!data.isEmpty()) {
 			mAdapter.setData(data);
@@ -211,10 +201,13 @@ public class YouTubeFragment extends ListFragment
 			t.setText(R.string.no_connection);
 			getListView().setEmptyView(mEmptyView);
 		}
+		
+		swipeRefreshLayout.setRefreshing(false);
 	}
 
 	public void onLoaderReset(Loader<ArrayList<YouTubeItem>> loader) {
 		mAdapter.setData(null);
+        swipeRefreshLayout.setRefreshing(false);
 	}
 	
 	/**
@@ -263,13 +256,13 @@ public class YouTubeFragment extends ListFragment
 	            		i.setUploaded(ParserUtils.relativeTime(item.getString("uploaded"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
 	            	} catch (Exception e) {
 	            		i.setUploaded("Unavailable");
-	            		Log.e(DEBUG_TAG, "Error parsing date", e);
+	            		Log.e(TAG, "Error parsing date", e);
 	            	}					
 					
                     mItems.add(i);
 				}				
 			} catch (Exception e) {
-				Log.e(DEBUG_TAG, "Error in network call", e);
+				Log.e(TAG, "Error in network call", e);
 			}
 			
 			return mItems;
@@ -291,8 +284,8 @@ public class YouTubeFragment extends ListFragment
 		protected void onStartLoading() {
 			super.onStartLoading();
 			
+            swipeRefreshLayout.setRefreshing(true);
 			mAdapter.clear();
-			mLoadingSpinner.setVisibility(View.VISIBLE);
 			forceLoad();
 		}
 
@@ -395,5 +388,9 @@ public class YouTubeFragment extends ListFragment
 		public ImageView image;
 		public TextView uploaded;
 	}
+
+    public void onRefresh() {
+        getLoaderManager().restartLoader(0, null, this);        
+    }
 
 }
