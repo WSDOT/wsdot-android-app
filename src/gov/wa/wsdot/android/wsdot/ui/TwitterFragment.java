@@ -101,7 +101,6 @@ public class TwitterFragment extends ListFragment implements
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Twitter");
     }
 
-    @SuppressWarnings("deprecation")
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -110,8 +109,8 @@ public class TwitterFragment extends ListFragment implements
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -153,7 +152,6 @@ public class TwitterFragment extends ListFragment implements
 		mTwitterProfileImages.put("GoodToGoWSDOT", R.drawable.ic_list_wsdot_goodtogo);
 		mTwitterProfileImages.put("SnoqualmiePass", R.drawable.ic_list_wsdot_snoqualmie_pass);
 		mTwitterProfileImages.put("wsdot", R.drawable.ic_list_wsdot);
-		mTwitterProfileImages.put("wsdot_north", R.drawable.ic_list_wsdot_north);
 		mTwitterProfileImages.put("wsdot_sw", R.drawable.ic_list_wsdot_sw);
 		mTwitterProfileImages.put("wsdot_tacoma", R.drawable.ic_list_wsdot_tacoma);
 		mTwitterProfileImages.put("wsdot_traffic", R.drawable.ic_list_wsdot_traffic);		

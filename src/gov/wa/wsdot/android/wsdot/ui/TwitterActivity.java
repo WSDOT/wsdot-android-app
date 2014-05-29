@@ -50,7 +50,6 @@ public class TwitterActivity extends ActionBarActivity
 		mTwitterAccounts.add("Good To Go!");
 		mTwitterAccounts.add("Snoqualmie Pass");
 		mTwitterAccounts.add("WSDOT");
-		mTwitterAccounts.add("WSDOT North");
 		mTwitterAccounts.add("WSDOT Southwest");
 		mTwitterAccounts.add("WSDOT Tacoma");
 		mTwitterAccounts.add("WSDOT Traffic");
@@ -60,7 +59,6 @@ public class TwitterActivity extends ActionBarActivity
 		mTwitterScreenNames.put("Good To Go!", "GoodToGoWSDOT");
 		mTwitterScreenNames.put("Snoqualmie Pass", "SnoqualmiePass");
 		mTwitterScreenNames.put("WSDOT", "wsdot");
-		mTwitterScreenNames.put("WSDOT North", "wsdot_north");
 		mTwitterScreenNames.put("WSDOT Southwest", "wsdot_sw");
 		mTwitterScreenNames.put("WSDOT Tacoma", "wsdot_tacoma");
 		mTwitterScreenNames.put("WSDOT Traffic", "wsdot_traffic");
