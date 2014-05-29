@@ -54,9 +54,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class BlogFragment extends ListFragment
-	implements LoaderCallbacks<ArrayList<BlogItem>>,
-	SwipeRefreshLayout.OnRefreshListener{
+public class BlogFragment extends ListFragment implements
+        LoaderCallbacks<ArrayList<BlogItem>>,
+        SwipeRefreshLayout.OnRefreshListener {
 
 	private static final String TAG = BlogFragment.class.getSimpleName();
 	private static ArrayList<BlogItem> blogItems = null;

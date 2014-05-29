@@ -38,7 +38,8 @@ import android.widget.TextView;
 
 public class SocialMediaFragment extends ListFragment {
 
-    private static final String TAG = SocialMediaFragment.class.getName();
+    @SuppressWarnings("unused")
+    private static final String TAG = SocialMediaFragment.class.getSimpleName();
     private ArrayList<ListViewItem> listViewItems;
     private ListViewArrayAdapter mAdapter;
     private View mLoadingSpinner;

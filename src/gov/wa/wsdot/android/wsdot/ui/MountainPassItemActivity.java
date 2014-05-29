@@ -46,9 +46,8 @@ import android.view.MenuItem;
 
 public class MountainPassItemActivity extends ActionBarActivity {
 	
-	DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m", Locale.US); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
-	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a", Locale.US);
-	
+	private DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m", Locale.US); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
+	private DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a", Locale.US);
     private ViewPager mViewPager;
 	private TabsAdapter mTabsAdapter;
 	private boolean mIsStarred = false;

@@ -56,7 +56,7 @@ public class NewsFragment extends ListFragment implements
         LoaderCallbacks<ArrayList<NewsItem>>,
         SwipeRefreshLayout.OnRefreshListener {
 
-	private static final String TAG = NewsFragment.class.getName();
+	private static final String TAG = NewsFragment.class.getSimpleName();
 	private static ArrayList<NewsItem> newsItems = null;	
 	private static NewsItemAdapter mAdapter;
 	private View mEmptyView;

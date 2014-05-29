@@ -64,7 +64,7 @@ import android.widget.Toast;
 public class FlickrActivity extends ActionBarActivity implements
         SwipeRefreshLayout.OnRefreshListener {
 
-    private static final String TAG = FlickrActivity.class.getName();
+    private static final String TAG = FlickrActivity.class.getSimpleName();
     private static final int IO_BUFFER_SIZE = 4 * 1024;
     private ArrayList<FlickrItem> mFlickrItems = null;
 	private ImageAdapter adapter;

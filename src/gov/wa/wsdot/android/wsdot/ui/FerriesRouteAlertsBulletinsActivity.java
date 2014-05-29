@@ -24,7 +24,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 
 public class FerriesRouteAlertsBulletinsActivity extends ActionBarActivity {
-	@Override
+	
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ferries_route_alerts_bulletins);

@@ -52,9 +52,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class FacebookFragment extends ListFragment
-	implements LoaderCallbacks<ArrayList<FacebookItem>>,
-	SwipeRefreshLayout.OnRefreshListener {
+public class FacebookFragment extends ListFragment implements
+        LoaderCallbacks<ArrayList<FacebookItem>>,
+        SwipeRefreshLayout.OnRefreshListener {
 	
 	private static final String TAG = FacebookFragment.class.getSimpleName();
 	private static ArrayList<FacebookItem> mFacebookItems = null;

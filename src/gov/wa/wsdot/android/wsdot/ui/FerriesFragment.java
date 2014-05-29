@@ -38,7 +38,8 @@ import android.widget.TextView;
 
 public class FerriesFragment extends ListFragment {
     
-    private static final String TAG = FerriesFragment.class.getName();
+    @SuppressWarnings("unused")
+    private static final String TAG = FerriesFragment.class.getSimpleName();
     private ArrayList<ListViewItem> listViewItems;
     private ListViewArrayAdapter mAdapter;
     private View mLoadingSpinner;

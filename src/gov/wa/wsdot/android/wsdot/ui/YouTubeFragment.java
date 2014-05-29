@@ -70,7 +70,7 @@ public class YouTubeFragment extends ListFragment implements
 	private static final String TAG = YouTubeFragment.class.getSimpleName();
 	private static ArrayList<YouTubeItem> mYouTubeItems = null;
 	private static VideoItemAdapter mAdapter;
-	ActionMode mActionMode;
+	private ActionMode mActionMode;
 	private View mEmptyView;
 	private ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
 	private static SwipeRefreshLayout swipeRefreshLayout;

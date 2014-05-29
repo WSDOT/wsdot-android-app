@@ -46,10 +46,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class MountainPassItemCameraFragment extends ListFragment
-	implements LoaderCallbacks<ArrayList<CameraItem>> {
+public class MountainPassItemCameraFragment extends ListFragment implements
+        LoaderCallbacks<ArrayList<CameraItem>> {
 	
-	private static final String TAG = MountainPassItemCameraFragment.class.getName();
+	@SuppressWarnings("unused")
+    private static final String TAG = MountainPassItemCameraFragment.class.getSimpleName();
     private static ArrayList<CameraItem> bitmapImages;
 	private View mEmptyView;
     private static String camerasArray;

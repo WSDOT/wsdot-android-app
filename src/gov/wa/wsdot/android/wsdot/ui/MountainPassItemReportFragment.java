@@ -30,7 +30,8 @@ import android.widget.TextView;
 
 public class MountainPassItemReportFragment extends Fragment {
 
-	private static final String TAG = MountainPassItemReportFragment.class.getName();	
+	@SuppressWarnings("unused")
+    private static final String TAG = MountainPassItemReportFragment.class.getSimpleName();	
 	private ViewGroup mRootView;
 	private String mWeatherCondition;
 	private String mTemperatureInFahrenheit;

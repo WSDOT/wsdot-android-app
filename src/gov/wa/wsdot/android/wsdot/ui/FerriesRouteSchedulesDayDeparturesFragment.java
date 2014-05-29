@@ -45,7 +45,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
-	implements LoaderCallbacks<ArrayList<FerriesScheduleTimesItem>> {
+        implements LoaderCallbacks<ArrayList<FerriesScheduleTimesItem>> {
 
 	private static final String TAG = FerriesRouteSchedulesDayDeparturesFragment.class.getName();
 	private static FerriesTerminalItem terminalItem;

@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -48,8 +47,8 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-public class CameraVideoFragment extends Fragment
-	implements LoaderCallbacks<Boolean> {
+public class CameraVideoFragment extends Fragment implements
+        LoaderCallbacks<Boolean> {
 	
 	private static String mVideoPath;
     private VideoView mVideoView;

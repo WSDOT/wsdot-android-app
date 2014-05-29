@@ -31,8 +31,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
-public class TwitterActivity extends ActionBarActivity
-	implements ActionBar.OnNavigationListener {
+public class TwitterActivity extends ActionBarActivity implements
+        ActionBar.OnNavigationListener {
 	
     private ArrayList<String> mTwitterAccounts;
     private HashMap<String, String> mTwitterScreenNames = new HashMap<String, String>();

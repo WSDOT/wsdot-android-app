@@ -34,7 +34,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 public class SR16TollRatesFragment extends ListFragment {
-	private MyCustomAdapter adapter;
+	
+    private MyCustomAdapter adapter;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {

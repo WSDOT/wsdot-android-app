@@ -40,7 +40,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MountainPassItemForecastFragment extends ListFragment {
-	private ArrayList<ForecastItem> forecastItems;
+	
+    private ArrayList<ForecastItem> forecastItems;
 	private MountainPassItemForecastAdapter adapter;
 	private static String forecastsArray;
 	
@@ -76,15 +77,14 @@ public class MountainPassItemForecastFragment extends ListFragment {
         super.onCreate(savedInstanceState);
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
-        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
     	
     	return root;
 	}	

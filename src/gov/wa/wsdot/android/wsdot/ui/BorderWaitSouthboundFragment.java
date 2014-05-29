@@ -49,12 +49,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class BorderWaitSouthboundFragment extends ListFragment
-	implements LoaderCallbacks<Cursor>,
-	SwipeRefreshLayout.OnRefreshListener {
+public class BorderWaitSouthboundFragment extends ListFragment implements
+        LoaderCallbacks<Cursor>,
+        SwipeRefreshLayout.OnRefreshListener {
 
 	@SuppressWarnings("unused")
-    private static final String TAG = BorderWaitSouthboundFragment.class.getName();
+    private static final String TAG = BorderWaitSouthboundFragment.class.getSimpleName();
 	private static BorderWaitAdapter adapter;	
 	
 	@SuppressLint("UseSparseArrays")

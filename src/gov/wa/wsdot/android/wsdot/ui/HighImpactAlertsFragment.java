@@ -52,8 +52,8 @@ import android.widget.TextView;
 
 import com.viewpagerindicator.LinePageIndicator;
 
-public class HighImpactAlertsFragment extends Fragment
-	implements LoaderCallbacks<Cursor> {
+public class HighImpactAlertsFragment extends Fragment implements
+        LoaderCallbacks<Cursor> {
 
 	private ViewGroup mRootView;
     private ViewPagerAdapter mAdapter;

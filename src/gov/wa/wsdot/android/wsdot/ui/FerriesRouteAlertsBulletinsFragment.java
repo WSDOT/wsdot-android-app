@@ -46,8 +46,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class FerriesRouteAlertsBulletinsFragment extends ListFragment
-	implements LoaderCallbacks<ArrayList<FerriesRouteAlertItem>> {
+public class FerriesRouteAlertsBulletinsFragment extends ListFragment implements
+        LoaderCallbacks<ArrayList<FerriesRouteAlertItem>> {
 
 	private static final String TAG = FerriesRouteAlertsBulletinsFragment.class.getName();
 	private static ArrayList<FerriesRouteAlertItem> routeAlertItems;

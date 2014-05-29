@@ -57,9 +57,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-public class CameraImageFragment extends Fragment
-	implements LoaderCallbacks<Drawable>,
-	SwipeRefreshLayout.OnRefreshListener {
+public class CameraImageFragment extends Fragment implements
+        LoaderCallbacks<Drawable>,
+        SwipeRefreshLayout.OnRefreshListener {
 
 	private static String mUrl;
 	private ViewGroup mRootView;

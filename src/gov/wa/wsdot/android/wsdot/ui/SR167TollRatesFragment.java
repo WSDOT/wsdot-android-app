@@ -31,7 +31,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class SR167TollRatesFragment extends Fragment {
-	WebView webview;
+	
+    private WebView webview;
 	private ViewGroup mRootView;
 	private View mLoadingSpinner;
 	

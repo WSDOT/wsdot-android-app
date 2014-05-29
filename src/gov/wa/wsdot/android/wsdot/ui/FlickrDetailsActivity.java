@@ -36,7 +36,7 @@ import android.support.v7.widget.ShareActionProvider;
 
 public class FlickrDetailsActivity extends ActionBarActivity {
 	
-    WebView webview;
+    private WebView webview;
 	private String mTitle;
 	private String mLink;
 	private String mContent;

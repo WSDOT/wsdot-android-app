@@ -39,7 +39,7 @@ import android.webkit.WebViewClient;
 
 public class NewsDetailsFragment extends Fragment {
 
-	WebView webview;
+	private WebView webview;
 	private String mPublishDate;
 	private String mTitle;
 	private String mDescription;

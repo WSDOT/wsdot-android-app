@@ -52,12 +52,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class FerriesRouteSchedulesFragment extends ListFragment
-	implements LoaderCallbacks<Cursor>,
-	SwipeRefreshLayout.OnRefreshListener {
+public class FerriesRouteSchedulesFragment extends ListFragment implements
+        LoaderCallbacks<Cursor>,
+        SwipeRefreshLayout.OnRefreshListener {
 
 	@SuppressWarnings("unused")
-    private static final String TAG = FerriesRouteSchedulesFragment.class.getName();
+    private static final String TAG = FerriesRouteSchedulesFragment.class.getSimpleName();
 	private static RouteSchedulesAdapter adapter;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
 	private View mEmptyView;

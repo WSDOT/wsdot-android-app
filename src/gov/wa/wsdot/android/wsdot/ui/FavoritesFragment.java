@@ -54,9 +54,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class FavoritesFragment extends ListFragment
-	implements LoaderCallbacks<Cursor>,
-	SwipeRefreshLayout.OnRefreshListener {
+public class FavoritesFragment extends ListFragment implements
+        LoaderCallbacks<Cursor>,
+        SwipeRefreshLayout.OnRefreshListener {
 
 	private View mEmptyView;
 	private SeparatedListAdapter mAdapter;

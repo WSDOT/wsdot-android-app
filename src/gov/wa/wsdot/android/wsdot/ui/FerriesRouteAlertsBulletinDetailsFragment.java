@@ -44,8 +44,8 @@ import android.webkit.WebViewClient;
 
 public class FerriesRouteAlertsBulletinDetailsFragment extends Fragment {
 
-	WebView webview;
-	DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+	private WebView webview;
+	private DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	private String mAlertPublishDate;
 	private String mAlertFullTitle;
 	private String mAlertDescription;

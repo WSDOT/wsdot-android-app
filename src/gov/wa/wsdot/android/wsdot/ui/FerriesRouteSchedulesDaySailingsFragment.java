@@ -48,9 +48,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class FerriesRouteSchedulesDaySailingsFragment extends ListFragment
-	implements LoaderCallbacks<ArrayList<FerriesScheduleDateItem>> {
+        implements LoaderCallbacks<ArrayList<FerriesScheduleDateItem>> {
 	
-	private static final String TAG = FerriesRouteSchedulesDaySailingsFragment.class.getName();
+	private static final String TAG = FerriesRouteSchedulesDaySailingsFragment.class.getSimpleName();
 	private static ArrayList<FerriesScheduleDateItem> scheduleDateItems;
 	private static SailingsAdapter adapter;
 	private static View mLoadingSpinner;

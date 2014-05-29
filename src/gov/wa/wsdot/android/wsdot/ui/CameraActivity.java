@@ -30,7 +30,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 
 public class CameraActivity extends ActionBarActivity {
-	private ContentResolver resolver;
+	
+    private ContentResolver resolver;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

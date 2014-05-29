@@ -51,9 +51,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MountainPassesFragment extends ListFragment
-	implements LoaderCallbacks<Cursor>,
-	SwipeRefreshLayout.OnRefreshListener {
+public class MountainPassesFragment extends ListFragment implements
+        LoaderCallbacks<Cursor>,
+        SwipeRefreshLayout.OnRefreshListener {
 	
 	@SuppressWarnings("unused")
 	private static final String TAG = MountainPassesFragment.class.getSimpleName();

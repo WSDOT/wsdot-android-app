@@ -58,12 +58,13 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class TravelTimesFragment extends ListFragment
-	implements LoaderCallbacks<Cursor>,	OnQueryTextListener,
-	SwipeRefreshLayout.OnRefreshListener {
+public class TravelTimesFragment extends ListFragment implements
+        LoaderCallbacks<Cursor>,
+        OnQueryTextListener,
+        SwipeRefreshLayout.OnRefreshListener {
 
 	@SuppressWarnings("unused")
-    private static final String TAG = TravelTimesFragment.class.getName();
+    private static final String TAG = TravelTimesFragment.class.getSimpleName();
 	private static TravelTimesAdapter adapter;
 	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
 	private String mFilter;
