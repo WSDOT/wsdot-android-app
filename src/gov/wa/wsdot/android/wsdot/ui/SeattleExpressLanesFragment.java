@@ -43,25 +43,25 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class SeattleExpressLanesFragment extends ListFragment
-	implements LoaderCallbacks<ArrayList<ExpressLaneItem>> {
+public class SeattleExpressLanesFragment extends ListFragment implements
+        LoaderCallbacks<ArrayList<ExpressLaneItem>>,
+        SwipeRefreshLayout.OnRefreshListener {
 	
 	private static ExpressLaneItemAdapter adapter;
+	
 	@SuppressLint("UseSparseArrays")
 	private HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
 	private View mEmptyView;
-	private static View mLoadingSpinner;
+	private static SwipeRefreshLayout swipeRefreshLayout;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,7 +70,7 @@ public class SeattleExpressLanesFragment extends ListFragment
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
-		setHasOptionsMenu(true);
+
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/Traffic Map/Seattle/Express Lanes");
     }
     
@@ -78,14 +78,21 @@ public class SeattleExpressLanesFragment extends ListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorScheme(
+                17170451,  // android.R.color.holo_blue_bright 
+                17170452,  // android.R.color.holo_green_light 
+                17170456,  // android.R.color.holo_orange_light 
+                17170454); // android.R.color.holo_red_light)
+        
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
@@ -105,23 +112,6 @@ public class SeattleExpressLanesFragment extends ListFragment
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);
     }     
-    
-    @Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.refresh, menu);  	
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.menu_refresh:
-			getLoaderManager().restartLoader(0, null, this);
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}
-	
 
 	public Loader<ArrayList<ExpressLaneItem>> onCreateLoader(int id, Bundle args) {
 		// This is called when a new Loader needs to be created. There
@@ -130,7 +120,6 @@ public class SeattleExpressLanesFragment extends ListFragment
 	}
 
 	public void onLoadFinished(Loader<ArrayList<ExpressLaneItem>> loader, ArrayList<ExpressLaneItem> data) {
-		mLoadingSpinner.setVisibility(View.GONE);
 
 		if (!data.isEmpty()) {
 			adapter.setData(data);
@@ -139,6 +128,8 @@ public class SeattleExpressLanesFragment extends ListFragment
 			t.setText(R.string.no_connection);
 			getListView().setEmptyView(mEmptyView);
 		}
+		
+		swipeRefreshLayout.setRefreshing(false);
 	}
 
 	public void onLoaderReset(Loader<ArrayList<ExpressLaneItem>> loader) {
@@ -209,8 +200,8 @@ public class SeattleExpressLanesFragment extends ListFragment
 		protected void onStartLoading() {
 			super.onStartLoading();
 			
+			swipeRefreshLayout.setRefreshing(true);
 			adapter.clear();
-			mLoadingSpinner.setVisibility(View.VISIBLE);
 			forceLoad();
 		}
 
@@ -318,5 +309,9 @@ public class SeattleExpressLanesFragment extends ListFragment
 		public TextView text;
 		public ImageView icon;
 	}
+
+    public void onRefresh() {
+        getLoaderManager().restartLoader(0, null, this);        
+    }
 
 }

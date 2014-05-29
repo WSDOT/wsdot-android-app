@@ -41,27 +41,26 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-public class SeattleTrafficAlertsFragment extends ListFragment
-	implements LoaderCallbacks<ArrayList<SeattleIncidentItem>> {
+public class SeattleTrafficAlertsFragment extends ListFragment implements
+        LoaderCallbacks<ArrayList<SeattleIncidentItem>>,
+        SwipeRefreshLayout.OnRefreshListener {
 
-	private static final String TAG = SeattleTrafficAlertsFragment.class.getName();
+	private static final String TAG = SeattleTrafficAlertsFragment.class.getSimpleName();
 	private static ArrayList<SeattleIncidentItem> seattleIncidentItems = null;
     private static MyCustomAdapter mAdapter;
-    private static View mLoadingSpinner;
     private static List<Integer> blockingCategory = new ArrayList<Integer>();
     private static List<Integer> constructionCategory = new ArrayList<Integer>();
     private static List<Integer> specialCategory = new ArrayList<Integer>();
-	private static View mEmptyView;    
+	private static View mEmptyView;
+	private static SwipeRefreshLayout swipeRefreshLayout;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -70,7 +69,6 @@ public class SeattleTrafficAlertsFragment extends ListFragment
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
-        setHasOptionsMenu(true);
         
         AnalyticsUtils.getInstance(getActivity()).trackPageView("/Traffic Map/Seattle/Seattle Alerts");
 	}    
@@ -79,14 +77,21 @@ public class SeattleTrafficAlertsFragment extends ListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorScheme(
+                17170451,  // android.R.color.holo_blue_bright 
+                17170452,  // android.R.color.holo_green_light 
+                17170456,  // android.R.color.holo_orange_light 
+                17170454); // android.R.color.holo_red_light)
+        
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
@@ -129,22 +134,6 @@ public class SeattleTrafficAlertsFragment extends ListFragment
         specialCategory.add(29); // Huskies game		
 	}
 	
-    @Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	super.onCreateOptionsMenu(menu, inflater);
-    	inflater.inflate(R.menu.refresh, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.menu_refresh:
-			getLoaderManager().restartLoader(0, null, this);
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}    
-	
 	public Loader<ArrayList<SeattleIncidentItem>> onCreateLoader(int id, Bundle args) {
 		// This is called when a new Loader needs to be created. There
         // is only one Loader with no arguments, so it is simple.
@@ -152,7 +141,6 @@ public class SeattleTrafficAlertsFragment extends ListFragment
 	}
 
 	public void onLoadFinished(Loader<ArrayList<SeattleIncidentItem>> loader, ArrayList<SeattleIncidentItem> data) {
-		mLoadingSpinner.setVisibility(View.GONE);
 		
 		if (!data.isEmpty()) {
 			mAdapter.setData(data);
@@ -161,6 +149,8 @@ public class SeattleTrafficAlertsFragment extends ListFragment
 			t.setText(R.string.no_connection);
 			getListView().setEmptyView(mEmptyView);
 		}
+		
+		swipeRefreshLayout.setRefreshing(false);
 	}
 
 	public void onLoaderReset(Loader<ArrayList<SeattleIncidentItem>> loader) {
@@ -170,7 +160,8 @@ public class SeattleTrafficAlertsFragment extends ListFragment
 	/**
 	 * A custom Loader that loads all of the Seattle incident alerts from the data server.
 	 */	
-	public static class SeattleIncidentItemsLoader extends AsyncTaskLoader<ArrayList<SeattleIncidentItem>> {
+    public static class SeattleIncidentItemsLoader extends
+            AsyncTaskLoader<ArrayList<SeattleIncidentItem>> {
 
 		public SeattleIncidentItemsLoader(Context context) {
 			super(context);
@@ -229,9 +220,10 @@ public class SeattleTrafficAlertsFragment extends ListFragment
 		protected void onStartLoading() {
 			super.onStartLoading();
 			
+            swipeRefreshLayout.setRefreshing(true);
 			mAdapter.mData.clear();
 			mAdapter.notifyDataSetChanged();
-			mLoadingSpinner.setVisibility(View.VISIBLE);
+
 			forceLoad();
 		}
 
@@ -413,6 +405,10 @@ public class SeattleTrafficAlertsFragment extends ListFragment
  
     public static class ViewHolder {
         public TextView textView;
+    }
+
+    public void onRefresh() {
+        getLoaderManager().restartLoader(0, null, this);        
     }
 
 }
