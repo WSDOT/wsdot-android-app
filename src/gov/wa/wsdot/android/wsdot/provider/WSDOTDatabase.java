@@ -33,9 +33,12 @@ import android.util.Log;
 
 public class WSDOTDatabase extends SQLiteOpenHelper {
 
-	private static final String DEBUG_TAG = "WSDOTDatabase";
+	private static final String TAG = WSDOTDatabase.class.getSimpleName();
 	private static final String DATABASE_NAME = "wsdot.db";
-    private static final int DATABASE_VERSION = 1;
+    
+	private static final int VER_1 = 1;
+	private static final int VER_2 = 2;
+	private static final int DATABASE_VERSION = VER_2;
 
     interface Tables {
     	String CACHES = "caches";
@@ -77,7 +80,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + HighwayAlertsColumns.HIGHWAY_ALERT_LONGITUDE + " REAL,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_CATEGORY + " TEXT,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_PRIORITY + " TEXT,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_ROAD_NAME + " TEXT);");
+                + HighwayAlertsColumns.HIGHWAY_ALERT_ROAD_NAME + " TEXT,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_LAST_UPDATED + " TEXT);");
 
         db.execSQL("CREATE TABLE " + Tables.MOUNTAIN_PASSES + " ("
         		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -133,17 +137,37 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.d(DEBUG_TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
-		/*
-		db.execSQL("DROP TABLE IF EXISTS " + Tables.CACHES);
-		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMERAS);
-		db.execSQL("DROP TABLE IF EXISTS " + Tables.HIGHWAY_ALERTS);
-		db.execSQL("DROP TABLE IF EXISTS " + Tables.MOUNTAIN_PASSES);
-		db.execSQL("DROP TABLE IF EXISTS " + Tables.FERRIES_SCHEDULES);
-		db.execSQL("DROP TABLE IF EXISTS " + Tables.BORDER_WAIT);
-        
-        onCreate(db);
-        */		
+		Log.d(TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
+		
+		int version = oldVersion;
+		
+		switch (version) {
+    		case VER_1:
+    		    Log.i(TAG, "Performing migration for DB version " + version);
+
+    		    db.execSQL("ALTER TABLE " + Tables.HIGHWAY_ALERTS
+                        + " ADD COLUMN " + HighwayAlertsColumns.HIGHWAY_ALERT_LAST_UPDATED + " TEXT");
+    		case VER_2:
+    		    version = VER_2;
+    		    Log.i(TAG, "DB at version " + version);
+
+    		    // Current version, no further action necessary.
+		}
+
+		Log.d(TAG, "After upgrade logic, at version " + version);
+		if (version != DATABASE_VERSION) {
+		    Log.i(TAG, "Destroying old data during upgrade");
+
+	        db.execSQL("DROP TABLE IF EXISTS " + Tables.CACHES);
+	        db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMERAS);
+	        db.execSQL("DROP TABLE IF EXISTS " + Tables.HIGHWAY_ALERTS);
+	        db.execSQL("DROP TABLE IF EXISTS " + Tables.MOUNTAIN_PASSES);
+	        db.execSQL("DROP TABLE IF EXISTS " + Tables.TRAVEL_TIMES);
+            db.execSQL("DROP TABLE IF EXISTS " + Tables.FERRIES_SCHEDULES);
+	        db.execSQL("DROP TABLE IF EXISTS " + Tables.BORDER_WAIT);
+	        
+	        onCreate(db);
+		}
 	}
 	
 	private void seedData(SQLiteDatabase db) {

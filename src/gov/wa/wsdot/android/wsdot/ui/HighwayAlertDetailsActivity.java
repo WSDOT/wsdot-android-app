@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -39,6 +40,10 @@ public class HighwayAlertDetailsActivity extends ActionBarActivity {
 	private String mTitle;
 	private String mDescription;
 	private String mContent;
+	private String mLatitude;
+	private String mLongitude;
+	private String mLastUpdated;
+	private String mGoogleStaticMap;
 	private View mLoadingSpinner;	
 
 	@SuppressLint("SetJavaScriptEnabled")
@@ -49,6 +54,9 @@ public class HighwayAlertDetailsActivity extends ActionBarActivity {
 		Bundle b = getIntent().getExtras();
 		mTitle = "Highway Alert - " + b.getString("title");
 		mDescription = b.getString("description");
+		mLatitude = b.getString("latitude");
+		mLongitude = b.getString("longitude");
+		mLastUpdated = b.getString("updated");
 		
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setTitle(mTitle);
@@ -60,7 +68,16 @@ public class HighwayAlertDetailsActivity extends ActionBarActivity {
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		
-		mContent = "<p>" + mDescription + "</p>";
+		mGoogleStaticMap = "http://maps.googleapis.com/maps/api/staticmap?center="
+                + mLatitude + "," + mLongitude
+                + "&zoom=15&size=320x320&maptype=roadmap&markers="
+                + mLatitude + "," + mLongitude
+                + "&sensor=false";
+		
+		mContent = "<p>" + mDescription + "</p>"
+		        + "<p>" + ParserUtils.relativeTime(mLastUpdated, "MMMM d, yyyy h:mm a", false) + "</p>"
+		        + "<img src=" + mGoogleStaticMap + ">";
+		
 		webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
 	}
 

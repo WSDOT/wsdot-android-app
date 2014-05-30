@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,6 +48,7 @@ public class WSDOTContract {
 		String HIGHWAY_ALERT_CATEGORY = "highway_alert_category";
 		String HIGHWAY_ALERT_PRIORITY = "highway_alert_priority";
 		String HIGHWAY_ALERT_ROAD_NAME = "highway_alert_road_name";
+		String HIGHWAY_ALERT_LAST_UPDATED = "highway_alert_last_updated";
 	}
 
 	interface MountainPassesColumns {

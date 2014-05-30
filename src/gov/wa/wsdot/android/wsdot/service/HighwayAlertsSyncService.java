@@ -26,7 +26,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -61,6 +64,7 @@ public class HighwayAlertsSyncService extends IntentService {
 		long now = System.currentTimeMillis();
 		boolean shouldUpdate = true;
 		String responseString = "";
+		DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
 		/** 
 		 * Check the cache table for the last time data was downloaded. If we are within
@@ -125,6 +129,10 @@ public class HighwayAlertsSyncService extends IntentService {
 					alertData.put(HighwayAlerts.HIGHWAY_ALERT_LATITUDE, startRoadwayLocation.getString("Latitude"));
 					alertData.put(HighwayAlerts.HIGHWAY_ALERT_LONGITUDE, startRoadwayLocation.getString("Longitude"));
 					alertData.put(HighwayAlerts.HIGHWAY_ALERT_ROAD_NAME, startRoadwayLocation.getString("RoadName"));
+					alertData.put(HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED,
+					        dateFormat.format(new Date(Long.parseLong(item
+					                .getString("LastUpdatedTime").substring(6, 19)))));
+					
 					alerts.add(alertData);
 				}
 				

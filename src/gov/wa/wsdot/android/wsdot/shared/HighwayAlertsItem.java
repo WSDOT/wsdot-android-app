@@ -40,11 +40,13 @@ public class HighwayAlertsItem {
     }
 
     public HighwayAlertsItem(Double startLatitude, Double startLongitude,
-            String eventCategory, String headlineDescription, Integer categoryIcon) {
+            String eventCategory, String headlineDescription, String lastUpdatedTime,
+            Integer categoryIcon) {
         this.startLatitude = startLatitude;
         this.startLongitude = startLongitude;
         this.eventCategory = eventCategory;
         this.headlineDescription = headlineDescription;
+        this.lastUpdatedTime = lastUpdatedTime;
         this.categoryIcon = categoryIcon;
     }
 
