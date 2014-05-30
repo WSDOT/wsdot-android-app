@@ -25,6 +25,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends ActionBarActivit
         setContentView(R.layout.activity_ferries_route_schedules_day_departures);
 		
 		DateFormat dateFormat = new SimpleDateFormat("EEEE");
+		dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 		Bundle args = getIntent().getExtras();
 		String title = args.getString("terminalNames");
 		mPosition = args.getInt("position");

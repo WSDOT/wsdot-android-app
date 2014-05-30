@@ -28,6 +28,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 
 import android.app.Activity;
 import android.content.Context;
@@ -47,7 +48,7 @@ import android.widget.TextView;
 public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
         implements LoaderCallbacks<ArrayList<FerriesScheduleTimesItem>> {
 
-	private static final String TAG = FerriesRouteSchedulesDayDeparturesFragment.class.getName();
+	private static final String TAG = FerriesRouteSchedulesDayDeparturesFragment.class.getSimpleName();
 	private static FerriesTerminalItem terminalItem;
 	private static ArrayList<FerriesAnnotationsItem> annotations;
 	private static ArrayList<FerriesScheduleTimesItem> times;
@@ -257,6 +258,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 	        DateFormat dateFormat = new SimpleDateFormat("hh:mm a");
+	        dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+	        
 	        ViewHolder holder;
 	        
 	        if (convertView == null) {
