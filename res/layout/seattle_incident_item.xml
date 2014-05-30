@@ -9,6 +9,14 @@
 		android:textSize="@dimen/text_size_medium"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    />
+	    android:layout_marginBottom="7dp" />
 
+    <TextView
+        android:id="@+id/last_updated"
+        android:textSize="@dimen/text_size_small"
+        android:textColor="@color/semi_black"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/description" />
+	
 </RelativeLayout>

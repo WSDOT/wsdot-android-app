@@ -21,12 +21,16 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.SeattleIncidentItem;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -171,6 +175,7 @@ public class SeattleTrafficAlertsFragment extends ListFragment implements
 		public ArrayList<SeattleIncidentItem> loadInBackground() {
 			seattleIncidentItems = new ArrayList<SeattleIncidentItem>();
 			SeattleIncidentItem i = null;
+			DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	        
 			try {
 				URL url = new URL("http://data.wsdot.wa.gov/mobile/SeattleIncidents.js");
@@ -195,6 +200,8 @@ public class SeattleTrafficAlertsFragment extends ListFragment implements
 					i.setDescription(item.getString("description"));
 					i.setCategory(item.getInt("category"));
 					i.setGuid(item.getInt("guid"));
+					i.setLastUpdatedTime(dateFormat.format(new Date(Long.parseLong(item
+                            .getString("updated").substring(6, 19)))));
 					
 					seattleIncidentItems.add(i);
 				}
@@ -254,16 +261,16 @@ public class SeattleTrafficAlertsFragment extends ListFragment implements
         private static final int TYPE_ITEM = 0;
         private static final int TYPE_SEPARATOR = 1;
         private static final int TYPE_MAX_COUNT = TYPE_SEPARATOR + 1;
-        private ArrayList<String> mData = new ArrayList<String>();
+        private ArrayList<SeattleIncidentItem> mData = new ArrayList<SeattleIncidentItem>();
         private LayoutInflater mInflater;
         private TreeSet<Integer> mSeparatorsSet = new TreeSet<Integer>();
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
-		private Stack<String> blocking = new Stack<String>();
-    	private Stack<String> construction = new Stack<String>();
-    	private Stack<String> special = new Stack<String>();
-    	private Stack<String> closed = new Stack<String>();
-    	private Stack<String> amberalert = new Stack<String>();
+		private Stack<SeattleIncidentItem> blocking = new Stack<SeattleIncidentItem>();
+    	private Stack<SeattleIncidentItem> construction = new Stack<SeattleIncidentItem>();
+    	private Stack<SeattleIncidentItem> special = new Stack<SeattleIncidentItem>();
+    	private Stack<SeattleIncidentItem> closed = new Stack<SeattleIncidentItem>();
+    	private Stack<SeattleIncidentItem> amberalert = new Stack<SeattleIncidentItem>();
         
         public MyCustomAdapter(Context context) {
             mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -276,50 +283,55 @@ public class SeattleTrafficAlertsFragment extends ListFragment implements
                 for (int i=0; i < size; i++) {
                 	// Check if Traffic Management Center is closed
 					if (data.get(i).getCategory().equals(27)) {
-						closed.push(data.get(i).getDescription());
+						//closed.push(data.get(i).getDescription());
+					    closed.push(data.get(i));
 						break; // TSMC is closed so stop here
 					}
 					// Check if there is an active amber alert
 					else if (data.get(i).getCategory().equals(24)) {
-						amberalert.push(data.get(i).getDescription());
+						//amberalert.push(data.get(i).getDescription());
+					    amberalert.push(data.get(i));
 					}
 					else if (blockingCategory.contains(data.get(i).getCategory())) {
-						blocking.push(data.get(i).getDescription());
+						//blocking.push(data.get(i).getDescription());
+					    blocking.push(data.get(i));
 					}
 	                else if (constructionCategory.contains(data.get(i).getCategory())) {
-	                    construction.push(data.get(i).getDescription());
+	                    //construction.push(data.get(i).getDescription());
+	                    construction.push(data.get(i));
 	                }
 	                else if (specialCategory.contains(data.get(i).getCategory())) {
-	                    special.push(data.get(i).getDescription());
+	                    //special.push(data.get(i).getDescription());
+	                    special.push(data.get(i));
 	                }
                 }
     			
 	        	if (amberalert != null && amberalert.size() != 0) {
-	    			mAdapter.addSeparatorItem("Amber Alerts");
+	    			mAdapter.addSeparatorItem(new SeattleIncidentItem("Amber Alerts"));
 	    			while (!amberalert.empty()) {
 	    				mAdapter.addItem(amberalert.pop());
 	    			}
 	    		}
 	    		if (closed != null && closed.size() == 0) {
-	    			mAdapter.addSeparatorItem("Blocking Incidents");				
+	    			mAdapter.addSeparatorItem(new SeattleIncidentItem("Blocking Incidents"));				
 	    			if (blocking.empty()) {
-	    				mAdapter.addItem("None reported");
+	    				mAdapter.addItem(new SeattleIncidentItem("None reported"));
 	    			} else {
 	    				while (!blocking.empty()) {
 	    					mAdapter.addItem(blocking.pop());
 	    				}					
 	    			}
-	    			mAdapter.addSeparatorItem("Construction Closures");
+	    			mAdapter.addSeparatorItem(new SeattleIncidentItem("Construction Closures"));
 	    			if (construction.empty()) {
-	    				mAdapter.addItem("None reported");
+	    				mAdapter.addItem(new SeattleIncidentItem("None reported"));
 	    			} else {
 	    				while (!construction.empty()) {
 	    					mAdapter.addItem(construction.pop());
 	    				}					
 	    			}
-	    			mAdapter.addSeparatorItem("Special Events");
+	    			mAdapter.addSeparatorItem(new SeattleIncidentItem("Special Events"));
 	    			if (special.empty()) {
-	    				mAdapter.addItem("None reported");
+	    				mAdapter.addItem(new SeattleIncidentItem("None reported"));
 	    			} else {
 	    				while (!special.empty()) {
 	    					mAdapter.addItem(special.pop());
@@ -332,12 +344,12 @@ public class SeattleTrafficAlertsFragment extends ListFragment implements
     		}
         }        
         
-        public void addItem(final String item) {
+        public void addItem(final SeattleIncidentItem item) {
             mData.add(item);
             notifyDataSetChanged();
         }
  
-        public void addSeparatorItem(final String item) {
+        public void addSeparatorItem(final SeattleIncidentItem item) {
             mData.add(item);
             // save separator position
             mSeparatorsSet.add(mData.size() - 1);
@@ -367,7 +379,7 @@ public class SeattleTrafficAlertsFragment extends ListFragment implements
             return mData.size();
         }
  
-        public String getItem(int position) {
+        public SeattleIncidentItem getItem(int position) {
             return mData.get(position);
         }
  
@@ -378,6 +390,7 @@ public class SeattleTrafficAlertsFragment extends ListFragment implements
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder holder = null;
             int type = getItemViewType(position);
+            
             if (convertView == null) {
                 holder = new ViewHolder();
                 switch (type) {
@@ -385,6 +398,8 @@ public class SeattleTrafficAlertsFragment extends ListFragment implements
                         convertView = mInflater.inflate(R.layout.seattle_incident_item, null);
                         holder.textView = (TextView)convertView.findViewById(R.id.description);
                         holder.textView.setTypeface(tf);
+                        holder.updated = (TextView)convertView.findViewById(R.id.last_updated);
+                        holder.updated.setTypeface(tf);
                         break;
                     case TYPE_SEPARATOR:
                         convertView = mInflater.inflate(R.layout.list_header, null);
@@ -397,7 +412,14 @@ public class SeattleTrafficAlertsFragment extends ListFragment implements
                 holder = (ViewHolder)convertView.getTag();
             }
             
-            holder.textView.setText(mData.get(position));
+            holder.textView.setText(mData.get(position).getDescription());
+
+            if (type == TYPE_ITEM) {
+                holder.updated.setText(ParserUtils.relativeTime(
+                        mData.get(position).getLastUpdatedTime(),
+                        "MMMM d, yyyy h:mm a", false));                
+            }
+
             return convertView;
         }
  
@@ -405,6 +427,7 @@ public class SeattleTrafficAlertsFragment extends ListFragment implements
  
     public static class ViewHolder {
         public TextView textView;
+        public TextView updated;
     }
 
     public void onRefresh() {

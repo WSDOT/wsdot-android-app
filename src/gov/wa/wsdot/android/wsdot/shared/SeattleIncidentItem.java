@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,14 @@ public class SeattleIncidentItem {
 	private String description;
 	private Integer category;
 	private Integer guid;
+	private String lastUpdatedTime;
+	
+	public SeattleIncidentItem() {
+	}
+	
+	public SeattleIncidentItem(String description) {
+	    this.description = description;
+	}
 	
 	public String getTitle() {
 		return title;
@@ -48,4 +56,10 @@ public class SeattleIncidentItem {
 	public void setGuid(Integer guid) {
 		this.guid = guid;
 	}
+    public String getLastUpdatedTime() {
+        return lastUpdatedTime;
+    }
+    public void setLastUpdatedTime(String lastUpdatedTime) {
+        this.lastUpdatedTime = lastUpdatedTime;
+    }
 }
