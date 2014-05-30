@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/ScrollView01"
-	android:layout_width="fill_parent"
+	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 	
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:layout_width="fill_parent"
+	<LinearLayout
+	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:orientation="vertical"
 	    android:padding="14dp">
@@ -13,7 +13,7 @@
 		<TextView
 		    android:id="@+id/date_updated"
 		    android:textSize="@dimen/text_size_medium"
-		    android:layout_width="fill_parent"
+		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:paddingBottom="15dp"
 		    />    
@@ -21,22 +21,21 @@
 		<TextView
 		    android:id="@+id/weather_condition_title"
 		    android:textSize="@dimen/text_size_medium"
-		    android:layout_width="fill_parent"
+		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    />    
 	
 		<TextView
 	    	android:id="@+id/weather_condition_text"
 	    	android:textSize="@dimen/text_size_medium"
-	    	android:layout_width="fill_parent"
+	    	android:layout_width="match_parent"
 	    	android:layout_height="wrap_content"
 	    	android:paddingBottom="10dp"
 	    	/>
 	
 		<TableLayout 
-		    xmlns:android="http://schemas.android.com/apk/res/android"
 		    android:layout_height="wrap_content" 
-		    android:layout_width="fill_parent">
+		    android:layout_width="match_parent">
 	
 		    <TableRow> 
 				<TextView
@@ -48,7 +47,7 @@
 				<TextView
 				    android:id="@+id/temperature_text"
 				    android:textSize="@dimen/text_size_medium"
-				    android:layout_width="fill_parent"
+				    android:layout_width="match_parent"
 				    android:paddingBottom="10dp"
 				    />
 		    </TableRow>
@@ -63,7 +62,7 @@
 				<TextView
 				    android:id="@+id/elevation_text"
 				    android:textSize="@dimen/text_size_medium"
-				    android:layout_width="fill_parent"
+				    android:layout_width="match_parent"
 				    android:paddingBottom="10dp"
 				    />	    
 		    </TableRow>
@@ -73,14 +72,14 @@
 		<TextView
 		    android:id="@+id/road_condition_title"
 		    android:textSize="@dimen/text_size_medium"
-		    android:layout_width="fill_parent"
+		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    />    
 	
 		<TextView
 	    	android:id="@+id/road_condition_text"
 	    	android:textSize="@dimen/text_size_medium"
-	    	android:layout_width="fill_parent"
+	    	android:layout_width="match_parent"
 	    	android:layout_height="wrap_content"
 	    	android:paddingBottom="10dp"
 	    	/>
@@ -88,14 +87,14 @@
 		<TextView
 		    android:id="@+id/restriction_one_title"
 		    android:textSize="@dimen/text_size_medium"
-		    android:layout_width="fill_parent"
+		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    />    
 	
 		<TextView
 	    	android:id="@+id/restriction_one_text"
 	    	android:textSize="@dimen/text_size_medium"
-	    	android:layout_width="fill_parent"
+	    	android:layout_width="match_parent"
 	    	android:layout_height="wrap_content"
 	    	android:paddingBottom="10dp"
 	    	/>	  
@@ -103,14 +102,14 @@
 		<TextView
 		    android:id="@+id/restriction_two_title"
 		    android:textSize="@dimen/text_size_medium"
-		    android:layout_width="fill_parent"
+		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    />    
 	
 		<TextView
 	    	android:id="@+id/restriction_two_text"
 	    	android:textSize="@dimen/text_size_medium"
-	    	android:layout_width="fill_parent"
+	    	android:layout_width="match_parent"
 	    	android:layout_height="wrap_content"
 	    	android:paddingBottom="10dp"
 	    	/>

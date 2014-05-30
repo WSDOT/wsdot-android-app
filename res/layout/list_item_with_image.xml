@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
+	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:paddingTop="8dp"
 	android:paddingRight="10dp"
@@ -13,7 +13,7 @@
 		android:id="@+id/image"
 		android:adjustViewBounds="true"
 		android:layout_alignParentTop="true"
-		android:layout_width="fill_parent"
+		android:layout_width="match_parent"
     	android:layout_height="wrap_content"
 	    />
     
@@ -42,7 +42,7 @@
 		android:paddingLeft="8dp"
 		android:paddingRight="8dp"
 		android:paddingBottom="7dp"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/image"
         />
@@ -55,7 +55,7 @@
 		android:paddingLeft="8dp"
 		android:paddingRight="8dp"
 		android:paddingBottom="7dp"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/title"
         />
@@ -64,7 +64,7 @@
         android:id="@+id/created_at"
         android:textSize="@dimen/text_size_small"
         android:textColor="@color/semi_black"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/description"
         android:paddingLeft="8dp"
