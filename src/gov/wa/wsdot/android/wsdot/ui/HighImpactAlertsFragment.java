@@ -115,7 +115,7 @@ public class HighImpactAlertsFragment extends Fragment implements
 	
     private Runnable runnable = new Runnable() {
         public void run() {
-        	Intent intent = new Intent(getActivity().getApplicationContext(), HighwayAlertsSyncService.class);
+        	Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
         	getActivity().startService(intent);
         	mHandler.postDelayed(runnable, (1 * DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
         }
