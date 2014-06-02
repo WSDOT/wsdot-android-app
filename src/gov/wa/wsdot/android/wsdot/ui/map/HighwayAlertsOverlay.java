@@ -52,7 +52,8 @@ public class HighwayAlertsOverlay {
 			HighwayAlerts.HIGHWAY_ALERT_LONGITUDE,
 			HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
 			HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
-			HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED
+			HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED,
+			HighwayAlerts.HIGHWAY_ALERT_ID
 			};
 	
 	public HighwayAlertsOverlay(Activity activity, LatLngBounds bounds) {
@@ -94,7 +95,8 @@ public class HighwayAlertsOverlay {
 							alertCursor.getString(2),
 							alertCursor.getString(3),
 							alertCursor.getString(4),
-							getCategoryIcon(eventCategories, alertCursor.getString(2))));
+							getCategoryIcon(eventCategories, alertCursor.getString(2)),
+							alertCursor.getString(5)));
 				    }
 					alertCursor.moveToNext();
 				}

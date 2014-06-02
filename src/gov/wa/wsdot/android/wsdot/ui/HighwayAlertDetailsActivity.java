@@ -19,9 +19,12 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,31 +38,67 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class HighwayAlertDetailsActivity extends ActionBarActivity {
+    
+    private ContentResolver resolver;
 
 	private WebView webview;
-	private String mTitle;
-	private String mDescription;
-	private String mContent;
-	private String mLatitude;
-	private String mLongitude;
-	private String mLastUpdated;
-	private String mGoogleStaticMap;
 	private View mLoadingSpinner;	
+    private String title = "";
+    private String description = "";
 
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+        resolver = getContentResolver();
+        Cursor cursor = null;
+        
+        title = "";
+        description = "";
+        String content = "";
+        String latitude = "";
+        String longitude = "";
+        String lastUpdated = "";
+        String staticGoogleMap = "";
+        
+        String[] projection = {
+                HighwayAlerts.HIGHWAY_ALERT_LATITUDE,
+                HighwayAlerts.HIGHWAY_ALERT_LONGITUDE,
+                HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
+                HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
+                HighwayAlerts.HIGHWAY_ALERT_PRIORITY,
+                HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED,
+                HighwayAlerts.HIGHWAY_ALERT_ID
+                };
+		
 		Bundle b = getIntent().getExtras();
-		mTitle = "Highway Alert - " + b.getString("title");
-		mDescription = b.getString("description");
-		mLatitude = b.getString("latitude");
-		mLongitude = b.getString("longitude");
-		mLastUpdated = b.getString("updated");
+		String id = b.getString("id");
+		
+        try {
+            cursor = resolver.query(
+                    HighwayAlerts.CONTENT_URI,
+                    projection,
+                    HighwayAlerts.HIGHWAY_ALERT_ID + "=?",
+                    new String[] {id},
+                    null
+                    );
+            
+            if (cursor != null && cursor.moveToFirst()) {
+                title = "Highway Alert - " + cursor.getString(2);
+                description = cursor.getString(3);
+                latitude = cursor.getString(0);
+                longitude = cursor.getString(1);
+                lastUpdated = cursor.getString(5);
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }   
 		
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setTitle(mTitle);
+		getSupportActionBar().setTitle(title);
 		
 		setContentView(R.layout.fragment_webview_with_spinner);
 		mLoadingSpinner = findViewById(R.id.loading_spinner);
@@ -68,17 +107,17 @@ public class HighwayAlertDetailsActivity extends ActionBarActivity {
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		
-		mGoogleStaticMap = "http://maps.googleapis.com/maps/api/staticmap?center="
-                + mLatitude + "," + mLongitude
+		staticGoogleMap = "http://maps.googleapis.com/maps/api/staticmap?center="
+                + latitude + "," + longitude
                 + "&zoom=15&size=320x320&maptype=roadmap&markers="
-                + mLatitude + "," + mLongitude
+                + latitude + "," + longitude
                 + "&sensor=false";
 		
-		mContent = "<p>" + mDescription + "</p>"
-		        + "<p>" + ParserUtils.relativeTime(mLastUpdated, "MMMM d, yyyy h:mm a", false) + "</p>"
-		        + "<img src=" + mGoogleStaticMap + ">";
+		content = "<p>" + description + "</p>"
+		        + "<p>" + ParserUtils.relativeTime(lastUpdated, "MMMM d, yyyy h:mm a", false) + "</p>"
+		        + "<img src=" + staticGoogleMap + ">";
 		
-		webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
+		webview.loadDataWithBaseURL(null, content, "text/html", "utf-8", null);
 	}
 
     @Override
@@ -99,8 +138,8 @@ public class HighwayAlertDetailsActivity extends ActionBarActivity {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mDescription);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, description);
         
         return shareIntent;
 	}	

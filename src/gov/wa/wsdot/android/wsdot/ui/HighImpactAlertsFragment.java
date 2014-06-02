@@ -129,7 +129,8 @@ public class HighImpactAlertsFragment extends Fragment implements
 				HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
 				HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
 				HighwayAlerts.HIGHWAY_ALERT_PRIORITY,
-				HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED
+				HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED,
+				HighwayAlerts.HIGHWAY_ALERT_ID
 				};
 
 		// We are only displaying the highest impact alerts on the dashboard.
@@ -155,6 +156,7 @@ public class HighImpactAlertsFragment extends Fragment implements
 				item.setStartLatitude(cursor.getDouble(0));
 				item.setStartLongitude(cursor.getDouble(1));
 				item.setLastUpdatedTime(cursor.getString(5));
+				item.setAlertId(cursor.getString(6));
 				alertItems.add(item);
 
 				cursor.moveToNext();
@@ -218,11 +220,7 @@ public class HighImpactAlertsFragment extends Fragment implements
 					public void onClick(View v) {
 						Bundle b = new Bundle();
 						Intent intent = new Intent(getActivity(), HighwayAlertDetailsActivity.class);
-						b.putString("title", items.get(position).getEventCategory());
-						b.putString("description", items.get(position).getExtendedDescription());
-						b.putString("latitude", String.valueOf(items.get(position).getStartLatitude()));
-						b.putString("longitude", String.valueOf(items.get(position).getStartLongitude()));
-						b.putString("updated", items.get(position).getLastUpdatedTime());
+						b.putString("id", items.get(position).getAlertId());
 						intent.putExtras(b);
 						startActivity(intent);				
 					}

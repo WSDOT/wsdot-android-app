@@ -220,8 +220,8 @@ public class TrafficMapActivity extends ActionBarActivity implements
         } else if (markers.get(marker).equalsIgnoreCase("alert")) {
             // TODO Pass alert id to details activity to lookup in database.
             intent = new Intent(this, HighwayAlertDetailsActivity.class);
-            b.putString("title", marker.getTitle());
-            b.putString("description", marker.getSnippet());
+            b.putString("id", marker.getSnippet());
+            Log.i(TAG,  "Marker ID: " + marker.getSnippet());
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);    
         }
@@ -586,7 +586,7 @@ public class TrafficMapActivity extends ActionBarActivity implements
 				        Marker marker = map.addMarker(new MarkerOptions()
 				            .position(latLng)
 				            .title(alerts.get(i).getEventCategory())
-				            .snippet(alerts.get(i).getHeadlineDescription())
+				            .snippet(alerts.get(i).getAlertId())
 				            .icon(BitmapDescriptorFactory.fromResource(alerts.get(i).getCategoryIcon()))
 				            .visible(true));
 				        
