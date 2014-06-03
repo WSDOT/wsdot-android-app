@@ -114,7 +114,7 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
         
-		camerasIntent = new Intent(this.getApplicationContext(), CamerasSyncService.class);
+		camerasIntent = new Intent(this, CamerasSyncService.class);
 		startService(camerasIntent);
     }
 	

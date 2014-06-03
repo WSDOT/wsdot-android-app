@@ -133,11 +133,11 @@ public class TrafficMapActivity extends ActionBarActivity implements
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
         zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
     
-		camerasIntent = new Intent(this.getApplicationContext(), CamerasSyncService.class);
+		camerasIntent = new Intent(this, CamerasSyncService.class);
 		setSupportProgressBarIndeterminateVisibility(true);
 		startService(camerasIntent);
 
-		alertsIntent = new Intent(this.getApplicationContext(), HighwayAlertsSyncService.class);
+		alertsIntent = new Intent(this, HighwayAlertsSyncService.class);
 		setSupportProgressBarIndeterminateVisibility(true);
 		startService(alertsIntent);
     }
