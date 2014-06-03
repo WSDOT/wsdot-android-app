@@ -67,8 +67,4 @@
     <string name="search_title">Search</string>
     <string name="search_hint">Search Travel Times</string>
 
-    <!-- Replace the apiKey with your own. See this link for more information, 
-		 http://code.google.com/android/add-ons/google-apis/mapkey.html
-	-->
-    <string name="googlemaps_api_key">0dZ0POtoHDkMBUJZ1PxSFb7OZpVtgAyT-VEmBiw</string>
 </resources>
