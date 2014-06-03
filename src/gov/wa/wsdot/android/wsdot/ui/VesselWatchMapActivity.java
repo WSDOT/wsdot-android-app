@@ -40,21 +40,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
+import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -64,10 +72,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class VesselWatchMapActivity extends ActionBarActivity implements
-        OnMarkerClickListener {
+        OnMarkerClickListener,
+        ConnectionCallbacks,
+        OnConnectionFailedListener,
+        OnMyLocationButtonClickListener {
 
 	private static final String TAG = VesselWatchMapActivity.class.getSimpleName();
 	private GoogleMap map = null;
+	private LocationClient locationClient;
 	private Handler handler = new Handler();
 	private Timer timer;
 	private VesselsOverlay vesselsOverlay = null;
@@ -88,13 +100,11 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        setContentView(R.layout.map);
         
         AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch");
         
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        
-        // Setup the unique latitude, longitude and zoom level
-        prepareMap();
         
         // Initialize AsyncTasks
         camerasOverlayTask = new CamerasOverlayTask();
@@ -109,32 +119,41 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
     }
 	
 	public void prepareMap() {
-		setContentView(R.layout.map);
-		
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        SupportMapFragment mapFragment =  (SupportMapFragment)
-            fragmentManager.findFragmentById(R.id.mapview);
+        if (map == null) {
+            map = ((SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.mapview)).getMap();
 
-        map = mapFragment.getMap();
-        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        map.getUiSettings().setCompassEnabled(true);
-        map.getUiSettings().setZoomControlsEnabled(true);
-        map.getUiSettings().setMyLocationButtonEnabled(true);
-        map.setTrafficEnabled(true);
-        map.setMyLocationEnabled(true);
-        
-        LatLng latLng = new LatLng(47.565125, -122.480508);
-        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        map.animateCamera(CameraUpdateFactory.zoomTo(11));
-        map.setOnMarkerClickListener(this);
-        
-        map.setOnCameraChangeListener(new OnCameraChangeListener() {
-            public void onCameraChange(CameraPosition cameraPosition) {
-                Log.d(TAG, "onCameraChange");
-                startService(camerasIntent);
+            if (map != null) {
+                map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                map.getUiSettings().setCompassEnabled(true);
+                map.getUiSettings().setZoomControlsEnabled(true);
+                map.getUiSettings().setMyLocationButtonEnabled(true);
+                map.setTrafficEnabled(true);
+                map.setMyLocationEnabled(true);
+                
+                LatLng latLng = new LatLng(47.565125, -122.480508);
+                map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                map.animateCamera(CameraUpdateFactory.zoomTo(11));
+                map.setOnMarkerClickListener(this);
+                
+                map.setOnCameraChangeListener(new OnCameraChangeListener() {
+                    public void onCameraChange(CameraPosition cameraPosition) {
+                        Log.d(TAG, "onCameraChange");
+                        startService(camerasIntent);
+                    }
+                });
             }
-        });
+        }
 	}
+	
+    private void setupLocationClientIfNeeded() {
+        if (locationClient == null) {
+            locationClient = new LocationClient(
+                    this,
+                    this, // ConnectionCallbacks
+                    this); // OnConnectionFailedListener
+        }
+    }
 
     public boolean onMarkerClick(Marker marker) {
         Bundle b = new Bundle();
@@ -159,6 +178,11 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 	@Override
 	protected void onPause() {
 		super.onPause();
+		
+        if (locationClient != null) {
+            locationClient.disconnect();
+        }
+		
 		timer.cancel();
 		this.unregisterReceiver(mCamerasReceiver);
 	}
@@ -166,6 +190,18 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
+        prepareMap();
+        setupLocationClientIfNeeded();
+        
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        
+        if (ConnectionResult.SUCCESS == resultCode) {
+            locationClient.connect();
+        } else {
+            Toast.makeText(this, "Google Play services not available", Toast.LENGTH_SHORT).show();
+        }
+		
 		timer = new Timer();
 		timer.schedule(new VesselsTimerTask(), 0, 30000); // Schedule vessels to update every 30 seconds
 		
@@ -420,5 +456,44 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 			setSupportProgressBarIndeterminateVisibility(false);
 		 }
 	}
+
+    public boolean onMyLocationButtonClick() {
+        Log.i(TAG, "Last Location: " + locationClient.getLastLocation());
+        if (locationClient.getLastLocation() == null) {
+            Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT).show();            
+        } else {
+            Location location = locationClient.getLastLocation();
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12);
+            map.animateCamera(cameraUpdate);
+        }
+
+        return true;
+    }
+
+    /*
+     * Called by Location Services if the attempt to
+     * Location Services fails.
+     */
+    public void onConnectionFailed(ConnectionResult arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    /*
+     * Called by Location Services when the request to connect the
+     * client finishes successfully. At this point, you can
+     * request the current location or start periodic updates
+     */
+    public void onConnected(Bundle arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    /*
+     * Called by Location Services if the connection to the
+     * location client drops because of an error.
+     */
+    public void onDisconnected() {
+        // TODO Auto-generated method stub
+    }
 
 }
