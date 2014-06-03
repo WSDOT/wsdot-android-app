@@ -48,12 +48,12 @@ public class HighwayAlertsOverlay {
 	private final Activity mActivity;
 
 	private String[] projection = {
+	        HighwayAlerts.HIGHWAY_ALERT_ID,
 			HighwayAlerts.HIGHWAY_ALERT_LATITUDE,
 			HighwayAlerts.HIGHWAY_ALERT_LONGITUDE,
 			HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
 			HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
-			HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED,
-			HighwayAlerts.HIGHWAY_ALERT_ID
+			HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED
 			};
 	
 	public HighwayAlertsOverlay(Activity activity, LatLngBounds bounds) {
@@ -86,17 +86,18 @@ public class HighwayAlertsOverlay {
 			
 			if (alertCursor.moveToFirst()) {
 				while (!alertCursor.isAfterLast()) {
-				    LatLng alertLocation = new LatLng(alertCursor.getDouble(0), alertCursor.getDouble(1));
+				    LatLng alertLocation = new LatLng(alertCursor.getDouble(1), alertCursor.getDouble(2));
 					
 				    if (bounds.contains(alertLocation)) {
-				    mAlertItems.add(new HighwayAlertsItem(
-							alertCursor.getDouble(0),
-							alertCursor.getDouble(1),
-							alertCursor.getString(2),
-							alertCursor.getString(3),
-							alertCursor.getString(4),
-							getCategoryIcon(eventCategories, alertCursor.getString(2)),
-							alertCursor.getString(5)));
+    				    mAlertItems.add(new HighwayAlertsItem(
+    				            alertCursor.getString(0),
+    							alertCursor.getDouble(1),
+    							alertCursor.getDouble(2),
+    							alertCursor.getString(3),
+    							alertCursor.getString(4),
+    							alertCursor.getString(5),
+    							getCategoryIcon(eventCategories, alertCursor.getString(3))
+    							));
 				    }
 					alertCursor.moveToNext();
 				}

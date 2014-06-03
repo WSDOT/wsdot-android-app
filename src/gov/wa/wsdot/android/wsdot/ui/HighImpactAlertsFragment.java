@@ -124,13 +124,13 @@ public class HighImpactAlertsFragment extends Fragment implements
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         // This is called when a new Loader needs to be created.
 		String[] projection = {
+	            HighwayAlerts.HIGHWAY_ALERT_ID,
 				HighwayAlerts.HIGHWAY_ALERT_LATITUDE,
 				HighwayAlerts.HIGHWAY_ALERT_LONGITUDE,
 				HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
 				HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
 				HighwayAlerts.HIGHWAY_ALERT_PRIORITY,
-				HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED,
-				HighwayAlerts.HIGHWAY_ALERT_ID
+				HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED
 				};
 
 		// We are only displaying the highest impact alerts on the dashboard.
@@ -151,12 +151,12 @@ public class HighImpactAlertsFragment extends Fragment implements
 		if (cursor.moveToFirst()) {
 			while (!cursor.isAfterLast()) {
 				HighwayAlertsItem item = new HighwayAlertsItem();
-				item.setEventCategory(cursor.getString(2));
-				item.setExtendedDescription(cursor.getString(3));
-				item.setStartLatitude(cursor.getDouble(0));
-				item.setStartLongitude(cursor.getDouble(1));
-				item.setLastUpdatedTime(cursor.getString(5));
-				item.setAlertId(cursor.getString(6));
+                item.setAlertId(cursor.getString(0));
+                item.setStartLatitude(cursor.getDouble(1));
+                item.setStartLongitude(cursor.getDouble(2));
+                item.setEventCategory(cursor.getString(3));
+				item.setExtendedDescription(cursor.getString(4));
+				item.setLastUpdatedTime(cursor.getString(6));
 				alertItems.add(item);
 
 				cursor.moveToNext();

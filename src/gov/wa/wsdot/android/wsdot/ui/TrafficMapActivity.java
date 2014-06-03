@@ -218,10 +218,8 @@ public class TrafficMapActivity extends ActionBarActivity implements
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);            
         } else if (markers.get(marker).equalsIgnoreCase("alert")) {
-            // TODO Pass alert id to details activity to lookup in database.
             intent = new Intent(this, HighwayAlertDetailsActivity.class);
             b.putString("id", marker.getSnippet());
-            Log.i(TAG,  "Marker ID: " + marker.getSnippet());
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);    
         }

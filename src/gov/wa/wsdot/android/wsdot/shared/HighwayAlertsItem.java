@@ -40,15 +40,25 @@ public class HighwayAlertsItem {
     }
 
     public HighwayAlertsItem(Double startLatitude, Double startLongitude,
+            String eventCategory, String headlineDescription,
+            String lastUpdatedTime) {
+        this.startLatitude = startLatitude;
+        this.startLongitude = startLongitude;
+        this.eventCategory = eventCategory;
+        this.headlineDescription = headlineDescription;
+        this.lastUpdatedTime = lastUpdatedTime;
+    }
+    
+    public HighwayAlertsItem(String alertId, Double startLatitude, Double startLongitude,
             String eventCategory, String headlineDescription, String lastUpdatedTime,
-            Integer categoryIcon, String alertId) {
+            Integer categoryIcon) {
+        this.alertId = alertId;
         this.startLatitude = startLatitude;
         this.startLongitude = startLongitude;
         this.eventCategory = eventCategory;
         this.headlineDescription = headlineDescription;
         this.lastUpdatedTime = lastUpdatedTime;
         this.categoryIcon = categoryIcon;
-        this.alertId = alertId;
     }
 
     public String getPriority() {

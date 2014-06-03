@@ -18,8 +18,13 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
+import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
@@ -42,9 +47,12 @@ public class HighwayAlertDetailsActivity extends ActionBarActivity {
     private ContentResolver resolver;
 
 	private WebView webview;
-	private View mLoadingSpinner;	
-    private String title = "";
-    private String description = "";
+	private View mLoadingSpinner;
+	private String title;
+	private String description;
+	
+	@SuppressLint("SimpleDateFormat")
+    private DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
@@ -53,23 +61,18 @@ public class HighwayAlertDetailsActivity extends ActionBarActivity {
 		
         resolver = getContentResolver();
         Cursor cursor = null;
-        
+        HighwayAlertsItem alertItem = null;
         title = "";
         description = "";
-        String content = "";
-        String latitude = "";
-        String longitude = "";
-        String lastUpdated = "";
-        String staticGoogleMap = "";
         
         String[] projection = {
+                HighwayAlerts.HIGHWAY_ALERT_ID,
                 HighwayAlerts.HIGHWAY_ALERT_LATITUDE,
                 HighwayAlerts.HIGHWAY_ALERT_LONGITUDE,
                 HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
                 HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
                 HighwayAlerts.HIGHWAY_ALERT_PRIORITY,
-                HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED,
-                HighwayAlerts.HIGHWAY_ALERT_ID
+                HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED
                 };
 		
 		Bundle b = getIntent().getExtras();
@@ -85,17 +88,24 @@ public class HighwayAlertDetailsActivity extends ActionBarActivity {
                     );
             
             if (cursor != null && cursor.moveToFirst()) {
-                title = "Highway Alert - " + cursor.getString(2);
-                description = cursor.getString(3);
-                latitude = cursor.getString(0);
-                longitude = cursor.getString(1);
-                lastUpdated = cursor.getString(5);
+                alertItem = new HighwayAlertsItem(cursor.getDouble(1),
+                        cursor.getDouble(2), cursor.getString(3),
+                        cursor.getString(4), cursor.getString(6));
+            } else {
+                alertItem = new HighwayAlertsItem();
+                alertItem.setEventCategory("ERROR");
+                alertItem.setHeadlineDescription(
+                        "Whoops. Something happened trying to access the highway alert.");
+                alertItem.setLastUpdatedTime(dateFormat.format(new Date()));
             }
         } finally {
             if (cursor != null) {
                 cursor.close();
             }
-        }   
+        }
+        
+        title = "Highway Alert - " + alertItem.getEventCategory();
+        description = alertItem.getHeadlineDescription();
 		
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setTitle(title);
@@ -103,21 +113,11 @@ public class HighwayAlertDetailsActivity extends ActionBarActivity {
 		setContentView(R.layout.fragment_webview_with_spinner);
 		mLoadingSpinner = findViewById(R.id.loading_spinner);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
+
 		webview = (WebView)findViewById(R.id.webview);
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
-		
-		staticGoogleMap = "http://maps.googleapis.com/maps/api/staticmap?center="
-                + latitude + "," + longitude
-                + "&zoom=15&size=320x320&maptype=roadmap&markers="
-                + latitude + "," + longitude
-                + "&sensor=false";
-		
-		content = "<p>" + description + "</p>"
-		        + "<p>" + ParserUtils.relativeTime(lastUpdated, "MMMM d, yyyy h:mm a", false) + "</p>"
-		        + "<img src=" + staticGoogleMap + ">";
-		
-		webview.loadDataWithBaseURL(null, content, "text/html", "utf-8", null);
+		webview.loadDataWithBaseURL(null, buildContent(alertItem), "text/html", "utf-8", null);
 	}
 
     @Override
@@ -181,4 +181,24 @@ public class HighwayAlertDetailsActivity extends ActionBarActivity {
 		}
 	}
 	
+    private String buildContent(HighwayAlertsItem item) {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append("<p>" + item.getHeadlineDescription() + "</p>");
+        sb.append("<p style='color:#7d7d7d;'>"
+                + ParserUtils.relativeTime(item.getLastUpdatedTime(),
+                        "MMMM d, yyyy h:mm a", false) + "</p>");
+        
+        if (!item.getEventCategory().equalsIgnoreCase("error")) {
+            sb.append("<img src=");
+            sb.append("http://maps.googleapis.com/maps/api/staticmap?center=");
+            sb.append(item.getStartLatitude() + "," + item.getStartLongitude());
+            sb.append("&zoom=15&size=320x320&maptype=roadmap&markers=");
+            sb.append(item.getStartLatitude() + "," + item.getStartLongitude());
+            sb.append("&sensor=false");
+            sb.append(">");
+        }
+        
+        return sb.toString();
+    }
 }
