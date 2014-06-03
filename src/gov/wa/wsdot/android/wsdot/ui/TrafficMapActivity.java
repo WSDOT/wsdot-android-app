@@ -340,7 +340,7 @@ public class TrafficMapActivity extends ActionBarActivity implements
 	    	return true;	        
 	    case R.id.goto_chehalis:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Chehalis");
-	    	goToLocation("Chelalis Traffic", 46.635529, -122.937698, 13);
+	    	goToLocation("Chelalis Traffic", 46.635529, -122.937698, 11);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_hoodcanal:
@@ -365,7 +365,7 @@ public class TrafficMapActivity extends ActionBarActivity implements
 	    	return true;
 	    case R.id.goto_sultan:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Sultan");
-	    	goToLocation("Sultan Traffic", 47.86034, -121.812286, 14);
+	    	goToLocation("Sultan Traffic", 47.86034, -121.812286, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_olympia:
@@ -390,27 +390,27 @@ public class TrafficMapActivity extends ActionBarActivity implements
 	        return true;	        
 	    case R.id.goto_vancouver:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Vancouver");
-	    	goToLocation("Vancouver Area Traffic", 45.639968, -122.610512, 12);
+	    	goToLocation("Vancouver Area Traffic", 45.639968, -122.610512, 11);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
 	    case R.id.goto_wenatchee:
 	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Wenatchee");
-	    	goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 13);
+	    	goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 12);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
         case R.id.goto_snoqualmiepass:
             AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Snoqualmie Pass");
-            goToLocation("Snoqualmie Pass Traffic", 47.4216734, -121.4232569, 13);
+            goToLocation("Snoqualmie Pass Traffic", 47.404481, -121.4232569, 12);
             UIUtils.refreshActionBarMenu(this);
             return true;
         case R.id.goto_tricities:
             AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Tri-Cities");
-            goToLocation("Tri-Cities Traffic", 46.2577199, -119.1813155, 13);
+            goToLocation("Tri-Cities Traffic", 46.2503607, -119.2063781, 11);
             UIUtils.refreshActionBarMenu(this);
             return true;
         case R.id.goto_yakima:
             AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Yakima");
-            goToLocation("Yakima Traffic", 46.6063273, -120.4886952, 13);
+            goToLocation("Yakima Traffic", 46.6063273, -120.4886952, 11);
             UIUtils.refreshActionBarMenu(this);
             return true;
 	    case MENU_ITEM_SEATTLE_ALERTS:
