@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.database.Cursor;
 import android.util.Log;
@@ -42,9 +41,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 public class HighwayAlertsOverlay {
 	private static final String TAG = HighwayAlertsOverlay.class.getSimpleName();
 	private List<HighwayAlertsItem> mAlertItems = new ArrayList<HighwayAlertsItem>();
-
-	@SuppressLint("UseSparseArrays")
-	private HashMap<Integer, String[]> eventCategories = new HashMap<Integer, String[]>();
 	private final Activity mActivity;
 
 	private String[] projection = {
@@ -53,27 +49,22 @@ public class HighwayAlertsOverlay {
 			HighwayAlerts.HIGHWAY_ALERT_LONGITUDE,
 			HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
 			HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
-			HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED
+			HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED,
+			HighwayAlerts.HIGHWAY_ALERT_PRIORITY
 			};
 	
 	public HighwayAlertsOverlay(Activity activity, LatLngBounds bounds) {
-		this.mActivity = activity;
+	    this.mActivity = activity;
 		
 		Cursor alertCursor = null;
-		String[] event_construction = {"construction", "maintenance"};
-		String[] event_closure = {
-				"bridge closed",
-				"closure",
-				"emergency closure",
-				"hcb closed maint",
-				"hcb closed marine",
-				"hcb closed police",
-				"hcb closed winds",
-				"rocks - closure"
-				};
+
+		// Types of categories which result in one icon or another being displayed. 
+		String[] event_closure = {"closed", "closure"};
+		String[] event_construction = {"construction", "maintenance", "lane closure"};
 		
-		eventCategories.put(R.drawable.closed, event_closure);
-		eventCategories.put(R.drawable.construction_high, event_construction);
+		HashMap<String, String[]> eventCategories = new HashMap<String, String[]>();
+		eventCategories.put("closure", event_closure);
+        eventCategories.put("construction", event_construction);
 		
         try {
 			alertCursor = mActivity.getContentResolver().query(
@@ -96,7 +87,11 @@ public class HighwayAlertsOverlay {
     							alertCursor.getString(3),
     							alertCursor.getString(4),
     							alertCursor.getString(5),
-    							getCategoryIcon(eventCategories, alertCursor.getString(3))
+    							alertCursor.getString(6),
+    							getCategoryIcon(
+                                        eventCategories,
+                                        alertCursor.getString(3), // Category
+                                        alertCursor.getString(6)) // Priority
     							));
 				    }
 					alertCursor.moveToNext();
@@ -110,38 +105,75 @@ public class HighwayAlertsOverlay {
 				 alertCursor.close();
 			 }
         }
-
 	}
 	
-	 public int size() {
-		 return mAlertItems.size();
-	 }
+	public int size() {
+	    return mAlertItems.size();
+	}
+
+	public List<HighwayAlertsItem> getAlertMarkers() {
+	    return mAlertItems;
+	}
 	 
-	 public List<HighwayAlertsItem> getAlertMarkers() {
-	     return mAlertItems;
-	 }
-	 
-	 private static Integer getCategoryIcon(HashMap<Integer, String[]> eventCategories, String category) {
-		 Integer image = R.drawable.alert_highest;
-		 Set<Entry<Integer, String[]>> set = eventCategories.entrySet();
-		 Iterator<Entry<Integer, String[]>> i = set.iterator();
+    private static int getCategoryIcon(
+            HashMap<String, String[]> eventCategories, String category, String priority) {
+        
+        int alertClosed = R.drawable.closed;
+        int alertHighest = R.drawable.alert_highest;
+		int alertHigh = R.drawable.alert_high;
+		int alertMedium = R.drawable.alert_moderate;
+		int alertLow = R.drawable.alert_low;
+		int constructionHighest = R.drawable.construction_highest;
+		int constructionHigh = R.drawable.construction_high;
+		int constructionMedium = R.drawable.construction_moderate;
+		int constructionLow = R.drawable.construction_low;
+		int defaultAlertImage = alertHighest;
+		 
+		Set<Entry<String, String[]>> set = eventCategories.entrySet();
+		Iterator<Entry<String, String[]>> i = set.iterator();
 			
-		 if (category.equals("")) return image;
+		if (category.equals("")) return defaultAlertImage;
 
 		 while(i.hasNext()) {
-			 Entry<Integer, String[]> me = i.next();
+			 Entry<String, String[]> me = i.next();
 			 for (String phrase: (String[])me.getValue()) {
 				 String patternStr = phrase;
 				 Pattern pattern = Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE);
 				 Matcher matcher = pattern.matcher(category);
 				 boolean matchFound = matcher.find();
 				 if (matchFound) {
-					 image = (Integer)me.getKey();
+					 String keyWord = me.getKey();
+					 
+					 if (keyWord.equalsIgnoreCase("closure")) {
+					     return alertClosed;
+					 } else if (keyWord.equalsIgnoreCase("construction")) {
+					     if (priority.equalsIgnoreCase("highest")) {
+					         return constructionHighest;
+					     } else if (priority.equalsIgnoreCase("high")) {
+					         return constructionHigh;
+					     } else if (priority.equalsIgnoreCase("medium")) {
+					         return constructionMedium;
+                        } else if (priority.equalsIgnoreCase("low")
+                                || priority.equalsIgnoreCase("lowest")) {
+					         return constructionLow;
+					     }
+					 }
+				 } else {
+				     if (priority.equalsIgnoreCase("highest")) {
+				         return alertHighest;
+				     } else if (priority.equalsIgnoreCase("high")) {
+				         return alertHigh;
+				     } else if (priority.equalsIgnoreCase("medium")) {
+				         return alertMedium;
+				     } else if (priority.equalsIgnoreCase("low")
+				             || priority.equalsIgnoreCase("lowest")) {
+				         return alertLow;
+				     }
 				 }
 			 }
 		 }
 		 
-		 return image;
+		 return defaultAlertImage;
 	 }
 	 
 }

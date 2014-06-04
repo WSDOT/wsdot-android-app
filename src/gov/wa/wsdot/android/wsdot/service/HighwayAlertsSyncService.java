@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ package gov.wa.wsdot.android.wsdot.service;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
-import java.io.BufferedInputStream;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -30,9 +30,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.content.ContentResolver;
@@ -45,7 +46,7 @@ import android.util.Log;
 public class HighwayAlertsSyncService extends IntentService {
 	
 	private static final String DEBUG_TAG = "HighwayAlertsSyncService";
-	private static final String HIGHWAY_ALERTS_URL = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js.gz";
+	private static final String HIGHWAY_ALERTS_URL = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js";
 
 	private String[] projection = {
     		Caches.CACHE_LAST_UPDATED
@@ -99,15 +100,14 @@ public class HighwayAlertsSyncService extends IntentService {
 				URL url = new URL(HIGHWAY_ALERTS_URL);
 				URLConnection urlConn = url.openConnection();
 				
-				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
-	            GZIPInputStream gzin = new GZIPInputStream(bis);
-	            InputStreamReader is = new InputStreamReader(gzin);
-	            BufferedReader in = new BufferedReader(is);
-				
+				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String jsonFile = "";
 				String line;
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
+				
+				while ((line = in.readLine()) != null) {
+				    jsonFile += line;
+				}
+
 				in.close();
 				
 				JSONObject obj = new JSONObject(jsonFile);
