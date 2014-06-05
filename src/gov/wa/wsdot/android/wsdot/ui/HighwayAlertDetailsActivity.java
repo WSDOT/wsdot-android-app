@@ -191,12 +191,11 @@ public class HighwayAlertDetailsActivity extends ActionBarActivity {
         
         if (!item.getEventCategory().equalsIgnoreCase("error")) {
             sb.append("<img src=");
-            sb.append("http://maps.googleapis.com/maps/api/staticmap?center=");
+            sb.append("'http://maps.googleapis.com/maps/api/staticmap?center=");
             sb.append(item.getStartLatitude() + "," + item.getStartLongitude());
             sb.append("&zoom=15&size=320x320&maptype=roadmap&markers=");
             sb.append(item.getStartLatitude() + "," + item.getStartLongitude());
-            sb.append("&sensor=false");
-            sb.append(">");
+            sb.append("&key={INSERT_STATIC_MAP_API_KEY_HERE}'>");
         }
         
         return sb.toString();
