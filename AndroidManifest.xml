@@ -137,10 +137,6 @@
    		    android:label="@string/title_expresslanes" />
    		
    		<activity
-   		    android:name=".ui.PreferencesActivity"
-   		    android:label="@string/title_preferences" />
-   		
-   		<activity
    		    android:name=".ui.BorderWaitActivity"
    		    android:label="@string/title_borderwait" />
    		   		
