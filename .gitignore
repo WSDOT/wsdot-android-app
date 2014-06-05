@@ -3,3 +3,4 @@
 /gen
 .settings
 .buildpath
+lint.xml
