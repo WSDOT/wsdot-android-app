@@ -292,29 +292,35 @@ public class TrafficMapActivity extends ActionBarActivity implements
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
-		LatLng center = map.getCameraPosition().target;
-	    getMenuInflater().inflate(R.menu.traffic, menu);
+		getMenuInflater().inflate(R.menu.traffic, menu);
 	    
 	    if (showCameras) {
 	    	menu.getItem(0).setTitle("Hide Cameras");
 	    } else {
 	    	menu.getItem(0).setTitle("Show Cameras");
 	    }
-
+	    
 	    /**
 	     * Check if current location is within a lat/lon bounding box surrounding
 	     * the greater Seattle area.
 	     */
-		if (inPolygon(seattleArea, center.latitude, center.longitude)) {
-			MenuItem menuItem_Alerts = menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts")
-				.setIcon(R.drawable.ic_menu_alerts);
-			
-            MenuItemCompat.setShowAsAction(menuItem_Alerts,
-                    MenuItemCompat.SHOW_AS_ACTION_IF_ROOM | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
+	    try {
+			LatLng center = map.getCameraPosition().target;
 
-		    MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
-		    MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
-		}
+			if (inPolygon(seattleArea, center.latitude, center.longitude)) {
+				MenuItem menuItem_Alerts = menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts")
+					.setIcon(R.drawable.ic_menu_alerts);
+				
+	            MenuItemCompat.setShowAsAction(menuItem_Alerts,
+	                    MenuItemCompat.SHOW_AS_ACTION_IF_ROOM | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
+
+			    MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
+			    MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
+			}
+
+	    } catch (NullPointerException e) {
+	    	Log.e(TAG, "Error getting LatLng center");
+	    }
 	    
 		return super.onPrepareOptionsMenu(menu);
 	}

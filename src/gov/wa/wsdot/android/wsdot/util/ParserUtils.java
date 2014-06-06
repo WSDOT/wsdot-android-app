@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot.util;
 
+import android.annotation.SuppressLint;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,6 +27,7 @@ import java.util.TimeZone;
 
 public class ParserUtils {
 	
+	@SuppressLint("SimpleDateFormat")
 	public static String relativeTime(String createdAt, String datePattern, boolean isUTC) {
 		DateFormat parseDateFormat = new SimpleDateFormat(datePattern);
 		Date parseDate;
@@ -37,6 +39,8 @@ public class ParserUtils {
 		try {
 			parseDate = parseDateFormat.parse(createdAt);
 		} catch (ParseException e) {
+			return "Unavailable";
+		} catch (NullPointerException e) {
 			return "Unavailable";
 		}
 		
