@@ -290,30 +290,32 @@ public class HighImpactAlertsFragment extends Fragment implements
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
 			
-			if (responseString.equals("OK")) {
-				getLoaderManager().restartLoader(0, null, HighImpactAlertsFragment.this); // We've got alerts, now add them.
-			} else if (responseString.equals("NOP")) {
-				// Nothing to do.
-			} else {
-				Log.e("HighwayAlertsSyncReceiver", responseString);
-				mLoadingSpinner.setVisibility(View.GONE);
-				
-				alertItems.clear();
-				HighwayAlertsItem item = new HighwayAlertsItem();
-				item.setEventCategory("error");
-				
-				if (!UIUtils.isNetworkAvailable(context)) {
-					responseString = getString(R.string.no_connection);
+			if (responseString != null) {
+				if (responseString.equals("OK")) {
+					getLoaderManager().restartLoader(0, null, HighImpactAlertsFragment.this); // We've got alerts, now add them.
+				} else if (responseString.equals("NOP")) {
+					// Nothing to do.
+				} else {
+					Log.e("HighwayAlertsSyncReceiver", responseString);
+					mLoadingSpinner.setVisibility(View.GONE);
+					
+					alertItems.clear();
+					HighwayAlertsItem item = new HighwayAlertsItem();
+					item.setEventCategory("error");
+					
+					if (!UIUtils.isNetworkAvailable(context)) {
+						responseString = getString(R.string.no_connection);
+					}
+					
+					item.setExtendedDescription(responseString);
+					alertItems.add(item);
+	
+					mPager.setVisibility(View.VISIBLE);
+					mIndicator.setVisibility(View.VISIBLE);
+					mAdapter = new ViewPagerAdapter(getActivity(), alertItems);
+					mPager.setAdapter(mAdapter);
+					mIndicator.setViewPager(mPager);		
 				}
-				
-				item.setExtendedDescription(responseString);
-				alertItems.add(item);
-
-				mPager.setVisibility(View.VISIBLE);
-				mIndicator.setVisibility(View.VISIBLE);
-				mAdapter = new ViewPagerAdapter(getActivity(), alertItems);
-				mPager.setAdapter(mAdapter);
-				mIndicator.setViewPager(mPager);		
 			}
 		}
 	}

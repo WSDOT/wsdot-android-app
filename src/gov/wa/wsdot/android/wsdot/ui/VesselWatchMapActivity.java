@@ -216,15 +216,18 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
-			if (responseString.equals("OK") || responseString.equals("NOP")) {
-				// We've got cameras, now add them.
-				if (camerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-					camerasOverlayTask = new CamerasOverlayTask().execute();
-				} else if (camerasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-					camerasOverlayTask.execute();
+			
+			if (responseString != null) {
+				if (responseString.equals("OK") || responseString.equals("NOP")) {
+					// We've got cameras, now add them.
+					if (camerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+						camerasOverlayTask = new CamerasOverlayTask().execute();
+					} else if (camerasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+						camerasOverlayTask.execute();
+					}
+				} else {
+					Log.e("CameraSyncReceiver", "Received an error. Not executing OverlayTask.");
 				}
-			} else {
-				Log.e("CameraSyncReceiver", "Received an error. Not executing OverlayTask.");
 			}
 		}
 	}
