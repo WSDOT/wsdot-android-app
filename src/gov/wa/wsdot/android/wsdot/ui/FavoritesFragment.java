@@ -621,12 +621,15 @@ public class FavoritesFragment extends ListFragment implements
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
-			if (responseString.equals("OK")) {
-				getLoaderManager().restartLoader(MOUNTAIN_PASSES_LOADER_ID, null, FavoritesFragment.this);
-			} else if (responseString.equals("NOP")) {
-				// Nothing to do.
-			} else {
-				Log.e("MountainPassesSyncReceiver", responseString);
+			
+			if (responseString != null) {
+				if (responseString.equals("OK")) {
+					getLoaderManager().restartLoader(MOUNTAIN_PASSES_LOADER_ID, null, FavoritesFragment.this);
+				} else if (responseString.equals("NOP")) {
+					// Nothing to do.
+				} else {
+					Log.e("MountainPassesSyncReceiver", responseString);
+				}
 			}
 		}
 	}
@@ -635,12 +638,15 @@ public class FavoritesFragment extends ListFragment implements
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
-			if (responseString.equals("OK")) {
-				getLoaderManager().restartLoader(FERRIES_SCHEDULES_LOADER_ID, null, FavoritesFragment.this);
-			} else if (responseString.equals("NOP")) {
-				// Nothing to do.
-			} else {
-				Log.e("FerriesSchedulesSyncReceiver", responseString);
+			
+			if (responseString != null) {
+				if (responseString.equals("OK")) {
+					getLoaderManager().restartLoader(FERRIES_SCHEDULES_LOADER_ID, null, FavoritesFragment.this);
+				} else if (responseString.equals("NOP")) {
+					// Nothing to do.
+				} else {
+					Log.e("FerriesSchedulesSyncReceiver", responseString);
+				}
 			}
 		}
 	}
@@ -649,12 +655,15 @@ public class FavoritesFragment extends ListFragment implements
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
-			if (responseString.equals("OK")) {
-				getLoaderManager().restartLoader(TRAVEL_TIMES_LOADER_ID, null, FavoritesFragment.this);
-			} else if (responseString.equals("NOP")) {
-				// Nothing to do.
-			} else {
-				Log.e("TravelTimesSyncReceiver", responseString);
+			
+			if (responseString != null) {
+				if (responseString.equals("OK")) {
+					getLoaderManager().restartLoader(TRAVEL_TIMES_LOADER_ID, null, FavoritesFragment.this);
+				} else if (responseString.equals("NOP")) {
+					// Nothing to do.
+				} else {
+					Log.e("TravelTimesSyncReceiver", responseString);
+				}
 			}
 			
 			swipeRefreshLayout.setRefreshing(false);
