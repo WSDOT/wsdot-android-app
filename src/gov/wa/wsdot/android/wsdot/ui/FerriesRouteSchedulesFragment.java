@@ -288,25 +288,29 @@ public class FerriesRouteSchedulesFragment extends ListFragment implements
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
 			
-			if (responseString.equals("OK")) {
-				getLoaderManager().restartLoader(0, null, FerriesRouteSchedulesFragment.this);
-			} else if (responseString.equals("NOP")) {
-			    swipeRefreshLayout.setRefreshing(false);
-			} else {
-                swipeRefreshLayout.setRefreshing(false);
-			    Log.e("FerriesSchedulesSyncReceiver", responseString);
-
-				if (!UIUtils.isNetworkAvailable(context)) {
-					responseString = getString(R.string.no_connection);
-				}
-				
-				if (getListView().getCount() > 0) {
-					Toast.makeText(context, responseString, Toast.LENGTH_LONG).show();
+			if (responseString != null) {
+				if (responseString.equals("OK")) {
+					getLoaderManager().restartLoader(0, null, FerriesRouteSchedulesFragment.this);
+				} else if (responseString.equals("NOP")) {
+				    swipeRefreshLayout.setRefreshing(false);
 				} else {
-				    TextView t = (TextView) mEmptyView;
-					t.setText(responseString);
-					getListView().setEmptyView(mEmptyView);
+	                swipeRefreshLayout.setRefreshing(false);
+				    Log.e("FerriesSchedulesSyncReceiver", responseString);
+	
+					if (!UIUtils.isNetworkAvailable(context)) {
+						responseString = getString(R.string.no_connection);
+					}
+					
+					if (getListView().getCount() > 0) {
+						Toast.makeText(context, responseString, Toast.LENGTH_LONG).show();
+					} else {
+					    TextView t = (TextView) mEmptyView;
+						t.setText(responseString);
+						getListView().setEmptyView(mEmptyView);
+					}
 				}
+			} else {
+				swipeRefreshLayout.setRefreshing(false);
 			}
 		}
 	}

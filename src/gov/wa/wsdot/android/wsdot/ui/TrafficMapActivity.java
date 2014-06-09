@@ -252,15 +252,18 @@ public class TrafficMapActivity extends ActionBarActivity implements
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
-			if (responseString.equals("OK") || responseString.equals("NOP")) {
-				// We've got cameras, now add them.
-			    if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-					mCamerasOverlayTask = new CamerasOverlayTask().execute();
-				} else if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-					mCamerasOverlayTask.execute();
+			
+			if (responseString != null) {
+				if (responseString.equals("OK") || responseString.equals("NOP")) {
+					// We've got cameras, now add them.
+				    if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+						mCamerasOverlayTask = new CamerasOverlayTask().execute();
+					} else if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+						mCamerasOverlayTask.execute();
+					}
+				} else {
+					Log.e("CameraDownloadReceiver", responseString);
 				}
-			} else {
-				Log.e("CameraDownloadReceiver", responseString);
 			}
 		}
 	}
@@ -270,21 +273,24 @@ public class TrafficMapActivity extends ActionBarActivity implements
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
-			if (responseString.equals("OK") || responseString.equals("NOP")) {
-			    // We've got alerts, now add them.
-				if (mHighwayAlertsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-				    mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask().execute();
-				} else if (mHighwayAlertsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-				    mHighwayAlertsOverlayTask.execute();
+			
+			if (responseString != null) {
+				if (responseString.equals("OK") || responseString.equals("NOP")) {
+				    // We've got alerts, now add them.
+					if (mHighwayAlertsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+					    mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask().execute();
+					} else if (mHighwayAlertsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+					    mHighwayAlertsOverlayTask.execute();
+					}
+				} else {
+					Log.e("HighwayAlertsSyncReceiver", responseString);
+					/*
+					if (!UIUtils.isNetworkAvailable(context)) {
+						responseString = getString(R.string.no_connection);
+					}
+					Toast.makeText(context, responseString, Toast.LENGTH_LONG).show();
+					*/
 				}
-			} else {
-				Log.e("HighwayAlertsSyncReceiver", responseString);
-				/*
-				if (!UIUtils.isNetworkAvailable(context)) {
-					responseString = getString(R.string.no_connection);
-				}
-				Toast.makeText(context, responseString, Toast.LENGTH_LONG).show();
-				*/
 			}
 		}
 	}
