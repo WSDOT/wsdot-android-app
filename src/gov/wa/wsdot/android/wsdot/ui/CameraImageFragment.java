@@ -61,7 +61,8 @@ public class CameraImageFragment extends Fragment implements
         LoaderCallbacks<Drawable>,
         SwipeRefreshLayout.OnRefreshListener {
 
-	private static String mUrl;
+	private static final String TAG = CameraImageFragment.class.getSimpleName();
+    private static String mUrl;
 	private ViewGroup mRootView;
 	private ImageView mImage;
 	private String mTitle;
@@ -227,7 +228,11 @@ public class CameraImageFragment extends Fragment implements
 	public void onLoadFinished(Loader<Drawable> loader, Drawable data) {
 	    swipeRefreshLayout.setRefreshing(false);
 		mImage.setImageDrawable(data);
-		shareAction.setShareIntent(createShareIntent());		
+		try {
+		    shareAction.setShareIntent(createShareIntent());
+		} catch (NullPointerException e) {
+		    Log.e(TAG, "createShareIntent() returned NULL: " + e.getStackTrace());
+		}
 	}
 
 	public void onLoaderReset(Loader<Drawable> loader) {
@@ -235,20 +240,17 @@ public class CameraImageFragment extends Fragment implements
 	}
 	
 	public static class CameraImageLoader extends AsyncTaskLoader<Drawable> {
-		private Context mContext;
 		
 		public CameraImageLoader(Context context) {
 			super(context);
-			
-			this.mContext = context;
 		}
 
 		@SuppressLint("WorldReadableFiles")
-		@SuppressWarnings("deprecation")
-		@Override
+        @SuppressWarnings("deprecation")
+        @Override
 		public Drawable loadInBackground() {
 	    	FileOutputStream fos = null;
-	    	Bitmap image;
+	    	Bitmap image = null;
 	        
 	        try {
 	        	HttpURLConnection connection = (HttpURLConnection) new URL(mUrl).openConnection();
@@ -256,13 +258,23 @@ public class CameraImageFragment extends Fragment implements
 	        	connection.connect();
 	            InputStream input = connection.getInputStream();
 	            image = BitmapFactory.decodeStream(input);
-	            fos = mContext.openFileOutput(mCameraName, Context.MODE_WORLD_READABLE);
+
+                if (image == null) {
+                    image = BitmapFactory.decodeResource(getContext()
+                            .getResources(), R.drawable.camera_offline);
+                }
+	            
+	            fos = getContext().openFileOutput(mCameraName, Context.MODE_WORLD_READABLE);
 	            image.compress(Bitmap.CompressFormat.JPEG, 75, fos);
 				fos.flush();
 				fos.close();            
 		    } catch (Exception e) {
 		        Log.e("CameraImageFragment", "Error retrieving camera image", e);
-		        image = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.camera_offline);
+		    } finally {
+		        if (image == null) {
+                    image = BitmapFactory.decodeResource(getContext()
+                            .getResources(), R.drawable.camera_offline);
+		        }
 		    }
         
 		    return new BitmapDrawable(image);
