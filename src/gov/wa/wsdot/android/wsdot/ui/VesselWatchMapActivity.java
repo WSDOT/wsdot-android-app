@@ -75,7 +75,8 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
         OnMarkerClickListener,
         ConnectionCallbacks,
         OnConnectionFailedListener,
-        OnMyLocationButtonClickListener {
+        OnMyLocationButtonClickListener,
+        OnCameraChangeListener {
 
 	private static final String TAG = VesselWatchMapActivity.class.getSimpleName();
 	private GoogleMap map = null;
@@ -114,8 +115,8 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
         
-		camerasIntent = new Intent(this, CamerasSyncService.class);
-		startService(camerasIntent);
+        // Setup Service Intent.
+        camerasIntent = new Intent(this, CamerasSyncService.class);
     }
 	
 	public void prepareMap() {
@@ -135,16 +136,15 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
                 map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 map.animateCamera(CameraUpdateFactory.zoomTo(11));
                 map.setOnMarkerClickListener(this);
-                
-                map.setOnCameraChangeListener(new OnCameraChangeListener() {
-                    public void onCameraChange(CameraPosition cameraPosition) {
-                        Log.d(TAG, "onCameraChange");
-                        startService(camerasIntent);
-                    }
-                });
+                map.setOnCameraChangeListener(this);
             }
         }
 	}
+
+    public void onCameraChange(CameraPosition cameraPosition) {
+        setSupportProgressBarIndeterminateVisibility(true);
+        startService(camerasIntent);        
+    }
 	
     private void setupLocationClientIfNeeded() {
         if (locationClient == null) {

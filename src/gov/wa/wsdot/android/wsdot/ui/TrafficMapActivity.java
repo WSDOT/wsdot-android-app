@@ -76,7 +76,8 @@ public class TrafficMapActivity extends ActionBarActivity implements
         OnMarkerClickListener,
         ConnectionCallbacks,
         OnConnectionFailedListener,
-        OnMyLocationButtonClickListener {
+        OnMyLocationButtonClickListener,
+        OnCameraChangeListener {
 	
     private static final String TAG = TrafficMapActivity.class.getSimpleName();
     
@@ -133,13 +134,9 @@ public class TrafficMapActivity extends ActionBarActivity implements
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
         zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
     
+        // Set up Service Intents.
 		camerasIntent = new Intent(this, CamerasSyncService.class);
-		setSupportProgressBarIndeterminateVisibility(true);
-		startService(camerasIntent);
-
 		alertsIntent = new Intent(this, HighwayAlertsSyncService.class);
-		setSupportProgressBarIndeterminateVisibility(true);
-		startService(alertsIntent);
     }
 
     @Override
@@ -184,21 +181,21 @@ public class TrafficMapActivity extends ActionBarActivity implements
                 map.setMyLocationEnabled(true);
                 map.setOnMyLocationButtonClickListener(this);
                 map.setOnMarkerClickListener(this);
-                map.setOnCameraChangeListener(new OnCameraChangeListener() {
-                    public void onCameraChange(CameraPosition cameraPosition) {
-                        Log.d(TAG, "onCameraChange");
-                        startService(camerasIntent);
-                        startService(alertsIntent);
-                    }
-                });
-                
+                map.setOnCameraChangeListener(this);
+
                 LatLng latLng = new LatLng(latitude, longitude);
                 map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 map.animateCamera(CameraUpdateFactory.zoomTo(zoom));
             }
 	    }
 	}
-    
+
+    public void onCameraChange(CameraPosition cameraPosition) {
+        setSupportProgressBarIndeterminateVisibility(true);
+        startService(camerasIntent);
+        startService(alertsIntent);        
+    }
+	
     private void setupLocationClientIfNeeded() {
         if (locationClient == null) {
             locationClient = new LocationClient(
