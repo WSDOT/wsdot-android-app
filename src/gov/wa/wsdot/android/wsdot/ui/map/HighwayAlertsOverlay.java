@@ -114,8 +114,16 @@ public class HighwayAlertsOverlay {
 	public List<HighwayAlertsItem> getAlertMarkers() {
 	    return mAlertItems;
 	}
-	 
-    private static int getCategoryIcon(
+	
+	/**
+	 * Get the correct icon given the priority and category of alert.
+	 * 
+	 * @param eventCategories
+	 * @param category
+	 * @param priority
+	 * @return
+	 */
+    private int getCategoryIcon(
             HashMap<String, String[]> eventCategories, String category, String priority) {
         
         int alertClosed = R.drawable.closed;
@@ -141,6 +149,7 @@ public class HighwayAlertsOverlay {
 				 Pattern pattern = Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE);
 				 Matcher matcher = pattern.matcher(category);
 				 boolean matchFound = matcher.find();
+				 
 				 if (matchFound) {
 					 String keyWord = me.getKey();
 					 
@@ -158,22 +167,23 @@ public class HighwayAlertsOverlay {
 					         return constructionLow;
 					     }
 					 }
-				 } else {
-				     if (priority.equalsIgnoreCase("highest")) {
-				         return alertHighest;
-				     } else if (priority.equalsIgnoreCase("high")) {
-				         return alertHigh;
-				     } else if (priority.equalsIgnoreCase("medium")) {
-				         return alertMedium;
-				     } else if (priority.equalsIgnoreCase("low")
-				             || priority.equalsIgnoreCase("lowest")) {
-				         return alertLow;
-				     }
 				 }
 			 }
 		 }
+		
+		// If we arrive here, it must be an accident or alert item.
+        if (priority.equalsIgnoreCase("highest")) {
+            return alertHighest;
+        } else if (priority.equalsIgnoreCase("high")) {
+            return alertHigh;
+        } else if (priority.equalsIgnoreCase("medium")) {
+            return alertMedium;
+        } else if (priority.equalsIgnoreCase("low")
+                || priority.equalsIgnoreCase("lowest")) {
+            return alertLow;
+        }
 		 
-		 return defaultAlertImage;
+        return defaultAlertImage;
 	 }
 	 
 }
