@@ -70,9 +70,10 @@ public class YouTubeFragment extends ListFragment implements
 	private static final String TAG = YouTubeFragment.class.getSimpleName();
 	private static ArrayList<YouTubeItem> mYouTubeItems = null;
 	private static VideoItemAdapter mAdapter;
-	private ActionMode mActionMode;
+	
+	@SuppressWarnings("unused")
+    private ActionMode mActionMode;
 	private View mEmptyView;
-	private ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
 	@Override
@@ -128,7 +129,8 @@ public class YouTubeFragment extends ListFragment implements
 				
 				String videoId = mYouTubeItems.get(position).getId();
 				String url = "http://www.youtube.com/watch?v=" + videoId;				
-				mActionMode = actionBarActivity.startSupportActionMode(new ActionModeCallback(url));
+                mActionMode = ((ActionBarActivity) getActivity())
+                        .startSupportActionMode(new ActionModeCallback(url));
 				
 				return true;
 			}

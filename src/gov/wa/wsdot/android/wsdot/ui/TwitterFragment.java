@@ -78,7 +78,6 @@ public class TwitterFragment extends ListFragment implements
 	@SuppressWarnings("unused")
     private ActionMode mActionMode;
 	private View mEmptyView;
-	private ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
 	@Override
@@ -137,7 +136,7 @@ public class TwitterFragment extends ListFragment implements
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				
-                mActionMode = actionBarActivity.startSupportActionMode(
+                mActionMode = ((ActionBarActivity) getActivity()).startSupportActionMode(
                         new ActionModeCallback(twitterItems.get(position).getText()));
 				
 				return true;
