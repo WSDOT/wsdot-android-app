@@ -26,6 +26,7 @@ import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -144,6 +145,7 @@ public class FerriesRouteSchedulesDaySailingsFragment extends ListFragment
 			FerriesAnnotationsItem notes = null;
 			FerriesScheduleTimesItem timesItem = null;
 			FerriesAnnotationIndexesItem indexesItem = null;
+			Date now = new Date();
 			
 	    	try {   		
 				JSONArray dates = new JSONArray(mDates);
@@ -175,6 +177,14 @@ public class FerriesRouteSchedulesDaySailingsFragment extends ListFragment
 						int numTimes = times.length();
 						for (int m=0; m < numTimes; m++) {
 							JSONObject time = times.getJSONObject(m);
+							
+							// Don't display past sailing times. Doesn't make sense.
+                            if (now.after(new Date(Long.parseLong(time
+                                    .getString("DepartingTime")
+                                    .substring(6, 19))))) {
+                                continue;
+                            }
+														
 							timesItem = new FerriesScheduleTimesItem();
 							timesItem.setDepartingTime(time.getString("DepartingTime").substring(6, 19));
 							
