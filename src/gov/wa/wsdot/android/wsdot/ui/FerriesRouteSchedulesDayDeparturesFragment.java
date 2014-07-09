@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.service.FerriesTerminalSailingSpaceSyncService;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
@@ -32,12 +33,14 @@ import java.util.TimeZone;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,17 +49,18 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
-        implements LoaderCallbacks<ArrayList<FerriesScheduleTimesItem>> {
+        implements LoaderCallbacks<ArrayList<FerriesScheduleTimesItem>>,
+        SwipeRefreshLayout.OnRefreshListener {
 
 	private static final String TAG = FerriesRouteSchedulesDayDeparturesFragment.class.getSimpleName();
 	private static FerriesTerminalItem terminalItem;
 	private static ArrayList<FerriesAnnotationsItem> annotations;
 	private static ArrayList<FerriesScheduleTimesItem> times;
 	private static DepartureTimesAdapter adapter;
-	private static View mLoadingSpinner;
 	private View mHeaderView;
 	private Typeface tf;
 	private Typeface tfb;
+	private static SwipeRefreshLayout swipeRefreshLayout;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -72,22 +76,32 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
 		setRetainInstance(true);
+		
+		Intent intent = new Intent(getActivity(), FerriesTerminalSailingSpaceSyncService.class);
+		getActivity().startService(intent);
 	}
 
-	@Override
+	@SuppressWarnings("deprecation")
+    @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
 		Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorScheme(
+                17170451,  // android.R.color.holo_blue_bright 
+                17170452,  // android.R.color.holo_green_light 
+                17170456,  // android.R.color.holo_orange_light 
+                17170454); // android.R.color.holo_red_light)        
         
         mHeaderView = inflater.inflate(R.layout.list_item_departure_times_header, null);
         TextView departing_title = (TextView) mHeaderView.findViewById(R.id.departing_title);
@@ -135,7 +149,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
 			Loader<ArrayList<FerriesScheduleTimesItem>> loader,
 			ArrayList<FerriesScheduleTimesItem> data) {
 		
-		mLoadingSpinner.setVisibility(View.GONE);
+	    swipeRefreshLayout.setRefreshing(false);
 		adapter.setData(data);
 	}
 
@@ -199,7 +213,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
 			super.onStartLoading();
 			
 			adapter.clear();
-			mLoadingSpinner.setVisibility(View.VISIBLE);
+			swipeRefreshLayout.setRefreshing(true);
 			forceLoad();
 		}
 
@@ -303,5 +317,11 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
     		public TextView annotation;
     	}
 	}
+
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+        Intent intent = new Intent(getActivity(), FerriesTerminalSailingSpaceSyncService.class);
+        getActivity().startService(intent); 
+    }
 	
 }
