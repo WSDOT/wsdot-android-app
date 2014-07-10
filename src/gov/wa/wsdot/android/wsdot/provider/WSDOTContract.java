@@ -94,6 +94,7 @@ public class WSDOTContract {
 	    String TERMINAL_NAME = "name";
 	    String TERMINAL_ABBREV = "abbrev";
 	    String TERMINAL_DEPARTING_SPACES = "departing_spaces";
+	    String TERMINAL_LAST_UPDATED = "last_updated";
 	    String TERMINAL_IS_STARRED = "is_starred";
 	}
 	

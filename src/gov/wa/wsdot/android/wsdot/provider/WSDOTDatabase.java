@@ -130,6 +130,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + FerriesTerminalSailingSpaceColumns.TERMINAL_NAME + " TEXT,"
                 + FerriesTerminalSailingSpaceColumns.TERMINAL_ABBREV + " TEXT,"
                 + FerriesTerminalSailingSpaceColumns.TERMINAL_DEPARTING_SPACES + " TEXT,"
+                + FerriesTerminalSailingSpaceColumns.TERMINAL_LAST_UPDATED + " TEXT,"
                 + FerriesTerminalSailingSpaceColumns.TERMINAL_IS_STARRED + " INTEGER NOT NULL default 0);");
         
         db.execSQL("CREATE TABLE " + Tables.BORDER_WAIT + " ("
@@ -167,6 +168,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
     	                + FerriesTerminalSailingSpaceColumns.TERMINAL_NAME + " TEXT,"
     	                + FerriesTerminalSailingSpaceColumns.TERMINAL_ABBREV + " TEXT,"
     	                + FerriesTerminalSailingSpaceColumns.TERMINAL_DEPARTING_SPACES + " TEXT,"
+    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_LAST_UPDATED + " TEXT,"
     	                + FerriesTerminalSailingSpaceColumns.TERMINAL_IS_STARRED + " INTEGER NOT NULL default 0);");
     	        
     	        db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_terminal_sailing_space', 0);");

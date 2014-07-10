@@ -25,7 +25,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -56,6 +59,7 @@ public class FerriesTerminalSailingSpaceSyncService extends IntentService {
         long now = System.currentTimeMillis();
         boolean shouldUpdate = true;
         String responseString = "";
+        DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
         /** 
          * Check the cache table for the last time data was downloaded. If we are within
@@ -111,6 +115,7 @@ public class FerriesTerminalSailingSpaceSyncService extends IntentService {
                     sailingSpaceValues.put(FerriesTerminalSailingSpace.TERMINAL_NAME, item.getString("TerminalName"));
                     sailingSpaceValues.put(FerriesTerminalSailingSpace.TERMINAL_ABBREV, item.getString("TerminalAbbrev"));
                     sailingSpaceValues.put(FerriesTerminalSailingSpace.TERMINAL_DEPARTING_SPACES, item.getString("DepartingSpaces"));
+                    sailingSpaceValues.put(FerriesTerminalSailingSpace.TERMINAL_LAST_UPDATED, dateFormat.format(new Date(System.currentTimeMillis())));
                     
                     if (starred.contains(item.getInt("TerminalID"))) {
                         sailingSpaceValues.put(FerriesTerminalSailingSpace.TERMINAL_IS_STARRED, 1);
