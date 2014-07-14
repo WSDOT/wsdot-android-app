@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,19 +21,18 @@ package gov.wa.wsdot.android.wsdot.shared;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class FerriesTerminalItem implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3497969464783561721L;
+
+    private static final long serialVersionUID = -3497969464783561721L;
 	private Integer departingTerminalID;
 	private String departingTerminalName;
 	private Integer arrivingTerminalID;
 	private String arrivingTerminalName;
-	private ArrayList<FerriesAnnotationsItem> annotations = new ArrayList<FerriesAnnotationsItem>();
-	private ArrayList<FerriesScheduleTimesItem> times = new ArrayList<FerriesScheduleTimesItem>();
-	
+	private List<FerriesAnnotationsItem> annotations = new ArrayList<FerriesAnnotationsItem>();
+	private List<FerriesScheduleTimesItem> times = new ArrayList<FerriesScheduleTimesItem>();
+		
 	public Integer getDepartingTerminalID() {
 		return departingTerminalID;
 	}
@@ -62,17 +61,17 @@ public class FerriesTerminalItem implements Serializable {
 		this.arrivingTerminalName = arrivingTerminalName;
 	}
 	
-	public ArrayList<FerriesAnnotationsItem> getAnnotations() {
+	public List<FerriesAnnotationsItem> getAnnotations() {
 		return annotations;
 	}
 	public void setAnnotations(FerriesAnnotationsItem annotations) {
 		this.annotations.add(annotations);
 	}
-	
-	public ArrayList<FerriesScheduleTimesItem> getScheduleTimes() {
+	public List<FerriesScheduleTimesItem> getScheduleTimes() {
 		return times;
 	}
 	public void setScheduleTimes(FerriesScheduleTimesItem times) {
 		this.times.add(times);		
 	}
+
 }

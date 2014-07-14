@@ -60,7 +60,7 @@ public class ParserUtils {
 			Date relativeDate = new Date();
 			delta = (int)((relativeDate.getTime() - date.getTime()) / 1000); // convert to seconds
 			if (delta < 60) {
-				return "just now";
+				return delta + " seconds ago";
 			} else if (delta < 120) {
                 return "1 minute ago";
 			} else if (delta < (60*60)) {

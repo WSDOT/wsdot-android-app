@@ -5,31 +5,48 @@
     android:padding="14dp"
     android:descendantFocusability="blocksDescendants">
  
-     <TextView
-         android:id="@+id/departing"
-         android:textSize="@dimen/text_size_large"
-         android:layout_alignParentLeft="true"
-         android:layout_alignParentTop="true"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         />
+    <TextView
+        android:id="@+id/departing"
+        android:textSize="@dimen/text_size_large"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
 
-     <TextView
-         android:id="@+id/arriving"
-         android:textSize="@dimen/text_size_large"
-         android:layout_alignParentRight="true"
-         android:layout_alignParentTop="true"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         />
+    <TextView
+        android:id="@+id/arriving"
+        android:textSize="@dimen/text_size_large"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <TextView
+        android:id="@+id/annotation"
+        android:textSize="@dimen/text_size_medium"
+        android:layout_below="@id/departing"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
      
-     <TextView
-         android:id="@+id/annotation"
-         android:textSize="@dimen/text_size_medium"
-         android:layout_below="@id/departing"
-         android:layout_alignParentBottom="true"
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         />
+    <TextView
+        android:id="@+id/driveup"
+        android:textSize="@dimen/text_size_medium"
+        android:layout_below="@id/annotation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+     
+    <TextView
+        android:id="@+id/updated"
+        android:textSize="@dimen/text_size_small"
+        android:textColor="@color/semi_black"
+        android:layout_below="@+id/driveup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        />
          
 </RelativeLayout>
