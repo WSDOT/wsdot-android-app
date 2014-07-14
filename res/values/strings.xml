@@ -69,5 +69,7 @@
     
     <string name="search_title">Search</string>
     <string name="search_hint">Search Travel Times</string>
+    
+    <string name="drive_up_spaces">Drive-up spaces</string>
 
 </resources>

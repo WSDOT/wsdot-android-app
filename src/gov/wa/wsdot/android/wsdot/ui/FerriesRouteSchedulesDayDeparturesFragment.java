@@ -57,6 +57,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
@@ -140,9 +142,11 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
                                     continue;
                                 } else {
                                     int driveUpSpaceCount = terminals.getInt("DriveUpSpaceCount");
+                                    int maxSpaceCount = terminals.getInt("MaxSpaceCount");
                                     for (FerriesScheduleTimesItem time: times) {
                                         if (dateFormat.format(new Date(Long.parseLong(time.getDepartingTime()))).equals(departure)) {
                                             time.setDriveUpSpaceCount(driveUpSpaceCount);
+                                            time.setMaxSpaceCount(maxSpaceCount);
                                             time.setLastUpdated(cursor.getString(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_LAST_UPDATED)));
                                         }
                                     }
@@ -403,8 +407,12 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
 	            holder.arriving.setTypeface(tfb);
 	            holder.annotation = (TextView) convertView.findViewById(R.id.annotation);
 	            holder.annotation.setTypeface(tf);
-	            holder.driveup = (TextView) convertView.findViewById(R.id.driveup);
-	            holder.driveup.setTypeface(tf);
+                holder.vehicleSpaceGroup = (RelativeLayout) convertView.findViewById(R.id.driveUpProgressBarGroup);
+                holder.driveUpProgressBar = (ProgressBar) convertView.findViewById(R.id.driveUpProgressBar);
+                holder.driveUpSpaceCount = (TextView) convertView.findViewById(R.id.driveUpSpaceCount);
+	            holder.driveUpSpaceCount.setTypeface(tf);
+                holder.driveUpSpaces = (TextView) convertView.findViewById(R.id.driveUpSpaces);
+                holder.driveUpSpaces.setTypeface(tf);           
                 holder.updated = (TextView) convertView.findViewById(R.id.updated);
                 holder.updated.setTypeface(tf);
 
@@ -431,14 +439,21 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
        		holder.annotation.setText(android.text.Html.fromHtml(annotation));
 
        		if (item.getDriveUpSpaceCount() != -1) {
-       		    holder.driveup.setVisibility(View.VISIBLE);
-       		    holder.driveup.setText(Integer.toString(item.getDriveUpSpaceCount()));
+                holder.vehicleSpaceGroup.setVisibility(View.VISIBLE);
+                holder.driveUpProgressBar.setMax(item.getMaxSpaceCount());
+                holder.driveUpProgressBar.setProgress(item.getMaxSpaceCount() - item.getDriveUpSpaceCount());
+                holder.driveUpProgressBar.setSecondaryProgress(item.getMaxSpaceCount());
+                holder.driveUpSpaceCount.setVisibility(View.VISIBLE);
+                holder.driveUpSpaceCount.setText(Integer.toString(item.getDriveUpSpaceCount()));
+                holder.driveUpSpaces.setVisibility(View.VISIBLE);
        		    holder.updated.setVisibility(View.VISIBLE);
-                holder.updated.setText(ParserUtils.relativeTime(item.getLastUpdated(), "MMMM d, yyyy h:mm a", false));       		    
+                holder.updated.setText(ParserUtils.relativeTime(item.getLastUpdated(), "MMMM d, yyyy h:mm a", false));
        		} else {
-       		    holder.driveup.setVisibility(View.GONE);;
+                holder.vehicleSpaceGroup.setVisibility(View.GONE);
+                holder.driveUpSpaceCount.setVisibility(View.GONE);
+                holder.driveUpSpaces.setVisibility(View.GONE);
        		    holder.updated.setVisibility(View.GONE);
-       		}
+        		}
 	        
 	        return convertView;
         }
@@ -447,7 +462,10 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
     		TextView departing;
     		TextView arriving;
     		TextView annotation;
-    		TextView driveup;
+            RelativeLayout vehicleSpaceGroup;
+            ProgressBar driveUpProgressBar;
+    		TextView driveUpSpaceCount;
+    		TextView driveUpSpaces;
     		TextView updated;
     	}
 	}
