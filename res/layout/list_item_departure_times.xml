@@ -35,7 +35,8 @@
         android:id="@+id/vehicleSpaceGroup"
         android:layout_below="@id/annotation"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginTop="7dp">
     
 	    <RelativeLayout
 	        android:id="@+id/driveUpProgressBarGroup"

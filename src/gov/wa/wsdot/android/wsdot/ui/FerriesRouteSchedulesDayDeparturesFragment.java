@@ -75,6 +75,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
 	private Typeface tfb;
 	private static SwipeRefreshLayout swipeRefreshLayout;
 	private FerriesTerminalSyncReceiver ferriesTerminalSyncReceiver;
+    private View mEmptyView;
 	private static LoaderCallbacks<Cursor> ferriesTerminalSyncCallbacks;
 	
 	private static final int FERRIES_DEPARTURES_LOADER_ID = 0;
@@ -120,44 +121,45 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
             }
 
             public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-                DateFormat dateFormat = new SimpleDateFormat("hh:mm a");
+                DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
                 dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
                 
-                cursor.moveToFirst();
-                // Update existing FerriesScheduleTimesItem (times)
-                do {
-                    int departingTerminalID = cursor.getInt(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_ID));
-                    if (departingTerminalID != terminalItem.getDepartingTerminalID()) {
-                        continue;
-                    }
-                    try {
-                        JSONArray departingSpaces = new JSONArray(cursor.getString(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_DEPARTING_SPACES)));
-                        for (int i=0; i < departingSpaces.length(); i++) {
-                            JSONObject spaces = departingSpaces.getJSONObject(i);
-                            String departure = dateFormat.format(new Date(Long.parseLong(spaces.getString("Departure").substring(6, 19))));
-                            JSONArray spaceForArrivalTerminals = spaces.getJSONArray("SpaceForArrivalTerminals");
-                            for (int j=0; j < spaceForArrivalTerminals.length(); j++) {
-                                JSONObject terminals = spaceForArrivalTerminals.getJSONObject(j);
-                                if (terminals.getInt("TerminalID") != terminalItem.getArrivingTerminalID()) {
-                                    continue;
-                                } else {
-                                    int driveUpSpaceCount = terminals.getInt("DriveUpSpaceCount");
-                                    int maxSpaceCount = terminals.getInt("MaxSpaceCount");
-                                    for (FerriesScheduleTimesItem time: times) {
-                                        if (dateFormat.format(new Date(Long.parseLong(time.getDepartingTime()))).equals(departure)) {
-                                            time.setDriveUpSpaceCount(driveUpSpaceCount);
-                                            time.setMaxSpaceCount(maxSpaceCount);
-                                            time.setLastUpdated(cursor.getString(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_LAST_UPDATED)));
+                if (cursor != null && cursor.moveToFirst()) {
+                    // Update existing FerriesScheduleTimesItem (times)
+                    do {
+                        int departingTerminalID = cursor.getInt(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_ID));
+                        if (departingTerminalID != terminalItem.getDepartingTerminalID()) {
+                            continue;
+                        }
+                        try {
+                            JSONArray departingSpaces = new JSONArray(cursor.getString(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_DEPARTING_SPACES)));
+                            for (int i=0; i < departingSpaces.length(); i++) {
+                                JSONObject spaces = departingSpaces.getJSONObject(i);
+                                String departure = dateFormat.format(new Date(Long.parseLong(spaces.getString("Departure").substring(6, 19))));
+                                JSONArray spaceForArrivalTerminals = spaces.getJSONArray("SpaceForArrivalTerminals");
+                                for (int j=0; j < spaceForArrivalTerminals.length(); j++) {
+                                    JSONObject terminals = spaceForArrivalTerminals.getJSONObject(j);
+                                    if (terminals.getInt("TerminalID") != terminalItem.getArrivingTerminalID()) {
+                                        continue;
+                                    } else {
+                                        int driveUpSpaceCount = terminals.getInt("DriveUpSpaceCount");
+                                        int maxSpaceCount = terminals.getInt("MaxSpaceCount");
+                                        for (FerriesScheduleTimesItem time: times) {
+                                            if (dateFormat.format(new Date(Long.parseLong(time.getDepartingTime()))).equals(departure)) {
+                                                time.setDriveUpSpaceCount(driveUpSpaceCount);
+                                                time.setMaxSpaceCount(maxSpaceCount);
+                                                time.setLastUpdated(cursor.getString(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_LAST_UPDATED)));
+                                            }
                                         }
                                     }
                                 }
                             }
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
                         }
-                    } catch (JSONException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                } while (cursor.moveToNext());                
+                    } while (cursor.moveToNext());
+                }
 
                 swipeRefreshLayout.setRefreshing(false);
                 adapter.clear();
@@ -207,6 +209,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
         departing_title.setTypeface(tfb);
         TextView arriving_title = (TextView) mHeaderView.findViewById(R.id.arriving_title);
         arriving_title.setTypeface(tfb);
+        
+        mEmptyView = root.findViewById(R.id.empty_list_view);
 
         return root;
 	}
@@ -428,6 +432,12 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
 	        for (int i=0; i < numIndexes; i++) {
 	        	FerriesAnnotationsItem p = annotations.get(item.getAnnotationIndexes().get(i).getIndex());
 	        	annotation += p.getAnnotation();
+	        }
+	        
+	        if (annotation.equals("")) {
+	            holder.annotation.setVisibility(View.GONE);
+	        } else {
+	            holder.annotation.setVisibility(View.VISIBLE);
 	        }
 	        
         	holder.departing.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
