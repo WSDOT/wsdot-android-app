@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWaitColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CachesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CamerasColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedulesColumns;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpaceColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPassesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimesColumns;
@@ -38,7 +39,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
     
 	private static final int VER_1 = 1;
 	private static final int VER_2 = 2;
-	private static final int DATABASE_VERSION = VER_2;
+	private static final int VER_3 = 3;
+	private static final int DATABASE_VERSION = VER_3;
 
     interface Tables {
     	String CACHES = "caches";
@@ -47,6 +49,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         String MOUNTAIN_PASSES = "mountain_passes";
         String TRAVEL_TIMES = "travel_times";
         String FERRIES_SCHEDULES = "ferries_schedules";
+        String FERRIES_TERMINAL_SAILING_SPACE = "ferries_terminal_sailing_space";
         String BORDER_WAIT  = "border_wait";
     }
     
@@ -121,6 +124,15 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + FerriesSchedulesColumns.FERRIES_SCHEDULE_UPDATED + " TEXT,"
                 + FerriesSchedulesColumns.FERRIES_SCHEDULE_IS_STARRED + " INTEGER NOT NULL default 0);");
         
+        db.execSQL("CREATE TABLE " + Tables.FERRIES_TERMINAL_SAILING_SPACE + " ("
+                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + FerriesTerminalSailingSpaceColumns.TERMINAL_ID + " INTEGER,"
+                + FerriesTerminalSailingSpaceColumns.TERMINAL_NAME + " TEXT,"
+                + FerriesTerminalSailingSpaceColumns.TERMINAL_ABBREV + " TEXT,"
+                + FerriesTerminalSailingSpaceColumns.TERMINAL_DEPARTING_SPACES + " TEXT,"
+                + FerriesTerminalSailingSpaceColumns.TERMINAL_LAST_UPDATED + " TEXT,"
+                + FerriesTerminalSailingSpaceColumns.TERMINAL_IS_STARRED + " INTEGER NOT NULL default 0);");
+        
         db.execSQL("CREATE TABLE " + Tables.BORDER_WAIT + " ("
         		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
         		+ BorderWaitColumns.BORDER_WAIT_ID + " INTEGER,"
@@ -143,12 +155,26 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 		
 		switch (version) {
     		case VER_1:
-    		    Log.i(TAG, "Performing migration for DB version " + version);
+    		    Log.i(TAG, "Performing upgrade for DB version " + version);
 
     		    db.execSQL("ALTER TABLE " + Tables.HIGHWAY_ALERTS
                         + " ADD COLUMN " + HighwayAlertsColumns.HIGHWAY_ALERT_LAST_UPDATED + " TEXT");
     		case VER_2:
-    		    version = VER_2;
+    		    Log.i(TAG, "Performing upgrade for DB version " + version);
+    		    
+    	        db.execSQL("CREATE TABLE " + Tables.FERRIES_TERMINAL_SAILING_SPACE + " ("
+    	                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_ID + " INTEGER,"
+    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_NAME + " TEXT,"
+    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_ABBREV + " TEXT,"
+    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_DEPARTING_SPACES + " TEXT,"
+    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_LAST_UPDATED + " TEXT,"
+    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_IS_STARRED + " INTEGER NOT NULL default 0);");
+    	        
+    	        db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_terminal_sailing_space', 0);");
+    		    
+    		case VER_3:
+    		    version = VER_3;
     		    Log.i(TAG, "DB at version " + version);
 
     		    // Current version, no further action necessary.
@@ -164,6 +190,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 	        db.execSQL("DROP TABLE IF EXISTS " + Tables.MOUNTAIN_PASSES);
 	        db.execSQL("DROP TABLE IF EXISTS " + Tables.TRAVEL_TIMES);
             db.execSQL("DROP TABLE IF EXISTS " + Tables.FERRIES_SCHEDULES);
+            db.execSQL("DROP TABLE IF EXISTS " + Tables.FERRIES_TERMINAL_SAILING_SPACE);
 	        db.execSQL("DROP TABLE IF EXISTS " + Tables.BORDER_WAIT);
 	        
 	        onCreate(db);
@@ -176,6 +203,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('mountain_passes', 0);");
 		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('travel_times', 0);");
 		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_schedules', 0);");
+		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_terminal_sailing_space', 0);");
 		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('border_wait', 0);");
 
 		// Front load the mountain pass cameras

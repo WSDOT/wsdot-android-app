@@ -1,35 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:padding="14dp"
     android:descendantFocusability="blocksDescendants">
  
-     <TextView
-         android:id="@+id/departing"
-         android:textSize="@dimen/text_size_large"
-         android:layout_alignParentLeft="true"
-         android:layout_alignParentTop="true"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         />
+    <TextView
+        android:id="@+id/departing"
+        android:textSize="@dimen/text_size_large"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
 
-     <TextView
-         android:id="@+id/arriving"
-         android:textSize="@dimen/text_size_large"
-         android:layout_alignParentRight="true"
-         android:layout_alignParentTop="true"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         />
-     
-     <TextView
-         android:id="@+id/annotation"
-         android:textSize="@dimen/text_size_medium"
-         android:layout_below="@id/departing"
-         android:layout_alignParentBottom="true"
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         />
+    <TextView
+        android:id="@+id/arriving"
+        android:textSize="@dimen/text_size_large"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <TextView
+        android:id="@+id/annotation"
+        android:textSize="@dimen/text_size_medium"
+        android:layout_below="@id/departing"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+    <RelativeLayout
+        android:id="@+id/vehicleSpaceGroup"
+        android:layout_below="@id/annotation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="7dp">
+    
+	    <RelativeLayout
+	        android:id="@+id/driveUpProgressBarGroup"
+	        android:layout_width="50dp"
+	        android:layout_height="50dp">
+	    
+	        <ProgressBar
+	            android:id="@+id/driveUpProgressBar"
+	            style="?android:attr/progressBarStyleHorizontal"
+	            android:layout_width="50dp"
+	            android:layout_height="50dp"
+	            android:indeterminate="false"
+	            android:progressDrawable="@drawable/circular_progress_bar" />
+	    
+	        <TextView
+	            android:id="@+id/driveUpSpaceCount"
+	            android:textSize="@dimen/text_size_medium"
+	            android:gravity="center"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            />
+	
+	    </RelativeLayout>
+    
+	    <TextView
+	        android:id="@+id/driveUpSpaces"
+	        android:textSize="@dimen/text_size_medium"
+	        android:text="@string/drive_up_spaces"
+	        android:layout_centerVertical="true"
+	        android:layout_toRightOf="@+id/driveUpProgressBarGroup"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="5dp"
+	        />
+    
+    </RelativeLayout>
+    
+    <TextView
+        android:id="@+id/updated"
+        android:textSize="@dimen/text_size_small"
+        android:textColor="@color/semi_black"
+        android:layout_below="@+id/vehicleSpaceGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        />
          
 </RelativeLayout>

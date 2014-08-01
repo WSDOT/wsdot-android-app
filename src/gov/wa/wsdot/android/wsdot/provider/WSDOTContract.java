@@ -89,6 +89,15 @@ public class WSDOTContract {
 		String FERRIES_SCHEDULE_IS_STARRED = "is_starred";
 	}
 	
+	interface FerriesTerminalSailingSpaceColumns {
+	    String TERMINAL_ID = "id";
+	    String TERMINAL_NAME = "name";
+	    String TERMINAL_ABBREV = "abbrev";
+	    String TERMINAL_DEPARTING_SPACES = "departing_spaces";
+	    String TERMINAL_LAST_UPDATED = "last_updated";
+	    String TERMINAL_IS_STARRED = "is_starred";
+	}
+	
 	interface BorderWaitColumns {
 		String BORDER_WAIT_ID = "id";
 		String BORDER_WAIT_TITLE = "title";
@@ -111,6 +120,7 @@ public class WSDOTContract {
 	private static final String PATH_TRAVEL_TIMES = "travel_times";
 	private static final String PATH_TRAVEL_TIMES_SEARCH = "search";
 	private static final String PATH_FERRIES_SCHEDULES = "ferries_schedules";
+	private static final String PATH_FERRIES_TERMINAL_SAILING_SPACE = "ferries_terminal_sailing_space";
 	private static final String PATH_BORDER_WAIT = "border_wait";
 	
 	public static class Caches implements BaseColumns, CachesColumns {
@@ -182,6 +192,15 @@ public class WSDOTContract {
 	    public static final String CONTENT_ITEM_TYPE =
 	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/ferries_schedule";
 
+	}
+	
+	public static class FerriesTerminalSailingSpace implements BaseColumns, FerriesTerminalSailingSpaceColumns {
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+                .appendPath(PATH_FERRIES_TERMINAL_SAILING_SPACE).build();
+        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
+                + "/ferries_terminal_sailing_space";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
+                + "/ferries_terminal_sailing_space";
 	}
 
 	public static class BorderWait implements BaseColumns, BorderWaitColumns {

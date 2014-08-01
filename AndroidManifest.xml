@@ -55,6 +55,9 @@
         
         <service
             android:name=".service.FerriesSchedulesSyncService" />
+        
+        <service
+            android:name=".service.FerriesTerminalSailingSpaceSyncService" />
 
         <service
             android:name=".service.BorderWaitSyncService" />

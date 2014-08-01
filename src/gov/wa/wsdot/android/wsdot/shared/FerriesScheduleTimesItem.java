@@ -28,26 +28,60 @@ public class FerriesScheduleTimesItem implements Serializable {
 	private String departingTime;
 	private String arrivingTime;
 	private ArrayList<FerriesAnnotationIndexesItem> annotationIndexes = new ArrayList<FerriesAnnotationIndexesItem>();
+    private int reservableSpaceCount;
+    private int driveUpSpaceCount;
+    private int maxSpaceCount;
+    private String lastUpdated;
 	
+    public FerriesScheduleTimesItem() {
+        this.reservableSpaceCount = -1;
+        this.driveUpSpaceCount = -1;
+        this.maxSpaceCount = -1;
+    }
+    
 	public String getDepartingTime() {
 		return departingTime;
 	}
 	public void setDepartingTime(String departingTime) {
 		this.departingTime = departingTime;
 	}
-	
 	public String getArrivingTime() {
 		return arrivingTime;
 	}
 	public void setArrivingTime(String arrivingTime) {
 		this.arrivingTime = arrivingTime;
 	}
-	
 	public ArrayList<FerriesAnnotationIndexesItem> getAnnotationIndexes() {
 		return annotationIndexes;
 	}
 	public void setAnnotationIndexes(FerriesAnnotationIndexesItem annotationIndexes) {
 		this.annotationIndexes.add(annotationIndexes);
 	}
+    public int getReservableSpaceCount() {
+        return reservableSpaceCount;
+    }
+    public void setReservableSpaceCount(int reservableSpaceCount) {
+        this.reservableSpaceCount = reservableSpaceCount;
+    }
+    public int getDriveUpSpaceCount() {
+        return driveUpSpaceCount;
+    }
+    public void setDriveUpSpaceCount(int driveUpSpaceCount) {
+        this.driveUpSpaceCount = driveUpSpaceCount;
+    }
+    public int getMaxSpaceCount() {
+        return maxSpaceCount;
+    }
+    public void setMaxSpaceCount(int maxSpaceCount) {
+        this.maxSpaceCount = maxSpaceCount;
+    }
+
+    public String getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(String lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
 
 }

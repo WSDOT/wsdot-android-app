@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2014 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpace;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
@@ -66,6 +67,9 @@ public class WSDOTProvider extends ContentProvider {
     
     private static final int FERRIES_SCHEDULES = 600;
     private static final int FERRIES_SCHEDULES_ID = 601;
+
+    private static final int FERRIES_TERMINAL_SAILING_SPACE = 610;
+    private static final int FERRIES_TERMINAL_SAILING_SPACE_ID = 611;
     
     private static final int BORDER_WAIT = 700;
     private static final int BORDER_WAIT_ID = 701;
@@ -88,6 +92,8 @@ public class WSDOTProvider extends ContentProvider {
         matcher.addURI(authority, "travel_times/search/*", TRAVEL_TIMES_SEARCH);
         matcher.addURI(authority, "ferries_schedules", FERRIES_SCHEDULES);
         matcher.addURI(authority, "ferries_schedules/#", FERRIES_SCHEDULES_ID);
+        matcher.addURI(authority, "ferries_terminal_sailing_space", FERRIES_TERMINAL_SAILING_SPACE);
+        matcher.addURI(authority, "ferries_terminal_sailing_space/#", FERRIES_TERMINAL_SAILING_SPACE_ID);
         matcher.addURI(authority, "border_wait", BORDER_WAIT);
         matcher.addURI(authority, "border_wait/#", BORDER_WAIT_ID);
         
@@ -132,6 +138,10 @@ public class WSDOTProvider extends ContentProvider {
         	return FerriesSchedules.CONTENT_TYPE;
         case FERRIES_SCHEDULES_ID:
         	return FerriesSchedules.CONTENT_ITEM_TYPE;
+        case FERRIES_TERMINAL_SAILING_SPACE:
+            return FerriesTerminalSailingSpace.CONTENT_TYPE;
+        case FERRIES_TERMINAL_SAILING_SPACE_ID:
+            return FerriesTerminalSailingSpace.CONTENT_ITEM_TYPE;
         case BORDER_WAIT:
         	return BorderWait.CONTENT_TYPE;
         case BORDER_WAIT_ID:
@@ -206,6 +216,14 @@ public class WSDOTProvider extends ContentProvider {
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.FERRIES_SCHEDULES);
 	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
 	        break;
+        case FERRIES_TERMINAL_SAILING_SPACE:
+            queryBuilder.setTables(WSDOTDatabase.Tables.FERRIES_TERMINAL_SAILING_SPACE);
+            // no filter
+            break;
+        case FERRIES_TERMINAL_SAILING_SPACE_ID:
+            queryBuilder.setTables(WSDOTDatabase.Tables.FERRIES_TERMINAL_SAILING_SPACE);
+            queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
+            break;
 	    case BORDER_WAIT:
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.BORDER_WAIT);
 	    	// no filter
@@ -213,7 +231,7 @@ public class WSDOTProvider extends ContentProvider {
 	    case BORDER_WAIT_ID:
 	    	queryBuilder.setTables(WSDOTDatabase.Tables.BORDER_WAIT);
 	    	queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
-	        break;	        
+	        break;
 	        
 	    default:
 	    	throw new IllegalArgumentException("Unknown URI " + uri);
@@ -312,6 +330,19 @@ public class WSDOTProvider extends ContentProvider {
                         selectionArgs);
             }
             break;
+        case FERRIES_TERMINAL_SAILING_SPACE:
+            rowsAffected = sqlDB.delete(Tables.FERRIES_TERMINAL_SAILING_SPACE, selection, selectionArgs);
+            break;
+        case FERRIES_TERMINAL_SAILING_SPACE_ID:
+            id = uri.getLastPathSegment();
+            if (TextUtils.isEmpty(selection)) {
+                rowsAffected = sqlDB.delete(Tables.FERRIES_TERMINAL_SAILING_SPACE, BaseColumns._ID + "=" + id, null);
+            } else {
+                rowsAffected = sqlDB.delete(Tables.FERRIES_TERMINAL_SAILING_SPACE,
+                        selection + " and " + BaseColumns._ID + "=" + id,
+                        selectionArgs);
+            }
+            break;
         case BORDER_WAIT:
             rowsAffected = sqlDB.delete(Tables.BORDER_WAIT, selection, selectionArgs);
             break;
@@ -404,6 +435,20 @@ public class WSDOTProvider extends ContentProvider {
             	}
             	sqlDB.setTransactionSuccessful();
             	rowsAdded = values.length;
+            } finally {
+                getContext().getContentResolver().notifyChange(uri, null);
+                sqlDB.endTransaction();
+            }
+            
+            return rowsAdded;
+        case FERRIES_TERMINAL_SAILING_SPACE:
+            sqlDB.beginTransaction();
+            try {
+                for (ContentValues value : values) {
+                    sqlDB.insert(Tables.FERRIES_TERMINAL_SAILING_SPACE, null, value);
+                }
+                sqlDB.setTransactionSuccessful();
+                rowsAdded = values.length;
             } finally {
                 getContext().getContentResolver().notifyChange(uri, null);
                 sqlDB.endTransaction();
@@ -515,6 +560,19 @@ public class WSDOTProvider extends ContentProvider {
             } catch (SQLiteConstraintException e) {
                 Log.i(DEBUG_TAG, "Ignoring constraint failure.");
             }
+        case FERRIES_TERMINAL_SAILING_SPACE:
+            try {
+                long rowId = sqlDB.insertOrThrow(Tables.FERRIES_TERMINAL_SAILING_SPACE, null, values);
+                if (rowId > 0) {
+                    Uri newUri = ContentUris.withAppendedId(uri, rowId);
+                    getContext().getContentResolver().notifyChange(uri, null);
+                    return newUri;
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+            } catch (SQLiteConstraintException e) {
+                Log.i(DEBUG_TAG, "Ignoring constraint failure.");
+            }
         case BORDER_WAIT:
             try {
                 long rowId = sqlDB.insertOrThrow(Tables.BORDER_WAIT, null, values);
@@ -556,6 +614,9 @@ public class WSDOTProvider extends ContentProvider {
         case FERRIES_SCHEDULES:
         	rowsAffected = sqlDB.update(Tables.FERRIES_SCHEDULES, values, selection, selectionArgs);
         	break;
+        case FERRIES_TERMINAL_SAILING_SPACE:
+            rowsAffected = sqlDB.update(Tables.FERRIES_TERMINAL_SAILING_SPACE, values, selection, selectionArgs);
+            break;
         case BORDER_WAIT:
         	rowsAffected = sqlDB.update(Tables.BORDER_WAIT, values, selection, selectionArgs);
         	break;        
