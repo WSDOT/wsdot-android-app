@@ -257,6 +257,10 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
 		// Prepare the loaders. Either re-connect with an existing one, or start new ones.
         getLoaderManager().initLoader(FERRIES_DEPARTURES_LOADER_ID, null, this);
         getLoaderManager().initLoader(FERRIES_VEHICLE_SPACE_LOADER_ID, null, ferriesTerminalSyncCallbacks);
+        
+        TextView t = (TextView) mEmptyView;
+        t.setText(R.string.no_day_departures);
+        getListView().setEmptyView(mEmptyView);
 	}
 
 	public Loader<ArrayList<FerriesScheduleTimesItem>> onCreateLoader(int id,
