@@ -238,9 +238,18 @@ public class TrafficMapActivity extends ActionBarActivity implements
         // Save last map location and zoom level.
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString("KEY_TRAFFICMAP_LAT", String.valueOf(map.getProjection().getVisibleRegion().latLngBounds.getCenter().latitude));
-        editor.putString("KEY_TRAFFICMAP_LON", String.valueOf(map.getProjection().getVisibleRegion().latLngBounds.getCenter().longitude));
-        editor.putInt("KEY_TRAFFICMAP_ZOOM", (int)map.getCameraPosition().zoom);
+        
+        try {
+            editor.putString("KEY_TRAFFICMAP_LAT", String.valueOf(map.getProjection().getVisibleRegion().latLngBounds.getCenter().latitude));
+            editor.putString("KEY_TRAFFICMAP_LON", String.valueOf(map.getProjection().getVisibleRegion().latLngBounds.getCenter().longitude));
+            editor.putInt("KEY_TRAFFICMAP_ZOOM", (int)map.getCameraPosition().zoom);
+        } catch (NullPointerException e) {
+            Log.e(TAG, "Error getting map bounds. Setting defaults to Seattle instead.");
+            editor.putString("KEY_TRAFFICMAP_LAT", "47.5990");
+            editor.putString("KEY_TRAFFICMAP_LON", "-122.3350");
+            editor.putInt("KEY_TRAFFICMAP_ZOOM", 12);           
+        }
+        
         editor.commit();
 	}
 
