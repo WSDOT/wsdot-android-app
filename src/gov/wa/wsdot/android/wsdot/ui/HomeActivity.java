@@ -23,6 +23,11 @@ import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 import java.util.ArrayList;
 
+import aje.android.sdk.AdError;
+import aje.android.sdk.AdJugglerAdView;
+import aje.android.sdk.AdListener;
+import aje.android.sdk.AdRequest;
+import aje.android.sdk.IncorrectAdRequestException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,11 +38,13 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class HomeActivity extends ActionBarActivity {
 
+    private static final String TAG = HomeActivity.class.getSimpleName();
     private ViewPager mViewPager;
 	private TabsAdapter mTabsAdapter;
 
@@ -57,7 +64,49 @@ public class HomeActivity extends ActionBarActivity {
 		mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Home"),
 				DashboardFragment.class, null);
 		mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Favorites"),
-				FavoritesFragment.class, null);        
+				FavoritesFragment.class, null);    
+		
+        final AdJugglerAdView mAdJugglerAdView = (AdJugglerAdView) findViewById(R.id.ajAdView);
+        mAdJugglerAdView.setListener(new AdListener() {
+
+            public boolean onClickAd(String arg0) {
+                return false;
+            }
+
+            public void onExpand() {
+            }
+
+            public void onExpandClose() {
+            }
+
+            public void onFailedToClickAd(String arg0, String arg1) {
+            }
+
+            public void onFailedToFetchAd(AdError arg0, String arg1) {
+            }
+
+            public void onFetchAdFinished() {
+            }
+
+            public void onFetchAdStarted() {
+            }
+
+            public void onResize() {
+            }
+
+            public void onResizeClose() {
+            }
+        });
+        
+        try {
+            AdRequest adRequest = new AdRequest();
+            adRequest.setServer(getString(R.string.adRequest_server));
+            adRequest.setZone(getString(R.string.adRequest_zone));
+            adRequest.setAdSpot(getString(R.string.adRequest_adspot));
+            mAdJugglerAdView.showAd(adRequest);
+        } catch (IncorrectAdRequestException e) {
+            Log.e(TAG, "Error showing banner ad", e);
+        }
         
     }
 

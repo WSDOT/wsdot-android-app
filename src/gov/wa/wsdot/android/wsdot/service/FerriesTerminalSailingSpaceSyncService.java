@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot.service;
 
+import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpace;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 
@@ -45,8 +46,8 @@ import android.util.Log;
 public class FerriesTerminalSailingSpaceSyncService extends IntentService {
 
     private static final String TAG = FerriesTerminalSailingSpaceSyncService.class.getSimpleName();
-    private static final String TERMINAL_SAILING_SPACE_URL = "http://www.wsdot.wa.gov/ferries/api/terminals/rest/terminalsailingspace?"
-            + "apiaccesscode={API_ACCESS_CODE}";
+    private final String TERMINAL_SAILING_SPACE_URL = "http://www.wsdot.wa.gov/ferries/api/terminals/rest/terminalsailingspace?"
+            + "apiaccesscode=" + getString(R.string.wsdot_api_access_code);
     
     public FerriesTerminalSailingSpaceSyncService() {
         super("FerriesTerminalSailingSpaceSyncService");
