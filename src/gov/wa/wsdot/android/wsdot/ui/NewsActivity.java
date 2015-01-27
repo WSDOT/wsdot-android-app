@@ -31,7 +31,8 @@ public class NewsActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_news);
 		
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-	}
+
+    }
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {

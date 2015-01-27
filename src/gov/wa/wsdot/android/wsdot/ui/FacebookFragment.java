@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,11 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import aje.android.sdk.AdError;
+import aje.android.sdk.AdJugglerAdView;
+import aje.android.sdk.AdListener;
+import aje.android.sdk.AdRequest;
+import aje.android.sdk.IncorrectAdRequestException;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -82,7 +87,7 @@ public class FacebookFragment extends ListFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_adjuggler_with_swipe_refresh, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -99,6 +104,48 @@ public class FacebookFragment extends ListFragment implements
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
+        final AdJugglerAdView mAdJugglerAdView = (AdJugglerAdView) root.findViewById(R.id.ajAdView);
+        mAdJugglerAdView.setListener(new AdListener() {
+
+            public boolean onClickAd(String arg0) {
+                return false;
+            }
+
+            public void onExpand() {
+            }
+
+            public void onExpandClose() {
+            }
+
+            public void onFailedToClickAd(String arg0, String arg1) {
+            }
+
+            public void onFailedToFetchAd(AdError arg0, String arg1) {
+            }
+
+            public void onFetchAdFinished() {
+            }
+
+            public void onFetchAdStarted() {
+            }
+
+            public void onResize() {
+            }
+
+            public void onResizeClose() {
+            }
+        });
+        
+        try {
+            AdRequest adRequest = new AdRequest();
+            adRequest.setServer(getString(R.string.adRequest_server));
+            adRequest.setZone(getString(R.string.adRequest_zone));
+            adRequest.setAdSpot(getString(R.string.adRequest_adspot));
+            mAdJugglerAdView.showAd(adRequest);
+        } catch (IncorrectAdRequestException e) {
+            Log.e(TAG, "Error showing banner ad", e);
+        }
+        
         return root;
     }    
 	

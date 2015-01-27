@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,10 +19,16 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import aje.android.sdk.AdError;
+import aje.android.sdk.AdJugglerAdView;
+import aje.android.sdk.AdListener;
+import aje.android.sdk.AdRequest;
+import aje.android.sdk.IncorrectAdRequestException;
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +36,6 @@ import android.widget.TextView;
 
 public class MountainPassItemReportFragment extends Fragment {
 
-	@SuppressWarnings("unused")
     private static final String TAG = MountainPassItemReportFragment.class.getSimpleName();	
 	private ViewGroup mRootView;
 	private String mWeatherCondition;
@@ -42,6 +47,7 @@ public class MountainPassItemReportFragment extends Fragment {
 	private String mRestrictionTwoTravelDirection;
 	private String mRestrictionTwoText;
 	private String mDateUpdated;
+	private AdJugglerAdView mAdJugglerAdView;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -131,6 +137,48 @@ public class MountainPassItemReportFragment extends Fragment {
 		TextView restriction_two_text = (TextView)mRootView.findViewById(R.id.restriction_two_text);
 		restriction_two_text.setTypeface(tf);
 		restriction_two_text.setText(mRestrictionTwoText);
+		
+        mAdJugglerAdView = (AdJugglerAdView) mRootView.findViewById(R.id.ajAdView);
+        mAdJugglerAdView.setListener(new AdListener() {
+
+            public boolean onClickAd(String arg0) {
+                return false;
+            }
+
+            public void onExpand() {
+            }
+
+            public void onExpandClose() {
+            }
+
+            public void onFailedToClickAd(String arg0, String arg1) {
+            }
+
+            public void onFailedToFetchAd(AdError arg0, String arg1) {
+            }
+
+            public void onFetchAdFinished() {
+            }
+
+            public void onFetchAdStarted() {
+            }
+
+            public void onResize() {
+            }
+
+            public void onResizeClose() {
+            }
+        });
+        
+        try {
+            AdRequest adRequest = new AdRequest();
+            adRequest.setServer("hsm.rotator.hadj1.adjuggler.net");
+            adRequest.setZone("hsm");
+            adRequest.setAdSpot("1180114");
+            mAdJugglerAdView.showAd(adRequest);
+        } catch (IncorrectAdRequestException e) {
+            Log.e(TAG, "Error showing banner ad", e);
+        }	
 		
         return mRootView;		
 	}

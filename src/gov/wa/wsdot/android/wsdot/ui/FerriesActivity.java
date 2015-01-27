@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +24,14 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 
 public class FerriesActivity extends ActionBarActivity {
-	
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ferries);
         
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
     }
     
     @Override

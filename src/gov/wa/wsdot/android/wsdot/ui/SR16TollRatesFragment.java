@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +24,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import aje.android.sdk.AdError;
+import aje.android.sdk.AdJugglerAdView;
+import aje.android.sdk.AdListener;
+import aje.android.sdk.AdRequest;
+import aje.android.sdk.IncorrectAdRequestException;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +41,7 @@ import android.widget.TextView;
 
 public class SR16TollRatesFragment extends ListFragment {
 	
+    private static final String TAG = SR16TollRatesFragment.class.getSimpleName();
     private MyCustomAdapter adapter;
 	
 	@Override
@@ -53,6 +60,48 @@ public class SR16TollRatesFragment extends ListFragment {
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
+        final AdJugglerAdView mAdJugglerAdView = (AdJugglerAdView) root.findViewById(R.id.ajAdView);
+        mAdJugglerAdView.setListener(new AdListener() {
+
+            public boolean onClickAd(String arg0) {
+                return false;
+            }
+
+            public void onExpand() {
+            }
+
+            public void onExpandClose() {
+            }
+
+            public void onFailedToClickAd(String arg0, String arg1) {
+            }
+
+            public void onFailedToFetchAd(AdError arg0, String arg1) {
+            }
+
+            public void onFetchAdFinished() {
+            }
+
+            public void onFetchAdStarted() {
+            }
+
+            public void onResize() {
+            }
+
+            public void onResizeClose() {
+            }
+        });
+        
+        try {
+            AdRequest adRequest = new AdRequest();
+            adRequest.setServer(getString(R.string.adRequest_server));
+            adRequest.setZone(getString(R.string.adRequest_zone));
+            adRequest.setAdSpot(getString(R.string.adRequest_adspot));
+            mAdJugglerAdView.showAd(adRequest);
+        } catch (IncorrectAdRequestException e) {
+            Log.e(TAG, "Error showing banner ad", e);
+        }
+        
         return root;
     }
 	

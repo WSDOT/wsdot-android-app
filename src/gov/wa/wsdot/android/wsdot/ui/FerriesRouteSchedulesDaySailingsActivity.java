@@ -51,6 +51,7 @@ public class FerriesRouteSchedulesDaySailingsActivity extends ActionBarActivity 
 		
         getSupportActionBar().setTitle(title);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 	}
 	
 	@Override

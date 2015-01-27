@@ -39,7 +39,7 @@ import android.widget.ArrayAdapter;
 public class FerriesRouteSchedulesDayDeparturesActivity extends ActionBarActivity
 	implements ActionBar.OnNavigationListener {
 
-	private static ArrayList<FerriesScheduleDateItem> mScheduleDateItems;
+    private static ArrayList<FerriesScheduleDateItem> mScheduleDateItems;
 	private static ArrayList<String> mDaysOfWeek;
 	private static int mPosition;
 	

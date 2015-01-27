@@ -8,7 +8,17 @@
         android:name="gov.wa.wsdot.android.wsdot.ui.FerriesRouteAlertsBulletinsFragment"
         android:id="@+id/fragment_ferries_route_alerts_bulletins"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        />
+
+    <aje.android.sdk.AdJugglerAdView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/ajAdView"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:padding="0dp"
+        android:gravity="center"
         />
 
 </LinearLayout>
