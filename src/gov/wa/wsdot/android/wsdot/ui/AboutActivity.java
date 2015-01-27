@@ -133,6 +133,10 @@ public class AboutActivity extends ActionBarActivity {
 				"transportation systems vital to our taxpayers and communities.</p>" +
 				"<p>The WSDOT mobile app was created to make it easier for you to know the latest " +
 				"about Washington's transportation system.</p>" +
+				"<p><strong>Advertising</strong><br />" +
+                "In an effort to generate a new source of revenue, WSDOT is conducting a " +
+				"<a href=\"http://www.wsdot.wa.gov/funding/partners/projects/webadvertising.htm\" target=\"_blank\">digital advertising pilot project</a> " +
+				"to allow commercial advertising through its websites, social media tools and mobile apps.</p>" +
 				"<p>Questions, comments or suggestions about this app can be e-mailed to the " +
 				"<a href=\"mailto:webfeedback@wsdot.wa.gov\">WSDOT " +
 				"Communications Office</a>.</p>" +
