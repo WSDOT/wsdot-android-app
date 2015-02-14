@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,6 +66,12 @@ public class DashboardFragment extends Fragment {
         root.findViewById(R.id.home_btn_border).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 startActivity(new Intent(getActivity(), BorderWaitActivity.class));                
+            }
+        });
+
+        root.findViewById(R.id.home_btn_amtrak).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                startActivity(new Intent(getActivity(), AmtrakCascadesActivity.class));                
             }
         });
         

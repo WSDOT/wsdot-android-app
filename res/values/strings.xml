@@ -18,6 +18,7 @@
     <string name="btn_social">Social Media</string>
     <string name="btn_tolling">Toll Rates</string>
     <string name="btn_border">Border Wait</string>
+    <string name="btn_amtrakcascades">Amtrak Cascades</string>
     
     <string name="title_borderwait">Border Wait</string>
     <string name="title_about">About</string>
@@ -44,6 +45,9 @@
     <string name="title_news">News</string>
     <string name="title_departing">Departing</string>
     <string name="title_arriving">Arriving</string>
+    <string name="title_amtrakcascades">Amtrak Cascades</string>
+    <string name="title_amtrakcascades_schedules">Find Schedules</string>
+    <string name="button_check_schedules">Check Schedules</string>
 	
     <string name="description_refresh">Refresh</string>
     <string name="description_share">Share</string>

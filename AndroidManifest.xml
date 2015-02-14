@@ -11,9 +11,9 @@
         android:name="gov.wa.wsdot.android.wsdot.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
  
-    <uses-permission android:name="gov.wa.wsdot.android.wsdot.permission.MAPS_RECEIVE"/>
     <uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> 
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>   
@@ -184,7 +184,15 @@
 
    		<activity
    		    android:name=".ui.HighwayAlertDetailsActivity" />
-   		
+        
+        <activity
+            android:name=".ui.AmtrakCascadesActivity"
+            android:label="@string/title_amtrakcascades" />
+
+        <activity
+            android:name=".ui.AmtrakCascadesSchedulesActivity"
+            android:label="@string/title_amtrakcascades_schedules" />
+        		
     </application>
 
 </manifest> 

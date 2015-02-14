@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -55,13 +56,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
-import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -77,15 +79,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class VesselWatchMapActivity extends ActionBarActivity implements
-        OnMarkerClickListener,
-        ConnectionCallbacks,
-        OnConnectionFailedListener,
-        OnMyLocationButtonClickListener,
-        OnCameraChangeListener {
+        OnMarkerClickListener, OnMyLocationButtonClickListener,
+        OnConnectionFailedListener, ConnectionCallbacks,
+        OnCameraChangeListener, LocationListener {
 
 	private static final String TAG = VesselWatchMapActivity.class.getSimpleName();
 	private GoogleMap map = null;
-	private LocationClient locationClient;
 	private Handler handler = new Handler();
 	private Timer timer;
 	private VesselsOverlay vesselsOverlay = null;
@@ -100,6 +99,9 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 	private static AsyncTask<Void, Void, Void> camerasOverlayTask = null;
 	private static AsyncTask<Void, Void, Void> vesselsOverlayTask = null;
 	private LatLngBounds bounds;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +166,43 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
         } catch (IncorrectAdRequestException e) {
             Log.e(TAG, "Error showing banner ad", e);
         }
+        
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API).build();
+
+        mLocationRequest = LocationRequest.create().setPriority(
+                LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+	
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        prepareMap();
+        mGoogleApiClient.connect();
+        
+        timer = new Timer();
+        timer.schedule(new VesselsTimerTask(), 0, 30000); // Schedule vessels to update every 30 seconds
+        
+        IntentFilter camerasFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
+        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mCamerasReceiver = new CamerasSyncReceiver();
+        registerReceiver(mCamerasReceiver, camerasFilter); 
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            mGoogleApiClient.disconnect();
+        }
+        
+        timer.cancel();
+        this.unregisterReceiver(mCamerasReceiver);
     }
 	
 	public void prepareMap() {
@@ -192,15 +231,6 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
         setSupportProgressBarIndeterminateVisibility(true);
         startService(camerasIntent);        
     }
-	
-    private void setupLocationClientIfNeeded() {
-        if (locationClient == null) {
-            locationClient = new LocationClient(
-                    this,
-                    this, // ConnectionCallbacks
-                    this); // OnConnectionFailedListener
-        }
-    }
 
     public boolean onMarkerClick(Marker marker) {
         Bundle b = new Bundle();
@@ -221,42 +251,6 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
         
         return true;
     }
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		
-        if (locationClient != null) {
-            locationClient.disconnect();
-        }
-		
-		timer.cancel();
-		this.unregisterReceiver(mCamerasReceiver);
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		
-        prepareMap();
-        setupLocationClientIfNeeded();
-        
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        
-        if (ConnectionResult.SUCCESS == resultCode) {
-            locationClient.connect();
-        } else {
-            Toast.makeText(this, "Google Play services not available", Toast.LENGTH_SHORT).show();
-        }
-		
-		timer = new Timer();
-		timer.schedule(new VesselsTimerTask(), 0, 30000); // Schedule vessels to update every 30 seconds
-		
-        IntentFilter camerasFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
-        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mCamerasReceiver = new CamerasSyncReceiver();
-        registerReceiver(mCamerasReceiver, camerasFilter); 
-	}
 	
 	public class CamerasSyncReceiver extends BroadcastReceiver {
 
@@ -508,15 +502,16 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 	}
 
     public boolean onMyLocationButtonClick() {
-        Log.i(TAG, "Last Location: " + locationClient.getLastLocation());
-        if (locationClient.getLastLocation() == null) {
-            Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT).show();            
-        } else {
-            Location location = locationClient.getLastLocation();
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12);
-            map.animateCamera(cameraUpdate);
+        Location location = LocationServices.FusedLocationApi
+                .getLastLocation(mGoogleApiClient);
+        
+        if (location == null) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, this);
         }
+        else {
+            handleNewLocation(location);
+        };
 
         return true;
     }
@@ -525,8 +520,17 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
      * Called by Location Services if the attempt to
      * Location Services fails.
      */
-    public void onConnectionFailed(ConnectionResult arg0) {
-        // TODO Auto-generated method stub
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        if (connectionResult.hasResolution()) {
+            try {
+                // Start an Activity that tries to resolve the error
+                connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+            } catch (IntentSender.SendIntentException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.i(TAG, "Location services connection failed with code " + connectionResult.getErrorCode());
+        }
     }
 
     /*
@@ -534,16 +538,34 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
      * client finishes successfully. At this point, you can
      * request the current location or start periodic updates
      */
-    public void onConnected(Bundle arg0) {
+    public void onConnected(Bundle bundle) {
+        Log.i(TAG, "Location services connected.");
+        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (location == null) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, this);
+        }
+    }
+
+    public void onLocationChanged(Location arg0) {
         // TODO Auto-generated method stub
     }
 
-    /*
-     * Called by Location Services if the connection to the
-     * location client drops because of an error.
+    public void onConnectionSuspended(int i) {
+        Log.i(TAG, "Location services suspended. Please reconnect.");        
+    }
+    
+    /**
+     * 
+     * @param location
      */
-    public void onDisconnected() {
-        // TODO Auto-generated method stub
-    }
+    private void handleNewLocation(Location location) {
+        Log.d(TAG, location.toString());
 
+        double currentLatitude = location.getLatitude();
+        double currentLongitude = location.getLongitude();
+        LatLng latLng = new LatLng(currentLatitude, currentLongitude);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12);
+        map.animateCamera(cameraUpdate);   
+    }
 }
