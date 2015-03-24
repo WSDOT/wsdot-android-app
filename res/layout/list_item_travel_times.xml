@@ -22,11 +22,13 @@
 	    android:layout_alignParentTop="true"
 	    android:layout_marginRight="7dp"
 	    android:layout_toLeftOf="@+id/star_button"
-	    android:textSize="@dimen/text_size_medium" />
+	    android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/black" />
 		
 	<TextView
 		android:id="@+id/current_time"
 		android:textSize="@dimen/text_size_large"
+        android:textColor="@color/black"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/star_button"
@@ -38,7 +40,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 		android:layout_below="@+id/title"
-		android:textSize="@dimen/text_size_small" />
+		android:textSize="@dimen/text_size_small"
+        android:textColor="@color/black" />
 
     <TextView
         android:id="@+id/updated"

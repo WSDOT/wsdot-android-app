@@ -15,6 +15,7 @@
      <TextView
         android:id="@+id/title"
         android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/black"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/icon"
@@ -23,6 +24,7 @@
      <TextView
      	android:id="@+id/text"
         android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/black"
         android:layout_below="@id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

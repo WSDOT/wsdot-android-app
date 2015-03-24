@@ -31,7 +31,8 @@
         android:layout_toLeftOf="@+id/star_button"
         android:layout_toRightOf="@+id/icon"
         android:layout_marginBottom="7dp"
-        android:textSize="@dimen/text_size_large" />
+        android:textSize="@dimen/text_size_large"
+        android:textColor="@color/black" />
 
      <TextView
         android:id="@+id/text"
@@ -40,7 +41,8 @@
         android:layout_below="@+id/title"
         android:layout_toRightOf="@+id/icon"
         android:layout_marginBottom="7dp"
-        android:textSize="@dimen/text_size_medium" />
+        android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/black" />
     
     <TextView
         android:id="@+id/created_at"

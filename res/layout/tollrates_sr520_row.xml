@@ -6,12 +6,14 @@
     android:padding="14dp">
  
      <TextView android:id="@+id/hours"
+        android:textColor="@color/black"
         android:layout_width="140dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         />
  
      <TextView android:id="@+id/goodtogo_pass"
+        android:textColor="@color/black"
      	android:gravity="center"
         android:layout_width="90dp"
         android:layout_height="wrap_content"
@@ -19,7 +21,8 @@
         />
  
      <TextView android:id="@+id/pay_by_mail"
-     	android:gravity="center"
+     	android:textColor="@color/black"
+        android:gravity="center"
         android:layout_width="90dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"

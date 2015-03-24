@@ -31,6 +31,7 @@
     <TextView
         android:id="@+id/user_name"
         android:textSize="@dimen/text_size_large"
+        android:textColor="@color/black"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/image"
@@ -47,6 +48,7 @@
         android:layout_alignLeft="@+id/user_name"
         android:layout_below="@+id/user_name"
         android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/black"
 		android:paddingRight="8dp"
 		android:paddingBottom="7dp"
         />
