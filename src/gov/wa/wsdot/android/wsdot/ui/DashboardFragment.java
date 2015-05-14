@@ -69,11 +69,13 @@ public class DashboardFragment extends Fragment {
             }
         });
 
+        /*
         root.findViewById(R.id.home_btn_amtrak).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 startActivity(new Intent(getActivity(), AmtrakCascadesActivity.class));                
             }
         });
+        */
         
         return root;
     }
