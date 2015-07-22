@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 	private static final int VER_1 = 1;
 	private static final int VER_2 = 2;
 	private static final int VER_3 = 3;
-	private static final int DATABASE_VERSION = VER_3;
+	private static final int VER_4 = 4;
+	private static final int DATABASE_VERSION = VER_4;
 
     interface Tables {
     	String CACHES = "caches";
@@ -119,6 +120,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + FerriesSchedulesColumns.FERRIES_SCHEDULE_ID + " INTEGER,"
                 + FerriesSchedulesColumns.FERRIES_SCHEDULE_TITLE + " TEXT,"
+                + FerriesSchedulesColumns.FERRIES_SCHEDULE_CROSSING_TIME + " TEXT,"
                 + FerriesSchedulesColumns.FERRIES_SCHEDULE_DATE + " TEXT,"
                 + FerriesSchedulesColumns.FERRIES_SCHEDULE_ALERT + " TEXT,"
                 + FerriesSchedulesColumns.FERRIES_SCHEDULE_UPDATED + " TEXT,"
@@ -174,10 +176,16 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
     	        db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_terminal_sailing_space', 0);");
     		    
     		case VER_3:
-    		    version = VER_3;
-    		    Log.i(TAG, "DB at version " + version);
+    		    Log.i(TAG, "Performing upgrade for DB version " + version);
 
-    		    // Current version, no further action necessary.
+                db.execSQL("ALTER TABLE " + Tables.FERRIES_SCHEDULES
+                        + " ADD COLUMN " + FerriesSchedulesColumns.FERRIES_SCHEDULE_CROSSING_TIME + " TEXT");
+
+            case VER_4:
+                version = VER_4;
+                Log.i(TAG, "DB at version " + version);
+
+                // Current version, no further action necessary.
 		}
 
 		Log.d(TAG, "After upgrade logic, at version " + version);

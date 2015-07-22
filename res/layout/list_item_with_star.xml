@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:padding="14dp"
     android:descendantFocusability="blocksDescendants" >
 
@@ -10,37 +10,47 @@
         android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
         android:contentDescription="@string/description_star"
-        style="@style/StarButton" />
+        style="@style/StarButton"
+        />
 	
 	<TextView
 	    android:id="@+id/title"
+        android:layout_toLeftOf="@+id/star_button"
 	    android:textSize="@dimen/text_size_large"
         android:textColor="@color/black"
-	    android:layout_toLeftOf="@+id/star_button"
+        android:layout_marginBottom="7dp"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:gravity="center_vertical"	/>
-	
+        />
+
+     <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title"
+        android:layout_marginBottom="7dp"
+        android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/black" />
+    
 	<TextView
         android:id="@+id/created_at"
+        android:layout_below="@+id/text"
         android:textSize="@dimen/text_size_small"
         android:textColor="@color/semi_black"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
-        android:layout_below="@+id/title"
         />
 
 	<ImageButton
 	    android:id="@+id/alert_button"
+        android:layout_below="@+id/star_button"
 	    android:contentDescription="@string/description_alert"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentRight="true"
 	    android:layout_alignParentBottom="true"
-	    android:layout_below="@+id/star_button"
-	    android:background="@null" />
+	    android:background="@null"
+        />
          
 </RelativeLayout>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,6 +116,7 @@ public class FavoritesFragment extends ListFragment implements
 			FerriesSchedules._ID,
 			FerriesSchedules.FERRIES_SCHEDULE_ID,
 			FerriesSchedules.FERRIES_SCHEDULE_TITLE,
+			FerriesSchedules.FERRIES_SCHEDULE_CROSSING_TIME,
 			FerriesSchedules.FERRIES_SCHEDULE_DATE,
 			FerriesSchedules.FERRIES_SCHEDULE_ALERT,
 			FerriesSchedules.FERRIES_SCHEDULE_UPDATED,
@@ -551,6 +552,7 @@ public class FavoritesFragment extends ListFragment implements
 	
 	public class FerriesSchedulesAdapter extends CursorAdapter {
 	    private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+	    private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
 		public FerriesSchedulesAdapter(Context context, Cursor c, boolean autoRequery) {
 			super(context, c, autoRequery);
@@ -562,7 +564,16 @@ public class FavoritesFragment extends ListFragment implements
 
             String title = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE));
             viewholder.title.setText(title);
-            viewholder.title.setTypeface(tf);
+            viewholder.title.setTypeface(tfb);
+            
+            String text = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_CROSSING_TIME));
+            
+            if (text.equalsIgnoreCase("null")) {
+                viewholder.text.setText("");
+            } else {
+                viewholder.text.setText("Crossing Time: ~ " + text + " min");
+                viewholder.text.setTypeface(tf);
+            }
             
             String created_at = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_UPDATED));
             viewholder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
@@ -603,12 +614,14 @@ public class FavoritesFragment extends ListFragment implements
 		
         private class ViewHolder {
             TextView title;
+            TextView text;
             TextView created_at;
             CheckBox star_button;
             ImageButton alert_button;
 
             public ViewHolder(View view) {
                     title = (TextView) view.findViewById(R.id.title);
+                    text = (TextView) view.findViewById(R.id.text);
                     created_at = (TextView) view.findViewById(R.id.created_at);
                     star_button = (CheckBox) view.findViewById(R.id.star_button);
                     alert_button = (ImageButton) view.findViewById(R.id.alert_button);
