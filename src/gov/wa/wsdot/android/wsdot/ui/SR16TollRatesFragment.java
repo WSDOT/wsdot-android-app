@@ -111,11 +111,11 @@ public class SR16TollRatesFragment extends ListFragment {
 		
         HashMap<String, String> map = null;
         String[][] vehicleTypeData = {
-           		{"Two (includes motorcycle)", "$4.50", "$5.50", "$6.50"},
-        		{"Three", "$6.75", "$8.25", "$9.75"},
-        		{"Four", "$9.00", "$11.00", "$13.00"},
-        		{"Five", "$11.25", "$13.75", "$16.25"},
-        		{"Six or more", "$13.50", "$16.50", "$19.50"}
+           		{"Two (includes motorcycle)", "$5.00", "$6.00", "$7.00"},
+        		{"Three", "$7.50", "$9.00", "$10.50"},
+        		{"Four", "$10.00", "$12.00", "$14.00"},
+        		{"Five", "$12.50", "$15.00", "$17.50"},
+        		{"Six or more", "$15.00", "$18.00", "$21.00"}
         		};
         
         adapter = new MyCustomAdapter();
