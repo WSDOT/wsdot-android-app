@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ public class FerriesSchedulesSyncService extends IntentService {
 				long lastUpdated = cursor.getLong(0);
 				//long deltaMinutes = (now - lastUpdated) / DateUtils.MINUTE_IN_MILLIS;
 				//Log.d(DEBUG_TAG, "Delta since last update is " + deltaMinutes + " min");
-				shouldUpdate = (Math.abs(now - lastUpdated) > (30 * DateUtils.MINUTE_IN_MILLIS));
+				shouldUpdate = (Math.abs(now - lastUpdated) > (15 * DateUtils.MINUTE_IN_MILLIS));
 			}
 		} finally {
 			if (cursor != null) {
@@ -120,6 +120,7 @@ public class FerriesSchedulesSyncService extends IntentService {
 					ContentValues schedule = new ContentValues();
 					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_ID, item.getInt("RouteID"));
 					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_TITLE, item.getString("Description"));
+					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_CROSSING_TIME, item.getString("CrossingTime"));
 					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_DATE, item.getString("Date"));
 					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_ALERT, item.getString("RouteAlert"));
 					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_UPDATED,

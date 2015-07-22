@@ -179,6 +179,7 @@ public class FerriesRouteSchedulesFragment extends ListFragment implements
 				FerriesSchedules._ID,
 				FerriesSchedules.FERRIES_SCHEDULE_ID,
 				FerriesSchedules.FERRIES_SCHEDULE_TITLE,
+				FerriesSchedules.FERRIES_SCHEDULE_CROSSING_TIME,
 				FerriesSchedules.FERRIES_SCHEDULE_DATE,
 				FerriesSchedules.FERRIES_SCHEDULE_ALERT,
 				FerriesSchedules.FERRIES_SCHEDULE_UPDATED,
