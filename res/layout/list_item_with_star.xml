@@ -19,18 +19,27 @@
         android:layout_toLeftOf="@+id/star_button"
 	    android:textSize="@dimen/text_size_large"
         android:textColor="@color/black"
+        android:layout_marginBottom="7dp"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
         />
-	
+
+     <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title"
+        android:layout_marginBottom="7dp"
+        android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/black" />
+    
 	<TextView
         android:id="@+id/created_at"
-        android:layout_below="@+id/title"
+        android:layout_below="@+id/text"
         android:textSize="@dimen/text_size_small"
         android:textColor="@color/semi_black"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
         />
 
 	<ImageButton
