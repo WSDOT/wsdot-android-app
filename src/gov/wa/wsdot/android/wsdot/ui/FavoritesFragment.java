@@ -568,11 +568,16 @@ public class FavoritesFragment extends ListFragment implements
             
             String text = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_CROSSING_TIME));
             
-            if (text.equalsIgnoreCase("null")) {
-                viewholder.text.setText("");
-            } else {
-                viewholder.text.setText("Crossing Time: ~ " + text + " min");
-                viewholder.text.setTypeface(tf);
+            try {
+                if (text.equalsIgnoreCase("null")) {
+                    viewholder.text.setText("");
+                } else {
+                    viewholder.text.setText("Crossing Time: ~ " + text + " min");
+                    viewholder.text.setTypeface(tf);
+                }
+            } catch (NullPointerException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
             
             String created_at = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_UPDATED));
