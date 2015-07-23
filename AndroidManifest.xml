@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="gov.wa.wsdot.android.wsdot"
       android:installLocation="auto"
-      android:versionCode="1014322"
-      android:versionName="3.2.2">
+      android:versionCode="1014323"
+      android:versionName="3.2.3">
 
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="21" />
 
