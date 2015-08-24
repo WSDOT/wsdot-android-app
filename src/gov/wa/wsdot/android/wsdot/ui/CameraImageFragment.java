@@ -107,7 +107,7 @@ public class CameraImageFragment extends Fragment implements
 
         swipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setColorSchemeColors(
+        swipeRefreshLayout.setColorSchemeResources(
                 17170451,  // android.R.color.holo_blue_bright 
                 17170452,  // android.R.color.holo_green_light 
                 17170456,  // android.R.color.holo_orange_light 
