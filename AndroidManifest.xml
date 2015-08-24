@@ -5,7 +5,7 @@
       android:versionCode="1014324"
       android:versionName="3.2.4">
 
-    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="22" />
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="23" />
 
     <permission
         android:name="gov.wa.wsdot.android.wsdot.permission.MAPS_RECEIVE"
