@@ -21,9 +21,11 @@ package gov.wa.wsdot.android.wsdot.ui;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
 import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
+import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
+import gov.wa.wsdot.android.wsdot.ui.map.CalloutsOverlay;
 import gov.wa.wsdot.android.wsdot.ui.map.CamerasOverlay;
 import gov.wa.wsdot.android.wsdot.ui.map.HighwayAlertsOverlay;
 import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
@@ -89,8 +91,10 @@ public class TrafficMapActivity extends ActionBarActivity implements
     private GoogleMap map;	
     private HighwayAlertsOverlay alertsOverlay = null;
 	private CamerasOverlay camerasOverlay = null;
+	private CalloutsOverlay calloutsOverlay = null;
 	private List<CameraItem> cameras = new ArrayList<CameraItem>();
 	private List<HighwayAlertsItem> alerts = new ArrayList<HighwayAlertsItem>();
+	private List<CalloutItem> callouts = new ArrayList<CalloutItem>();
 	private HashMap<Marker, String> markers = new HashMap<Marker, String>();
 	boolean showCameras;
 	private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
@@ -104,6 +108,7 @@ public class TrafficMapActivity extends ActionBarActivity implements
 	private Intent alertsIntent;
 	private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
 	private static AsyncTask<Void, Void, Void> mHighwayAlertsOverlayTask = null;
+	private static AsyncTask<Void, Void, Void> mCalloutsOverlayTask = null;
 	private LatLngBounds bounds;
 	private double latitude;
 	private double longitude;
@@ -129,9 +134,10 @@ public class TrafficMapActivity extends ActionBarActivity implements
         seattleArea.add(new LatLonItem(47.27737, -121.86310));
         seattleArea.add(new LatLonItem(47.28109, -122.45911));
         
-        // Initialize AsyncTask
+        // Initialize AsyncTasks
         mCamerasOverlayTask = new CamerasOverlayTask();
         mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask();
+        mCalloutsOverlayTask = new CalloutsOverlayTask();
 		
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -192,7 +198,8 @@ public class TrafficMapActivity extends ActionBarActivity implements
                 .addApi(LocationServices.API).build();
         
         mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);        
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
     }
 
     @Override
@@ -207,12 +214,18 @@ public class TrafficMapActivity extends ActionBarActivity implements
         camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
         mCamerasReceiver = new CamerasSyncReceiver();
         registerReceiver(mCamerasReceiver, camerasFilter); 
-        
+
         IntentFilter alertsFilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
         alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
         mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
-        registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter); 
+        registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
+
+        if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+            mCalloutsOverlayTask = new CalloutsOverlayTask().execute();
+        } else if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+            mCalloutsOverlayTask.execute();
+        }
     }
 	
 
@@ -289,6 +302,11 @@ public class TrafficMapActivity extends ActionBarActivity implements
             b.putString("id", marker.getSnippet());
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);    
+        } else if (markers.get(marker).equalsIgnoreCase("callout")) {
+            intent = new Intent(this, CalloutActivity.class);
+            b.putString("url", marker.getSnippet());
+            intent.putExtras(b);
+            TrafficMapActivity.this.startActivity(intent);
         }
         
         return true;
@@ -649,6 +667,63 @@ public class TrafficMapActivity extends ActionBarActivity implements
 			setSupportProgressBarIndeterminateVisibility(false);
 		 }
 	}
+
+    /**
+     * Build and draw any callouts on the map 
+     */
+    class CalloutsOverlayTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            
+            setSupportProgressBarIndeterminateVisibility(true);
+            calloutsOverlay = null;
+            bounds = map.getProjection().getVisibleRegion().latLngBounds;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            calloutsOverlay = new CalloutsOverlay();
+            
+            return null;
+        }
+        
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            
+            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry<Marker, String> entry = iter.next();
+                if (entry.getValue().equalsIgnoreCase("callout")) {
+                    entry.getKey().remove();
+                    iter.remove();
+                }
+            }
+            
+            callouts.clear();
+            callouts = calloutsOverlay.getCalloutItems();
+            
+            if (callouts != null) {
+                if (callouts.size() != 0) {
+                    for (int i = 0; i < callouts.size(); i++) {
+                        LatLng latLng = new LatLng(callouts.get(i).getLatitude(), callouts.get(i).getLongitude());
+                        Marker marker = map.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title(callouts.get(i).getTitle())
+                                .snippet(callouts.get(i).getImageUrl())
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.jblm))
+                                .visible(true));
+                        
+                        markers.put(marker, "callout");
+                    }
+                }
+            }
+            
+            setSupportProgressBarIndeterminateVisibility(false);
+        }
+    }
 
     public boolean onMyLocationButtonClick() {
         Location location = LocationServices.FusedLocationApi
