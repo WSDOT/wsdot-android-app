@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,6 @@ import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 import java.util.ArrayList;
 
-import aje.android.sdk.AdError;
-import aje.android.sdk.AdJugglerAdView;
-import aje.android.sdk.AdListener;
-import aje.android.sdk.AdRequest;
-import aje.android.sdk.IncorrectAdRequestException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -65,48 +60,6 @@ public class HomeActivity extends ActionBarActivity {
 				DashboardFragment.class, null);
 		mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Favorites"),
 				FavoritesFragment.class, null);    
-		
-        final AdJugglerAdView mAdJugglerAdView = (AdJugglerAdView) findViewById(R.id.ajAdView);
-        mAdJugglerAdView.setListener(new AdListener() {
-
-            public boolean onClickAd(String arg0) {
-                return false;
-            }
-
-            public void onExpand() {
-            }
-
-            public void onExpandClose() {
-            }
-
-            public void onFailedToClickAd(String arg0, String arg1) {
-            }
-
-            public void onFailedToFetchAd(AdError arg0, String arg1) {
-            }
-
-            public void onFetchAdFinished() {
-            }
-
-            public void onFetchAdStarted() {
-            }
-
-            public void onResize() {
-            }
-
-            public void onResizeClose() {
-            }
-        });
-        
-        try {
-            AdRequest adRequest = new AdRequest();
-            adRequest.setServer(getString(R.string.adRequest_server));
-            adRequest.setZone(getString(R.string.adRequest_zone));
-            adRequest.setAdSpot(getString(R.string.adRequest_adspot));
-            mAdJugglerAdView.showAd(adRequest);
-        } catch (IncorrectAdRequestException e) {
-            Log.e(TAG, "Error showing banner ad", e);
-        }
         
     }
 

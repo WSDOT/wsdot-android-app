@@ -1,46 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <ProgressBar android:id="@+id/loading_spinner"
+        android:indeterminate="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        />
     
-    <FrameLayout
+    <ListView android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/ajAdView">
-        
-        <ProgressBar android:id="@+id/loading_spinner"
-            android:indeterminate="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            />
-        
-        <ListView android:id="@android:id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:drawSelectorOnTop="false"
-            />
-    
-        <TextView
-            android:id="@+id/empty_list_view"
-            android:textSize="@dimen/text_size_medium"
-            android:textColor="@color/black"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            />
-        
-    </FrameLayout>
-    
-    <aje.android.sdk.AdJugglerAdView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/ajAdView"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:padding="0dp"
-        android:gravity="center"
-        android:layout_alignParentBottom="true"
+        android:drawSelectorOnTop="false"
         />
-        
-</RelativeLayout>
+
+    <TextView
+        android:id="@+id/empty_list_view"
+        android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/black"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        />
+
+</FrameLayout>

@@ -77,10 +77,6 @@
     
     <string name="drive_up_spaces">Drive-up spaces</string>
     
-    <string name="adRequest_server">hsm.rotator.hadj1.adjuggler.net</string>
-    <string name="adRequest_zone">hsm</string>
-    <string name="adRequest_adspot">1180114</string>
-    
     <string name="google_static_map_key">INSERT_STATIC_MAP_API_KEY_HERE</string>
     <string name="wsdot_api_access_code">INSERT_API_ACCESS_CODE_HERE</string>
 
