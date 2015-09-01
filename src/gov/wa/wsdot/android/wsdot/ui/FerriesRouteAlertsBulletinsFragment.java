@@ -29,11 +29,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import aje.android.sdk.AdError;
-import aje.android.sdk.AdJugglerAdView;
-import aje.android.sdk.AdListener;
-import aje.android.sdk.AdRequest;
-import aje.android.sdk.IncorrectAdRequestException;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -89,48 +84,6 @@ public class FerriesRouteAlertsBulletinsFragment extends ListFragment implements
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
-
-        final AdJugglerAdView mAdJugglerAdView = (AdJugglerAdView) root.findViewById(R.id.ajAdView);
-        mAdJugglerAdView.setListener(new AdListener() {
-
-            public boolean onClickAd(String arg0) {
-                return false;
-            }
-
-            public void onExpand() {
-            }
-
-            public void onExpandClose() {
-            }
-
-            public void onFailedToClickAd(String arg0, String arg1) {
-            }
-
-            public void onFailedToFetchAd(AdError arg0, String arg1) {
-            }
-
-            public void onFetchAdFinished() {
-            }
-
-            public void onFetchAdStarted() {
-            }
-
-            public void onResize() {
-            }
-
-            public void onResizeClose() {
-            }
-        });
-        
-        try {
-            AdRequest adRequest = new AdRequest();
-            adRequest.setServer(getString(R.string.adRequest_server));
-            adRequest.setZone(getString(R.string.adRequest_zone));
-            adRequest.setAdSpot(getString(R.string.adRequest_adspot));
-            mAdJugglerAdView.showAd(adRequest);
-        } catch (IncorrectAdRequestException e) {
-            Log.e(TAG, "Error showing banner ad", e);
-        }
         
         return root;
     }

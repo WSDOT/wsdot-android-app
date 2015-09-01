@@ -12,13 +12,4 @@
         android:layout_weight="1"
         />
 
-    <aje.android.sdk.AdJugglerAdView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/ajAdView"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:padding="0dp"
-        android:gravity="center"
-        />
-
 </LinearLayout>
