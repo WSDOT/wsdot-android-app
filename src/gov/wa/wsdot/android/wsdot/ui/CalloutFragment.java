@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -60,6 +61,8 @@ public class CalloutFragment extends Fragment implements
         
         Bundle args = activity.getIntent().getExtras();
         mUrl = args.getString("url");
+
+        AnalyticsUtils.getInstance(getActivity()).trackPageView("/Traffic Map/Callout: " + mUrl);
     }
 
     @Override
