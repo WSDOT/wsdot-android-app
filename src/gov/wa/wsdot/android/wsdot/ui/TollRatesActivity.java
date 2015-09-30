@@ -60,6 +60,8 @@ public class TollRatesActivity extends ActionBarActivity {
         		SR16TollRatesFragment.class, null);
         mTabsAdapter.addTab(getSupportActionBar().newTab().setText("SR 167"),
         		SR167TollRatesFragment.class, null);
+        mTabsAdapter.addTab(getSupportActionBar().newTab().setText("I-405"),
+                I405TollRatesFragment.class, null);
         
         if (savedInstanceState != null) {
             getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
