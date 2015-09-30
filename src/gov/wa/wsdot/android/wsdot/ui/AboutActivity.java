@@ -82,19 +82,15 @@ public class AboutActivity extends ActionBarActivity {
 	private String formatText()	{
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("<p>The mission of the Washington State Department of Transportation " +
-				"is to keep people and business moving by operating and improving the state's " +
-				"transportation systems vital to our taxpayers and communities.</p>" +
-				"<p>The WSDOT mobile app was created to make it easier for you to know the latest " +
-				"about Washington's transportation system.</p>" +
-				"<p><strong>Advertising</strong><br />" +
-                "In an effort to generate a new source of revenue, WSDOT is conducting a " +
-				"<a href=\"http://www.wsdot.wa.gov/funding/partners/projects/webadvertising.htm\" target=\"_blank\">digital advertising pilot project</a> " +
-				"to allow commercial advertising through its websites, social media tools and mobile apps.</p>" +
-				"<p>Questions, comments or suggestions about this app can be e-mailed to the " +
-				"<a href=\"mailto:webfeedback@wsdot.wa.gov\">WSDOT " +
-				"Communications Office</a>.</p>" +
-				"<br /><p style=\"color:#959595;\">App Version: " + versionName);
+		sb.append("<p>The mission of the Washington State Department of Transportation ");
+		sb.append("is to keep people and business moving by operating and improving the state's ");
+		sb.append("transportation systems vital to our taxpayers and communities.</p>");
+		sb.append("<p>The WSDOT mobile app was created to make it easier for you to know the latest ");
+		sb.append("about Washington's transportation system.</p>");
+		sb.append("<p>Questions, comments or suggestions about this app can be e-mailed to the ");
+		sb.append("<a href=\"mailto:webfeedback@wsdot.wa.gov\">WSDOT ");
+		sb.append("Communications Office</a>.</p>");
+		sb.append("<br /><p style=\"color:#959595;\">App Version: " + versionName);
 			
 		return sb.toString();
 	}
