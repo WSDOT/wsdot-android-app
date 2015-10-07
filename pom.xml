@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+    <groupId>gov.wa.wsdot.android.wsdot</groupId>
+    <artifactId>WSDOT</artifactId>
+    <version>3.2.6</version>
+    <packaging>apk</packaging>
+    <name>WSDOT Android App</name>
+
+    <repositories>
+        <repository>
+            <id>android-support</id>
+            <url>file://${env.ANDROID_HOME}/extras/android/m2repository</url>
+        </repository>
+        <repository>
+            <id>google-libraries</id>
+            <url>file://${env.ANDROID_HOME}/extras/google/m2repository</url>
+        </repository>
+    </repositories>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<platform.version>4.1.1.4</platform.version>
+		<android.plugin.version>4.3.0</android.plugin.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.google.android</groupId>
+			<artifactId>android</artifactId>
+			<version>${platform.version}</version>
+			<scope>provided</scope>
+		</dependency>
+        <dependency>
+            <groupId>com.viewpagerindicator</groupId>
+            <artifactId>library</artifactId>
+            <version>2.4.1</version>
+            <type>apklib</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.android</groupId>
+                    <artifactId>support-v4</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.android.support</groupId>
+            <artifactId>appcompat-v7</artifactId>
+            <version>23.0.1</version>
+            <type>aar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android.gms</groupId>
+            <artifactId>play-services</artifactId>
+            <version>8.1.0</version>
+            <type>aar</type>
+        </dependency>
+	</dependencies>
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>com.simpligility.maven.plugins</groupId>
+					<artifactId>android-maven-plugin</artifactId>
+					<version>${android.plugin.version}</version>
+					<extensions>true</extensions>
+                    <configuration>
+                        <sign>
+                            <debug>both</debug>
+                        </sign>
+                        <resourceDirectory>${basedir}/res</resourceDirectory>
+                        <androidManifestFile>${basedir}/AndroidManifest.xml</androidManifestFile>
+                        <assetsDirectory>${basedir}/assets</assetsDirectory>
+                        <nativeLibrariesDirectory>${basedir}/libs</nativeLibrariesDirectory>
+                    </configuration>
+				</plugin>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only.
+                    It has no influence on the Maven build itself.-->
+				<plugin>
+				    <groupId>org.eclipse.m2e</groupId>
+				    <artifactId>lifecycle-mapping</artifactId>
+				    <version>1.0.0</version>
+				    <configuration>
+				        <lifecycleMappingMetadata>
+				            <pluginExecutions>
+				                <pluginExecution>
+				                    <pluginExecutionFilter>
+				                        <groupId>com.simpligility.maven.plugins</groupId>
+				                        <artifactId>android-maven-plugin</artifactId>
+				                        <versionRange>[4.3.0,)</versionRange>
+				                        <goals>
+                                            <goal>emma</goal>
+				                        </goals>
+				                    </pluginExecutionFilter>
+				                    <action>
+				                        <ignore />
+				                    </action>
+				                </pluginExecution>
+				            </pluginExecutions>
+				        </lifecycleMappingMetadata>
+				    </configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>com.simpligility.maven.plugins</groupId>
+				<artifactId>android-maven-plugin</artifactId>
+				<configuration>
+					<sdk>
+						<platform>23</platform>
+					</sdk>
+                </configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
