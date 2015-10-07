@@ -57,63 +57,183 @@
             <type>aar</type>
         </dependency>
 	</dependencies>
+    
 	<build>
 		<finalName>${project.artifactId}</finalName>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>com.simpligility.maven.plugins</groupId>
-					<artifactId>android-maven-plugin</artifactId>
-					<version>${android.plugin.version}</version>
-					<extensions>true</extensions>
-                    <configuration>
-                        <sign>
-                            <debug>both</debug>
-                        </sign>
-                        <resourceDirectory>${basedir}/res</resourceDirectory>
-                        <androidManifestFile>${basedir}/AndroidManifest.xml</androidManifestFile>
-                        <assetsDirectory>${basedir}/assets</assetsDirectory>
-                        <nativeLibrariesDirectory>${basedir}/libs</nativeLibrariesDirectory>
-                    </configuration>
-				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only.
+        <pluginManagement>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only.
                     It has no influence on the Maven build itself.-->
-				<plugin>
-				    <groupId>org.eclipse.m2e</groupId>
-				    <artifactId>lifecycle-mapping</artifactId>
-				    <version>1.0.0</version>
-				    <configuration>
-				        <lifecycleMappingMetadata>
-				            <pluginExecutions>
-				                <pluginExecution>
-				                    <pluginExecutionFilter>
-				                        <groupId>com.simpligility.maven.plugins</groupId>
-				                        <artifactId>android-maven-plugin</artifactId>
-				                        <versionRange>[4.3.0,)</versionRange>
-				                        <goals>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.simpligility.maven.plugins</groupId>
+                                        <artifactId>android-maven-plugin</artifactId>
+                                        <versionRange>[4.3.0,)</versionRange>
+                                        <goals>
                                             <goal>emma</goal>
-				                        </goals>
-				                    </pluginExecutionFilter>
-				                    <action>
-				                        <ignore />
-				                    </action>
-				                </pluginExecution>
-				            </pluginExecutions>
-				        </lifecycleMappingMetadata>
-				    </configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore />
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>com.simpligility.maven.plugins</groupId>
 				<artifactId>android-maven-plugin</artifactId>
-				<configuration>
-					<sdk>
-						<platform>23</platform>
-					</sdk>
+				<version>${android.plugin.version}</version>
+				<extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>alignApk</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>zipalign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sdk>
+                        <platform>23</platform>
+                    </sdk>
+                    <sign>
+                        <debug>both</debug>
+                    </sign>
+                    <resourceDirectory>${basedir}/res</resourceDirectory>
+                    <androidManifestFile>${basedir}/AndroidManifest.xml</androidManifestFile>
+                    <assetsDirectory>${basedir}/assets</assetsDirectory>
+                    <nativeLibrariesDirectory>${basedir}/libs</nativeLibrariesDirectory>
                 </configuration>
 			</plugin>
 		</plugins>
 	</build>
+    
+    <profiles>
+        <profile>
+            <id>release</id>
+            <!-- via this activation the profile is automatically used when the 
+                release is done with the maven release plugin -->
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jarsigner-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>signing</id>
+                                <goals>
+                                    <goal>sign</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <inherited>true</inherited>
+                                <configuration>
+                                    <removeExistingSignatures>true</removeExistingSignatures>
+                                    <archiveDirectory />
+                                    <includes>
+                                        <include>${project.build.directory}/${project.artifactId}.apk</include>
+                                    </includes>
+                                    <keystore>${sign.keystore}</keystore>
+                                    <alias>${sign.alias}</alias>
+                                    <storepass>${sign.storepass}</storepass>
+                                    <keypass>${sign.keypass}</keypass>
+                                    <verbose>true</verbose>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- the signed apk then needs to be zipaligned and we activate 
+                        proguard and we run the manifest update -->
+                    <plugin>
+                        <groupId>com.simpligility.maven.plugins</groupId>
+                        <artifactId>android-maven-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <release>false</release>
+                            <sign>
+                                <debug>false</debug>
+                            </sign>
+                            <zipalign>
+                                <skip>false</skip>
+                                <verbose>true</verbose>
+                                <inputApk>${project.build.directory}/${project.artifactId}.apk</inputApk>
+                                <outputApk>${project.build.directory}/${project.artifactId}-signed-aligned.apk
+                                </outputApk>
+                            </zipalign>
+                            <manifest>
+                                <debuggable>false</debuggable>
+                                <versionCodeAutoIncrement>true</versionCodeAutoIncrement>
+                            </manifest>
+                            <proguard>
+                                <skip>false</skip>
+                            </proguard>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>manifestUpdate</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>manifest-update</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>alignApk</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>zipalign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.directory}/${project.artifactId}-signed-aligned.apk</file>
+                                    <type>apk</type>
+                                    <classifier>signed-aligned</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/proguard/mapping.txt</file>
+                                    <type>map</type>
+                                    <classifier>release</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-signed-aligned</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>attach-artifact</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
 </project>
