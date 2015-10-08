@@ -3,5 +3,7 @@
 /gen
 .settings
 .buildpath
+.project
+.classpath
 lint.xml
 /target/
