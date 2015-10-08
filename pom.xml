@@ -10,12 +10,16 @@
 
     <repositories>
         <repository>
-            <id>android-support</id>
-            <url>file://${env.ANDROID_HOME}/extras/android/m2repository</url>
-        </repository>
-        <repository>
             <id>google-libraries</id>
             <url>file://${env.ANDROID_HOME}/extras/google/m2repository</url>
+        </repository>
+        <repository>
+            <id>viewpagerindicator</id>
+            <url>http://dl.bintray.com/populov/maven</url>
+        </repository>
+        <repository>
+            <id>android-support</id>
+            <url>file://${env.ANDROID_HOME}/extras/android/m2repository</url>
         </repository>
     </repositories>
 
@@ -36,7 +40,7 @@
             <groupId>com.viewpagerindicator</groupId>
             <artifactId>library</artifactId>
             <version>2.4.1</version>
-            <type>apklib</type>
+            <type>aar</type>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.android</groupId>
