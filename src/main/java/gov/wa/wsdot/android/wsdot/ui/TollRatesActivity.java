@@ -18,9 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -33,6 +30,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
+import gov.wa.wsdot.android.wsdot.R;
 
 public class TollRatesActivity extends ActionBarActivity {
 	
@@ -47,8 +45,6 @@ public class TollRatesActivity extends ActionBarActivity {
 		mViewPager.setId(R.id.pager);
 		
 		setContentView(mViewPager);
-	    
-		AnalyticsUtils.getInstance(this).trackPageView("/Toll Rates");
 		
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);

@@ -18,10 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.NewsItem;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -51,6 +47,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.NewsItem;
 
 public class NewsFragment extends ListFragment implements
         LoaderCallbacks<ArrayList<NewsItem>>,
@@ -69,8 +67,6 @@ public class NewsFragment extends ListFragment implements
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
-        
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/News");
 	}
 	
 	@Override

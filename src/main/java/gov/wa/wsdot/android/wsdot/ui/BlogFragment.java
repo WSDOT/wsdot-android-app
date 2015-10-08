@@ -18,12 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.BlogItem;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import gov.wa.wsdot.android.wsdot.util.ImageManager;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -53,6 +47,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.BlogItem;
+import gov.wa.wsdot.android.wsdot.util.ImageManager;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class BlogFragment extends ListFragment implements
         LoaderCallbacks<ArrayList<BlogItem>>,
@@ -67,8 +65,6 @@ public class BlogFragment extends ListFragment implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Blog");
 	}	
 	
 	@Override

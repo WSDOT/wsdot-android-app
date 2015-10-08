@@ -18,12 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.TwitterItem;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import gov.wa.wsdot.android.wsdot.util.ImageManager;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -64,6 +58,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.TwitterItem;
+import gov.wa.wsdot.android.wsdot.util.ImageManager;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class TwitterFragment extends ListFragment implements
         LoaderCallbacks<ArrayList<TwitterItem>>,
@@ -94,10 +92,6 @@ public class TwitterFragment extends ListFragment implements
     @Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Twitter");
     }
 
 	@Override

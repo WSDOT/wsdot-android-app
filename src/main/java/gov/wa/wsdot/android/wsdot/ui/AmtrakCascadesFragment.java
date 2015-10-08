@@ -18,9 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -35,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
 
 public class AmtrakCascadesFragment extends ListFragment {
     
@@ -50,8 +48,6 @@ public class AmtrakCascadesFragment extends ListFragment {
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
-       
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/Amtrak Cascades");
     }
     
     @Override

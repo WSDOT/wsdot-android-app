@@ -18,12 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
-import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -57,6 +51,11 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
+import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 public class TravelTimesFragment extends ListFragment implements
         LoaderCallbacks<Cursor>,
@@ -76,8 +75,6 @@ public class TravelTimesFragment extends ListFragment implements
 		super.onCreate(savedInstanceState);
 
 		setHasOptionsMenu(true);
-		
-		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Traffic Map/Travel Times");
 		
 		Intent intent = new Intent(getActivity(), TravelTimesSyncService.class);
 		getActivity().startService(intent);

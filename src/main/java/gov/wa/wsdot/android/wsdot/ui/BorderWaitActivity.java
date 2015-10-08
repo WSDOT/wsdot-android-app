@@ -18,9 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -33,6 +30,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
+import gov.wa.wsdot.android.wsdot.R;
 
 public class BorderWaitActivity extends ActionBarActivity {
 	
@@ -50,8 +48,6 @@ public class BorderWaitActivity extends ActionBarActivity {
         
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        
-		AnalyticsUtils.getInstance(this).trackPageView("/Canadian Border/");
         
         mTabsAdapter = new TabsAdapter(this, mViewPager);
 		mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Northbound"),

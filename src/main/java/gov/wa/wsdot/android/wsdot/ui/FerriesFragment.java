@@ -18,9 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -29,13 +26,13 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
 
 public class FerriesFragment extends ListFragment {
     
@@ -51,8 +48,6 @@ public class FerriesFragment extends ListFragment {
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
-       
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/Ferries");
     }
     
     @Override

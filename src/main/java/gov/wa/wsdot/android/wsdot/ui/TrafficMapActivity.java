@@ -18,42 +18,12 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
-import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
-import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
-import gov.wa.wsdot.android.wsdot.shared.CameraItem;
-import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
-import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
-import gov.wa.wsdot.android.wsdot.ui.map.CalloutsOverlay;
-import gov.wa.wsdot.android.wsdot.ui.map.CamerasOverlay;
-import gov.wa.wsdot.android.wsdot.ui.map.HighwayAlertsOverlay;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import gov.wa.wsdot.android.wsdot.util.UIUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.IntentSender;
-import android.content.SharedPreferences;
-import android.location.Location;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.Window;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -75,6 +45,34 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentSender;
+import android.content.SharedPreferences;
+import android.location.Location;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
+import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
+import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
+import gov.wa.wsdot.android.wsdot.shared.CameraItem;
+import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
+import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
+import gov.wa.wsdot.android.wsdot.ui.map.CalloutsOverlay;
+import gov.wa.wsdot.android.wsdot.ui.map.CamerasOverlay;
+import gov.wa.wsdot.android.wsdot.ui.map.HighwayAlertsOverlay;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 public class TrafficMapActivity extends ActionBarActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener,
@@ -118,8 +116,6 @@ public class TrafficMapActivity extends ActionBarActivity implements
         
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.map);
-        
-        AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map");
         
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
@@ -358,82 +354,66 @@ public class TrafficMapActivity extends ActionBarActivity implements
 	    	startActivity(timesIntent);
 	    	return true;
 	    case R.id.goto_bellingham:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Bellingham");
 	    	goToLocation("Bellingham Traffic", 48.756302,-122.46151, 12);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;	        
 	    case R.id.goto_chehalis:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Chehalis");
 	    	goToLocation("Chelalis Traffic", 46.635529, -122.937698, 11);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_hoodcanal:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Hood Canal");
 	    	goToLocation("Hood Canal Traffic", 47.85268,-122.628365, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_mtvernon:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Mt Vernon");
 	    	goToLocation("Mt Vernon Traffic", 48.420657,-122.334824, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_stanwood:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Stanwood");
 	    	goToLocation("Stanwood Traffic", 48.22959, -122.34581, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_monroe:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Monroe");
 	    	goToLocation("Monroe Traffic", 47.859476, -121.972446, 14);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_sultan:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Sultan");
 	    	goToLocation("Sultan Traffic", 47.86034, -121.812286, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_olympia:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Olympia");
 	    	goToLocation("Olympia Traffic", 47.021461, -122.899933, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;	    	    	
 	    case R.id.goto_seattle:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Seattle");
 	    	goToLocation("Seattle Area Traffic", 47.5990, -122.3350, 12);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
 	    case R.id.goto_spokane:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Spokane");
 	    	goToLocation("Spokane Area Traffic", 47.658566, -117.425995, 12);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;	        
 	    case R.id.goto_tacoma:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Tacoma");
 	    	goToLocation("Tacoma Traffic", 47.206275, -122.46254, 12);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;	        
 	    case R.id.goto_vancouver:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Vancouver");
 	    	goToLocation("Vancouver Area Traffic", 45.639968, -122.610512, 11);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
 	    case R.id.goto_wenatchee:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Wenatchee");
 	    	goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 12);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
         case R.id.goto_snoqualmiepass:
-            AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Snoqualmie Pass");
             goToLocation("Snoqualmie Pass Traffic", 47.404481, -121.4232569, 12);
             UIUtils.refreshActionBarMenu(this);
             return true;
         case R.id.goto_tricities:
-            AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Tri-Cities");
             goToLocation("Tri-Cities Traffic", 46.2503607, -119.2063781, 11);
             UIUtils.refreshActionBarMenu(this);
             return true;
         case R.id.goto_yakima:
-            AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/GoTo Location/Yakima");
             goToLocation("Yakima Traffic", 46.6063273, -120.4886952, 11);
             UIUtils.refreshActionBarMenu(this);
             return true;
@@ -452,8 +432,6 @@ public class TrafficMapActivity extends ActionBarActivity implements
 
 	private void toggleCameras(MenuItem item) {
 		if (showCameras) {
-			AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Hide Cameras");
-
             for(Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();
@@ -466,8 +444,6 @@ public class TrafficMapActivity extends ActionBarActivity implements
 			item.setTitle("Show Cameras");
 			showCameras = false;
 		} else {
-			AnalyticsUtils.getInstance(this).trackPageView("/Traffic Map/Show Cameras");
-
             for(Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();

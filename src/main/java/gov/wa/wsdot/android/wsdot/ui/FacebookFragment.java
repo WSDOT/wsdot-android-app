@@ -18,11 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.FacebookItem;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -51,6 +46,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.FacebookItem;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class FacebookFragment extends ListFragment implements
         LoaderCallbacks<ArrayList<FacebookItem>>,
@@ -70,8 +68,6 @@ public class FacebookFragment extends ListFragment implements
     @Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Facebook");
         
         // Tell the framework to try to keep this fragment around
         // during a configuration change.

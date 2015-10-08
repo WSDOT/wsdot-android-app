@@ -18,11 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.FlickrItem;
-import gov.wa.wsdot.android.wsdot.ui.widget.SquareImageView;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -60,6 +55,9 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.FlickrItem;
+import gov.wa.wsdot.android.wsdot.ui.widget.SquareImageView;
 
 public class FlickrActivity extends ActionBarActivity implements
         SwipeRefreshLayout.OnRefreshListener {
@@ -73,8 +71,6 @@ public class FlickrActivity extends ActionBarActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        AnalyticsUtils.getInstance(this).trackPageView("/News & Social Media/Photos");
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         

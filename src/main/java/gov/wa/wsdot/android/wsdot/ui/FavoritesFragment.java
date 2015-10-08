@@ -18,17 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
-import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
-import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
-import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
-import gov.wa.wsdot.android.wsdot.ui.widget.SeparatedListAdapter;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -53,6 +42,16 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
+import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
+import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
+import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
+import gov.wa.wsdot.android.wsdot.ui.widget.SeparatedListAdapter;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class FavoritesFragment extends ListFragment implements
         LoaderCallbacks<Cursor>,
@@ -133,7 +132,6 @@ public class FavoritesFragment extends ListFragment implements
 		super.onCreate(savedInstanceState);
 
 		setHasOptionsMenu(true);
-		AnalyticsUtils.getInstance(getActivity()).trackPageView("/Favorites");
 		
 		mFerriesSchedulesIntent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
 		getActivity().startService(mFerriesSchedulesIntent);

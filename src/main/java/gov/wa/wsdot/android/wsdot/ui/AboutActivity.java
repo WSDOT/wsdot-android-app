@@ -18,8 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -28,12 +26,13 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.view.MenuItem;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import gov.wa.wsdot.android.wsdot.R;
 
 public class AboutActivity extends ActionBarActivity {
 	
@@ -49,8 +48,6 @@ public class AboutActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		
-		AnalyticsUtils.getInstance(this).trackPageView("/About");
 		
 	    try {
 	        packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);

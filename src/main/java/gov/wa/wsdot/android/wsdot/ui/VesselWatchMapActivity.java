@@ -18,14 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
-import gov.wa.wsdot.android.wsdot.shared.CameraItem;
-import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
-import gov.wa.wsdot.android.wsdot.ui.map.CamerasOverlay;
-import gov.wa.wsdot.android.wsdot.ui.map.VesselsOverlay;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,23 +26,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.IntentSender;
-import android.content.SharedPreferences;
-import android.location.Location;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.Window;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -72,6 +47,29 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentSender;
+import android.content.SharedPreferences;
+import android.location.Location;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
+import gov.wa.wsdot.android.wsdot.shared.CameraItem;
+import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
+import gov.wa.wsdot.android.wsdot.ui.map.CamerasOverlay;
+import gov.wa.wsdot.android.wsdot.ui.map.VesselsOverlay;
 
 public class VesselWatchMapActivity extends ActionBarActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener,
@@ -104,8 +102,6 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
         
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.map);
-        
-        AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch");
         
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
@@ -248,39 +244,30 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 	    	finish();
 	    	return true;	    
 	    case R.id.goto_anacortes:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Anacortes");
 	    	goToLocation(48.535868, -123.013808, 10);
 	    	return true;
 	    case R.id.goto_edmonds:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Edmonds");
 	    	goToLocation(47.803096, -122.438718, 12);
 	    	return true;
 	    case R.id.goto_fauntleroy:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Fauntleroy");
 	    	goToLocation(47.513625, -122.450820, 13);
 	    	return true;
 	    case R.id.goto_mukilteo:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Mukilteo");
 	    	goToLocation(47.963857, -122.327721, 13);
 	    	return true;
 	    case R.id.goto_pointdefiance:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Pt Defiance");
 	    	goToLocation(47.319040, -122.510890, 13);
 	    	return true;
 	    case R.id.goto_porttownsend:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Port Townsend");
 	    	goToLocation(48.135562, -122.714449, 12);
 	    	return true;
 	    case R.id.goto_sanjuanislands:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/San Juan Islands");
 	    	goToLocation(48.557233, -122.897078, 12);
 	    	return true;
 	    case R.id.goto_seattle:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Seattle");
 	    	goToLocation(47.565125, -122.480508, 11);
 	    	return true;
 	    case R.id.goto_seattlebainbridge:
-	    	AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/GoTo Location/Seattle-Bainbridge");
 	    	goToLocation(47.600325, -122.437249, 12);
 	    	return true;
 	    case R.id.toggle_cameras:
@@ -293,8 +280,6 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 
 	private void toggleCameras(MenuItem item) {
 		if (showCameras) {
-			AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/Hide Cameras");
-			
 			for(Entry<Marker, String> entry : markers.entrySet()) {
 			    Marker key = entry.getKey();
 			    String value = entry.getValue();
@@ -307,8 +292,6 @@ public class VesselWatchMapActivity extends ActionBarActivity implements
 			item.setTitle("Show Cameras");
 			showCameras = false;
 		} else {
-			AnalyticsUtils.getInstance(this).trackPageView("/Ferries/Vessel Watch/Show Cameras");
-			
             for(Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();

@@ -18,10 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,13 +32,15 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.widget.Toast;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 
 public class MountainPassItemActivity extends ActionBarActivity {
 	
@@ -71,9 +69,6 @@ public class MountainPassItemActivity extends ActionBarActivity {
 	    String cameras = b.getString("Cameras");
 	    String forecast = b.getString("Forecasts");
 	    mIsStarred = b.getInt("isStarred") != 0;
-	    
-		String pageView = "/Mountain Passes/" + mountainPassName;
-	    AnalyticsUtils.getInstance(this).trackPageView(pageView);
 	    
         getSupportActionBar().setTitle(mountainPassName);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

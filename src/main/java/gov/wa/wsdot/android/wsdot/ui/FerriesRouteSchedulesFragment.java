@@ -18,12 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
-import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -51,6 +45,11 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
+import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 public class FerriesRouteSchedulesFragment extends ListFragment implements
         LoaderCallbacks<Cursor>,
@@ -65,8 +64,6 @@ public class FerriesRouteSchedulesFragment extends ListFragment implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/Ferries/Route Schedules");
         
 		Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
 		getActivity().startService(intent);

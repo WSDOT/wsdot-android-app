@@ -18,11 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.SeattleIncidentItem;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -52,6 +47,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.SeattleIncidentItem;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class SeattleTrafficAlertsFragment extends ListFragment implements
         LoaderCallbacks<ArrayList<SeattleIncidentItem>>,
@@ -73,8 +71,6 @@ public class SeattleTrafficAlertsFragment extends ListFragment implements
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
-        
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/Traffic Map/Seattle/Seattle Alerts");
 	}    
     
 	@Override

@@ -18,9 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -44,6 +41,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import gov.wa.wsdot.android.wsdot.R;
 
 public class CalloutFragment extends Fragment implements
         LoaderCallbacks<Drawable>, SwipeRefreshLayout.OnRefreshListener {
@@ -61,8 +59,6 @@ public class CalloutFragment extends Fragment implements
         
         Bundle args = activity.getIntent().getExtras();
         mUrl = args.getString("url");
-
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/Traffic Map/Callout: " + mUrl);
     }
 
     @Override

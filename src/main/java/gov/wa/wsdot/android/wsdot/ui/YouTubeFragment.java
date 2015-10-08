@@ -18,12 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.YouTubeItem;
-import gov.wa.wsdot.android.wsdot.util.AnalyticsUtils;
-import gov.wa.wsdot.android.wsdot.util.ImageManager;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -62,6 +56,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.YouTubeItem;
+import gov.wa.wsdot.android.wsdot.util.ImageManager;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class YouTubeFragment extends ListFragment implements
         LoaderCallbacks<ArrayList<YouTubeItem>>,
@@ -88,7 +86,6 @@ public class YouTubeFragment extends ListFragment implements
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
-        AnalyticsUtils.getInstance(getActivity()).trackPageView("/News & Social Media/Video");
     }
 	
 	@Override
