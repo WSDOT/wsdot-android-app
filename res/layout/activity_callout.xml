@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <fragment
-        android:name="gov.wa.wsdot.android.wsdot.ui.CalloutFragment"
+        android:name="gov.wa.wsdot.android.wsdot.ui.callout.CalloutFragment"
         android:id="@+id/fragment_callout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

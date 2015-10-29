@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
 	<fragment
-	    android:name="gov.wa.wsdot.android.wsdot.ui.FacebookDetailsFragment"
+	    android:name="gov.wa.wsdot.android.wsdot.ui.socialmedia.facebook.FacebookDetailsFragment"
 	    android:id="@+id/fragment_facebook"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"

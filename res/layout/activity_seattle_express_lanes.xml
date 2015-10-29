@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <fragment
-        android:name="gov.wa.wsdot.android.wsdot.ui.SeattleExpressLanesFragment"
+        android:name="gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesFragment"
         android:id="@+id/fragment_seattle_express_lanes"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
