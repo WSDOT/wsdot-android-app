@@ -16,38 +16,31 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.callout;
+package gov.wa.wsdot.android.wsdot.ui;
 
 import android.os.Bundle;
-import android.view.MenuItem;
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import android.support.v7.app.AppCompatActivity;
 
-public class CalloutActivity extends BaseActivity {
+public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_callout);
-        
-        Bundle b = getIntent().getExtras();
-        String url = b.getString("url");
-        
-        Bundle args = new Bundle();
-        args.putString("url", url);
-        
-        getSupportActionBar().setTitle("JBLM");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
     
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-        case android.R.id.home:
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
 }

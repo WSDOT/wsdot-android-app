@@ -34,19 +34,19 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.location.LocationServices;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesStationItem;
 import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesStationItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class AmtrakCascadesSchedulesActivity extends ActionBarActivity
+public class AmtrakCascadesSchedulesActivity extends BaseActivity
         implements ConnectionCallbacks, OnConnectionFailedListener {
 	
     private List<AmtrakCascadesStationItem> amtrakStationItems = new ArrayList<AmtrakCascadesStationItem>();

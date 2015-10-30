@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,11 +28,11 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class BorderWaitActivity extends ActionBarActivity {
+public class BorderWaitActivity extends BaseActivity {
 	
     private ViewPager mViewPager;
     private TabsAdapter mTabsAdapter;
@@ -96,7 +96,7 @@ public class BorderWaitActivity extends ActionBarActivity {
 			}
 		}
 
-		public TabsAdapter(ActionBarActivity activity, ViewPager pager) {
+		public TabsAdapter(BaseActivity activity, ViewPager pager) {
 			super(activity.getSupportFragmentManager());
 			mContext = activity;
 			mActionBar = activity.getSupportActionBar();

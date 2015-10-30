@@ -18,12 +18,12 @@
 
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.facebook;
 
-import gov.wa.wsdot.android.wsdot.R;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class FacebookActivity extends ActionBarActivity {
+public class FacebookActivity extends BaseActivity {
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

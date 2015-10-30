@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,19 +18,19 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class FerriesRouteSchedulesDaySailingsActivity extends ActionBarActivity {
+public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 	
 	private boolean mIsStarred = false;
 	private ContentResolver resolver;

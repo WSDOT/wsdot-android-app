@@ -18,12 +18,12 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries;
 
-import gov.wa.wsdot.android.wsdot.R;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class FerriesActivity extends ActionBarActivity {
+public class FerriesActivity extends BaseActivity {
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {

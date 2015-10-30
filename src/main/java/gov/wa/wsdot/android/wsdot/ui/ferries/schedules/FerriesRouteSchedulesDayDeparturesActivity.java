@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,12 +28,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class FerriesRouteSchedulesDayDeparturesActivity extends ActionBarActivity
+public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 	implements ActionBar.OnNavigationListener {
 
     private static ArrayList<FerriesScheduleDateItem> mScheduleDateItems;

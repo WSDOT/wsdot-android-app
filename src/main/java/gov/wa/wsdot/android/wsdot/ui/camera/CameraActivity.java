@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.camera;
 
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -26,10 +25,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class CameraActivity extends ActionBarActivity {
+public class CameraActivity extends BaseActivity {
 	
     private ContentResolver resolver;
 	
@@ -125,7 +125,7 @@ public class CameraActivity extends ActionBarActivity {
     
     public class TabListener<T extends Fragment> implements ActionBar.TabListener {
         private Fragment mFragment;
-        private final ActionBarActivity mActivity;
+        private final BaseActivity mActivity;
         private final String mTag;
         private final Class<T> mClass;
         private final Bundle mArgs;
@@ -136,7 +136,7 @@ public class CameraActivity extends ActionBarActivity {
           * @param clz  The fragment's Class, used to instantiate the fragment
           * @param args The fragment's passed arguments
           */
-        public TabListener(ActionBarActivity activity, String tag, Class<T> clz, Bundle args) {
+        public TabListener(BaseActivity activity, String tag, Class<T> clz, Bundle args) {
             mActivity = activity;
             mTag = tag;
             mClass = clz;

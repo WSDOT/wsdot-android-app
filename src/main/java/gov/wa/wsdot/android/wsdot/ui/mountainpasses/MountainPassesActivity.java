@@ -18,12 +18,12 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
-import gov.wa.wsdot.android.wsdot.R;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class MountainPassesActivity extends ActionBarActivity {
+public class MountainPassesActivity extends BaseActivity {
 
     @Override
 	protected void onCreate(Bundle savedInstanceState) {

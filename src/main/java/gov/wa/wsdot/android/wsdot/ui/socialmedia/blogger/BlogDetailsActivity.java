@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,12 @@
 
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.blogger;
 
-import gov.wa.wsdot.android.wsdot.R;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class BlogDetailsActivity extends ActionBarActivity {
+public class BlogDetailsActivity extends BaseActivity {
 	
     @Override
 	protected void onCreate(Bundle savedInstanceState) {

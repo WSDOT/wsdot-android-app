@@ -18,20 +18,19 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch;
 
-import gov.wa.wsdot.android.wsdot.R;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class VesselWatchDetailsActivity extends ActionBarActivity {
+public class VesselWatchDetailsActivity extends BaseActivity {
 
     private static final String TAG = VesselWatchDetailsActivity.class.getSimpleName();
     private WebView webview;

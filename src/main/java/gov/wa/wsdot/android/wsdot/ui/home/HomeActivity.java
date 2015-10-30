@@ -18,10 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.home;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
-import gov.wa.wsdot.android.wsdot.util.UIUtils;
-
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -33,12 +29,14 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
-public class HomeActivity extends ActionBarActivity {
+public class HomeActivity extends BaseActivity {
 
     private static final String TAG = HomeActivity.class.getSimpleName();
     private ViewPager mViewPager;
@@ -99,7 +97,7 @@ public class HomeActivity extends ActionBarActivity {
 			}
 		}
 
-		public TabsAdapter(ActionBarActivity activity, ViewPager pager) {
+		public TabsAdapter(BaseActivity activity, ViewPager pager) {
 			super(activity.getSupportFragmentManager());
 			mContext = activity;
 			mActionBar = activity.getSupportActionBar();

@@ -18,13 +18,12 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import gov.wa.wsdot.android.wsdot.R;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.MenuItem;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class FerriesRouteAlertsBulletinDetailsActivity extends ActionBarActivity {
+public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
 
     private static final String TAG = FerriesRouteAlertsBulletinDetailsActivity.class.getSimpleName();
     

@@ -18,24 +18,23 @@
 
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.flickr;
 
-import gov.wa.wsdot.android.wsdot.R;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.support.v7.widget.ShareActionProvider;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class FlickrDetailsActivity extends ActionBarActivity {
+public class FlickrDetailsActivity extends BaseActivity {
 	
     private static final String TAG = FlickrDetailsActivity.class.getSimpleName();
     private WebView webview;

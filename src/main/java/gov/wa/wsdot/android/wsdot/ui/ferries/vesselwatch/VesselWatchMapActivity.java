@@ -59,7 +59,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,11 +67,12 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.util.map.CamerasOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.VesselsOverlay;
 
-public class VesselWatchMapActivity extends ActionBarActivity implements
+public class VesselWatchMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener,
         OnConnectionFailedListener, ConnectionCallbacks,
         OnCameraChangeListener, LocationListener {
