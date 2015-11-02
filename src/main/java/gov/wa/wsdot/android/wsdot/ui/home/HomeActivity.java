@@ -59,7 +59,7 @@ public class HomeActivity extends BaseActivity {
 				DashboardFragment.class, null);
 		mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Favorites"),
 				FavoritesFragment.class, null);    
-        
+
     }
 
     @Override

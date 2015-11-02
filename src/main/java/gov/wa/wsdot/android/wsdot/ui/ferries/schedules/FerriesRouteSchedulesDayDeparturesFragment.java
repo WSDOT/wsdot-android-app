@@ -18,15 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpace;
-import gov.wa.wsdot.android.wsdot.service.FerriesTerminalSailingSpaceSyncService;
-import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,7 +37,6 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
@@ -60,8 +50,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpace;
+import gov.wa.wsdot.android.wsdot.service.FerriesTerminalSailingSpaceSyncService;
+import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
-public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
+public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
         implements LoaderCallbacks<ArrayList<FerriesScheduleTimesItem>>,
         SwipeRefreshLayout.OnRefreshListener {
 
@@ -210,6 +209,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends ListFragment
         arriving_title.setTypeface(tfb);
         
         mEmptyView = root.findViewById(R.id.empty_list_view);
+        
+        enableAds(root);
         
         return root;
 	}

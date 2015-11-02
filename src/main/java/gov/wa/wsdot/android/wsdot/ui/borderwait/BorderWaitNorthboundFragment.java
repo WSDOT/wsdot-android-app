@@ -18,12 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.borderwait;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
-import gov.wa.wsdot.android.wsdot.service.BorderWaitSyncService;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-import gov.wa.wsdot.android.wsdot.util.UIUtils;
-
 import java.util.HashMap;
 
 import android.annotation.SuppressLint;
@@ -35,7 +29,6 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -48,8 +41,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
+import gov.wa.wsdot.android.wsdot.service.BorderWaitSyncService;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
-public class BorderWaitNorthboundFragment extends ListFragment implements
+public class BorderWaitNorthboundFragment extends BaseListFragment implements
         LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener {
 	
@@ -90,6 +89,8 @@ public class BorderWaitNorthboundFragment extends ListFragment implements
                 17170454); // android.R.color.holo_red_light)
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
+        
+        enableAds(root);
         
         return root;
     } 	

@@ -18,10 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.FerriesRouteAlertItem;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -34,7 +30,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -45,8 +40,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.FerriesRouteAlertItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
-public class FerriesRouteAlertsBulletinsFragment extends ListFragment implements
+public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implements
         LoaderCallbacks<ArrayList<FerriesRouteAlertItem>> {
 
 	private static final String TAG = FerriesRouteAlertsBulletinsFragment.class.getName();
@@ -84,6 +83,8 @@ public class FerriesRouteAlertsBulletinsFragment extends ListFragment implements
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        
+        disableAds(root);
         
         return root;
     }

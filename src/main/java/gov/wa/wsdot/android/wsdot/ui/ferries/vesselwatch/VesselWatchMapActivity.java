@@ -104,6 +104,8 @@ public class VesselWatchMapActivity extends BaseActivity implements
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.map);
         
+        enableAds();
+        
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
         // Initialize AsyncTasks

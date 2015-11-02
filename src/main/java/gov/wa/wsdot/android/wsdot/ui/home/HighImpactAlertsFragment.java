@@ -18,14 +18,9 @@
 
 package gov.wa.wsdot.android.wsdot.ui.home;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
-import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
-import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
-import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
-import gov.wa.wsdot.android.wsdot.util.UIUtils;
-
 import java.util.ArrayList;
+
+import com.viewpagerindicator.LinePageIndicator;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -38,7 +33,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -50,10 +44,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
+import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
+import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
-import com.viewpagerindicator.LinePageIndicator;
-
-public class HighImpactAlertsFragment extends Fragment implements
+public class HighImpactAlertsFragment extends BaseFragment implements
         LoaderCallbacks<Cursor> {
 
 	private ViewGroup mRootView;

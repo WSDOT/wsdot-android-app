@@ -18,13 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
-import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
-
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -36,7 +29,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -47,8 +39,15 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 
-public class FerriesRouteSchedulesDaySailingsFragment extends ListFragment
+public class FerriesRouteSchedulesDaySailingsFragment extends BaseListFragment
         implements LoaderCallbacks<ArrayList<FerriesScheduleDateItem>> {
 	
 	private static final String TAG = FerriesRouteSchedulesDaySailingsFragment.class.getSimpleName();
@@ -86,6 +85,8 @@ public class FerriesRouteSchedulesDaySailingsFragment extends ListFragment
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        
+        disableAds(root);
         
         return root;
 	}

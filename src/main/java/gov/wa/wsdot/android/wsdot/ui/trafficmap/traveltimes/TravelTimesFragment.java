@@ -28,14 +28,12 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
@@ -54,10 +52,12 @@ import android.widget.Toast;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
-public class TravelTimesFragment extends ListFragment implements
+public class TravelTimesFragment extends BaseListFragment implements
         LoaderCallbacks<Cursor>,
         OnQueryTextListener,
         SwipeRefreshLayout.OnRefreshListener {
@@ -101,6 +101,8 @@ public class TravelTimesFragment extends ListFragment implements
         
         mEmptyView = root.findViewById(R.id.empty_list_view);
         
+        enableAds(root);
+        
         return root;
 	}
 
@@ -140,7 +142,7 @@ public class TravelTimesFragment extends ListFragment implements
 		
         //Create the search view
         SearchView searchView = new SearchView(
-                ((ActionBarActivity) getActivity()).getSupportActionBar().getThemedContext());
+                ((BaseActivity) getActivity()).getSupportActionBar().getThemedContext());
         searchView.setQueryHint("Search Travel Times");
         searchView.setOnQueryTextListener(this);
 		

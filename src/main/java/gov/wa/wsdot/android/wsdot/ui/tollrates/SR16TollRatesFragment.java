@@ -18,23 +18,21 @@
 
 package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
-import gov.wa.wsdot.android.wsdot.R;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 
-public class SR16TollRatesFragment extends ListFragment {
+public class SR16TollRatesFragment extends BaseListFragment {
 	
     private static final String TAG = SR16TollRatesFragment.class.getSimpleName();
     private MyCustomAdapter adapter;
@@ -54,6 +52,8 @@ public class SR16TollRatesFragment extends ListFragment {
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
+        
+        disableAds(root);
         
         return root;
     }

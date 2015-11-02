@@ -123,6 +123,8 @@ public class TrafficMapActivity extends BaseActivity implements
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.map);
         
+        enableAds();
+        
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
         // Setup bounding box for Seattle area.

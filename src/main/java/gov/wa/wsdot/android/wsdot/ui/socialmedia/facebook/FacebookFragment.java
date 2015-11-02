@@ -32,7 +32,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -48,9 +47,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.FacebookItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
-public class FacebookFragment extends ListFragment implements
+public class FacebookFragment extends BaseListFragment implements
         LoaderCallbacks<ArrayList<FacebookItem>>,
         SwipeRefreshLayout.OnRefreshListener {
 	
@@ -94,6 +94,8 @@ public class FacebookFragment extends ListFragment implements
                 17170454); // android.R.color.holo_red_light)
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
+        
+        disableAds(root);
         
         return root;
     }    

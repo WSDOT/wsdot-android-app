@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +32,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.ui.socialmedia.blogger.BlogActivity;
 import gov.wa.wsdot.android.wsdot.ui.socialmedia.facebook.FacebookActivity;
 import gov.wa.wsdot.android.wsdot.ui.socialmedia.flickr.FlickrActivity;
@@ -40,7 +40,7 @@ import gov.wa.wsdot.android.wsdot.ui.socialmedia.news.NewsActivity;
 import gov.wa.wsdot.android.wsdot.ui.socialmedia.twitter.TwitterActivity;
 import gov.wa.wsdot.android.wsdot.ui.socialmedia.youtube.YouTubeActivity;
 
-public class SocialMediaFragment extends ListFragment {
+public class SocialMediaFragment extends BaseListFragment {
 
     private static final String TAG = SocialMediaFragment.class.getSimpleName();
     private ArrayList<ListViewItem> listViewItems;
@@ -70,6 +70,8 @@ public class SocialMediaFragment extends ListFragment {
         // Since we are building a simple navigation, just hide the spinner.
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mLoadingSpinner.setVisibility(View.GONE);
+        
+        disableAds(root);
         
         return root;
     }

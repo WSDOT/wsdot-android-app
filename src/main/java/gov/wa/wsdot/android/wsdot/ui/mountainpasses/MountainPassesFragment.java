@@ -27,7 +27,6 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -47,10 +46,11 @@ import android.widget.Toast;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
-public class MountainPassesFragment extends ListFragment implements
+public class MountainPassesFragment extends BaseListFragment implements
         LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener {
 	
@@ -88,6 +88,8 @@ public class MountainPassesFragment extends ListFragment implements
                 17170454); // android.R.color.holo_red_light)
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
+        
+        enableAds(root);
         
         return root;
     } 

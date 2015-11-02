@@ -63,6 +63,8 @@ public class FlickrDetailsActivity extends BaseActivity {
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
+		
+		disableAds();
 
 	}
 	

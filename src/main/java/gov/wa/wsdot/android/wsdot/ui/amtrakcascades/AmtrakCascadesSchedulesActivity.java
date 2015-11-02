@@ -76,6 +76,8 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
 		setContentView(R.layout.amtrakcascades_schedules);		
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
+		disableAds();
+		
         getDaysOfWeek();
         getAmtrakStations();
         getToLocation();

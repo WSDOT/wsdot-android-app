@@ -18,12 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.CameraItem;
-import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
-import gov.wa.wsdot.android.wsdot.ui.widget.ResizeableImageView;
-import gov.wa.wsdot.android.wsdot.util.ImageManager;
-
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -34,12 +28,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,8 +39,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.CameraItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
+import gov.wa.wsdot.android.wsdot.ui.widget.ResizeableImageView;
+import gov.wa.wsdot.android.wsdot.util.ImageManager;
 
-public class MountainPassItemCameraFragment extends ListFragment implements
+public class MountainPassItemCameraFragment extends BaseListFragment implements
         LoaderCallbacks<ArrayList<CameraItem>> {
 	
     private static final String TAG = MountainPassItemCameraFragment.class.getSimpleName();
@@ -83,6 +81,8 @@ public class MountainPassItemCameraFragment extends ListFragment implements
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mEmptyView = root.findViewById( R.id.empty_list_view );
 		
+        disableAds(root);
+        
 		return root;
 	}    
     

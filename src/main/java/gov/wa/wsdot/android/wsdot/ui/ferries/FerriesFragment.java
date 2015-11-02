@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,10 +32,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchMapActivity;
 
-public class FerriesFragment extends ListFragment {
+public class FerriesFragment extends BaseListFragment {
     
     private static final String TAG = FerriesFragment.class.getSimpleName();
     private ArrayList<ListViewItem> listViewItems;
@@ -66,6 +66,8 @@ public class FerriesFragment extends ListFragment {
         // Since we are building a simple navigation, just hide the spinner.
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mLoadingSpinner.setVisibility(View.GONE);
+        
+        disableAds(root);
         
         return root;
     }

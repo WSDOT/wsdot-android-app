@@ -34,7 +34,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -60,10 +59,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.TwitterItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
-public class TwitterFragment extends ListFragment implements
+public class TwitterFragment extends BaseListFragment implements
         LoaderCallbacks<ArrayList<TwitterItem>>,
         SwipeRefreshLayout.OnRefreshListener {
 	
@@ -114,6 +114,8 @@ public class TwitterFragment extends ListFragment implements
                 17170454); // android.R.color.holo_red_light)
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
+        
+        disableAds(root);
         
         return root;
     }    

@@ -111,6 +111,9 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 		getSupportActionBar().setTitle(title);
 		
 		setContentView(R.layout.fragment_webview_with_spinner);
+		
+		disableAds();
+		
 		mLoadingSpinner = findViewById(R.id.loading_spinner);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
 

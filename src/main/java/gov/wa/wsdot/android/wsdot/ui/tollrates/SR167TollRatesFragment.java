@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -31,7 +32,7 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class SR167TollRatesFragment extends Fragment {
+public class SR167TollRatesFragment extends BaseFragment {
 	
     private static final String TAG = SR167TollRatesFragment.class.getSimpleName();
     private WebView webview;
@@ -58,6 +59,8 @@ public class SR167TollRatesFragment extends Fragment {
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);	
+		
+		disableAds(mRootView);
 		
 		return mRootView;
 	}

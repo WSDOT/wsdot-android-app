@@ -57,6 +57,9 @@ public class AboutActivity extends BaseActivity {
 	    }		
 		
 		setContentView(R.layout.fragment_webview_with_spinner);
+
+		disableAds();
+		
 		mLoadingSpinner = findViewById(R.id.loading_spinner);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)findViewById(R.id.webview);

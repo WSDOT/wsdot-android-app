@@ -18,9 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
-
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -31,16 +28,17 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 
-public class MountainPassItemForecastFragment extends ListFragment {
+public class MountainPassItemForecastFragment extends BaseListFragment {
 	
     private static final String TAG = MountainPassItemForecastFragment.class.getSimpleName();
     private ArrayList<ForecastItem> forecastItems;
@@ -87,6 +85,8 @@ public class MountainPassItemForecastFragment extends ListFragment {
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
+        
+        disableAds(root);
         
     	return root;
 	}	

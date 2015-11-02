@@ -18,10 +18,17 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
+import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
+import com.google.android.gms.ads.doubleclick.PublisherAdView;
+
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import gov.wa.wsdot.android.wsdot.R;
 
 public abstract class BaseActivity extends AppCompatActivity {
+
+    private PublisherAdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,16 +38,45 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (mAdView != null) {
+            mAdView.resume();
+        }
     }
     
     @Override
     protected void onPause() {
+        if (mAdView != null) {
+            mAdView.pause();
+        }
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
+        if (mAdView != null) {
+            mAdView.destroy();
+        }
         super.onDestroy();
+    }
+
+    /**
+     * Initialize and display ads.
+     */
+    protected void enableAds() {
+        mAdView = (PublisherAdView) findViewById(R.id.publisherAdView);
+        PublisherAdRequest adRequest = new PublisherAdRequest.Builder()
+                .addTestDevice(PublisherAdRequest.DEVICE_ID_EMULATOR) // All emulators
+                .addTestDevice("5E9B6B34DD2AE096509E9B879ECEE667") // My Nexus 5
+                .build();
+        mAdView.loadAd(adRequest);
+    }
+    
+    /**
+     * Remove the ad so it doesn't take up any space.
+     */
+    protected void disableAds() {
+        mAdView = (PublisherAdView) findViewById(R.id.publisherAdView);
+        mAdView.setVisibility(View.GONE);
     }
 
 }

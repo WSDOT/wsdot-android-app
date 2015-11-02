@@ -18,8 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import gov.wa.wsdot.android.wsdot.R;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,10 +28,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,8 +38,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 
-public class FerriesRouteAlertsBulletinDetailsFragment extends Fragment {
+public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment {
 
     private static final String TAG = FerriesRouteAlertsBulletinDetailsFragment.class.getSimpleName();
     private WebView webview;
@@ -88,6 +86,8 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends Fragment {
 		webview = (WebView)root.findViewById(R.id.webview);
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);	
+		
+		disableAds(root);
 		
 		return root;
 	}

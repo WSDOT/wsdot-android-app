@@ -18,26 +18,26 @@
 
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.facebook;
 
-import gov.wa.wsdot.android.wsdot.R;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.support.v7.widget.ShareActionProvider;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 
-public class FacebookDetailsFragment extends Fragment {
+public class FacebookDetailsFragment extends BaseFragment {
 	
     private static final String TAG = FacebookDetailsFragment.class.getSimpleName();
     private String mCreatedAt;
@@ -77,6 +77,8 @@ public class FacebookDetailsFragment extends Fragment {
 		webview = (WebView)root.findViewById(R.id.webview);
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);	
+		
+		disableAds(root);
 		
 		return root;
 	}

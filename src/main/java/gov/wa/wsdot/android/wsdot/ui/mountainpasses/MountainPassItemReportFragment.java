@@ -18,18 +18,17 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
-import gov.wa.wsdot.android.wsdot.R;
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 
-public class MountainPassItemReportFragment extends Fragment {
+public class MountainPassItemReportFragment extends BaseFragment {
 
     private static final String TAG = MountainPassItemReportFragment.class.getSimpleName();	
 	private ViewGroup mRootView;
@@ -131,6 +130,8 @@ public class MountainPassItemReportFragment extends Fragment {
 		TextView restriction_two_text = (TextView)mRootView.findViewById(R.id.restriction_two_text);
 		restriction_two_text.setTypeface(tf);
 		restriction_two_text.setText(mRestrictionTwoText);
+		
+		enableAds(mRootView);
 		
         return mRootView;		
 	}

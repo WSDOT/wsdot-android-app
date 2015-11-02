@@ -18,17 +18,14 @@
 
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.news;
 
-import gov.wa.wsdot.android.wsdot.R;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,8 +34,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 
-public class NewsDetailsFragment extends Fragment {
+public class NewsDetailsFragment extends BaseFragment {
 
     private static final String TAG = NewsDetailsFragment.class.getSimpleName();
     private WebView webview;
@@ -82,6 +81,8 @@ public class NewsDetailsFragment extends Fragment {
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 
+		disableAds(root);
+		
 		return root;
 	}
 	
