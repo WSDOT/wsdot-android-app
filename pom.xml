@@ -67,6 +67,12 @@
             <type>aar</type>
         </dependency>
         <dependency>
+            <groupId>com.google.android.gms</groupId>
+            <artifactId>play-services-ads</artifactId>
+            <version>8.1.0</version>
+            <type>aar</type>
+        </dependency>
+        <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>1.7.2</version>

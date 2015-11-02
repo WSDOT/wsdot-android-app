@@ -79,5 +79,7 @@
     
     <string name="google_static_map_key">INSERT_STATIC_MAP_API_KEY_HERE</string>
     <string name="wsdot_api_access_code">INSERT_API_ACCESS_CODE_HERE</string>
+    
+    <string name="banner_ad_unit_id">/90447967/WSDOT:mobile-apps:multiple-sizes</string>
 
 </resources>
