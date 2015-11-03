@@ -51,7 +51,7 @@
         <dependency>
             <groupId>com.android.support</groupId>
             <artifactId>appcompat-v7</artifactId>
-            <version>22.2.1</version>
+            <version>23.0.1</version>
             <type>aar</type>
         </dependency>
         <dependency>
@@ -128,7 +128,7 @@
                 </executions>
                 <configuration>
                     <sdk>
-                        <platform>22</platform>
+                        <platform>23</platform>
                     </sdk>
                     <sign>
                         <debug>both</debug>
@@ -202,7 +202,7 @@
                             </zipalign>
                             <manifest>
                                 <debuggable>false</debuggable>
-                                <versionCodeAutoIncrement>true</versionCodeAutoIncrement>
+                                <versionCodeAutoIncrement>false</versionCodeAutoIncrement>
                             </manifest>
                             <proguard>
                                 <skip>false</skip>
