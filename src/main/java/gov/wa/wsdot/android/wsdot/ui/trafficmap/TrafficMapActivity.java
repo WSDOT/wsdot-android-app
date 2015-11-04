@@ -46,17 +46,23 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -115,6 +121,7 @@ public class TrafficMapActivity extends BaseActivity implements
 	private GoogleApiClient mGoogleApiClient;
 	private LocationRequest mLocationRequest;
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+	private final int REQUEST_ACCESS_FINE_LOCATION = 100;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +162,8 @@ public class TrafficMapActivity extends BaseActivity implements
                 .addApi(LocationServices.API).build();
         
         mLocationRequest = LocationRequest.create()
+                .setInterval(10000)
+                .setFastestInterval(5000)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
     }
@@ -667,8 +676,7 @@ public class TrafficMapActivity extends BaseActivity implements
                 .getLastLocation(mGoogleApiClient);
         
         if (location == null) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    mGoogleApiClient, mLocationRequest, this);
+            requestLocationUpdates();
         }
         else {
             handleNewLocation(location);
@@ -692,13 +700,14 @@ public class TrafficMapActivity extends BaseActivity implements
 
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "Location services connected.");
+        
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        
         if (location == null) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    mGoogleApiClient, mLocationRequest, this);
+            requestLocationUpdates();
         }
     }
-
+    
     public void onLocationChanged(Location location) {
         // TODO Auto-generated method stub
     }
@@ -719,6 +728,63 @@ public class TrafficMapActivity extends BaseActivity implements
         LatLng latLng = new LatLng(currentLatitude, currentLongitude);
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12);
         map.animateCamera(cameraUpdate);   
+    }
+    
+    /**
+     * Request location updates after checking permissions first.
+     */
+    private void requestLocationUpdates() {
+        if (ContextCompat.checkSelfPermission(TrafficMapActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    TrafficMapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show explanation to user explaining why we need the permission
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("To receive relevant location based notifications you must allow us access to your location.");
+                builder.setTitle("Location Services");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions(
+                                        TrafficMapActivity.this,
+                                        new String[] {
+                                                Manifest.permission.ACCESS_FINE_LOCATION },
+                                        REQUEST_ACCESS_FINE_LOCATION);
+                    }
+                });
+                builder.setNegativeButton("Cancel", null);
+                builder.show();
+
+            } else {
+                // No explanation needed, we can request the permission
+                ActivityCompat.requestPermissions(TrafficMapActivity.this,
+                        new String[] {
+                                Manifest.permission.ACCESS_FINE_LOCATION },
+                        REQUEST_ACCESS_FINE_LOCATION);
+            }
+        } else {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, this);
+        }
+    }
+    
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_ACCESS_FINE_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted
+                    Log.i(TAG, "Request permissions granted!!!");
+                } else {
+                    // Permission was denied or request was cancelled
+                    Log.i(TAG, "Request permissions denied...");
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
 }
