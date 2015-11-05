@@ -66,7 +66,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         mAdView = (PublisherAdView) findViewById(R.id.publisherAdView);
         PublisherAdRequest adRequest = new PublisherAdRequest.Builder()
                 .addTestDevice(PublisherAdRequest.DEVICE_ID_EMULATOR) // All emulators
-                .addTestDevice("5E9B6B34DD2AE096509E9B879ECEE667") // My Nexus 5
                 .build();
         mAdView.loadAd(adRequest);
     }
