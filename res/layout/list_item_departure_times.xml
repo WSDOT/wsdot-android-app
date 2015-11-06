@@ -76,14 +76,25 @@
 	        android:layout_height="wrap_content"
 	        android:layout_marginLeft="5dp"
 	        />
-    
+        
     </RelativeLayout>
+    
+    <TextView
+        android:id="@+id/driveUpSpacesDisclaimer"
+        android:textSize="@dimen/text_size_small"
+        android:text="@string/drive_up_spaces_disclaimer"
+        android:textColor="@color/black"
+        android:layout_below="@+id/vehicleSpaceGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        />
     
     <TextView
         android:id="@+id/updated"
         android:textSize="@dimen/text_size_small"
         android:textColor="@color/semi_black"
-        android:layout_below="@+id/vehicleSpaceGroup"
+        android:layout_below="@+id/driveUpSpacesDisclaimer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="7dp"

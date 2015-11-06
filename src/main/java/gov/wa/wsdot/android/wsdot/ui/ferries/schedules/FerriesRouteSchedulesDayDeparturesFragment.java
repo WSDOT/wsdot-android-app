@@ -421,6 +421,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
 	            holder.driveUpSpaceCount.setTypeface(tf);
                 holder.driveUpSpaces = (TextView) convertView.findViewById(R.id.driveUpSpaces);
                 holder.driveUpSpaces.setTypeface(tf);           
+                holder.driveUpSpacesDisclaimer = (TextView) convertView.findViewById(R.id.driveUpSpacesDisclaimer);
+                holder.driveUpSpacesDisclaimer.setTypeface(tf);
                 holder.updated = (TextView) convertView.findViewById(R.id.updated);
                 holder.updated.setTypeface(tf);
 
@@ -460,12 +462,14 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
                 holder.driveUpSpaceCount.setVisibility(View.VISIBLE);
                 holder.driveUpSpaceCount.setText(Integer.toString(item.getDriveUpSpaceCount()));
                 holder.driveUpSpaces.setVisibility(View.VISIBLE);
+                holder.driveUpSpacesDisclaimer.setVisibility(View.VISIBLE);
        		    holder.updated.setVisibility(View.VISIBLE);
                 holder.updated.setText(ParserUtils.relativeTime(item.getLastUpdated(), "MMMM d, yyyy h:mm a", false));
        		} else {
                 holder.vehicleSpaceGroup.setVisibility(View.GONE);
                 holder.driveUpSpaceCount.setVisibility(View.GONE);
                 holder.driveUpSpaces.setVisibility(View.GONE);
+                holder.driveUpSpacesDisclaimer.setVisibility(View.GONE);
        		    holder.updated.setVisibility(View.GONE);
         		}
 	        
@@ -480,6 +484,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
             ProgressBar driveUpProgressBar;
     		TextView driveUpSpaceCount;
     		TextView driveUpSpaces;
+    		TextView driveUpSpacesDisclaimer;
     		TextView updated;
     	}
 	}
