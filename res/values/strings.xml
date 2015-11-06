@@ -76,6 +76,7 @@
     <string name="search_hint">Search Travel Times</string>
     
     <string name="drive_up_spaces">Drive-up spaces</string>
+    <string name="drive_up_spaces_disclaimer">Vehicles in line for tollbooth are not included in this estimate</string>
     
     <string name="google_static_map_key">INSERT_STATIC_MAP_API_KEY_HERE</string>
     <string name="wsdot_api_access_code">INSERT_API_ACCESS_CODE_HERE</string>
