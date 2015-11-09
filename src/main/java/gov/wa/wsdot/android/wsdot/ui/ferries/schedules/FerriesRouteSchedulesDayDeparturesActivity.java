@@ -18,60 +18,51 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.TimeZone;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
+import android.support.v7.app.ActionBar.Tab;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
-	implements ActionBar.OnNavigationListener {
+public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity {
 
-    private static ArrayList<FerriesScheduleDateItem> mScheduleDateItems;
-	private static ArrayList<String> mDaysOfWeek;
-	private static int mPosition;
+    private ViewPager mViewPager;
+    private TabsAdapter mTabsAdapter;
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-        setContentView(R.layout.activity_ferries_route_schedules_day_departures);
-		
-		DateFormat dateFormat = new SimpleDateFormat("EEEE");
-		dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
-		Bundle args = getIntent().getExtras();
-		String title = args.getString("terminalNames");
-		mPosition = args.getInt("position");
-		mScheduleDateItems = (ArrayList<FerriesScheduleDateItem>) getIntent().getSerializableExtra("scheduleDateItems");
-		
+
+        Bundle args = getIntent().getExtras();
+        String title = args.getString("terminalNames");
+
         getSupportActionBar().setTitle(title);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        
+		mViewPager = new ViewPager(this);
+		mViewPager.setId(R.id.pager);
 
-        mDaysOfWeek = new ArrayList<String>();
-        int numDates = mScheduleDateItems.size();
-        for (int i=0; i < numDates; i++) {
-        	mDaysOfWeek.add(dateFormat.format(new Date(Long.parseLong(mScheduleDateItems.get(i).getDate()))));
+		setContentView(mViewPager);
+        
+        mTabsAdapter = new TabsAdapter(this, mViewPager);
+        mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Times"),
+                FerriesRouteSchedulesDayDeparturesFragment.class, args);
+        mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Cameras"),
+                FerriesTerminalCameraFragment.class, args);        
+        
+        if (savedInstanceState != null) {
+            getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
         }
-        
-        Context context = getSupportActionBar().getThemedContext();
-        ArrayAdapter<String> list = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, mDaysOfWeek);
-        list.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        getSupportActionBar().setListNavigationCallbacks(list, this);
-        
 	}
 
 	@Override
@@ -85,18 +76,79 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 		return super.onOptionsItemSelected(item);
 	}
 
-	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-		Log.d("DAY OF WEEK", Integer.toString(itemPosition));
-		Bundle args = new Bundle();
-		args.putSerializable("terminalItems", mScheduleDateItems.get(itemPosition).getFerriesTerminalItem().get(mPosition));
-		FerriesRouteSchedulesDayDeparturesFragment departures = new FerriesRouteSchedulesDayDeparturesFragment();
-		departures.setArguments(args);
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		ft.replace(R.id.fragment_departures, departures);
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-		ft.commit();
-		
-		return true;
-	}
+    public static class TabsAdapter extends FragmentPagerAdapter implements
+        ActionBar.TabListener, ViewPager.OnPageChangeListener {
+
+        private final Context mContext;
+        private final ActionBar mActionBar;
+        private final ViewPager mViewPager;
+        private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
+    
+        static final class TabInfo {
+            private final Class<?> clss;
+            private final Bundle args;
+    
+            TabInfo(Class<?> _class, Bundle _args) {
+                clss = _class;
+                args = _args;
+            }
+        }
+    
+        public TabsAdapter(BaseActivity activity, ViewPager pager) {
+            super(activity.getSupportFragmentManager());
+            mContext = activity;
+            mActionBar = activity.getSupportActionBar();
+            mViewPager = pager;
+            mViewPager.setAdapter(this);
+            mViewPager.setOnPageChangeListener(this);
+        }
+    
+        public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
+            TabInfo info = new TabInfo(clss, args);
+            tab.setTag(info);
+            tab.setTabListener(this);
+            mTabs.add(info);
+            mActionBar.addTab(tab);
+            notifyDataSetChanged();
+        }
+    
+        @Override
+        public int getCount() {
+            return mTabs.size();
+        }
+    
+        @Override
+        public Fragment getItem(int position) {
+            TabInfo info = mTabs.get(position);
+            return Fragment.instantiate(mContext, info.clss.getName(),
+                    info.args);
+        }
+    
+        public void onPageScrolled(int position, float positionOffset,
+                int positionOffsetPixels) {
+        }
+    
+        public void onPageSelected(int position) {
+            mActionBar.setSelectedNavigationItem(position);
+        }
+    
+        public void onPageScrollStateChanged(int state) {
+        }
+    
+        public void onTabSelected(Tab tab, FragmentTransaction ft) {
+            Object tag = tab.getTag();
+            for (int i = 0; i < mTabs.size(); i++) {
+                if (mTabs.get(i) == tag) {
+                    mViewPager.setCurrentItem(i);
+                }
+            }
+        }
+    
+        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+        }
+    
+        public void onTabReselected(Tab tab, FragmentTransaction ft) {
+        }
+    }
 
 }

@@ -46,15 +46,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpace;
 import gov.wa.wsdot.android.wsdot.service.FerriesTerminalSailingSpaceSyncService;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
+import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
@@ -62,7 +65,7 @@ import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
         implements LoaderCallbacks<ArrayList<FerriesScheduleTimesItem>>,
-        SwipeRefreshLayout.OnRefreshListener {
+        AdapterView.OnItemSelectedListener, SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = FerriesRouteSchedulesDayDeparturesFragment.class.getSimpleName();
 	private static FerriesTerminalItem terminalItem;
@@ -76,6 +79,10 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
 	private FerriesTerminalSyncReceiver ferriesTerminalSyncReceiver;
     private View mEmptyView;
 	private static LoaderCallbacks<Cursor> ferriesTerminalSyncCallbacks;
+	private Spinner daySpinner;
+    private static ArrayList<FerriesScheduleDateItem> mScheduleDateItems;
+    private static ArrayList<String> mDaysOfWeek;
+	private static int mPosition;
 	
 	private static final int FERRIES_DEPARTURES_LOADER_ID = 0;
 	private static final int FERRIES_VEHICLE_SPACE_LOADER_ID = 1;	
@@ -84,7 +91,22 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		
-		terminalItem = (FerriesTerminalItem) getArguments().getSerializable("terminalItems");
+        DateFormat dateFormat = new SimpleDateFormat("EEEE");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+		
+		Bundle args = activity.getIntent().getExtras();
+		
+        mPosition = args.getInt("position");
+        mScheduleDateItems = (ArrayList<FerriesScheduleDateItem>) args.getSerializable("scheduleDateItems");
+        terminalItem = mScheduleDateItems.get(0).getFerriesTerminalItem().get(mPosition);
+        mDaysOfWeek = new ArrayList<String>();
+        
+        int numDates = mScheduleDateItems.size();
+        for (int i = 0; i < numDates; i++) {
+            mDaysOfWeek.add(dateFormat.format(new Date(
+                    Long.parseLong(mScheduleDateItems.get(i).getDate()))));
+        }
+
 	}
 
 	@Override
@@ -187,7 +209,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
 		
 		Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner_swipe_refresh, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -209,6 +231,14 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
         arriving_title.setTypeface(tfb);
         
         mEmptyView = root.findViewById(R.id.empty_list_view);
+        
+        ArrayAdapter<String> dayOfWeekArrayAdapter = new ArrayAdapter<String>(
+                getActivity(), android.R.layout.simple_spinner_item, mDaysOfWeek);
+        
+        dayOfWeekArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        daySpinner = (Spinner) root.findViewById(R.id.day_spinner);
+        daySpinner.setAdapter(dayOfWeekArrayAdapter);
+        daySpinner.setOnItemSelectedListener(this);
         
         enableAds(root);
         
@@ -523,5 +553,16 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
             }
         }
     }
-	
+
+    public void onItemSelected(AdapterView<?> parent, View view, int position,
+            long id) {
+        terminalItem = mScheduleDateItems.get(parent.getSelectedItemPosition()).getFerriesTerminalItem().get(mPosition);
+        getLoaderManager().restartLoader(FERRIES_DEPARTURES_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(FERRIES_VEHICLE_SPACE_LOADER_ID, null, ferriesTerminalSyncCallbacks);
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        // TODO Auto-generated method stub
+    }
+
 }
