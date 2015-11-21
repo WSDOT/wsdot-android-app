@@ -18,8 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.amtrakcascades;
 
-import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesStationItem;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,17 +27,20 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Spinner;
+import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesStationItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 
-public class AmtrakCascadesSchedulesFragment extends Fragment implements
-        ConnectionCallbacks, OnConnectionFailedListener {
+public class AmtrakCascadesSchedulesFragment extends BaseFragment implements
+        ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
     
     private List<AmtrakCascadesStationItem> amtrakStationItems = new ArrayList<AmtrakCascadesStationItem>();
     private Map<String, String> stationsMap = new HashMap<String, String>();
@@ -60,7 +61,11 @@ public class AmtrakCascadesSchedulesFragment extends Fragment implements
 
     protected double mLatitude;
     protected double mLongitude;
-    
+
+    private LocationRequest mLocationRequest;
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private final int REQUEST_ACCESS_FINE_LOCATION = 100;    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
@@ -91,6 +96,11 @@ public class AmtrakCascadesSchedulesFragment extends Fragment implements
     }
 
     public void onConnectionSuspended(int arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void onLocationChanged(Location arg0) {
         // TODO Auto-generated method stub
         
     }

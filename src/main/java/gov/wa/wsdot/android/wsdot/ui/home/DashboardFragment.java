@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerriesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity;
@@ -75,13 +76,11 @@ public class DashboardFragment extends BaseFragment {
             }
         });
 
-        /*
         root.findViewById(R.id.home_btn_amtrak).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 startActivity(new Intent(getActivity(), AmtrakCascadesActivity.class));                
             }
         });
-        */
         
         return root;
     }

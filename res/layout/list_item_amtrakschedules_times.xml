@@ -6,7 +6,7 @@
     android:descendantFocusability="blocksDescendants">
  
     <TextView
-        android:id="@+id/departing"
+        android:id="@+id/scheduledDeparture"
         android:textSize="@dimen/text_size_large"
         android:textColor="@color/black"
         android:layout_alignParentLeft="true"
@@ -16,7 +16,7 @@
         />
 
     <TextView
-        android:id="@+id/arriving"
+        android:id="@+id/scheduledArrival"
         android:textSize="@dimen/text_size_large"
         android:textColor="@color/black"
         android:layout_alignParentRight="true"
@@ -25,23 +25,52 @@
         android:layout_height="wrap_content"
         />
 
+    <LinearLayout
+        android:id="@+id/comments"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@+id/scheduledDeparture" >
+
+        <TextView
+            android:id="@+id/departureComment"
+            android:textSize="@dimen/text_size_small"
+            android:textColor="@color/black"
+            android:gravity="left"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            />
+
+        <TextView
+            android:id="@+id/arrivalComment"
+            android:textSize="@dimen/text_size_small"
+            android:textColor="@color/black"
+            android:gravity="right"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            />
+
+    </LinearLayout>
+    
     <TextView
-        android:id="@+id/annotation"
-        android:textSize="@dimen/text_size_medium"
-        android:textColor="@color/black"
-        android:layout_below="@id/departing"
+        android:id="@+id/trainName"
+        android:textSize="@dimen/text_size_small"
+        android:textColor="@color/semi_black"
+        android:layout_below="@+id/comments"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
     
     <TextView
-        android:id="@+id/updated"
+        android:id="@+id/lastUpdated"
         android:textSize="@dimen/text_size_small"
         android:textColor="@color/semi_black"
-        android:layout_below="@+id/annotation"
+        android:layout_below="@+id/trainName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
+        android:layout_marginTop="10dp"
         />
          
 </RelativeLayout>

@@ -32,23 +32,35 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesStationItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
 public class AmtrakCascadesSchedulesActivity extends BaseActivity
-        implements ConnectionCallbacks, OnConnectionFailedListener {
+        implements ConnectionCallbacks, OnConnectionFailedListener,
+        LocationListener {
 	
+    private static final String TAG = AmtrakCascadesSchedulesActivity.class.getSimpleName();
+    
     private List<AmtrakCascadesStationItem> amtrakStationItems = new ArrayList<AmtrakCascadesStationItem>();
     private Map<String, String> stationsMap = new HashMap<String, String>();
     private Map<String, String> daysOfWeekMap = new HashMap<String, String>();
@@ -69,15 +81,17 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
     protected double mLatitude;
     protected double mLongitude;
     
+    private LocationRequest mLocationRequest;
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private final int REQUEST_ACCESS_FINE_LOCATION = 100;
+    
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.amtrakcascades_schedules);		
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		
-		disableAds();
-		
+
         getDaysOfWeek();
         getAmtrakStations();
         getToLocation();
@@ -170,6 +184,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
         amtrakStationItems.add(new AmtrakCascadesStationItem("ALY", "Albany, OR", 17, 44.6300975, -123.1041787));
         amtrakStationItems.add(new AmtrakCascadesStationItem("EUG", "Eugene, OR", 18, 44.055506, -123.094523));
 
+        stationsMap.put("N/A", "N/A");
         stationsMap.put("Vancouver, BC", "VAC");
         stationsMap.put("Bellingham, WA", "BEL");
         stationsMap.put("Mount Vernon, WA", "MVW");
@@ -255,6 +270,8 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
             stations.add(station.getStationName());
         }
         
+        stations.add(0, "N/A");
+
         ArrayAdapter<String> stationsArrayAdapter = new ArrayAdapter<String>(
                 this, android.R.layout.simple_spinner_item, stations);
         
@@ -274,8 +291,14 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
         String originId = stationsMap.get(origin);
         String destinationId = stationsMap.get(destination);
         
-        Toast toast = Toast.makeText(this, "Date: " + dayId + " Origin: " + originId + " Destination: " + destinationId, Toast.LENGTH_SHORT);
-        toast.show();
+        Bundle b = new Bundle();
+        Intent intent = new Intent(this, AmtrakCascadesSchedulesDetailsActivity.class);
+        b.putString("dayId", dayId);
+        b.putString("originId", originId);
+        b.putString("destinationId", destinationId);
+        intent.putExtras(b);
+        
+        startActivity(intent);
     }
 
     public void onConnectionFailed(ConnectionResult arg0) {
@@ -297,11 +320,72 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
             mLongitude = mLastLocation.getLongitude();
             getDistanceFromStation(mLatitude, mLongitude);
         } else {
-            Toast.makeText(this, "Can't determine last known location.", Toast.LENGTH_LONG).show();
+            requestLocationUpdates();
         }
     }
 
     public void onConnectionSuspended(int arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    /**
+     * Request location updates after checking permissions first.
+     */
+    private void requestLocationUpdates() {
+        if (ContextCompat.checkSelfPermission(AmtrakCascadesSchedulesActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    AmtrakCascadesSchedulesActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show explanation to user explaining why we need the permission
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("To receive relevant location based notifications you must allow us access to your location.");
+                builder.setTitle("Location Services");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions(
+                                        AmtrakCascadesSchedulesActivity.this,
+                                        new String[] {
+                                                Manifest.permission.ACCESS_FINE_LOCATION },
+                                        REQUEST_ACCESS_FINE_LOCATION);
+                    }
+                });
+                builder.setNegativeButton("Cancel", null);
+                builder.show();
+
+            } else {
+                // No explanation needed, we can request the permission
+                ActivityCompat.requestPermissions(AmtrakCascadesSchedulesActivity.this,
+                        new String[] {
+                                Manifest.permission.ACCESS_FINE_LOCATION },
+                        REQUEST_ACCESS_FINE_LOCATION);
+            }
+        } else {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, this);
+        }
+    }
+    
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_ACCESS_FINE_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted
+                    Log.i(TAG, "Request permissions granted!!!");
+                } else {
+                    // Permission was denied or request was cancelled
+                    Log.i(TAG, "Request permissions denied...");
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    public void onLocationChanged(Location arg0) {
         // TODO Auto-generated method stub
     }
 
