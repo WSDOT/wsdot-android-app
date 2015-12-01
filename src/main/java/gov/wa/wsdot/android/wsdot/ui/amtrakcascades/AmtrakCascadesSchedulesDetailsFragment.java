@@ -78,6 +78,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
     private static String toLocation;
     private static ScheduleAdapter mAdapter;
     private static String WSDOT_API_ACCESS_CODE;
+    private static TextView schedule_title;
     
     @Override
     public void onAttach(Activity activity) {
@@ -103,7 +104,18 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_textview_swipe_refresh, null);
+        schedule_title = (TextView) root.findViewById(R.id.title);
+        schedule_title.setTypeface(tfb);
+
+        if (toLocation.equalsIgnoreCase("N/A")) {
+            schedule_title.setText(amtrakStations.get(fromLocation));
+        } else {
+            schedule_title.setText("Departing: "
+                    + amtrakStations.get(fromLocation)
+                    + " and Arriving: "
+                    + amtrakStations.get(toLocation));
+        }
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
