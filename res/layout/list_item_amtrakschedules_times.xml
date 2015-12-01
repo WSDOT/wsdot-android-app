@@ -13,6 +13,7 @@
         android:layout_alignParentTop="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="7dp"
         />
 
     <TextView
@@ -23,6 +24,7 @@
         android:layout_alignParentTop="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="7dp"
         />
 
     <LinearLayout
@@ -30,12 +32,13 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_below="@+id/scheduledDeparture" >
+        android:layout_below="@+id/scheduledDeparture"
+        android:layout_marginBottom="7dp" >
 
         <TextView
             android:id="@+id/departureComment"
             android:textSize="@dimen/text_size_small"
-            android:textColor="@color/black"
+            android:textColor="@color/semi_black"
             android:gravity="left"
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -45,7 +48,7 @@
         <TextView
             android:id="@+id/arrivalComment"
             android:textSize="@dimen/text_size_small"
-            android:textColor="@color/black"
+            android:textColor="@color/semi_black"
             android:gravity="right"
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -61,6 +64,7 @@
         android:layout_below="@+id/comments"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="7dp"
         />
     
     <TextView
