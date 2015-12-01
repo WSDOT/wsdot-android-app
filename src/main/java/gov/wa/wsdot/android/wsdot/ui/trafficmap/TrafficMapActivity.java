@@ -240,8 +240,12 @@ public class TrafficMapActivity extends BaseActivity implements
     protected void onStop() {
         super.onStop();
         
-        unregisterReceiver(mCamerasReceiver);
-        unregisterReceiver(mHighwayAlertsSyncReceiver);
+        try {
+            unregisterReceiver(mCamerasReceiver);
+        } catch(Exception e) { /*fail silently if not registered. */}
+        try {
+            unregisterReceiver(mHighwayAlertsSyncReceiver);
+        } catch(Exception e) { /*fail silently if not registered. */}
         
         if(mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
