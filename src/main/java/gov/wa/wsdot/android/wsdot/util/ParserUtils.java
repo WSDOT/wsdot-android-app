@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,4 +77,16 @@ public class ParserUtils {
 		}		
 		
 	}
+	
+    /**
+     * Returns a singlular or pluralized word.
+     * 
+     * @param count count to base if the word should be treated as singular or plural
+     * @param singular single version of the word
+     * @param plural plural version of the word
+     * @return pluralized String
+     */
+    public static String pluralize(int count, String singular, String plural) {
+        return (count == 1 ? singular : plural);
+    }
 }

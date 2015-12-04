@@ -199,6 +199,10 @@
             android:label="@string/title_amtrakcascades_schedules" />
 
         <activity
+            android:name=".ui.amtrakcascades.AmtrakCascadesSchedulesDetailsActivity"
+            android:label="@string/title_amtrakcascades_train_schedules" />
+
+        <activity
             android:name=".ui.callout.CalloutActivity" />
 
     </application>

@@ -120,7 +120,7 @@ public class DashboardLayout extends ViewGroup {
         int hSpace = 0;
         int vSpace = 0;
 
-        int cols = 1; // Change to 3 when implementing new Amtrak Cascades activity.
+        int cols = 3; // Was 1.
         int rows;
 
         while (true) {
