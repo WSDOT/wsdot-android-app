@@ -94,6 +94,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
 
         getDaysOfWeek();
         getAmtrakStations();
+        getFromLocationNoGPS();
         getToLocation();
         buildGoogleApiClient();
 	}
@@ -261,6 +262,22 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
         originSpinner.setSelection(stationIndex);
     }
     
+    private void getFromLocationNoGPS() {
+        originSpinner = (Spinner) findViewById(R.id.origin_spinner);
+
+        List<String> stations = new ArrayList<String>();
+
+        for (AmtrakCascadesStationItem station: amtrakStationItems) {
+            stations.add(station.getStationName());
+        }
+
+        ArrayAdapter<String> stationsArrayAdapter = new ArrayAdapter<String>(
+                this, android.R.layout.simple_spinner_item, stations);
+
+        stationsArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        originSpinner.setAdapter(stationsArrayAdapter);
+    }
+
     private void getToLocation() {
         destinationSpinner = (Spinner) findViewById(R.id.destination_spinner);
         
