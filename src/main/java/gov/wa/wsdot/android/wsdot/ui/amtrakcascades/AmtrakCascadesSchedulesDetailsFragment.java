@@ -68,9 +68,6 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
     private static SwipeRefreshLayout swipeRefreshLayout;
     private View mEmptyView;
     
-    private static Map<String, AmtrakCascadesScheduleItem> stationItems;
-    private static List<Map<String, AmtrakCascadesScheduleItem>> locationItems;
-    private static ArrayList<AmtrakCascadesServiceItem> serviceItems = new ArrayList<AmtrakCascadesServiceItem>();
     private static Map<Integer, String> trainNumberMap = new HashMap<Integer, String>();
     private static Map<String, String> amtrakStations = new HashMap<String, String>();
     private static String statusDate;
@@ -109,6 +106,8 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
         schedule_title.setTypeface(tfb);
 
         if (toLocation.equalsIgnoreCase("N/A")) {
+            schedule_title.setText(amtrakStations.get(fromLocation));
+        } else if ((fromLocation.equalsIgnoreCase(toLocation))) {
             schedule_title.setText(amtrakStations.get(fromLocation));
         } else {
             schedule_title.setText("Departing: "
@@ -192,30 +191,26 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
         
         tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
-        
-        if (mAdapter == null) {
-            mAdapter = new ScheduleAdapter(getActivity());
-        }
+
+        mAdapter = new ScheduleAdapter(getActivity());
         this.getListView().addHeaderView(mHeaderView);
         setListAdapter(mAdapter);
-        
+
         // Prepare the loaders. Either re-connect with an existing one, or start new ones.
         getLoaderManager().initLoader(0, null, this);
-        
-        //TextView t = (TextView) mEmptyView;
-        //t.setText(R.string.no_day_departures);
-        //getListView().setEmptyView(mEmptyView);
-        
     }
 
     public void onRefresh() {
-        getLoaderManager().initLoader(0, null, this);        
+        getLoaderManager().restartLoader(0, null, this);        
     }
 
     public Loader<ArrayList<AmtrakCascadesServiceItem>> onCreateLoader(int id, Bundle args) {
         // This is called when a new Loader needs to be created. There
         // is only one Loader with no arguments, so it is simple
         if (toLocation.equalsIgnoreCase("N/A")) {
+            return new DepartingTrainsLoader(getActivity());
+        } else if ((fromLocation.equalsIgnoreCase(toLocation))) {
+            toLocation = "N/A";
             return new DepartingTrainsLoader(getActivity());
         } else {
             return new DepartingArrivingTrainsLoader(getActivity());
@@ -247,14 +242,16 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
      */
     public static class DepartingArrivingTrainsLoader extends AsyncTaskLoader<ArrayList<AmtrakCascadesServiceItem>> {
 
+        private ArrayList<AmtrakCascadesServiceItem> mServiceItems = null;
+
         public DepartingArrivingTrainsLoader(Context context) {
             super(context);
         }
 
         @Override
         public ArrayList<AmtrakCascadesServiceItem> loadInBackground() {
-            
-            serviceItems.clear();
+
+            mServiceItems = new ArrayList<AmtrakCascadesServiceItem>();
             AmtrakCascadesScheduleItem scheduleItem = null;
             URL url;
             
@@ -288,6 +285,8 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
 
                 while (i < numItems) { // Loop through all trains
                     Date scheduledDepartureTime = null;
+                    Map<String, AmtrakCascadesScheduleItem> stationItems;
+                    List<Map<String, AmtrakCascadesScheduleItem>> locationItems;
                     locationItems = new ArrayList<Map<String, AmtrakCascadesScheduleItem>>();
                     stationItems = new HashMap<String, AmtrakCascadesScheduleItem>();
                     
@@ -386,16 +385,16 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
                     }
 
                     locationItems.add(stationItems);
-                    serviceItems.add(new AmtrakCascadesServiceItem(scheduledDepartureTime, locationItems));
+                    mServiceItems.add(new AmtrakCascadesServiceItem(scheduledDepartureTime, locationItems));
                 }
                 
-                Collections.sort(serviceItems, AmtrakCascadesServiceItem.scheduledDepartureTimeComparator);
+                Collections.sort(mServiceItems, AmtrakCascadesServiceItem.scheduledDepartureTimeComparator);
                 
             } catch (Exception e) {
                 Log.e(TAG, "Error in network call", e);
             }
             
-            return serviceItems;
+            return mServiceItems;
         }
 
         @Override
@@ -405,8 +404,6 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
              * super class will take care of delivering it; the implementation
              * here just adds a little more logic.
              */ 
-            serviceItems = data;
-            
             super.deliverResult(data);
         }
 
@@ -439,11 +436,9 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
             // Ensure the loader is stopped
             onStopLoading();
             
-            /*
-            if (mItems != null) {
-                mItems = null;
+            if (mServiceItems != null) {
+                mServiceItems = null;
             }
-            */
         }
     }
     
@@ -453,6 +448,8 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
      */
     public static class DepartingTrainsLoader extends AsyncTaskLoader<ArrayList<AmtrakCascadesServiceItem>> {
 
+        private ArrayList<AmtrakCascadesServiceItem> mServiceItems = null;
+
         public DepartingTrainsLoader(Context context) {
             super(context);
         }
@@ -460,7 +457,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
         @Override
         public ArrayList<AmtrakCascadesServiceItem> loadInBackground() {
             
-            serviceItems.clear();
+            mServiceItems = new ArrayList<AmtrakCascadesServiceItem>();
             AmtrakCascadesScheduleItem scheduleItem;
             URL url;
             
@@ -490,6 +487,9 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
 
                 for (int i = 0; i < numItems; i++) { // Loop through all trains
                     Date scheduledTime = null;
+                    Map<String, AmtrakCascadesScheduleItem> stationItems;
+                    List<Map<String, AmtrakCascadesScheduleItem>> locationItems;
+
                     locationItems = new ArrayList<Map<String, AmtrakCascadesScheduleItem>>();
                     stationItems = new HashMap<String, AmtrakCascadesScheduleItem>();
                     scheduleItem = new AmtrakCascadesScheduleItem();
@@ -559,17 +559,18 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
 
                     stationItems.put(scheduleItem.getStationName(), scheduleItem);
                     locationItems.add(stationItems);
-                    serviceItems.add(new AmtrakCascadesServiceItem(scheduledTime, locationItems));
+                    
+                    mServiceItems.add(new AmtrakCascadesServiceItem(scheduledTime, locationItems));
                 }
 
-                Collections.sort(serviceItems, AmtrakCascadesServiceItem.scheduledDepartureTimeComparator);
+                Collections.sort(mServiceItems, AmtrakCascadesServiceItem.scheduledDepartureTimeComparator);
                 toLocation = fromLocation;
                 
             } catch (Exception e) {
                 Log.e(TAG, "Error in network call", e);
             }
             
-            return serviceItems;
+            return mServiceItems;
         }
 
         @Override
@@ -579,8 +580,6 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
              * super class will take care of delivering it; the implementation
              * here just adds a little more logic.
              */ 
-            serviceItems = data;
-            
             super.deliverResult(data);
         }
 
@@ -613,11 +612,9 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
             // Ensure the loader is stopped
             onStopLoading();
             
-            /*
-            if (mItems != null) {
-                mItems = null;
+            if (mServiceItems != null) {
+                mServiceItems = null;
             }
-            */
         }
     }
     
