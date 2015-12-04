@@ -25,11 +25,16 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
@@ -42,7 +47,12 @@ public class VesselsOverlay {
 	@SuppressLint("UseSparseArrays")
 	private HashMap<Integer, Integer> ferryIcons = new HashMap<Integer, Integer>();
 	
-	public VesselsOverlay() {
+	/**
+	 * Constructor 
+	 * 
+	 * @param api_key WSDOT API key.
+	 */
+	public VesselsOverlay(String api_key) {
 
 	    ferryIcons.put(0, R.drawable.ferry_0);
 		ferryIcons.put(30, R.drawable.ferry_30);
@@ -59,7 +69,9 @@ public class VesselsOverlay {
 		ferryIcons.put(360, R.drawable.ferry_360);
 					
 		try {
-			URL url = new URL("http://www.wsdot.wa.gov/ferries/vesselwatch/Vessels.ashx");
+
+			URL url = new URL("http://www.wsdot.wa.gov/ferries/api/vessels/rest/vessellocations?apiaccesscode=" + api_key);
+			Log.w(TAG, "URL: " + url.toString());
 			URLConnection urlConn = url.openConnection();
 			BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 			String jsonFile = "";
@@ -68,47 +80,43 @@ public class VesselsOverlay {
 				jsonFile += line;
 			in.close();
 			
-			JSONObject obj = new JSONObject(jsonFile);
-			JSONArray items = obj.getJSONArray("vessellist");
+			JSONArray items = new JSONArray(jsonFile);
 			int ferryIcon;
 			
 			for (int j=0; j < items.length(); j++) {
 				JSONObject item = items.getJSONObject(j);
-				if (item.getString("inservice").equalsIgnoreCase("false")) {
+				if (item.getString("InService").equalsIgnoreCase("false")) {
 					continue;
 				}
 				
-				int nearest = (item.getInt("head") + 30 / 2) / 30 * 30; // round heading to nearest 30 degrees
+				int nearest = (item.getInt("Heading") + 30 / 2) / 30 * 30; // round heading to nearest 30 degrees
 				ferryIcon = ferryIcons.get(nearest);
-				String route = item.getString("route");
-				String lastDock = item.getString("lastdock");
-				String arrivingTerminal = item.getString("aterm");
-				String leftDock = item.getString("leftdock");
-				String actualDeparture = "";
+				String route = item.getJSONArray("OpRouteAbbrev").getString(0).toUpperCase(Locale.ENGLISH);
+				String lastDock = item.getString("DepartingTerminalName");
+				String arrivingTerminal = item.getString("ArrivingTerminalName");
+				String leftDock = formatTime(item, "LeftDock");
+				String nextDepart = formatTime(item, "ScheduledDeparture");
+				String eta = formatTime(item, "Eta");
 				
 				if (route.length() == 0) route = "Not available";
 				if (lastDock.length() == 0) lastDock = "Not available";
 				if (arrivingTerminal.length() == 0) arrivingTerminal = "Not available";
-				if (leftDock.length() == 0) {
-					actualDeparture = "--:--";
-				} else {
-					actualDeparture = leftDock + " " + item.getString("leftdockAMPM");
-				}
-				
+
 				vesselWatchItems.add(new VesselWatchItem(
-				        item.getDouble("lat"),
-				        item.getDouble("lon"),
-						item.getString("name"),
+				        item.getDouble("Latitude"),
+				        item.getDouble("Longitude"),
+						item.getString("VesselName"),
 						"<b>Route:</b> " + route
 							+ "<br><b>Departing:</b> " + lastDock
 							+ "<br><b>Arriving:</b> " + arrivingTerminal
-							+ "<br><b>Scheduled Departure:</b> " + item.getString("nextdep") + " " + item.getString("nextdepAMPM")
-							+ "<br><b>Actual Departure:</b> " + actualDeparture
-							+ "<br><b>Estimated Arrival:</b> " + item.getString("eta") + " " + item.getString("etaAMPM")
-							+ "<br><b>Heading:</b> "	+ Integer.toString(item.getInt("head")) + "\u00b0 " + item.getString("headtxt")
-							+ "<br><b>Speed:</b> " + Double.toString(item.getDouble("speed")) + " knots"
+							+ "<br><b>Scheduled Departure:</b> " + nextDepart
+							+ "<br><b>Actual Departure:</b> " + leftDock
+							+ "<br><b>Estimated Arrival:</b> " + eta
+							+ "<br><b>Heading:</b> "	+ Integer.toString(item.getInt("Heading")) + "\u00b0 " 
+														+ headingToHeadtxt(item.getInt("Heading"))
+							+ "<br><b>Speed:</b> " + Double.toString(item.getDouble("Speed")) + " knots"
 							+ "<br><br><a href=\"http://www.wsdot.com/ferries/vesselwatch/VesselDetail.aspx?vessel_id="
-							+ item.getInt("vesselID") + "\">" + item.getString("name") + " Web page</a>",
+							+ item.getInt("VesselID") + "\">" + item.getString("VesselName") + " Web page</a>",
 						ferryIcon));
 			}
 			
@@ -117,13 +125,44 @@ public class VesselsOverlay {
 		}
 
 	}
-
+	
     public List<VesselWatchItem> getVesselWatchItems() {
         return vesselWatchItems;
     }
     
     public int size() {
         return vesselWatchItems.size();
+    }
+    
+    
+    
+    /**
+     * Giving vessel heading returns a string for the
+     * cardinal direction.
+     * 
+     * @param heading
+     * @return direction string
+     */
+    private static String headingToHeadtxt(int heading){
+    	String directions[] = {"N", "NxE", "E", "SxE", "S", "SxW", "W", "NxW", "N"};
+        return directions[ (int)Math.round((  ((double)heading % 360) / 45)) ];
+    }
+    /**
+     * Formats the time field in JSON object
+     * 
+     * @param item JSONObject for ferry data
+     * @param time field name for time in item
+     * @return Formatted time string.
+     * @throws JSONException 
+     * @throws NumberFormatException 
+     */
+    private static String formatTime(JSONObject item, String time) throws NumberFormatException, JSONException{
+		DateFormat dateFormat = new SimpleDateFormat("h:mm a");
+		if (item.isNull(time)) {
+			return "--:--";
+		} else { 
+			return dateFormat.format(new Date(Long.parseLong(item.getString(time).substring(6, 19))));
+		}
     }
 
 }

@@ -410,8 +410,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
 		
 		 @Override
 		 public Void doInBackground(Void... unused) {
-		     vesselsOverlay = new VesselsOverlay();
-			 
+		     vesselsOverlay = new VesselsOverlay(getString(R.string.wsdot_api_access_code));
 			 return null;
 		 }
 
