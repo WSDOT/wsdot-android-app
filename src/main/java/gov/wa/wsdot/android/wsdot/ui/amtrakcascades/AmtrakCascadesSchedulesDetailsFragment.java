@@ -215,10 +215,10 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
     public Loader<ArrayList<AmtrakCascadesServiceItem>> onCreateLoader(int id, Bundle args) {
         // This is called when a new Loader needs to be created. There
         // is only one Loader with no arguments, so it is simple
-        if (!toLocation.equalsIgnoreCase("N/A")) {
-            return new DepartingArrivingTrainsLoader(getActivity());
-        } else {
+        if (toLocation.equalsIgnoreCase("N/A")) {
             return new DepartingTrainsLoader(getActivity());
+        } else {
+            return new DepartingArrivingTrainsLoader(getActivity());
         }
     }
 
@@ -810,35 +810,36 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
                         }
                     }
                     
-                    // Crashes here.
-                    int minutesDiff = (int) (((arrivalTime.getTime() - scheduledArrivalTime.getTime()) / 1000) / 60);
-                    String scheduleType = item.getLocation().get(0).get(toLocation).getArrivalScheduleType();
-                    String timelyType = "on time";
-                    if (minutesDiff < 0) {
-                        timelyType = " early ";
-                    } else if (minutesDiff > 0) {
-                        timelyType = " late ";
-                    }
-                    
-                    if (scheduleType.equalsIgnoreCase("Estimated")) {
-                        if (minutesDiff == 0) {
-                            holder.arrivalComment.setText("Estimated " + timelyType);
-                        } else {
-                            holder.arrivalComment.setText("Estimated "
-                                    + getHoursMinutes(Math.abs(minutesDiff))
-                                    + timelyType
-                                    + " at "
-                                    + dateFormat.format(arrivalTime));
+                    if (scheduledArrivalTime != null) {
+                        int minutesDiff = (int) (((arrivalTime.getTime() - scheduledArrivalTime.getTime()) / 1000) / 60);
+                        String scheduleType = item.getLocation().get(0).get(toLocation).getArrivalScheduleType();
+                        String timelyType = "on time";
+                        if (minutesDiff < 0) {
+                            timelyType = " early ";
+                        } else if (minutesDiff > 0) {
+                            timelyType = " late ";
                         }
-                    } else {
-                        if (minutesDiff == 0) {
-                            holder.arrivalComment.setText("Arrived " + timelyType);
+
+                        if (scheduleType.equalsIgnoreCase("Estimated")) {
+                            if (minutesDiff == 0) {
+                                holder.arrivalComment.setText("Estimated " + timelyType);
+                            } else {
+                                holder.arrivalComment.setText("Estimated "
+                                        + getHoursMinutes(Math.abs(minutesDiff))
+                                        + timelyType
+                                        + " at "
+                                        + dateFormat.format(arrivalTime));
+                            }
                         } else {
-                            holder.arrivalComment.setText("Arrived "
-                                    + getHoursMinutes(Math.abs(minutesDiff))
-                                    + timelyType
-                                    + " at "
-                                    + dateFormat.format(arrivalTime));
+                            if (minutesDiff == 0) {
+                                holder.arrivalComment.setText("Arrived " + timelyType);
+                            } else {
+                                holder.arrivalComment.setText("Arrived "
+                                        + getHoursMinutes(Math.abs(minutesDiff))
+                                        + timelyType
+                                        + " at "
+                                        + dateFormat.format(arrivalTime));
+                            }
                         }
                     }
                 } else {
