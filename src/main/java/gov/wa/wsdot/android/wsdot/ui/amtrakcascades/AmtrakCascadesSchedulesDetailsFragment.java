@@ -412,7 +412,11 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
             super.onStartLoading();
             
             mAdapter.clear();
-            swipeRefreshLayout.setRefreshing(true);
+            swipeRefreshLayout.post(new Runnable() {
+                public void run() {
+                    swipeRefreshLayout.setRefreshing(true);
+                }
+            });
             forceLoad();
         }
 
@@ -588,7 +592,11 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
             super.onStartLoading();
             
             mAdapter.clear();
-            swipeRefreshLayout.setRefreshing(true);
+            swipeRefreshLayout.post(new Runnable() {
+                public void run() {
+                    swipeRefreshLayout.setRefreshing(true);
+                }
+            });
             forceLoad();
         }
 
