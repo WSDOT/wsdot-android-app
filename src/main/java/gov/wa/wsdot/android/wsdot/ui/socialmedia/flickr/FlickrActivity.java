@@ -104,7 +104,11 @@ public class FlickrActivity extends BaseActivity implements
 
 		@Override
 		protected void onPreExecute() {
-		    swipeRefreshLayout.setRefreshing(true);
+			swipeRefreshLayout.post(new Runnable() {
+				public void run() {
+					swipeRefreshLayout.setRefreshing(true);
+				}
+			});
 		}
     	
 	    protected void onCancelled() {

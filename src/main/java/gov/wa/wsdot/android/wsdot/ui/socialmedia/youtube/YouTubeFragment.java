@@ -285,7 +285,11 @@ public class YouTubeFragment extends BaseListFragment implements
 		protected void onStartLoading() {
 			super.onStartLoading();
 			
-            swipeRefreshLayout.setRefreshing(true);
+			swipeRefreshLayout.post(new Runnable() {
+				public void run() {
+					swipeRefreshLayout.setRefreshing(true);
+				}
+			});
 			mAdapter.clear();
 			forceLoad();
 		}

@@ -204,7 +204,11 @@ public class MountainPassesFragment extends BaseListFragment implements
 		protected void onStartLoading() {
 			super.onStartLoading();
 
-			swipeRefreshLayout.setRefreshing(true);
+			swipeRefreshLayout.post(new Runnable() {
+				public void run() {
+					swipeRefreshLayout.setRefreshing(true);
+				}
+			});
 			forceLoad();
 		}
 	}
@@ -330,7 +334,11 @@ public class MountainPassesFragment extends BaseListFragment implements
 	}
 
     public void onRefresh() {
-        swipeRefreshLayout.setRefreshing(true);
+		swipeRefreshLayout.post(new Runnable() {
+			public void run() {
+				swipeRefreshLayout.setRefreshing(true);
+			}
+		});
         Intent intent = new Intent(getActivity(), MountainPassesSyncService.class);
         intent.putExtra("forceUpdate", true);
         getActivity().startService(intent);        

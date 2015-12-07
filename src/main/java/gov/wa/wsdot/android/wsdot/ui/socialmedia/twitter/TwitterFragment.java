@@ -339,7 +339,11 @@ public class TwitterFragment extends BaseListFragment implements
 			super.onStartLoading();
 			
 			mAdapter.clear();
-			swipeRefreshLayout.setRefreshing(true);
+			swipeRefreshLayout.post(new Runnable() {
+				public void run() {
+					swipeRefreshLayout.setRefreshing(true);
+				}
+			});
 			forceLoad();
 		}
 

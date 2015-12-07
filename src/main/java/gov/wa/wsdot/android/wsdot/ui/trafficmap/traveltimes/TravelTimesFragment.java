@@ -247,7 +247,11 @@ public class TravelTimesFragment extends BaseListFragment implements
 		protected void onStartLoading() {
 			super.onStartLoading();
 
-			swipeRefreshLayout.setRefreshing(true);
+			swipeRefreshLayout.post(new Runnable() {
+				public void run() {
+					swipeRefreshLayout.setRefreshing(true);
+				}
+			});
 			forceLoad();
 		}
 	}
@@ -395,7 +399,11 @@ public class TravelTimesFragment extends BaseListFragment implements
 	}
 
     public void onRefresh() {
-        swipeRefreshLayout.setRefreshing(true);
+		swipeRefreshLayout.post(new Runnable() {
+			public void run() {
+				swipeRefreshLayout.setRefreshing(true);
+			}
+		});
         Intent intent = new Intent(getActivity(), TravelTimesSyncService.class);
         intent.putExtra("forceUpdate", true);
         getActivity().startService(intent);        

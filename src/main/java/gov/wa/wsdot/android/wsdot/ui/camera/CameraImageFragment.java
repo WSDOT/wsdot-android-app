@@ -294,7 +294,11 @@ public class CameraImageFragment extends Fragment implements
 		protected void onStartLoading() {
 			super.onStartLoading();
 			
-			swipeRefreshLayout.setRefreshing(true);
+			swipeRefreshLayout.post(new Runnable() {
+				public void run() {
+					swipeRefreshLayout.setRefreshing(true);
+				}
+			});
 			forceLoad();
 		}
 
