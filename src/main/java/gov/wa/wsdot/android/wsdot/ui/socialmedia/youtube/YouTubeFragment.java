@@ -238,23 +238,43 @@ public class YouTubeFragment extends BaseListFragment implements
 					jsonFile += line;
 				in.close();
 				
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject data = obj.getJSONObject("data");			
-				JSONArray items = data.getJSONArray("items");
+				JSONObject obj = new JSONObject(jsonFile);		
+				JSONArray items = obj.getJSONArray("items");
 				
 				int numItems = items.length();
 				for (int j=0; j < numItems; j++) {
 					JSONObject item = items.getJSONObject(j);
-					JSONObject thumbnail = item.getJSONObject("thumbnail");
+					JSONObject snippet = item.getJSONObject("snippet");
+					JSONObject thumbnail = snippet.getJSONObject("thumbnails");
 					i = new YouTubeItem();
 					i.setId(item.getString("id"));
-					i.setTitle(item.getString("title"));
-					i.setDescription(item.getString("description"));
-					i.setViewCount(item.getString("viewCount"));
-					i.setThumbNailUrl(thumbnail.getString("hqDefault"));
+					i.setTitle(snippet.getString("title"));
+					i.setDescription(snippet.getString("description"));
+					i.setThumbNailUrl(thumbnail.getJSONObject("default").getString("url"));
+					
+					try {
+						url = new URL("");
+						urlConn = url.openConnection();
+						in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+						jsonFile = "";
+						
+						while ((line = in.readLine()) != null)
+							jsonFile += line;
+						in.close();
+					
+						obj = new JSONObject(jsonFile);
+						JSONArray videoList = obj.getJSONArray("items");
+						
+						i.setViewCount(videoList.getJSONObject(0).getJSONObject("statistics").getString("viewCount"));
+						
+					} catch (Exception e){
+						i.setViewCount("Unavailable");
+					}
+					
 					
 	            	try {
-	            		i.setUploaded(ParserUtils.relativeTime(item.getString("uploaded"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
+	            		i.setUploaded(ParserUtils.relativeTime(
+	            				snippet.getString("publishedAt"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
 	            	} catch (Exception e) {
 	            		i.setUploaded("Unavailable");
 	            		Log.e(TAG, "Error parsing date", e);
