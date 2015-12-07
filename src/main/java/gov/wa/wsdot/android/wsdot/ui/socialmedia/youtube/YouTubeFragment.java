@@ -228,7 +228,7 @@ public class YouTubeFragment extends BaseListFragment implements
 			YouTubeItem i = null;
 			
 			try {
-				URL url = new URL("http://gdata.youtube.com/feeds/api/users/wsdot/uploads?v=2&alt=jsonc&max-results=10");
+				URL url = new URL("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=10&playlistId=UUmWr7UYgRp4v_HvRfEgquXg&key=AIzaSyA9X9T1layzh4KN_bdBomS9R-q7LTRWeYY");
 				URLConnection urlConn = url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String jsonFile = "";
@@ -251,25 +251,8 @@ public class YouTubeFragment extends BaseListFragment implements
 					i.setTitle(snippet.getString("title"));
 					i.setDescription(snippet.getString("description"));
 					i.setThumbNailUrl(thumbnail.getJSONObject("default").getString("url"));
-					
-					try {
-						url = new URL("");
-						urlConn = url.openConnection();
-						in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-						jsonFile = "";
-						
-						while ((line = in.readLine()) != null)
-							jsonFile += line;
-						in.close();
-					
-						obj = new JSONObject(jsonFile);
-						JSONArray videoList = obj.getJSONArray("items");
-						
-						i.setViewCount(videoList.getJSONObject(0).getJSONObject("statistics").getString("viewCount"));
-						
-					} catch (Exception e){
-						i.setViewCount("Unavailable");
-					}
+	
+					i.setViewCount("Unavailable");
 					
 					
 	            	try {
