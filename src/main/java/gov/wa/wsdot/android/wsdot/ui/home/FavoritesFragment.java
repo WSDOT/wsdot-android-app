@@ -274,7 +274,11 @@ public class FavoritesFragment extends BaseListFragment implements
 
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 	    CursorLoader cursorLoader = null;
-	    swipeRefreshLayout.setRefreshing(true);
+		swipeRefreshLayout.post(new Runnable() {
+			public void run() {
+				swipeRefreshLayout.setRefreshing(true);
+			}
+		});
 	    
 		switch(id) {
 	    case 0:
@@ -691,7 +695,11 @@ public class FavoritesFragment extends BaseListFragment implements
 	}
 
     public void onRefresh() {
-        swipeRefreshLayout.setRefreshing(true);
+		swipeRefreshLayout.post(new Runnable() {
+			public void run() {
+				swipeRefreshLayout.setRefreshing(true);
+			}
+		});
         getActivity().startService(mFerriesSchedulesIntent);
         getActivity().startService(mMountainPassesIntent);
         getActivity().startService(mTravelTimesIntent);        

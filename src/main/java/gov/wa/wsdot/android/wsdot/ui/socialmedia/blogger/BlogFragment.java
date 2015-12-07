@@ -239,7 +239,11 @@ public class BlogFragment extends BaseListFragment implements
 			super.onStartLoading();
 
 			mAdapter.clear();
-			swipeRefreshLayout.setRefreshing(true);
+			swipeRefreshLayout.post(new Runnable() {
+				public void run() {
+					swipeRefreshLayout.setRefreshing(true);
+				}
+			});
 			forceLoad();
 		}
 
@@ -364,7 +368,11 @@ public class BlogFragment extends BaseListFragment implements
 	}
 
     public void onRefresh() {
-        swipeRefreshLayout.setRefreshing(true);
+		swipeRefreshLayout.post(new Runnable() {
+			public void run() {
+				swipeRefreshLayout.setRefreshing(true);
+			}
+		});
         getLoaderManager().restartLoader(0, null, this);        
     }
 	

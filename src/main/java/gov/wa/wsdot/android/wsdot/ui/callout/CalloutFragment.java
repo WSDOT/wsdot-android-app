@@ -112,7 +112,11 @@ public class CalloutFragment extends Fragment implements
     }
 
     public void onLoaderReset(Loader<Drawable> loader) {
-        swipeRefreshLayout.setRefreshing(true);
+		swipeRefreshLayout.post(new Runnable() {
+			public void run() {
+				swipeRefreshLayout.setRefreshing(true);
+			}
+		});
     }
 
     public static class CalloutImageLoader extends AsyncTaskLoader<Drawable> {
@@ -170,7 +174,11 @@ public class CalloutFragment extends Fragment implements
         protected void onStartLoading() {
             super.onStartLoading();
             
-            swipeRefreshLayout.setRefreshing(true);
+			swipeRefreshLayout.post(new Runnable() {
+				public void run() {
+					swipeRefreshLayout.setRefreshing(true);
+				}
+			});
             forceLoad();
         }
 

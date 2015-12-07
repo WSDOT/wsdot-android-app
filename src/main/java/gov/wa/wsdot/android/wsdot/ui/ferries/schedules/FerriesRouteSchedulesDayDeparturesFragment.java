@@ -343,7 +343,11 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
 			super.onStartLoading();
 			
 			adapter.clear();
-			swipeRefreshLayout.setRefreshing(true);
+			swipeRefreshLayout.post(new Runnable() {
+				public void run() {
+					swipeRefreshLayout.setRefreshing(true);
+				}
+			});
 			forceLoad();
 		}
 
@@ -490,7 +494,11 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
 	}
 
     public void onRefresh() {
-        swipeRefreshLayout.setRefreshing(true);
+		swipeRefreshLayout.post(new Runnable() {
+			public void run() {
+				swipeRefreshLayout.setRefreshing(true);
+			}
+		});
         Intent intent = new Intent(getActivity(), FerriesTerminalSailingSpaceSyncService.class);
         getActivity().startService(intent); 
     }
