@@ -228,7 +228,8 @@ public class YouTubeFragment extends BaseListFragment implements
 			YouTubeItem i = null;
 			
 			try {
-				URL url = new URL("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=10&playlistId=UUmWr7UYgRp4v_HvRfEgquXg&key=AIzaSyA9X9T1layzh4KN_bdBomS9R-q7LTRWeYY");
+				URL url = new URL("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=10&playlistId=UUmWr7UYgRp4v_HvRfEgquXg&key=" 
+			                      + this.getContext().getString(R.string.google_youtube_key));
 				URLConnection urlConn = url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String jsonFile = "";
