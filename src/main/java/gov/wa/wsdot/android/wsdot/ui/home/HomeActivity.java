@@ -20,6 +20,9 @@ package gov.wa.wsdot.android.wsdot.ui.home;
 
 import java.util.ArrayList;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,6 +36,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
@@ -86,6 +90,7 @@ public class HomeActivity extends BaseActivity {
 		private final ActionBar mActionBar;
 		private final ViewPager mViewPager;
 		private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
+		private final Tracker mTracker;
 
 		static final class TabInfo {
 			private final Class<?> clss;
@@ -100,6 +105,7 @@ public class HomeActivity extends BaseActivity {
 		public TabsAdapter(BaseActivity activity, ViewPager pager) {
 			super(activity.getSupportFragmentManager());
 			mContext = activity;
+			mTracker = ((WsdotApplication)activity.getApplication()).getDefaultTracker();
 			mActionBar = activity.getSupportActionBar();
 			mViewPager = pager;
 			mViewPager.setAdapter(this);
@@ -142,6 +148,11 @@ public class HomeActivity extends BaseActivity {
 			Object tag = tab.getTag();
 			for (int i = 0; i < mTabs.size(); i++) {
 				if (mTabs.get(i) == tag) {
+					
+			    	// GA tracker
+			        mTracker.setScreenName("/" + tab.getText());
+					mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+					
 					mViewPager.setCurrentItem(i);
 				}
 			}

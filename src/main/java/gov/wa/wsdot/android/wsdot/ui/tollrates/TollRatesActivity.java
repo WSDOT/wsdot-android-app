@@ -20,6 +20,9 @@ package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
 import java.util.ArrayList;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -31,11 +34,13 @@ import android.support.v7.app.ActionBar.Tab;
 import android.view.MenuItem;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 
 public class TollRatesActivity extends BaseActivity {
 	
     private ViewPager mViewPager;
 	private TabsAdapter mTabsAdapter;
+
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +53,7 @@ public class TollRatesActivity extends BaseActivity {
 		
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
+        
         mTabsAdapter = new TabsAdapter(this, mViewPager);
         mTabsAdapter.addTab(getSupportActionBar().newTab().setText("SR 520"),
         		SR520TollRatesFragment.class, null);
@@ -89,6 +94,7 @@ public class TollRatesActivity extends BaseActivity {
 		private final ActionBar mActionBar;
 		private final ViewPager mViewPager;
 		private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
+		private final Tracker mTracker;
 
 		static final class TabInfo {
 			private final Class<?> clss;
@@ -104,6 +110,7 @@ public class TollRatesActivity extends BaseActivity {
 			super(activity.getSupportFragmentManager());
 			
 			mContext = activity;
+			mTracker = ((WsdotApplication) activity.getApplication()).getDefaultTracker();
 			mActionBar = activity.getSupportActionBar();
 			mViewPager = pager;
 			mViewPager.setAdapter(this);
@@ -146,6 +153,11 @@ public class TollRatesActivity extends BaseActivity {
 			Object tag = tab.getTag();
 			for (int i = 0; i < mTabs.size(); i++) {
 				if (mTabs.get(i) == tag) {
+					
+					// GA tracker
+					mTracker.setScreenName("/Tollrates/" + tab.getText());
+					mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+					
 					mViewPager.setCurrentItem(i);
 				}
 			}

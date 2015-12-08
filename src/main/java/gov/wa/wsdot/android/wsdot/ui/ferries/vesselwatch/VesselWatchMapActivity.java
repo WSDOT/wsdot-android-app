@@ -27,6 +27,8 @@ import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -74,6 +76,7 @@ import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.util.map.CamerasOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.VesselsOverlay;
@@ -103,6 +106,8 @@ public class VesselWatchMapActivity extends BaseActivity implements
     private LocationRequest mLocationRequest;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
+    
+    private Tracker mTracker;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -249,36 +254,57 @@ public class VesselWatchMapActivity extends BaseActivity implements
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId()) {
+
+		mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+		
+		switch (item.getItemId()) {
 
 	    case android.R.id.home:
 	    	finish();
 	    	return true;	    
 	    case R.id.goto_anacortes:
+	    	mTracker.setScreenName("Ferries/Vessel Watch/Go To Location/Anacortes");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation(48.535868, -123.013808, 10);
 	    	return true;
 	    case R.id.goto_edmonds:
+	    	mTracker.setScreenName("Ferries/Vessel Watch/Go To Location/Edmonds");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation(47.803096, -122.438718, 12);
 	    	return true;
 	    case R.id.goto_fauntleroy:
+	    	mTracker.setScreenName("Ferries/Vessel Watch/Go To Location/Fauntleroy");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation(47.513625, -122.450820, 13);
 	    	return true;
 	    case R.id.goto_mukilteo:
+	    	mTracker.setScreenName("Ferries/Vessel Watch/Go To Location/Mukilteo");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation(47.963857, -122.327721, 13);
 	    	return true;
 	    case R.id.goto_pointdefiance:
+	    	mTracker.setScreenName("Ferries/Vessel Watch/Go To Location/Pt. Defiance");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation(47.319040, -122.510890, 13);
 	    	return true;
 	    case R.id.goto_porttownsend:
+	    	mTracker.setScreenName("Ferries/Vessel Watch/Go To Location/Port Townsend");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation(48.135562, -122.714449, 12);
 	    	return true;
 	    case R.id.goto_sanjuanislands:
+	    	mTracker.setScreenName("Ferries/Vessel Watch/Go To Location/San Juan Islands");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation(48.557233, -122.897078, 12);
 	    	return true;
 	    case R.id.goto_seattle:
+	    	mTracker.setScreenName("Ferries/Vessel Watch/Go To Location/Seattle");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation(47.565125, -122.480508, 11);
 	    	return true;
 	    case R.id.goto_seattlebainbridge:
+	    	mTracker.setScreenName("Ferries/Vessel Watch/Go To Location/Seattle-Bainbridge");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation(47.600325, -122.437249, 12);
 	    	return true;
 	    case R.id.toggle_cameras:
@@ -290,6 +316,10 @@ public class VesselWatchMapActivity extends BaseActivity implements
 	}
 
 	private void toggleCameras(MenuItem item) {
+		
+	    // GA tracker
+		mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+		
 		if (showCameras) {
 			for(Entry<Marker, String> entry : markers.entrySet()) {
 			    Marker key = entry.getKey();
@@ -297,11 +327,18 @@ public class VesselWatchMapActivity extends BaseActivity implements
 			    
 			    if (value.equalsIgnoreCase("camera")) {
 			        key.setVisible(false);
-			    }
+			    }	
 			}
 			
 			item.setTitle("Show Cameras");
 			showCameras = false;
+		    
+			mTracker.send(new HitBuilders.EventBuilder()
+				    .setCategory("Ferries")
+				    .setAction("Cameras")
+				    .setLabel("Hide Cameras")
+				    .build());
+			
 		} else {
             for(Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
@@ -314,6 +351,13 @@ public class VesselWatchMapActivity extends BaseActivity implements
             
 			item.setTitle("Hide Cameras");
 			showCameras = true;
+			
+			mTracker.send(new HitBuilders.EventBuilder()
+				    .setCategory("Ferries")
+				    .setAction("Cameras")
+				    .setLabel("Hide Cameras")
+				    .build());
+			
 		}		
 
 		// Save camera display preference

@@ -20,6 +20,9 @@ package gov.wa.wsdot.android.wsdot.ui.ferries;
 
 import java.util.ArrayList;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -33,6 +36,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchMapActivity;
 
@@ -42,6 +46,7 @@ public class FerriesFragment extends BaseListFragment {
     private ArrayList<ListViewItem> listViewItems;
     private ListViewArrayAdapter mAdapter;
     private View mLoadingSpinner;
+    private Tracker mTracker;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,6 +99,12 @@ public class FerriesFragment extends BaseListFragment {
         if (listViewItems.get(position).getClz() instanceof Class<?>) {
             intent.setClass(getActivity(), (Class<?>) listViewItems.get(position).getClz());
         } else {
+        	
+        	// GA tracker
+        	mTracker = ((WsdotApplication) this.getActivity().getApplication()).getDefaultTracker();
+            mTracker.setScreenName("/Ferries/Vehicle Reservations");
+			mTracker.send(new HitBuilders.ScreenViewBuilder().build());	
+        	
             intent.setAction(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(listViewItems.get(position).getUrl()));
         }

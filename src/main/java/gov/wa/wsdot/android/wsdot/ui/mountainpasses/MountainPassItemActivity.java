@@ -23,6 +23,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -41,6 +44,7 @@ import android.widget.Toast;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 
 public class MountainPassItemActivity extends BaseActivity {
 	
@@ -51,6 +55,7 @@ public class MountainPassItemActivity extends BaseActivity {
 	private boolean mIsStarred = false;
 	private ContentResolver resolver;
 	private int mId;
+	private Tracker mTracker;
 	
 	static final private int MENU_ITEM_STAR = 0;
 	
@@ -69,6 +74,12 @@ public class MountainPassItemActivity extends BaseActivity {
 	    String cameras = b.getString("Cameras");
 	    String forecast = b.getString("Forecasts");
 	    mIsStarred = b.getInt("isStarred") != 0;
+	    
+	    // GA tracker
+    	mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+    	mTracker.setScreenName("/Mountain Passes/Details/" + mountainPassName);
+    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+	    
 	    
         getSupportActionBar().setTitle(mountainPassName);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -177,6 +188,7 @@ public class MountainPassItemActivity extends BaseActivity {
 		private final ActionBar mActionBar;
 		private final ViewPager mViewPager;
 		private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
+		private final Tracker mTabsTracker;
 
 		static final class TabInfo {
 			private final Class<?> clss;
@@ -191,6 +203,8 @@ public class MountainPassItemActivity extends BaseActivity {
 		public TabsAdapter(BaseActivity activity, ViewPager pager) {
 			super(activity.getSupportFragmentManager());
 			mContext = activity;
+			mTabsTracker = ((WsdotApplication) activity.getApplication()).getDefaultTracker();
+			
 			mActionBar = activity.getSupportActionBar();
 			mViewPager = pager;
 			mViewPager.setAdapter(this);
@@ -233,6 +247,11 @@ public class MountainPassItemActivity extends BaseActivity {
 			Object tag = tab.getTag();
 			for (int i = 0; i < mTabs.size(); i++) {
 				if (mTabs.get(i) == tag) {
+					
+					// GA tracker
+					mTabsTracker.setScreenName("/Mountain Passes/Details/" + mActionBar.getTitle() + "/" + tab.getText());
+					mTabsTracker.send(new HitBuilders.ScreenViewBuilder().build());
+					
 					mViewPager.setCurrentItem(i);
 				}
 			}
