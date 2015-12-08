@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,8 +32,32 @@ public class FerriesTerminalItem implements Serializable {
 	private String arrivingTerminalName;
 	private List<FerriesAnnotationsItem> annotations = new ArrayList<FerriesAnnotationsItem>();
 	private List<FerriesScheduleTimesItem> times = new ArrayList<FerriesScheduleTimesItem>();
-		
-	public Integer getDepartingTerminalID() {
+    private Double latitude;
+    private Double longitude;
+
+    /**
+     * Default constructor
+     */
+    public FerriesTerminalItem() {
+    }
+
+    /**
+     *
+     * @param departingTerminalID  Unique identifier for departing terminal
+     * @param departingTerminalName  The name of the terminal
+     * @param latitude  The latitude of the terminal
+     * @param longitude  The longitude of the terminal
+     */
+    public FerriesTerminalItem(Integer departingTerminalID, String departingTerminalName,
+            Double latitude, Double longitude) {
+
+        this.departingTerminalID = departingTerminalID;
+        this.departingTerminalName = departingTerminalName;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public Integer getDepartingTerminalID() {
 		return departingTerminalID;
 	}
 	public void setDepartingTerminalID(Integer departingTerminalID) {
@@ -73,5 +97,17 @@ public class FerriesTerminalItem implements Serializable {
 	public void setScheduleTimes(FerriesScheduleTimesItem times) {
 		this.times.add(times);		
 	}
+    public Double getLatitude() {
+        return latitude;
+    }
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+    public Double getLongitude() {
+        return longitude;
+    }
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
 
 }

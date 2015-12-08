@@ -59,7 +59,7 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseListFragment
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		
+
 		Bundle args = activity.getIntent().getExtras();
 		mDates = args.getString("date");
 	}
@@ -269,8 +269,12 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseListFragment
 				+ scheduleDateItems.get(0).getFerriesTerminalItem()
 						.get(position).getArrivingTerminalName();
 		
+        int terminalId = scheduleDateItems.get(0).getFerriesTerminalItem()
+                .get(position).getDepartingTerminalID();
+
 		Bundle b = new Bundle();
 		Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDayDeparturesActivity.class);
+        b.putInt("terminalId", terminalId);
 		b.putString("terminalNames", terminalNames);
 		b.putInt("position", position);
 		b.putSerializable("scheduleDateItems", scheduleDateItems);

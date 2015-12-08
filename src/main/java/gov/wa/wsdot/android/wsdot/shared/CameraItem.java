@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2015 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.shared;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 import android.graphics.drawable.Drawable;
 
@@ -32,6 +33,7 @@ public class CameraItem implements Serializable {
 	private Drawable image;
 	private Integer cameraId;
 	private Integer cameraIcon;
+	private Integer distance;
 	
 	public CameraItem() {
 	}
@@ -95,4 +97,21 @@ public class CameraItem implements Serializable {
     public void setCameraIcon(Integer cameraIcon) {
         this.cameraIcon = cameraIcon;
     }
+
+    public Integer getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Integer distance) {
+        this.distance = distance;
+    }
+    
+    public static Comparator<CameraItem> cameraDistanceComparator = new Comparator<CameraItem>() {
+        public int compare(CameraItem o1, CameraItem o2) {
+            int cameraDistance1 = o1.getDistance();
+            int cameraDistance2 = o2.getDistance();
+            
+            return cameraDistance1 - cameraDistance2;
+        }
+    };
 }
