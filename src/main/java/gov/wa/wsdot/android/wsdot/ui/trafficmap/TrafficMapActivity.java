@@ -37,6 +37,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -90,41 +91,43 @@ public class TrafficMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener,
         OnCameraChangeListener, ConnectionCallbacks,
         OnConnectionFailedListener, LocationListener {
-	
+    
     private static final String TAG = TrafficMapActivity.class.getSimpleName();
     
-    private GoogleMap map;	
+    private GoogleMap map;  
     private HighwayAlertsOverlay alertsOverlay = null;
-	private CamerasOverlay camerasOverlay = null;
-	private CalloutsOverlay calloutsOverlay = null;
-	private List<CameraItem> cameras = new ArrayList<CameraItem>();
-	private List<HighwayAlertsItem> alerts = new ArrayList<HighwayAlertsItem>();
-	private List<CalloutItem> callouts = new ArrayList<CalloutItem>();
-	private HashMap<Marker, String> markers = new HashMap<Marker, String>();
-	boolean showCameras;
-	private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
-	
-	static final private int MENU_ITEM_SEATTLE_ALERTS = Menu.FIRST;
-	static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST + 1;
-	
-	private CamerasSyncReceiver mCamerasReceiver;
-	private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
-	private Intent camerasIntent;
-	private Intent alertsIntent;
-	private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
-	private static AsyncTask<Void, Void, Void> mHighwayAlertsOverlayTask = null;
-	private static AsyncTask<Void, Void, Void> mCalloutsOverlayTask = null;
-	private LatLngBounds bounds;
-	private double latitude;
-	private double longitude;
-	private int zoom;
-	private GoogleApiClient mGoogleApiClient;
-	private LocationRequest mLocationRequest;
-	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-	private final int REQUEST_ACCESS_FINE_LOCATION = 100;
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+    private CamerasOverlay camerasOverlay = null;
+    private CalloutsOverlay calloutsOverlay = null;
+    private List<CameraItem> cameras = new ArrayList<CameraItem>();
+    private List<HighwayAlertsItem> alerts = new ArrayList<HighwayAlertsItem>();
+    private List<CalloutItem> callouts = new ArrayList<CalloutItem>();
+    private HashMap<Marker, String> markers = new HashMap<Marker, String>();
+    boolean showCameras;
+    private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
+    
+    static final private int MENU_ITEM_SEATTLE_ALERTS = Menu.FIRST;
+    static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST + 1;
+    
+    private CamerasSyncReceiver mCamerasReceiver;
+    private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
+    private Intent camerasIntent;
+    private Intent alertsIntent;
+    IntentFilter camerasFilter;
+    IntentFilter alertsFilter;
+    private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
+    private static AsyncTask<Void, Void, Void> mHighwayAlertsOverlayTask = null;
+    private static AsyncTask<Void, Void, Void> mCalloutsOverlayTask = null;
+    private LatLngBounds bounds;
+    private double latitude;
+    private double longitude;
+    private int zoom;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private final int REQUEST_ACCESS_FINE_LOCATION = 100;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -144,7 +147,7 @@ public class TrafficMapActivity extends BaseActivity implements
         mCamerasOverlayTask = new CamerasOverlayTask();
         mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask();
         mCalloutsOverlayTask = new CalloutsOverlayTask();
-		
+        
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
@@ -153,8 +156,8 @@ public class TrafficMapActivity extends BaseActivity implements
         zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
     
         // Set up Service Intents.
-		camerasIntent = new Intent(this, CamerasSyncService.class);
-		alertsIntent = new Intent(this, HighwayAlertsSyncService.class);
+        camerasIntent = new Intent(this, CamerasSyncService.class);
+        alertsIntent = new Intent(this, HighwayAlertsSyncService.class);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -166,94 +169,108 @@ public class TrafficMapActivity extends BaseActivity implements
                 .setFastestInterval(5000)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        
-        prepareMap();
-        mGoogleApiClient.connect();
-
-        IntentFilter camerasFilter = new IntentFilter(
-                "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
+        camerasFilter = new IntentFilter(
+            "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
         camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
         mCamerasReceiver = new CamerasSyncReceiver();
-        registerReceiver(mCamerasReceiver, camerasFilter); 
 
-        IntentFilter alertsFilter = new IntentFilter(
-                "gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
+        alertsFilter = new IntentFilter(
+            "gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
         alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
         mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
-        registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
 
-        if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-            mCalloutsOverlayTask = new CalloutsOverlayTask().execute();
-        } else if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-            mCalloutsOverlayTask.execute();
-        }
-    }
-	
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        
-        if (mGoogleApiClient.isConnected()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-            mGoogleApiClient.disconnect();
-        }
-        
-        this.unregisterReceiver(mCamerasReceiver);
-        this.unregisterReceiver(mHighwayAlertsSyncReceiver);
-          
-        // Save last map location and zoom level.
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = settings.edit();
-        
-        try {
-            editor.putString("KEY_TRAFFICMAP_LAT", String.valueOf(map.getProjection().getVisibleRegion().latLngBounds.getCenter().latitude));
-            editor.putString("KEY_TRAFFICMAP_LON", String.valueOf(map.getProjection().getVisibleRegion().latLngBounds.getCenter().longitude));
-            editor.putInt("KEY_TRAFFICMAP_ZOOM", (int)map.getCameraPosition().zoom);
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Error getting map bounds. Setting defaults to Seattle instead.");
-            editor.putString("KEY_TRAFFICMAP_LAT", "47.5990");
-            editor.putString("KEY_TRAFFICMAP_LON", "-122.3350");
-            editor.putInt("KEY_TRAFFICMAP_ZOOM", 12);           
-        }
-        
-        editor.commit();
-    }
-    
-	public void prepareMap() {
-	    if (map == null) {
-            map = ((SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.mapview)).getMap();
-            
-            if (map != null) {
+        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapview))
+                .getMapAsync(new OnMapReadyCallback() {
+            public void onMapReady(GoogleMap googleMap) {
+                
+                map = googleMap;
+                
+                mGoogleApiClient.connect();
+                
+                registerReceiver(mCamerasReceiver, camerasFilter); 
+                registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
+                
                 map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 map.getUiSettings().setCompassEnabled(true);
                 map.getUiSettings().setZoomControlsEnabled(true);
                 map.getUiSettings().setMyLocationButtonEnabled(true);
                 map.setTrafficEnabled(true);
                 map.setMyLocationEnabled(true);
-                map.setOnMyLocationButtonClickListener(this);
-                map.setOnMarkerClickListener(this);
-                map.setOnCameraChangeListener(this);
-
+                map.setOnMyLocationButtonClickListener(TrafficMapActivity.this);
+                map.setOnMarkerClickListener(TrafficMapActivity.this);
+                map.setOnCameraChangeListener(TrafficMapActivity.this);
+                    
                 LatLng latLng = new LatLng(latitude, longitude);
                 map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 map.animateCamera(CameraUpdateFactory.zoomTo(zoom));
+
+                if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+                    mCalloutsOverlayTask = new CalloutsOverlayTask().execute();
+                } else if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+                    mCalloutsOverlayTask.execute();
+                }
+            
             }
-	    }
-	}
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        
+        mGoogleApiClient.connect();
+        if(map != null) {
+            // Check preferences and set defaults if none set
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+            showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
+            latitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LAT", "47.5990"));
+            longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
+            zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
+            LatLng latLng = new LatLng(latitude, longitude);
+            map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            map.animateCamera(CameraUpdateFactory.zoomTo(zoom));
+                
+            registerReceiver(mCamerasReceiver, camerasFilter); 
+            registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
+        }
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        
+        try {
+            unregisterReceiver(mCamerasReceiver);
+        } catch(Exception e) { /*fail silently if not registered. */}
+        try {
+            unregisterReceiver(mHighwayAlertsSyncReceiver);
+        } catch(Exception e) { /*fail silently if not registered. */}
+        
+        if(mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+        mGoogleApiClient.disconnect();
+        
+        // Save last map location and zoom level.
+        if(map != null) {
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = settings.edit();
+            
+            editor.putString("KEY_TRAFFICMAP_LAT", Double.toString(map.getCameraPosition().target.latitude));
+            editor.putString("KEY_TRAFFICMAP_LON", Double.toString(map.getCameraPosition().target.longitude));
+            editor.putInt("KEY_TRAFFICMAP_ZOOM", (int)map.getCameraPosition().zoom);
+            
+            editor.commit();
+        }
+    }
 
     public void onCameraChange(CameraPosition cameraPosition) {
         setSupportProgressBarIndeterminateVisibility(true);
         startService(camerasIntent);
         startService(alertsIntent);        
     }
-	
+    
     public boolean onMarkerClick(Marker marker) {
         Bundle b = new Bundle();
         Intent intent = new Intent();   
@@ -278,150 +295,150 @@ public class TrafficMapActivity extends BaseActivity implements
         return true;
     }
 
-	public class CamerasSyncReceiver extends BroadcastReceiver {
+    public class CamerasSyncReceiver extends BroadcastReceiver {
 
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String responseString = intent.getStringExtra("responseString");
-			
-			if (responseString != null) {
-				if (responseString.equals("OK") || responseString.equals("NOP")) {
-					// We've got cameras, now add them.
-				    if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-						mCamerasOverlayTask = new CamerasOverlayTask().execute();
-					} else if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-						mCamerasOverlayTask.execute();
-					}
-				} else {
-					Log.e("CameraDownloadReceiver", responseString);
-				}
-			}
-		}
-	}
-	
-	public class HighwayAlertsSyncReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String responseString = intent.getStringExtra("responseString");
+            
+            if (responseString != null) {
+                if (responseString.equals("OK") || responseString.equals("NOP")) {
+                    // We've got cameras, now add them.
+                    if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+                        mCamerasOverlayTask = new CamerasOverlayTask().execute();
+                    } else if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+                        mCamerasOverlayTask.execute();
+                    }
+                } else {
+                    Log.e("CameraDownloadReceiver", responseString);
+                }
+            }
+        }
+    }
+    
+    public class HighwayAlertsSyncReceiver extends BroadcastReceiver {
 
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String responseString = intent.getStringExtra("responseString");
-			
-			if (responseString != null) {
-				if (responseString.equals("OK") || responseString.equals("NOP")) {
-				    // We've got alerts, now add them.
-					if (mHighwayAlertsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-					    mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask().execute();
-					} else if (mHighwayAlertsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-					    mHighwayAlertsOverlayTask.execute();
-					}
-				} else {
-					Log.e("HighwayAlertsSyncReceiver", responseString);
-				}
-			}
-		}
-	}
-	
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.clear();
-		getMenuInflater().inflate(R.menu.traffic, menu);
-	    
-	    if (showCameras) {
-	    	menu.getItem(0).setTitle("Hide Cameras");
-	    } else {
-	    	menu.getItem(0).setTitle("Show Cameras");
-	    }
-	    
-	    /**
-	     * Check if current location is within a lat/lon bounding box surrounding
-	     * the greater Seattle area.
-	     */
-	    try {
-			LatLng center = map.getCameraPosition().target;
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String responseString = intent.getStringExtra("responseString");
+            
+            if (responseString != null) {
+                if (responseString.equals("OK") || responseString.equals("NOP")) {
+                    // We've got alerts, now add them.
+                    if (mHighwayAlertsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+                        mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask().execute();
+                    } else if (mHighwayAlertsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+                        mHighwayAlertsOverlayTask.execute();
+                    }
+                } else {
+                    Log.e("HighwayAlertsSyncReceiver", responseString);
+                }
+            }
+        }
+    }
+    
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.clear();
+        getMenuInflater().inflate(R.menu.traffic, menu);
+        
+        if (showCameras) {
+            menu.getItem(0).setTitle("Hide Cameras");
+        } else {
+            menu.getItem(0).setTitle("Show Cameras");
+        }
+        
+        /**
+         * Check if current location is within a lat/lon bounding box surrounding
+         * the greater Seattle area.
+         */
+        try {
+            LatLng center = map.getCameraPosition().target;
 
-			if (inPolygon(seattleArea, center.latitude, center.longitude)) {
-				MenuItem menuItem_Alerts = menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts")
-					.setIcon(R.drawable.ic_menu_alerts);
-				
-	            MenuItemCompat.setShowAsAction(menuItem_Alerts,
-	                    MenuItemCompat.SHOW_AS_ACTION_IF_ROOM | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
+            if (inPolygon(seattleArea, center.latitude, center.longitude)) {
+                MenuItem menuItem_Alerts = menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts")
+                    .setIcon(R.drawable.ic_menu_alerts);
+                
+                MenuItemCompat.setShowAsAction(menuItem_Alerts,
+                        MenuItemCompat.SHOW_AS_ACTION_IF_ROOM | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
 
-			    MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
-			    MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
-			}
+                MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
+                MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
+            }
 
-	    } catch (NullPointerException e) {
-	    	Log.e(TAG, "Error getting LatLng center");
-	    }
-	    
-		return super.onPrepareOptionsMenu(menu);
-	}
+        } catch (NullPointerException e) {
+            Log.e(TAG, "Error getting LatLng center");
+        }
+        
+        return super.onPrepareOptionsMenu(menu);
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId()) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
 
-	    case android.R.id.home:
-	    	finish();
-	    	return true;
-	    case R.id.toggle_cameras:
-	    	toggleCameras(item);
-	    	return true;	        
-	    case R.id.travel_times:
-	    	Intent timesIntent = new Intent(this, TravelTimesActivity.class);
-	    	startActivity(timesIntent);
-	    	return true;
-	    case R.id.goto_bellingham:
-	    	goToLocation("Bellingham Traffic", 48.756302,-122.46151, 12);
-	    	UIUtils.refreshActionBarMenu(this);
-	    	return true;	        
-	    case R.id.goto_chehalis:
-	    	goToLocation("Chelalis Traffic", 46.635529, -122.937698, 11);
-	    	UIUtils.refreshActionBarMenu(this);
-	    	return true;
-	    case R.id.goto_hoodcanal:
-	    	goToLocation("Hood Canal Traffic", 47.85268,-122.628365, 13);
-	    	UIUtils.refreshActionBarMenu(this);
-	    	return true;
-	    case R.id.goto_mtvernon:
-	    	goToLocation("Mt Vernon Traffic", 48.420657,-122.334824, 13);
-	    	UIUtils.refreshActionBarMenu(this);
-	    	return true;
-	    case R.id.goto_stanwood:
-	    	goToLocation("Stanwood Traffic", 48.22959, -122.34581, 13);
-	    	UIUtils.refreshActionBarMenu(this);
-	    	return true;
-	    case R.id.goto_monroe:
-	    	goToLocation("Monroe Traffic", 47.859476, -121.972446, 14);
-	    	UIUtils.refreshActionBarMenu(this);
-	    	return true;
-	    case R.id.goto_sultan:
-	    	goToLocation("Sultan Traffic", 47.86034, -121.812286, 13);
-	    	UIUtils.refreshActionBarMenu(this);
-	    	return true;
-	    case R.id.goto_olympia:
-	    	goToLocation("Olympia Traffic", 47.021461, -122.899933, 13);
-	    	UIUtils.refreshActionBarMenu(this);
-	        return true;	    	    	
-	    case R.id.goto_seattle:
-	    	goToLocation("Seattle Area Traffic", 47.5990, -122.3350, 12);
-	    	UIUtils.refreshActionBarMenu(this);
-	        return true;
-	    case R.id.goto_spokane:
-	    	goToLocation("Spokane Area Traffic", 47.658566, -117.425995, 12);
-	    	UIUtils.refreshActionBarMenu(this);
-	        return true;	        
-	    case R.id.goto_tacoma:
-	    	goToLocation("Tacoma Traffic", 47.206275, -122.46254, 12);
-	    	UIUtils.refreshActionBarMenu(this);
-	        return true;	        
-	    case R.id.goto_vancouver:
-	    	goToLocation("Vancouver Area Traffic", 45.639968, -122.610512, 11);
-	    	UIUtils.refreshActionBarMenu(this);
-	        return true;
-	    case R.id.goto_wenatchee:
-	    	goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 12);
-	    	UIUtils.refreshActionBarMenu(this);
-	        return true;
+        case android.R.id.home:
+            finish();
+            return true;
+        case R.id.toggle_cameras:
+            toggleCameras(item);
+            return true;            
+        case R.id.travel_times:
+            Intent timesIntent = new Intent(this, TravelTimesActivity.class);
+            startActivity(timesIntent);
+            return true;
+        case R.id.goto_bellingham:
+            goToLocation("Bellingham Traffic", 48.756302,-122.46151, 12);
+            UIUtils.refreshActionBarMenu(this);
+            return true;            
+        case R.id.goto_chehalis:
+            goToLocation("Chelalis Traffic", 46.635529, -122.937698, 11);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
+        case R.id.goto_hoodcanal:
+            goToLocation("Hood Canal Traffic", 47.85268,-122.628365, 13);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
+        case R.id.goto_mtvernon:
+            goToLocation("Mt Vernon Traffic", 48.420657,-122.334824, 13);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
+        case R.id.goto_stanwood:
+            goToLocation("Stanwood Traffic", 48.22959, -122.34581, 13);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
+        case R.id.goto_monroe:
+            goToLocation("Monroe Traffic", 47.859476, -121.972446, 14);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
+        case R.id.goto_sultan:
+            goToLocation("Sultan Traffic", 47.86034, -121.812286, 13);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
+        case R.id.goto_olympia:
+            goToLocation("Olympia Traffic", 47.021461, -122.899933, 13);
+            UIUtils.refreshActionBarMenu(this);
+            return true;                    
+        case R.id.goto_seattle:
+            goToLocation("Seattle Area Traffic", 47.5990, -122.3350, 12);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
+        case R.id.goto_spokane:
+            goToLocation("Spokane Area Traffic", 47.658566, -117.425995, 12);
+            UIUtils.refreshActionBarMenu(this);
+            return true;            
+        case R.id.goto_tacoma:
+            goToLocation("Tacoma Traffic", 47.206275, -122.46254, 12);
+            UIUtils.refreshActionBarMenu(this);
+            return true;            
+        case R.id.goto_vancouver:
+            goToLocation("Vancouver Area Traffic", 45.639968, -122.610512, 11);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
+        case R.id.goto_wenatchee:
+            goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 12);
+            UIUtils.refreshActionBarMenu(this);
+            return true;
         case R.id.goto_snoqualmiepass:
             goToLocation("Snoqualmie Pass Traffic", 47.404481, -121.4232569, 12);
             UIUtils.refreshActionBarMenu(this);
@@ -434,21 +451,21 @@ public class TrafficMapActivity extends BaseActivity implements
             goToLocation("Yakima Traffic", 46.6063273, -120.4886952, 11);
             UIUtils.refreshActionBarMenu(this);
             return true;
-	    case MENU_ITEM_SEATTLE_ALERTS:
-	    	Intent alertsIntent = new Intent(this, SeattleTrafficAlertsActivity.class);
-	    	startActivity(alertsIntent);
-	    	return true;
-	    case MENU_ITEM_EXPRESS_LANES:
-	    	Intent expressIntent = new Intent(this, SeattleExpressLanesActivity.class);
-	    	startActivity(expressIntent);
-	    	return true;
-	    }
-	    
-	    return super.onOptionsItemSelected(item);
-	}
+        case MENU_ITEM_SEATTLE_ALERTS:
+            Intent alertsIntent = new Intent(this, SeattleTrafficAlertsActivity.class);
+            startActivity(alertsIntent);
+            return true;
+        case MENU_ITEM_EXPRESS_LANES:
+            Intent expressIntent = new Intent(this, SeattleExpressLanesActivity.class);
+            startActivity(expressIntent);
+            return true;
+        }
+        
+        return super.onOptionsItemSelected(item);
+    }
 
-	private void toggleCameras(MenuItem item) {
-		if (showCameras) {
+    private void toggleCameras(MenuItem item) {
+        if (showCameras) {
             for(Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();
@@ -457,10 +474,10 @@ public class TrafficMapActivity extends BaseActivity implements
                     key.setVisible(false);
                 }
             }
-			
-			item.setTitle("Show Cameras");
-			showCameras = false;
-		} else {
+            
+            item.setTitle("Show Cameras");
+            showCameras = false;
+        } else {
             for(Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();
@@ -469,70 +486,70 @@ public class TrafficMapActivity extends BaseActivity implements
                     key.setVisible(true);
                 }
             }
-			
-			item.setTitle("Hide Cameras");
-			showCameras = true;
-		}		
+            
+            item.setTitle("Hide Cameras");
+            showCameras = true;
+        }       
 
-		// Save camera display preference
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-		SharedPreferences.Editor editor = settings.edit();
-		editor.putBoolean("KEY_SHOW_CAMERAS", showCameras);
-		editor.commit();
-	}
+        // Save camera display preference
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("KEY_SHOW_CAMERAS", showCameras);
+        editor.commit();
+    }
 
-	public void goToLocation(String title, double latitude, double longitude, int zoomLevel) {	
+    public void goToLocation(String title, double latitude, double longitude, int zoomLevel) {  
         LatLng latLng = new LatLng(latitude, longitude);
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         map.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
-	}
+    }
 
-	/**
-	 * Iterate through collection of LatLon objects in arrayList and see
-	 * if passed latitude and longitude point is within the collection.
-	 */
-	public boolean inPolygon(ArrayList<LatLonItem> points, double latitude, double longitude) {	
-		int j = points.size() - 1;
-		double lat = latitude;
-		double lon = longitude;		
-		boolean inPoly = false;
-		
-		for (int i = 0; i < points.size(); i++) {
-			if ( (points.get(i).getLongitude() < lon && points.get(j).getLongitude() >= lon) || 
-					(points.get(j).getLongitude() < lon && points.get(i).getLongitude() >= lon) ) {
-						if ( points.get(i).getLatitude() + (lon - points.get(i).getLongitude()) / 
-								(points.get(j).getLongitude() - points.get(i).getLongitude()) * 
-									(points.get(j).getLatitude() - points.get(i).getLatitude()) < lat ) {
-										inPoly = !inPoly;
-						}
-			}
-			j = i;
-		}
-		return inPoly;
-	}
-	
-	class CamerasOverlayTask extends AsyncTask<Void, Void, Void> {
-		
-		@Override
-		public void onPreExecute() {
-			setSupportProgressBarIndeterminateVisibility(true);
+    /**
+     * Iterate through collection of LatLon objects in arrayList and see
+     * if passed latitude and longitude point is within the collection.
+     */
+    public boolean inPolygon(ArrayList<LatLonItem> points, double latitude, double longitude) { 
+        int j = points.size() - 1;
+        double lat = latitude;
+        double lon = longitude;     
+        boolean inPoly = false;
+        
+        for (int i = 0; i < points.size(); i++) {
+            if ( (points.get(i).getLongitude() < lon && points.get(j).getLongitude() >= lon) || 
+                    (points.get(j).getLongitude() < lon && points.get(i).getLongitude() >= lon) ) {
+                        if ( points.get(i).getLatitude() + (lon - points.get(i).getLongitude()) / 
+                                (points.get(j).getLongitude() - points.get(i).getLongitude()) * 
+                                    (points.get(j).getLatitude() - points.get(i).getLatitude()) < lat ) {
+                                        inPoly = !inPoly;
+                        }
+            }
+            j = i;
+        }
+        return inPoly;
+    }
+    
+    class CamerasOverlayTask extends AsyncTask<Void, Void, Void> {
+        
+        @Override
+        public void onPreExecute() {
+            setSupportProgressBarIndeterminateVisibility(true);
 
-			camerasOverlay = null;
-	        bounds = map.getProjection().getVisibleRegion().latLngBounds;
-		 }
-		
-		 @Override
-		 public Void doInBackground(Void... unused) {
-			 camerasOverlay = new CamerasOverlay(
-					 TrafficMapActivity.this,
-					 bounds,
-					 null);
+            camerasOverlay = null;
+            bounds = map.getProjection().getVisibleRegion().latLngBounds;
+         }
+        
+         @Override
+         public Void doInBackground(Void... unused) {
+             camerasOverlay = new CamerasOverlay(
+                     TrafficMapActivity.this,
+                     bounds,
+                     null);
 
-			 return null;
-		 }
+             return null;
+         }
 
-		 @Override
-		 public void onPostExecute(Void unused) {
+         @Override
+         public void onPostExecute(Void unused) {
             Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
             while (iter.hasNext()) {
                 Map.Entry<Marker, String> entry = iter.next();
@@ -541,48 +558,48 @@ public class TrafficMapActivity extends BaseActivity implements
                     iter.remove();
                 }
             }
-		     cameras.clear();
-			 cameras = camerasOverlay.getCameraMarkers();
+             cameras.clear();
+             cameras = camerasOverlay.getCameraMarkers();
              
-		     if (cameras != null) {
-				 if (cameras.size() != 0) {
-				     for (int i = 0; i < cameras.size(); i++) {
-				         LatLng latLng = new LatLng(cameras.get(i).getLatitude(), cameras.get(i).getLongitude());
-				         Marker marker = map.addMarker(new MarkerOptions()
-				            .position(latLng)
-				            .title(cameras.get(i).getTitle())
-				            .snippet(cameras.get(i).getCameraId().toString())
-				            .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
-				            .visible(showCameras));
-				         
-				         markers.put(marker, "camera");
-				     }
-				 }
-			 }
-			
-			setSupportProgressBarIndeterminateVisibility(false);
-		 }
-	}
+             if (cameras != null) {
+                 if (cameras.size() != 0) {
+                     for (int i = 0; i < cameras.size(); i++) {
+                         LatLng latLng = new LatLng(cameras.get(i).getLatitude(), cameras.get(i).getLongitude());
+                         Marker marker = map.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(cameras.get(i).getTitle())
+                            .snippet(cameras.get(i).getCameraId().toString())
+                            .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
+                            .visible(showCameras));
+                         
+                         markers.put(marker, "camera");
+                     }
+                 }
+             }
+            
+            setSupportProgressBarIndeterminateVisibility(false);
+         }
+    }
 
-	class HighwayAlertsOverlayTask extends AsyncTask<Void, Void, Void> {
-		
-		@Override
-		public void onPreExecute() {
-			setSupportProgressBarIndeterminateVisibility(true);
-			
-			alertsOverlay = null;
-			bounds = map.getProjection().getVisibleRegion().latLngBounds;
-		 }
-		
-		 @Override
-		 public Void doInBackground(Void... unused) {
-			 alertsOverlay = new HighwayAlertsOverlay(TrafficMapActivity.this, bounds);
-			 
-			 return null;
-		 }
+    class HighwayAlertsOverlayTask extends AsyncTask<Void, Void, Void> {
+        
+        @Override
+        public void onPreExecute() {
+            setSupportProgressBarIndeterminateVisibility(true);
+            
+            alertsOverlay = null;
+            bounds = map.getProjection().getVisibleRegion().latLngBounds;
+         }
+        
+         @Override
+         public Void doInBackground(Void... unused) {
+             alertsOverlay = new HighwayAlertsOverlay(TrafficMapActivity.this, bounds);
+             
+             return null;
+         }
 
-		 @Override
-		 public void onPostExecute(Void unused) {
+         @Override
+         public void onPostExecute(Void unused) {
             Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
             while (iter.hasNext()) {
                 Map.Entry<Marker, String> entry = iter.next();
@@ -591,28 +608,28 @@ public class TrafficMapActivity extends BaseActivity implements
                     iter.remove();
                 }
             }
-		     alerts.clear();
-		     alerts = alertsOverlay.getAlertMarkers();
-		     
-			if (alerts != null) {
-				if (alerts.size() != 0) {
-				    for (int i = 0; i < alerts.size(); i++) {
-				        LatLng latLng = new LatLng(alerts.get(i).getStartLatitude(), alerts.get(i).getStartLongitude());
-				        Marker marker = map.addMarker(new MarkerOptions()
-				            .position(latLng)
-				            .title(alerts.get(i).getEventCategory())
-				            .snippet(alerts.get(i).getAlertId())
-				            .icon(BitmapDescriptorFactory.fromResource(alerts.get(i).getCategoryIcon()))
-				            .visible(true));
-				        
-				        markers.put(marker, "alert");
-				    }
-				}
-			}
-			
-			setSupportProgressBarIndeterminateVisibility(false);
-		 }
-	}
+             alerts.clear();
+             alerts = alertsOverlay.getAlertMarkers();
+             
+            if (alerts != null) {
+                if (alerts.size() != 0) {
+                    for (int i = 0; i < alerts.size(); i++) {
+                        LatLng latLng = new LatLng(alerts.get(i).getStartLatitude(), alerts.get(i).getStartLongitude());
+                        Marker marker = map.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(alerts.get(i).getEventCategory())
+                            .snippet(alerts.get(i).getAlertId())
+                            .icon(BitmapDescriptorFactory.fromResource(alerts.get(i).getCategoryIcon()))
+                            .visible(true));
+                        
+                        markers.put(marker, "alert");
+                    }
+                }
+            }
+            
+            setSupportProgressBarIndeterminateVisibility(false);
+         }
+    }
 
     /**
      * Build and draw any callouts on the map 
