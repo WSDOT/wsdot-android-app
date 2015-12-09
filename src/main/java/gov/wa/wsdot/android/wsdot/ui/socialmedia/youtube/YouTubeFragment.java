@@ -228,7 +228,8 @@ public class YouTubeFragment extends BaseListFragment implements
 			YouTubeItem i = null;
 			
 			try {
-				URL url = new URL("http://gdata.youtube.com/feeds/api/users/wsdot/uploads?v=2&alt=jsonc&max-results=10");
+				URL url = new URL("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=10&playlistId=UUmWr7UYgRp4v_HvRfEgquXg&key=" 
+			                      + this.getContext().getString(R.string.google_youtube_key));
 				URLConnection urlConn = url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String jsonFile = "";
@@ -238,23 +239,27 @@ public class YouTubeFragment extends BaseListFragment implements
 					jsonFile += line;
 				in.close();
 				
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject data = obj.getJSONObject("data");			
-				JSONArray items = data.getJSONArray("items");
+				JSONObject obj = new JSONObject(jsonFile);		
+				JSONArray items = obj.getJSONArray("items");
 				
 				int numItems = items.length();
 				for (int j=0; j < numItems; j++) {
 					JSONObject item = items.getJSONObject(j);
-					JSONObject thumbnail = item.getJSONObject("thumbnail");
+					JSONObject snippet = item.getJSONObject("snippet");
+					JSONObject thumbnail = snippet.getJSONObject("thumbnails");
+					JSONObject resourceId = snippet.getJSONObject("resourceId");
 					i = new YouTubeItem();
-					i.setId(item.getString("id"));
-					i.setTitle(item.getString("title"));
-					i.setDescription(item.getString("description"));
-					i.setViewCount(item.getString("viewCount"));
-					i.setThumbNailUrl(thumbnail.getString("hqDefault"));
+					i.setId(resourceId.getString("videoId"));
+					i.setTitle(snippet.getString("title"));
+					i.setDescription(snippet.getString("description"));
+					i.setThumbNailUrl(thumbnail.getJSONObject("default").getString("url"));
+	
+					i.setViewCount("Unavailable");
+					
 					
 	            	try {
-	            		i.setUploaded(ParserUtils.relativeTime(item.getString("uploaded"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
+	            		i.setUploaded(ParserUtils.relativeTime(
+	            				snippet.getString("publishedAt"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
 	            	} catch (Exception e) {
 	            		i.setUploaded("Unavailable");
 	            		Log.e(TAG, "Error parsing date", e);

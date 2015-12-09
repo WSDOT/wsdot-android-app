@@ -7,3 +7,4 @@
 .classpath
 lint.xml
 /target/
+/res/values/apikeys.xml
