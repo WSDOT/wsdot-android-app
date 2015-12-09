@@ -247,8 +247,9 @@ public class YouTubeFragment extends BaseListFragment implements
 					JSONObject item = items.getJSONObject(j);
 					JSONObject snippet = item.getJSONObject("snippet");
 					JSONObject thumbnail = snippet.getJSONObject("thumbnails");
+					JSONObject resourceId = snippet.getJSONObject("resourceId");
 					i = new YouTubeItem();
-					i.setId(item.getString("id"));
+					i.setId(resourceId.getString("videoId"));
 					i.setTitle(snippet.getString("title"));
 					i.setDescription(snippet.getString("description"));
 					i.setThumbNailUrl(thumbnail.getJSONObject("default").getString("url"));
