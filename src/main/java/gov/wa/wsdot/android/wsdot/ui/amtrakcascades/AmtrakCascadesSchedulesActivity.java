@@ -96,7 +96,18 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
         getAmtrakStations();
         getFromLocationNoGPS();
         getToLocation();
-        buildGoogleApiClient();
+
+        // Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API).build();
+
+        // Request the quality of service for location updates from the FusedLocationProviderApi
+        mLocationRequest = LocationRequest.create()
+                .setInterval(60000 * 15)
+                .setFastestInterval(60000 * 5)
+                .setPriority(LocationRequest.PRIORITY_LOW_POWER);
 	}
 	
     @Override
@@ -122,17 +133,6 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
-    }
-    
-    /**
-     * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
-     */
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
     }
     
     /**
