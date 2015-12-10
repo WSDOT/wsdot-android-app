@@ -488,8 +488,16 @@ public class TrafficMapActivity extends BaseActivity implements
 	}
 
 	/**
-	 * Iterate through collection of LatLon objects in arrayList and see
-	 * if passed latitude and longitude point is within the collection.
+     * Determine whether a point is inside a complex polygon.
+     * <p>
+     * Iterate through collection of LatLon objects in an arrayList and see
+     * if the passed latitude and longitude point is within the collection.
+     *
+	 * @param points  List of latitude and longitude coordinates
+	 * @param latitude  latitude to test
+	 * @param longitude  longitude to test
+	 * @return  if point is inside the polygon
+	 * @see <a href="http://alienryderflex.com/polygon/">http://alienryderflex.com/polygon/</a>
 	 */
 	public boolean inPolygon(ArrayList<LatLonItem> points, double latitude, double longitude) {	
 		int j = points.size() - 1;
