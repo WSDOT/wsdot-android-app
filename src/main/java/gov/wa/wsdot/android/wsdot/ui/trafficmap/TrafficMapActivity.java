@@ -633,7 +633,6 @@ public class TrafficMapActivity extends BaseActivity implements
             
             setSupportProgressBarIndeterminateVisibility(true);
             calloutsOverlay = null;
-            bounds = map.getProjection().getVisibleRegion().latLngBounds;
         }
 
         @Override
@@ -655,26 +654,30 @@ public class TrafficMapActivity extends BaseActivity implements
                     iter.remove();
                 }
             }
-            
+
             callouts.clear();
             callouts = calloutsOverlay.getCalloutItems();
-            
-            if (callouts != null) {
-                if (callouts.size() != 0) {
-                    for (int i = 0; i < callouts.size(); i++) {
-                        LatLng latLng = new LatLng(callouts.get(i).getLatitude(), callouts.get(i).getLongitude());
-                        Marker marker = map.addMarker(new MarkerOptions()
-                                .position(latLng)
-                                .title(callouts.get(i).getTitle())
-                                .snippet(callouts.get(i).getImageUrl())
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.jblm))
-                                .visible(true));
-                        
-                        markers.put(marker, "callout");
+
+            try {
+                if (callouts != null) {
+                    if (callouts.size() != 0) {
+                        for (int i = 0; i < callouts.size(); i++) {
+                            LatLng latLng = new LatLng(callouts.get(i).getLatitude(), callouts.get(i).getLongitude());
+                            Marker marker = map.addMarker(new MarkerOptions()
+                                    .position(latLng)
+                                    .title(callouts.get(i).getTitle())
+                                    .snippet(callouts.get(i).getImageUrl())
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.jblm))
+                                    .visible(true));
+
+                            markers.put(marker, "callout");
+                        }
                     }
                 }
+            } catch (NullPointerException e) {
+                // Ignore for now. Simply don't draw the marker.
             }
-            
+
             setSupportProgressBarIndeterminateVisibility(false);
         }
     }
