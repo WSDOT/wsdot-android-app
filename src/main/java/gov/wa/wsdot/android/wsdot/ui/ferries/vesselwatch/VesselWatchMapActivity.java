@@ -355,7 +355,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
 			mTracker.send(new HitBuilders.EventBuilder()
 				    .setCategory("Ferries")
 				    .setAction("Cameras")
-				    .setLabel("Hide Cameras")
+				    .setLabel("Show Cameras")
 				    .build());
 			
 		}		
