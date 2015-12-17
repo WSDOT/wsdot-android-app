@@ -18,6 +18,10 @@
 
 package gov.wa.wsdot.android.wsdot.ui.about;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -33,10 +37,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 
 public class AboutActivity extends BaseActivity {
 	
     private static final String TAG = AboutActivity.class.getSimpleName();
+    private Tracker mTracker;
 	WebView webview;
 	String versionName = "Not available";
 	PackageInfo packageInfo;
@@ -47,7 +53,7 @@ public class AboutActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
 	    try {
 	        packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -66,6 +72,8 @@ public class AboutActivity extends BaseActivity {
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);
+		
+
 	
 	}
 	
@@ -109,6 +117,7 @@ public class AboutActivity extends BaseActivity {
 		@Override
 		public void onPageStarted(WebView view, String url, Bitmap favicon) {
 			super.onPageStarted(view, url, favicon);
+
 		}
 
 		@Override

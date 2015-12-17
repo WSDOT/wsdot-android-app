@@ -20,6 +20,9 @@ package gov.wa.wsdot.android.wsdot.ui.amtrakcascades;
 
 import java.util.ArrayList;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -33,6 +36,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 
 public class AmtrakCascadesFragment extends BaseListFragment {
     
@@ -40,6 +44,7 @@ public class AmtrakCascadesFragment extends BaseListFragment {
     private ArrayList<ListViewItem> listViewItems;
     private ListViewArrayAdapter mAdapter;
     private View mLoadingSpinner;
+    private Tracker mTracker;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,6 +87,9 @@ public class AmtrakCascadesFragment extends BaseListFragment {
         setListAdapter(mAdapter);
     }
     
+    /*
+     * 
+     */
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
@@ -91,6 +99,12 @@ public class AmtrakCascadesFragment extends BaseListFragment {
         if (listViewItems.get(position).getClz() instanceof Class<?>) {
             intent.setClass(getActivity(), (Class<?>) listViewItems.get(position).getClz());
         } else {
+      
+        	// GA tracker
+        	mTracker = ((WsdotApplication) this.getActivity().getApplication()).getDefaultTracker();
+            mTracker.setScreenName("/Amtrak Cascades/Buy Tickets");
+			mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        	
             intent.setAction(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(listViewItems.get(position).getUrl()));
         }

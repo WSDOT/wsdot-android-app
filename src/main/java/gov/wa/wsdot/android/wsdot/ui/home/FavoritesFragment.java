@@ -18,6 +18,9 @@
 
 package gov.wa.wsdot.android.wsdot.ui.home;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -50,6 +53,7 @@ import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity;
@@ -77,6 +81,8 @@ public class FavoritesFragment extends BaseListFragment implements
 	private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
 	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
+	
+	private Tracker mTracker;
 
 	private static final String[] cameras_projection = {
 		Cameras._ID,
@@ -136,6 +142,7 @@ public class FavoritesFragment extends BaseListFragment implements
 		super.onCreate(savedInstanceState);
 
 		setHasOptionsMenu(true);
+
 		
 		mFerriesSchedulesIntent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
 		getActivity().startService(mFerriesSchedulesIntent);
@@ -145,6 +152,7 @@ public class FavoritesFragment extends BaseListFragment implements
 		
 		mTravelTimesIntent = new Intent(getActivity(), TravelTimesSyncService.class);
 		getActivity().startService(mTravelTimesIntent);
+	
 	}
 	
 	@Override

@@ -18,6 +18,9 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -48,6 +51,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
@@ -60,6 +64,7 @@ public class FerriesRouteSchedulesFragment extends BaseListFragment implements
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
+	private Tracker mTracker;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -190,6 +195,16 @@ public class FerriesRouteSchedulesFragment extends BaseListFragment implements
 		b.putString("date", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_DATE)));
 		b.putInt("isStarred", c.getInt(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED)));
 		intent.putExtras(b);
+		
+        // GA tracker
+    	mTracker = ((WsdotApplication) this.getActivity().getApplication()).getDefaultTracker();
+    	mTracker.send(new HitBuilders.EventBuilder()
+    		    .setCategory("Ferries")
+    		    .setAction("Schedules")
+    		    .setLabel(c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE)))
+    		    .build());
+		
+		
 		startActivity(intent);
 	}
 	

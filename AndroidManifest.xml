@@ -24,6 +24,7 @@
         android:required="true"/>
 
     <application
+        android:name=".ui.WsdotApplication"
 	 	android:icon="@drawable/ic_launcher"
 	 	android:label="@string/app_name"
 		android:theme="@style/Theme.AppCompat.Light.DarkActionBar"

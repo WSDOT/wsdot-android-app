@@ -23,6 +23,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -42,6 +45,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 
 public class CalloutFragment extends Fragment implements
         LoaderCallbacks<Drawable>, SwipeRefreshLayout.OnRefreshListener {
@@ -52,6 +56,7 @@ public class CalloutFragment extends Fragment implements
     private ImageView mImage;
     private static String mCalloutImageName = "calloutImage.jpg";
     private static SwipeRefreshLayout swipeRefreshLayout;
+    private Tracker mTracker;
 
     @Override
     public void onAttach(Activity activity) {
@@ -59,6 +64,10 @@ public class CalloutFragment extends Fragment implements
         
         Bundle args = activity.getIntent().getExtras();
         mUrl = args.getString("url");
+        
+    	mTracker = ((WsdotApplication) this.getActivity().getApplication()).getDefaultTracker();
+        mTracker.setScreenName("/TrafficMap/Callout/" + mUrl);
+		mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     @Override

@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -75,6 +77,7 @@ import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
@@ -122,6 +125,8 @@ public class TrafficMapActivity extends BaseActivity implements
 	private LocationRequest mLocationRequest;
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private final int REQUEST_ACCESS_FINE_LOCATION = 100;
+	
+	private Tracker mTracker;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -358,6 +363,9 @@ public class TrafficMapActivity extends BaseActivity implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		
+    	mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+		
 	    switch (item.getItemId()) {
 
 	    case android.R.id.home:
@@ -371,66 +379,98 @@ public class TrafficMapActivity extends BaseActivity implements
 	    	startActivity(timesIntent);
 	    	return true;
 	    case R.id.goto_bellingham:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Bellingham");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Bellingham Traffic", 48.756302,-122.46151, 12);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;	        
 	    case R.id.goto_chehalis:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Chehalis");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Chelalis Traffic", 46.635529, -122.937698, 11);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_hoodcanal:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Hood Canal");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Hood Canal Traffic", 47.85268,-122.628365, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_mtvernon:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Mt. Vernon");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Mt Vernon Traffic", 48.420657,-122.334824, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_stanwood:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Standwood");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Stanwood Traffic", 48.22959, -122.34581, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_monroe:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Monroe");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Monroe Traffic", 47.859476, -121.972446, 14);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_sultan:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Sultan");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Sultan Traffic", 47.86034, -121.812286, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	    	return true;
 	    case R.id.goto_olympia:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Olympia");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Olympia Traffic", 47.021461, -122.899933, 13);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;	    	    	
 	    case R.id.goto_seattle:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Seattle");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Seattle Area Traffic", 47.5990, -122.3350, 12);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
 	    case R.id.goto_spokane:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Spokane");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Spokane Area Traffic", 47.658566, -117.425995, 12);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;	        
 	    case R.id.goto_tacoma:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Tacoma");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Tacoma Traffic", 47.206275, -122.46254, 12);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;	        
 	    case R.id.goto_vancouver:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Vancouver");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Vancouver Area Traffic", 45.639968, -122.610512, 11);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
 	    case R.id.goto_wenatchee:
+	    	mTracker.setScreenName("/Traffic Map/Go To Location/Wenatchee");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	    	goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 12);
 	    	UIUtils.refreshActionBarMenu(this);
 	        return true;
         case R.id.goto_snoqualmiepass:
+        	mTracker.setScreenName("/Traffic Map/Go To Location/Snoqualmie Pass");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
             goToLocation("Snoqualmie Pass Traffic", 47.404481, -121.4232569, 12);
             UIUtils.refreshActionBarMenu(this);
             return true;
         case R.id.goto_tricities:
+        	mTracker.setScreenName("/Traffic Map/Go To Location/Tri-Cities");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
             goToLocation("Tri-Cities Traffic", 46.2503607, -119.2063781, 11);
             UIUtils.refreshActionBarMenu(this);
             return true;
         case R.id.goto_yakima:
+        	mTracker.setScreenName("/Traffic Map/Go To Location/Yakima");
+	    	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
             goToLocation("Yakima Traffic", 46.6063273, -120.4886952, 11);
             UIUtils.refreshActionBarMenu(this);
             return true;
@@ -448,6 +488,9 @@ public class TrafficMapActivity extends BaseActivity implements
 	}
 
 	private void toggleCameras(MenuItem item) {
+		// GA tracker
+		mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+		
 		if (showCameras) {
             for(Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
@@ -460,6 +503,14 @@ public class TrafficMapActivity extends BaseActivity implements
 			
 			item.setTitle("Show Cameras");
 			showCameras = false;
+
+			mTracker.send(new HitBuilders.EventBuilder()
+				    .setCategory("Traffic")
+				    .setAction("Cameras")
+				    .setLabel("Hide Cameras")
+				    .build());
+			
+			
 		} else {
             for(Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
@@ -469,9 +520,14 @@ public class TrafficMapActivity extends BaseActivity implements
                     key.setVisible(true);
                 }
             }
-			
 			item.setTitle("Hide Cameras");
 			showCameras = true;
+
+			mTracker.send(new HitBuilders.EventBuilder()
+				    .setCategory("Traffic")
+				    .setAction("Cameras")
+				    .setLabel("Show Cameras")
+				    .build());
 		}		
 
 		// Save camera display preference
