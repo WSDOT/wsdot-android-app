@@ -264,6 +264,12 @@ public class TrafficMapActivity extends BaseActivity implements
         Intent intent = new Intent();   
 
         if (markers.get(marker).equalsIgnoreCase("camera")) {
+        	
+        	// GA tracker
+        	mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+            mTracker.setScreenName("/Traffic Map/Cameras");
+    		mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        	
             intent = new Intent(this, CameraActivity.class);
             b.putInt("id", Integer.parseInt(marker.getSnippet()));
             intent.putExtras(b);
