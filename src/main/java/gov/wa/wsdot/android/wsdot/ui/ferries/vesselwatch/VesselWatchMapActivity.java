@@ -194,7 +194,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
 
     public void onCameraChange(CameraPosition cameraPosition) {
         setSupportProgressBarIndeterminateVisibility(true);
-        startService(camerasIntent);        
+        startService(camerasIntent);  
     }
 
     public boolean onMarkerClick(Marker marker) {
@@ -208,6 +208,12 @@ public class VesselWatchMapActivity extends BaseActivity implements
             intent.putExtras(b);
             this.startActivity(intent);
         } else if (markers.get(marker).equalsIgnoreCase("camera")) {
+        	
+        	// GA tracker
+        	mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+            mTracker.setScreenName("/Ferries/Vessel Watch/Cameras");
+    		mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        	
             intent.setClass(this, CameraActivity.class);
             b.putInt("id", Integer.parseInt(marker.getSnippet()));
             intent.putExtras(b);

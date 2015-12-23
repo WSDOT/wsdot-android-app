@@ -155,7 +155,7 @@ public class TollRatesActivity extends BaseActivity {
 				if (mTabs.get(i) == tag) {
 					
 					// GA tracker
-					mTracker.setScreenName("/Tollrates/" + tab.getText());
+					mTracker.setScreenName("/Toll Rates/" + tab.getText());
 					mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 					
 					mViewPager.setCurrentItem(i);
