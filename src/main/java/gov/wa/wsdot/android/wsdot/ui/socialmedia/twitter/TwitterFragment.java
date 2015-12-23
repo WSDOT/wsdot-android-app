@@ -33,13 +33,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.Html;
@@ -51,8 +51,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -127,18 +125,6 @@ public class TwitterFragment extends BaseListFragment implements
 		// Remove the separator between items in the ListView
 		getListView().setDivider(null);
 		getListView().setDividerHeight(0);
-		
-		getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
-			public boolean onItemLongClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				
-                mActionMode = ((ActionBarActivity) getActivity()).startSupportActionMode(
-                        new ActionModeCallback(twitterItems.get(position).getText()));
-				
-				return true;
-			}
-			
-		});
 		
 		mAdapter = new TwitterItemAdapter(getActivity());
 		setListAdapter(mAdapter);
@@ -276,6 +262,8 @@ public class TwitterFragment extends BaseListFragment implements
 					htmlText = htmlText.replaceAll(atPattern, "<a href=\"http://twitter.com/#!/$1\">@$1</a>");
 					htmlText = htmlText.replaceAll(hashPattern, "<a href=\"http://twitter.com/#!/search?q=%23$1\">#$1</a>");
 					
+					i.setId(item.getString("id"));
+					
 					JSONObject entities = item.getJSONObject("entities");
 					
 					try {
@@ -378,13 +366,10 @@ public class TwitterFragment extends BaseListFragment implements
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		
-		Bundle b = new Bundle();
-		Intent intent = new Intent(getActivity(), TwitterDetailsActivity.class);
-		b.putString("userName", twitterItems.get(position).getUserName());
-		b.putString("createdAt", twitterItems.get(position).getCreatedAt());
-		b.putString("text", twitterItems.get(position).getText());
-		b.putString("htmlText", twitterItems.get(position).getFormatedHtmlText());
-		intent.putExtras(b);
+		String url = "https://twitter.com/" + twitterItems.get(position).getScreenName()
+		+ "/status/" + twitterItems.get(position).getId();
+		
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 
 		startActivity(intent);
 	}

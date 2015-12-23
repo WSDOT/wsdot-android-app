@@ -25,6 +25,7 @@ public class TwitterItem {
 	private String userName;
 	private String screenName;
 	private String mediaUrl;
+	private String id;
 	
 	public String getText() {
 		return text;
@@ -72,6 +73,14 @@ public class TwitterItem {
 
 	public void setMediaUrl(String mediaUrl) {
 		this.mediaUrl = mediaUrl;
+	}
+	
+	public String getId() {
+		return id;
+	}
+	
+	public void setId(String id) {
+		this.id = id;
 	}
 	
 }

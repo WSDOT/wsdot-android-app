@@ -39,7 +39,6 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
@@ -49,8 +48,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -121,20 +118,6 @@ public class YouTubeFragment extends BaseListFragment implements
 		// Remove the separator between items in the ListView
 		getListView().setDivider(null);
 		getListView().setDividerHeight(0);
-		
-		getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
-			public boolean onItemLongClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				
-				String videoId = mYouTubeItems.get(position).getId();
-				String url = "http://www.youtube.com/watch?v=" + videoId;				
-                mActionMode = ((ActionBarActivity) getActivity())
-                        .startSupportActionMode(new ActionModeCallback(url));
-				
-				return true;
-			}
-			
-		});
 		
 		mAdapter = new VideoItemAdapter(getActivity());
 		setListAdapter(mAdapter);
