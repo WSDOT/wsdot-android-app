@@ -33,6 +33,7 @@ import org.jsoup.nodes.Element;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
@@ -278,14 +279,9 @@ public class BlogFragment extends BaseListFragment implements
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 
-		Bundle b = new Bundle();
-		Intent intent = new Intent(getActivity(), BlogDetailsActivity.class);
-		b.putString("title", blogItems.get(position).getTitle());
-		b.putString("content", blogItems.get(position).getContent());
-		b.putString("link", blogItems.get(position).getLink());
-		intent.putExtras(b);
-		
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(blogItems.get(position).getLink()));
 		startActivity(intent);
+
 	}
 	
 	private class BlogItemAdapter extends ArrayAdapter<BlogItem> {

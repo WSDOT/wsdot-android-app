@@ -22,6 +22,7 @@ public class FacebookItem {
 	private String mMessage;
 	private String mHtmlFormattedMessage;
 	private String createdAt;
+	private String id;
 	
 	public String getMessage() {
 		return mMessage;
@@ -47,4 +48,11 @@ public class FacebookItem {
 		this.mHtmlFormattedMessage = mHtmlFormattedMessage;
 	}
 	
+	public String getId() {
+		return id;
+	}
+	
+	public void setId(String id) {
+		this.id = id;
+	}
 }

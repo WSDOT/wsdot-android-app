@@ -31,6 +31,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
@@ -178,6 +179,7 @@ public class FacebookFragment extends BaseListFragment implements
 
 						i.setMessage(text);
 						i.setmHtmlFormattedMessage(htmlText);
+						i.setId(item.getString("id"));
 						
 		            	try {
                         i.setCreatedAt(ParserUtils.relativeTime(
@@ -247,12 +249,8 @@ public class FacebookFragment extends BaseListFragment implements
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		
-		Bundle b = new Bundle();
-		Intent intent = new Intent(getActivity(), FacebookDetailsActivity.class);
-		b.putString("createdAt", mFacebookItems.get(position).getCreatedAt());
-		b.putString("text", mFacebookItems.get(position).getMessage());
-		b.putString("htmlText", mFacebookItems.get(position).getmHtmlFormattedMessage());
-		intent.putExtras(b);
+		String url = "https://facebook.com/" + mFacebookItems.get(position).getId();
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 
 		startActivity(intent);
 	}

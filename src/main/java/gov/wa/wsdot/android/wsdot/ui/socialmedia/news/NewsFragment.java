@@ -34,6 +34,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
@@ -256,14 +257,7 @@ public class NewsFragment extends BaseListFragment implements
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		
-		Bundle b = new Bundle();
-		Intent intent = new Intent(getActivity(), NewsDetailsActivity.class);
-		b.putString("title", newsItems.get(position).getTitle());
-		b.putString("description", newsItems.get(position).getDescription());
-		b.putString("link", newsItems.get(position).getLink());
-		b.putString("publishDate", newsItems.get(position).getPubDate());
-		intent.putExtras(b);
-		
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(newsItems.get(position).getLink()));
 		startActivity(intent);
 	}
 
