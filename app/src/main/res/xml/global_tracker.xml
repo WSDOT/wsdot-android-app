@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+ <resources>
+     <string name="ga_trackingId">INSERT_GA_TRACKING_ID_HERE</string>
+     <string name="ga_sampleFrequency">100.0</string>
+     <integer name="ga_sessionTimeout">1800</integer>
+     <bool name="ga_autoActivityTracking">true</bool>
+
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.home.HomeActivity">/Home</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.about.AboutActivity">/About</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity">/Highway Alert</screenName>
+
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.SocialMediaActivity">/Social Media</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.blogger.BlogActivity">/Social Media/Blog</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.blogger.BlogDetailsActivity">/Social Media/Blog/Details</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.facebook.FacebookActivity">/Social Media/Facebook</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.facebook.FacebookDetailsActivity">/Social Media/Facebook/Details</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.flickr.FlickrActivity">/Social Media/Flickr</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.flickr.FlickrDetailsActivity">/Social Media/Flickr/Details</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.news.NewsActivity">/Social Media/News</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.news.NewsDetailsActivity">/Social Media/News/Details</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.twitter.TwitterActivity">/Social Media/Twitter</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.twitter.TwitterDetailsActivity">/Social Media/Twitter/Details</screenName>
+
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.youtube.YouTubeActivity">/Social Media/YouTube</screenName>
+
+	 <screenName name="gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesActivity">/Toll Rates</screenName>
+
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity">/Traffic Map</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesActivity">/Traffic Map/Seattle/Express Lanes</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.SeattleTrafficAlertsActivity">/Traffic Map/Seattle/Traffic Alerts</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes.TravelTimesActivity">/Traffic Map/Travel Times</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity">/Traffic Map/Callout</screenName>
+
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity">/Cameras</screenName>
+
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity">/Mountain Passes</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemActivity">/Mountain Passes/Details</screenName>
+
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity">/Border Wait</screenName>
+
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.FerriesActivity">/Ferries</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesActivity">/Ferries/Schedules</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity">/Ferries/Schedules/Alerts</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteAlertsBulletinDetailsActivity">/Ferries/Schedules/Alerts/Details</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity">/Ferries/Schedules/Day Sailings</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDayDeparturesActivity">/Ferries/Schedules/Day Sailings/Departure Times</screenName>
+
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchMapActivity">/Ferries/Vessel Watch</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchDetailsActivity">/Ferries/Vessel Watch/Vessel Details</screenName>
+
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesActivity">/Amtrak Cascades</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesSchedulesActivity">/Amtrak Cascades/Schedules</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesSchedulesDetailsActivity">/Amtrak Cascades/Schedules/Details</screenName>
+
+     <screenName name="com.google.android.gms.ads.AdActivity">/Ads</screenName>
+     
+     
+ </resources>
