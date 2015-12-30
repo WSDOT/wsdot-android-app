@@ -241,7 +241,6 @@ public class TrafficMapActivity extends BaseActivity implements
                 map.getUiSettings().setZoomControlsEnabled(true);
                 map.getUiSettings().setMyLocationButtonEnabled(true);
                 map.setTrafficEnabled(true);
-                map.setMyLocationEnabled(true);
                 map.setOnMyLocationButtonClickListener(this);
                 map.setOnMarkerClickListener(this);
                 map.setOnCameraChangeListener(this);
@@ -840,6 +839,7 @@ public class TrafficMapActivity extends BaseActivity implements
         } else {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, mLocationRequest, this);
+            map.setMyLocationEnabled(true);
         }
     }
     
@@ -850,6 +850,7 @@ public class TrafficMapActivity extends BaseActivity implements
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted
                     Log.i(TAG, "Request permissions granted!!!");
+                    map.setMyLocationEnabled(true);
                 } else {
                     // Permission was denied or request was cancelled
                     Log.i(TAG, "Request permissions denied...");
