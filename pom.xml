@@ -57,14 +57,14 @@
         <dependency>
             <groupId>com.google.android.gms</groupId>
             <artifactId>play-services</artifactId>
-            <version>8.1.0</version>
+            <version>8.4.0</version>
             <type>aar</type>
         </dependency>
         
         <dependency>
             <groupId>com.google.android.gms</groupId>
             <artifactId>play-services-analytics</artifactId>
-            <version>8.1.0</version>
+            <version>8.4.0</version>
             <type>aar</type>
         </dependency>
 
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>com.google.android.gms</groupId>
             <artifactId>play-services-ads</artifactId>
-            <version>8.1.0</version>
+            <version>8.4.0</version>
             <type>aar</type>
         </dependency>
         <dependency>

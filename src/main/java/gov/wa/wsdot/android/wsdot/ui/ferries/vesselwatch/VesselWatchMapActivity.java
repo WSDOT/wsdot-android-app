@@ -180,9 +180,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
                 map.getUiSettings().setZoomControlsEnabled(true);
                 map.getUiSettings().setMyLocationButtonEnabled(true);
                 map.setTrafficEnabled(true);
-                map.setMyLocationEnabled(true);
                 map.setOnMyLocationButtonClickListener(this);
-                
                 LatLng latLng = new LatLng(47.565125, -122.480508);
                 map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 map.animateCamera(CameraUpdateFactory.zoomTo(11));
@@ -602,6 +600,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
         } else {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, mLocationRequest, this);
+            map.setMyLocationEnabled(true);
         }
     }
     
@@ -612,6 +611,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted
                     Log.i(TAG, "Request permissions granted!!!");
+                    map.setMyLocationEnabled(true);
                 } else {
                     // Permission was denied or request was cancelled
                     Log.i(TAG, "Request permissions denied...");
