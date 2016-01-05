@@ -88,10 +88,10 @@ public class FerriesRouteSchedulesFragment extends BaseListFragment implements
         swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
-                17170451,  // android.R.color.holo_blue_bright 
-                17170452,  // android.R.color.holo_green_light 
-                17170456,  // android.R.color.holo_orange_light 
-                17170454); // android.R.color.holo_red_light)
+				R.color.holo_blue_bright,
+				R.color.holo_green_light,
+				R.color.holo_orange_light,
+				R.color.holo_red_light);
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
         

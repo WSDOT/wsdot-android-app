@@ -3,9 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingTranslation">
 
-    <string name="google_app_id">INSERT_GOOGLE_APP_ID_HERE</string>
-    <string name="google_static_map_key">INSERT_MAPS_API_ACCESS_CODE_HERE</string>
-    <string name="wsdot_api_access_code">INSERT_WSDOT_API_ACCESS_CODE_HERE</string>
-    <string name="google_youtube_key">INSERT__YOUTUBE_API_ACCESS_CODE_HERE</string>
+    <string name="google_static_map_key">INSERT_STATIC_MAP_KEY_HERE</string>
+    <string name="wsdot_api_access_code">INSERT_WSDOT_API_KEY_HERE</string>
+    <string name="google_youtube_key">INSERT_YOUTUBE_API_KEY_HERE</string>
     
 </resources>

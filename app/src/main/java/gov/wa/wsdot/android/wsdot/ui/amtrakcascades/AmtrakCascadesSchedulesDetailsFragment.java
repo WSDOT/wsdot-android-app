@@ -124,10 +124,10 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseListFragment
         swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
-                17170451,  // android.R.color.holo_blue_bright 
-                17170452,  // android.R.color.holo_green_light 
-                17170456,  // android.R.color.holo_orange_light 
-                17170454); // android.R.color.holo_red_light)        
+                R.color.holo_blue_bright,
+                R.color.holo_green_light,
+                R.color.holo_orange_light,
+                R.color.holo_red_light);
         
         mHeaderView = inflater.inflate(R.layout.list_item_amtrakschedules_times_header, null);
         TextView departing_title = (TextView) mHeaderView.findViewById(R.id.departing_title);
