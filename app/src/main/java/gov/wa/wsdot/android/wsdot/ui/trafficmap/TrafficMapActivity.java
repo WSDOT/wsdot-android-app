@@ -65,6 +65,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -125,6 +126,7 @@ public class TrafficMapActivity extends BaseActivity implements
 	private LocationRequest mLocationRequest;
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private final int REQUEST_ACCESS_FINE_LOCATION = 100;
+	private Toolbar mToolbar;
 	
 	private Tracker mTracker;
 	
@@ -136,7 +138,9 @@ public class TrafficMapActivity extends BaseActivity implements
         setContentView(R.layout.map);
         
         enableAds();
-        
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
         // Setup bounding box for Seattle area.

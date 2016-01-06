@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -26,7 +27,8 @@ import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
 
     private static final String TAG = FerriesRouteAlertsBulletinDetailsActivity.class.getSimpleName();
-    
+    private Toolbar mToolbar;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,7 +38,10 @@ public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
 		Bundle b = getIntent().getExtras();		
 		String mAlertFullTitle = b.getString("AlertFullTitle");
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);		
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
+
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setTitle(mAlertFullTitle);
 
 	}

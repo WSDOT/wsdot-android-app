@@ -18,8 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.about;
 
-import com.google.android.gms.analytics.Tracker;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -27,6 +25,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -41,19 +40,17 @@ import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 public class AboutActivity extends BaseActivity {
 	
     private static final String TAG = AboutActivity.class.getSimpleName();
-    private Tracker mTracker;
 	WebView webview;
 	String versionName = "Not available";
 	PackageInfo packageInfo;
 	private View mLoadingSpinner;
+    private Toolbar mToolbar;
 
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		
+
 	    try {
 	        packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
 	    	versionName = "v" + packageInfo.versionName;
@@ -61,17 +58,21 @@ public class AboutActivity extends BaseActivity {
 	        Log.e(TAG, "Not found", e);
 	    }		
 		
-		setContentView(R.layout.fragment_webview_with_spinner);
+		setContentView(R.layout.activity_webview_with_spinner);
+
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		disableAds();
 		
 		mLoadingSpinner = findViewById(R.id.loading_spinner);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)findViewById(R.id.webview);
+        webview.setVisibility(View.GONE);
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);
-		
 
 	
 	}
@@ -140,7 +141,8 @@ public class AboutActivity extends BaseActivity {
 		@Override
 		public void onPageFinished(WebView view, String url) {
 			super.onPageFinished(view, url);
-			
+
+            webview.setVisibility(View.VISIBLE);
 			mLoadingSpinner.setVisibility(View.GONE);
 		}
 	}

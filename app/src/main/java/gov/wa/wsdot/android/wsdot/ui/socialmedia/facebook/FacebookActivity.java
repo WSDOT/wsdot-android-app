@@ -19,17 +19,22 @@
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.facebook;
 
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
 public class FacebookActivity extends BaseActivity {
-    
+
+	private Toolbar mToolbar;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_facebook);
-		
+
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
@@ -42,5 +47,4 @@ public class FacebookActivity extends BaseActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
 }

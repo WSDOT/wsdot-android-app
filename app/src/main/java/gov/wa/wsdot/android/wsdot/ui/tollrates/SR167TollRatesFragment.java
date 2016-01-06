@@ -56,6 +56,7 @@ public class SR167TollRatesFragment extends BaseFragment {
 		mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)mRootView.findViewById(R.id.webview);
+		webview.setVisibility(View.GONE);
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);	
@@ -100,7 +101,7 @@ public class SR167TollRatesFragment extends BaseFragment {
 		@Override
 		public void onPageFinished(WebView view, String url) {
 			super.onPageFinished(view, url);
-			
+			webview.setVisibility(View.VISIBLE);
 			mLoadingSpinner.setVisibility(View.GONE);
 		}
 	}

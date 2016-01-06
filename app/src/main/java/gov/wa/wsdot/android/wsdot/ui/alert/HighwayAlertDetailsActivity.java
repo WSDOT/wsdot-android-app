@@ -31,6 +31,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,6 +51,7 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 	private View mLoadingSpinner;
 	private String title;
 	private String description;
+    private Toolbar mToolbar;
 	
 	@SuppressLint("SimpleDateFormat")
     private DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
@@ -58,7 +60,9 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
+        setContentView(R.layout.activity_webview_with_spinner);
+
         resolver = getContentResolver();
         Cursor cursor = null;
         HighwayAlertsItem alertItem = null;
@@ -106,11 +110,12 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
         
         title = "Highway Alert - " + alertItem.getEventCategory();
         description = alertItem.getHeadlineDescription();
-		
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setTitle(title);
-		
-		setContentView(R.layout.fragment_webview_with_spinner);
 		
 		disableAds();
 		
@@ -118,9 +123,11 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 		mLoadingSpinner.setVisibility(View.VISIBLE);
 
 		webview = (WebView)findViewById(R.id.webview);
+        webview.setVisibility(View.GONE);
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.loadDataWithBaseURL(null, buildContent(alertItem), "text/html", "utf-8", null);
+
 
 	}
 
@@ -180,7 +187,7 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 		@Override
 		public void onPageFinished(WebView view, String url) {
 			super.onPageFinished(view, url);
-			
+            webview.setVisibility(View.VISIBLE);
 			mLoadingSpinner.setVisibility(View.GONE);
 		}
 	}

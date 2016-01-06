@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,6 +43,7 @@ public class FlickrDetailsActivity extends BaseActivity {
 	private String mLink;
 	private String mContent;
 	private View mLoadingSpinner;
+	private Toolbar mToolbar;
 
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
@@ -52,11 +54,14 @@ public class FlickrDetailsActivity extends BaseActivity {
 		mTitle = b.getString("title");
 		mLink = b.getString("link");
 		mContent = b.getString("content");
-		
+
+        setContentView(R.layout.activity_webview_with_spinner);
+
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setTitle(mTitle);
-		
-		setContentView(R.layout.fragment_webview_with_spinner);
+
 		mLoadingSpinner = findViewById(R.id.loading_spinner);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)findViewById(R.id.webview);

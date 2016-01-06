@@ -28,7 +28,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -76,7 +75,7 @@ public class CameraImageFragment extends Fragment implements
 	static final private int MENU_ITEM_STAR = Menu.FIRST;
 	
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(Context activity) {
 		super.onAttach(activity);
 		
 		Bundle args = getArguments();

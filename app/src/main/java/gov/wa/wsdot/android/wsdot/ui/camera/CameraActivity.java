@@ -21,17 +21,28 @@ package gov.wa.wsdot.android.wsdot.ui.camera;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.Tab;
+import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class CameraActivity extends BaseActivity {
 	
     private ContentResolver resolver;
+    private TabLayout mTabLayout;
+    private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
+    private ViewPager mViewPager;
+    private TabsAdapter mTabsAdapter;
+    private Toolbar mToolbar;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -84,26 +95,55 @@ public class CameraActivity extends BaseActivity {
 		args.putString("title", title);
 		args.putString("url", url);
 		args.putInt("isStarred", isStarred);
-		
-        getSupportActionBar().setTitle(title);
+
+        setContentView(R.layout.activity_with_tabs);
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        
-        ActionBar.Tab reportTab = getSupportActionBar().newTab();
-        reportTab.setText("Camera");
-        reportTab.setTabListener(new TabListener<CameraImageFragment>(this, "Camera", CameraImageFragment.class, args));
-        getSupportActionBar().addTab(reportTab);	    
-	    
-	    if (hasVideo) {
-	        ActionBar.Tab camerasTab = getSupportActionBar().newTab();
-	        camerasTab.setText("Video");
-	        camerasTab.setTabListener(new TabListener<CameraVideoFragment>(this, "Video", CameraVideoFragment.class, args));
-	        getSupportActionBar().addTab(camerasTab); 
-	    }
-        
+        getSupportActionBar().setTitle(title);
+
+        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        // Add tab titles and their corresponding fragments to the fragment list.
+        tabFragments.add(mTabLayout.getTabCount(), CameraImageFragment.class);
+
+
+        mTabLayout.addTab(mTabLayout.newTab().setText("Camera"));
+        if (hasVideo) {
+            tabFragments.add(mTabLayout.getTabCount(), CameraVideoFragment.class);
+            mTabLayout.addTab(mTabLayout.newTab().setText("Video"));
+        }
+
+        mTabsAdapter = new TabsAdapter
+                (this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount(), args);
+
+        mViewPager.setAdapter(mTabsAdapter);
+        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
+
+        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                mViewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
         if (savedInstanceState != null) {
-            getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
-        }        
+            TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
+            tab.select();
+        }
 	}
 
 	@Override
@@ -119,58 +159,7 @@ public class CameraActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        /*Save the selected tab in order to restore in screen rotation*/
-        outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
+        //Save the selected tab in order to restore in screen rotation
+        outState.putInt("tab", mTabLayout.getSelectedTabPosition());
     }
-    
-    public class TabListener<T extends Fragment> implements ActionBar.TabListener {
-        private Fragment mFragment;
-        private final BaseActivity mActivity;
-        private final String mTag;
-        private final Class<T> mClass;
-        private final Bundle mArgs;
-
-        /** Constructor used each time a new tab is created.
-          * @param activity  The host Activity, used to instantiate the fragment
-          * @param tag  The identifier tag for the fragment
-          * @param clz  The fragment's Class, used to instantiate the fragment
-          * @param args The fragment's passed arguments
-          */
-        public TabListener(BaseActivity activity, String tag, Class<T> clz, Bundle args) {
-            mActivity = activity;
-            mTag = tag;
-            mClass = clz;
-            mArgs = args;
-
-            // Check to see if we already have a fragment for this tab, probably
-            // from a previously saved state.  If so, deactivate it, because our
-            // initial state is that a tab isn't shown.
-            mFragment = mActivity.getSupportFragmentManager().findFragmentByTag(mTag);
-            if (mFragment != null && !mFragment.isDetached()) {
-            	FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-                ft.detach(mFragment);
-                ft.commit();
-            }
-        }       
-
-        /* The following are each of the ActionBar.TabListener callbacks */
-
-        public void onTabSelected(Tab tab, FragmentTransaction ft) {
-            if (mFragment == null) {
-                mFragment = Fragment.instantiate(mActivity, mClass.getName(), mArgs);
-                ft.add(android.R.id.content, mFragment, mTag);
-            } else {
-                ft.attach(mFragment);
-            }
-        }
-
-        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-            if (mFragment != null) {
-                ft.detach(mFragment);
-            }   
-        }
-
-        public void onTabReselected(Tab tab, FragmentTransaction ft) {
-        }
-    }	
 }

@@ -77,8 +77,8 @@ public class TwitterFragment extends BaseListFragment implements
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
+	public void onAttach(Context context) {
+		super.onAttach(context);
 		
 		try {
 			mScreenName = getArguments().getString("account");

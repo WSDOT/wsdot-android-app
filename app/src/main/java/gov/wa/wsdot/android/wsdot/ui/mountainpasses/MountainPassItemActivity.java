@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -28,15 +29,12 @@ import com.google.android.gms.analytics.Tracker;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.Tab;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,23 +48,22 @@ public class MountainPassItemActivity extends BaseActivity {
 	
 	private DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m", Locale.US); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
 	private DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a", Locale.US);
-    private ViewPager mViewPager;
-	private TabsAdapter mTabsAdapter;
 	private boolean mIsStarred = false;
 	private ContentResolver resolver;
 	private int mId;
 	private Tracker mTracker;
+
+    private TabLayout mTabLayout;
+    private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
+    private ViewPager mViewPager;
+    private gov.wa.wsdot.android.wsdot.util.TabsAdapter mTabsAdapter;
+    private Toolbar mToolbar;
 	
 	static final private int MENU_ITEM_STAR = 0;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
-
-		mViewPager = new ViewPager(this);
-		mViewPager.setId(R.id.pager);
-		
-		setContentView(mViewPager);
 	    
 	    Bundle b = getIntent().getExtras();
 	    mId = b.getInt("id");
@@ -79,28 +76,58 @@ public class MountainPassItemActivity extends BaseActivity {
     	mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
     	mTracker.setScreenName("/Mountain Passes/Details/" + mountainPassName);
     	mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-	    
-	    
-        getSupportActionBar().setTitle(mountainPassName);
+
+        setContentView(R.layout.activity_with_tabs);
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        
-	    mTabsAdapter = new TabsAdapter(this, mViewPager);
-	    mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Report"),
-	    		MountainPassItemReportFragment.class, b);
-	    
-	    if (!cameras.equals("[]")) {
-		    mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Cameras"),
-		    		MountainPassItemCameraFragment.class, b);
-	    }
-        
-	    if (!forecast.equals("[]")) {
-		    mTabsAdapter.addTab(getSupportActionBar().newTab().setText("Forecast"),
-		    		MountainPassItemForecastFragment.class, b);
-	    }
+
+        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        // Add tab titles and their corresponding fragments to the fragment list.
+        tabFragments.add(mTabLayout.getTabCount(), MountainPassItemReportFragment.class);
+        mTabLayout.addTab(mTabLayout.newTab().setText("Report"));
+        if (!cameras.equals("[]")) {
+            tabFragments.add(mTabLayout.getTabCount(), MountainPassItemCameraFragment.class);
+            mTabLayout.addTab(mTabLayout.newTab().setText("Cameras"));
+        }
+        if (!forecast.equals("[]")) {
+            tabFragments.add(mTabLayout.getTabCount(), MountainPassItemForecastFragment.class);
+            mTabLayout.addTab(mTabLayout.newTab().setText("Forecast"));
+        }
+
+        mTabsAdapter = new gov.wa.wsdot.android.wsdot.util.TabsAdapter
+                (this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount());
+
+        mViewPager.setAdapter(mTabsAdapter);
+        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
+
+        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                mViewPager.setCurrentItem(tab.getPosition());
+                // GA tracker
+                mTracker.setScreenName("/Mountain Passes/Details/" + tab.getText());
+                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
         
         if (savedInstanceState != null) {
-            getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
+            TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
+            tab.select();
         }        
 	}
 	
@@ -151,7 +178,7 @@ public class MountainPassItemActivity extends BaseActivity {
 				mIsStarred = false;
 	    	} catch (Exception e) {
 	    		Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-	    		Log.e("MountainPassItemActivity", "Error: " + e.getMessage());
+	    		Log.e("MountainPasItemActivity", "Error: " + e.getMessage());
 	    	}
 		} else {
 			item.setIcon(R.drawable.ic_menu_star_on);
@@ -169,7 +196,7 @@ public class MountainPassItemActivity extends BaseActivity {
 				mIsStarred = true;
 			} catch (Exception e) {
 				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-	    		Log.e("MountainPassItemActivity", "Error: " + e.getMessage());
+	    		Log.e("MountainPasItemActivity", "Error: " + e.getMessage());
 	    	}
 		}		
 	}
@@ -177,92 +204,7 @@ public class MountainPassItemActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        /*Save the selected tab in order to restore in screen rotation*/
-        outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
+        //Save the selected tab in order to restore in screen rotation
+        outState.putInt("tab", mTabLayout.getSelectedTabPosition());
     }
-    
-    public static class TabsAdapter extends FragmentPagerAdapter implements
-		ActionBar.TabListener, ViewPager.OnPageChangeListener {
-
-		private final Context mContext;
-		private final ActionBar mActionBar;
-		private final ViewPager mViewPager;
-		private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
-		private final Tracker mTabsTracker;
-
-		static final class TabInfo {
-			private final Class<?> clss;
-			private final Bundle args;
-
-			TabInfo(Class<?> _class, Bundle _args) {
-				clss = _class;
-				args = _args;
-			}
-		}
-
-		public TabsAdapter(BaseActivity activity, ViewPager pager) {
-			super(activity.getSupportFragmentManager());
-			mContext = activity;
-			mTabsTracker = ((WsdotApplication) activity.getApplication()).getDefaultTracker();
-			
-			mActionBar = activity.getSupportActionBar();
-			mViewPager = pager;
-			mViewPager.setAdapter(this);
-			mViewPager.setOnPageChangeListener(this);
-		}
-
-		public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
-			TabInfo info = new TabInfo(clss, args);
-			tab.setTag(info);
-			tab.setTabListener(this);
-			mTabs.add(info);
-			mActionBar.addTab(tab);
-			notifyDataSetChanged();
-		}
-
-		@Override
-		public int getCount() {
-			return mTabs.size();
-		}
-
-		@Override
-		public Fragment getItem(int position) {
-			TabInfo info = mTabs.get(position);
-			return Fragment.instantiate(mContext, info.clss.getName(),
-					info.args);
-		}
-
-		public void onPageScrolled(int position, float positionOffset,
-				int positionOffsetPixels) {
-		}
-
-		public void onPageSelected(int position) {
-			mActionBar.setSelectedNavigationItem(position);
-		}
-
-		public void onPageScrollStateChanged(int state)	{
-		}
-
-		public void onTabSelected(Tab tab, FragmentTransaction ft) {
-			Object tag = tab.getTag();
-			for (int i = 0; i < mTabs.size(); i++) {
-				if (mTabs.get(i) == tag) {
-					
-					// GA tracker
-					mTabsTracker.setScreenName("/Mountain Passes/Details/" + mActionBar.getTitle() + "/" + tab.getText());
-					mTabsTracker.send(new HitBuilders.ScreenViewBuilder().build());
-					
-					mViewPager.setCurrentItem(i);
-				}
-			}
-		}
-
-		public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-		}
-
-		public void onTabReselected(Tab tab, FragmentTransaction ft) {
-		}
-    	
-    }    
-    
 }
