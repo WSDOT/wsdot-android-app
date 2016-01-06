@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
+
+    <string name="google_static_map_key">INSERT_STATIC_MAP_KEY_HERE</string>
+    <string name="wsdot_api_access_code">INSERT_WSDOT_API_KEY_HERE</string>
+    <string name="google_youtube_key">INSERT_YOUTUBE_API_KEY_HERE</string>
+    
+</resources>

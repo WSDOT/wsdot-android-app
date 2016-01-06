@@ -7,4 +7,13 @@
 .classpath
 lint.xml
 /target/
-/res/values/apikeys.xml
+
+/app/src/res/values/apikeys.xml
+/app/res/values/apikeys.xml
+/app/app-release.apk
+.idea
+.gradle
+local.properties
+.idea/workspace.xml
+.idea/libraries
+build
