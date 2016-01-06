@@ -80,8 +80,6 @@ public class FavoritesFragment extends BaseListFragment implements
 	private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
 	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
-	
-	private Tracker mTracker;
 
 	private static final String[] cameras_projection = {
 		Cameras._ID,

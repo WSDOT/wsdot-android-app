@@ -48,6 +48,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -88,13 +89,17 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
     private LocationRequest mLocationRequest;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
+    private Toolbar mToolbar;
     
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.amtrakcascades_schedules);		
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		setContentView(R.layout.amtrakcascades_schedules);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         getDaysOfWeek();
         getAmtrakStations();

@@ -40,9 +40,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -67,14 +69,17 @@ public class FlickrActivity extends BaseActivity implements
     private ArrayList<FlickrItem> mFlickrItems = null;
 	private ImageAdapter adapter;
 	private static SwipeRefreshLayout swipeRefreshLayout;
+    private Toolbar mToolbar;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        
         setContentView(R.layout.activity_flickr);
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -194,13 +199,8 @@ public class FlickrActivity extends BaseActivity implements
             gridView.setAdapter(this.adapter);    
             gridView.setOnItemClickListener(new OnItemClickListener() {
             	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-	        		Bundle b = new Bundle();
-	        		Intent intent = new Intent(FlickrActivity.this, FlickrDetailsActivity.class);
-	        		b.putString("title", mFlickrItems.get(position).getTitle());
-	        		b.putString("link", mFlickrItems.get(position).getLink());
-	        		b.putString("content", mFlickrItems.get(position).getContent());
-	        		intent.putExtras(b);
-	        		startActivity(intent);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(mFlickrItems.get(position).getLink()));
+                    startActivity(intent);
 	            }
 	        });
 

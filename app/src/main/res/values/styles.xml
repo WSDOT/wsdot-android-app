@@ -3,6 +3,16 @@
     <style name="Text">
     </style>
 
+    <!-- Base application theme. -->
+    <style name="WSDOT" parent="Theme.AppCompat.Light.NoActionBar">
+        <!--   your app branding color for the app bar -->
+        <item name="colorPrimary">#009688</item>
+        <!--   darker variant for the status bar and contextual app bars -->
+        <item name="colorPrimaryDark">#00695C</item>
+        <!--   theme UI controls like checkboxes and text fields -->
+        <item name="colorAccent">#FFAB00</item>
+    </style>
+
     <style name="Text.Title">
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
@@ -44,8 +54,20 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/accent_1</item>
         <item name="android:background">@null</item>
-    </style>    
-    
+    </style>
+
+    <!-- Custom dropdown in toolbar -->
+
+    <style name="spinnerItemStyle" parent="android:Widget.TextView.SpinnerItem">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:singleLine">true</item>
+    </style>
+    <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:padding">10dip</item>
+    </style>
+
     <!-- High impact alerts section in Home activity -->
 
     <style name="HighImpactAlertsItemBase">

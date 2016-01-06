@@ -18,42 +18,37 @@
 
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.twitter;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
 public class TwitterActivity extends BaseActivity implements
-        ActionBar.OnNavigationListener {
-	
-    private ArrayList<String> mTwitterAccounts;
+        AdapterView.OnItemSelectedListener {
+
     private HashMap<String, String> mTwitterScreenNames = new HashMap<String, String>();
+    private Toolbar mToolbar;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_twitter);
-		
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		
-		mTwitterAccounts = new ArrayList<String>();
-		mTwitterAccounts.add("All Accounts");
-		mTwitterAccounts.add("Ferries");
-		mTwitterAccounts.add("Good To Go!");
-		mTwitterAccounts.add("Snoqualmie Pass");
-		mTwitterAccounts.add("WSDOT");
-		mTwitterAccounts.add("WSDOT Southwest");
-		mTwitterAccounts.add("WSDOT Tacoma");
-		mTwitterAccounts.add("WSDOT Traffic");
-		
-		mTwitterScreenNames.put("All Accounts", "all");
+        setContentView(R.layout.activity_twitter);
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Mapping of account names to wsdot url call for tweets.
+        mTwitterScreenNames.put("All Accounts", "all");
 		mTwitterScreenNames.put("Ferries", "wsferries");
 		mTwitterScreenNames.put("Good To Go!", "GoodToGoWSDOT");
 		mTwitterScreenNames.put("Snoqualmie Pass", "SnoqualmiePass");
@@ -61,13 +56,16 @@ public class TwitterActivity extends BaseActivity implements
 		mTwitterScreenNames.put("WSDOT Southwest", "wsdot_sw");
 		mTwitterScreenNames.put("WSDOT Tacoma", "wsdot_tacoma");
 		mTwitterScreenNames.put("WSDOT Traffic", "wsdot_traffic");
-		
-        Context context = getSupportActionBar().getThemedContext();
-        ArrayAdapter<String> list = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, mTwitterAccounts);
-        list.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        getSupportActionBar().setListNavigationCallbacks(list, this);
+        // Set up custom spinner
+        Spinner spinner = (Spinner) findViewById(R.id.spinner_nav);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.twitter_accounts, R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(this);
+
 	}
 	
 	@Override
@@ -80,17 +78,20 @@ public class TwitterActivity extends BaseActivity implements
 		return super.onOptionsItemSelected(item);
 	}
 
-	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-		Bundle args = new Bundle();
-		args.putString("account", mTwitterScreenNames.get(mTwitterAccounts.get(itemPosition)));
-		TwitterFragment details = new TwitterFragment();
-		details.setArguments(args);
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		ft.replace(R.id.fragment_twitter, details);
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-		ft.commit();
-		
-		return true;
-	}	
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Bundle args = new Bundle();
+        args.putString("account", mTwitterScreenNames.get(getResources().getStringArray(R.array.twitter_accounts)[position]));
+        TwitterFragment details = new TwitterFragment();
+        details.setArguments(args);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.fragment_twitter, details);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.commit();
+    }
 
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
 }

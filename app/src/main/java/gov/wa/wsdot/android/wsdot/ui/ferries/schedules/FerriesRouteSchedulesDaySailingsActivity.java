@@ -22,6 +22,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,9 +36,10 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 	private boolean mIsStarred = false;
 	private ContentResolver resolver;
 	private int mId;
-	
+	private Toolbar mToolbar;
+
 	static final private int MENU_ITEM_STAR = 0;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,7 +50,10 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 		mId = args.getInt("id");
 		String title = args.getString("title");
 		mIsStarred = args.getInt("isStarred") != 0;
-		
+
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
+
         getSupportActionBar().setTitle(title);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
