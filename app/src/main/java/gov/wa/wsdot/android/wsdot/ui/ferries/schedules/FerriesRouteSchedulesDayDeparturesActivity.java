@@ -33,10 +33,12 @@ import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity {
@@ -82,6 +84,11 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
+                if (tab.getText().equals("Cameras")) {
+                    mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+                    mTracker.setScreenName("/Ferries/Schedules/Day Sailings/" + tab.getText());
+                    mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+                }
             }
 
             @Override

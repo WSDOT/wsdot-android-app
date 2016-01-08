@@ -327,7 +327,8 @@ public class VesselWatchMapActivity extends BaseActivity implements
 		
 	    // GA tracker
 		mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-		
+		mTracker.setScreenName("/Ferries/Vessel Watch/");
+
 		if (showCameras) {
 			for(Entry<Marker, String> entry : markers.entrySet()) {
 			    Marker key = entry.getKey();
