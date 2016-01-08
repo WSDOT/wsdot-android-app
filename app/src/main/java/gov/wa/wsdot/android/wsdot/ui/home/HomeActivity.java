@@ -57,6 +57,8 @@ public class HomeActivity extends BaseActivity {
         // Force use of overflow menu on devices with ICS and menu button.
         UIUtils.setHasPermanentMenuKey(this, false);
 
+        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+
         setContentView(R.layout.activity_home);
         mViewPager = (ViewPager) findViewById(R.id.pager);
 
@@ -99,9 +101,6 @@ public class HomeActivity extends BaseActivity {
 
             }
         });
-
-        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-
     }
 
     @Override
