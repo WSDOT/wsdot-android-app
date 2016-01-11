@@ -80,6 +80,8 @@ public class FavoritesFragment extends BaseListFragment implements
 	private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
 	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
+	
+	private Tracker mTracker;
 
 	private static final String[] cameras_projection = {
 		Cameras._ID,
@@ -156,7 +158,7 @@ public class FavoritesFragment extends BaseListFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_favorites, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.

@@ -96,8 +96,6 @@ public class FacebookFragment extends BaseListFragment implements
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
         
-        disableAds(root);
-        
         return root;
     }    
 	
