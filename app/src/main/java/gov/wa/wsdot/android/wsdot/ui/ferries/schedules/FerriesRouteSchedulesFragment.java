@@ -224,15 +224,15 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 
             final int position = cursor.getPosition();
 
-            FerryScheduleVH ferryVH = (FerryScheduleVH) viewholder;
+            FerryScheduleVH holder = (FerryScheduleVH) viewholder;
 
-			ferryVH.title.setText(cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE)));
-			ferryVH.title.setTypeface(tfb);
+			holder.title.setText(cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE)));
+			holder.title.setTypeface(tfb);
 
             String text = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_CROSSING_TIME));
 
-            // Set onClickListener for view holders view
-            ferryVH.view.setOnClickListener(
+            // Set onClickListener for holder's view
+            holder.view.setOnClickListener(
                     new OnClickListener() {
                         public void onClick(View v) {
                             Cursor c = mAdapter.getCursor();
@@ -260,28 +260,28 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 
 			try {
                 if (text.equalsIgnoreCase("null")) {
-                    ferryVH.text.setText("");
+                    holder.text.setText("");
                 } else {
-                    ferryVH.text.setText("Crossing Time: ~ " + text + " min");
-                    ferryVH.text.setTypeface(tf);
+                    holder.text.setText("Crossing Time: ~ " + text + " min");
+                    holder.text.setTypeface(tf);
                 }
             } catch (NullPointerException e) {
                 e.printStackTrace();
             }
 
             String created_at = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_UPDATED));
-            ferryVH.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
-            ferryVH.created_at.setTypeface(tf);
+            holder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
+            holder.created_at.setTypeface(tf);
 
-            ferryVH.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
+            holder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
             // Seems when Android recycles the views, the onCheckedChangeListener is still active
             // and the call to setChecked() causes that code within the listener to run repeatedly.
             // Assigning null to setOnCheckedChangeListener seems to fix it.
-            ferryVH.star_button.setOnCheckedChangeListener(null);
-            ferryVH.star_button
+            holder.star_button.setOnCheckedChangeListener(null);
+            holder.star_button
 					.setChecked(cursor.getInt(cursor
 							.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED)) != 0);
-            ferryVH.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            holder.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 				public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
 					int rowId = (Integer) buttonView.getTag();
 					ContentValues values = new ContentValues();
@@ -302,12 +302,12 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 			String alerts = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_ALERT));
 
 			if (alerts.equals("[]")) {
-				ferryVH.alert_button.setVisibility(View.GONE);
+				holder.alert_button.setVisibility(View.GONE);
 			} else {
-				ferryVH.alert_button.setVisibility(View.VISIBLE);
-				ferryVH.alert_button.setTag(cursor.getPosition());
-				ferryVH.alert_button.setImageResource(R.drawable.btn_alert_on_holo_light);
-	            ferryVH.alert_button.setOnClickListener(new OnClickListener() {
+				holder.alert_button.setVisibility(View.VISIBLE);
+				holder.alert_button.setTag(cursor.getPosition());
+				holder.alert_button.setImageResource(R.drawable.btn_alert_on_holo_light);
+	            holder.alert_button.setOnClickListener(new OnClickListener() {
 					public void onClick(View v) {
                         Cursor c = mAdapter.getCursor();
                         c.moveToPosition(position);

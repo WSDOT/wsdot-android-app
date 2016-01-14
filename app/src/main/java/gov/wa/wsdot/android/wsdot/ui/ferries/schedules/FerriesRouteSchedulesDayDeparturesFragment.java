@@ -554,8 +554,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
         }
     }
 
-    public void onItemSelected(AdapterView<?> parent, View view, int position,
-            long id) {
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         terminalItem = mScheduleDateItems.get(parent.getSelectedItemPosition()).getFerriesTerminalItem().get(mPosition);
         getLoaderManager().restartLoader(FERRIES_DEPARTURES_LOADER_ID, null, this);
         getLoaderManager().restartLoader(FERRIES_VEHICLE_SPACE_LOADER_ID, null, ferriesTerminalSyncCallbacks);

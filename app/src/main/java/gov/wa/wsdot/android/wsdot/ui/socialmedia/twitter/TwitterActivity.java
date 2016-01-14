@@ -60,8 +60,8 @@ public class TwitterActivity extends BaseActivity implements
         // Set up custom spinner
         Spinner spinner = (Spinner) findViewById(R.id.spinner_nav);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.twitter_accounts, R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                R.array.twitter_accounts, R.layout.simple_spinner_item_white);
+        adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item_white);
         spinner.setAdapter(adapter);
 
         spinner.setOnItemSelectedListener(this);

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:id="@+id/cv">
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <gov.wa.wsdot.android.wsdot.ui.widget.ResizeableImageView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/image"
+        android:adjustViewBounds="true"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/caption"
+        android:textSize="@dimen/text_size_micro"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#ffffffff"
+        android:layout_margin="8dp"
+        android:paddingTop="5dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="5dp"
+        android:paddingLeft="8dp"
+        android:background="@drawable/rect_semitransparent"/>
+
+    <TextView
+        android:id="@+id/title"
+        android:textSize="@dimen/text_size_large"
+        android:textColor="@color/black"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:layout_marginTop="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="7dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/image"
+        />
+
+    <TextView
+        android:id="@+id/description"
+        android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/black"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="7dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title" />
+
+    <TextView
+        android:id="@+id/created_at"
+        android:textSize="@dimen/text_size_small"
+        android:textColor="@color/semi_black"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/description"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="7dp"/>
+
+</RelativeLayout>
+</android.support.v7.widget.CardView>

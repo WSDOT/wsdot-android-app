@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.facebook;
 
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import gov.wa.wsdot.android.wsdot.R;
@@ -36,6 +37,7 @@ public class FacebookActivity extends BaseActivity {
 		mToolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 	}
 
 	@Override
