@@ -18,6 +18,7 @@
     </FrameLayout>
 
     <com.google.android.gms.ads.doubleclick.PublisherAdView
+        android:scrollbars="none"
         android:id="@+id/publisherAdView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -24,19 +24,23 @@ import java.util.TreeSet;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 
-public class SR520TollRatesFragment extends BaseListFragment {
+public class SR520TollRatesFragment extends BaseFragment {
 	
     private static final String TAG = SR520TollRatesFragment.class.getSimpleName();
-    private MyCustomAdapter adapter;
-	
+    private Adapter mAdapter;
+
+    protected RecyclerView mRecyclerView;
+    protected LinearLayoutManager mLayoutManager;
+
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);        
@@ -46,7 +50,16 @@ public class SR520TollRatesFragment extends BaseListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list, null);
+
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new Adapter();
+
+        mRecyclerView.setAdapter(mAdapter);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -87,15 +100,12 @@ public class SR520TollRatesFragment extends BaseListFragment {
         		{"9 PM to 11 PM", " $1.25", "$2.85"},
         		{"11 PM to 11:59 PM", "0", "0"}
         		};
-                
-        adapter = new MyCustomAdapter();
-        setListAdapter(adapter);
         
         map = new HashMap<String, String>();
         map.put("hours", "Monday to Friday");
         map.put("goodtogo_pass", "Good To Go! Pass");
         map.put("pay_by_mail", "Pay By Mail");
-        adapter.addSeparatorItem(map);
+        mAdapter.addSeparatorItem(map);
         
         BuildAdapterData(weekdayData);
         
@@ -103,7 +113,7 @@ public class SR520TollRatesFragment extends BaseListFragment {
         map.put("hours", "Weekends and Holidays");
         map.put("goodtogo_pass", "Good To Go! Pass");
         map.put("pay_by_mail", "Pay By Mail");
-        adapter.addSeparatorItem(map);
+        mAdapter.addSeparatorItem(map);
         
         BuildAdapterData(weekendData);		
 	}
@@ -116,111 +126,113 @@ public class SR520TollRatesFragment extends BaseListFragment {
         	map.put("hours", data[i][0]);
             map.put("goodtogo_pass", data[i][1]);
             map.put("pay_by_mail", data[i][2]);
-            adapter.addItem(map);
+            mAdapter.addItem(map);
         }
     }
-    
-    private class MyCustomAdapter extends BaseAdapter {
-        
-    	private static final int TYPE_ITEM = 0;
-        private static final int TYPE_SEPARATOR = 1;
-        private static final int TYPE_MAX_COUNT = TYPE_SEPARATOR + 1;
 
-        ArrayList<HashMap<String, String>> mData = new ArrayList<HashMap<String, String>>();
-        private LayoutInflater mInflater;
-        private TreeSet<Integer> mSeparatorsSet = new TreeSet<Integer>();
+    private class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
- 
-        public MyCustomAdapter() {
-            mInflater = getActivity().getLayoutInflater();
+
+        private static final int TYPE_ITEM = 0;
+        private static final int TYPE_SEPARATOR = 1;
+
+        private TreeSet<Integer> mSeparatorsSet = new TreeSet<>();
+        private ArrayList<HashMap<String, String>> mData = new ArrayList<>();
+
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            View itemView = null;
+
+            switch (viewType) {
+                case TYPE_ITEM:
+                    itemView = LayoutInflater.
+                            from(parent.getContext()).
+                            inflate(R.layout.tollrates_sr520_row, parent, false);
+                    return new ItemViewHolder(itemView);
+                case TYPE_SEPARATOR:
+                    itemView = LayoutInflater.
+                            from(parent.getContext()).
+                            inflate(R.layout.tollrates_sr520_header, parent, false);
+                    return new TitleViewHolder(itemView);
+            }
+            return null;
         }
-        
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder viewholder, int position) {
+
+            ItemViewHolder itemholder;
+            TitleViewHolder titleholder;
+
+            HashMap<String, String> map = mData.get(position);
+
+            if (getItemViewType(position) == TYPE_ITEM){
+                itemholder = (ItemViewHolder) viewholder;
+                itemholder.hours.setText(map.get("hours"));
+                itemholder.hours.setTypeface(tf);
+                itemholder.goodToGoPass.setText(map.get("goodtogo_pass"));
+                itemholder.goodToGoPass.setTypeface(tf);
+                itemholder.payByMail.setText(map.get("pay_by_mail"));
+                itemholder.payByMail.setTypeface(tf);
+            }else{
+                titleholder = (TitleViewHolder) viewholder;
+                titleholder.hours.setText(map.get("hours"));
+                titleholder.hours.setTypeface(tfb);
+                titleholder.goodToGoPass.setText(map.get("goodtogo_pass"));
+                titleholder.goodToGoPass.setTypeface(tfb);
+                titleholder.payByMail.setText(map.get("pay_by_mail"));
+                titleholder.payByMail.setTypeface(tfb);
+            }
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return mSeparatorsSet.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
+        }
+
         public void addItem(final HashMap<String, String> map) {
             mData.add(map);
             notifyDataSetChanged();
         }
-        
+
         public void addSeparatorItem(final HashMap<String, String> item) {
             mData.add(item);
             // save separator position
             mSeparatorsSet.add(mData.size() - 1);
             notifyDataSetChanged();
         }
-        
+
         @Override
-        public int getItemViewType(int position) {
-            return mSeparatorsSet.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
-        }
-        
-        @SuppressWarnings("unused")
-		public boolean areAllItemsSelectable() {
-        	return false;
-        }
-        
-        public boolean isEnabled(int position) {  
-        	return false;  
-        }
-        
-        @Override
-        public int getViewTypeCount() {
-            return TYPE_MAX_COUNT;
-        }
-        
-        public int getCount() {
+        public int getItemCount() {
             return mData.size();
         }
-        
-        public HashMap<String, String> getItem(int position) {
-            return mData.get(position);
-        }
-        
-        public long getItemId(int position) {
-            return position;
-        }
-        
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder;
-            int type = getItemViewType(position);
-            
-            if (convertView == null) {
-                holder = new ViewHolder();
-                switch (type) {
-                    case TYPE_ITEM:
-                        convertView = mInflater.inflate(R.layout.tollrates_sr520_row, null);
-                        holder.hours = (TextView)convertView.findViewById(R.id.hours);
-                        holder.hours.setTypeface(tf);
-                        holder.goodToGoPass = (TextView)convertView.findViewById(R.id.goodtogo_pass);
-                        holder.goodToGoPass.setTypeface(tf);
-                        holder.payByMail = (TextView)convertView.findViewById(R.id.pay_by_mail);
-                        holder.payByMail.setTypeface(tf);
-                        break;
-                    case TYPE_SEPARATOR:
-                        convertView = mInflater.inflate(R.layout.tollrates_sr520_header, null);
-                        holder.hours = (TextView)convertView.findViewById(R.id.hours_title);
-                        holder.hours.setTypeface(tfb);
-                        holder.goodToGoPass = (TextView)convertView.findViewById(R.id.goodtogo_pass_title);
-                        holder.goodToGoPass.setTypeface(tfb);
-                        holder.payByMail = (TextView)convertView.findViewById(R.id.pay_by_mail_title);
-                        holder.payByMail.setTypeface(tfb);
-                        break;
-                }
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder)convertView.getTag();
-            }
-            
-            holder.hours.setText(mData.get(position).get("hours"));
-            holder.goodToGoPass.setText(mData.get(position).get("goodtogo_pass"));
-            holder.payByMail.setText(mData.get(position).get("pay_by_mail"));
-            
-            return convertView;
+    }
+
+    public static class ItemViewHolder extends RecyclerView.ViewHolder {
+        protected TextView hours;
+        protected TextView goodToGoPass;
+        protected TextView payByMail;
+
+        public ItemViewHolder(View itemView) {
+            super(itemView);
+            hours = (TextView) itemView.findViewById(R.id.hours);
+            goodToGoPass = (TextView) itemView.findViewById(R.id.goodtogo_pass);
+            payByMail = (TextView) itemView.findViewById(R.id.pay_by_mail);
         }
     }
-    
-    public static class ViewHolder {
-        public TextView hours;
-        public TextView goodToGoPass;
-        public TextView payByMail;
+    public static class TitleViewHolder extends RecyclerView.ViewHolder {
+        protected TextView hours;
+        protected TextView goodToGoPass;
+        protected TextView payByMail;
+
+        public TitleViewHolder(View itemView) {
+            super(itemView);
+            hours = (TextView) itemView.findViewById(R.id.hours_title);
+            goodToGoPass = (TextView) itemView.findViewById(R.id.goodtogo_pass_title);
+            payByMail = (TextView) itemView.findViewById(R.id.pay_by_mail_title);
+        }
     }
 }

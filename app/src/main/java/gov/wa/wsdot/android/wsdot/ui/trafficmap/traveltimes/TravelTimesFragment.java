@@ -32,8 +32,9 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
@@ -49,26 +50,34 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.CursorRecyclerAdapter;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
-public class TravelTimesFragment extends BaseListFragment implements
+public class TravelTimesFragment extends BaseFragment implements
         LoaderCallbacks<Cursor>,
         OnQueryTextListener,
         SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = TravelTimesFragment.class.getSimpleName();
-	private static TravelTimesAdapter adapter;
+	private static TravelTimesAdapter mAdapter;
 	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
 	private String mFilter;
 	private View mEmptyView;
 	private boolean mIsQuery = false;
 	private static SwipeRefreshLayout swipeRefreshLayout;
+
+    protected RecyclerView mRecyclerView;
+    protected LinearLayoutManager mLayoutManager;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -84,7 +93,15 @@ public class TravelTimesFragment extends BaseListFragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
         
-		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
+		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
+
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new TravelTimesAdapter(getActivity(), null);
+        mRecyclerView.setAdapter(mAdapter);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -101,18 +118,12 @@ public class TravelTimesFragment extends BaseListFragment implements
         
         mEmptyView = root.findViewById(R.id.empty_list_view);
         
-        enableAds(root);
-        
         return root;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-		adapter = new TravelTimesAdapter(getActivity(), null, false);
-		setListAdapter(adapter);
-		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);
@@ -223,17 +234,17 @@ public class TravelTimesFragment extends BaseListFragment implements
 				mIsQuery = false;
 			    TextView t = (TextView) mEmptyView;
 				t.setText(R.string.no_matching_travel_times);
-				getListView().setEmptyView(mEmptyView);
+                mEmptyView.setVisibility(View.VISIBLE);
 			}
 		}
 
 		swipeRefreshLayout.setRefreshing(false);
-		adapter.swapCursor(cursor);
+		mAdapter.swapCursor(cursor);
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
 	    swipeRefreshLayout.setRefreshing(false);
-	    adapter.swapCursor(null);		
+	    mAdapter.swapCursor(null);
 	}
 	
 	public static class TravelTimesItemsLoader extends CursorLoader {
@@ -255,121 +266,126 @@ public class TravelTimesFragment extends BaseListFragment implements
 			forceLoad();
 		}
 	}
-	
-	private class TravelTimesAdapter extends CursorAdapter {
+
+    private class TravelTimesAdapter extends CursorRecyclerAdapter<RecyclerView.ViewHolder> {
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+        private Context context;
+        private List<RecyclerView.ViewHolder> mItems = new ArrayList<>();
 
-        public TravelTimesAdapter(Context context, Cursor c, boolean autoRequery) {
-	        super(context, c, autoRequery);
+        public TravelTimesAdapter(Context context, Cursor c) {
+            super(c);
+            this.context = context;
         }
 
-        @SuppressWarnings("unused")
-		public boolean areAllItemsSelectable() {
-        	return false;
-        }
-        
-        public boolean isEnabled(int position) {  
-        	return false;  
-        }        
-        
-		@Override
-		public void bindView(View view, Context context, final Cursor cursor) {
-			ViewHolder viewholder = (ViewHolder) view.getTag();
+        @Override
+        public void onBindViewHolderCursor(RecyclerView.ViewHolder viewholder, Cursor cursor) {
 
-	        String average_time;
+            ViewHolder holder = (ViewHolder) viewholder;
 
-	        String title = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_TITLE));
-			viewholder.title.setText(title);
-			viewholder.title.setTypeface(tfb);
+            String average_time;
 
-			String distance = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_DISTANCE));
-			int average = cursor.getInt(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_AVERAGE));
-			
-        	if (average == 0) {
-        		average_time = "Not Available";
-        	} else {
-        		average_time = average + " min";
-        	}
-			
-			viewholder.distance_average_time.setText(distance + " / " + average_time);
-			viewholder.distance_average_time.setTypeface(tf);
-			
-			int current = cursor.getInt(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_CURRENT));
-			
-        	if (current < average) {
-        		viewholder.current_time.setTextColor(0xFF008060);
-        	} else if ((current > average) && (average != 0)) {
-        		viewholder.current_time.setTextColor(Color.RED);
-        	} else {
-        		viewholder.current_time.setTextColor(Color.BLACK);
-        	}
+            String title = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_TITLE));
+            holder.title.setText(title);
+            holder.title.setTypeface(tfb);
 
-        	viewholder.current_time.setText(current + " min");
-        	viewholder.current_time.setTypeface(tfb);
-        	
-        	String created_at = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_UPDATED));
-        	viewholder.updated.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
-        	viewholder.updated.setTypeface(tf);
-        	
-            viewholder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
+            String distance = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_DISTANCE));
+            int average = cursor.getInt(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_AVERAGE));
+
+            if (average == 0) {
+                average_time = "Not Available";
+            } else {
+                average_time = average + " min";
+            }
+
+            holder.distance_average_time.setText(distance + " / " + average_time);
+            holder.distance_average_time.setTypeface(tf);
+
+            int current = cursor.getInt(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_CURRENT));
+
+            if (current < average) {
+                holder.current_time.setTextColor(0xFF008060);
+            } else if ((current > average) && (average != 0)) {
+                holder.current_time.setTextColor(Color.RED);
+            } else {
+                holder.current_time.setTextColor(Color.BLACK);
+            }
+
+            holder.current_time.setText(current + " min");
+            holder.current_time.setTypeface(tfb);
+
+            String created_at = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_UPDATED));
+            holder.updated.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
+            holder.updated.setTypeface(tf);
+
+            holder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
             // Seems when Android recycles the views, the onCheckedChangeListener is still active
             // and the call to setChecked() causes that code within the listener to run repeatedly.
             // Assigning null to setOnCheckedChangeListener seems to fix it.
-            viewholder.star_button.setOnCheckedChangeListener(null);
-            viewholder.star_button
-					.setChecked(cursor.getInt(cursor
-							.getColumnIndex(TravelTimes.TRAVEL_TIMES_IS_STARRED)) != 0);
-            viewholder.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-				public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
-					int rowId = (Integer) buttonView.getTag();
-					ContentValues values = new ContentValues();
-					values.put(TravelTimes.TRAVEL_TIMES_IS_STARRED, isChecked ? 1 : 0);
+            holder.star_button.setOnCheckedChangeListener(null);
+            holder.star_button
+                    .setChecked(cursor.getInt(cursor
+                            .getColumnIndex(TravelTimes.TRAVEL_TIMES_IS_STARRED)) != 0);
+            holder.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
+                    int rowId = (Integer) buttonView.getTag();
+                    ContentValues values = new ContentValues();
+                    values.put(TravelTimes.TRAVEL_TIMES_IS_STARRED, isChecked ? 1 : 0);
 
-					int toastMessage = isChecked ? R.string.add_favorite : R.string.remove_favorite;
-					Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
-					
-					getActivity().getContentResolver().update(
-							TravelTimes.CONTENT_URI,
-							values,
-							TravelTimes._ID + "=?",
-							new String[] {Integer.toString(rowId)}
-							);
-				}
-			});
-		}
+                    int toastMessage = isChecked ? R.string.add_favorite : R.string.remove_favorite;
+                    Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
 
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+                    getActivity().getContentResolver().update(
+                            TravelTimes.CONTENT_URI,
+                            values,
+                            TravelTimes._ID + "=?",
+                            new String[] {Integer.toString(rowId)}
+                    );
+                }
+            });
+
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(context).inflate(R.layout.list_item_travel_times, null);
             ViewHolder viewholder = new ViewHolder(view);
             view.setTag(viewholder);
-            
-            return view;
-		}
-		
-		private class ViewHolder {
-			public TextView title;
-			public TextView current_time;
-			public TextView distance_average_time;
-			public TextView updated;
-			public CheckBox star_button;
-			
-			public ViewHolder(View view) {
-				title = (TextView) view.findViewById(R.id.title);
-				current_time = (TextView) view.findViewById(R.id.current_time);
-				distance_average_time = (TextView) view.findViewById(R.id.distance_average_time);
-				updated = (TextView) view.findViewById(R.id.updated);
-				star_button = (CheckBox) view.findViewById(R.id.star_button);
-			}
-		}
-	}
+            mItems.add(viewholder);
+            return viewholder;
+        }
+
+
+        @Override
+        public int getItemViewType(int position) {
+            return 1;
+        }
+
+        private class ViewHolder extends RecyclerView.ViewHolder {
+            public TextView title;
+            public TextView current_time;
+            public TextView distance_average_time;
+            public TextView updated;
+            public CheckBox star_button;
+
+            public ViewHolder(View view) {
+                super(view);
+                title = (TextView) view.findViewById(R.id.title);
+                current_time = (TextView) view.findViewById(R.id.current_time);
+                distance_average_time = (TextView) view.findViewById(R.id.distance_average_time);
+                updated = (TextView) view.findViewById(R.id.updated);
+                star_button = (CheckBox) view.findViewById(R.id.star_button);
+            }
+        }
+    }
 
 	public class TravelTimesSyncReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
+
+            mEmptyView.setVisibility(View.GONE);
 
 			if (responseString != null) {
 				if (responseString.equals("OK")) {
@@ -384,12 +400,12 @@ public class TravelTimesFragment extends BaseListFragment implements
 						responseString = getString(R.string.no_connection);
 					}
 					
-					if (getListView().getCount() > 0) {
+					if (mAdapter.getItemCount() > 0) {
 						Toast.makeText(context, responseString, Toast.LENGTH_LONG).show();
 					} else {
 					    TextView t = (TextView) mEmptyView;
 						t.setText(responseString);
-						getListView().setEmptyView(mEmptyView);
+                        mEmptyView.setVisibility(View.VISIBLE);
 					}
 				}
 			} else {

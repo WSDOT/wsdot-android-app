@@ -37,7 +37,7 @@ public class SR167TollRatesFragment extends BaseFragment {
     private static final String TAG = SR167TollRatesFragment.class.getSimpleName();
     private WebView webview;
 	private ViewGroup mRootView;
-	private View mLoadingSpinner;
+	//private View mLoadingSpinner;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -53,14 +53,14 @@ public class SR167TollRatesFragment extends BaseFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_webview_with_spinner, null);
-		mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);
-		mLoadingSpinner.setVisibility(View.VISIBLE);
+		//mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);
+		//mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)mRootView.findViewById(R.id.webview);
 		webview.setVisibility(View.GONE);
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
-		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);	
-		
+		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);
+
 		disableAds(mRootView);
 		
 		return mRootView;
@@ -102,7 +102,7 @@ public class SR167TollRatesFragment extends BaseFragment {
 		public void onPageFinished(WebView view, String url) {
 			super.onPageFinished(view, url);
 			webview.setVisibility(View.VISIBLE);
-			mLoadingSpinner.setVisibility(View.GONE);
+			//mLoadingSpinner.setVisibility(View.GONE);
 		}
 	}
 }
