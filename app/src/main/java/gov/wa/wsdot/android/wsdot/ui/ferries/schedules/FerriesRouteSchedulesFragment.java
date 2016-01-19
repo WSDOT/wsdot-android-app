@@ -66,12 +66,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
         LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener {
 
-    private static final int SPAN_COUNT = 2;
-    private enum LayoutManagerType {
-        GRID_LAYOUT_MANAGER,
-        LINEAR_LAYOUT_MANAGER
-    }
-
     private static final String TAG = FerriesRouteSchedulesFragment.class.getSimpleName();
 	private static newRouteSchedulesAdapter mAdapter;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
@@ -79,8 +73,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
     protected RecyclerView mRecyclerView;
-    protected RecyclerView.LayoutManager mLayoutManager;
-    protected LayoutManagerType mCurrentLayoutManagerType;
+    protected LinearLayoutManager mLayoutManager;
 
 	private Tracker mTracker;
 	
@@ -101,8 +94,8 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
         mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
-        setRecyclerViewLayoutManager(mCurrentLayoutManagerType);
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new newRouteSchedulesAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -404,36 +397,5 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
         Intent intent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
         intent.putExtra("forceUpdate", true);
         getActivity().startService(intent);        
-    }
-    /**
-     * Set RecyclerView's LayoutManager to the one given.
-     *
-     * @param layoutManagerType Type of layout manager to switch to.
-     */
-    public void setRecyclerViewLayoutManager(LayoutManagerType layoutManagerType) {
-        int scrollPosition = 0;
-
-        // If a layout manager has already been set, get current scroll position.
-        if (mRecyclerView.getLayoutManager() != null) {
-            scrollPosition = ((LinearLayoutManager) mRecyclerView.getLayoutManager())
-                    .findFirstCompletelyVisibleItemPosition();
-        }
-
-        switch (layoutManagerType) {
-            case GRID_LAYOUT_MANAGER:
-                mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
-                mCurrentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
-                break;
-            case LINEAR_LAYOUT_MANAGER:
-                mLayoutManager = new LinearLayoutManager(getActivity());
-                mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
-                break;
-            default:
-                mLayoutManager = new LinearLayoutManager(getActivity());
-                mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
-        }
-
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.scrollToPosition(scrollPosition);
     }
 }
