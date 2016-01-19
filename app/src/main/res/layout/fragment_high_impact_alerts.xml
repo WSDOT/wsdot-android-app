@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/high_impact_alerts_height"
     android:orientation="vertical"
     android:baselineAligned="false"
-    android:background="@drawable/high_impact_alerts_background">
+    android:background="@color/alerts">
     
     <ProgressBar android:id="@+id/loading_spinner"
 	    android:indeterminate="true"
