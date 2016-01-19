@@ -19,7 +19,9 @@
 package gov.wa.wsdot.android.wsdot.ui.home;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -49,11 +51,13 @@ public class HomeActivity extends BaseActivity {
     private ViewPager mViewPager;
     private TabsAdapter mtabsAdapter;
     private Toolbar mToolbar;
+    private android.support.design.widget.AppBarLayout mAppBar;
     private Tracker mTracker;
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         // Force use of overflow menu on devices with ICS and menu button.
         UIUtils.setHasPermanentMenuKey(this, false);
 
@@ -64,6 +68,8 @@ public class HomeActivity extends BaseActivity {
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
+
+        mAppBar = (android.support.design.widget.AppBarLayout) findViewById(R.id.appbar);
 
         mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
@@ -101,6 +107,18 @@ public class HomeActivity extends BaseActivity {
 
             }
         });
+
+        //Set toolbar to collapse (only showing tabs) when user is in landscape mode.
+        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            mAppBar.setExpanded(false);
+            params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
+        }else{
+            mAppBar.setExpanded(true);
+            params.setScrollFlags(0);
+        }
+
     }
 
     @Override
