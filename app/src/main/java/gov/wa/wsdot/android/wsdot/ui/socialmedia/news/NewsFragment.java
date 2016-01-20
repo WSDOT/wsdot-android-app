@@ -215,7 +215,8 @@ public class NewsFragment extends BaseFragment implements
 		@Override
 		protected void onStartLoading() {
 			super.onStartLoading();
-			swipeRefreshLayout.post(new Runnable() {
+			swipeRefreshLayout.post(
+					new Runnable() {
 				public void run() {
 					swipeRefreshLayout.setRefreshing(true);
 				}

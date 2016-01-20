@@ -60,6 +60,7 @@ import java.util.zip.GZIPInputStream;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.FlickrItem;
+import gov.wa.wsdot.android.wsdot.shared.NewsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
@@ -72,17 +73,13 @@ public class FlickrFragment extends BaseFragment implements
 
     private static final String TAG = FlickrFragment.class.getSimpleName();
     private static newFlickrItemAdapter mAdapter;
+    private static ArrayList<FlickrItem> mFlickrItems = null;
     private View mEmptyView;
     private static SwipeRefreshLayout swipeRefreshLayout;
     private static final int IO_BUFFER_SIZE = 4 * 1024;
 
     protected RecyclerView mRecyclerView;
     protected GridLayoutManager mLayoutManager;
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -170,12 +167,13 @@ public class FlickrFragment extends BaseFragment implements
         public FlickrItemsLoader(Context context) {
             super(context);
         }
-        private ArrayList<FlickrItem> mFlickrItems;
+
 
         @Override
         public ArrayList<FlickrItem> loadInBackground() {
             BufferedInputStream ins;
             BufferedOutputStream out;
+            mFlickrItems = new ArrayList<FlickrItem>();
             String content;
             String tmpContent;
 
@@ -240,13 +238,12 @@ public class FlickrFragment extends BaseFragment implements
         @Override
         protected void onStartLoading() {
             super.onStartLoading();
-
-            //mAdapter.clear();
-            swipeRefreshLayout.post(new Runnable() {
-                public void run() {
-                    swipeRefreshLayout.setRefreshing(true);
-                }
-            });
+            swipeRefreshLayout.post(
+                    new Runnable() {
+                        public void run() {
+                            swipeRefreshLayout.setRefreshing(true);
+                        }
+                    });
             forceLoad();
         }
 
