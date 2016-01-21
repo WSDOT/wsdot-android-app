@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.util;
 
 import android.annotation.SuppressLint;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

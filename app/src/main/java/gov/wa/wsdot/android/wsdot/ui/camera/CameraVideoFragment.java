@@ -18,15 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.camera;
 
-import gov.wa.wsdot.android.wsdot.R;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import android.app.Activity;
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -46,6 +37,15 @@ import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.VideoView;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import gov.wa.wsdot.android.wsdot.R;
 
 public class CameraVideoFragment extends Fragment implements
         LoaderCallbacks<Boolean> {

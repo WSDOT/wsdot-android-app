@@ -18,10 +18,10 @@
 
 package gov.wa.wsdot.android.wsdot.shared;
 
+import android.graphics.drawable.Drawable;
+
 import java.io.Serializable;
 import java.util.Comparator;
-
-import android.graphics.drawable.Drawable;
 
 public class CameraItem implements Serializable {
 	private static final long serialVersionUID = 7852844361445836316L;

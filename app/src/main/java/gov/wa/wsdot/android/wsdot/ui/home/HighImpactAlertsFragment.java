@@ -18,11 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.home;
 
-import java.util.ArrayList;
-
-import com.viewpagerindicator.LinePageIndicator;
-
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -45,6 +40,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.viewpagerindicator.LinePageIndicator;
+
+import java.util.ArrayList;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
