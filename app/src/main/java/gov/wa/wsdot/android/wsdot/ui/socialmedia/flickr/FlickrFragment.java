@@ -18,7 +18,6 @@ package gov.wa.wsdot.android.wsdot.ui.socialmedia.flickr;
  *
  */
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -60,10 +59,7 @@ import java.util.zip.GZIPInputStream;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.FlickrItem;
-import gov.wa.wsdot.android.wsdot.shared.NewsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.util.ImageManager;
-import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 import gov.wa.wsdot.android.wsdot.util.decoration.SpacesItemDecoration;
 
 
@@ -72,7 +68,7 @@ public class FlickrFragment extends BaseFragment implements
         SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = FlickrFragment.class.getSimpleName();
-    private static newFlickrItemAdapter mAdapter;
+    private static FlickrItemAdapter mAdapter;
     private static ArrayList<FlickrItem> mFlickrItems = null;
     private View mEmptyView;
     private static SwipeRefreshLayout swipeRefreshLayout;
@@ -101,7 +97,7 @@ public class FlickrFragment extends BaseFragment implements
 
         mLayoutManager = new GridLayoutManager(getActivity(), 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new newFlickrItemAdapter(null);
+        mAdapter = new FlickrItemAdapter(null);
 
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(4));
@@ -268,13 +264,20 @@ public class FlickrFragment extends BaseFragment implements
 
     }
 
-    private class newFlickrItemAdapter extends RecyclerView.Adapter<FlickrViewHolder> {
+    /**
+     * Custom adapter for items in recycler view.
+     *
+     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+     * class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
+    private class FlickrItemAdapter extends RecyclerView.Adapter<FlickrViewHolder> {
 
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private List<FlickrItem> imageList;
-        private ImageManager imageManager;
 
-        public newFlickrItemAdapter(List<FlickrItem> posts){
+        public FlickrItemAdapter(List<FlickrItem> posts){
             this.imageList = posts;
             notifyDataSetChanged();
         }
@@ -296,6 +299,7 @@ public class FlickrFragment extends BaseFragment implements
             holder.picture.setImageDrawable(post.getImage());
 
             holder.text.setText(post.getTitle());
+            holder.text.setTypeface(tf);
 
             final String postLink = post.getLink();
 

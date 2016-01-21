@@ -18,15 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.provider;
 
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpace;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTDatabase.Tables;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -40,6 +31,16 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
+
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpace;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTDatabase.Tables;
 
 public class WSDOTProvider extends ContentProvider {
 

@@ -18,8 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.home;
 
-import com.google.android.gms.analytics.Tracker;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -43,6 +41,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.google.android.gms.analytics.Tracker;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
@@ -52,7 +53,6 @@ import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
-import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity;

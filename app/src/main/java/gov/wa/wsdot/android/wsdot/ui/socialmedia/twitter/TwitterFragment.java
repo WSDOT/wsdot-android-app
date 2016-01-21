@@ -18,18 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.twitter;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -53,6 +41,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.TwitterItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
@@ -64,7 +65,7 @@ public class TwitterFragment extends BaseFragment implements
         SwipeRefreshLayout.OnRefreshListener {
 	
 	private static final String TAG = TwitterFragment.class.getSimpleName();
-	private static newTwitterItemAdapter mAdapter;
+	private static TwitterItemAdapter mAdapter;
 	private static String mScreenName;
 	private HashMap<String, Integer> mTwitterProfileImages = new HashMap<String, Integer>();
 	
@@ -103,7 +104,7 @@ public class TwitterFragment extends BaseFragment implements
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new newTwitterItemAdapter(null);
+        mAdapter = new TwitterItemAdapter(null);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -349,14 +350,22 @@ public class TwitterFragment extends BaseFragment implements
 		}
 	}
 
-	private class newTwitterItemAdapter extends RecyclerView.Adapter<TwitterViewHolder> {
+	/**
+	 * Custom adapter for items in recycler view.
+	 *
+	 * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+	 * class to it's data.
+	 *
+	 * @see android.support.v7.widget.RecyclerView.Adapter
+	 */
+	private class TwitterItemAdapter extends RecyclerView.Adapter<TwitterViewHolder> {
 
         private ImageManager imageManager;
 		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 		private List<TwitterItem> tweetList;
 
-		public newTwitterItemAdapter(List<TwitterItem> posts){
+		public TwitterItemAdapter(List<TwitterItem> posts){
 			this.tweetList = posts;
             imageManager = new ImageManager(getActivity(), 0);
 			notifyDataSetChanged();
@@ -366,7 +375,7 @@ public class TwitterFragment extends BaseFragment implements
 		public TwitterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 			View itemView = LayoutInflater.
 					from(parent.getContext()).
-					inflate(R.layout.twitter_card_item_with_icon, parent, false);
+					inflate(R.layout.card_item_with_icon_twitter, parent, false);
 			return new TwitterViewHolder(itemView);
 		}
 

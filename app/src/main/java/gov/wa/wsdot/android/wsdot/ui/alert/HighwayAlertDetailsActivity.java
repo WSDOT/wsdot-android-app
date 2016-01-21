@@ -18,10 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.alert;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -37,6 +33,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;

@@ -18,19 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.blogger;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -48,6 +35,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.BlogItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
@@ -59,7 +60,7 @@ public class BlogFragment extends BaseFragment implements
         SwipeRefreshLayout.OnRefreshListener {
 
 	private static final String TAG = BlogFragment.class.getSimpleName();
-	private static newBlogItemAdapter mAdapter;
+	private static BlogItemAdapter mAdapter;
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
@@ -82,7 +83,7 @@ public class BlogFragment extends BaseFragment implements
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new newBlogItemAdapter(null);
+        mAdapter = new BlogItemAdapter(null);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -266,14 +267,22 @@ public class BlogFragment extends BaseFragment implements
 		}
 	}
 
-    private class newBlogItemAdapter extends RecyclerView.Adapter<BlogViewHolder> {
+	/**
+	 * Custom adapter for items in recycler view.
+     *
+     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+     * class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+	 */
+    private class BlogItemAdapter extends RecyclerView.Adapter<BlogViewHolder> {
 
         private ImageManager imageManager;
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private List<BlogItem> postList;
 
-        public newBlogItemAdapter(List<BlogItem> posts){
+        public BlogItemAdapter(List<BlogItem> posts){
             this.postList = posts;
             imageManager = new ImageManager(getActivity(), 0);
             notifyDataSetChanged();
@@ -283,7 +292,7 @@ public class BlogFragment extends BaseFragment implements
         public BlogViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View itemView = LayoutInflater.
                     from(parent.getContext()).
-                    inflate(R.layout.card_item_with_image, parent, false);
+                    inflate(R.layout.card_item_with_image_blog, parent, false);
             return new BlogViewHolder(itemView);
         }
 

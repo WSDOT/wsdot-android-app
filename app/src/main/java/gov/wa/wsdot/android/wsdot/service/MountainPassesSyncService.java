@@ -18,9 +18,17 @@
 
 package gov.wa.wsdot.android.wsdot.service;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
+import android.annotation.SuppressLint;
+import android.app.IntentService;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
+import android.text.format.DateUtils;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -40,17 +48,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import android.annotation.SuppressLint;
-import android.app.IntentService;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Intent;
-import android.database.Cursor;
-import android.text.format.DateUtils;
-import android.util.Log;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 
 public class MountainPassesSyncService extends IntentService {
 

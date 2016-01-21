@@ -18,6 +18,12 @@
 
 package gov.wa.wsdot.android.wsdot.provider;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
+import android.util.Log;
+
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWaitColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CachesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CamerasColumns;
@@ -26,11 +32,6 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingS
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPassesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimesColumns;
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
-import android.util.Log;
 
 public class WSDOTDatabase extends SQLiteOpenHelper {
 

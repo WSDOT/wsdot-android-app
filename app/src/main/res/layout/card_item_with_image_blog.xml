@@ -11,7 +11,6 @@
     android:layout_height="wrap_content">
 
     <gov.wa.wsdot.android.wsdot.ui.widget.ResizeableImageView
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/image"
         android:adjustViewBounds="true"
         android:layout_alignParentTop="true"

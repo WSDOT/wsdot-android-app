@@ -18,12 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.amtrakcascades;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -34,9 +28,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
+import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class AmtrakCascadesFragment extends BaseFragment {
@@ -93,6 +95,14 @@ public class AmtrakCascadesFragment extends BaseFragment {
         super.onActivityCreated(savedInstanceState);
     }
 
+    /**
+     * Custom adapter for items in recycler view that need a cursor adapter.
+     *
+     * Binds the custom ViewHolder class to it's data.
+     *
+     * @see CursorRecyclerAdapter
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
     private class ItemAdapter extends RecyclerView.Adapter<AmtrakViewHolder> {
 
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");

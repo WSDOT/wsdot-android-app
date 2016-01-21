@@ -18,8 +18,16 @@
 
 package gov.wa.wsdot.android.wsdot.service;
 
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
+import android.app.IntentService;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
+import android.text.format.DateUtils;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -28,16 +36,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import android.app.IntentService;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Intent;
-import android.database.Cursor;
-import android.text.format.DateUtils;
-import android.util.Log;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 
 public class BorderWaitSyncService extends IntentService {
 

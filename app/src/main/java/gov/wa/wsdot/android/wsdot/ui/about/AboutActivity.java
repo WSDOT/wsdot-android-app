@@ -34,7 +34,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import gov.wa.wsdot.android.wsdot.R;
-
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
 public class AboutActivity extends BaseActivity {

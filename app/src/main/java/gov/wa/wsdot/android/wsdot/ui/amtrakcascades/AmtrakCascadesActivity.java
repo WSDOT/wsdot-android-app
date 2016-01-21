@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui.amtrakcascades;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
@@ -31,12 +32,22 @@ public class AmtrakCascadesActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_amtrakcascades);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        /*
+        ImageView banner = (ImageView) findViewById(R.id.banner);
+        banner.setImageResource(R.drawable.pass_banner);
+
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) collapsingToolbarLayout.getLayoutParams();
+        params.setScrollFlags(0);
+
+        */
 
     }
     

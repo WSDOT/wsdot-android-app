@@ -51,7 +51,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.util.CursorRecyclerAdapter;
+import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
@@ -64,7 +64,7 @@ public class MountainPassesFragment extends BaseFragment implements
     private View mEmptyView;
     private static SwipeRefreshLayout swipeRefreshLayout;
 
-    private static newMountainPassAdapter mAdapter;
+    private static MountainPassAdapter mAdapter;
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
@@ -88,7 +88,7 @@ public class MountainPassesFragment extends BaseFragment implements
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new newMountainPassAdapter(getActivity(), null);
+        mAdapter = new MountainPassAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mAdapter);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
@@ -245,13 +245,21 @@ public class MountainPassesFragment extends BaseFragment implements
         getActivity().startService(intent);
     }
 
-    private class newMountainPassAdapter extends CursorRecyclerAdapter<RecyclerView.ViewHolder> {
+    /**
+     * Custom adapter for items in recycler view that need a cursor adapter.
+     *
+     * Binds the custom ViewHolder class to it's data.
+     *
+     * @see CursorRecyclerAdapter
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
+    private class MountainPassAdapter extends CursorRecyclerAdapter<RecyclerView.ViewHolder> {
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private Context context;
         private List<MtPassVH> mItems = new ArrayList<>();
 
-        public newMountainPassAdapter(Context context, Cursor c) {
+        public MountainPassAdapter(Context context, Cursor c) {
             super(c);
             this.context = context;
         }

@@ -18,16 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.youtube;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -52,6 +42,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.YouTubeItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
@@ -63,7 +64,7 @@ public class YouTubeFragment extends BaseFragment implements
         SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = YouTubeFragment.class.getSimpleName();
-    private static newVideoItemAdapter mAdapter;
+    private static VideoItemAdapter mAdapter;
 
     @SuppressWarnings("unused")
     private ActionMode mActionMode;
@@ -98,7 +99,7 @@ public class YouTubeFragment extends BaseFragment implements
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new newVideoItemAdapter(null);
+        mAdapter = new VideoItemAdapter(null);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -298,14 +299,22 @@ public class YouTubeFragment extends BaseFragment implements
 
     }
 
-    private class newVideoItemAdapter extends RecyclerView.Adapter<YouTubeViewHolder> {
+    /**
+     * Custom adapter for items in recycler view.
+     *
+     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+     * class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
+    private class VideoItemAdapter extends RecyclerView.Adapter<YouTubeViewHolder> {
 
         private ImageManager imageManager;
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private List<YouTubeItem> videoList;
 
-        public newVideoItemAdapter(List<YouTubeItem> posts) {
+        public VideoItemAdapter(List<YouTubeItem> posts) {
             this.videoList = posts;
             imageManager = new ImageManager(getActivity(), 0);
             notifyDataSetChanged();

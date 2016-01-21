@@ -18,15 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.camera;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -55,6 +46,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 
 public class CameraImageFragment extends Fragment implements
         LoaderCallbacks<Drawable>,

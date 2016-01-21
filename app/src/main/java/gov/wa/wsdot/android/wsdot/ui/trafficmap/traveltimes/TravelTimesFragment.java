@@ -59,7 +59,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.util.CursorRecyclerAdapter;
+import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
@@ -267,6 +267,14 @@ public class TravelTimesFragment extends BaseFragment implements
 		}
 	}
 
+    /**
+     * Custom adapter for items in recycler view that need a cursor adapter.
+     *
+     * Binds the custom ViewHolder class to it's data.
+     *
+     * @see CursorRecyclerAdapter
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
     private class TravelTimesAdapter extends CursorRecyclerAdapter<RecyclerView.ViewHolder> {
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");

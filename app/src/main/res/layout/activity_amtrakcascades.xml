@@ -1,49 +1,15 @@
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:fitsSystemWindows="true">
-
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsing_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="175dip"
-            app:contentScrim="?attr/colorPrimary"
-            app:expandedTitleMarginEnd="64dp"
-            app:expandedTitleMarginStart="48dp"
-            android:fitsSystemWindows="true"
-            app:expandedTitleTextAppearance="@style/CollapsedAppBar">
-
-            <ImageView
-                android:src="@drawable/pass_banner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:scaleType="centerCrop"
-                android:minHeight="100dp"/>
-
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                app:layout_collapseMode="pin"
-                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"/>
-
-        </android.support.design.widget.CollapsingToolbarLayout>
-    </android.support.design.widget.AppBarLayout>
+    <!-- <include layout="@layout/toolbar_with_banner"/> -->
+    <include layout="@layout/toolbar_actionbar"/>
 
     <fragment
         android:name="gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesFragment"
         android:id="@+id/fragment_amtrakcascades"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        />
+        android:layout_height="match_parent"/>
 
-</android.support.design.widget.CoordinatorLayout>
+</LinearLayout>

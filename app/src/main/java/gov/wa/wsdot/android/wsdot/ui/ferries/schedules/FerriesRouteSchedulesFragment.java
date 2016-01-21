@@ -18,9 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -34,7 +31,6 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -46,9 +42,11 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +56,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
-import gov.wa.wsdot.android.wsdot.util.CursorRecyclerAdapter;
+import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
@@ -67,7 +65,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
         SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = FerriesRouteSchedulesFragment.class.getSimpleName();
-	private static newRouteSchedulesAdapter mAdapter;
+	private static RouteSchedulesAdapter mAdapter;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
@@ -96,9 +94,8 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new newRouteSchedulesAdapter(getActivity(), null);
+        mAdapter = new RouteSchedulesAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mAdapter);
-
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -201,13 +198,21 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 		}
 	}
 
-	private class newRouteSchedulesAdapter extends CursorRecyclerAdapter<RecyclerView.ViewHolder> {
+	/**
+	 * Custom adapter for items in recycler view that need a cursor adapter.
+	 *
+	 * Binds the custom ViewHolder class to it's data.
+	 *
+	 * @see CursorRecyclerAdapter
+	 * @see android.support.v7.widget.RecyclerView.Adapter
+	 */
+	private class RouteSchedulesAdapter extends CursorRecyclerAdapter<RecyclerView.ViewHolder> {
 		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
 		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private Context context;
         private List<FerryScheduleVH> mItems = new ArrayList<>();
 
-        public newRouteSchedulesAdapter(Context context, Cursor c) {
+        public RouteSchedulesAdapter(Context context, Cursor c) {
         	super(c);
             this.context = context;
         }

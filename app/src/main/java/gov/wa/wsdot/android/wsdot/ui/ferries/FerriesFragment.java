@@ -18,11 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries;
 
-import java.util.ArrayList;
-
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -34,6 +29,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
+import java.util.ArrayList;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;

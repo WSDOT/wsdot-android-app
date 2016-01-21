@@ -18,10 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TreeSet;
-
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,6 +26,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeSet;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 
@@ -65,8 +66,6 @@ public class SR520TollRatesFragment extends BaseFragment {
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        
-        disableAds(root);
         
         return root;
     }	
@@ -130,6 +129,14 @@ public class SR520TollRatesFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Custom adapter for items in recycler view.
+     *
+     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+     * class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
     private class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
