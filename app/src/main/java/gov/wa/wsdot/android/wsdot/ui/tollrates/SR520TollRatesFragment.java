@@ -66,8 +66,6 @@ public class SR520TollRatesFragment extends BaseFragment {
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         
-        disableAds(root);
-        
         return root;
     }	
     

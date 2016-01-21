@@ -60,8 +60,6 @@ public class SR167TollRatesFragment extends BaseFragment {
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);
-
-		disableAds(mRootView);
 		
 		return mRootView;
 	}
