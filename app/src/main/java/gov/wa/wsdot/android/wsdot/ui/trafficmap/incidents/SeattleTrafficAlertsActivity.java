@@ -36,6 +36,8 @@ public class SeattleTrafficAlertsActivity extends BaseActivity {
 		mToolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+		enableAds();
 	}
 	
 	@Override
