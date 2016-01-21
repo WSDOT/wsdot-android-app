@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui.borderwait;
 
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -81,6 +82,11 @@ public class BorderWaitActivity extends BaseActivity {
 
             }
         });
+
+        //Disable scrolling toolbar.
+        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+        params.setScrollFlags(0);
+
 
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));

@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
@@ -125,7 +126,11 @@ public class MountainPassItemActivity extends BaseActivity {
 
             }
         });
-        
+
+		//Disable scrolling toolbar.
+		AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+		params.setScrollFlags(0);
+
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
             tab.select();
