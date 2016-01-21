@@ -128,6 +128,14 @@ public class SR520TollRatesFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Custom adapter for items in recycler view.
+     *
+     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+     * class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
     private class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");

@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.util;
+package gov.wa.wsdot.android.wsdot.ui.widget;
 /*
  * The MIT License (MIT)
  *
@@ -28,16 +28,9 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.Filter;
 import android.widget.FilterQueryProvider;
 import android.widget.Filterable;
-
-import java.util.List;
-
-import gov.wa.wsdot.android.wsdot.R;
 
 /**
  * Provide a {@link android.support.v7.widget.RecyclerView.Adapter} implementation with cursor

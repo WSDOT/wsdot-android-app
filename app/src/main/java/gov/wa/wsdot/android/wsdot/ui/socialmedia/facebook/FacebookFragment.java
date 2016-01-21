@@ -56,7 +56,7 @@ public class FacebookFragment extends BaseFragment implements
         SwipeRefreshLayout.OnRefreshListener {
 	
 	private static final String TAG = FacebookFragment.class.getSimpleName();
-	private static newFacebookItemAdapter mAdapter;
+	private static FacebookItemAdapter mAdapter;
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
@@ -88,7 +88,7 @@ public class FacebookFragment extends BaseFragment implements
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new newFacebookItemAdapter(null);
+        mAdapter = new FacebookItemAdapter(null);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -241,12 +241,20 @@ public class FacebookFragment extends BaseFragment implements
 		
 	}
 
-	private class newFacebookItemAdapter extends RecyclerView.Adapter<FacebookViewHolder> {
+    /**
+     * Custom adapter for items in recycler view.
+     *
+     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+     * class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
+	private class FacebookItemAdapter extends RecyclerView.Adapter<FacebookViewHolder> {
 
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private List<FacebookItem> postList;
 
-        public newFacebookItemAdapter(List<FacebookItem> posts){
+        public FacebookItemAdapter(List<FacebookItem> posts){
             this.postList = posts;
             notifyDataSetChanged();
         }

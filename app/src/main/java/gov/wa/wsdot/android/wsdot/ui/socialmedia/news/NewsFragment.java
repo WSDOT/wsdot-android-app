@@ -59,7 +59,7 @@ public class NewsFragment extends BaseFragment implements
 
 	private static final String TAG = NewsFragment.class.getSimpleName();
 	private static ArrayList<NewsItem> newsItems = null;	
-	private static newNewsItemAdapter mAdapter;
+	private static NewsItemAdapter mAdapter;
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
@@ -86,7 +86,7 @@ public class NewsFragment extends BaseFragment implements
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new newNewsItemAdapter(null);
+        mAdapter = new NewsItemAdapter(null);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -247,14 +247,22 @@ public class NewsFragment extends BaseFragment implements
 		
 	}
 
-    private class newNewsItemAdapter extends RecyclerView.Adapter<NewsViewHolder> {
+	/**
+	 * Custom adapter for items in recycler view.
+	 *
+	 * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+	 * class to it's data.
+	 *
+	 * @see android.support.v7.widget.RecyclerView.Adapter
+	 */
+    private class NewsItemAdapter extends RecyclerView.Adapter<NewsViewHolder> {
 
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
         private List<NewsItem> newsList;
 
-        public newNewsItemAdapter(List<NewsItem> posts){
+        public NewsItemAdapter(List<NewsItem> posts){
             this.newsList = posts;
             notifyDataSetChanged();
         }
