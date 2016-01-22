@@ -140,6 +140,8 @@ public class CameraActivity extends BaseActivity {
             }
         });
 
+		disableAds();
+
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
             tab.select();

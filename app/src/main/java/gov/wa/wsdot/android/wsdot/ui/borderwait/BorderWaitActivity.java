@@ -83,10 +83,7 @@ public class BorderWaitActivity extends BaseActivity {
             }
         });
 
-        //Disable scrolling toolbar.
-        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-        params.setScrollFlags(0);
-
+        enableAds();
 
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
