@@ -174,6 +174,11 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
 		cursor.moveToFirst();
 		swipeRefreshLayout.setRefreshing(false);		
 		mAdapter.swapCursor(cursor);
+        //When getItemCount is checked in onReceive the
+        //size appears to be 0. So we check here.
+        if (mAdapter.getItemCount() > 0){
+            mEmptyView.setVisibility(View.GONE);
+        }
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
@@ -281,7 +286,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
             borderVH.rt.setTypeface(tfb);
 
             borderVH.iv.setImageResource(routeImage.get(cursor.getInt(cursor
-                    .getColumnIndex(BorderWait.BORDER_WAIT_ROUTE))));
+					.getColumnIndex(BorderWait.BORDER_WAIT_ROUTE))));
 
 
 		}
@@ -292,11 +297,6 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
 			view.setTag(viewholder);
 			mItems.add(viewholder);
 			return viewholder;
-		}
-
-		@Override
-		public int getItemViewType(int position) {
-			return 2;
 		}
 
 		// View Holder for list items.

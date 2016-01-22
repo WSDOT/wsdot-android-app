@@ -243,6 +243,11 @@ public class TravelTimesFragment extends BaseFragment implements
 
 		swipeRefreshLayout.setRefreshing(false);
 		mAdapter.swapCursor(cursor);
+        //When getItemCount is check in onReceive the
+        //size appears to be 0. So we check here.
+        if (mAdapter.getItemCount() > 0){
+            mEmptyView.setVisibility(View.GONE);
+        }
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
@@ -364,12 +369,6 @@ public class TravelTimesFragment extends BaseFragment implements
             view.setTag(viewholder);
             mItems.add(viewholder);
             return viewholder;
-        }
-
-
-        @Override
-        public int getItemViewType(int position) {
-            return 1;
         }
 
         private class ViewHolder extends RecyclerView.ViewHolder {
