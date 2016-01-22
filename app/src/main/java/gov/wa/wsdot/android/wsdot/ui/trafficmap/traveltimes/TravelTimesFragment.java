@@ -62,6 +62,7 @@ import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class TravelTimesFragment extends BaseFragment implements
         LoaderCallbacks<Cursor>,
@@ -102,6 +103,8 @@ public class TravelTimesFragment extends BaseFragment implements
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new TravelTimesAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mAdapter);
+
+		mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
