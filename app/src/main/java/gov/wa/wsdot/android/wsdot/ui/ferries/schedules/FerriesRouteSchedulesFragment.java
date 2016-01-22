@@ -59,6 +59,7 @@ import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class FerriesRouteSchedulesFragment extends BaseFragment implements
         LoaderCallbacks<Cursor>,
@@ -97,6 +98,8 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
         mAdapter = new RouteSchedulesAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mAdapter);
 
+		mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
+
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -110,9 +113,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 				R.color.holo_orange_light,
 				R.color.holo_red_light);
         
-        mEmptyView = root.findViewById( R.id.empty_list_view );
-        
-        //enableAds(root);
+        mEmptyView = root.findViewById( R.id.empty_list_view );;
         
         return root;
 	}

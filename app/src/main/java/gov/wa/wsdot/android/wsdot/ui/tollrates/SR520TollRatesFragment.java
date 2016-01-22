@@ -33,6 +33,7 @@ import java.util.TreeSet;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class SR520TollRatesFragment extends BaseFragment {
 	
@@ -61,6 +62,8 @@ public class SR520TollRatesFragment extends BaseFragment {
         mAdapter = new Adapter();
 
         mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.

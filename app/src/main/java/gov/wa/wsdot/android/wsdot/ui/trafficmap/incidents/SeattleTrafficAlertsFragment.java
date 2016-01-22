@@ -52,6 +52,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.SeattleIncidentItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class SeattleTrafficAlertsFragment extends BaseFragment implements
         LoaderCallbacks<ArrayList<SeattleIncidentItem>>,
@@ -92,6 +93,8 @@ public class SeattleTrafficAlertsFragment extends BaseFragment implements
         mAdapter = new Adapter();
 
         mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.

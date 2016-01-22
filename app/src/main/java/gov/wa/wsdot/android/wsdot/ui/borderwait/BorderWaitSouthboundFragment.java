@@ -30,7 +30,6 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -50,10 +49,10 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
 import gov.wa.wsdot.android.wsdot.service.BorderWaitSyncService;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class BorderWaitSouthboundFragment extends BaseFragment implements
         LoaderCallbacks<Cursor>,
@@ -93,6 +92,8 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 
         mAdapter = new BorderWaitAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
 		// For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
 		// FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
