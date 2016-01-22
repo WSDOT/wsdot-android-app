@@ -80,6 +80,7 @@ public class TollRatesActivity extends BaseActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
                 // GA tracker
+                mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
                 mTracker.setScreenName("/Toll Rates/" + tab.getText());
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
             }

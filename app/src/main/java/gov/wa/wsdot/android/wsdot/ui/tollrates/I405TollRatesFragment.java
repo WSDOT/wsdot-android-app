@@ -38,7 +38,6 @@ public class I405TollRatesFragment extends BaseFragment {
     private static final String TAG = I405TollRatesFragment.class.getSimpleName();
     private WebView webview;
 	private ViewGroup mRootView;
-	//private View mLoadingSpinner;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -54,8 +53,6 @@ public class I405TollRatesFragment extends BaseFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_webview_with_spinner, null);
-		//mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);
-		//mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)mRootView.findViewById(R.id.webview);
 		webview.setVisibility(View.GONE);
 		webview.setWebViewClient(new myWebViewClient());
