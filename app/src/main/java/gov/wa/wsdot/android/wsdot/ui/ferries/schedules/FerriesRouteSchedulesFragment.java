@@ -170,6 +170,11 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 	    cursor.moveToFirst();
 	    swipeRefreshLayout.setRefreshing(false);
 		mAdapter.swapCursor(cursor);
+        //When getItemCount is checked in onReceive the
+        //size appears to be 0. So we check here.
+        if (mAdapter.getItemCount() > 0){
+            mEmptyView.setVisibility(View.GONE);
+        }
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
