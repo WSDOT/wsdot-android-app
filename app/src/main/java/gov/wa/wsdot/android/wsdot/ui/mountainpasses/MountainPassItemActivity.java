@@ -127,6 +127,8 @@ public class MountainPassItemActivity extends BaseActivity {
             }
         });
 
+        disableAds();
+
 		//Disable scrolling toolbar.
 		AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
 		params.setScrollFlags(0);
