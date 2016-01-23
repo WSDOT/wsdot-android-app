@@ -132,7 +132,7 @@ public class MountainPassItemReportFragment extends BaseFragment {
 		restriction_two_text.setTypeface(tf);
 		restriction_two_text.setText(mRestrictionTwoText);
 		
-		enableAds(mRootView);
+		disableAds(mRootView);
 		
         return mRootView;		
 	}
