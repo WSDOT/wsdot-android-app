@@ -22,6 +22,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,15 +39,20 @@ import java.util.ArrayList;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class MountainPassItemForecastFragment extends BaseListFragment {
+public class MountainPassItemForecastFragment extends BaseFragment {
 	
     private static final String TAG = MountainPassItemForecastFragment.class.getSimpleName();
     private ArrayList<ForecastItem> forecastItems;
-	private MountainPassItemForecastAdapter adapter;
+	private MountainPassItemForecastAdapter mAdapter;
 	private static String forecastsArray;
-	
+
+    protected RecyclerView mRecyclerView;
+    protected LinearLayoutManager mLayoutManager;
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -80,76 +87,94 @@ public class MountainPassItemForecastFragment extends BaseListFragment {
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+    	ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner, null);
+
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        this.mAdapter = new MountainPassItemForecastAdapter(getActivity(), forecastItems);
+
+        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         
-        disableAds(root);
-        
     	return root;
-	}	
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-        this.adapter = new MountainPassItemForecastAdapter(getActivity(), R.layout.simple_list_item_with_icon, forecastItems);
-        setListAdapter(this.adapter);
-	}	
+	}
 
-	private class MountainPassItemForecastAdapter extends ArrayAdapter<ForecastItem> {
-        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+	/**
+	 * Custom adapter for items in recycler view.
+	 *
+	 * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+	 * class to it's data.
+	 *
+	 * @see android.support.v7.widget.RecyclerView.Adapter
+	 */
+	private class MountainPassItemForecastAdapter extends RecyclerView.Adapter<ForecastViewHolder> {
+
+
 		private ArrayList<ForecastItem> items;
 
-        public MountainPassItemForecastAdapter(Context context, int textViewResourceId, ArrayList<ForecastItem> items) {
-                super(context, textViewResourceId, items);
-                this.items = items;
-        }
+		public MountainPassItemForecastAdapter(Context context, ArrayList<ForecastItem> data) {
+			this.items = data;
+		}
 
-        @SuppressWarnings("unused")
-		public boolean areAllItemsSelectable() {
-        	return false;
-        }
-        
-        public boolean isEnabled(int position) {  
-        	return false;  
-        }        
-        
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-	        ViewHolder holder = null;
-        	
-        	if (convertView == null) {
-	            convertView = getActivity().getLayoutInflater().inflate(R.layout.simple_list_item_with_icon, null);
-	            holder = new ViewHolder();
-	            holder.title = (TextView) convertView.findViewById(R.id.title);
-	            holder.title.setTypeface(tfb);
-	            holder.text = (TextView) convertView.findViewById(R.id.text);
-	            holder.text.setTypeface(tf);
-	            holder.icon = (ImageView) convertView.findViewById(R.id.icon);
-	            
-	            convertView.setTag(holder);
-	        } else {
-	        	holder = (ViewHolder) convertView.getTag();
-	        }
-        	
-	        ForecastItem o = items.get(position);
+		@Override
+		public ForecastViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-           	holder.title.setText(o.getDay());
-       		holder.text.setText(o.getForecastText());
-            holder.icon.setImageResource(o.getWeatherIcon());
+			View itemView = LayoutInflater.
+					from(parent.getContext()).
+					inflate(R.layout.simple_list_item_with_icon, parent, false);
+			return new ForecastViewHolder(itemView);
 
-	        return convertView;
-        }
+		}
+
+		@Override
+		public void onBindViewHolder(ForecastViewHolder viewholder, int position) {
+
+            ForecastItem o = items.get(position);
+
+            viewholder.title.setText(o.getDay());
+            viewholder.text.setText(o.getForecastText());
+            viewholder.icon.setImageResource(o.getWeatherIcon());
+		}
+
+		@Override
+		public int getItemCount() {
+			if (items != null) {
+				return items.size();
+			}
+			return 0;
+		}
+		public void setData(ArrayList<ForecastItem> data) {
+			this.items = data;
+			notifyDataSetChanged();
+		}
+
+		public void clear() {
+			if (items != null) {
+				this.items.clear();
+				notifyDataSetChanged();
+			}
+		}
 	}
-	
-	public static class ViewHolder {
-		public TextView title;
-		public TextView text;
-		public ImageView icon;
+
+	public static class ForecastViewHolder extends RecyclerView.ViewHolder {
+        protected TextView title;
+        protected TextView text;
+        protected ImageView icon;
+
+		public ForecastViewHolder(View itemView) {
+			super(itemView);
+            title = (TextView) itemView.findViewById(R.id.title);
+            text = (TextView) itemView.findViewById(R.id.text);
+			icon = (ImageView) itemView.findViewById(R.id.icon);
+		}
 	}
 }
