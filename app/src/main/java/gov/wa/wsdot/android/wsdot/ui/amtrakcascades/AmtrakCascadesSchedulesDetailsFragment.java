@@ -907,10 +907,10 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
             if(data != null) {
                 this.items = data;
                 items.add(0, null);
-                notifyDataSetChanged();
             }else{
                 items = null;
             }
+            notifyDataSetChanged();
         }
 
         public void clear() {

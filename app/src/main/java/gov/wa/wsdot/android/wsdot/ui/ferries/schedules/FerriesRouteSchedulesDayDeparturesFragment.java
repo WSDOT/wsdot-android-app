@@ -32,6 +32,8 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,6 +53,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import gov.wa.wsdot.android.wsdot.R;
@@ -61,10 +64,12 @@ import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.tollrates.SR520TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
+public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         implements LoaderCallbacks<ArrayList<FerriesScheduleTimesItem>>,
         AdapterView.OnItemSelectedListener, SwipeRefreshLayout.OnRefreshListener {
 
@@ -72,8 +77,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
 	private static FerriesTerminalItem terminalItem;
 	private static ArrayList<FerriesAnnotationsItem> annotations;
 	private static ArrayList<FerriesScheduleTimesItem> times;
-	private static DepartureTimesAdapter adapter;
-	private View mHeaderView;
+	private static DepartureTimesAdapter mAdapter;
 	private Typeface tf;
 	private Typeface tfb;
 	private static SwipeRefreshLayout swipeRefreshLayout;
@@ -86,7 +90,10 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
 	private static int mPosition;
 	
 	private static final int FERRIES_DEPARTURES_LOADER_ID = 0;
-	private static final int FERRIES_VEHICLE_SPACE_LOADER_ID = 1;	
+	private static final int FERRIES_VEHICLE_SPACE_LOADER_ID = 1;
+
+    protected RecyclerView mRecyclerView;
+    protected LinearLayoutManager mLayoutManager;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -166,12 +173,14 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
                                     } else {
                                         int driveUpSpaceCount = terminals.getInt("DriveUpSpaceCount");
                                         int maxSpaceCount = terminals.getInt("MaxSpaceCount");
+
                                         for (FerriesScheduleTimesItem time: times) {
                                             if (dateFormat.format(new Date(Long.parseLong(time.getDepartingTime()))).equals(departure)) {
                                                 time.setDriveUpSpaceCount(driveUpSpaceCount);
                                                 time.setMaxSpaceCount(maxSpaceCount);
                                                 time.setLastUpdated(cursor.getString(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_LAST_UPDATED)));
                                             }
+
                                         }
                                     }
                                 }
@@ -184,8 +193,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
                 }
 
                 swipeRefreshLayout.setRefreshing(false);
-                adapter.clear();
-                adapter.setData(times);
+                mAdapter.setData(times);
             }
 
             public void onLoaderReset(Loader<Cursor> loader) {
@@ -210,7 +218,18 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
 		
 		Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner_swipe_refresh, null);
+
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        this.mAdapter = new DepartureTimesAdapter(getActivity(), null);
+
+        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
+
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -220,16 +239,10 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
         swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
-				R.color.holo_blue_bright,
-				R.color.holo_green_light,
-				R.color.holo_orange_light,
-				R.color.holo_red_light);
-        
-        mHeaderView = inflater.inflate(R.layout.list_item_departure_times_header, null);
-        TextView departing_title = (TextView) mHeaderView.findViewById(R.id.departing_title);
-        departing_title.setTypeface(tfb);
-        TextView arriving_title = (TextView) mHeaderView.findViewById(R.id.arriving_title);
-        arriving_title.setTypeface(tfb);
+                R.color.holo_blue_bright,
+                R.color.holo_green_light,
+                R.color.holo_orange_light,
+                R.color.holo_red_light);
         
         mEmptyView = root.findViewById(R.id.empty_list_view);
         
@@ -240,19 +253,9 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
         daySpinner = (Spinner) root.findViewById(R.id.day_spinner);
         daySpinner.setAdapter(dayOfWeekArrayAdapter);
         daySpinner.setOnItemSelectedListener(this);
-        
-        enableAds(root);
-        
+
         return root;
 	}
-
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		
-		setListAdapter(null);
-	}
-	
 
     @Override
     public void onPause() {
@@ -278,12 +281,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
 		
 		tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
 		tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
-		
-		if (adapter == null) {
-			adapter = new DepartureTimesAdapter(getActivity());
-		}
-		this.getListView().addHeaderView(mHeaderView);
-		setListAdapter(adapter);
         
 		// Prepare the loaders. Either re-connect with an existing one, or start new ones.
         getLoaderManager().initLoader(FERRIES_DEPARTURES_LOADER_ID, null, this);
@@ -291,7 +288,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
         
         TextView t = (TextView) mEmptyView;
         t.setText(R.string.no_day_departures);
-        getListView().setEmptyView(mEmptyView);
 	}
 
 	public Loader<ArrayList<FerriesScheduleTimesItem>> onCreateLoader(int id,
@@ -308,221 +304,274 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseListFragment
 		
         Intent intent = new Intent(getActivity(), FerriesTerminalSailingSpaceSyncService.class);
         getActivity().startService(intent);
-	    
+
 	    swipeRefreshLayout.setRefreshing(false);
-		adapter.setData(data);
+		mAdapter.setData(data);
+
+        if (data != null){
+            mEmptyView.setVisibility(View.GONE);
+        }
+
 	}
 
 	public void onLoaderReset(Loader<ArrayList<FerriesScheduleTimesItem>> loader) {
 	    swipeRefreshLayout.setRefreshing(false);
-	    adapter.setData(null);
 	}
 
 	public static class DepartureTimesLoader extends AsyncTaskLoader<ArrayList<FerriesScheduleTimesItem>> {
 
-		public DepartureTimesLoader(Context context) {
-			super(context);
-		}
-
-		@Override
-		public ArrayList<FerriesScheduleTimesItem> loadInBackground() {
-			int numAnnotations = terminalItem.getAnnotations().size();
-	    	int numTimes = terminalItem.getScheduleTimes().size();
-	    	annotations = new ArrayList<FerriesAnnotationsItem>();
-	    	times = new ArrayList<FerriesScheduleTimesItem>();
-			
-	    	try {
-	    		for (int i=0; i < numAnnotations; i++) {
-	    			FerriesAnnotationsItem annotationItem = new FerriesAnnotationsItem();
-	    			annotationItem.setAnnotation(terminalItem.getAnnotations().get(i).getAnnotation());
-	    			annotations.add(annotationItem);
-	    		}
-	    		
-				for (int i=0; i < numTimes; i++) {
-					FerriesScheduleTimesItem timesItem = new FerriesScheduleTimesItem();
-					timesItem.setDepartingTime(terminalItem.getScheduleTimes().get(i).getDepartingTime());
-					timesItem.setArrivingTime(terminalItem.getScheduleTimes().get(i).getArrivingTime());
-					
-					int numIndexes = terminalItem.getScheduleTimes().get(i).getAnnotationIndexes().size();
-					for (int j=0; j < numIndexes; j++) {
-						FerriesAnnotationIndexesItem index = new FerriesAnnotationIndexesItem();
-						index.setIndex(terminalItem.getScheduleTimes().get(i).getAnnotationIndexes().get(j).getIndex());
-						timesItem.setAnnotationIndexes(index);
-					}
-					
-					times.add(timesItem);
-				}
-			} catch (Exception e) {
-				Log.e(TAG, "Error adding terminal departure times", e);
-			}
-	    	
-			return times;
-		}
-
-		@Override
-		public void deliverResult(ArrayList<FerriesScheduleTimesItem> data) {
-		    /**
-		     * Called when there is new data to deliver to the client. The
-		     * super class will take care of delivering it; the implementation
-		     * here just adds a little more logic.
-		     */	
-			super.deliverResult(data);
-		}
-		
-		@Override
-		protected void onStartLoading() {
-			super.onStartLoading();
-			
-			adapter.clear();
-			swipeRefreshLayout.post(new Runnable() {
-				public void run() {
-					swipeRefreshLayout.setRefreshing(true);
-				}
-			});
-			forceLoad();
-		}
-
-		@Override
-		protected void onStopLoading() {
-			super.onStopLoading();
-			
-			// Attempt to cancel the current load task if possible.
-			cancelLoad();
-		}
-		
-		@Override
-		public void onCanceled(ArrayList<FerriesScheduleTimesItem> data) {
-			super.onCanceled(data);
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-			
-			// Ensure the loader is stopped
-			onStopLoading();
-		}
-		
-	}
-	
-	private class DepartureTimesAdapter extends ArrayAdapter<FerriesScheduleTimesItem> {
-		private final LayoutInflater mInflater;
-
-        public DepartureTimesAdapter(Context context) {
-	        super(context, R.layout.list_item_departure_times);
-	        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        public DepartureTimesLoader(Context context) {
+            super(context);
         }
 
-        @SuppressWarnings("unused")
-		public boolean areAllItemsSelectable() {
-        	return false;
-        }
-        
-        public boolean isEnabled(int position) {  
-        	return false;  
-        }        
-        
-        public void setData(ArrayList<FerriesScheduleTimesItem> data) {
-        	if (data != null) {
-                //addAll(data); // Only in API level 11
-                notifyDataSetChanged();
-                int size = data.size();
-                for (int i=0; i < size; i++) {
-                	add(data.get(i));
+        @Override
+        public ArrayList<FerriesScheduleTimesItem> loadInBackground() {
+            int numAnnotations = terminalItem.getAnnotations().size();
+            int numTimes = terminalItem.getScheduleTimes().size();
+            annotations = new ArrayList<FerriesAnnotationsItem>();
+            times = new ArrayList<FerriesScheduleTimesItem>();
+
+            try {
+                for (int i = 0; i < numAnnotations; i++) {
+                    FerriesAnnotationsItem annotationItem = new FerriesAnnotationsItem();
+                    annotationItem.setAnnotation(terminalItem.getAnnotations().get(i).getAnnotation());
+                    annotations.add(annotationItem);
                 }
-                notifyDataSetChanged();                
+
+                for (int i = 0; i < numTimes; i++) {
+                    FerriesScheduleTimesItem timesItem = new FerriesScheduleTimesItem();
+                    timesItem.setDepartingTime(terminalItem.getScheduleTimes().get(i).getDepartingTime());
+                    timesItem.setArrivingTime(terminalItem.getScheduleTimes().get(i).getArrivingTime());
+
+                    int numIndexes = terminalItem.getScheduleTimes().get(i).getAnnotationIndexes().size();
+                    for (int j = 0; j < numIndexes; j++) {
+                        FerriesAnnotationIndexesItem index = new FerriesAnnotationIndexesItem();
+                        index.setIndex(terminalItem.getScheduleTimes().get(i).getAnnotationIndexes().get(j).getIndex());
+                        timesItem.setAnnotationIndexes(index);
+                    }
+
+                    times.add(timesItem);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error adding terminal departure times", e);
+            }
+
+            return times;
+        }
+
+        @Override
+        protected void onStartLoading() {
+            super.onStartLoading();
+
+            swipeRefreshLayout.post(new Runnable() {
+                public void run() {
+                    swipeRefreshLayout.setRefreshing(true);
+                }
+            });
+            forceLoad();
+        }
+
+        @Override
+        protected void onStopLoading() {
+            super.onStopLoading();
+
+            // Attempt to cancel the current load task if possible.
+            cancelLoad();
+        }
+
+        @Override
+        public void onCanceled(ArrayList<FerriesScheduleTimesItem> data) {
+            super.onCanceled(data);
+        }
+
+        @Override
+        protected void onReset() {
+            super.onReset();
+
+            // Ensure the loader is stopped
+            onStopLoading();
+        }
+    }
+
+    /**
+     * Custom adapter for items in recycler view.
+     *
+     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+     * class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
+    private class DepartureTimesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+        private static final int TYPE_HEADER = 0;
+        private static final int TYPE_ITEM = 1;
+        private List<FerriesScheduleTimesItem> items;
+
+        public DepartureTimesAdapter(Context context, List<FerriesScheduleTimesItem> data) {
+            this.items = data;
+        }
+
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            View itemView;
+
+            if (viewType == TYPE_HEADER) {
+                itemView = LayoutInflater.
+                        from(parent.getContext()).
+                        inflate(R.layout.list_item_departure_times_header, parent, false);
+                return new TitleViewHolder(itemView);
+            }else if (viewType == TYPE_ITEM){
+                itemView = LayoutInflater.
+                        from(parent.getContext()).
+                        inflate(R.layout.list_item_departure_times, parent, false);
+                return new TimesViewHolder(itemView);
+            }else{
+                throw new RuntimeException("There is no view type that matches the type: " + viewType);
             }
         }
-        
+
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-	        DateFormat dateFormat = new SimpleDateFormat("hh:mm a");
-	        dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
-	        
-	        ViewHolder holder;
-	        
-	        if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.list_item_departure_times, null);
-	            holder = new ViewHolder();
-	            holder.departing = (TextView) convertView.findViewById(R.id.departing);
-	            holder.departing.setTypeface(tfb);
-	            holder.arriving = (TextView) convertView.findViewById(R.id.arriving);
-	            holder.arriving.setTypeface(tfb);
-	            holder.annotation = (TextView) convertView.findViewById(R.id.annotation);
-	            holder.annotation.setTypeface(tf);
-                holder.vehicleSpaceGroup = (RelativeLayout) convertView.findViewById(R.id.driveUpProgressBarGroup);
-                holder.driveUpProgressBar = (ProgressBar) convertView.findViewById(R.id.driveUpProgressBar);
-                holder.driveUpSpaceCount = (TextView) convertView.findViewById(R.id.driveUpSpaceCount);
-	            holder.driveUpSpaceCount.setTypeface(tf);
-                holder.driveUpSpaces = (TextView) convertView.findViewById(R.id.driveUpSpaces);
-                holder.driveUpSpaces.setTypeface(tf);           
-                holder.driveUpSpacesDisclaimer = (TextView) convertView.findViewById(R.id.driveUpSpacesDisclaimer);
-                holder.driveUpSpacesDisclaimer.setTypeface(tf);
-                holder.updated = (TextView) convertView.findViewById(R.id.updated);
-                holder.updated.setTypeface(tf);
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-	            convertView.setTag(holder);
-	        } else {
-	        	holder = (ViewHolder) convertView.getTag();
-	        }
-	        
-	        FerriesScheduleTimesItem item = getItem(position);
-	        String annotation = "";
+            DateFormat dateFormat = new SimpleDateFormat("hh:mm a");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
-	        int numIndexes = item.getAnnotationIndexes().size();
-	        for (int i=0; i < numIndexes; i++) {
-	        	FerriesAnnotationsItem p = annotations.get(item.getAnnotationIndexes().get(i).getIndex());
-	        	annotation += p.getAnnotation();
-	        }
-	        
-	        if (annotation.equals("")) {
-	            holder.annotation.setVisibility(View.GONE);
-	        } else {
-	            holder.annotation.setVisibility(View.VISIBLE);
-	        }
-	        
-        	holder.departing.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
-        	
-        	if (!item.getArrivingTime().equals("N/A")) {
-        		holder.arriving.setText(dateFormat.format(new Date(Long.parseLong(item.getArrivingTime()))));
-        	}
+            TimesViewHolder itemHolder;
+            TitleViewHolder titleHolder;
 
-       		holder.annotation.setText(android.text.Html.fromHtml(annotation));
+            if(holder instanceof TitleViewHolder){
 
-       		if (item.getDriveUpSpaceCount() != -1) {
-                holder.vehicleSpaceGroup.setVisibility(View.VISIBLE);
-                holder.driveUpProgressBar.setMax(item.getMaxSpaceCount());
-                holder.driveUpProgressBar.setProgress(item.getMaxSpaceCount() - item.getDriveUpSpaceCount());
-                holder.driveUpProgressBar.setSecondaryProgress(item.getMaxSpaceCount());
-                holder.driveUpSpaceCount.setVisibility(View.VISIBLE);
-                holder.driveUpSpaceCount.setText(Integer.toString(item.getDriveUpSpaceCount()));
-                holder.driveUpSpaces.setVisibility(View.VISIBLE);
-                holder.driveUpSpacesDisclaimer.setVisibility(View.VISIBLE);
-       		    holder.updated.setVisibility(View.VISIBLE);
-                holder.updated.setText(ParserUtils.relativeTime(item.getLastUpdated(), "MMMM d, yyyy h:mm a", false));
-       		} else {
-                holder.vehicleSpaceGroup.setVisibility(View.GONE);
-                holder.driveUpSpaceCount.setVisibility(View.GONE);
-                holder.driveUpSpaces.setVisibility(View.GONE);
-                holder.driveUpSpacesDisclaimer.setVisibility(View.GONE);
-       		    holder.updated.setVisibility(View.GONE);
-        		}
-	        
-	        return convertView;
+                titleHolder = (TitleViewHolder) holder;
+
+                titleHolder.Arriving.setTypeface(tfb);
+                titleHolder.Departing.setTypeface(tfb);
+
+            }else {
+
+                FerriesScheduleTimesItem item = getItem(position);
+
+                itemHolder = (TimesViewHolder) holder;
+
+                String annotation = "";
+
+                int numIndexes = item.getAnnotationIndexes().size();
+                for (int i = 0; i < numIndexes; i++) {
+                    FerriesAnnotationsItem p = annotations.get(item.getAnnotationIndexes().get(i).getIndex());
+                    annotation += p.getAnnotation();
+                }
+
+                if (annotation.equals("")) {
+                    itemHolder.annotation.setVisibility(View.GONE);
+                } else {
+                    itemHolder.annotation.setVisibility(View.VISIBLE);
+                }
+
+                itemHolder.departing.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
+
+                if (!item.getArrivingTime().equals("N/A")) {
+                    itemHolder.arriving.setText(dateFormat.format(new Date(Long.parseLong(item.getArrivingTime()))));
+                }
+
+                itemHolder.annotation.setText(android.text.Html.fromHtml(annotation));
+
+                if (item.getDriveUpSpaceCount() != -1) {
+                    itemHolder.vehicleSpaceGroup.setVisibility(View.VISIBLE);
+                    itemHolder.driveUpProgressBar.setMax(item.getMaxSpaceCount());
+                    itemHolder.driveUpProgressBar.setProgress(item.getMaxSpaceCount() - item.getDriveUpSpaceCount());
+                    itemHolder.driveUpProgressBar.setSecondaryProgress(item.getMaxSpaceCount());
+                    itemHolder.driveUpSpaceCount.setVisibility(View.VISIBLE);
+                    itemHolder.driveUpSpaceCount.setText(Integer.toString(item.getDriveUpSpaceCount()));
+                    itemHolder.driveUpSpaces.setVisibility(View.VISIBLE);
+                    itemHolder.driveUpSpacesDisclaimer.setVisibility(View.VISIBLE);
+                    itemHolder.updated.setVisibility(View.VISIBLE);
+                    itemHolder.updated.setText(ParserUtils.relativeTime(item.getLastUpdated(), "MMMM d, yyyy h:mm a", false));
+                } else {
+                    itemHolder.vehicleSpaceGroup.setVisibility(View.GONE);
+                    itemHolder.driveUpSpaceCount.setVisibility(View.GONE);
+                    itemHolder.driveUpSpaces.setVisibility(View.GONE);
+                    itemHolder.driveUpSpacesDisclaimer.setVisibility(View.GONE);
+                    itemHolder.updated.setVisibility(View.GONE);
+                }
+            }
         }
-        
-    	private class ViewHolder {
-    		TextView departing;
-    		TextView arriving;
-    		TextView annotation;
-            RelativeLayout vehicleSpaceGroup;
-            ProgressBar driveUpProgressBar;
-    		TextView driveUpSpaceCount;
-    		TextView driveUpSpaces;
-    		TextView driveUpSpacesDisclaimer;
-    		TextView updated;
-    	}
-	}
+
+        @Override
+        public int getItemCount() {
+            if (items != null) {
+                return items.size() + 1;
+            }
+            return 0;
+        }
+
+        public void setData(ArrayList<FerriesScheduleTimesItem> data) {
+            if(data != null) {
+                items = data;
+            }else{
+                items = null;
+            }
+            notifyDataSetChanged();
+        }
+
+        public void clear() {
+            if (items != null) {
+                this.items.clear();
+            }
+            notifyDataSetChanged();
+        }
+
+        private FerriesScheduleTimesItem getItem(int position){
+            return items.get(position - 1);
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (isPositionHeader(position))
+                return TYPE_HEADER;
+
+            return TYPE_ITEM;
+        }
+
+        private boolean isPositionHeader(int position) {
+            return position == 0;
+        }
+    }
+
+    public static class TimesViewHolder extends RecyclerView.ViewHolder {
+        protected TextView departing;
+        protected TextView arriving;
+        protected TextView annotation;
+        protected RelativeLayout vehicleSpaceGroup;
+        protected ProgressBar driveUpProgressBar;
+        protected TextView driveUpSpaceCount;
+        protected TextView driveUpSpaces;
+        protected TextView driveUpSpacesDisclaimer;
+        protected TextView updated;
+
+        public TimesViewHolder(View itemView) {
+            super(itemView);
+            departing = (TextView) itemView.findViewById(R.id.departing);
+            arriving = (TextView) itemView.findViewById(R.id.arriving);
+            annotation = (TextView) itemView.findViewById(R.id.annotation);
+            vehicleSpaceGroup = (RelativeLayout) itemView.findViewById(R.id.driveUpProgressBarGroup);
+            driveUpProgressBar = (ProgressBar) itemView.findViewById(R.id.driveUpProgressBar);
+            driveUpSpaceCount = (TextView) itemView.findViewById(R.id.driveUpSpaceCount);
+            driveUpSpaces = (TextView) itemView.findViewById(R.id.driveUpSpaces);
+            driveUpSpacesDisclaimer = (TextView) itemView.findViewById(R.id.driveUpSpacesDisclaimer);
+            updated = (TextView) itemView.findViewById(R.id.updated);
+        }
+    }
+
+    public static class TitleViewHolder extends RecyclerView.ViewHolder {
+        protected TextView Departing;
+        protected TextView Arriving;
+
+        public TitleViewHolder(View itemView) {
+            super(itemView);
+            Departing = (TextView) itemView.findViewById(R.id.departing_title);
+            Arriving = (TextView) itemView.findViewById(R.id.arriving_title);
+        }
+    }
 
     public void onRefresh() {
 		swipeRefreshLayout.post(new Runnable() {
