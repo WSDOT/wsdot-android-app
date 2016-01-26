@@ -643,6 +643,8 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
      */
     private class ScheduleAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+        private static final int TYPE_HEADER = 0;
+        private static final int TYPE_ITEM = 1;
         private List<AmtrakCascadesServiceItem> items;
 
         public ScheduleAdapter(Context context, List<AmtrakCascadesServiceItem> data) {
@@ -654,18 +656,18 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
             View itemView;
 
-            if (viewType == 0) {
-
+            if (viewType == TYPE_HEADER) {
                 itemView = LayoutInflater.
                         from(parent.getContext()).
                         inflate(R.layout.list_item_amtrakschedules_times_header, parent, false);
                 return new TitleViewHolder(itemView);
-            } else {
+            }else if (viewType == TYPE_ITEM){
                 itemView = LayoutInflater.
                         from(parent.getContext()).
                         inflate(R.layout.list_item_amtrakschedules_times, parent, false);
-
                 return new AmtrakViewHolder(itemView);
+            }else{
+                throw new RuntimeException("There is no view type that matches the type: " + viewType);
             }
         }
 
@@ -682,7 +684,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
             TitleViewHolder titleHolder;
             AmtrakViewHolder itemHolder;
 
-            if (getItemViewType(position) == 0){
+            if (holder instanceof TitleViewHolder){
 
                 titleHolder = (TitleViewHolder) holder;
 
@@ -901,12 +903,9 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
             return 0;
         }
 
-        //We set the first item in the data list to null to account
-        //for the title in the list.
         public void setData(ArrayList<AmtrakCascadesServiceItem> data) {
             if(data != null) {
-                this.items = data;
-                items.add(0, null);
+                items = data;
             }else{
                 items = null;
             }
@@ -916,16 +915,24 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
         public void clear() {
             if (items != null) {
                 this.items.clear();
-                notifyDataSetChanged();
             }
+            notifyDataSetChanged();
         }
 
+        private AmtrakCascadesServiceItem getItem(int position){
+            return items.get(position - 1);
+        }
 
-        //Any view type > 0 will be a depart/arrival item.
-        //View type == 0 will be the title.
         @Override
-        public int getItemViewType(int position){
-            return position == 0 ? 0 : 1;
+        public int getItemViewType(int position) {
+            if (isPositionHeader(position))
+                return TYPE_HEADER;
+
+            return TYPE_ITEM;
+        }
+
+        private boolean isPositionHeader(int position) {
+            return position == 0;
         }
 
     }
