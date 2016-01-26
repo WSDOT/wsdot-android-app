@@ -30,15 +30,18 @@
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
     </android.support.design.widget.AppBarLayout>
 
+
+
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/tab_layout"
         android:layout_weight="1"
         android:paddingBottom="@dimen/high_impact_alerts_height"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         />
+
 
     <fragment
         android:name="gov.wa.wsdot.android.wsdot.ui.home.HighImpactAlertsFragment"
