@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui.camera;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -139,6 +140,11 @@ public class CameraActivity extends BaseActivity {
 
             }
         });
+
+        //Disable scrolling toolbar for this activity.
+        AppBarLayout.LayoutParams params =
+                (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+        params.setScrollFlags(0);
 
 		disableAds();
 
