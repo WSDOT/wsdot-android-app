@@ -114,16 +114,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
             mDaysOfWeek.add(dateFormat.format(new Date(
                     Long.parseLong(mScheduleDateItems.get(i).getDate()))));
         }
-
-        // Set up custom spinner
-        Spinner daySpinner = (Spinner) activity.findViewById(R.id.day_spinner);
-
-        ArrayAdapter<CharSequence> dayOfWeekArrayAdapter = new ArrayAdapter<>(
-                activity, R.layout.simple_spinner_item_white, mDaysOfWeek);;
-        dayOfWeekArrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item_white);
-        daySpinner.setAdapter(dayOfWeekArrayAdapter);
-        daySpinner.setOnItemSelectedListener(this);
-
 	}
 
 	@Override
@@ -255,7 +245,14 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
+        // Set up custom spinner
+        Spinner daySpinner = (Spinner) getActivity().findViewById(R.id.day_spinner);
 
+        ArrayAdapter<CharSequence> dayOfWeekArrayAdapter = new ArrayAdapter<>(
+                getActivity(), R.layout.simple_spinner_item_white, mDaysOfWeek);;
+        dayOfWeekArrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item_white);
+        daySpinner.setAdapter(dayOfWeekArrayAdapter);
+        daySpinner.setOnItemSelectedListener(this);
 
         return root;
 	}
