@@ -63,7 +63,6 @@ public class TwitterActivity extends BaseActivity implements
                 R.array.twitter_accounts, R.layout.simple_spinner_item_white);
         adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item_white);
         spinner.setAdapter(adapter);
-
         spinner.setOnItemSelectedListener(this);
 
 	}

@@ -86,7 +86,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 	private static LoaderCallbacks<Cursor> ferriesTerminalSyncCallbacks;
 	private Spinner daySpinner;
     private static ArrayList<FerriesScheduleDateItem> mScheduleDateItems;
-    private static ArrayList<String> mDaysOfWeek;
+    private static ArrayList<CharSequence> mDaysOfWeek;
 	private static int mPosition;
 	
 	private static final int FERRIES_DEPARTURES_LOADER_ID = 0;
@@ -107,13 +107,22 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         mPosition = args.getInt("position");
         mScheduleDateItems = (ArrayList<FerriesScheduleDateItem>) args.getSerializable("scheduleDateItems");
         terminalItem = mScheduleDateItems.get(0).getFerriesTerminalItem().get(mPosition);
-        mDaysOfWeek = new ArrayList<String>();
+        mDaysOfWeek = new ArrayList<CharSequence>();
         
         int numDates = mScheduleDateItems.size();
         for (int i = 0; i < numDates; i++) {
             mDaysOfWeek.add(dateFormat.format(new Date(
                     Long.parseLong(mScheduleDateItems.get(i).getDate()))));
         }
+
+        // Set up custom spinner
+        Spinner daySpinner = (Spinner) activity.findViewById(R.id.day_spinner);
+
+        ArrayAdapter<CharSequence> dayOfWeekArrayAdapter = new ArrayAdapter<>(
+                activity, R.layout.simple_spinner_item_white, mDaysOfWeek);;
+        dayOfWeekArrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item_white);
+        daySpinner.setAdapter(dayOfWeekArrayAdapter);
+        daySpinner.setOnItemSelectedListener(this);
 
 	}
 
@@ -218,7 +227,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 		
 		Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
         mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -245,14 +254,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                 R.color.holo_red_light);
         
         mEmptyView = root.findViewById(R.id.empty_list_view);
-        
-        ArrayAdapter<String> dayOfWeekArrayAdapter = new ArrayAdapter<String>(
-                getActivity(), android.R.layout.simple_spinner_item, mDaysOfWeek);
-        
-        dayOfWeekArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        daySpinner = (Spinner) root.findViewById(R.id.day_spinner);
-        daySpinner.setAdapter(dayOfWeekArrayAdapter);
-        daySpinner.setOnItemSelectedListener(this);
+
+
 
         return root;
 	}
