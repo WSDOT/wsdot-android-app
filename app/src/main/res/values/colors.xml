@@ -19,4 +19,6 @@
 
     <color name="card_bg">#EEEEEE</color>
     <color name="alerts">#E0E0E0</color>
+
+    <color name="primary">#008065</color>
 </resources>
