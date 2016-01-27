@@ -195,7 +195,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
         amtrakStationItems.add(new AmtrakCascadesStationItem("ALY", "Albany, OR", 17, 44.6300975, -123.1041787));
         amtrakStationItems.add(new AmtrakCascadesStationItem("EUG", "Eugene, OR", 18, 44.055506, -123.094523));
 
-        stationsMap.put("Select your destination (Optional)", "N/A");
+        stationsMap.put("All", "N/A");
         stationsMap.put("Vancouver, BC", "VAC");
         stationsMap.put("Bellingham, WA", "BEL");
         stationsMap.put("Mount Vernon, WA", "MVW");
@@ -297,7 +297,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
             stations.add(station.getStationName());
         }
         
-        stations.add(0, "Select your destination (Optional)");
+        stations.add(0, "All");
 
         ArrayAdapter<String> stationsArrayAdapter = new ArrayAdapter<String>(
                 this, android.R.layout.simple_spinner_item, stations);
