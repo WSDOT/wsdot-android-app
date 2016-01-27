@@ -177,10 +177,6 @@ public abstract class CursorRecyclerAdapter<VH
         return oldCursor;
     }
 
-    public int getViewTypeCount(){
-        return 1;
-    }
-
     /**
      * <p>Converts the cursor into a CharSequence. Subclasses should override this
      * method to convert their results. The default implementation returns an
