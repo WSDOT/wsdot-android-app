@@ -19,7 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui.home;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
@@ -90,10 +89,17 @@ public class HomeActivity extends BaseActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
+                AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+
                 // GA tracker  *Only track Favorites Tab b/c home activity is auto tracked.
                 if (tab.getText().equals("Favorites")) {
                     mTracker.setScreenName("/" + tab.getText());
                     mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+                    params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+                            | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
+                } else {
+                    params.setScrollFlags(0);
+                    mAppBar.setExpanded(true);
                 }
             }
 
@@ -107,18 +113,6 @@ public class HomeActivity extends BaseActivity {
 
             }
         });
-
-        //Set toolbar to collapse (only showing tabs) when user is in landscape mode.
-        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-            mAppBar.setExpanded(false);
-            params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
-        }else{
-            mAppBar.setExpanded(true);
-            params.setScrollFlags(0);
-        }
-
     }
 
     @Override
@@ -137,4 +131,5 @@ public class HomeActivity extends BaseActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 }
