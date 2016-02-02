@@ -25,6 +25,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +53,9 @@ public class BorderWaitActivity extends BaseActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        Spinner mSpinner = (Spinner) findViewById(R.id.spinner);
+        mSpinner.setVisibility(View.GONE);
 
         mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
