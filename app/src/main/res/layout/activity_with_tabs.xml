@@ -19,7 +19,6 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true" >
 
-        <!-- Custom toolbar with spinner for twitter activity-->
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             app:layout_collapseMode="pin"
@@ -29,7 +28,7 @@
             app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed">
 
         <Spinner
-            android:id="@+id/day_spinner"
+            android:id="@+id/spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
