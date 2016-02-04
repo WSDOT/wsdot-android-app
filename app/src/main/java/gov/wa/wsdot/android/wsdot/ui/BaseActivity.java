@@ -18,12 +18,13 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
-import com.google.android.gms.ads.doubleclick.PublisherAdView;
-
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+
+import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
+import com.google.android.gms.ads.doubleclick.PublisherAdView;
+
 import gov.wa.wsdot.android.wsdot.R;
 
 public abstract class BaseActivity extends AppCompatActivity {

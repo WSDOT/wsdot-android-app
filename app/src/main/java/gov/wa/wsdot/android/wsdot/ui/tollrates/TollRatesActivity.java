@@ -18,157 +18,114 @@
 
 package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
-import java.util.ArrayList;
+import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Spinner;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.Tab;
-import android.view.MenuItem;
+import java.util.ArrayList;
+import java.util.List;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
+import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class TollRatesActivity extends BaseActivity {
-	
+
+    private TabLayout mTabLayout;
+    private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
     private ViewPager mViewPager;
-	private TabsAdapter mTabsAdapter;
+    private TabsAdapter mTabsAdapter;
+    private Toolbar mToolbar;
+    private Tracker mTracker;
 
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-	    super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		mViewPager = new ViewPager(this);
-		mViewPager.setId(R.id.pager);
-		
-		setContentView(mViewPager);
-		
+        setContentView(R.layout.activity_with_tabs);
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        
-        mTabsAdapter = new TabsAdapter(this, mViewPager);
-        mTabsAdapter.addTab(getSupportActionBar().newTab().setText("SR 520"),
-        		SR520TollRatesFragment.class, null);
-        mTabsAdapter.addTab(getSupportActionBar().newTab().setText("SR 16"),
-        		SR16TollRatesFragment.class, null);
-        mTabsAdapter.addTab(getSupportActionBar().newTab().setText("SR 167"),
-        		SR167TollRatesFragment.class, null);
-        mTabsAdapter.addTab(getSupportActionBar().newTab().setText("I-405"),
-                I405TollRatesFragment.class, null);
-        
+
+        Spinner mSpinner = (Spinner) findViewById(R.id.spinner);
+        mSpinner.setVisibility(View.GONE);
+
+        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        // Add tab titles and their corresponding fragments to the fragment list.
+        tabFragments.add(mTabLayout.getTabCount(), SR520TollRatesFragment.class);
+        mTabLayout.addTab(mTabLayout.newTab().setText("SR 520"));
+        tabFragments.add(mTabLayout.getTabCount(), SR16TollRatesFragment.class);
+        mTabLayout.addTab(mTabLayout.newTab().setText("SR 16"));
+        tabFragments.add(mTabLayout.getTabCount(), SR167TollRatesFragment.class);
+        mTabLayout.addTab(mTabLayout.newTab().setText("SR 167"));
+        tabFragments.add(mTabLayout.getTabCount(), I405TollRatesFragment.class);
+        mTabLayout.addTab(mTabLayout.newTab().setText("I-405"));
+
+        mTabsAdapter = new TabsAdapter
+                (this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount());
+
+        mViewPager.setAdapter(mTabsAdapter);
+        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
+
+        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                mViewPager.setCurrentItem(tab.getPosition());
+                // GA tracker
+                mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+                mTracker.setScreenName("/Toll Rates/" + tab.getText());
+                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+        disableAds();
+
         if (savedInstanceState != null) {
-            getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
+            TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
+            tab.select();
         }
 
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-	    case android.R.id.home:
-	    	finish();
-	    	return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-	
+        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         //Save the selected tab in order to restore in screen rotation
-        outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
+        outState.putInt("tab", mTabLayout.getSelectedTabPosition());
     }
-
-    public static class TabsAdapter extends FragmentPagerAdapter implements
-		ActionBar.TabListener, ViewPager.OnPageChangeListener {
-
-		private final Context mContext;
-		private final ActionBar mActionBar;
-		private final ViewPager mViewPager;
-		private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
-		private final Tracker mTracker;
-
-		static final class TabInfo {
-			private final Class<?> clss;
-			private final Bundle args;
-
-			TabInfo(Class<?> _class, Bundle _args) {
-				clss = _class;
-				args = _args;
-			}
-		}
-
-		public TabsAdapter(BaseActivity activity, ViewPager pager) {
-			super(activity.getSupportFragmentManager());
-			
-			mContext = activity;
-			mTracker = ((WsdotApplication) activity.getApplication()).getDefaultTracker();
-			mActionBar = activity.getSupportActionBar();
-			mViewPager = pager;
-			mViewPager.setAdapter(this);
-			mViewPager.setOnPageChangeListener(this);
-		}
-
-		public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
-			TabInfo info = new TabInfo(clss, args);
-			tab.setTag(info);
-			tab.setTabListener(this);
-			mTabs.add(info);
-			mActionBar.addTab(tab);
-			notifyDataSetChanged();
-		}
-
-		@Override
-		public int getCount() {
-			return mTabs.size();
-		}
-
-		@Override
-		public Fragment getItem(int position) {
-			TabInfo info = mTabs.get(position);
-			return Fragment.instantiate(mContext, info.clss.getName(),
-					info.args);
-		}
-
-		public void onPageScrolled(int position, float positionOffset,
-				int positionOffsetPixels) {
-		}
-
-		public void onPageSelected(int position) {
-			mActionBar.setSelectedNavigationItem(position);
-		}
-
-		public void onPageScrollStateChanged(int state)	{
-		}
-
-		public void onTabSelected(Tab tab, FragmentTransaction ft) {
-			Object tag = tab.getTag();
-			for (int i = 0; i < mTabs.size(); i++) {
-				if (mTabs.get(i) == tag) {
-					
-					// GA tracker
-					mTracker.setScreenName("/Toll Rates/" + tab.getText());
-					mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-					
-					mViewPager.setCurrentItem(i);
-				}
-			}
-		}
-
-		public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-		}
-
-		public void onTabReselected(Tab tab, FragmentTransaction ft) {
-		}
-    	
-    }    
-    
 }

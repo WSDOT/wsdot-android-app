@@ -18,26 +18,24 @@
 
 package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+
 public class SR167TollRatesFragment extends BaseFragment {
 	
     private static final String TAG = SR167TollRatesFragment.class.getSimpleName();
     private WebView webview;
 	private ViewGroup mRootView;
-	private View mLoadingSpinner;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -53,14 +51,11 @@ public class SR167TollRatesFragment extends BaseFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_webview_with_spinner, null);
-		mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);
-		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)mRootView.findViewById(R.id.webview);
+		webview.setVisibility(View.GONE);
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
-		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);	
-		
-		disableAds(mRootView);
+		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);
 		
 		return mRootView;
 	}
@@ -100,8 +95,8 @@ public class SR167TollRatesFragment extends BaseFragment {
 		@Override
 		public void onPageFinished(WebView view, String url) {
 			super.onPageFinished(view, url);
-			
-			mLoadingSpinner.setVisibility(View.GONE);
+			webview.setVisibility(View.VISIBLE);
+			//mLoadingSpinner.setVisibility(View.GONE);
 		}
 	}
 }

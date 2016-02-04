@@ -18,20 +18,17 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import java.util.ArrayList;
-import java.util.Date;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,23 +36,36 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.FacebookItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class FerriesRouteSchedulesDaySailingsFragment extends BaseListFragment
+public class FerriesRouteSchedulesDaySailingsFragment extends BaseFragment
         implements LoaderCallbacks<ArrayList<FerriesScheduleDateItem>> {
 	
 	private static final String TAG = FerriesRouteSchedulesDaySailingsFragment.class.getSimpleName();
 	private static ArrayList<FerriesScheduleDateItem> scheduleDateItems;
-	private static SailingsAdapter adapter;
+	private static SailingsAdapter mAdapter;
 	private static View mLoadingSpinner;
 	private static String mDates;
-	
+
+	protected RecyclerView mRecyclerView;
+	protected LinearLayoutManager mLayoutManager;
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -76,8 +86,17 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseListFragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner, null);
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new SailingsAdapter(null);
+        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -86,8 +105,6 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseListFragment
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         
-        disableAds(root);
-        
         return root;
 	}
 	
@@ -95,17 +112,13 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseListFragment
 	public void onDestroyView() {
 		super.onDestroyView();
 		
-		setListAdapter(null);
+		//setListAdapter(null);
 	}
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-        if (adapter == null) {
-        	adapter = new SailingsAdapter(getActivity());
-        }
-        setListAdapter(adapter);
+
         
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
@@ -125,11 +138,11 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseListFragment
 			ArrayList<FerriesScheduleDateItem> data) {
 		
 		mLoadingSpinner.setVisibility(View.GONE);
-		adapter.setData(data.get(0).getFerriesTerminalItem());		
+		mAdapter.setData(data.get(0).getFerriesTerminalItem());
 	}
 
 	public void onLoaderReset(Loader<ArrayList<FerriesScheduleDateItem>> loader) {
-		adapter.setData(null);
+		mAdapter.setData(null);
 	}
 	
 	public static class TerminalLoader extends AsyncTaskLoader<ArrayList<FerriesScheduleDateItem>> {
@@ -230,7 +243,7 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseListFragment
 		protected void onStartLoading() {
 			super.onStartLoading();
 			
-			adapter.clear();
+			mAdapter.clear();
 			mLoadingSpinner.setVisibility(View.VISIBLE);
 			forceLoad();
 		}
@@ -258,77 +271,100 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseListFragment
 		
 	}
 
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
+    /**
+     * Custom adapter for items in recycler view.
+     *
+     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+     * class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
+    private class SailingsAdapter extends RecyclerView.Adapter<FerrydepartureVH> {
 
-		String terminalNames = scheduleDateItems.get(0)
-				.getFerriesTerminalItem().get(position)
-				.getDepartingTerminalName()
-				+ " to "
-				+ scheduleDateItems.get(0).getFerriesTerminalItem()
-						.get(position).getArrivingTerminalName();
-		
-        int terminalId = scheduleDateItems.get(0).getFerriesTerminalItem()
-                .get(position).getDepartingTerminalID();
+        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        private List<FerriesTerminalItem> items;
 
-		Bundle b = new Bundle();
-		Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDayDeparturesActivity.class);
-        b.putInt("terminalId", terminalId);
-		b.putString("terminalNames", terminalNames);
-		b.putInt("position", position);
-		b.putSerializable("scheduleDateItems", scheduleDateItems);
-		intent.putExtras(b);
-		startActivity(intent);		
-	}
-    
-	private class SailingsAdapter extends ArrayAdapter<FerriesTerminalItem> {
-		private final LayoutInflater mInflater;
-		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-
-        public SailingsAdapter(Context context) {
-	        super(context, R.layout.list_item);
-	        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        public SailingsAdapter(List<FerriesTerminalItem> items){
+            this.items = items;
+            notifyDataSetChanged();
         }
 
-        public void setData(ArrayList<FerriesTerminalItem> data) {
-            clear();
-            if (data != null) {
-                //addAll(data); // Only in API level 11
-                notifyDataSetChanged();
-                int size = data.size();
-                for (int i=0; i < size; i++) {
-                	add(data.get(i));
-                }
-                notifyDataSetChanged();                
-            }         	
-        }
-        
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-	        ViewHolder holder = null;
-        	
-        	if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.list_item, null);
-	            holder = new ViewHolder();
-	            holder.title = (TextView) convertView.findViewById(R.id.title);
-	            holder.title.setTypeface(tf);
-	            
-	            convertView.setTag(holder);
-	        } else {
-	        	holder = (ViewHolder) convertView.getTag();
-	        }
-	        
-	        FerriesTerminalItem item = getItem(position);
-	        
-        	holder.title.setText(item.getDepartingTerminalName() + " to " + item.getArrivingTerminalName());
-	        
-	        return convertView;
+        public FerrydepartureVH onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.
+                    from(parent.getContext()).
+                    inflate(R.layout.list_item, parent, false);
+            return new FerrydepartureVH(itemView);
         }
-	}
-	
-	public static class ViewHolder {
-		public TextView title;
-	}	
-	
+
+        @Override
+        public void onBindViewHolder(FerrydepartureVH holder, int position) {
+
+            FerriesTerminalItem item = items.get(position);
+
+            holder.title.setText(item.getDepartingTerminalName() + " to " + item.getArrivingTerminalName());
+            holder.title.setTypeface(tf);
+
+            final int pos = position;
+
+            // Set onClickListener for holder's view
+            holder.itemView.setOnClickListener(
+                    new View.OnClickListener() {
+                        public void onClick(View v) {
+                            String terminalNames = scheduleDateItems.get(0)
+                                    .getFerriesTerminalItem().get(pos)
+                                    .getDepartingTerminalName()
+                                    + " to "
+                                    + scheduleDateItems.get(0).getFerriesTerminalItem()
+                                    .get(pos).getArrivingTerminalName();
+
+                            int terminalId = scheduleDateItems.get(0).getFerriesTerminalItem()
+                                    .get(pos).getDepartingTerminalID();
+
+                            Bundle b = new Bundle();
+                            Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDayDeparturesActivity.class);
+                            b.putInt("terminalId", terminalId);
+                            b.putString("terminalNames", terminalNames);
+                            b.putInt("position", pos);
+                            b.putSerializable("scheduleDateItems", scheduleDateItems);
+                            intent.putExtras(b);
+                            startActivity(intent);
+                        }
+                    }
+            );
+        }
+
+        @Override
+        public int getItemCount() {
+            if (items == null) {
+                return 0;
+            }else {
+                return items.size();
+            }
+        }
+
+        public void clear(){
+            if (items != null) {
+                this.items.clear();
+                notifyDataSetChanged();
+            }
+        }
+
+        public void setData(List<FerriesTerminalItem> items){
+            this.items = items;
+            notifyDataSetChanged();
+        }
+
+    }
+
+    // View Holder for ferry departure list items.
+    private class FerrydepartureVH extends RecyclerView.ViewHolder{
+        TextView title;
+
+        public FerrydepartureVH(View v) {
+            super(v);
+            title = (TextView) v.findViewById(R.id.title);
+        }
+    }
+
 }

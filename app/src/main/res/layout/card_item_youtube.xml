@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:paddingTop="8dp"
-	android:paddingRight="10dp"
-	android:paddingBottom="8dp"
-	android:paddingLeft="10dp"
-	android:background="@drawable/listview_background" >
+	android:layout_margin="8dp"
+	android:id="@+id/cv">
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
 
 	<RelativeLayout
 	    android:id="@+id/image_layout"
@@ -77,3 +79,5 @@
         />     
     
 </RelativeLayout>
+
+</android.support.v7.widget.CardView>

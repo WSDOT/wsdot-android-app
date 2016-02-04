@@ -18,8 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.home;
 
-import com.google.android.gms.analytics.Tracker;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +26,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -43,6 +42,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.github.ksoichiro.android.observablescrollview.ObservableListView;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
+import com.github.ksoichiro.android.observablescrollview.ScrollState;
+import com.google.android.gms.analytics.Tracker;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
@@ -51,8 +56,8 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
 import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
-import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity;
@@ -62,7 +67,8 @@ import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class FavoritesFragment extends BaseListFragment implements
         LoaderCallbacks<Cursor>,
-        SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener,
+        ObservableScrollViewCallbacks {
 
 	private View mEmptyView;
 	private SeparatedListAdapter mAdapter;
@@ -135,6 +141,8 @@ public class FavoritesFragment extends BaseListFragment implements
 	private static final int MOUNTAIN_PASSES_LOADER_ID = 1;
 	private static final int TRAVEL_TIMES_LOADER_ID = 2;
 	private static final int FERRIES_SCHEDULES_LOADER_ID = 3;
+
+    private int lastScrollY = 0;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -142,23 +150,22 @@ public class FavoritesFragment extends BaseListFragment implements
 
 		setHasOptionsMenu(true);
 
-		
 		mFerriesSchedulesIntent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
-		getActivity().startService(mFerriesSchedulesIntent);
+        getActivity().startService(mFerriesSchedulesIntent);
 		
 		mMountainPassesIntent = new Intent(getActivity(), MountainPassesSyncService.class);
-		getActivity().startService(mMountainPassesIntent);
+        getActivity().startService(mMountainPassesIntent);
 		
 		mTravelTimesIntent = new Intent(getActivity(), TravelTimesSyncService.class);
 		getActivity().startService(mTravelTimesIntent);
-	
+
 	}
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_favorites, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -168,12 +175,13 @@ public class FavoritesFragment extends BaseListFragment implements
         swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
-				R.color.holo_blue_bright,
-				R.color.holo_green_light,
-				R.color.holo_orange_light,
-				R.color.holo_red_light);
+                R.color.holo_blue_bright,
+                R.color.holo_green_light,
+                R.color.holo_orange_light,
+                R.color.holo_red_light);
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
+
 
         return root;
     }
@@ -189,17 +197,20 @@ public class FavoritesFragment extends BaseListFragment implements
 		
 		getLoaderManager().initLoader(CAMERAS_LOADER_ID, null, this);
 		getLoaderManager().initLoader(FERRIES_SCHEDULES_LOADER_ID, null, this);
-		getLoaderManager().initLoader(MOUNTAIN_PASSES_LOADER_ID, null, this);
-		getLoaderManager().initLoader(TRAVEL_TIMES_LOADER_ID, null, this);
+        getLoaderManager().initLoader(MOUNTAIN_PASSES_LOADER_ID, null, this);
+        getLoaderManager().initLoader(TRAVEL_TIMES_LOADER_ID, null, this);
 
 	    TextView t = (TextView) mEmptyView;
-		t.setText(R.string.no_favorites);
-		getListView().setEmptyView(mEmptyView);	
+        t.setText(R.string.no_favorites);
+        getListView().setEmptyView(mEmptyView);
+
+        ObservableListView listView = (ObservableListView) getListView();
+        listView.setScrollViewCallbacks(this);
 	}
 	
 	@Override
 	public void onPause() {
-		super.onPause();
+        super.onPause();
 
 		getActivity().unregisterReceiver(mFerriesSchedulesSyncReceiver);
 		getActivity().unregisterReceiver(mMountainPassesSyncReceiver);
@@ -281,9 +292,9 @@ public class FavoritesFragment extends BaseListFragment implements
 
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 	    CursorLoader cursorLoader = null;
-		swipeRefreshLayout.post(new Runnable() {
-			public void run() {
-				swipeRefreshLayout.setRefreshing(true);
+        swipeRefreshLayout.post(new Runnable() {
+            public void run() {
+                swipeRefreshLayout.setRefreshing(true);
 			}
 		});
 	    
@@ -361,12 +372,16 @@ public class FavoritesFragment extends BaseListFragment implements
 			mAdapter.addSection("Mountain Passes", mMountainPassAdapter);
 		}
 		if (mTravelTimesAdapter.getCount() > 0) {
-			mAdapter.addSection("Travel Times", mTravelTimesAdapter);
+            mAdapter.addSection("Travel Times", mTravelTimesAdapter);
 		}
 		
 		swipeRefreshLayout.setRefreshing(false);
 		setListAdapter(mAdapter);
-		
+
+        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        //    getListView().setNestedScrollingEnabled(true);
+        //}
+
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
@@ -387,8 +402,8 @@ public class FavoritesFragment extends BaseListFragment implements
 			break;
 		}
 	}
-	
-	public class CameraAdapter extends CursorAdapter {
+
+    public class CameraAdapter extends CursorAdapter {
 	    private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
 
 		public CameraAdapter(Context context, Cursor c, boolean autoRequery) {
@@ -711,5 +726,31 @@ public class FavoritesFragment extends BaseListFragment implements
         getActivity().startService(mMountainPassesIntent);
         getActivity().startService(mTravelTimesIntent);        
     }
-    
+
+    // Override methods to implement ObservableScrollViewCallBacks
+    // This allows for collapsing AppBar effects
+    @Override
+    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+
+    }
+
+    @Override
+    public void onDownMotionEvent() {
+
+    }
+
+    @Override
+    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+
+        BaseActivity activity = (BaseActivity) getActivity();
+
+        AppBarLayout mAppBar = (AppBarLayout) activity.findViewById(R.id.appbar);
+
+        if (scrollState == ScrollState.UP) {
+            mAppBar.setExpanded(false, true);
+        } else if (scrollState == ScrollState.DOWN) {
+            mAppBar.setExpanded(true, true);
+        }
+
+    }
 }

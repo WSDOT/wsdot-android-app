@@ -18,8 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.util;
 
-import java.lang.reflect.Field;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -28,6 +26,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.view.ViewConfiguration;
+
+import java.lang.reflect.Field;
 
 public class UIUtils {
 

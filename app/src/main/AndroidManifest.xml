@@ -27,7 +27,7 @@
         android:name=".ui.WsdotApplication"
 	 	android:icon="@drawable/ic_launcher"
 	 	android:label="@string/app_name"
-		android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+		android:theme="@style/WSDOT"
         android:allowBackup="true" >
 
         <meta-data
@@ -97,9 +97,6 @@
             android:label="@string/title_news" />
 
         <activity
-            android:name=".ui.socialmedia.news.NewsDetailsActivity" />
-
-   		<activity
             android:name=".ui.about.AboutActivity"
             android:label="@string/title_about" />
 
@@ -107,33 +104,19 @@
    		    android:name=".ui.socialmedia.blogger.BlogActivity"
    		    android:label="@string/title_blog" />
 
-   		<activity
-   		    android:name=".ui.socialmedia.blogger.BlogDetailsActivity" />
-
-   		<activity
+        <activity
    		    android:name=".ui.socialmedia.twitter.TwitterActivity"
    		    android:label="@string/title_twitter" />
 
         <activity
-            android:name=".ui.socialmedia.twitter.TwitterDetailsActivity"
-            android:label="@string/title_twitter" />
-
-   		<activity
    		    android:name=".ui.socialmedia.facebook.FacebookActivity"
    		    android:label="@string/title_facebook" />
 
-   		<activity
-   		    android:name=".ui.socialmedia.facebook.FacebookDetailsActivity"
-   		    android:label="@string/title_facebook" />   		
-
-   		<activity
+        <activity
    		    android:name=".ui.socialmedia.flickr.FlickrActivity"
    		    android:label="@string/title_flickr" />
 
-   		<activity
-   		    android:name=".ui.socialmedia.flickr.FlickrDetailsActivity" />
-
-   		<activity
+        <activity
    		    android:name=".ui.socialmedia.SocialMediaActivity"
    		    android:label="@string/title_socialmedia" />
 

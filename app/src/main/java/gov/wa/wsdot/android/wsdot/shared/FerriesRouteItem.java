@@ -19,8 +19,8 @@
 package gov.wa.wsdot.android.wsdot.shared;
 
 
-import java.util.ArrayList;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class FerriesRouteItem implements Serializable {
 	/**

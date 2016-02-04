@@ -18,15 +18,22 @@
 
 package gov.wa.wsdot.android.wsdot.ui.amtrakcascades;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -38,21 +45,16 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesStationItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -88,13 +90,17 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
     private LocationRequest mLocationRequest;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
+    private Toolbar mToolbar;
     
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.amtrakcascades_schedules);		
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		setContentView(R.layout.amtrakcascades_schedules);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         getDaysOfWeek();
         getAmtrakStations();
@@ -189,7 +195,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
         amtrakStationItems.add(new AmtrakCascadesStationItem("ALY", "Albany, OR", 17, 44.6300975, -123.1041787));
         amtrakStationItems.add(new AmtrakCascadesStationItem("EUG", "Eugene, OR", 18, 44.055506, -123.094523));
 
-        stationsMap.put("Select your destination (Optional)", "N/A");
+        stationsMap.put("Select your destination", "N/A");
         stationsMap.put("Vancouver, BC", "VAC");
         stationsMap.put("Bellingham, WA", "BEL");
         stationsMap.put("Mount Vernon, WA", "MVW");
@@ -291,7 +297,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
             stations.add(station.getStationName());
         }
         
-        stations.add(0, "Select your destination (Optional)");
+        stations.add(0, "Select your destination");
 
         ArrayAdapter<String> stationsArrayAdapter = new ArrayAdapter<String>(
                 this, android.R.layout.simple_spinner_item, stations);

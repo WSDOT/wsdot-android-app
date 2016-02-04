@@ -18,11 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,6 +29,8 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,17 +40,25 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.ResizeableImageView;
 import gov.wa.wsdot.android.wsdot.util.ImageManager;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class FerriesTerminalCameraFragment extends BaseListFragment
+public class FerriesTerminalCameraFragment extends BaseFragment
         implements LoaderCallbacks<Cursor> {
 
     private static Map<Integer, FerriesTerminalItem> ferriesTerminalMap = new HashMap<Integer, FerriesTerminalItem>();
@@ -64,7 +69,10 @@ public class FerriesTerminalCameraFragment extends BaseListFragment
     private static View mLoadingSpinner;
     private static CameraImageAdapter mAdapter;
     private static ArrayList<CameraItem> cameraItems = new ArrayList<CameraItem>();
-    
+
+    protected RecyclerView mRecyclerView;
+    protected LinearLayoutManager mLayoutManager;
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -107,17 +115,21 @@ public class FerriesTerminalCameraFragment extends BaseListFragment
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        
-        mAdapter = new CameraImageAdapter(getActivity());
-        setListAdapter(mAdapter);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
-        
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner, null);
+
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new CameraImageAdapter(getActivity(), null);
+
+        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
+
+
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -125,8 +137,6 @@ public class FerriesTerminalCameraFragment extends BaseListFragment
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mEmptyView = root.findViewById( R.id.empty_list_view );
-        
-        disableAds(root);
         
         return root;
     }
@@ -157,7 +167,9 @@ public class FerriesTerminalCameraFragment extends BaseListFragment
 
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         cameraItems.clear();
-        
+
+        mEmptyView.setVisibility(View.GONE);
+
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
                 int distance = getDistanceFromTerminal(mTerminalId,
@@ -184,7 +196,7 @@ public class FerriesTerminalCameraFragment extends BaseListFragment
         } else {
             TextView t = (TextView) mEmptyView;
             t.setText(R.string.no_list_data);
-            getListView().setEmptyView(mEmptyView);
+            mEmptyView.setVisibility(View.VISIBLE);
         }
         
         mLoadingSpinner.setVisibility(View.GONE);
@@ -216,18 +228,6 @@ public class FerriesTerminalCameraFragment extends BaseListFragment
             return super.loadInBackground();
         }
 
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        
-        Bundle b = new Bundle();
-        Intent intent = new Intent(getActivity(), CameraActivity.class);
-        b.putInt("id", cameraItems.get(position).getCameraId());
-        intent.putExtras(b);
-        
-        startActivity(intent);
     }
     
     private void createTerminalLocations() {
@@ -270,55 +270,87 @@ public class FerriesTerminalCameraFragment extends BaseListFragment
         }
     }
 
-    private class CameraImageAdapter extends ArrayAdapter<CameraItem> {
-        private final LayoutInflater mInflater;
+    /**
+     * Custom adapter for items in recycler view.
+     *
+     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+     * class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
+    private class CameraImageAdapter extends RecyclerView.Adapter<CameraViewHolder> {
+
+
+        private ArrayList<CameraItem> items;
         private ImageManager imageManager;
-        
-        public CameraImageAdapter(Context context) {
-            super(context, R.layout.list_item_resizeable_image);
-            
-            mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        public CameraImageAdapter(Context context, ArrayList<CameraItem> data) {
+            this.items = data;
             imageManager = new ImageManager(context, 5 * DateUtils.MINUTE_IN_MILLIS); // Cache for 5 minutes.
         }
-        
-        public void setData(ArrayList<CameraItem> data) {
-            clear();
-            if (data != null) {
-                //addAll(data); // Only in API level 11
-                notifyDataSetChanged();
-                int size = data.size();
-                for (int i=0; i < size; i++) {
-                    add(data.get(i));
-                }
-                notifyDataSetChanged();                
-            }
-        }
-        
+
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
-            
-            if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.list_item_resizeable_image, null);
-                holder = new ViewHolder();
-                holder.image = (ResizeableImageView) convertView.findViewById(R.id.image);
-                
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-            
-            CameraItem item = getItem(position);
-            
-            holder.image.setTag(item.getImageUrl());
-            imageManager.displayImage(item.getImageUrl(), getActivity(), holder.image);
-            
-            return convertView;
+        public CameraViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            View itemView = LayoutInflater.
+                    from(parent.getContext()).
+                    inflate(R.layout.list_item_resizeable_image, parent, false);
+            return new CameraViewHolder(itemView);
+
         }
-        
-        public class ViewHolder {
-            public ImageView image;
-        } 
+
+        @Override
+        public void onBindViewHolder(CameraViewHolder viewholder, int position) {
+
+            CameraItem item = items.get(position);
+
+            viewholder.image.setTag(item.getImageUrl());
+            imageManager.displayImage(item.getImageUrl(), getActivity(), viewholder.image);
+
+            final int pos = position;
+
+            viewholder.itemView.setOnClickListener(
+                    new View.OnClickListener() {
+                        public void onClick(View v) {
+                            Bundle b = new Bundle();
+                            Intent intent = new Intent(getActivity(), CameraActivity.class);
+                            b.putInt("id", cameraItems.get(pos).getCameraId());
+                            intent.putExtras(b);
+
+                            startActivity(intent);
+                        }
+                    }
+            );
+        }
+
+        @Override
+        public int getItemCount() {
+            if (items != null) {
+                return items.size();
+            }
+            return 0;
+        }
+        public void setData(ArrayList<CameraItem> data) {
+            this.items = data;
+            notifyDataSetChanged();
+        }
+
+        public void clear() {
+            if (items != null) {
+                this.items.clear();
+                notifyDataSetChanged();
+            }
+        }
+    }
+
+    public static class CameraViewHolder extends RecyclerView.ViewHolder {
+        protected ImageView image;
+
+        public CameraViewHolder(View itemView) {
+            super(itemView);
+            image = (ImageView) itemView.findViewById(R.id.image);
+        }
+
     }
 
     /**

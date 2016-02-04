@@ -18,19 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.news;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -40,18 +27,34 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.NewsItem;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class NewsFragment extends BaseListFragment implements
+public class NewsFragment extends BaseFragment implements
         LoaderCallbacks<ArrayList<NewsItem>>,
         SwipeRefreshLayout.OnRefreshListener {
 
@@ -60,6 +63,9 @@ public class NewsFragment extends BaseListFragment implements
 	private static NewsItemAdapter mAdapter;
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
+
+    protected RecyclerView mRecyclerView;
+    protected LinearLayoutManager mLayoutManager;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -74,7 +80,18 @@ public class NewsFragment extends BaseListFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
+
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new NewsItemAdapter(null);
+
+        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -84,14 +101,12 @@ public class NewsFragment extends BaseListFragment implements
         swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
-				R.color.holo_blue_bright,
-				R.color.holo_green_light,
-				R.color.holo_orange_light,
-				R.color.holo_red_light);
+                R.color.holo_blue_bright,
+                R.color.holo_green_light,
+                R.color.holo_orange_light,
+                R.color.holo_red_light);
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
-        
-        disableAds(root);
         
         return root;
     }
@@ -100,31 +115,10 @@ public class NewsFragment extends BaseListFragment implements
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-		mAdapter = new NewsItemAdapter(getActivity());
-		setListAdapter(mAdapter);
-		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);
 	}
-	
-	/*
-    @Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	super.onCreateOptionsMenu(menu, inflater);
-    	inflater.inflate(R.menu.refresh, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.menu_refresh:
-			getLoaderManager().restartLoader(0, null, this);
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}
-	*/
 	
 	public Loader<ArrayList<NewsItem>> onCreateLoader(int id, Bundle args) {
 		// This is called when a new Loader needs to be created. There
@@ -134,12 +128,14 @@ public class NewsFragment extends BaseListFragment implements
 
 	public void onLoadFinished(Loader<ArrayList<NewsItem>> loader, ArrayList<NewsItem> data) {
 
+        mEmptyView.setVisibility(View.GONE);
+
 		if (!data.isEmpty()) {
 			mAdapter.setData(data);
 		} else {
 		    TextView t = (TextView) mEmptyView;
 			t.setText(R.string.no_connection);
-			getListView().setEmptyView(mEmptyView);
+            mEmptyView.setVisibility(View.VISIBLE);
 		}
 		
 		swipeRefreshLayout.setRefreshing(false);
@@ -220,9 +216,8 @@ public class NewsFragment extends BaseListFragment implements
 		@Override
 		protected void onStartLoading() {
 			super.onStartLoading();
-			
-			mAdapter.clear();
-			swipeRefreshLayout.post(new Runnable() {
+			swipeRefreshLayout.post(
+					new Runnable() {
 				public void run() {
 					swipeRefreshLayout.setRefreshing(true);
 				}
@@ -252,68 +247,90 @@ public class NewsFragment extends BaseListFragment implements
 		}
 		
 	}
-	
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		
-		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(newsItems.get(position).getLink()));
-		startActivity(intent);
-	}
 
-	private class NewsItemAdapter extends ArrayAdapter<NewsItem> {
-		private final LayoutInflater mInflater;
+	/**
+	 * Custom adapter for items in recycler view.
+	 *
+	 * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+	 * class to it's data.
+	 *
+	 * @see android.support.v7.widget.RecyclerView.Adapter
+	 */
+    private class NewsItemAdapter extends RecyclerView.Adapter<NewsViewHolder> {
+
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");		
+        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
-        public NewsItemAdapter(Context context) {
-        	super(context, R.layout.simple_list_item);
-        	mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        private List<NewsItem> newsList;
+
+        public NewsItemAdapter(List<NewsItem> posts){
+            this.newsList = posts;
+            notifyDataSetChanged();
         }
 
-        public void setData(ArrayList<NewsItem> data) {
-            clear();
-            if (data != null) {
-                //addAll(data); // Only in API level 11
-                notifyDataSetChanged();
-                int size = data.size();
-                for (int i=0; i < size; i++) {
-                	add(data.get(i));
-                }
-                notifyDataSetChanged();                
+        @Override
+        public NewsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.
+                    from(parent.getContext()).
+                    inflate(R.layout.simple_list_item, parent, false);
+            return new NewsViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(NewsViewHolder holder, int position) {
+
+            NewsItem post = newsList.get(position);
+            holder.title.setText(post.getTitle());
+            holder.createdAt.setText(post.getPubDate());
+
+            holder.title.setTypeface(tfb);
+            holder.createdAt.setTypeface(tf);
+
+            final String postLink = post.getLink();
+
+            // Set onClickListener for holder's view
+            holder.itemView.setOnClickListener(
+                    new View.OnClickListener() {
+                        public void onClick(View v) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(postLink));
+                            startActivity(intent);
+                        }
+                    }
+            );
+        }
+
+        @Override
+        public int getItemCount() {
+            if (newsList == null) {
+                return 0;
+            }else {
+                return newsList.size();
             }
         }
 
-		@Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-	        ViewHolder holder = null;
-			
-			if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.simple_list_item, null);
-	            holder = new ViewHolder();
-	            holder.title = (TextView) convertView.findViewById(R.id.title);
-	            holder.title.setTypeface(tfb);
-	            holder.description = (TextView) convertView.findViewById(R.id.description);
-	            holder.description.setTypeface(tf);
-	            
-	            convertView.setTag(holder);
-	        } else {
-	        	holder = (ViewHolder) convertView.getTag();
-	        }
-	        
-	        NewsItem item = getItem(position);
-	        
-        	holder.title.setText(item.getTitle());
-        	holder.description.setText(item.getPubDate());
-	        
-	        return convertView;
+        public void clear(){
+            if (newsList != null) {
+                this.newsList.clear();
+                notifyDataSetChanged();
+            }
         }
-	}
-	
-	public static class ViewHolder {
-		public TextView title;
-		public TextView description;
-	}
+
+        public void setData(List<NewsItem> posts){
+            this.newsList = posts;
+            notifyDataSetChanged();
+        }
+    }
+
+    public static class NewsViewHolder extends RecyclerView.ViewHolder {
+        protected TextView title;
+        protected TextView createdAt;
+
+        public NewsViewHolder(View itemView) {
+            super(itemView);
+            title = (TextView) itemView.findViewById(R.id.title);
+            createdAt = (TextView) itemView.findViewById(R.id.description);
+        }
+    }
 
     public void onRefresh() {
         getLoaderManager().restartLoader(0, null, this);
