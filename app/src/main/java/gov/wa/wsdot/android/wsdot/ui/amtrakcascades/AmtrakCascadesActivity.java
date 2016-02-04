@@ -19,8 +19,11 @@
 package gov.wa.wsdot.android.wsdot.ui.amtrakcascades;
 
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -39,15 +42,13 @@ public class AmtrakCascadesActivity extends BaseActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        /*
         ImageView banner = (ImageView) findViewById(R.id.banner);
-        banner.setImageResource(R.drawable.pass_banner);
+        banner.setImageResource(R.drawable.amtrak_banner);
 
-        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) collapsingToolbarLayout.getLayoutParams();
+        // Disable the collapsing toolbar, lists are too small.
+        CollapsingToolbarLayout mCollapse = (android.support.design.widget.CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mCollapse.getLayoutParams();
         params.setScrollFlags(0);
-
-        */
 
     }
     

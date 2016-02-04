@@ -204,8 +204,6 @@ public class FavoritesFragment extends BaseListFragment implements
         t.setText(R.string.no_favorites);
         getListView().setEmptyView(mEmptyView);
 
-
-
         ObservableListView listView = (ObservableListView) getListView();
         listView.setScrollViewCallbacks(this);
 	}
