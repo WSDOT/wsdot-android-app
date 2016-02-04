@@ -106,12 +106,10 @@ public class HomeActivity extends BaseActivity {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
             }
         });
     }
@@ -119,7 +117,6 @@ public class HomeActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.options, menu);
-
         return super.onCreateOptionsMenu(menu);
     }
 
