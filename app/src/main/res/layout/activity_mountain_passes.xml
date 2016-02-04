@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- <include layout="@layout/toolbar_with_banner"/> -->
-    <include layout="@layout/toolbar_scrolling"/>
+    <include layout="@layout/toolbar_with_banner"/>
 
     <fragment
         android:name="gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesFragment"

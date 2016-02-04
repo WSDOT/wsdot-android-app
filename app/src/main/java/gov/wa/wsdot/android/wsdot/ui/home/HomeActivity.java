@@ -91,8 +91,9 @@ public class HomeActivity extends BaseActivity {
                 mViewPager.setCurrentItem(tab.getPosition());
                 AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
 
-                // GA tracker  *Only track Favorites Tab b/c home activity is auto tracked.
+                // Disable the collapsing toolbar when on the home dashboard. Enable it when on favorites.
                 if (tab.getText().equals("Favorites")) {
+                    // GA tracker. Only track Favorites Tab b/c home activity is auto tracked.
                     mTracker.setScreenName("/" + tab.getText());
                     mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                     params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS

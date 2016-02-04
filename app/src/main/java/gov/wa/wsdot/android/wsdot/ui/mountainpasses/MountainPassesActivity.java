@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -39,10 +40,8 @@ public class MountainPassesActivity extends BaseActivity {
 		setSupportActionBar(mToolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        /*
 		ImageView banner = (ImageView) findViewById(R.id.banner);
 		banner.setImageResource(R.drawable.pass_banner);
-        */
 
 	}
 	

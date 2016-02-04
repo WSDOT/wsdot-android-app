@@ -18,9 +18,15 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries;
 
+import android.app.ActionBar;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -38,6 +44,19 @@ public class FerriesActivity extends BaseActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        ImageView banner = (ImageView) findViewById(R.id.banner);
+		banner.setImageResource(R.drawable.ferry_banner);
+
+
+        // Toggle collapsing toolbar depending on screen orientation
+        CollapsingToolbarLayout.LayoutParams params = (CollapsingToolbarLayout.LayoutParams) mToolbar.getLayoutParams();
+
+        if (getResources().getConfiguration().orientation ==  Configuration.ORIENTATION_PORTRAIT){
+            params.setCollapseMode(CollapsingToolbarLayout.LayoutParams.COLLAPSE_MODE_OFF);
+        }else{
+            params.setCollapseMode(CollapsingToolbarLayout.LayoutParams.COLLAPSE_MODE_PIN);
+        }
 
     }
     

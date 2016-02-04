@@ -81,5 +81,6 @@
     
     <string name="banner_ad_unit_id">/90447967/WSDOT:mobile-apps:multiple-sizes</string>
 
+    <string name="pass_banner">Mountain pass image</string>
 
 </resources>

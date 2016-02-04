@@ -38,12 +38,6 @@ public class FerriesRouteSchedulesActivity extends BaseActivity {
 		mToolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-		/*
-        ImageView banner = (ImageView) findViewById(R.id.banner);
-		banner.setImageResource(R.drawable.ferry_banner);
-        */
-
 	}
 	
 	@Override

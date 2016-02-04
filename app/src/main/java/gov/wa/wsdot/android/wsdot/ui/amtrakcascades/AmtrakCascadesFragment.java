@@ -134,7 +134,6 @@ public class AmtrakCascadesFragment extends BaseFragment {
             final Object clz = item.getClz();
             final String url = item.getUrl();
 
-
             // Set onClickListener for holder's view
             holder.itemView.setOnClickListener(
                     new View.OnClickListener() {
