@@ -188,6 +188,7 @@ public class MountainPassesFragment extends BaseFragment implements
     }
 
     public static class MountainPassItemsLoader extends CursorLoader {
+
         public MountainPassItemsLoader(Context context, Uri uri,
                                        String[] projection, String selection, String[] selectionArgs,
                                        String sortOrder) {

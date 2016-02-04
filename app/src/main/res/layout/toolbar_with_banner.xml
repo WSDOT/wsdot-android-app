@@ -25,7 +25,7 @@
             android:scaleType="centerCrop"
             app:layout_collapseMode="parallax"
             android:minHeight="175dp"
-            android:contentDescription="@string/pass_banner"/>
+            android:contentDescription="@string/banner"/>
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"

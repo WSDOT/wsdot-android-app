@@ -5,7 +5,6 @@
     android:layout_height="match_parent">
 
     <include layout="@layout/toolbar_with_banner"/>
-    <!-- <include layout="@layout/toolbar_actionbar"/> -->
 
     <fragment
         android:name="gov.wa.wsdot.android.wsdot.ui.ferries.FerriesFragment"
