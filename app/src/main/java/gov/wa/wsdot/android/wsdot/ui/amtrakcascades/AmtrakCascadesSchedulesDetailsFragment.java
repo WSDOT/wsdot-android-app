@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2016 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,8 +69,8 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
     private static final String TAG = AmtrakCascadesSchedulesDetailsFragment.class.getSimpleName();
 
-    private Typeface tf;
-    private Typeface tfb;
+    private static Typeface tf;
+    private static Typeface tfb;
     private static SwipeRefreshLayout swipeRefreshLayout;
     private View mEmptyView;
     
@@ -108,7 +108,8 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+        tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_textview_swipe_refresh, null);
         schedule_title = (TextView) root.findViewById(R.id.title);
@@ -199,9 +200,6 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        
-        tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-        tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
         // Prepare the loaders. Either re-connect with an existing one, or start new ones.
         getLoaderManager().initLoader(0, null, this);
@@ -948,12 +946,17 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
         public AmtrakViewHolder(View itemView) {
             super(itemView);
             scheduledDeparture = (TextView) itemView.findViewById(R.id.scheduledDeparture);
+            scheduledDeparture.setTypeface(tfb);
             scheduledArrival = (TextView) itemView.findViewById(R.id.scheduledArrival);
+            scheduledArrival.setTypeface(tfb);
             departureComment = (TextView) itemView.findViewById(R.id.departureComment);
+            departureComment.setTypeface(tfb);
             arrivalComment = (TextView) itemView.findViewById(R.id.arrivalComment);
+            arrivalComment.setTypeface(tfb);
             trainName = (TextView) itemView.findViewById(R.id.trainName);
+            trainName.setTypeface(tf);
             lastUpdated = (TextView) itemView.findViewById(R.id.lastUpdated);
-
+            lastUpdated.setTypeface(tf);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2016 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,8 +78,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 	private static ArrayList<FerriesAnnotationsItem> annotations;
 	private static ArrayList<FerriesScheduleTimesItem> times;
 	private static DepartureTimesAdapter mAdapter;
-	private Typeface tf;
-	private Typeface tfb;
+	private static Typeface tf;
+	private static Typeface tfb;
 	private static SwipeRefreshLayout swipeRefreshLayout;
 	private FerriesTerminalSyncReceiver ferriesTerminalSyncReceiver;
     private View mEmptyView;
@@ -214,8 +214,9 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
     @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		
-		Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+
+        tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
@@ -278,10 +279,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-		tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-		tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
-        
+
 		// Prepare the loaders. Either re-connect with an existing one, or start new ones.
         getLoaderManager().initLoader(FERRIES_DEPARTURES_LOADER_ID, null, this);
         getLoaderManager().initLoader(FERRIES_VEHICLE_SPACE_LOADER_ID, null, ferriesTerminalSyncCallbacks);
@@ -551,14 +549,21 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         public TimesViewHolder(View itemView) {
             super(itemView);
             departing = (TextView) itemView.findViewById(R.id.departing);
+            departing.setTypeface(tfb);
             arriving = (TextView) itemView.findViewById(R.id.arriving);
+            arriving.setTypeface(tfb);
             annotation = (TextView) itemView.findViewById(R.id.annotation);
+            annotation.setTypeface(tf);
             vehicleSpaceGroup = (RelativeLayout) itemView.findViewById(R.id.driveUpProgressBarGroup);
             driveUpProgressBar = (ProgressBar) itemView.findViewById(R.id.driveUpProgressBar);
             driveUpSpaceCount = (TextView) itemView.findViewById(R.id.driveUpSpaceCount);
+            driveUpSpaceCount.setTypeface(tf);
             driveUpSpaces = (TextView) itemView.findViewById(R.id.driveUpSpaces);
+            driveUpSpaces.setTypeface(tf);
             driveUpSpacesDisclaimer = (TextView) itemView.findViewById(R.id.driveUpSpacesDisclaimer);
+            driveUpSpacesDisclaimer.setTypeface(tf);
             updated = (TextView) itemView.findViewById(R.id.updated);
+            updated.setTypeface(tf);
         }
     }
 
@@ -569,7 +574,9 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         public TitleViewHolder(View itemView) {
             super(itemView);
             Departing = (TextView) itemView.findViewById(R.id.departing_title);
+            Departing.setTypeface(tfb);
             Arriving = (TextView) itemView.findViewById(R.id.arriving_title);
+            Arriving.setTypeface(tfb);
         }
     }
 
