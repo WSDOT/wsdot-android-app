@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2016 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -86,10 +87,11 @@ import gov.wa.wsdot.android.wsdot.util.map.VesselsOverlay;
 public class VesselWatchMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener,
         OnConnectionFailedListener, ConnectionCallbacks,
-        OnCameraChangeListener, LocationListener {
+        OnCameraChangeListener, LocationListener,
+		ActivityCompat.OnRequestPermissionsResultCallback, OnMapReadyCallback {
 
 	private static final String TAG = VesselWatchMapActivity.class.getSimpleName();
-	private GoogleMap map = null;
+    private GoogleMap mMap;
 	private Handler handler = new Handler();
 	private Timer timer;
 	private VesselsOverlay vesselsOverlay = null;
@@ -109,6 +111,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
 	private Toolbar mToolbar;
+    private boolean mPermissionDenied = false;
     
     private Tracker mTracker;
 	
@@ -142,21 +145,63 @@ public class VesselWatchMapActivity extends BaseActivity implements
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
 
-        mLocationRequest = LocationRequest.create().setPriority(
-                LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest = LocationRequest.create()
+                .setInterval(10000)
+                .setFastestInterval(5000)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapview);
+        mapFragment.getMapAsync(this);
     }
-	
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mMap.getUiSettings().setCompassEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.setTrafficEnabled(true);
+        mMap.setOnMyLocationButtonClickListener(this);
+        mMap.setOnMarkerClickListener(this);
+        mMap.setOnCameraChangeListener(this);
+
+        LatLng latLng = new LatLng(47.565125, -122.480508);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
+
+        enableMyLocation();
+    }
+
+    /**
+     * Enables the My Location layer if the fine location permission has been granted.
+     */
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_ACCESS_FINE_LOCATION);
+        } else if (mMap != null) {
+            // Access to the location has been granted to the app.
+            mMap.setMyLocationEnabled(true);
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         
-        prepareMap();
         mGoogleApiClient.connect();
         
         timer = new Timer();
         timer.schedule(new VesselsTimerTask(), 0, 30000); // Schedule vessels to update every 30 seconds
         
-        IntentFilter camerasFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
+        IntentFilter camerasFilter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
         camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
         mCamerasReceiver = new CamerasSyncReceiver();
         registerReceiver(mCamerasReceiver, camerasFilter); 
@@ -174,26 +219,6 @@ public class VesselWatchMapActivity extends BaseActivity implements
         timer.cancel();
         this.unregisterReceiver(mCamerasReceiver);
     }
-	
-	public void prepareMap() {
-        if (map == null) {
-            map = ((SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.mapview)).getMap();
-
-            if (map != null) {
-                map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                map.getUiSettings().setCompassEnabled(true);
-                map.getUiSettings().setZoomControlsEnabled(true);
-                map.getUiSettings().setMyLocationButtonEnabled(true);
-                map.setTrafficEnabled(true);
-                map.setOnMyLocationButtonClickListener(this);
-                LatLng latLng = new LatLng(47.565125, -122.480508);
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
-                map.setOnMarkerClickListener(this);
-                map.setOnCameraChangeListener(this);
-            }
-        }
-	}
 
     public void onCameraChange(CameraPosition cameraPosition) {
         setSupportProgressBarIndeterminateVisibility(true);
@@ -225,7 +250,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
         
         return true;
     }
-	
+
 	public class CamerasSyncReceiver extends BroadcastReceiver {
 
 		@Override
@@ -379,8 +404,8 @@ public class VesselWatchMapActivity extends BaseActivity implements
 	
 	public void goToLocation(double latitude, double longitude, int zoomLevel) {	
         LatLng latLng = new LatLng(latitude, longitude);
-        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        map.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
 	}	
 	
     public class VesselsTimerTask extends TimerTask {
@@ -406,7 +431,9 @@ public class VesselWatchMapActivity extends BaseActivity implements
 			setSupportProgressBarIndeterminateVisibility(true);
             
 			camerasOverlay = null;
-			bounds = map.getProjection().getVisibleRegion().latLngBounds;
+            if (mMap != null) {
+                bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+            }
 
 		 }
 		
@@ -437,7 +464,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
                  if (cameras.size() != 0) {
                      for (int i = 0; i < cameras.size(); i++) {
                          LatLng latLng = new LatLng(cameras.get(i).getLatitude(), cameras.get(i).getLongitude());
-                         Marker marker = map.addMarker(new MarkerOptions()
+                         Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(latLng)
                             .title(cameras.get(i).getTitle())
                             .snippet(cameras.get(i).getCameraId().toString())
@@ -485,7 +512,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
 				if (vessels.size() != 0) {
 				    for (int i = 0; i < vessels.size(); i++) {
 				        LatLng latLng = new LatLng(vessels.get(i).getLat(), vessels.get(i).getLon());
-				        Marker marker = map.addMarker(new MarkerOptions()
+				        Marker marker = mMap.addMarker(new MarkerOptions()
 				            .position(latLng)
 				            .title(vessels.get(i).getName())
 				            .snippet(vessels.get(i).getDescription())
@@ -502,15 +529,18 @@ public class VesselWatchMapActivity extends BaseActivity implements
 	}
 
     public boolean onMyLocationButtonClick() {
-        Location location = LocationServices.FusedLocationApi
-                .getLastLocation(mGoogleApiClient);
-        
-        if (location == null) {
-            requestLocationUpdates();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            Location location = LocationServices.FusedLocationApi
+                    .getLastLocation(mGoogleApiClient);
+
+            if (location == null) {
+                requestLocationUpdates();
+            } else {
+                handleNewLocation(location);
+            }
         }
-        else {
-            handleNewLocation(location);
-        };
 
         return true;
     }
@@ -539,11 +569,16 @@ public class VesselWatchMapActivity extends BaseActivity implements
      */
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "Location services connected.");
-        
-        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        
-        if (location == null) {
-            requestLocationUpdates();
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            Location location = LocationServices.FusedLocationApi
+                    .getLastLocation(mGoogleApiClient);
+
+            if (location == null) {
+                requestLocationUpdates();
+            }
         }
     }
 
@@ -566,7 +601,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
         double currentLongitude = location.getLongitude();
         LatLng latLng = new LatLng(currentLatitude, currentLongitude);
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12);
-        map.animateCamera(cameraUpdate);   
+        mMap.animateCamera(cameraUpdate);
     }
     
     /**
@@ -606,25 +641,23 @@ public class VesselWatchMapActivity extends BaseActivity implements
         } else {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, mLocationRequest, this);
-            map.setMyLocationEnabled(true);
         }
     }
     
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_ACCESS_FINE_LOCATION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
-                    Log.i(TAG, "Request permissions granted!!!");
-                    map.setMyLocationEnabled(true);
-                } else {
-                    // Permission was denied or request was cancelled
-                    Log.i(TAG, "Request permissions denied...");
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_ACCESS_FINE_LOCATION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+                Log.i(TAG, "Request permissions granted!!!");
+                mMap.setMyLocationEnabled(true);
+                LocationServices.FusedLocationApi.requestLocationUpdates(
+                        mGoogleApiClient, mLocationRequest, this);
+            } else {
+                // Permission was denied or request was cancelled
+                Log.i(TAG, "Request permissions denied...");
+            }
         }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
