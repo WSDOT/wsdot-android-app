@@ -18,9 +18,12 @@
 
 package gov.wa.wsdot.android.wsdot.util.map;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
-import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
+import android.app.Activity;
+import android.database.Cursor;
+import android.util.Log;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,12 +34,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.app.Activity;
-import android.database.Cursor;
-import android.util.Log;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
+import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 
 public class HighwayAlertsOverlay {
 	private static final String TAG = HighwayAlertsOverlay.class.getSimpleName();

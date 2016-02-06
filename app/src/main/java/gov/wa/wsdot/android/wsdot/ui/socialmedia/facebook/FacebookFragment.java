@@ -18,15 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.facebook;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -37,29 +28,41 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.FacebookItem;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class FacebookFragment extends BaseListFragment implements
+public class FacebookFragment extends BaseFragment implements
         LoaderCallbacks<ArrayList<FacebookItem>>,
         SwipeRefreshLayout.OnRefreshListener {
 	
 	private static final String TAG = FacebookFragment.class.getSimpleName();
-	private static ArrayList<FacebookItem> mFacebookItems = null;
 	private static FacebookItemAdapter mAdapter;
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
+
+    protected RecyclerView mRecyclerView;
+    protected LinearLayoutManager mLayoutManager;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -79,7 +82,18 @@ public class FacebookFragment extends BaseListFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
+
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new FacebookItemAdapter(null);
+
+        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -96,18 +110,12 @@ public class FacebookFragment extends BaseListFragment implements
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
         
-        disableAds(root);
-        
         return root;
     }    
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-		mAdapter = new FacebookItemAdapter(getActivity());
-		setListAdapter(mAdapter);
-		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);		
@@ -120,13 +128,15 @@ public class FacebookFragment extends BaseListFragment implements
 	}
 
 	public void onLoadFinished(Loader<ArrayList<FacebookItem>> loader, ArrayList<FacebookItem> data) {
-		
+
+        mEmptyView.setVisibility(View.GONE);
+
 		if (!data.isEmpty()) {
 			mAdapter.setData(data);
 		} else {
 		    TextView t = (TextView) mEmptyView;
 			t.setText(R.string.no_connection);
-			getListView().setEmptyView(mEmptyView);
+            mEmptyView.setVisibility(View.VISIBLE);
 		}
 		
 		swipeRefreshLayout.setRefreshing(false);
@@ -145,6 +155,7 @@ public class FacebookFragment extends BaseListFragment implements
 		public FacebookItemsLoader(Context context) {
 			super(context);
 		}
+        private ArrayList<FacebookItem> mFacebookItems;
 
 		@Override
 		public ArrayList<FacebookItem> loadInBackground() {
@@ -152,7 +163,7 @@ public class FacebookFragment extends BaseListFragment implements
 			String text;
 			String htmlText;
 
-	    	mFacebookItems = new ArrayList<FacebookItem>();
+            mFacebookItems = new ArrayList<FacebookItem>();
 			FacebookItem i = null;
 			URL url;
 			
@@ -200,20 +211,8 @@ public class FacebookFragment extends BaseListFragment implements
 		}
 
 		@Override
-		public void deliverResult(ArrayList<FacebookItem> data) {
-		    /**
-		     * Called when there is new data to deliver to the client. The
-		     * super class will take care of delivering it; the implementation
-		     * here just adds a little more logic.
-		     */	
-			super.deliverResult(data);
-		}
-
-		@Override
 		protected void onStartLoading() {
 			super.onStartLoading();
-			
-			mAdapter.clear();
 			swipeRefreshLayout.post(new Runnable() {
 				public void run() {
 					swipeRefreshLayout.setRefreshing(true);
@@ -225,7 +224,6 @@ public class FacebookFragment extends BaseListFragment implements
 		@Override
 		protected void onStopLoading() {
 			super.onStopLoading();
-			
 	        // Attempt to cancel the current load task if possible.
 	        cancelLoad();
 		}
@@ -238,77 +236,95 @@ public class FacebookFragment extends BaseListFragment implements
 		@Override
 		protected void onReset() {
 			super.onReset();
-			
 	        // Ensure the loader is stopped
 	        onStopLoading();
 		}
 		
 	}
-	
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		
-		String url = "https://facebook.com/" + mFacebookItems.get(position).getId();
-		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 
-		startActivity(intent);
-	}
+    /**
+     * Custom adapter for items in recycler view.
+     *
+     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+     * class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
+	private class FacebookItemAdapter extends RecyclerView.Adapter<FacebookViewHolder> {
 
-	private class FacebookItemAdapter extends ArrayAdapter<FacebookItem> {
-		private final LayoutInflater mInflater;
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        private List<FacebookItem> postList;
 
-        public FacebookItemAdapter(Context context) {
-        	super(context, R.layout.simple_list_item);
-        	mInflater = LayoutInflater.from(context);
+        public FacebookItemAdapter(List<FacebookItem> posts){
+            this.postList = posts;
+            notifyDataSetChanged();
         }
 
-        public void setData(ArrayList<FacebookItem> data) {
-            clear();
-            if (data != null) {
-                //addAll(data); // Only in API level 11
-                notifyDataSetChanged();
-                int size = data.size();
-                for (int i=0; i < size; i++) {
-                	add(data.get(i));
-                }
-                notifyDataSetChanged();                
+        @Override
+        public FacebookViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.
+                    from(parent.getContext()).
+                    inflate(R.layout.simple_list_item, parent, false);
+            return new FacebookViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(FacebookViewHolder holder, int position) {
+
+            FacebookItem post = postList.get(position);
+            holder.text.setText(post.getMessage());
+            holder.createdAt.setText(post.getCreatedAt());
+
+            holder.text.setTypeface(tf);
+            holder.createdAt.setTypeface(tf);
+
+            final String postID = post.getId();
+
+            // Set onClickListener for holder's view
+            holder.itemView.setOnClickListener(
+                    new View.OnClickListener() {
+                        public void onClick(View v) {
+                            String url = "https://facebook.com/" + postID;
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            startActivity(intent);
+                        }
+                    }
+            );
+        }
+
+        @Override
+        public int getItemCount() {
+            if (postList == null) {
+                return 0;
+            }else {
+                return postList.size();
             }
         }
 
-		@Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-	        ViewHolder holder = null;
-			
-			if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.simple_list_item, null);
-	            holder = new ViewHolder();
-	            holder.title = (TextView) convertView.findViewById(R.id.title);
-	            holder.title.setMovementMethod(LinkMovementMethod.getInstance());
-	            holder.title.setTypeface(tf);
-	            holder.description = (TextView) convertView.findViewById(R.id.description);
-	            holder.description.setTypeface(tf);
-	            
-	            convertView.setTag(holder);
-	        } else {
-	        	holder = (ViewHolder) convertView.getTag();
-	        }
-	        
-	        FacebookItem item = getItem(position);
-	        
-           	holder.title.setText(Html.fromHtml(item.getmHtmlFormattedMessage()));
-           	holder.description.setText(item.getCreatedAt());
-	        
-	        return convertView;
+        public void clear(){
+            if (postList != null) {
+                this.postList.clear();
+                notifyDataSetChanged();
+            }
         }
 
-	}
-	
-	public static class ViewHolder {
-		public TextView title;
-		public TextView description;
-	}
+        public void setData(List<FacebookItem> posts){
+            this.postList = posts;
+            notifyDataSetChanged();
+        }
+
+    }
+
+    public static class FacebookViewHolder extends RecyclerView.ViewHolder {
+        protected TextView text;
+        protected TextView createdAt;
+
+        public FacebookViewHolder(View itemView) {
+            super(itemView);
+            text = (TextView) itemView.findViewById(R.id.title);
+            createdAt = (TextView) itemView.findViewById(R.id.description);
+        }
+    }
 
     public void onRefresh() {
 		swipeRefreshLayout.post(new Runnable() {

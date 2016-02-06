@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 
@@ -131,7 +132,7 @@ public class MountainPassItemReportFragment extends BaseFragment {
 		restriction_two_text.setTypeface(tf);
 		restriction_two_text.setText(mRestrictionTwoText);
 		
-		enableAds(mRootView);
+		disableAds(mRootView);
 		
         return mRootView;		
 	}

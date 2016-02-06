@@ -18,13 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.util.map;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
-import gov.wa.wsdot.android.wsdot.shared.CameraItem;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
@@ -32,6 +25,13 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 
 public class CamerasOverlay {
 	private static final String TAG = CamerasOverlay.class.getSimpleName();

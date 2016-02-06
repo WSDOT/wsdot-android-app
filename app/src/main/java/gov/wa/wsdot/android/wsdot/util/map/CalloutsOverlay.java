@@ -18,10 +18,10 @@
 
 package gov.wa.wsdot.android.wsdot.util.map;
 
-import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
 
 public class CalloutsOverlay {
 	@SuppressWarnings("unused")

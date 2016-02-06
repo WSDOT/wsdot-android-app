@@ -1,10 +1,5 @@
 package gov.wa.wsdot.android.wsdot.ui.widget;
 
-import gov.wa.wsdot.android.wsdot.R;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.View;
@@ -13,6 +8,11 @@ import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import gov.wa.wsdot.android.wsdot.R;
 
 public class SeparatedListAdapter extends BaseAdapter {
 

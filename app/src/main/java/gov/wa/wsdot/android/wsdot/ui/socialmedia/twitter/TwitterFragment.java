@@ -18,18 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.twitter;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -41,9 +29,9 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.ShareActionProvider;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,22 +39,32 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.TwitterItem;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
-public class TwitterFragment extends BaseListFragment implements
+public class TwitterFragment extends BaseFragment implements
         LoaderCallbacks<ArrayList<TwitterItem>>,
         SwipeRefreshLayout.OnRefreshListener {
 	
 	private static final String TAG = TwitterFragment.class.getSimpleName();
-	private static ArrayList<TwitterItem> twitterItems = null;
 	private static TwitterItemAdapter mAdapter;
 	private static String mScreenName;
 	private HashMap<String, Integer> mTwitterProfileImages = new HashMap<String, Integer>();
@@ -76,9 +74,12 @@ public class TwitterFragment extends BaseListFragment implements
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
+    protected RecyclerView mRecyclerView;
+    protected LinearLayoutManager mLayoutManager;
+
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
+	public void onAttach(Context context) {
+		super.onAttach(context);
 		
 		try {
 			mScreenName = getArguments().getString("account");
@@ -96,7 +97,17 @@ public class TwitterFragment extends BaseListFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
+
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new TwitterItemAdapter(null);
+
+        mRecyclerView.setAdapter(mAdapter);
+
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -106,14 +117,12 @@ public class TwitterFragment extends BaseListFragment implements
         swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
-				R.color.holo_blue_bright,
-				R.color.holo_green_light,
-				R.color.holo_orange_light,
-				R.color.holo_red_light);
+                R.color.holo_blue_bright,
+                R.color.holo_green_light,
+                R.color.holo_orange_light,
+                R.color.holo_red_light);
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
-        
-        disableAds(root);
         
         return root;
     }    
@@ -121,13 +130,6 @@ public class TwitterFragment extends BaseListFragment implements
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-		// Remove the separator between items in the ListView
-		getListView().setDivider(null);
-		getListView().setDividerHeight(0);
-		
-		mAdapter = new TwitterItemAdapter(getActivity());
-		setListAdapter(mAdapter);
 		
 		mTwitterProfileImages.put("wsferries", R.drawable.ic_list_wsdot_ferries);
 		mTwitterProfileImages.put("GoodToGoWSDOT", R.drawable.ic_list_wsdot_goodtogo);
@@ -140,11 +142,11 @@ public class TwitterFragment extends BaseListFragment implements
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);		
-	}    
-	
+	}
+
 	private final class ActionModeCallback implements ActionMode.Callback {
 		private String mText;
-		
+
 		public ActionModeCallback(String text) {
 			this.mText = text;
 		}
@@ -159,7 +161,7 @@ public class TwitterFragment extends BaseListFragment implements
 	        // Note that you can set/change the intent any time,
 	        // say when the user has selected an image.
 	        shareAction.setShareIntent(createShareIntent(mText));
-			
+
 	        return true;
 		}
 
@@ -175,7 +177,6 @@ public class TwitterFragment extends BaseListFragment implements
 		public void onDestroyActionMode(ActionMode mode) {
 			mActionMode = null;
 		}
-		
 	}
 
 	private Intent createShareIntent(String mText) {
@@ -194,13 +195,15 @@ public class TwitterFragment extends BaseListFragment implements
 	}
 
 	public void onLoadFinished(Loader<ArrayList<TwitterItem>> loader, ArrayList<TwitterItem> data) {
-		
+
+        mEmptyView.setVisibility(View.GONE);
+
 		if (!data.isEmpty()) {
 			mAdapter.setData(data);
 		} else {
 		    TextView t = (TextView) mEmptyView;
 			t.setText(R.string.no_connection);
-			getListView().setEmptyView(mEmptyView);
+            mEmptyView.setVisibility(View.VISIBLE);
 		}
 		
 		swipeRefreshLayout.setRefreshing(false);
@@ -311,22 +314,8 @@ public class TwitterFragment extends BaseListFragment implements
 		}
 
 		@Override
-		public void deliverResult(ArrayList<TwitterItem> data) {
-		    /**
-		     * Called when there is new data to deliver to the client. The
-		     * super class will take care of delivering it; the implementation
-		     * here just adds a little more logic.
-		     */	
-			twitterItems = data;
-			
-			super.deliverResult(data);
-		}
-
-		@Override
 		protected void onStartLoading() {
 			super.onStartLoading();
-			
-			mAdapter.clear();
 			swipeRefreshLayout.post(new Runnable() {
 				public void run() {
 					swipeRefreshLayout.setRefreshing(true);
@@ -359,101 +348,123 @@ public class TwitterFragment extends BaseListFragment implements
 	        	mItems = null;
 	        }
 		}
-		
-	}
-	
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		
-		String url = "https://twitter.com/" + twitterItems.get(position).getScreenName()
-		+ "/status/" + twitterItems.get(position).getId();
-		
-		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-
-		startActivity(intent);
 	}
 
-	private class TwitterItemAdapter extends ArrayAdapter<TwitterItem> {
-		private final LayoutInflater mInflater;
-        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+	/**
+	 * Custom adapter for items in recycler view.
+	 *
+	 * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+	 * class to it's data.
+	 *
+	 * @see android.support.v7.widget.RecyclerView.Adapter
+	 */
+	private class TwitterItemAdapter extends RecyclerView.Adapter<TwitterViewHolder> {
+
         private ImageManager imageManager;
+		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+		private List<TwitterItem> tweetList;
 
-        public TwitterItemAdapter(Context context) {
-        	super(context, R.layout.twitter_list_item_with_icon);
-        	mInflater = LayoutInflater.from(context);
-        	imageManager = new ImageManager(getActivity(), 0);
-        }
-
-        public void setData(ArrayList<TwitterItem> data) {
-            clear();
-            if (data != null) {
-                //addAll(data); // Only in API level 11
-                notifyDataSetChanged();
-                int size = data.size();
-                for (int i=0; i < size; i++) {
-                	add(data.get(i));
-                }
-                notifyDataSetChanged();                
-            }
-        }
+		public TwitterItemAdapter(List<TwitterItem> posts){
+			this.tweetList = posts;
+            imageManager = new ImageManager(getActivity(), 0);
+			notifyDataSetChanged();
+		}
 
 		@Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-	        ViewHolder holder = null;
-			
-			if (convertView == null) {
-	            convertView = mInflater.inflate(R.layout.twitter_list_item_with_icon, null);
-	            holder = new ViewHolder();
-	            holder.image = (ImageView) convertView.findViewById(R.id.image);
-	            holder.icon = (ImageView) convertView.findViewById(R.id.icon);
-	            holder.userName = (TextView) convertView.findViewById(R.id.user_name);
-	            holder.userName.setTypeface(tfb);
-	            holder.createdAt = (TextView) convertView.findViewById(R.id.created_at);
-	            holder.createdAt.setTypeface(tf);
-	            holder.text = (TextView) convertView.findViewById(R.id.text);
-	            holder.text.setMovementMethod(LinkMovementMethod.getInstance());
-	            holder.text.setTypeface(tf);
-	            
-	            convertView.setTag(holder);
-	        } else {
-	        	holder = (ViewHolder) convertView.getTag();
-	        }
-	        
-	        TwitterItem item = getItem(position);
-	        
-	        if (item.getMediaUrl() == null) {
-	        	holder.image.setVisibility(View.GONE);
-	        } else {
-	        	holder.image.setVisibility(View.VISIBLE);
-	        	holder.image.setTag(item.getMediaUrl());
-	        	imageManager.displayImage(item.getMediaUrl(), getActivity(), holder.image);
-	        }
-	        
-        	try {
-				holder.icon.setImageResource(mTwitterProfileImages.get(item.getScreenName()));
-			} catch (Exception e) {
-				// Use regular WSDOT icon if we add an additional Twitter feed
-				// and have not updated the app to include the new icon.
-				holder.icon.setImageResource(mTwitterProfileImages.get("wsdot"));
+		public TwitterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+			View itemView = LayoutInflater.
+					from(parent.getContext()).
+					inflate(R.layout.card_item_with_icon_twitter, parent, false);
+			return new TwitterViewHolder(itemView);
+		}
+
+		@Override
+		public void onBindViewHolder(TwitterViewHolder holder, int position) {
+
+            TwitterItem post = tweetList.get(position);
+
+            if (post.getMediaUrl() == null) {
+                holder.image.setVisibility(View.GONE);
+            } else {
+                holder.image.setVisibility(View.VISIBLE);
+                holder.image.setTag(post.getMediaUrl());
+                imageManager.displayImage(post.getMediaUrl(), getActivity(), holder.image);
+            }
+
+            try {
+                holder.icon.setImageResource(mTwitterProfileImages.get(post.getScreenName()));
+            } catch (Exception e) {
+                // Use regular WSDOT icon if we add an additional Twitter feed
+                // and have not updated the app to include the new icon.
+                holder.icon.setImageResource(mTwitterProfileImages.get("wsdot"));
+            }
+
+            holder.text.setText(post.getText());
+            holder.text.setTypeface(tf);
+
+			holder.createdAt.setText(post.getCreatedAt());
+            holder.createdAt.setTypeface(tf);
+
+            holder.userName.setText(post.getUserName());
+            holder.userName.setTypeface(tfb);
+
+			final String postID = post.getId();
+            final String screenName = post.getScreenName();
+
+			// Set onClickListener for holder's view
+			holder.itemView.setOnClickListener(
+					new View.OnClickListener() {
+						public void onClick(View v) {
+                            String url = "https://twitter.com/" + screenName
+                                    + "/status/" + postID;
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            startActivity(intent);
+						}
+					}
+			);
+		}
+
+		@Override
+		public int getItemCount() {
+			if (tweetList == null) {
+				return 0;
+			}else {
+				return tweetList.size();
 			}
-        	holder.userName.setText(item.getUserName());
-        	holder.createdAt.setText(item.getCreatedAt());
-        	holder.text.setText(Html.fromHtml(item.getFormatedHtmlText()));
-	        
-	        return convertView;
-        }
+		}
+
+		public void clear(){
+			if (tweetList != null) {
+				this.tweetList.clear();
+				notifyDataSetChanged();
+			}
+		}
+
+		public void setData(List<TwitterItem> posts){
+			this.tweetList = posts;
+			notifyDataSetChanged();
+		}
 
 	}
-	
-	public static class ViewHolder {
-		public ImageView image;
-		public ImageView icon;
-		public TextView userName;
-		public TextView createdAt;
-		public TextView text;
+
+	public static class TwitterViewHolder extends RecyclerView.ViewHolder {
+		protected ImageView image;
+		protected ImageView icon;
+		protected TextView userName;
+		protected TextView createdAt;
+		protected TextView text;
+
+		public TwitterViewHolder(View itemView) {
+			super(itemView);
+			image = (ImageView) itemView.findViewById(R.id.image);
+			icon = (ImageView) itemView.findViewById(R.id.icon);
+			userName = (TextView) itemView.findViewById(R.id.user_name);
+			createdAt =	(TextView) itemView.findViewById(R.id.created_at);
+			text =	(TextView) itemView.findViewById(R.id.text);
+		}
 	}
+
 
     public void onRefresh() {
         getLoaderManager().restartLoader(0, null, this);        

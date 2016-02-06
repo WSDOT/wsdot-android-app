@@ -18,10 +18,11 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 
 import android.app.Application;
-import gov.wa.wsdot.android.wsdot.R;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
+
+import gov.wa.wsdot.android.wsdot.R;
 
 /**
  * This is a subclass of {@link Application} used to provide shared objects for this app, such as

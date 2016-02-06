@@ -18,6 +18,24 @@
 
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents;
 
+import android.content.Context;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -30,44 +48,32 @@ import java.util.List;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import android.content.Context;
-import android.graphics.Typeface;
-import android.os.Bundle;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.SeattleIncidentItem;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class SeattleTrafficAlertsFragment extends BaseListFragment implements
+public class SeattleTrafficAlertsFragment extends BaseFragment implements
         LoaderCallbacks<ArrayList<SeattleIncidentItem>>,
         SwipeRefreshLayout.OnRefreshListener {
 
 	private static final String TAG = SeattleTrafficAlertsFragment.class.getSimpleName();
 	private static ArrayList<SeattleIncidentItem> seattleIncidentItems = null;
-    private static MyCustomAdapter mAdapter;
+    private static Adapter mAdapter;
     private static List<Integer> blockingCategory = new ArrayList<Integer>();
     private static List<Integer> constructionCategory = new ArrayList<Integer>();
     private static List<Integer> specialCategory = new ArrayList<Integer>();
 	private static View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
+    protected RecyclerView mRecyclerView;
+    protected LinearLayoutManager mLayoutManager;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
@@ -77,7 +83,18 @@ public class SeattleTrafficAlertsFragment extends BaseListFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
+
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new Adapter();
+
+        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -94,17 +111,12 @@ public class SeattleTrafficAlertsFragment extends BaseListFragment implements
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
         
-        enableAds(root);
-        
         return root;
     }
     
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-		mAdapter = new MyCustomAdapter(getActivity());
-		setListAdapter(mAdapter);
 		buildCategories();
 		
 		// Prepare the loader. Either re-connect with an existing one,
@@ -143,13 +155,15 @@ public class SeattleTrafficAlertsFragment extends BaseListFragment implements
 	}
 
 	public void onLoadFinished(Loader<ArrayList<SeattleIncidentItem>> loader, ArrayList<SeattleIncidentItem> data) {
-		
+
+        mEmptyView.setVisibility(View.GONE);
+
 		if (!data.isEmpty()) {
 			mAdapter.setData(data);
 		} else {
 		    TextView t = (TextView) mEmptyView;
 			t.setText(R.string.no_connection);
-			getListView().setEmptyView(mEmptyView);
+            mEmptyView.setVisibility(View.VISIBLE);
 		}
 		
 		swipeRefreshLayout.setRefreshing(false);
@@ -258,8 +272,17 @@ public class SeattleTrafficAlertsFragment extends BaseListFragment implements
 		}		
 		
 	}
-	
-    private class MyCustomAdapter extends BaseAdapter {
+
+    /**
+     * Custom adapter for items in recycler view.
+     *
+     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
+     * class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
+    private class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
         private static final int TYPE_ITEM = 0;
         private static final int TYPE_SEPARATOR = 1;
         private static final int TYPE_MAX_COUNT = TYPE_SEPARATOR + 1;
@@ -268,168 +291,159 @@ public class SeattleTrafficAlertsFragment extends BaseListFragment implements
         private TreeSet<Integer> mSeparatorsSet = new TreeSet<Integer>();
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
-		private Stack<SeattleIncidentItem> blocking = new Stack<SeattleIncidentItem>();
-    	private Stack<SeattleIncidentItem> construction = new Stack<SeattleIncidentItem>();
-    	private Stack<SeattleIncidentItem> special = new Stack<SeattleIncidentItem>();
-    	private Stack<SeattleIncidentItem> closed = new Stack<SeattleIncidentItem>();
-    	private Stack<SeattleIncidentItem> amberalert = new Stack<SeattleIncidentItem>();
-        
-        public MyCustomAdapter(Context context) {
-            mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        private Stack<SeattleIncidentItem> blocking = new Stack<SeattleIncidentItem>();
+        private Stack<SeattleIncidentItem> construction = new Stack<SeattleIncidentItem>();
+        private Stack<SeattleIncidentItem> special = new Stack<SeattleIncidentItem>();
+        private Stack<SeattleIncidentItem> closed = new Stack<SeattleIncidentItem>();
+        private Stack<SeattleIncidentItem> amberalert = new Stack<SeattleIncidentItem>();
+
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            View itemView = null;
+
+            switch (viewType) {
+                case TYPE_ITEM:
+                    itemView = LayoutInflater.
+                            from(parent.getContext()).
+                            inflate(R.layout.seattle_incident_item, parent, false);
+                    return new ItemViewHolder(itemView);
+                case TYPE_SEPARATOR:
+                    itemView = LayoutInflater.
+                            from(parent.getContext()).
+                            inflate(R.layout.list_header, parent, false);
+                    return new TitleViewHolder(itemView);
+            }
+            return null;
         }
-        
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder viewholder, int position) {
+
+            ItemViewHolder itemholder;
+            TitleViewHolder titleholder;
+
+            if (getItemViewType(position) == TYPE_ITEM){
+                itemholder = (ItemViewHolder) viewholder;
+                itemholder.textView.setText(mData.get(position).getDescription());
+                itemholder.updated.setText(ParserUtils.relativeTime(
+                        mData.get(position).getLastUpdatedTime(),
+                        "MMMM d, yyyy h:mm a", false));
+            }else{
+                titleholder = (TitleViewHolder) viewholder;
+                titleholder.textView.setText(mData.get(position).getDescription());
+            }
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return mSeparatorsSet.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
+        }
+
         public void setData(ArrayList<SeattleIncidentItem> data) {
-    		mData.clear();
-    		if (data != null) {
-    			int size = data.size();
+            mData.clear();
+            if (data != null) {
+                int size = data.size();
                 for (int i=0; i < size; i++) {
-                	// Check if Traffic Management Center is closed
-					if (data.get(i).getCategory().equals(27)) {
-						//closed.push(data.get(i).getDescription());
-					    closed.push(data.get(i));
-						break; // TSMC is closed so stop here
-					}
-					// Check if there is an active amber alert
-					else if (data.get(i).getCategory().equals(24)) {
-						//amberalert.push(data.get(i).getDescription());
-					    amberalert.push(data.get(i));
-					}
-					else if (blockingCategory.contains(data.get(i).getCategory())) {
-						//blocking.push(data.get(i).getDescription());
-					    blocking.push(data.get(i));
-					}
-	                else if (constructionCategory.contains(data.get(i).getCategory())) {
-	                    //construction.push(data.get(i).getDescription());
-	                    construction.push(data.get(i));
-	                }
-	                else if (specialCategory.contains(data.get(i).getCategory())) {
-	                    //special.push(data.get(i).getDescription());
-	                    special.push(data.get(i));
-	                }
+                    // Check if Traffic Management Center is closed
+                    if (data.get(i).getCategory().equals(27)) {
+                        //closed.push(data.get(i).getDescription());
+                        closed.push(data.get(i));
+                        break; // TSMC is closed so stop here
+                    }
+                    // Check if there is an active amber alert
+                    else if (data.get(i).getCategory().equals(24)) {
+                        //amberalert.push(data.get(i).getDescription());
+                        amberalert.push(data.get(i));
+                    }
+                    else if (blockingCategory.contains(data.get(i).getCategory())) {
+                        //blocking.push(data.get(i).getDescription());
+                        blocking.push(data.get(i));
+                    }
+                    else if (constructionCategory.contains(data.get(i).getCategory())) {
+                        //construction.push(data.get(i).getDescription());
+                        construction.push(data.get(i));
+                    }
+                    else if (specialCategory.contains(data.get(i).getCategory())) {
+                        //special.push(data.get(i).getDescription());
+                        special.push(data.get(i));
+                    }
                 }
-    			
-	        	if (amberalert != null && amberalert.size() != 0) {
-	    			mAdapter.addSeparatorItem(new SeattleIncidentItem("Amber Alerts"));
-	    			while (!amberalert.empty()) {
-	    				mAdapter.addItem(amberalert.pop());
-	    			}
-	    		}
-	    		if (closed != null && closed.size() == 0) {
-	    			mAdapter.addSeparatorItem(new SeattleIncidentItem("Blocking Incidents"));				
-	    			if (blocking.empty()) {
-	    				mAdapter.addItem(new SeattleIncidentItem("None reported"));
-	    			} else {
-	    				while (!blocking.empty()) {
-	    					mAdapter.addItem(blocking.pop());
-	    				}					
-	    			}
-	    			mAdapter.addSeparatorItem(new SeattleIncidentItem("Construction Closures"));
-	    			if (construction.empty()) {
-	    				mAdapter.addItem(new SeattleIncidentItem("None reported"));
-	    			} else {
-	    				while (!construction.empty()) {
-	    					mAdapter.addItem(construction.pop());
-	    				}					
-	    			}
-	    			mAdapter.addSeparatorItem(new SeattleIncidentItem("Special Events"));
-	    			if (special.empty()) {
-	    				mAdapter.addItem(new SeattleIncidentItem("None reported"));
-	    			} else {
-	    				while (!special.empty()) {
-	    					mAdapter.addItem(special.pop());
-	    				}					
-	    			}
-	    		} else {
-	    			mAdapter.addItem(closed.pop());
-	    		}
-	    		mAdapter.notifyDataSetChanged();
-    		}
-        }        
-        
+
+                if (amberalert != null && amberalert.size() != 0) {
+                    mAdapter.addSeparatorItem(new SeattleIncidentItem("Amber Alerts"));
+                    while (!amberalert.empty()) {
+                        mAdapter.addItem(amberalert.pop());
+                    }
+                }
+                if (closed != null && closed.size() == 0) {
+                    mAdapter.addSeparatorItem(new SeattleIncidentItem("Blocking Incidents"));
+                    if (blocking.empty()) {
+                        mAdapter.addItem(new SeattleIncidentItem("None reported"));
+                    } else {
+                        while (!blocking.empty()) {
+                            mAdapter.addItem(blocking.pop());
+                        }
+                    }
+                    mAdapter.addSeparatorItem(new SeattleIncidentItem("Construction Closures"));
+                    if (construction.empty()) {
+                        mAdapter.addItem(new SeattleIncidentItem("None reported"));
+                    } else {
+                        while (!construction.empty()) {
+                            mAdapter.addItem(construction.pop());
+                        }
+                    }
+                    mAdapter.addSeparatorItem(new SeattleIncidentItem("Special Events"));
+                    if (special.empty()) {
+                        mAdapter.addItem(new SeattleIncidentItem("None reported"));
+                    } else {
+                        while (!special.empty()) {
+                            mAdapter.addItem(special.pop());
+                        }
+                    }
+                } else {
+                    mAdapter.addItem(closed.pop());
+                }
+                mAdapter.notifyDataSetChanged();
+            }
+        }
+
+
         public void addItem(final SeattleIncidentItem item) {
             mData.add(item);
             notifyDataSetChanged();
         }
- 
+
         public void addSeparatorItem(final SeattleIncidentItem item) {
             mData.add(item);
             // save separator position
             mSeparatorsSet.add(mData.size() - 1);
             notifyDataSetChanged();
         }
-        
+
         @Override
-        public int getItemViewType(int position) {
-            return mSeparatorsSet.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
-        }
-        
-        @SuppressWarnings("unused")
-		public boolean areAllItemsSelectable() {
-        	return false;
-        } 
- 
-        public boolean isEnabled(int position) {  
-        	return false;  
-        }          
-        
-        @Override
-        public int getViewTypeCount() {
-            return TYPE_MAX_COUNT;
-        }
- 
-        public int getCount() {
+        public int getItemCount() {
             return mData.size();
         }
- 
-        public SeattleIncidentItem getItem(int position) {
-            return mData.get(position);
-        }
- 
-        public long getItemId(int position) {
-            return position;
-        }
- 
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
-            int type = getItemViewType(position);
-            
-            if (convertView == null) {
-                holder = new ViewHolder();
-                switch (type) {
-                    case TYPE_ITEM:
-                        convertView = mInflater.inflate(R.layout.seattle_incident_item, null);
-                        holder.textView = (TextView)convertView.findViewById(R.id.description);
-                        holder.textView.setTypeface(tf);
-                        holder.updated = (TextView)convertView.findViewById(R.id.last_updated);
-                        holder.updated.setTypeface(tf);
-                        break;
-                    case TYPE_SEPARATOR:
-                        convertView = mInflater.inflate(R.layout.list_header, null);
-                        holder.textView = (TextView)convertView.findViewById(R.id.list_header_title);
-                        holder.textView.setTypeface(tfb);
-                        break;
-                }
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder)convertView.getTag();
-            }
-            
-            holder.textView.setText(mData.get(position).getDescription());
-
-            if (type == TYPE_ITEM) {
-                holder.updated.setText(ParserUtils.relativeTime(
-                        mData.get(position).getLastUpdatedTime(),
-                        "MMMM d, yyyy h:mm a", false));                
-            }
-
-            return convertView;
-        }
- 
     }
- 
-    public static class ViewHolder {
-        public TextView textView;
-        public TextView updated;
+
+    public static class ItemViewHolder extends RecyclerView.ViewHolder {
+        protected TextView textView;
+        protected TextView updated;
+
+        public ItemViewHolder(View itemView) {
+            super(itemView);
+            textView = (TextView) itemView.findViewById(R.id.description);
+            updated = (TextView) itemView.findViewById(R.id.last_updated);
+        }
+    }
+    public static class TitleViewHolder extends RecyclerView.ViewHolder {
+        protected TextView textView;
+
+        public TitleViewHolder(View itemView) {
+            super(itemView);
+            textView = (TextView) itemView.findViewById(R.id.list_header_title);
+        }
     }
 
     public void onRefresh() {

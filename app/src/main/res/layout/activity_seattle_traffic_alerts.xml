@@ -1,14 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"    
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/coord_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_above="@+id/publisherAdView">
+
+    <include layout="@layout/toolbar_scrolling"/>
 
     <fragment
         android:name="gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.SeattleTrafficAlertsFragment"
         android:id="@+id/fragment_seattle_traffic_alerts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        android:layout_weight="0"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>
+
+    <com.google.android.gms.ads.doubleclick.PublisherAdView
+        android:id="@+id/publisherAdView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="@+string/banner_ad_unit_id"
+        android:layout_gravity="center|bottom"
+        android:layout_alignParentBottom="true"/>
+
+
+</RelativeLayout>
+
+
+

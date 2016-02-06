@@ -19,19 +19,25 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
 public class FerriesRouteSchedulesActivity extends BaseActivity {
-	
+
+	private Toolbar mToolbar;
+
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_ferries_route_schedules);		
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		setContentView(R.layout.activity_ferries_route_schedules);
 
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 	
 	@Override

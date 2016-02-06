@@ -23,10 +23,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
@@ -37,7 +39,8 @@ public class VesselWatchDetailsActivity extends BaseActivity {
 	private String mTitle;
 	private String mDescription;
 	private String mContent;
-	private View mLoadingSpinner;	
+	private View mLoadingSpinner;
+	private Toolbar mToolbar;
 
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
@@ -47,11 +50,14 @@ public class VesselWatchDetailsActivity extends BaseActivity {
 		Bundle b = getIntent().getExtras();
 		mTitle = b.getString("title");
 		mDescription = b.getString("description");
-		
+
+        setContentView(R.layout.activity_webview_with_spinner);
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setTitle(mTitle);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		
-		setContentView(R.layout.fragment_webview_with_spinner);
+
 		mLoadingSpinner = findViewById(R.id.loading_spinner);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)findViewById(R.id.webview);

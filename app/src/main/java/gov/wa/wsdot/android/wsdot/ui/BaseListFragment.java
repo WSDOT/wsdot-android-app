@@ -18,13 +18,14 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
-import com.google.android.gms.ads.doubleclick.PublisherAdView;
-
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
+import com.google.android.gms.ads.doubleclick.PublisherAdView;
+
 import gov.wa.wsdot.android.wsdot.R;
 
 public abstract class BaseListFragment extends ListFragment {

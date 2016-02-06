@@ -8,9 +8,11 @@
 lint.xml
 /target/
 
+/app/*.iml
 /app/src/res/values/apikeys.xml
 /app/res/values/apikeys.xml
 /app/app-release.apk
+/app/build
 .idea
 .gradle
 local.properties

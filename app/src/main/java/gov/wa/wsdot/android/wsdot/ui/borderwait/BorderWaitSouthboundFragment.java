@@ -18,8 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.borderwait;
 
-import java.util.HashMap;
-
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,8 +30,9 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,25 +40,35 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
 import gov.wa.wsdot.android.wsdot.service.BorderWaitSyncService;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class BorderWaitSouthboundFragment extends BaseListFragment implements
+public class BorderWaitSouthboundFragment extends BaseFragment implements
         LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = BorderWaitSouthboundFragment.class.getSimpleName();
-	private static BorderWaitAdapter adapter;	
 	
 	@SuppressLint("UseSparseArrays")
 	private static HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
 	private BorderWaitSyncReceiver mBorderWaitSyncReceiver;
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
+
+	private static BorderWaitAdapter mAdapter;
+	protected RecyclerView mRecyclerView;
+	protected LinearLayoutManager mLayoutManager;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -73,7 +82,18 @@ public class BorderWaitSouthboundFragment extends BaseListFragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_swipe_refresh, null);
+		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
+
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new BorderWaitAdapter(getActivity(), null);
+        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
 		// For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
 		// FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -89,8 +109,6 @@ public class BorderWaitSouthboundFragment extends BaseListFragment implements
 				R.color.holo_red_light);
 
 		mEmptyView = root.findViewById( R.id.empty_list_view );
-
-		enableAds(root);
 		
 		return root;
 	} 	
@@ -98,9 +116,6 @@ public class BorderWaitSouthboundFragment extends BaseListFragment implements
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
-		adapter = new BorderWaitAdapter(getActivity(), null, false);
-		setListAdapter(adapter);
 
 		routeImage.put(5, R.drawable.ic_list_bc99);
 		routeImage.put(9, R.drawable.ic_list_bc11);
@@ -158,12 +173,17 @@ public class BorderWaitSouthboundFragment extends BaseListFragment implements
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         cursor.moveToFirst();
         swipeRefreshLayout.setRefreshing(false);        
-        adapter.swapCursor(cursor);
+        mAdapter.swapCursor(cursor);
+		//When getItemCount is checked in onReceive the
+		//size appears to be 0. So we check here.
+		if (mAdapter.getItemCount() > 0){
+			mEmptyView.setVisibility(View.GONE);
+		}
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
 	    swipeRefreshLayout.setRefreshing(false);
-		adapter.swapCursor(null);
+		mAdapter.swapCursor(null);
 	}   
 
 	public static class BorderWaitItemsLoader extends CursorLoader {
@@ -186,69 +206,75 @@ public class BorderWaitSouthboundFragment extends BaseListFragment implements
 		}
 	}
 
-	public class BorderWaitAdapter extends CursorAdapter {
+	/**
+	 * Custom adapter for items in recycler view that need a cursor adapter.
+	 *
+	 * Binds the custom ViewHolder class to it's data.
+	 *
+	 * @see CursorRecyclerAdapter
+	 * @see android.support.v7.widget.RecyclerView.Adapter
+	 */
+	private class BorderWaitAdapter extends CursorRecyclerAdapter<RecyclerView.ViewHolder> {
 		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
 		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+		private Context context;
+		private List<BorderWaitVH> mItems = new ArrayList<>();
 
-		public BorderWaitAdapter(Context context, Cursor c, boolean autoRequery) {
-			super(context, c, autoRequery);
-		}
-
-		public boolean areAllItemsSelectable() {
-			return false;
-		}
-
-		public boolean isEnabled(int position) {  
-			return false;  
+		public BorderWaitAdapter(Context context, Cursor c) {
+			super(c);
+			this.context = context;
 		}
 
 		@Override
-		public void bindView(View view, Context context, final Cursor cursor) {
-			ViewHolder viewholder = (ViewHolder) view.getTag();
+		public void onBindViewHolderCursor(RecyclerView.ViewHolder viewholder, Cursor cursor) {
+
+			BorderWaitVH borderVH = (BorderWaitVH) viewholder;
 
 			String title = cursor.getString(cursor.getColumnIndex(BorderWait.BORDER_WAIT_TITLE));
 			String lane = cursor.getString(cursor.getColumnIndex(BorderWait.BORDER_WAIT_LANE));
 
-			viewholder.tt.setText(title + " (" + lane + ")");
-			viewholder.tt.setTypeface(tfb);
+			borderVH.tt.setText(title + " (" + lane + ")");
+			borderVH.tt.setTypeface(tfb);
 
 			String created_at = cursor.getString(cursor.getColumnIndex(BorderWait.BORDER_WAIT_UPDATED));
-			viewholder.bt.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
-			viewholder.bt.setTypeface(tf);
+			borderVH.bt.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
+			borderVH.bt.setTypeface(tf);
 
 			int wait = cursor.getInt(cursor.getColumnIndex(BorderWait.BORDER_WAIT_TIME));
 			if (wait == -1) {
-				viewholder.rt.setText("N/A");
+				borderVH.rt.setText("N/A");
 			} else if (wait < 5) {
-				viewholder.rt.setText("< 5 min");
+				borderVH.rt.setText("< 5 min");
 			} else {
-				viewholder.rt.setText(wait + " min");
+				borderVH.rt.setText(wait + " min");
 			}
-			viewholder.rt.setTypeface(tfb);
+			borderVH.rt.setTypeface(tfb);
 
-			viewholder.iv.setImageResource(routeImage.get(cursor.getInt(cursor
+			borderVH.iv.setImageResource(routeImage.get(cursor.getInt(cursor
 					.getColumnIndex(BorderWait.BORDER_WAIT_ROUTE))));
 
-		}
 
+		}
 		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+		public BorderWaitVH onCreateViewHolder(ViewGroup parent, int viewType) {
 			View view = LayoutInflater.from(context).inflate(R.layout.borderwait_row, null);
-			ViewHolder viewholder = new ViewHolder(view);
+			BorderWaitVH viewholder = new BorderWaitVH(view);
 			view.setTag(viewholder);
-
-			return view;
+			mItems.add(viewholder);
+			return viewholder;
 		}
 
-		private class ViewHolder {
+		// View Holder for list items.
+		private class BorderWaitVH extends RecyclerView.ViewHolder {
 			TextView tt;
 			TextView bt;
 			TextView rt;
 			ImageView iv;
 
-			public ViewHolder(View view) {
+			public BorderWaitVH(View view) {
+				super(view);
 				tt = (TextView) view.findViewById(R.id.toptext);
-				bt = (TextView) view.findViewById(R.id.bottomtext);		
+				bt = (TextView) view.findViewById(R.id.bottomtext);
 				rt = (TextView) view.findViewById(R.id.righttext);
 				iv = (ImageView) view.findViewById(R.id.icon);
 			}
@@ -260,7 +286,9 @@ public class BorderWaitSouthboundFragment extends BaseListFragment implements
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
-			
+
+            mEmptyView.setVisibility(View.GONE);
+
 			if (responseString != null) {
 				if (responseString.equals("OK")) {
 					getLoaderManager().restartLoader(0, null, BorderWaitSouthboundFragment.this);
@@ -274,12 +302,12 @@ public class BorderWaitSouthboundFragment extends BaseListFragment implements
 						responseString = getString(R.string.no_connection);
 					}
 					
-	                if (getListView().getCount() > 0) {
+	                if (mAdapter.getItemCount() > 0) {
 	                    Toast.makeText(context, responseString, Toast.LENGTH_LONG).show();
 	                } else {
 	                    TextView t = (TextView) mEmptyView;
 	                    t.setText(responseString);
-	                    getListView().setEmptyView(mEmptyView);
+                        mEmptyView.setVisibility(View.VISIBLE);
 	                }
 				}
 			} else {
@@ -298,5 +326,4 @@ public class BorderWaitSouthboundFragment extends BaseListFragment implements
         intent.putExtra("forceUpdate", true);
         getActivity().startService(intent);        
     }
-
 }

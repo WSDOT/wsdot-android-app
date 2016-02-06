@@ -19,11 +19,15 @@
 package gov.wa.wsdot.android.wsdot.ui.callout;
 
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
 public class CalloutActivity extends BaseActivity {
+
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +39,9 @@ public class CalloutActivity extends BaseActivity {
         
         Bundle args = new Bundle();
         args.putString("url", url);
-        
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("JBLM");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
