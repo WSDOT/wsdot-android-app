@@ -19,6 +19,8 @@
 package gov.wa.wsdot.android.wsdot.ui.home;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -26,12 +28,14 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +44,9 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -57,15 +63,13 @@ import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemActivity;
-import gov.wa.wsdot.android.wsdot.ui.widget.SeparatedListAdapter;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class FavoritesFragment extends BaseFragment implements
         LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener {
 
-    private final String TAG = "FavFrag";
+    private final String TAG = getClass().getSimpleName();
 
 	private View mEmptyView;
 
@@ -128,11 +132,17 @@ public class FavoritesFragment extends BaseFragment implements
 			FerriesSchedules.FERRIES_SCHEDULE_UPDATED,
 			FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED
 			};
-	
+
 	private static final int CAMERAS_LOADER_ID = 0;
 	private static final int MOUNTAIN_PASSES_LOADER_ID = 1;
 	private static final int TRAVEL_TIMES_LOADER_ID = 2;
 	private static final int FERRIES_SCHEDULES_LOADER_ID = 3;
+
+    private static final int HEADER_VIEWTYPE = 10;
+    private static final int CAMERAS_VIEWTYPE = 0;
+    private static final int MOUNTAIN_PASSES_VIEWTYPE = 1;
+    private static final int TRAVEL_TIMES_VIEWTYPE = 2;
+    private static final int FERRIES_SCHEDULES_VIEWTYPE = 3;
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
@@ -167,9 +177,68 @@ public class FavoritesFragment extends BaseFragment implements
         mRecyclerView.setLayoutManager(mLayoutManager);
         mFavoritesAdapter = new FavItemAdapter();
 
-        mRecyclerView.setAdapter( mFavoritesAdapter);
+        mRecyclerView.setAdapter(mFavoritesAdapter);
 
-        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
+        // Add swipe dismiss to favorites list items.
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                if (viewHolder instanceof HeaderViewHolder) return 0;
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
+
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder holder, int swipeDir) {
+
+                final String[] item_id;
+                final int viewType = mFavoritesAdapter.getItemViewType(holder.getAdapterPosition());
+
+                //get the camera id or tag for the item being removed.
+                switch (viewType){
+                    case CAMERAS_VIEWTYPE:
+                        Cursor c = (Cursor) mFavoritesAdapter.getItem(holder.getAdapterPosition());
+                        item_id = new String[]{Integer.toString(c.getInt(c.getColumnIndex(Cameras.CAMERA_ID)))};
+                        break;
+                    case FERRIES_SCHEDULES_VIEWTYPE:
+                        FerryViewHolder ferryholder = (FerryViewHolder) holder;
+                        item_id = new String[] {Integer.toString((Integer) ferryholder.star_button.getTag())};
+                        break;
+                    case TRAVEL_TIMES_VIEWTYPE:
+                        TimesViewHolder timesholder = (TimesViewHolder) holder;
+                        item_id = new String[] {Integer.toString((Integer) timesholder.star_button.getTag())};
+                        break;
+                    case MOUNTAIN_PASSES_VIEWTYPE:
+                        PassViewHolder passholder = (PassViewHolder) holder;
+                        item_id = new String[] {Integer.toString((Integer) passholder.star_button.getTag())};
+                        break;
+                    default:
+                        item_id = null;
+                }
+
+                mFavoritesAdapter.remove(item_id, viewType);
+
+                // Display snack bar with undo button
+                final Snackbar snackbar = Snackbar
+                        .make(mRecyclerView, R.string.remove_favorite, Snackbar.LENGTH_LONG);
+
+                snackbar.setAction("UNDO", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mFavoritesAdapter.undo(item_id, viewType, holder);
+                    }
+                });
+                snackbar.show();
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -183,9 +252,8 @@ public class FavoritesFragment extends BaseFragment implements
                 R.color.holo_green_light,
                 R.color.holo_orange_light,
                 R.color.holo_red_light);
-        
-        mEmptyView = root.findViewById( R.id.empty_list_view );
 
+        mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
     }
@@ -202,7 +270,7 @@ public class FavoritesFragment extends BaseFragment implements
 	    TextView t = (TextView) mEmptyView;
         t.setText(R.string.no_favorites);
 	}
-	
+
 	@Override
 	public void onPause() {
         super.onPause();
@@ -215,27 +283,27 @@ public class FavoritesFragment extends BaseFragment implements
 	@Override
 	public void onResume() {
 		super.onResume();
-		
+
         // Ferries Route Schedules
         IntentFilter ferriesSchedulesFilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
 		ferriesSchedulesFilter.addCategory(Intent.CATEGORY_DEFAULT);
 		mFerriesSchedulesSyncReceiver = new FerriesSchedulesSyncReceiver();
 		getActivity().registerReceiver(mFerriesSchedulesSyncReceiver, ferriesSchedulesFilter);
-		
+
 		// Mountain Passes
         IntentFilter mountainPassesFilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
         mountainPassesFilter.addCategory(Intent.CATEGORY_DEFAULT);
 		mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
-		getActivity().registerReceiver(mMountainPassesSyncReceiver, mountainPassesFilter);
-		
+        getActivity().registerReceiver(mMountainPassesSyncReceiver, mountainPassesFilter);
+
 		// Travel Times
         IntentFilter travelTimesfilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
 		travelTimesfilter.addCategory(Intent.CATEGORY_DEFAULT);
 		mTravelTimesSyncReceiver = new TravelTimesSyncReceiver();
-		getActivity().registerReceiver(mTravelTimesSyncReceiver, travelTimesfilter);
+        getActivity().registerReceiver(mTravelTimesSyncReceiver, travelTimesfilter);
 	}
 
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -245,7 +313,7 @@ public class FavoritesFragment extends BaseFragment implements
                 swipeRefreshLayout.setRefreshing(true);
             }
         });
-	    
+
 		switch(id) {
 	    case 0:
 			cursorLoader = new CursorLoader(
@@ -262,7 +330,7 @@ public class FavoritesFragment extends BaseFragment implements
 					getActivity(),
 					MountainPasses.CONTENT_URI,
 					mountain_passes_projection,
-					MountainPasses.MOUNTAIN_PASS_IS_STARRED + "=?",
+                    MountainPasses.MOUNTAIN_PASS_IS_STARRED + "=?",
 					new String[] {Integer.toString(1)},
 					null
 					);
@@ -296,18 +364,20 @@ public class FavoritesFragment extends BaseFragment implements
 
         mFavoritesAdapter.swapCursor(cursor, loader.getId());
 
-        mEmptyView.setVisibility(View.GONE);
+        if (mFavoritesAdapter.getItemCount() > 0){
+            mEmptyView.setVisibility(View.GONE);
+        } else {
+            mEmptyView.setVisibility(View.VISIBLE);
+        }
+
 		swipeRefreshLayout.setRefreshing(false);
 
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
 	    swipeRefreshLayout.setRefreshing(false);
-
         mFavoritesAdapter.swapCursor(null, loader.getId());
-
 	}
-
 
     /**
      * Custom adapter for favorites items in recycler view.
@@ -332,18 +402,18 @@ public class FavoritesFragment extends BaseFragment implements
         public ArrayList headers = new ArrayList<String>(){
             {
                 add("Cameras");
-                add("Passes");
+                add("Mountain Passes");
                 add("Travel Times");
-                add("Ferries");
+                add("Ferries Schedules");
             }
         };
 
         public final LinkedHashMap sections = new LinkedHashMap<Integer, Cursor>(){
             {
-                put(CAMERAS_LOADER_ID, null);
-                put(MOUNTAIN_PASSES_LOADER_ID, null);
-                put(TRAVEL_TIMES_LOADER_ID, null);
-                put(FERRIES_SCHEDULES_LOADER_ID, null);
+                put(CAMERAS_VIEWTYPE, null);
+                put(MOUNTAIN_PASSES_VIEWTYPE, null);
+                put(TRAVEL_TIMES_VIEWTYPE, null);
+                put(FERRIES_SCHEDULES_VIEWTYPE, null);
             }
         };
 
@@ -354,51 +424,53 @@ public class FavoritesFragment extends BaseFragment implements
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-            Log.i(TAG, "ViewType = " + viewType);
-            View itemView = null;
+            View itemView;
 
             switch (viewType){
-
-                case CAMERAS_LOADER_ID:
+                case CAMERAS_VIEWTYPE:
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_item, null);
                     return new CamViewHolder(itemView);
-                case MOUNTAIN_PASSES_LOADER_ID:
+                case MOUNTAIN_PASSES_VIEWTYPE:
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_item_details_with_icon, null);
                     return new PassViewHolder(itemView);
-
-                case TRAVEL_TIMES_LOADER_ID:
+                case TRAVEL_TIMES_VIEWTYPE:
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_item_travel_times, null);
                     return new TimesViewHolder(itemView);
-                case FERRIES_SCHEDULES_LOADER_ID:
+                case FERRIES_SCHEDULES_VIEWTYPE:
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_item_with_star, null);
                     return new FerryViewHolder(itemView);
-
-                case 10: //TODO Make header id
+                case HEADER_VIEWTYPE:
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_header, parent, false);
                     return new HeaderViewHolder(itemView);
                 default:
                     Log.i(TAG, "No matching view type for type: " + viewType); //TODO
             }
-
             return null;
         }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
+            holder.itemView.setVisibility(View.VISIBLE);
 
             if (holder instanceof HeaderViewHolder){
-
                 HeaderViewHolder viewholder = (HeaderViewHolder) holder;
+
                 String title = (String) mFavoritesAdapter.getItem(position);
                 viewholder.title.setText(title);
                 viewholder.title.setTypeface(tf);
-                viewholder.itemView.setBackgroundColor(Color.LTGRAY);
+
+                //Remove divider if first element in favorites list
+                if (position == 0){
+                    viewholder.divider.setVisibility(View.GONE);
+                }else{
+                    viewholder.divider.setVisibility(View.VISIBLE);
+                }
 
             }else if (holder instanceof CamViewHolder){
                 CamViewHolder viewholder = (CamViewHolder) holder;
@@ -424,7 +496,6 @@ public class FavoritesFragment extends BaseFragment implements
                 );
 
             } else if (holder instanceof PassViewHolder){
-
                 PassViewHolder viewHolder = (PassViewHolder) holder;
                 Cursor cursor = (Cursor) mFavoritesAdapter.getItem(position);
 
@@ -450,6 +521,7 @@ public class FavoritesFragment extends BaseFragment implements
                 viewHolder.icon.setImageResource(icon);
 
                 viewHolder.star_button.setVisibility(View.GONE);
+                viewHolder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
 
                 final int pos = position;
 
@@ -521,7 +593,7 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.updated.setTypeface(tf);
 
                 viewholder.star_button.setVisibility(View.GONE);
-
+                viewholder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
 
             } else if (holder instanceof FerryViewHolder){
 
@@ -568,6 +640,7 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
                 viewholder.created_at.setTypeface(tf);
 
+                viewholder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
                 viewholder.star_button.setVisibility(View.GONE);
 
                 String alerts = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_ALERT));
@@ -591,8 +664,9 @@ public class FavoritesFragment extends BaseFragment implements
                     });
                 }
 
+
             }else{
-                Log.i(TAG, "No view holder for type: " + holder.getClass().getName());
+                Log.i(TAG, "No view holder for type: " + holder.getClass().getName()); //TODO
             }
         }
 
@@ -608,15 +682,10 @@ public class FavoritesFragment extends BaseFragment implements
         @Override
         public int getItemViewType(int position) {
 
-            Log.i(TAG, "getItemViewType called with pos = " + position);
-
             int type = 0;
             while(type < headers.size()) {
 
-                Log.i(TAG, "searching section " + type + "...");
-
                 Cursor c = (Cursor) sections.get(type);
-
                 int size = 0;
 
                 if (c != null) {
@@ -624,11 +693,8 @@ public class FavoritesFragment extends BaseFragment implements
                         size = c.getCount() + 1;
                     }
                 }
-
-                Log.i(TAG, "size = " + size);
-
                 // check if position inside this section
-                if(position == 0 && size > 0) return 10; //TODO Give headers an ID
+                if(position == 0 && size > 0) return HEADER_VIEWTYPE;
                 if(position < size) return type;
 
                 // otherwise jump into next section
@@ -637,7 +703,6 @@ public class FavoritesFragment extends BaseFragment implements
             }
             return -1;
         }
-
 
         /**
          * Swaps the cursor with new based on id. Acts like CursorAdapter.swapCursor but
@@ -661,15 +726,8 @@ public class FavoritesFragment extends BaseFragment implements
             sections.remove(id);
             sections.put(id, newCursor);
             if (newCursor != null) {
-                //mRowIDColumn = newCursor.getColumnIndexOrThrow("_id");
-                //mDataValid = true;
-                // notify the observers about the new cursor
                 notifyDataSetChanged();
             } else {
-                //mRowIDColumn = -1;
-                //mDataValid = false;
-                // notify the observers about the lack of a data set
-                // notifyDataSetInvalidated();
                 notifyItemRangeRemoved(0, getItemCount());
             }
             return oldCursor;
@@ -725,9 +783,143 @@ public class FavoritesFragment extends BaseFragment implements
             }
             return count;
         }
+
+        /**
+         * Removes an item from the favorites list.
+         *
+         * @param item_id
+         * @param viewtype
+         */
+        public void remove(final String[] item_id, final int viewtype){
+
+            final ContentValues values = new ContentValues();
+
+            switch (viewtype){
+                case CAMERAS_VIEWTYPE:
+                    ContentResolver resolver = getActivity().getContentResolver();
+
+                    try {
+                        values.put(Cameras.CAMERA_IS_STARRED, 0);
+                        resolver.update(
+                                Cameras.CONTENT_URI,
+                                values,
+                                Cameras.CAMERA_ID + "=?",
+                                item_id
+                        );
+
+                    } catch (Exception e) {
+                        Log.e("CameraImageFragment", "Error: " + e.getMessage());
+                    }
+                    break;
+                case MOUNTAIN_PASSES_VIEWTYPE:
+
+                    values.put(MountainPasses.MOUNTAIN_PASS_IS_STARRED, 0);
+
+                    getActivity().getContentResolver().update(
+                            MountainPasses.CONTENT_URI,
+                            values,
+                            MountainPasses._ID + "=?",
+                            item_id
+                    );
+                    break;
+                case TRAVEL_TIMES_VIEWTYPE:
+
+                    values.put(TravelTimes.TRAVEL_TIMES_IS_STARRED, 0);
+
+                    getActivity().getContentResolver().update(
+                            TravelTimes.CONTENT_URI,
+                            values,
+                            TravelTimes._ID + "=?",
+                            item_id
+                    );
+
+                    break;
+                case FERRIES_SCHEDULES_VIEWTYPE:
+                    values.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, 0);
+
+                    getActivity().getContentResolver().update(
+                            FerriesSchedules.CONTENT_URI,
+                            values,
+                            FerriesSchedules._ID + "=?",
+                            item_id
+                    );
+                    break;
+            }
+
+            notifyDataSetChanged();
+        }
+
+
+        /**
+         * Adds an formerly deleted item to the favorites list.
+         *
+         * @param item_id
+         * @param viewtype
+         */
+        public void undo(final String[] item_id, final int viewtype, final RecyclerView.ViewHolder holder){
+
+            final ContentValues values = new ContentValues();
+
+            switch (viewtype){
+                case CAMERAS_VIEWTYPE:
+                    ContentResolver resolver = getActivity().getContentResolver();
+
+                    try {
+                        values.put(Cameras.CAMERA_IS_STARRED, 1);
+                        resolver.update(
+                                Cameras.CONTENT_URI,
+                                values,
+                                Cameras.CAMERA_ID + "=?",
+                                item_id
+                        );
+
+                    } catch (Exception e) {
+                        Log.e("CameraImageFragment", "Error: " + e.getMessage());
+                    }
+                    break;
+                case MOUNTAIN_PASSES_VIEWTYPE:
+
+                    values.put(MountainPasses.MOUNTAIN_PASS_IS_STARRED, 1);
+
+                    getActivity().getContentResolver().update(
+                            MountainPasses.CONTENT_URI,
+                            values,
+                            MountainPasses._ID + "=?",
+                            item_id
+                    );
+                    break;
+                case TRAVEL_TIMES_VIEWTYPE:
+
+                    values.put(TravelTimes.TRAVEL_TIMES_IS_STARRED, 1);
+
+                    getActivity().getContentResolver().update(
+                            TravelTimes.CONTENT_URI,
+                            values,
+                            TravelTimes._ID + "=?",
+                            item_id
+                    );
+
+                    break;
+                case FERRIES_SCHEDULES_VIEWTYPE:
+                    values.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, 1);
+
+                    getActivity().getContentResolver().update(
+                            FerriesSchedules.CONTENT_URI,
+                            values,
+                            FerriesSchedules._ID + "=?",
+                            item_id
+                    );
+                    break;
+            }
+
+            notifyDataSetChanged();
+        }
+
     }
 
-    //View holders for all favorite items
+    /**
+     * View holders for favorite items
+     */
 
     private class CamViewHolder extends RecyclerView.ViewHolder{
         TextView title;
@@ -792,13 +984,18 @@ public class FavoritesFragment extends BaseFragment implements
 
     private class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView title;
+        LinearLayout divider;
 
         public HeaderViewHolder(View view) {
             super(view);
             title = (TextView) view.findViewById(R.id.list_header_title);
+            divider = (LinearLayout) view.findViewById(R.id.divider);
         }
     }
 
+    /**
+     * Sync Receivers
+     */
 	
 	public class MountainPassesSyncReceiver extends BroadcastReceiver {
 		@Override
@@ -811,7 +1008,7 @@ public class FavoritesFragment extends BaseFragment implements
 				} else if (responseString.equals("NOP")) {
 					// Nothing to do.
 				} else {
-					Log.e("MountainPassesSyncReceiver", responseString);
+					Log.e("PassesSyncReceiver", responseString);
 				}
 			}
 		}
@@ -828,7 +1025,7 @@ public class FavoritesFragment extends BaseFragment implements
 				} else if (responseString.equals("NOP")) {
 					// Nothing to do.
 				} else {
-					Log.e("FerriesSchedulesSyncReceiver", responseString);
+					Log.e("FerriesSyncReceiver", responseString);
 				}
 			}
 		}
@@ -864,3 +1061,5 @@ public class FavoritesFragment extends BaseFragment implements
         getActivity().startService(mTravelTimesIntent);        
     }
 }
+
+

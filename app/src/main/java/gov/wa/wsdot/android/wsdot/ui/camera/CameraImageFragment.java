@@ -30,6 +30,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
@@ -159,7 +160,12 @@ public class CameraImageFragment extends Fragment implements
     
 	private void toggleStar(MenuItem item) {
 		resolver = getActivity().getContentResolver();
-		
+		Snackbar added_snackbar = Snackbar
+				.make(getView(), R.string.add_favorite, Snackbar.LENGTH_SHORT);
+
+		Snackbar removed_snackbar = Snackbar
+				.make(getView(), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
+
 		if (mIsStarred) {
 			item.setIcon(R.drawable.ic_menu_star);
 			try {
@@ -171,11 +177,10 @@ public class CameraImageFragment extends Fragment implements
 						Cameras.CAMERA_ID + "=?",
 						new String[] {Integer.toString(mId)}
 						);
-				
-				Toast.makeText(getActivity(), R.string.remove_favorite, Toast.LENGTH_SHORT).show();			
+				removed_snackbar.show();
 				mIsStarred = false;
 	    	} catch (Exception e) {
-	    		Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
 	    		Log.e("CameraImageFragment", "Error: " + e.getMessage());
 	    	}
 		} else {
@@ -190,7 +195,7 @@ public class CameraImageFragment extends Fragment implements
 						new String[] {Integer.toString(mId)}
 						);			
 				
-				Toast.makeText(getActivity(), R.string.add_favorite, Toast.LENGTH_SHORT).show();
+				added_snackbar.show();
 				mIsStarred = true;
 			} catch (Exception e) {
 				Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();

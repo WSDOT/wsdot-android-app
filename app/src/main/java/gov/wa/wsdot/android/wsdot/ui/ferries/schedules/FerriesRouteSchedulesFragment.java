@@ -27,6 +27,7 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -291,8 +292,17 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 					ContentValues values = new ContentValues();
 					values.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, isChecked ? 1 : 0);
 
-					int toastMessage = isChecked ? R.string.add_favorite : R.string.remove_favorite;
-					Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
+					Snackbar added_snackbar = Snackbar
+							.make(getView(), R.string.add_favorite, Snackbar.LENGTH_SHORT);
+
+					Snackbar removed_snackbar = Snackbar
+							.make(getView(), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
+
+                    if (isChecked){
+                        added_snackbar.show();
+                    }else{
+                        removed_snackbar.show();
+                    }
 
 					getActivity().getContentResolver().update(
 							FerriesSchedules.CONTENT_URI,
