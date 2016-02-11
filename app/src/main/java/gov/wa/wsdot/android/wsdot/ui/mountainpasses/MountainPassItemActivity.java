@@ -22,6 +22,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
@@ -113,24 +114,24 @@ public class MountainPassItemActivity extends BaseActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
 
         mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                mViewPager.setCurrentItem(tab.getPosition());
-                // GA tracker
-                mTracker.setScreenName("/Mountain Passes/Details/" + tab.getText());
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-            }
+			@Override
+			public void onTabSelected(TabLayout.Tab tab) {
+				mViewPager.setCurrentItem(tab.getPosition());
+				// GA tracker
+				mTracker.setScreenName("/Mountain Passes/Details/" + tab.getText());
+				mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+			}
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
+			@Override
+			public void onTabUnselected(TabLayout.Tab tab) {
 
-            }
+			}
 
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
+			@Override
+			public void onTabReselected(TabLayout.Tab tab) {
 
-            }
-        });
+			}
+		});
 
         enableAds();
 
@@ -170,7 +171,12 @@ public class MountainPassItemActivity extends BaseActivity {
 	
 	private void toggleStar(MenuItem item) {
 		resolver = getContentResolver();
-		
+		Snackbar added_snackbar = Snackbar
+				.make(findViewById(R.id.activity_with_tabs), R.string.add_favorite, Snackbar.LENGTH_SHORT);
+
+		Snackbar removed_snackbar = Snackbar
+				.make(findViewById(R.id.activity_with_tabs), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
+
 		if (mIsStarred) {
 			item.setIcon(R.drawable.ic_menu_star);
 			try {
@@ -183,7 +189,7 @@ public class MountainPassItemActivity extends BaseActivity {
 						new String[] {Integer.toString(mId)}
 						);
 				
-				Toast.makeText(this, R.string.remove_favorite, Toast.LENGTH_SHORT).show();			
+				removed_snackbar.show();
 				mIsStarred = false;
 	    	} catch (Exception e) {
 	    		Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -201,7 +207,7 @@ public class MountainPassItemActivity extends BaseActivity {
 						new String[] {Integer.toString(mId)}
 						);			
 				
-				Toast.makeText(this, R.string.add_favorite, Toast.LENGTH_SHORT).show();
+				added_snackbar.show();
 				mIsStarred = true;
 			} catch (Exception e) {
 				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();

@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +37,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
+import gov.wa.wsdot.android.wsdot.ui.widget.HomePager;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
@@ -47,7 +47,7 @@ public class HomeActivity extends BaseActivity {
 
     private TabLayout mTabLayout;
     private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
-    private ViewPager mViewPager;
+    private HomePager mViewPager;
     private TabsAdapter mtabsAdapter;
     private Toolbar mToolbar;
     private android.support.design.widget.AppBarLayout mAppBar;
@@ -63,7 +63,7 @@ public class HomeActivity extends BaseActivity {
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         setContentView(R.layout.activity_home);
-        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager = (HomePager) findViewById(R.id.pager);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -84,6 +84,8 @@ public class HomeActivity extends BaseActivity {
 
         mViewPager.setAdapter(mtabsAdapter);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
+
+        mViewPager.setOffscreenPageLimit(0);
 
         mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -129,5 +131,8 @@ public class HomeActivity extends BaseActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
 
 }
