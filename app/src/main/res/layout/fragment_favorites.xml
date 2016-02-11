@@ -14,10 +14,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.github.ksoichiro.android.observablescrollview.ObservableListView
-                android:id="@android:id/list"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/my_recycler_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent">
+
+            </android.support.v7.widget.RecyclerView>
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
