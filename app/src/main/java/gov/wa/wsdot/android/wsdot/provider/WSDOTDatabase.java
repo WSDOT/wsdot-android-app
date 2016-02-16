@@ -32,6 +32,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingS
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPassesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimesColumns;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.LocationColumns;
 
 public class WSDOTDatabase extends SQLiteOpenHelper {
 
@@ -42,7 +43,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 	private static final int VER_2 = 2;
 	private static final int VER_3 = 3;
 	private static final int VER_4 = 4;
-	private static final int DATABASE_VERSION = VER_4;
+    private static final int VER_5 = 5;
+	private static final int DATABASE_VERSION = VER_5;
 
     interface Tables {
     	String CACHES = "caches";
@@ -53,6 +55,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         String FERRIES_SCHEDULES = "ferries_schedules";
         String FERRIES_TERMINAL_SAILING_SPACE = "ferries_terminal_sailing_space";
         String BORDER_WAIT  = "border_wait";
+        String MAP_LOCATION = "map_location";
     }
     
 	public WSDOTDatabase(Context context) {
@@ -146,6 +149,14 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         		+ BorderWaitColumns.BORDER_WAIT_DIRECTION + " TEXT,"
         		+ BorderWaitColumns.BORDER_WAIT_TIME + " INTEGER,"
         		+ BorderWaitColumns.BORDER_WAIT_IS_STARRED + " INTEGER NOT NULL default 0);");
+
+        db.execSQL("CREATE TABLE " + Tables.MAP_LOCATION + " ("
+                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + LocationColumns.LOCATION_ID + " INTEGER,"
+                + LocationColumns.LOCATION_TITLE + " TEXT,"
+                + LocationColumns.LOCATION_LAT + " INTEGER,"
+                + LocationColumns.LOCATION_LONG + " INTEGER,"
+                + LocationColumns.LOCATION_ZOOM + " INTEGER);");
         
         seedData(db);
 	}
@@ -166,13 +177,13 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
     		    Log.i(TAG, "Performing upgrade for DB version " + version);
     		    
     	        db.execSQL("CREATE TABLE " + Tables.FERRIES_TERMINAL_SAILING_SPACE + " ("
-    	                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_ID + " INTEGER,"
-    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_NAME + " TEXT,"
-    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_ABBREV + " TEXT,"
-    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_DEPARTING_SPACES + " TEXT,"
-    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_LAST_UPDATED + " TEXT,"
-    	                + FerriesTerminalSailingSpaceColumns.TERMINAL_IS_STARRED + " INTEGER NOT NULL default 0);");
+                        + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        + FerriesTerminalSailingSpaceColumns.TERMINAL_ID + " INTEGER,"
+                        + FerriesTerminalSailingSpaceColumns.TERMINAL_NAME + " TEXT,"
+                        + FerriesTerminalSailingSpaceColumns.TERMINAL_ABBREV + " TEXT,"
+                        + FerriesTerminalSailingSpaceColumns.TERMINAL_DEPARTING_SPACES + " TEXT,"
+                        + FerriesTerminalSailingSpaceColumns.TERMINAL_LAST_UPDATED + " TEXT,"
+                        + FerriesTerminalSailingSpaceColumns.TERMINAL_IS_STARRED + " INTEGER NOT NULL default 0);");
     	        
     	        db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_terminal_sailing_space', 0);");
     		    
@@ -183,9 +194,19 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                         + " ADD COLUMN " + FerriesSchedulesColumns.FERRIES_SCHEDULE_CROSSING_TIME + " TEXT");
 
             case VER_4:
-                version = VER_4;
-                Log.i(TAG, "DB at version " + version);
+                Log.i(TAG, "Performing upgrade for DB version " + version);
 
+                db.execSQL("CREATE TABLE " + Tables.MAP_LOCATION + " ("
+                        + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        + LocationColumns.LOCATION_ID + " INTEGER,"
+                        + LocationColumns.LOCATION_TITLE + " TEXT,"
+                        + LocationColumns.LOCATION_LAT + " INTEGER,"
+                        + LocationColumns.LOCATION_LONG + " INTEGER,"
+                        + LocationColumns.LOCATION_ZOOM + " INTEGER);");
+
+            case VER_5:
+                version = VER_5;
+                Log.i(TAG, "DB at version " + DATABASE_VERSION);
                 // Current version, no further action necessary.
 		}
 
@@ -193,7 +214,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 		if (version != DATABASE_VERSION) {
 		    Log.i(TAG, "Destroying old data during upgrade");
 
-	        db.execSQL("DROP TABLE IF EXISTS " + Tables.CACHES);
+            db.execSQL("DROP TABLE IF EXISTS " + Tables.CACHES);
 	        db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMERAS);
 	        db.execSQL("DROP TABLE IF EXISTS " + Tables.HIGHWAY_ALERTS);
 	        db.execSQL("DROP TABLE IF EXISTS " + Tables.MOUNTAIN_PASSES);
@@ -201,6 +222,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + Tables.FERRIES_SCHEDULES);
             db.execSQL("DROP TABLE IF EXISTS " + Tables.FERRIES_TERMINAL_SAILING_SPACE);
 	        db.execSQL("DROP TABLE IF EXISTS " + Tables.BORDER_WAIT);
+            db.execSQL("DROP TABLE IF EXISTS " + Tables.MAP_LOCATION);
 	        
 	        onCreate(db);
 		}
