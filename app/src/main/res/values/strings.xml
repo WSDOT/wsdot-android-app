@@ -80,6 +80,7 @@
     <string name="drive_up_spaces_disclaimer">Vehicles in line for tollbooth are not included in this estimate</string>
 
     <string name="banner">banner image</string>
+    <string name="description_favorite">Favorite location</string>
 
     <string name="expresslanes_link_title">Express Lanes Schedule</string>
     <string name="expresslanes_info">WSDOT uses the I-5 and I-90 express lanes to assist the flow of
@@ -88,5 +89,10 @@
                         the transportation system. We operate the lanes on a typical
                         daily schedule that changes on the weekends and occasionally
                         for major events.</string>
+
+    <string name="add_location_dialog">New favorite location</string>
+    <string name="favorite_location_hint">Location name</string>
+    <string name="submit">OK</string>
+    <string name="cancel">CANCEL</string>
 
 </resources>
