@@ -463,7 +463,7 @@ public class FavoritesFragment extends BaseFragment implements
 
                 String title = (String) mFavoritesAdapter.getItem(position);
                 viewholder.title.setText(title);
-                viewholder.title.setTypeface(tf);
+                viewholder.title.setTypeface(tfb);
 
                 //Remove divider if first element in favorites list
                 if (position == 0){
@@ -851,7 +851,7 @@ public class FavoritesFragment extends BaseFragment implements
 
 
         /**
-         * Adds an formerly deleted item to the favorites list.
+         * Adds a formerly deleted item to the favorites list.
          *
          * @param item_id
          * @param viewtype

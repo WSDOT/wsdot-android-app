@@ -92,7 +92,7 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseFragment
         mAdapter = new SailingsAdapter(null);
         mRecyclerView.setAdapter(mAdapter);
 
-        //mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.

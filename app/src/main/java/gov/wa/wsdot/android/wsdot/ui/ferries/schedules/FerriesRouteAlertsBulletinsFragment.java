@@ -96,7 +96,8 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
 
         adapter = new RouteAlertItemAdapter(getActivity());
         setListAdapter(adapter);
-        
+		getListView().setDivider(null);
+
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
         getLoaderManager().initLoader(0, null, this);
