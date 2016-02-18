@@ -2,6 +2,7 @@ package gov.wa.wsdot.android.wsdot.ui.widget;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -10,9 +11,9 @@ import android.view.View;
  *
  * A Custom ViewPager used for the home screen.
  *
- * Disables scrolling the ViewPager from right to left when
- * on the last page (favorites fragment) so favorites list can use
- * swipe dismiss for it's items.
+ * This class helps allow swipe dismissal of favorite items to
+ * function correctly.
+ *
  */
 
 public class HomePager extends ViewPager {
@@ -26,10 +27,16 @@ public class HomePager extends ViewPager {
     }
 
     /**
-     * If delta x is negative user is scrolling
+     * Gives the right-to-left scroll event to it's child view if that view is a recycler view.
+     * If there are no children views HomePager takes it.
      */
     @Override
     protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
-        return dx < 0 || super.canScroll(v, checkV, dx, x, y);
+
+        if ((dx < 0) && v instanceof RecyclerView){
+            return true;
+        }
+
+        return super.canScroll(v, checkV, dx, x, y);
     }
 }
