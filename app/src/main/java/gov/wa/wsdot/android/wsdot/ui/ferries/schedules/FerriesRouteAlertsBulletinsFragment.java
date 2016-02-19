@@ -45,6 +45,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.FerriesRouteAlertItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implements
         LoaderCallbacks<ArrayList<FerriesRouteAlertItem>> {
@@ -84,7 +85,7 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
-        
+
         disableAds(root);
         
         return root;
@@ -96,7 +97,6 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
 
         adapter = new RouteAlertItemAdapter(getActivity());
         setListAdapter(adapter);
-		getListView().setDivider(null);
 
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
