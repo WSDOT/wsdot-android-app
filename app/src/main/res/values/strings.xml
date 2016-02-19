@@ -83,4 +83,12 @@
 
     <string name="banner">banner image</string>
 
+    <string name="expresslanes_link_title">Express Lanes Schedule</string>
+    <string name="expresslanes_info">WSDOT uses the I-5 and I-90 express lanes to assist the flow of
+                        traffic during busy travel times. These lanes are scheduled to
+                        move in the direction that will relieve the most congestion from
+                        the transportation system. We operate the lanes on a typical
+                        daily schedule that changes on the weekends and occasionally
+                        for major events.</string>
+
 </resources>
