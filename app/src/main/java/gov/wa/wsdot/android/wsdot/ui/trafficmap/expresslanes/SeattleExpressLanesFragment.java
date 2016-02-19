@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2016 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -303,8 +303,6 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 							inflate(R.layout.list_item, parent, false);
 					return new LinkViewHolder(itemView);
 				case 2:
-
-
 					itemView = LayoutInflater.
 							from(parent.getContext()).
 							inflate(R.layout.simple_list_item, parent, false);
