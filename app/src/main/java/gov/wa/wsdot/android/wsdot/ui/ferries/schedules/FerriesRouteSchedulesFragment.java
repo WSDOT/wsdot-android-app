@@ -93,6 +93,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 
         mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
