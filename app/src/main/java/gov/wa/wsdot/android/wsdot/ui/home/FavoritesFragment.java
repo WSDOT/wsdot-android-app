@@ -19,6 +19,8 @@
 package gov.wa.wsdot.android.wsdot.ui.home;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -26,12 +28,14 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,13 +44,11 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.github.ksoichiro.android.observablescrollview.ObservableListView;
-import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
-import com.github.ksoichiro.android.observablescrollview.ScrollState;
-import com.google.android.gms.analytics.Tracker;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
@@ -56,26 +58,22 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
 import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
-import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemActivity;
-import gov.wa.wsdot.android.wsdot.ui.widget.SeparatedListAdapter;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
-public class FavoritesFragment extends BaseListFragment implements
+public class FavoritesFragment extends BaseFragment implements
         LoaderCallbacks<Cursor>,
-        SwipeRefreshLayout.OnRefreshListener,
-        ObservableScrollViewCallbacks {
+        SwipeRefreshLayout.OnRefreshListener {
+
+    private final String TAG = getClass().getSimpleName();
 
 	private View mEmptyView;
-	private SeparatedListAdapter mAdapter;
-	private CameraAdapter mCameraAdapter;
-	private MountainPassAdapter mMountainPassAdapter;
-	private TravelTimesAdapter mTravelTimesAdapter;
-	private FerriesSchedulesAdapter mFerriesSchedulesAdapter;
+
+    private FavItemAdapter mFavoritesAdapter;
 	
 	private Intent mFerriesSchedulesIntent;
 	private Intent mMountainPassesIntent;
@@ -86,8 +84,6 @@ public class FavoritesFragment extends BaseListFragment implements
 	private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
 	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
-	
-	private Tracker mTracker;
 
 	private static final String[] cameras_projection = {
 		Cameras._ID,
@@ -136,13 +132,20 @@ public class FavoritesFragment extends BaseListFragment implements
 			FerriesSchedules.FERRIES_SCHEDULE_UPDATED,
 			FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED
 			};
-	
+
 	private static final int CAMERAS_LOADER_ID = 0;
 	private static final int MOUNTAIN_PASSES_LOADER_ID = 1;
 	private static final int TRAVEL_TIMES_LOADER_ID = 2;
 	private static final int FERRIES_SCHEDULES_LOADER_ID = 3;
 
-    private int lastScrollY = 0;
+    private static final int HEADER_VIEWTYPE = 10;
+    private static final int CAMERAS_VIEWTYPE = 0;
+    private static final int MOUNTAIN_PASSES_VIEWTYPE = 1;
+    private static final int TRAVEL_TIMES_VIEWTYPE = 2;
+    private static final int FERRIES_SCHEDULES_VIEWTYPE = 3;
+
+    protected RecyclerView mRecyclerView;
+    protected LinearLayoutManager mLayoutManager;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -167,6 +170,76 @@ public class FavoritesFragment extends BaseListFragment implements
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_favorites, null);
 
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mFavoritesAdapter = new FavItemAdapter();
+
+        mRecyclerView.setAdapter(mFavoritesAdapter);
+
+        // Add swipe dismiss to favorites list items.
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                if (viewHolder instanceof HeaderViewHolder) return 0;
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
+
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder holder, int swipeDir) {
+
+                final String[] item_id;
+                final int viewType = mFavoritesAdapter.getItemViewType(holder.getAdapterPosition());
+
+                //get the camera id or tag for the item being removed.
+                switch (viewType){
+                    case CAMERAS_VIEWTYPE:
+                        Cursor c = (Cursor) mFavoritesAdapter.getItem(holder.getAdapterPosition());
+                        item_id = new String[]{Integer.toString(c.getInt(c.getColumnIndex(Cameras.CAMERA_ID)))};
+                        break;
+                    case FERRIES_SCHEDULES_VIEWTYPE:
+                        FerryViewHolder ferryholder = (FerryViewHolder) holder;
+                        item_id = new String[] {Integer.toString((Integer) ferryholder.star_button.getTag())};
+                        break;
+                    case TRAVEL_TIMES_VIEWTYPE:
+                        TimesViewHolder timesholder = (TimesViewHolder) holder;
+                        item_id = new String[] {Integer.toString((Integer) timesholder.star_button.getTag())};
+                        break;
+                    case MOUNTAIN_PASSES_VIEWTYPE:
+                        PassViewHolder passholder = (PassViewHolder) holder;
+                        item_id = new String[] {Integer.toString((Integer) passholder.star_button.getTag())};
+                        break;
+                    default:
+                        item_id = null;
+                }
+
+                mFavoritesAdapter.remove(item_id, viewType);
+
+                // Display snack bar with undo button
+                final Snackbar snackbar = Snackbar
+                        .make(mRecyclerView, R.string.remove_favorite, Snackbar.LENGTH_LONG);
+
+                snackbar.setAction("UNDO", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mFavoritesAdapter.undo(item_id, viewType, holder);
+                    }
+                });
+                snackbar.show();
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
+
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -179,9 +252,8 @@ public class FavoritesFragment extends BaseListFragment implements
                 R.color.holo_green_light,
                 R.color.holo_orange_light,
                 R.color.holo_red_light);
-        
-        mEmptyView = root.findViewById( R.id.empty_list_view );
 
+        mEmptyView = root.findViewById( R.id.empty_list_view );
 
         return root;
     }
@@ -190,11 +262,6 @@ public class FavoritesFragment extends BaseListFragment implements
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		mCameraAdapter = new CameraAdapter(getActivity(), null, false);
-		mMountainPassAdapter = new MountainPassAdapter(getActivity(), null, false);
-		mTravelTimesAdapter = new TravelTimesAdapter(getActivity(), null, false);
-		mFerriesSchedulesAdapter = new FerriesSchedulesAdapter(getActivity(), null, false);
-		
 		getLoaderManager().initLoader(CAMERAS_LOADER_ID, null, this);
 		getLoaderManager().initLoader(FERRIES_SCHEDULES_LOADER_ID, null, this);
         getLoaderManager().initLoader(MOUNTAIN_PASSES_LOADER_ID, null, this);
@@ -202,12 +269,8 @@ public class FavoritesFragment extends BaseListFragment implements
 
 	    TextView t = (TextView) mEmptyView;
         t.setText(R.string.no_favorites);
-        getListView().setEmptyView(mEmptyView);
-
-        ObservableListView listView = (ObservableListView) getListView();
-        listView.setScrollViewCallbacks(this);
 	}
-	
+
 	@Override
 	public void onPause() {
         super.onPause();
@@ -220,74 +283,27 @@ public class FavoritesFragment extends BaseListFragment implements
 	@Override
 	public void onResume() {
 		super.onResume();
-		
+
         // Ferries Route Schedules
         IntentFilter ferriesSchedulesFilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
 		ferriesSchedulesFilter.addCategory(Intent.CATEGORY_DEFAULT);
 		mFerriesSchedulesSyncReceiver = new FerriesSchedulesSyncReceiver();
 		getActivity().registerReceiver(mFerriesSchedulesSyncReceiver, ferriesSchedulesFilter);
-		
+
 		// Mountain Passes
         IntentFilter mountainPassesFilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
         mountainPassesFilter.addCategory(Intent.CATEGORY_DEFAULT);
 		mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
-		getActivity().registerReceiver(mMountainPassesSyncReceiver, mountainPassesFilter);
-		
+        getActivity().registerReceiver(mMountainPassesSyncReceiver, mountainPassesFilter);
+
 		// Travel Times
         IntentFilter travelTimesfilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
 		travelTimesfilter.addCategory(Intent.CATEGORY_DEFAULT);
 		mTravelTimesSyncReceiver = new TravelTimesSyncReceiver();
-		getActivity().registerReceiver(mTravelTimesSyncReceiver, travelTimesfilter);
-	}
-	
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		
-		String type = (String) ((Object[]) v.getTag())[1];
-		Log.d("FavoritesFragment", type);
-		
-		if (type.equals("camera")) {
-			Cursor c = (Cursor) mAdapter.getItem(position);
-			Bundle b = new Bundle();
-			Intent intent = new Intent(getActivity(), CameraActivity.class);
-			b.putInt("id", c.getInt(c.getColumnIndex(Cameras.CAMERA_ID)));
-			intent.putExtras(b);
-			startActivity(intent);
-		} else if (type.equals("mountain_pass")) {
-			Cursor c = (Cursor) mAdapter.getItem(position);
-			Bundle b = new Bundle();
-			Intent intent = new Intent(getActivity(), MountainPassItemActivity.class);
-			b.putInt("id", c.getInt(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_ID)));
-			b.putString("MountainPassName", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_NAME)));
-			b.putString("DateUpdated", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_DATE_UPDATED)));
-			b.putString("TemperatureInFahrenheit", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_TEMPERATURE)));
-			b.putString("ElevationInFeet", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_ELEVATION)));
-			b.putString("RoadCondition", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_ROAD_CONDITION)));
-			b.putString("WeatherCondition", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_WEATHER_CONDITION)));
-			b.putString("RestrictionOneText", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE)));
-			b.putString("RestrictionOneTravelDirection", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION)));
-			b.putString("RestrictionTwoText", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO)));
-			b.putString("RestrictionTwoTravelDirection", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION)));
-			b.putString("Cameras", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_CAMERA)));
-			b.putString("Forecasts", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_FORECAST)));
-			b.putInt("isStarred", c.getInt(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_IS_STARRED)));
-			intent.putExtras(b);
-			startActivity(intent);
-		} else if (type.equals("ferries_schedules")) {
-			Cursor c = (Cursor) mAdapter.getItem(position);
-			Bundle b = new Bundle();
-			Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDaySailingsActivity.class);
-			b.putInt("id", c.getInt(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_ID)));
-			b.putString("title", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE)));
-			b.putString("date", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_DATE)));
-			b.putInt("isStarred", c.getInt(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED)));
-			intent.putExtras(b);
-			startActivity(intent);
-		}
+        getActivity().registerReceiver(mTravelTimesSyncReceiver, travelTimesfilter);
 	}
 
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -295,9 +311,9 @@ public class FavoritesFragment extends BaseListFragment implements
         swipeRefreshLayout.post(new Runnable() {
             public void run() {
                 swipeRefreshLayout.setRefreshing(true);
-			}
-		});
-	    
+            }
+        });
+
 		switch(id) {
 	    case 0:
 			cursorLoader = new CursorLoader(
@@ -314,7 +330,7 @@ public class FavoritesFragment extends BaseListFragment implements
 					getActivity(),
 					MountainPasses.CONTENT_URI,
 					mountain_passes_projection,
-					MountainPasses.MOUNTAIN_PASS_IS_STARRED + "=?",
+                    MountainPasses.MOUNTAIN_PASS_IS_STARRED + "=?",
 					new String[] {Integer.toString(1)},
 					null
 					);
@@ -345,323 +361,641 @@ public class FavoritesFragment extends BaseListFragment implements
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		mAdapter = new SeparatedListAdapter(getActivity());
-		
-		switch(loader.getId()) {
-		case 0:
-			mCameraAdapter.swapCursor(cursor);
-			break;
-		case 1:
-			mMountainPassAdapter.swapCursor(cursor);
-			break;
-		case 2:
-			mTravelTimesAdapter.swapCursor(cursor);
-			break;
-		case 3:
-			mFerriesSchedulesAdapter.swapCursor(cursor);
-			break;
-		}
-		
-		if (mCameraAdapter.getCount() > 0) {
-			mAdapter.addSection("Cameras", mCameraAdapter);
-		} 
-		if (mFerriesSchedulesAdapter.getCount() > 0) {
-			mAdapter.addSection("Ferries Route Schedules", mFerriesSchedulesAdapter);
-		}
-		if (mMountainPassAdapter.getCount() > 0) {
-			mAdapter.addSection("Mountain Passes", mMountainPassAdapter);
-		}
-		if (mTravelTimesAdapter.getCount() > 0) {
-            mAdapter.addSection("Travel Times", mTravelTimesAdapter);
-		}
-		
-		swipeRefreshLayout.setRefreshing(false);
-		setListAdapter(mAdapter);
 
-        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        //    getListView().setNestedScrollingEnabled(true);
-        //}
+        mFavoritesAdapter.swapCursor(cursor, loader.getId());
+
+        if (mFavoritesAdapter.getItemCount() > 0){
+            mEmptyView.setVisibility(View.GONE);
+        } else {
+            mEmptyView.setVisibility(View.VISIBLE);
+        }
+
+		swipeRefreshLayout.setRefreshing(false);
 
 	}
 
 	public void onLoaderReset(Loader<Cursor> loader) {
 	    swipeRefreshLayout.setRefreshing(false);
-	    
-	    switch(loader.getId()) {
-		case 0:
-			mCameraAdapter.swapCursor(null);
-			break;
-		case 1:
-			mMountainPassAdapter.swapCursor(null);
-			break;
-		case 2:
-			mTravelTimesAdapter.swapCursor(null);
-			break;
-		case 3:
-			mFerriesSchedulesAdapter.swapCursor(null);
-			break;
-		}
+        mFavoritesAdapter.swapCursor(null, loader.getId());
 	}
 
-    public class CameraAdapter extends CursorAdapter {
-	    private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+    /**
+     * Custom adapter for favorites items in recycler view.
+     *
+     * This class stores a LinkedHashMap of cursors for each type of
+     * favorite-able item.
+     *
+     * It should be possible to add items that do not have cursors to this adapter
+     * as long as they have their own ViewHolders. There would need to be a new
+     * viewType and a way to identify it.
+     *
+     * Extending RecyclerView adapter this adapter binds the custom ViewHolders
+     * class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
+    private class FavItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-		public CameraAdapter(Context context, Cursor c, boolean autoRequery) {
-			super(context, c, autoRequery);
-		}
+        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-            ViewHolder viewholder = (ViewHolder) ((Object[]) view.getTag())[0];
-
-            String title = cursor.getString(cursor.getColumnIndex(Cameras.CAMERA_TITLE));
-            viewholder.title.setText(title);
-            viewholder.title.setTypeface(tf);
-		}
-
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            View view = LayoutInflater.from(context).inflate(R.layout.list_item, null);
-            ViewHolder viewholder = new ViewHolder(view);
-            view.setTag(new Object[] { viewholder, "camera" });
-            
-            return view;
-		}
-		
-        private class ViewHolder {
-            TextView title;
-
-            public ViewHolder(View view) {
-                    title = (TextView) view.findViewById(R.id.title);
+        public ArrayList headers = new ArrayList<String>(){
+            {
+                add("Cameras");
+                add("Mountain Passes");
+                add("Travel Times");
+                add("Ferries Schedules");
             }
-        }		
-		
-	}
-	
-	public class MountainPassAdapter extends CursorAdapter {
-	    private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-	    private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+        };
 
-		public MountainPassAdapter(Context context, Cursor c, boolean autoRequery) {
-			super(context, c, autoRequery);
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-            ViewHolder viewholder = (ViewHolder) ((Object[]) view.getTag())[0];
-
-            String title = cursor.getString(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_NAME));
-            viewholder.title.setText(title);
-            viewholder.title.setTypeface(tfb);
-            
-            String created_at = cursor.getString(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_DATE_UPDATED));
-            viewholder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
-            viewholder.created_at.setTypeface(tf);
-            
-            String text = cursor.getString(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_WEATHER_CONDITION));
-            
-			if (text.equals("")) {
-				viewholder.text.setVisibility(View.GONE);
-			} else {
-				viewholder.text.setVisibility(View.VISIBLE);
-				viewholder.text.setText(text);
-				viewholder.text.setTypeface(tf);
-			}
-            
-            int icon = cursor.getInt(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_WEATHER_ICON));
-            viewholder.icon.setImageResource(icon);
-            
-            viewholder.star_button.setVisibility(View.GONE);
-		}
-
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            View view = LayoutInflater.from(context).inflate(R.layout.list_item_details_with_icon, null);
-            ViewHolder viewholder = new ViewHolder(view);
-            view.setTag(new Object[] { viewholder, "mountain_pass" });
-            
-            return view;
-		}
-		
-		private class ViewHolder {
-			ImageView icon;
-			TextView title;
-			TextView created_at;
-			TextView text;
-			CheckBox star_button;
-			
-            public ViewHolder(View view) {
-                title = (TextView) view.findViewById(R.id.title);
-                created_at = (TextView) view.findViewById(R.id.created_at);
-                text = (TextView) view.findViewById(R.id.text);
-                icon = (ImageView) view.findViewById(R.id.icon);
-                star_button = (CheckBox) view.findViewById(R.id.star_button);
+        public final LinkedHashMap sections = new LinkedHashMap<Integer, Cursor>(){
+            {
+                put(CAMERAS_VIEWTYPE, null);
+                put(MOUNTAIN_PASSES_VIEWTYPE, null);
+                put(TRAVEL_TIMES_VIEWTYPE, null);
+                put(FERRIES_SCHEDULES_VIEWTYPE, null);
             }
-		}		
-		
-	}
-	
-	public class TravelTimesAdapter extends CursorAdapter {
-	    private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-	    private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+        };
 
-		public TravelTimesAdapter(Context context, Cursor c, boolean autoRequery) {
-			super(context, c, autoRequery);
-		}
-		
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-            ViewHolder viewholder = (ViewHolder) ((Object[]) view.getTag())[0];
+        public FavItemAdapter(){
+            super();
+        }
 
-	        String average_time;
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-	        String title = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_TITLE));
-			viewholder.title.setText(title);
-			viewholder.title.setTypeface(tfb);
+            View itemView;
 
-			String distance = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_DISTANCE));
-			int average = cursor.getInt(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_AVERAGE));
-			
-        	if (average == 0) {
-        		average_time = "Not Available";
-        	} else {
-        		average_time = average + " min";
-        	}
-			
-			viewholder.distance_average_time.setText(distance + " / " + average_time);
-			viewholder.distance_average_time.setTypeface(tf);
-			
-			int current = cursor.getInt(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_CURRENT));
-			
-        	if (current < average) {
-        		viewholder.current_time.setTextColor(0xFF008060);
-        	} else if ((current > average) && (average != 0)) {
-        		viewholder.current_time.setTextColor(Color.RED);
-        	} else {
-        		viewholder.current_time.setTextColor(Color.BLACK);
-        	}
+            switch (viewType){
+                case CAMERAS_VIEWTYPE:
+                    itemView = LayoutInflater.
+                            from(parent.getContext()).inflate(R.layout.list_item, null);
+                    return new CamViewHolder(itemView);
+                case MOUNTAIN_PASSES_VIEWTYPE:
+                    itemView = LayoutInflater.
+                            from(parent.getContext()).inflate(R.layout.list_item_details_with_icon, null);
+                    return new PassViewHolder(itemView);
+                case TRAVEL_TIMES_VIEWTYPE:
+                    itemView = LayoutInflater.
+                            from(parent.getContext()).inflate(R.layout.list_item_travel_times, null);
+                    return new TimesViewHolder(itemView);
+                case FERRIES_SCHEDULES_VIEWTYPE:
+                    itemView = LayoutInflater.
+                            from(parent.getContext()).inflate(R.layout.list_item_with_star, null);
+                    return new FerryViewHolder(itemView);
+                case HEADER_VIEWTYPE:
+                    itemView = LayoutInflater.
+                            from(parent.getContext()).inflate(R.layout.list_header, parent, false);
+                    return new HeaderViewHolder(itemView);
+                default:
+                    Log.i(TAG, "No matching view type for type: " + viewType); //TODO
+            }
+            return null;
+        }
 
-        	viewholder.current_time.setText(current + " min");
-        	viewholder.current_time.setTypeface(tfb);
-        	
-        	String created_at = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_UPDATED));
-        	viewholder.updated.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
-        	viewholder.updated.setTypeface(tf);
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        	viewholder.star_button.setVisibility(View.GONE);
-		}
+            holder.itemView.setVisibility(View.VISIBLE);
 
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            View view = LayoutInflater.from(context).inflate(R.layout.list_item_travel_times, null);
-            ViewHolder viewholder = new ViewHolder(view);
-            view.setTag(new Object[] { viewholder, "travel_times" });
-            
-            return view;
-		}
-		
-		private class ViewHolder {
-			TextView title;
-			TextView current_time;
-			TextView distance_average_time;
-			TextView updated;
-			CheckBox star_button;
-			
-			public ViewHolder(View view) {
-				title = (TextView) view.findViewById(R.id.title);
-				current_time = (TextView) view.findViewById(R.id.current_time);
-				distance_average_time = (TextView) view.findViewById(R.id.distance_average_time);
-				updated = (TextView) view.findViewById(R.id.updated);
-				star_button = (CheckBox) view.findViewById(R.id.star_button);
-			}
-		}		
-		
-	}
-	
-	public class FerriesSchedulesAdapter extends CursorAdapter {
-	    private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-	    private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+            if (holder instanceof HeaderViewHolder){
+                HeaderViewHolder viewholder = (HeaderViewHolder) holder;
 
-		public FerriesSchedulesAdapter(Context context, Cursor c, boolean autoRequery) {
-			super(context, c, autoRequery);
-		}
+                String title = (String) mFavoritesAdapter.getItem(position);
+                viewholder.title.setText(title);
+                viewholder.title.setTypeface(tfb);
 
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-            ViewHolder viewholder = (ViewHolder) ((Object[]) view.getTag())[0];
-
-            String title = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE));
-            viewholder.title.setText(title);
-            viewholder.title.setTypeface(tfb);
-            
-            String text = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_CROSSING_TIME));
-            
-            try {
-                if (text.equalsIgnoreCase("null")) {
-                    viewholder.text.setText("");
-                } else {
-                    viewholder.text.setText("Crossing Time: ~ " + text + " min");
-                    viewholder.text.setTypeface(tf);
+                //Remove divider if first element in favorites list
+                if (position == 0){
+                    viewholder.divider.setVisibility(View.GONE);
+                }else{
+                    viewholder.divider.setVisibility(View.VISIBLE);
                 }
-            } catch (NullPointerException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-            String created_at = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_UPDATED));
-            viewholder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
-            viewholder.created_at.setTypeface(tf);
-            
-            viewholder.star_button.setVisibility(View.GONE);
-            
-			String alerts = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_ALERT));
-			
-			if (alerts.equals("[]")) {
-				viewholder.alert_button.setVisibility(View.GONE);
-			} else {
-				viewholder.alert_button.setTag(cursor.getPosition());
-				viewholder.alert_button.setImageResource(R.drawable.btn_alert_on_holo_light);
-	            viewholder.alert_button.setOnClickListener(new OnClickListener() {
-					public void onClick(View v) {
-	                	int position = (Integer) v.getTag();
-	                	Cursor c = (Cursor) mFerriesSchedulesAdapter.getItem(position);
-	            		Bundle b = new Bundle();
-	            		Intent intent = new Intent(getActivity(), FerriesRouteAlertsBulletinsActivity.class);
-	            		b.putString("title", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE)));
-	            		b.putString("alert", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_ALERT)));
-	            		intent.putExtras(b);
-	            		startActivity(intent);
-					}
-				});	            
-			}
-		}
 
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            View view = LayoutInflater.from(context).inflate(R.layout.list_item_with_star, null);
-            ViewHolder viewholder = new ViewHolder(view);
-            view.setTag(new Object[] { viewholder, "ferries_schedules" });
-            
-            return view;
-		}
-		
-        private class ViewHolder {
-            TextView title;
-            TextView text;
-            TextView created_at;
-            CheckBox star_button;
-            ImageButton alert_button;
+            }else if (holder instanceof CamViewHolder){
+                CamViewHolder viewholder = (CamViewHolder) holder;
+                Cursor cursor = (Cursor) mFavoritesAdapter.getItem(position);
+                String title = cursor.getString(cursor.getColumnIndex(Cameras.CAMERA_TITLE));
+                viewholder.title.setText(title);
+                viewholder.title.setTypeface(tf);
 
-            public ViewHolder(View view) {
-                    title = (TextView) view.findViewById(R.id.title);
-                    text = (TextView) view.findViewById(R.id.text);
-                    created_at = (TextView) view.findViewById(R.id.created_at);
-                    star_button = (CheckBox) view.findViewById(R.id.star_button);
-                    alert_button = (ImageButton) view.findViewById(R.id.alert_button);
+                final int pos = position;
+
+                // Set onClickListener for holder's view
+                viewholder.itemView.setOnClickListener(
+                        new View.OnClickListener() {
+                            public void onClick(View v) {
+                                Cursor c = (Cursor) mFavoritesAdapter.getItem(pos);
+                                Bundle b = new Bundle();
+                                Intent intent = new Intent(getActivity(), CameraActivity.class);
+                                b.putInt("id", c.getInt(c.getColumnIndex(Cameras.CAMERA_ID)));
+                                intent.putExtras(b);
+                                startActivity(intent);
+                            }
+                        }
+                );
+
+            } else if (holder instanceof PassViewHolder){
+                PassViewHolder viewHolder = (PassViewHolder) holder;
+                Cursor cursor = (Cursor) mFavoritesAdapter.getItem(position);
+
+                String title = cursor.getString(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_NAME));
+                viewHolder.title.setText(title);
+                viewHolder.title.setTypeface(tfb);
+
+                String created_at = cursor.getString(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_DATE_UPDATED));
+                viewHolder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
+                viewHolder.created_at.setTypeface(tf);
+
+                String text = cursor.getString(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_WEATHER_CONDITION));
+
+                if (text.equals("")) {
+                    viewHolder.text.setVisibility(View.GONE);
+                } else {
+                    viewHolder.text.setVisibility(View.VISIBLE);
+                    viewHolder.text.setText(text);
+                    viewHolder.text.setTypeface(tf);
+                }
+
+                int icon = cursor.getInt(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_WEATHER_ICON));
+                viewHolder.icon.setImageResource(icon);
+
+                viewHolder.star_button.setVisibility(View.GONE);
+                viewHolder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
+
+                final int pos = position;
+
+                // Set onClickListener for holder's view
+                viewHolder.itemView.setOnClickListener(
+                        new View.OnClickListener() {
+                            public void onClick(View v) {
+                                Cursor c = (Cursor) mFavoritesAdapter.getItem(pos);
+                                Bundle b = new Bundle();
+                                Intent intent = new Intent(getActivity(), MountainPassItemActivity.class);
+                                b.putInt("id", c.getInt(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_ID)));
+                                b.putString("MountainPassName", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_NAME)));
+                                b.putString("DateUpdated", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_DATE_UPDATED)));
+                                b.putString("TemperatureInFahrenheit", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_TEMPERATURE)));
+                                b.putString("ElevationInFeet", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_ELEVATION)));
+                                b.putString("RoadCondition", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_ROAD_CONDITION)));
+                                b.putString("WeatherCondition", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_WEATHER_CONDITION)));
+                                b.putString("RestrictionOneText", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE)));
+                                b.putString("RestrictionOneTravelDirection", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION)));
+                                b.putString("RestrictionTwoText", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO)));
+                                b.putString("RestrictionTwoTravelDirection", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION)));
+                                b.putString("Cameras", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_CAMERA)));
+                                b.putString("Forecasts", c.getString(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_FORECAST)));
+                                b.putInt("isStarred", c.getInt(c.getColumnIndex(MountainPasses.MOUNTAIN_PASS_IS_STARRED)));
+                                intent.putExtras(b);
+                                startActivity(intent);
+                            }
+                        }
+                );
+
+            } else if (holder instanceof TimesViewHolder){
+
+                Cursor cursor = (Cursor) mFavoritesAdapter.getItem(position);
+                TimesViewHolder viewholder = (TimesViewHolder) holder;
+
+                String average_time;
+
+                String title = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_TITLE));
+                viewholder.title.setText(title);
+                viewholder.title.setTypeface(tfb);
+
+                String distance = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_DISTANCE));
+                int average = cursor.getInt(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_AVERAGE));
+
+                if (average == 0) {
+                    average_time = "Not Available";
+                } else {
+                    average_time = average + " min";
+                }
+
+                viewholder.distance_average_time.setText(distance + " / " + average_time);
+                viewholder.distance_average_time.setTypeface(tf);
+
+                int current = cursor.getInt(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_CURRENT));
+
+                if (current < average) {
+                    viewholder.current_time.setTextColor(0xFF008060);
+                } else if ((current > average) && (average != 0)) {
+                    viewholder.current_time.setTextColor(Color.RED);
+                } else {
+                    viewholder.current_time.setTextColor(Color.BLACK);
+                }
+
+                viewholder.current_time.setText(current + " min");
+                viewholder.current_time.setTypeface(tfb);
+
+                String created_at = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_UPDATED));
+                viewholder.updated.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
+                viewholder.updated.setTypeface(tf);
+
+                viewholder.star_button.setVisibility(View.GONE);
+                viewholder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
+
+            } else if (holder instanceof FerryViewHolder){
+
+                Cursor cursor = (Cursor) mFavoritesAdapter.getItem(position);
+
+                FerryViewHolder viewholder = (FerryViewHolder) holder;
+
+                viewholder.title.setText(cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE)));
+                viewholder.title.setTypeface(tfb);
+
+                String text = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_CROSSING_TIME));
+
+                final int pos = position;
+
+                // Set onClickListener for holder's view
+                viewholder.itemView.setOnClickListener(
+                        new OnClickListener() {
+                            public void onClick(View v) {
+                                Cursor c = (Cursor) mFavoritesAdapter.getItem(pos);
+                                Bundle b = new Bundle();
+                                Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDaySailingsActivity.class);
+                                b.putInt("id", c.getInt(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_ID)));
+                                b.putString("title", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE)));
+                                b.putString("date", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_DATE)));
+                                b.putInt("isStarred", c.getInt(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED)));
+                                intent.putExtras(b);
+                                startActivity(intent);
+                            }
+                        }
+                );
+
+                try {
+                    if (text.equalsIgnoreCase("null")) {
+                        viewholder.text.setText("");
+                    } else {
+                        viewholder.text.setText("Crossing Time: ~ " + text + " min");
+                        viewholder.text.setTypeface(tf);
+                    }
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+
+                String created_at = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_UPDATED));
+                viewholder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
+                viewholder.created_at.setTypeface(tf);
+
+                viewholder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
+                viewholder.star_button.setVisibility(View.GONE);
+
+                String alerts = cursor.getString(cursor.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_ALERT));
+
+                if (alerts.equals("[]")) {
+                    viewholder.alert_button.setVisibility(View.GONE);
+                } else {
+                    viewholder.alert_button.setVisibility(View.VISIBLE);
+                    viewholder.alert_button.setTag(cursor.getPosition());
+                    viewholder.alert_button.setImageResource(R.drawable.btn_alert_on_holo_light);
+                    viewholder.alert_button.setOnClickListener(new OnClickListener() {
+                        public void onClick(View v) {
+                            Cursor c = (Cursor) mFavoritesAdapter.getItem(pos);
+                            Bundle b = new Bundle();
+                            Intent intent = new Intent(getActivity(), FerriesRouteAlertsBulletinsActivity.class);
+                            b.putString("title", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_TITLE)));
+                            b.putString("alert", c.getString(c.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_ALERT)));
+                            intent.putExtras(b);
+                            startActivity(intent);
+                        }
+                    });
+                }
+
+
+            }else{
+                Log.i(TAG, "No view holder for type: " + holder.getClass().getName()); //TODO
             }
-        }		
-		
-	}
+        }
+
+        /**
+         * Returns the viewType at a given position.
+         *
+         * If new items become favorite-able they will need to
+         * be able to be identified in by using this function.
+         *
+         * @param position
+         * @return The viewType of the item at position
+         */
+        @Override
+        public int getItemViewType(int position) {
+
+            int type = 0;
+            while(type < headers.size()) {
+
+                Cursor c = (Cursor) sections.get(type);
+                int size = 0;
+
+                if (c != null) {
+                    if (c.getCount() > 0) {
+                        size = c.getCount() + 1;
+                    }
+                }
+                // check if position inside this section
+                if(position == 0 && size > 0) return HEADER_VIEWTYPE;
+                if(position < size) return type;
+
+                // otherwise jump into next section
+                position -= size;
+                type += 1;
+            }
+            return -1;
+        }
+
+        /**
+         * Swaps the cursor with new based on id. Acts like CursorAdapter.swapCursor but
+         * for multiple cursors. This does not close the old cursor.
+         *
+         * @param newCursor
+         * @param id
+         * @return oldCursor
+         *
+         * @see android.support.v4.widget.CursorAdapter
+         */
+        public Cursor swapCursor(Cursor newCursor, int id) {
+
+            Cursor cursor = (Cursor) sections.get(id);
+
+            if (newCursor == cursor) {
+                return null;
+            }
+
+            Cursor oldCursor = cursor;
+            sections.remove(id);
+            sections.put(id, newCursor);
+            if (newCursor != null) {
+                notifyDataSetChanged();
+            } else {
+                notifyItemRangeRemoved(0, getItemCount());
+            }
+            return oldCursor;
+
+        }
+
+        /**
+         * Returns the item at a given position. This could either be a Cursor
+         * or a section header (a String).
+         * @param position
+         * @return
+         */
+        public Object getItem(int position){
+
+            int id = 0;
+
+            while (id < headers.size()){
+                Cursor c = (Cursor) sections.get(id);
+
+                int size = 0;
+
+                if (c != null) {
+                    if (c.getCount() != 0) {
+                        size = c.getCount() + 1;
+                    }
+                }
+
+                // check if position inside this section
+                if(position == 0 && size > 0) return headers.get(id);
+                if(position < size && c != null) {
+                    c.moveToPosition(position - 1);
+                    return c;
+                }
+                // otherwise jump into next section
+                position -= size;
+                id += 1;
+            }
+            return null;
+        }
+
+
+        @Override
+        public int getItemCount(){
+            int count = 0;
+            for(Object section : this.sections.keySet()) {
+                Cursor c = (Cursor) sections.get(section);
+                if (c != null) {
+                    if (c.getCount() > 0) {
+                        count += c.getCount();
+                        count += 1; //for header
+                    }
+                }
+            }
+            return count;
+        }
+
+        /**
+         * Removes an item from the favorites list.
+         *
+         * @param item_id
+         * @param viewtype
+         */
+        public void remove(final String[] item_id, final int viewtype){
+
+            final ContentValues values = new ContentValues();
+
+            switch (viewtype){
+                case CAMERAS_VIEWTYPE:
+                    ContentResolver resolver = getActivity().getContentResolver();
+
+                    try {
+                        values.put(Cameras.CAMERA_IS_STARRED, 0);
+                        resolver.update(
+                                Cameras.CONTENT_URI,
+                                values,
+                                Cameras.CAMERA_ID + "=?",
+                                item_id
+                        );
+
+                    } catch (Exception e) {
+                        Log.e("CameraImageFragment", "Error: " + e.getMessage());
+                    }
+                    break;
+                case MOUNTAIN_PASSES_VIEWTYPE:
+
+                    values.put(MountainPasses.MOUNTAIN_PASS_IS_STARRED, 0);
+
+                    getActivity().getContentResolver().update(
+                            MountainPasses.CONTENT_URI,
+                            values,
+                            MountainPasses._ID + "=?",
+                            item_id
+                    );
+                    break;
+                case TRAVEL_TIMES_VIEWTYPE:
+
+                    values.put(TravelTimes.TRAVEL_TIMES_IS_STARRED, 0);
+
+                    getActivity().getContentResolver().update(
+                            TravelTimes.CONTENT_URI,
+                            values,
+                            TravelTimes._ID + "=?",
+                            item_id
+                    );
+
+                    break;
+                case FERRIES_SCHEDULES_VIEWTYPE:
+                    values.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, 0);
+
+                    getActivity().getContentResolver().update(
+                            FerriesSchedules.CONTENT_URI,
+                            values,
+                            FerriesSchedules._ID + "=?",
+                            item_id
+                    );
+                    break;
+            }
+
+            notifyDataSetChanged();
+        }
+
+
+        /**
+         * Adds a formerly deleted item to the favorites list.
+         *
+         * @param item_id
+         * @param viewtype
+         */
+        public void undo(final String[] item_id, final int viewtype, final RecyclerView.ViewHolder holder){
+
+            final ContentValues values = new ContentValues();
+
+            switch (viewtype){
+                case CAMERAS_VIEWTYPE:
+                    ContentResolver resolver = getActivity().getContentResolver();
+
+                    try {
+                        values.put(Cameras.CAMERA_IS_STARRED, 1);
+                        resolver.update(
+                                Cameras.CONTENT_URI,
+                                values,
+                                Cameras.CAMERA_ID + "=?",
+                                item_id
+                        );
+
+                    } catch (Exception e) {
+                        Log.e("CameraImageFragment", "Error: " + e.getMessage());
+                    }
+                    break;
+                case MOUNTAIN_PASSES_VIEWTYPE:
+
+                    values.put(MountainPasses.MOUNTAIN_PASS_IS_STARRED, 1);
+
+                    getActivity().getContentResolver().update(
+                            MountainPasses.CONTENT_URI,
+                            values,
+                            MountainPasses._ID + "=?",
+                            item_id
+                    );
+                    break;
+                case TRAVEL_TIMES_VIEWTYPE:
+
+                    values.put(TravelTimes.TRAVEL_TIMES_IS_STARRED, 1);
+
+                    getActivity().getContentResolver().update(
+                            TravelTimes.CONTENT_URI,
+                            values,
+                            TravelTimes._ID + "=?",
+                            item_id
+                    );
+
+                    break;
+                case FERRIES_SCHEDULES_VIEWTYPE:
+                    values.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, 1);
+
+                    getActivity().getContentResolver().update(
+                            FerriesSchedules.CONTENT_URI,
+                            values,
+                            FerriesSchedules._ID + "=?",
+                            item_id
+                    );
+                    break;
+            }
+
+            notifyDataSetChanged();
+        }
+
+    }
+
+    /**
+     * View holders for favorite items
+     */
+
+    private class CamViewHolder extends RecyclerView.ViewHolder{
+        TextView title;
+
+        public CamViewHolder(View view) {
+            super(view);
+            title = (TextView) view.findViewById(R.id.title);
+        }
+
+    }
+
+    private class PassViewHolder extends RecyclerView.ViewHolder {
+        ImageView icon;
+        TextView title;
+        TextView created_at;
+        TextView text;
+        CheckBox star_button;
+
+        public PassViewHolder(View view) {
+            super(view);
+            title = (TextView) view.findViewById(R.id.title);
+            created_at = (TextView) view.findViewById(R.id.created_at);
+            text = (TextView) view.findViewById(R.id.text);
+            icon = (ImageView) view.findViewById(R.id.icon);
+            star_button = (CheckBox) view.findViewById(R.id.star_button);
+        }
+    }
+
+    private class TimesViewHolder extends RecyclerView.ViewHolder {
+        TextView title;
+        TextView current_time;
+        TextView distance_average_time;
+        TextView updated;
+        CheckBox star_button;
+
+        public TimesViewHolder(View view) {
+            super(view);
+            title = (TextView) view.findViewById(R.id.title);
+            current_time = (TextView) view.findViewById(R.id.current_time);
+            distance_average_time = (TextView) view.findViewById(R.id.distance_average_time);
+            updated = (TextView) view.findViewById(R.id.updated);
+            star_button = (CheckBox) view.findViewById(R.id.star_button);
+        }
+    }
+
+    private class FerryViewHolder extends RecyclerView.ViewHolder {
+        TextView title;
+        TextView text;
+        TextView created_at;
+        CheckBox star_button;
+        ImageButton alert_button;
+
+        public FerryViewHolder(View view) {
+            super(view);
+            title = (TextView) view.findViewById(R.id.title);
+            text = (TextView) view.findViewById(R.id.text);
+            created_at = (TextView) view.findViewById(R.id.created_at);
+            star_button = (CheckBox) view.findViewById(R.id.star_button);
+            alert_button = (ImageButton) view.findViewById(R.id.alert_button);
+        }
+    }
+
+    private class HeaderViewHolder extends RecyclerView.ViewHolder {
+        TextView title;
+        LinearLayout divider;
+
+        public HeaderViewHolder(View view) {
+            super(view);
+            title = (TextView) view.findViewById(R.id.list_header_title);
+            divider = (LinearLayout) view.findViewById(R.id.divider);
+        }
+    }
+
+    /**
+     * Sync Receivers
+     */
 	
 	public class MountainPassesSyncReceiver extends BroadcastReceiver {
 		@Override
@@ -674,7 +1008,7 @@ public class FavoritesFragment extends BaseListFragment implements
 				} else if (responseString.equals("NOP")) {
 					// Nothing to do.
 				} else {
-					Log.e("MountainPassesSyncReceiver", responseString);
+					Log.e("PassesSyncReceiver", responseString);
 				}
 			}
 		}
@@ -691,7 +1025,7 @@ public class FavoritesFragment extends BaseListFragment implements
 				} else if (responseString.equals("NOP")) {
 					// Nothing to do.
 				} else {
-					Log.e("FerriesSchedulesSyncReceiver", responseString);
+					Log.e("FerriesSyncReceiver", responseString);
 				}
 			}
 		}
@@ -726,31 +1060,6 @@ public class FavoritesFragment extends BaseListFragment implements
         getActivity().startService(mMountainPassesIntent);
         getActivity().startService(mTravelTimesIntent);        
     }
-
-    // Override methods to implement ObservableScrollViewCallBacks
-    // This allows for collapsing AppBar effects
-    @Override
-    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
-
-    }
-
-    @Override
-    public void onDownMotionEvent() {
-
-    }
-
-    @Override
-    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
-
-        BaseActivity activity = (BaseActivity) getActivity();
-
-        AppBarLayout mAppBar = (AppBarLayout) activity.findViewById(R.id.appbar);
-
-        if (scrollState == ScrollState.UP) {
-            mAppBar.setExpanded(false, true);
-        } else if (scrollState == ScrollState.DOWN) {
-            mAppBar.setExpanded(true, true);
-        }
-
-    }
 }
+
+

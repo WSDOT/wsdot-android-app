@@ -30,7 +30,7 @@
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.view.ViewPager
+    <gov.wa.wsdot.android.wsdot.ui.widget.HomePager
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -67,6 +68,9 @@ public class SeattleTrafficAlertsFragment extends BaseFragment implements
 	private static View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
+    private Typeface tf;
+    private Typeface tfb;
+
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
@@ -83,6 +87,10 @@ public class SeattleTrafficAlertsFragment extends BaseFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
+
+        tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
         mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
@@ -93,8 +101,6 @@ public class SeattleTrafficAlertsFragment extends BaseFragment implements
         mAdapter = new Adapter();
 
         mRecyclerView.setAdapter(mAdapter);
-
-        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -109,7 +115,8 @@ public class SeattleTrafficAlertsFragment extends BaseFragment implements
 				R.color.holo_orange_light,
 				R.color.holo_red_light);
         
-        mEmptyView = root.findViewById( R.id.empty_list_view );
+        mEmptyView = root.findViewById(R.id.empty_list_view);
+
         
         return root;
     }
@@ -289,8 +296,6 @@ public class SeattleTrafficAlertsFragment extends BaseFragment implements
         private ArrayList<SeattleIncidentItem> mData = new ArrayList<SeattleIncidentItem>();
         private LayoutInflater mInflater;
         private TreeSet<Integer> mSeparatorsSet = new TreeSet<Integer>();
-        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private Stack<SeattleIncidentItem> blocking = new Stack<SeattleIncidentItem>();
         private Stack<SeattleIncidentItem> construction = new Stack<SeattleIncidentItem>();
         private Stack<SeattleIncidentItem> special = new Stack<SeattleIncidentItem>();
@@ -332,6 +337,9 @@ public class SeattleTrafficAlertsFragment extends BaseFragment implements
             }else{
                 titleholder = (TitleViewHolder) viewholder;
                 titleholder.textView.setText(mData.get(position).getDescription());
+                if (position == 0){
+                    titleholder.divider.setVisibility(View.GONE);
+                }
             }
         }
 
@@ -425,9 +433,10 @@ public class SeattleTrafficAlertsFragment extends BaseFragment implements
         public int getItemCount() {
             return mData.size();
         }
+
     }
 
-    public static class ItemViewHolder extends RecyclerView.ViewHolder {
+    public class ItemViewHolder extends RecyclerView.ViewHolder {
         protected TextView textView;
         protected TextView updated;
 
@@ -435,14 +444,19 @@ public class SeattleTrafficAlertsFragment extends BaseFragment implements
             super(itemView);
             textView = (TextView) itemView.findViewById(R.id.description);
             updated = (TextView) itemView.findViewById(R.id.last_updated);
+            textView.setTypeface(tf);
+            updated.setTypeface(tf);
         }
     }
-    public static class TitleViewHolder extends RecyclerView.ViewHolder {
+    public class TitleViewHolder extends RecyclerView.ViewHolder {
         protected TextView textView;
+        protected LinearLayout divider;
 
         public TitleViewHolder(View itemView) {
             super(itemView);
             textView = (TextView) itemView.findViewById(R.id.list_header_title);
+            textView.setTypeface(tfb);
+            divider = (LinearLayout) itemView.findViewById(R.id.divider);
         }
     }
 

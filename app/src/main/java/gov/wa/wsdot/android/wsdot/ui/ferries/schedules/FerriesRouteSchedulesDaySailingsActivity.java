@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -90,7 +91,13 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 	
 	private void toggleStar(MenuItem item) {
 		resolver = getContentResolver();
-		
+
+		Snackbar added_snackbar = Snackbar
+				.make(findViewById(R.id.day_sailings), "Added to favorites", Snackbar.LENGTH_SHORT);
+
+		Snackbar removed_snackbar = Snackbar
+				.make(findViewById(R.id.day_sailings), "Removed from favorites", Snackbar.LENGTH_SHORT);
+
 		if (mIsStarred) {
 			item.setIcon(R.drawable.ic_menu_star);
 			try {
@@ -103,7 +110,7 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 						new String[] {Integer.toString(mId)}
 						);
 				
-				Toast.makeText(this, R.string.remove_favorite, Toast.LENGTH_SHORT).show();			
+				removed_snackbar.show();
 				mIsStarred = false;
 	    	} catch (Exception e) {
 	    		Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -121,7 +128,7 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 						new String[] {Integer.toString(mId)}
 						);			
 				
-				Toast.makeText(this, R.string.add_favorite, Toast.LENGTH_SHORT).show();
+				added_snackbar.show();
 				mIsStarred = true;
 			} catch (Exception e) {
 				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();

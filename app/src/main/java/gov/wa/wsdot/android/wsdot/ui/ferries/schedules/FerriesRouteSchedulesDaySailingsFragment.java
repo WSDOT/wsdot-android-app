@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
@@ -33,8 +32,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -45,7 +42,6 @@ import java.util.Date;
 import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.FacebookItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
