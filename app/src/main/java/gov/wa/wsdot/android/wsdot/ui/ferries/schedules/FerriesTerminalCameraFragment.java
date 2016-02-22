@@ -88,8 +88,8 @@ public class FerriesTerminalCameraFragment extends BaseFragment
 
         camerasIntent = new Intent(getActivity(), CamerasSyncService.class);
         mCamerasReceiver = new CamerasSyncReceiver();
-        createTerminalLocations();
 
+        createTerminalLocations();
     }
 
     @Override
