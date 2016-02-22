@@ -21,12 +21,9 @@ package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -37,7 +34,6 @@ import java.util.List;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
-import gov.wa.wsdot.android.wsdot.ui.socialmedia.twitter.TwitterFragment;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity{

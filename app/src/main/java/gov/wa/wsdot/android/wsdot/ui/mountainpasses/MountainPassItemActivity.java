@@ -21,7 +21,6 @@ package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
