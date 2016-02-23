@@ -86,7 +86,7 @@ import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesActivity;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.SeattleTrafficAlertsActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes.TravelTimesActivity;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.map.CalloutsOverlay;
@@ -112,7 +112,7 @@ public class TrafficMapActivity extends BaseActivity implements
     boolean showCameras;
     private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
 
-    static final private int MENU_ITEM_SEATTLE_ALERTS = Menu.FIRST;
+    static final private int MENU_ITEM_ALERTS = Menu.FIRST;
     static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST + 1;
 
     private CamerasSyncReceiver mCamerasReceiver;
@@ -134,6 +134,8 @@ public class TrafficMapActivity extends BaseActivity implements
     private boolean mPermissionDenied = false;
 
     private Tracker mTracker;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -366,6 +368,12 @@ public class TrafficMapActivity extends BaseActivity implements
             menu.getItem(0).setTitle("Show Cameras");
         }
 
+        MenuItem menuItem_Alerts = menu.add(0, MENU_ITEM_ALERTS, menu.size(), "Alerts In This Area")
+                .setIcon(R.drawable.ic_menu_alerts);
+
+        MenuItemCompat.setShowAsAction(menuItem_Alerts,
+                MenuItemCompat.SHOW_AS_ACTION_IF_ROOM | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
+
         /**
          * Check if current location is within a lat/lon bounding box surrounding
          * the greater Seattle area.
@@ -374,11 +382,7 @@ public class TrafficMapActivity extends BaseActivity implements
             LatLng center = mMap.getCameraPosition().target;
 
             if (inPolygon(seattleArea, center.latitude, center.longitude)) {
-                MenuItem menuItem_Alerts = menu.add(0, MENU_ITEM_SEATTLE_ALERTS, menu.size(), "Seattle Alerts")
-                        .setIcon(R.drawable.ic_menu_alerts);
 
-                MenuItemCompat.setShowAsAction(menuItem_Alerts,
-                        MenuItemCompat.SHOW_AS_ACTION_IF_ROOM | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
 
                 MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
                 MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
@@ -504,8 +508,16 @@ public class TrafficMapActivity extends BaseActivity implements
                 goToLocation("Yakima Traffic", 46.6063273, -120.4886952, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
-            case MENU_ITEM_SEATTLE_ALERTS:
-                Intent alertsIntent = new Intent(this, SeattleTrafficAlertsActivity.class);
+            case MENU_ITEM_ALERTS:
+                LatLngBounds mBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+
+                Intent alertsIntent = new Intent(this, TrafficAlertsActivity.class);
+
+                alertsIntent.putExtra("nelat", mBounds.northeast.latitude);
+                alertsIntent.putExtra("nelong", mBounds.northeast.longitude);
+                alertsIntent.putExtra("swlat", mBounds.southwest.latitude);
+                alertsIntent.putExtra("swlong", mBounds.southwest.longitude);
+
                 startActivity(alertsIntent);
                 return true;
             case MENU_ITEM_EXPRESS_LANES:

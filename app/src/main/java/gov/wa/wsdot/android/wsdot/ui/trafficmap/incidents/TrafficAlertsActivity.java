@@ -25,7 +25,7 @@ import android.view.MenuItem;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class SeattleTrafficAlertsActivity extends BaseActivity {
+public class TrafficAlertsActivity extends BaseActivity {
 
 	private Toolbar mToolbar;
 

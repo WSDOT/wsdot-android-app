@@ -247,7 +247,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
         // Set up custom spinner
-        Spinner daySpinner = (Spinner) getActivity().findViewById(R.id.spinner);
+        daySpinner = (Spinner) getActivity().findViewById(R.id.spinner);
 
         ArrayAdapter<CharSequence> dayOfWeekArrayAdapter = new ArrayAdapter<>(
                 getActivity(), R.layout.simple_spinner_item_white, mDaysOfWeek);;

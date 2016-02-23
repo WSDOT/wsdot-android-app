@@ -18,6 +18,8 @@
 
 package gov.wa.wsdot.android.wsdot.shared;
 
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
+
 public class HighwayAlertsItem {
     private String priority;
     private String lastUpdatedTime;
@@ -37,6 +39,10 @@ public class HighwayAlertsItem {
     private Integer categoryIcon;
 
     public HighwayAlertsItem() {
+    }
+
+    public HighwayAlertsItem(String headline){
+        this.headlineDescription = headline;
     }
 
     public HighwayAlertsItem(Double startLatitude, Double startLongitude,
