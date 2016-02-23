@@ -132,8 +132,8 @@
    		    android:label="@string/title_trafficmap" />
 
    		<activity
-   		    android:name=".ui.trafficmap.incidents.SeattleTrafficAlertsActivity"
-   		    android:label="@string/title_seattlealerts" />
+   		    android:name=".ui.trafficmap.incidents.TrafficAlertsActivity"
+   		    android:label="@string/title_alerts" />
 
    		<activity
    		    android:name=".ui.trafficmap.traveltimes.TravelTimesActivity"
