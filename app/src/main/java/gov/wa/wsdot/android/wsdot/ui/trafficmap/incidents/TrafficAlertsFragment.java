@@ -80,16 +80,12 @@ public class TrafficAlertsFragment extends BaseFragment
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
-    private Double nelat;
-    private Double nelong;
-    private Double swlat;
-    private Double swlong;
-
     private LatLngBounds mBounds;
 
     private final int INCIDENT = 0;
     private final int CONSTRUCTION = 1;
     private final int CLOSURE = 2;
+    private final int AMBER = 24;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -101,10 +97,11 @@ public class TrafficAlertsFragment extends BaseFragment
 
         //Retrieve the bounds from the intent. Defaults to 0
         Intent intent = getActivity().getIntent();
-        nelat = intent.getDoubleExtra("nelat", 0.0);
-        nelong = intent.getDoubleExtra("nelong", 0.0);
-        swlat = intent.getDoubleExtra("swlat", 0.0);
-        swlong = intent.getDoubleExtra("swlong", 0.0);
+
+        Double nelat = intent.getDoubleExtra("nelat", 0.0);
+        Double nelong = intent.getDoubleExtra("nelong", 0.0);
+        Double swlat = intent.getDoubleExtra("swlat", 0.0);
+        Double swlong = intent.getDoubleExtra("swlong", 0.0);
 
         LatLng northEast = new LatLng(nelat, nelong);
         LatLng southWest = new LatLng(swlat, swlong);
@@ -298,7 +295,6 @@ public class TrafficAlertsFragment extends BaseFragment
         private Stack<HighwayAlertsItem> closure = new Stack<>();
         private Stack<HighwayAlertsItem> construction = new Stack<>();
         private Stack<HighwayAlertsItem> incident = new Stack<>();
-        private Stack<HighwayAlertsItem> closed = new Stack<>();
         private Stack<HighwayAlertsItem> amberalert = new Stack<>();
 
         @Override
@@ -352,26 +348,22 @@ public class TrafficAlertsFragment extends BaseFragment
             mData.clear();
             if (data != null) {
                 int size = data.size();
-                for (int i=0; i < size; i++) {
+                for (int i = 0; i < size; i++) {
                     // Check if Traffic Management Center is closed
 
                     Integer category_id = getCategoryID(data.get(i).getEventCategory());
 
-                    if (category_id.equals(27)) {
-                        closed.push(data.get(i));
-                        break; // TSMC is closed so stop here
-                    }
                     // Check if there is an active amber alert
-                    else if (category_id.equals(24)) {
+                    if (category_id.equals(AMBER)) {
                         amberalert.push(data.get(i));
                     }
-                    else if (category_id == CLOSURE) {
+                    else if (category_id.equals(CLOSURE)) {
                         closure.push(data.get(i));
                     }
-                    else if (category_id == CONSTRUCTION) {
+                    else if (category_id.equals(CONSTRUCTION)) {
                         construction.push(data.get(i));
                     }
-                    else if (category_id == INCIDENT) {
+                    else if (category_id.equals(INCIDENT)) {
                         incident.push(data.get(i));
                     }
                 }
@@ -382,42 +374,36 @@ public class TrafficAlertsFragment extends BaseFragment
                         mAdapter.addItem(amberalert.pop());
                     }
                 }
-                if (closed != null && closed.size() == 0) {
 
-                    mAdapter.addSeparatorItem(new HighwayAlertsItem("Incidents"));
-                    if (incident.empty()) {
-                        mAdapter.addItem(new HighwayAlertsItem("None reported"));
-                    } else {
-                        while (!incident.empty()) {
-                            mAdapter.addItem(incident.pop());
-                        }
-                    }
-
-                    mAdapter.addSeparatorItem(new HighwayAlertsItem("Construction Closures"));
-                    if (construction.empty()) {
-                        mAdapter.addItem(new HighwayAlertsItem("None reported"));
-                    } else {
-                        while (!construction.empty()) {
-                            mAdapter.addItem(construction.pop());
-                        }
-                    }
-
-                    mAdapter.addSeparatorItem(new HighwayAlertsItem("Road Closures"));
-                    if (closure.empty()) {
-                        mAdapter.addItem(new HighwayAlertsItem("None reported"));
-                    } else {
-                        while (!closure.empty()) {
-                            mAdapter.addItem(closure.pop());
-                        }
-                    }
-
+                mAdapter.addSeparatorItem(new HighwayAlertsItem("Incidents"));
+                if (incident.empty()) {
+                    mAdapter.addItem(new HighwayAlertsItem("None reported"));
                 } else {
-                    mAdapter.addItem(closed.pop());
+                    while (!incident.empty()) {
+                        mAdapter.addItem(incident.pop());
+                    }
+                }
+
+                mAdapter.addSeparatorItem(new HighwayAlertsItem("Construction Closures"));
+                if (construction.empty()) {
+                    mAdapter.addItem(new HighwayAlertsItem("None reported"));
+                } else {
+                    while (!construction.empty()) {
+                        mAdapter.addItem(construction.pop());
+                    }
+                }
+
+                mAdapter.addSeparatorItem(new HighwayAlertsItem("Road Closures"));
+                if (closure.empty()) {
+                    mAdapter.addItem(new HighwayAlertsItem("None reported"));
+                } else {
+                    while (!closure.empty()) {
+                        mAdapter.addItem(closure.pop());
+                    }
                 }
                 mAdapter.notifyDataSetChanged();
             }
         }
-
 
         public void addItem(final HighwayAlertsItem item) {
             mData.add(item);
@@ -437,7 +423,6 @@ public class TrafficAlertsFragment extends BaseFragment
             closure.clear();
             construction.clear();
             incident.clear();
-            closed.clear();
             amberalert.clear();
             notifyDataSetChanged();
         }
@@ -446,7 +431,6 @@ public class TrafficAlertsFragment extends BaseFragment
         public int getItemCount() {
             return mData.size();
         }
-
     }
 
     /**
@@ -510,27 +494,26 @@ public class TrafficAlertsFragment extends BaseFragment
         Set<Map.Entry<String, String[]>> set = eventCategories.entrySet();
         Iterator<Map.Entry<String, String[]>> i = set.iterator();
 
-        if (category.equals("")) return 0; //incident
+        if (category.equals("")) return INCIDENT;
 
         while(i.hasNext()) {
             Map.Entry<String, String[]> me = i.next();
             for (String phrase: me.getValue()) {
-                String patternStr = phrase;
-                Pattern pattern = Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE);
+                Pattern pattern = Pattern.compile(phrase, Pattern.CASE_INSENSITIVE);
                 Matcher matcher = pattern.matcher(category);
                 boolean matchFound = matcher.find();
                 if (matchFound) {
                     String keyWord = me.getKey();
                     if (keyWord.equalsIgnoreCase("closure")) {
-                        return 2;
+                        return CLOSURE;
                     } else if (keyWord.equalsIgnoreCase("construction")) {
-                        return 1;
+                        return CONSTRUCTION;
                     } else if (keyWord.equalsIgnoreCase("amber")){
-                        return 24;
+                        return AMBER;
                     }
                 }
             }
         }
-        return 0;
+        return INCIDENT;
     }
 }
