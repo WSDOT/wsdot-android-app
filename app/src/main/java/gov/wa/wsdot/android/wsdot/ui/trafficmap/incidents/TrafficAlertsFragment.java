@@ -85,6 +85,7 @@ public class TrafficAlertsFragment extends BaseFragment
     private final int INCIDENT = 0;
     private final int CONSTRUCTION = 1;
     private final int CLOSURE = 2;
+    private final int SPECIAL_EVENTS = 3;
     private final int AMBER = 24;
 
 	@Override
@@ -244,7 +245,6 @@ public class TrafficAlertsFragment extends BaseFragment
                 }
                 cursor.moveToNext();
             }
-
             mAdapter.setData(trafficAlertItems);
         } else {
             TextView t = (TextView) mEmptyView;
@@ -295,6 +295,7 @@ public class TrafficAlertsFragment extends BaseFragment
         private Stack<HighwayAlertsItem> closure = new Stack<>();
         private Stack<HighwayAlertsItem> construction = new Stack<>();
         private Stack<HighwayAlertsItem> incident = new Stack<>();
+        private Stack<HighwayAlertsItem> special = new Stack<>();
         private Stack<HighwayAlertsItem> amberalert = new Stack<>();
 
         @Override
@@ -335,6 +336,8 @@ public class TrafficAlertsFragment extends BaseFragment
                 titleholder.textView.setText(mData.get(position).getHeadlineDescription());
                 if (position == 0){
                     titleholder.divider.setVisibility(View.GONE);
+                }else{
+                    titleholder.divider.setVisibility(View.VISIBLE);
                 }
             }
         }
@@ -365,6 +368,9 @@ public class TrafficAlertsFragment extends BaseFragment
                     }
                     else if (category_id.equals(INCIDENT)) {
                         incident.push(data.get(i));
+                    }
+                    else if (category_id.equals(SPECIAL_EVENTS)) {
+                        special.push(data.get(i));
                     }
                 }
 
@@ -401,6 +407,16 @@ public class TrafficAlertsFragment extends BaseFragment
                         mAdapter.addItem(closure.pop());
                     }
                 }
+
+                mAdapter.addSeparatorItem(new HighwayAlertsItem("Special Events"));
+                if (special.empty()) {
+                    mAdapter.addItem(new HighwayAlertsItem("None reported"));
+                } else {
+                    while (!special.empty()) {
+                        mAdapter.addItem(special.pop());
+                    }
+                }
+
                 mAdapter.notifyDataSetChanged();
             }
         }
@@ -424,6 +440,7 @@ public class TrafficAlertsFragment extends BaseFragment
             construction.clear();
             incident.clear();
             amberalert.clear();
+            special.clear();
             notifyDataSetChanged();
         }
 
@@ -484,12 +501,14 @@ public class TrafficAlertsFragment extends BaseFragment
         // Types of categories
         String[] event_closure = {"closed", "closure"};
         String[] event_construction = {"construction", "maintenance", "lane closure"};
+        String[] event_special = {"special event"};
         String[] event_amber = {"amber"};
 
         HashMap<String, String[]> eventCategories = new HashMap<>();
         eventCategories.put("closure", event_closure);
         eventCategories.put("construction", event_construction);
         eventCategories.put("amber", event_amber);
+        eventCategories.put("special", event_special);
 
         Set<Map.Entry<String, String[]>> set = eventCategories.entrySet();
         Iterator<Map.Entry<String, String[]>> i = set.iterator();
@@ -510,6 +529,8 @@ public class TrafficAlertsFragment extends BaseFragment
                         return CONSTRUCTION;
                     } else if (keyWord.equalsIgnoreCase("amber")){
                         return AMBER;
+                    } else if (keyWord.equalsIgnoreCase("special")){
+                        return SPECIAL_EVENTS;
                     }
                 }
             }
