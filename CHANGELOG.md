@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [4.1.0] - 2016-02-19
 ### Added
 - Updated favorites section. Now supports 'swipe-to-dismiss' gesture to remove starred items
+- Added link to the Express Lanes schedule
 
 ## [4.0.0] - 2016-02-08
 ### Added
