@@ -88,6 +88,8 @@ public class MountainPassItemActivity extends BaseActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(mountainPassName);
+
 
 		Spinner mSpinner = (Spinner) findViewById(R.id.spinner);
 		mSpinner.setVisibility(View.GONE);

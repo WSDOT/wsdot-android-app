@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- App bar title now set to the pass name when viewing pass reports
 
 ## [4.1.0] - 2016-02-19
 ### Added
