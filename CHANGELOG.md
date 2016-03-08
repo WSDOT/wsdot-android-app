@@ -3,7 +3,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-- Fix for Ferry camera images disappearing on orientation change
+
+### Fixed
+- Ferry camera images disappearing on orientation change
+- App bar title now set to the pass name when viewing pass reports
 
 ## [4.1.0] - 2016-02-19
 ### Added
