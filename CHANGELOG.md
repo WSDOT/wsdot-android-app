@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Ferry camera images disappearing on orientation change
 - App bar title now set to the pass name when viewing pass reports
+- Added Amtrack trains 502 and 504
 
 ## [4.1.0] - 2016-02-19
 ### Added
