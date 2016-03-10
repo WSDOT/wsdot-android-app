@@ -32,8 +32,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -58,8 +56,6 @@ import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesScheduleFeed;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesScheduleItem;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesServiceItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
-import gov.wa.wsdot.android.wsdot.ui.tollrates.SR520TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 

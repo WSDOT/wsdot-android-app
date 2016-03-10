@@ -53,7 +53,6 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.SeattleIncidentItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class SeattleTrafficAlertsFragment extends BaseFragment implements
         LoaderCallbacks<ArrayList<SeattleIncidentItem>>,

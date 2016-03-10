@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-
+- Fix for Ferry camera images disappearing on orientation change
 
 ## [4.1.0] - 2016-02-19
 ### Added

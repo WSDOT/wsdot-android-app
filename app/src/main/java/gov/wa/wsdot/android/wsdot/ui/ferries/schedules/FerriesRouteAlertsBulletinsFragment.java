@@ -45,7 +45,6 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.FerriesRouteAlertItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implements
         LoaderCallbacks<ArrayList<FerriesRouteAlertItem>> {

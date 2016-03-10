@@ -36,9 +36,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -52,23 +50,21 @@ import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
-import gov.wa.wsdot.android.wsdot.ui.widget.ResizeableImageView;
 import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class FerriesTerminalCameraFragment extends BaseFragment
         implements LoaderCallbacks<Cursor> {
 
-    private static Map<Integer, FerriesTerminalItem> ferriesTerminalMap = new HashMap<Integer, FerriesTerminalItem>();
+    private static Map<Integer, FerriesTerminalItem> ferriesTerminalMap = new HashMap<>();
     private static int mTerminalId;
     private CamerasSyncReceiver mCamerasReceiver;
     private Intent camerasIntent;
     private View mEmptyView;
     private static View mLoadingSpinner;
     private static CameraImageAdapter mAdapter;
-    private static ArrayList<CameraItem> cameraItems = new ArrayList<CameraItem>();
+    private static ArrayList<CameraItem> cameraItems = new ArrayList<>();
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
@@ -89,11 +85,11 @@ public class FerriesTerminalCameraFragment extends BaseFragment
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
-        
-        createTerminalLocations();
-        
+
         camerasIntent = new Intent(getActivity(), CamerasSyncService.class);
-        getActivity().startService(camerasIntent);
+        mCamerasReceiver = new CamerasSyncReceiver();
+
+        createTerminalLocations();
     }
 
     @Override
@@ -103,8 +99,9 @@ public class FerriesTerminalCameraFragment extends BaseFragment
         IntentFilter camerasFilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
         camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mCamerasReceiver = new CamerasSyncReceiver();
-        getActivity().registerReceiver(mCamerasReceiver, camerasFilter); 
+
+        getActivity().registerReceiver(mCamerasReceiver, camerasFilter);
+        getActivity().startService(camerasIntent);
     }
 
     @Override
@@ -258,7 +255,7 @@ public class FerriesTerminalCameraFragment extends BaseFragment
         @Override
         public void onReceive(Context context, Intent intent) {
             String responseString = intent.getStringExtra("responseString");
-            
+
             if (responseString != null) {
                 if (responseString.equals("OK") || responseString.equals("NOP")) {
                     // We've got cameras, now add them.
