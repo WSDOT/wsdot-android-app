@@ -675,8 +675,6 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
             DateFormat updateDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
             updateDateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
-            AmtrakCascadesServiceItem item = items.get(position);
-
             TitleViewHolder titleHolder;
             AmtrakViewHolder itemHolder;
 
@@ -687,6 +685,8 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                 titleHolder.Arriving.setTypeface(tfb);
                 titleHolder.Departing.setTypeface(tfb);
             }else {
+
+                AmtrakCascadesServiceItem item = this.getItem(position);
 
                 itemHolder = (AmtrakViewHolder) holder;
 
