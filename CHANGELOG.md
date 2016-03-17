@@ -4,15 +4,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.1.2] - 2016-02-16
 ### Fixed
-- Ferry camera images disappearing on orientation change
-- App bar title now set to the pass name when viewing pass reports
-- Added Amtrack trains 502 and 504
+- Ferry camera images disappearing on orientation change.
+- App bar title now set to the pass name when viewing pass reports.
+- Added Amtrack trains 502 and 504.
 
 ## [4.1.0] - 2016-02-19
 ### Added
-- Updated favorites section. Now supports 'swipe-to-dismiss' gesture to remove starred items
-- Added link to the Express Lanes schedule
+- Updated favorites section. Now supports 'swipe-to-dismiss' gesture to remove starred items.
+- Added link to the Express Lanes schedule.
 
 ## [4.0.0] - 2016-02-08
 ### Added
@@ -35,7 +36,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Better analytics integration and reporting.
 
 ### Fixed
-- Ferries Schedules - sailing times between midnight and 3:00 a.m. no longer disappear
+- Ferries Schedules - sailing times between midnight and 3:00 a.m. no longer disappear.
 
 ## [3.4.2] - 2015-12-11
 ### Fixed
@@ -55,7 +56,6 @@ Spinning status indicator not showing on views.
 WSDOT YouTube video feed not working.
 
 ## [3.3.2] - 2015-11-05
-### Fixed
 
 ## [3.3.1] - 2015-11-05
 ### Fixed
