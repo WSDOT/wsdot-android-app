@@ -323,6 +323,8 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
         Intent intent = new Intent(this, AmtrakCascadesSchedulesDetailsActivity.class);
         b.putString("dayId", dayId);
         b.putString("originId", originId);
+        if(destinationId.equalsIgnoreCase("N/A"))
+            destinationId = originId;
         b.putString("destinationId", destinationId);
         intent.putExtras(b);
         
