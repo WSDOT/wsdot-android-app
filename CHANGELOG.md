@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Fixed
 - The first train departures of the day now display.
+- App no longer crashes when rotating device while viewing train departures with no destination set.
 
 ## [4.1.2] - 2016-03-16
 ### Fixed

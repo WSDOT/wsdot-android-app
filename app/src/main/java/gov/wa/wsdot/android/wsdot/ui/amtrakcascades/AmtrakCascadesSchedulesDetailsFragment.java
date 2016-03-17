@@ -111,9 +111,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
         schedule_title = (TextView) root.findViewById(R.id.title);
         schedule_title.setTypeface(tfb);
 
-        if (toLocation.equalsIgnoreCase("N/A")) {
-            schedule_title.setText(amtrakStations.get(fromLocation));
-        } else if ((fromLocation.equalsIgnoreCase(toLocation))) {
+        if ((fromLocation.equalsIgnoreCase(toLocation))) {
             schedule_title.setText(amtrakStations.get(fromLocation));
         } else {
             schedule_title.setText("Departing: "
@@ -204,16 +202,13 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
     }
 
     public void onRefresh() {
-        getLoaderManager().restartLoader(0, null, this);        
+        getLoaderManager().restartLoader(0, null, this);
     }
 
     public Loader<ArrayList<AmtrakCascadesServiceItem>> onCreateLoader(int id, Bundle args) {
         // This is called when a new Loader needs to be created. There
         // is only one Loader with no arguments, so it is simple
-        if (toLocation.equalsIgnoreCase("N/A")) {
-            return new DepartingTrainsLoader(getActivity());
-        } else if ((fromLocation.equalsIgnoreCase(toLocation))) {
-            toLocation = "N/A";
+        if ((fromLocation.equalsIgnoreCase(toLocation))) {
             return new DepartingTrainsLoader(getActivity());
         } else {
             return new DepartingArrivingTrainsLoader(getActivity());
@@ -232,18 +227,18 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
             t.setText(R.string.no_connection);
             mEmptyView.setVisibility(View.VISIBLE);
         }
-        
+
         swipeRefreshLayout.setRefreshing(false);
     }
 
     public void onLoaderReset(Loader<ArrayList<AmtrakCascadesServiceItem>> loader) {
         swipeRefreshLayout.setRefreshing(false);
-        mAdapter.setData(null);        
+        mAdapter.setData(null);
     }
 
     /**
      * Get train schedules for those with a departing and arriving station.
-     * 
+     *
      */
     public static class DepartingArrivingTrainsLoader extends AsyncTaskLoader<ArrayList<AmtrakCascadesServiceItem>> {
 
@@ -259,7 +254,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
             mServiceItems = new ArrayList<AmtrakCascadesServiceItem>();
             AmtrakCascadesScheduleItem scheduleItem = null;
             URL url;
-            
+
             try {
                 url = new URL(
                         "http://www.wsdot.wa.gov/traffic/api/amtrak/Schedulerest.svc/GetScheduleAsJson"
@@ -274,12 +269,12 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                 BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
                 String jsonFile = "";
                 String line;
-                
+
                 while ((line = in.readLine()) != null) {
                     jsonFile += line;
                 }
-                in.close();            
-            
+                in.close();
+
                 Gson gson = new GsonBuilder().serializeNulls().create();
                 AmtrakCascadesScheduleFeed[] scheduleFeed = gson.fromJson(jsonFile, AmtrakCascadesScheduleFeed[].class);
                 int numItems = scheduleFeed.length;
@@ -294,12 +289,12 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                     List<Map<String, AmtrakCascadesScheduleItem>> locationItems;
                     locationItems = new ArrayList<Map<String, AmtrakCascadesScheduleItem>>();
                     stationItems = new HashMap<String, AmtrakCascadesScheduleItem>();
-                    
+
                     startingTripNumber = scheduleFeed[i].getTripNumber();
                     currentTripNumber = startingTripNumber;
                     List<String> trainNameList = new ArrayList<String>();
                     int tripCounter = 0;
-                    while (currentTripNumber == startingTripNumber && i < numItems) { // Trains are grouped by two or more 
+                    while (currentTripNumber == startingTripNumber && i < numItems) { // Trains are grouped by two or more
                         scheduleItem = new AmtrakCascadesScheduleItem();
 
                         if (scheduleFeed[i].getArrivalComment() != null) {
@@ -331,7 +326,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                         }
 
                         scheduleItem.setStationName(scheduleFeed[i].getStationName());
-                        
+
                         if (scheduleFeed[i].getTrainMessage() != "") {
                             scheduleItem.setTrainMessage(scheduleFeed[i].getTrainMessage());
                         }
@@ -339,7 +334,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                         if (scheduleFeed[i].getScheduledDepartureTime() != null) {
                             scheduleItem.setScheduledDepartureTime(
                                     scheduleFeed[i].getScheduledDepartureTime().toString().substring(6, 19));
-                            
+
                             // We sort by scheduled departure time of the From station.
                             if (fromLocation.equalsIgnoreCase(scheduleItem.getStationName())) {
                                 scheduledDepartureTime = new Date(
@@ -358,7 +353,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
                         scheduleItem.setSortOrder(scheduleFeed[i].getSortOrder());
                         String trainName = trainNumber + " " + serviceName;
-                        
+
                         // Add the train name for ever other record. When there is one origin and destination point
                         // the train name will be the same. If the tripNumber is the same over more than two records
                         // then we have multiple origin and destination points and likely different train names.
@@ -392,13 +387,13 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                     locationItems.add(stationItems);
                     mServiceItems.add(new AmtrakCascadesServiceItem(scheduledDepartureTime, locationItems));
                 }
-                
+
                 Collections.sort(mServiceItems, AmtrakCascadesServiceItem.scheduledDepartureTimeComparator);
-                
+
             } catch (Exception e) {
                 Log.e(TAG, "Error in network call", e);
             }
-            
+
             return mServiceItems;
         }
 
@@ -408,7 +403,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
              * Called when there is new data to deliver to the client. The
              * super class will take care of delivering it; the implementation
              * here just adds a little more logic.
-             */ 
+             */
             super.deliverResult(data);
         }
 
@@ -427,7 +422,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
         @Override
         protected void onStopLoading() {
             super.onStopLoading();
-            
+
             // Attempt to cancel the current load task if possible.
             cancelLoad();
         }
@@ -436,23 +431,23 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
         public void onCanceled(ArrayList<AmtrakCascadesServiceItem> data) {
             super.onCanceled(data);
         }
-        
+
         @Override
         protected void onReset() {
             super.onReset();
-            
+
             // Ensure the loader is stopped
             onStopLoading();
-            
+
             if (mServiceItems != null) {
                 mServiceItems = null;
             }
         }
     }
-    
+
     /**
      * Get train schedules for those with just a departing station.
-     * 
+     *
      */
     public static class DepartingTrainsLoader extends AsyncTaskLoader<ArrayList<AmtrakCascadesServiceItem>> {
 
@@ -464,11 +459,11 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
         @Override
         public ArrayList<AmtrakCascadesServiceItem> loadInBackground() {
-            
+
             mServiceItems = new ArrayList<AmtrakCascadesServiceItem>();
             AmtrakCascadesScheduleItem scheduleItem;
             URL url;
-            
+
             try {
                 url = new URL(
                         "http://www.wsdot.wa.gov/traffic/api/amtrak/Schedulerest.svc/GetScheduleAsJson"
@@ -476,7 +471,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                                 + "&StatusDate=" + statusDate
                                 + "&TrainNumber=-1"
                                 + "&FromLocation=" + fromLocation
-                                + "&ToLocation=" + toLocation
+                                + "&ToLocation=N/A"
                         );
 
                 URLConnection urlConn = url.openConnection();
