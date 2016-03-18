@@ -42,7 +42,7 @@ public class ParserUtils {
 		} catch (ParseException e) {
 			return "Unavailable";
 		} catch (NullPointerException e) {
-			return "Unavailable";
+			return "";
 		}
 		
 		return getRelative(parseDate);
