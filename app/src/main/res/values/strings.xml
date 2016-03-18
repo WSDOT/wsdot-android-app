@@ -33,7 +33,7 @@
     <string name="title_ferriesroutealerts">Route Alerts</string>
     <string name="title_ferriesrouteschedules">Route Schedules</string>
     <string name="title_vesselwatch">Vessel Watch</string>
-    <string name="title_seattlealerts">Seattle Alerts</string>
+    <string name="title_alerts">Traffic Alerts</string>
     <string name="title_traveltimes">Travel Times</string>
     <string name="title_expresslanes">Express Lanes</string>
     <string name="title_trafficmap">Traffic Map</string>

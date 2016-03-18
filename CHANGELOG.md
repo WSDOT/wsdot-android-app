@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Seattle Alerts feature has been removed. Replacing it is "Alerts in This Area"
 
 ## [4.1.3] - 2016-03-18
 ### Fixed

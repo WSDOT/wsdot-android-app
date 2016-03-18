@@ -27,7 +27,7 @@
 
      <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity">/Traffic Map</screenName>
      <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesActivity">/Traffic Map/Seattle/Express Lanes</screenName>
-     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.SeattleTrafficAlertsActivity">/Traffic Map/Seattle/Traffic Alerts</screenName>
+     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsActivity">/Traffic Map/Seattle/Traffic Alerts</screenName>
      <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes.TravelTimesActivity">/Traffic Map/Travel Times</screenName>
      <screenName name="gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity">/Traffic Map/Callout</screenName>
 
