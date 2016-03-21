@@ -6,6 +6,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Seattle Alerts feature has been removed. Replacing it is "Alerts in This Area"
 
+### Fixed
+- Appbar star state saved on configuration change
+
 ## [4.1.3] - 2016-03-18
 ### Fixed
 - The first train departures of the day now display.
