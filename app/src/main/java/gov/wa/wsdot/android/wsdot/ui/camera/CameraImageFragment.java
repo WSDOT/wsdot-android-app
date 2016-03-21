@@ -74,32 +74,31 @@ public class CameraImageFragment extends Fragment implements
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
 	static final private int MENU_ITEM_STAR = Menu.FIRST;
-	
-	@Override
-	public void onAttach(Context activity) {
-		super.onAttach(activity);
-		
-		Bundle args = getArguments();
-		mId = args.getInt("id");
-		mTitle = args.getString("title");
-		mUrl = args.getString("url");
-		mIsStarred = args.getInt("isStarred") != 0;
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
         // Tell the framework to try to keep this fragment around
-        // during a configuration change.		
+        // during a configuration change.
         setRetainInstance(true);
 		setHasOptionsMenu(true);
+
+        Bundle args = getArguments();
+        mId = args.getInt("id");
+        mTitle = args.getString("title");
+        mUrl = args.getString("url");
+        mIsStarred = args.getInt("isStarred") != 0;
+
+        if (savedInstanceState != null) {
+            mIsStarred = savedInstanceState.getInt("isStarred") != 0;
+        }
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mRootView = (ViewGroup) inflater.inflate(R.layout.camera_dialog, null);
-		
+
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -112,38 +111,38 @@ public class CameraImageFragment extends Fragment implements
 				R.color.holo_green_light,
 				R.color.holo_orange_light,
 				R.color.holo_red_light);
-        
+
         mImage = (ImageView) mRootView.findViewById(R.id.image);
-        
+
 		return mRootView;
 	}
-	
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
+
 		// Prepare the loader. Either re-connect with an existing one,
-		// or start a new one.        
+		// or start a new one.
         getLoaderManager().initLoader(0, null, this);
 	}
-	
+
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.share_action_provider, menu);
 
         // Set file with share history to the provider and set the share intent.
         MenuItem menuItem_Share = menu.findItem(R.id.action_share);
-        shareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem_Share); 
+        shareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem_Share);
         shareAction.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
-        
+
 		MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
 		MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
-	
+
 		if (mIsStarred) {
 			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
 		} else {
 			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
-		}		
+		}
     }
 
 	@Override
@@ -152,12 +151,12 @@ public class CameraImageFragment extends Fragment implements
 
 		case MENU_ITEM_STAR:
 			toggleStar(item);
-			return true;		
+			return true;
 		}
-		
+
 		return super.onOptionsItemSelected(item);
-	}    
-    
+	}
+
 	private void toggleStar(MenuItem item) {
 		resolver = getActivity().getContentResolver();
 		Snackbar added_snackbar = Snackbar
@@ -193,15 +192,15 @@ public class CameraImageFragment extends Fragment implements
 						values,
 						Cameras.CAMERA_ID + "=?",
 						new String[] {Integer.toString(mId)}
-						);			
-				
+						);
+
 				added_snackbar.show();
 				mIsStarred = true;
 			} catch (Exception e) {
 				Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
 	    		Log.e("CameraImageFragment", "Error: " + e.getMessage());
 	    	}
-		}		
+		}
 	}
 
 	private Intent createShareIntent() {
@@ -210,7 +209,7 @@ public class CameraImageFragment extends Fragment implements
 	    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
 	    values.put(MediaStore.Images.Media.DATA, f.getAbsolutePath());
         Uri uri = getActivity().getContentResolver().insert(
-                MediaStore.Images.Media.INTERNAL_CONTENT_URI, values);		
+                MediaStore.Images.Media.INTERNAL_CONTENT_URI, values);
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -219,15 +218,15 @@ public class CameraImageFragment extends Fragment implements
         shareIntent.putExtra(Intent.EXTRA_TEXT, mTitle);
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
         shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-		
-        return shareIntent;
-	}	
 
-	
-	public Loader<Drawable> onCreateLoader(int id, Bundle args) {	
+        return shareIntent;
+	}
+
+
+	public Loader<Drawable> onCreateLoader(int id, Bundle args) {
 		return new CameraImageLoader(getActivity());
 	}
-	
+
 
 	public void onLoadFinished(Loader<Drawable> loader, Drawable data) {
 	    swipeRefreshLayout.setRefreshing(false);
@@ -242,9 +241,9 @@ public class CameraImageFragment extends Fragment implements
 	public void onLoaderReset(Loader<Drawable> loader) {
 	    swipeRefreshLayout.setRefreshing(false);
 	}
-	
+
 	public static class CameraImageLoader extends AsyncTaskLoader<Drawable> {
-		
+
 		public CameraImageLoader(Context context) {
 			super(context);
 		}
@@ -255,7 +254,7 @@ public class CameraImageFragment extends Fragment implements
 		public Drawable loadInBackground() {
 	    	FileOutputStream fos = null;
 	    	Bitmap image = null;
-	        
+
 	        try {
 	        	HttpURLConnection connection = (HttpURLConnection) new URL(mUrl).openConnection();
 	        	connection.setRequestProperty("User-agent","Mozilla/4.0");
@@ -267,11 +266,11 @@ public class CameraImageFragment extends Fragment implements
                     image = BitmapFactory.decodeResource(getContext()
                             .getResources(), R.drawable.camera_offline);
                 }
-	            
+
 	            fos = getContext().openFileOutput(mCameraName, Context.MODE_WORLD_READABLE);
 	            image.compress(Bitmap.CompressFormat.JPEG, 75, fos);
 				fos.flush();
-				fos.close();            
+				fos.close();
 		    } catch (Exception e) {
 		        Log.e("CameraImageFragment", "Error retrieving camera image", e);
 		    } finally {
@@ -280,7 +279,7 @@ public class CameraImageFragment extends Fragment implements
                             .getResources(), R.drawable.camera_offline);
 		        }
 		    }
-        
+
 		    return new BitmapDrawable(image);
 		}
 
@@ -290,14 +289,14 @@ public class CameraImageFragment extends Fragment implements
 		     * Called when there is new data to deliver to the client. The
 		     * super class will take care of delivering it; the implementation
 		     * here just adds a little more logic.
-		     */	
+		     */
 			super.deliverResult(data);
 		}
-		
+
 		@Override
 		protected void onStartLoading() {
 			super.onStartLoading();
-			
+
 			swipeRefreshLayout.post(new Runnable() {
 				public void run() {
 					swipeRefreshLayout.setRefreshing(true);
@@ -309,11 +308,11 @@ public class CameraImageFragment extends Fragment implements
 		@Override
 		protected void onStopLoading() {
 			super.onStopLoading();
-			
+
 	        // Attempt to cancel the current load task if possible.
-	        cancelLoad();			
+	        cancelLoad();
 		}
-		
+
 		@Override
 		public void onCanceled(Drawable data) {
 			super.onCanceled(data);
@@ -322,13 +321,23 @@ public class CameraImageFragment extends Fragment implements
 		@Override
 		protected void onReset() {
 			super.onReset();
-			
+
 	        // Ensure the loader is stopped
-	        onStopLoading();			
-		}		
+	        onStopLoading();
+		}
 	}
 
     public void onRefresh() {
-        getLoaderManager().restartLoader(0, null, this);        
+        getLoaderManager().restartLoader(0, null, this);
     }
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		if (mIsStarred){
+            outState.putInt("isStarred",  1);
+		}else{
+            outState.putInt("isStarred",  0);
+		}
+		super.onSaveInstanceState(outState);
+	}
 }

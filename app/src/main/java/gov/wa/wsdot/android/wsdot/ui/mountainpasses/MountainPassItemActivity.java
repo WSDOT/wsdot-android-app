@@ -74,8 +74,8 @@ public class MountainPassItemActivity extends BaseActivity {
 	    String mountainPassName = b.getString("MountainPassName");
 	    String cameras = b.getString("Cameras");
 	    String forecast = b.getString("Forecasts");
-	    mIsStarred = b.getInt("isStarred") != 0;
-	    
+		mIsStarred = b.getInt("isStarred") != 0;
+
 	    // GA tracker
     	mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
     	mTracker.setScreenName("/Mountain Passes/Details/" + mountainPassName);
@@ -138,20 +138,21 @@ public class MountainPassItemActivity extends BaseActivity {
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
             tab.select();
-        }        
+			mIsStarred = savedInstanceState.getInt("isStarred") != 0;
+        }
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
 		MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
-	
+
 		if (mIsStarred) {
 			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
 		} else {
 			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
 		}
-		
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -165,10 +166,10 @@ public class MountainPassItemActivity extends BaseActivity {
 			toggleStar(item);
 			return true;
 		}
-		
+
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	private void toggleStar(MenuItem item) {
 		resolver = getContentResolver();
 		Snackbar added_snackbar = Snackbar
@@ -188,7 +189,7 @@ public class MountainPassItemActivity extends BaseActivity {
 						MountainPasses.MOUNTAIN_PASS_ID + "=?",
 						new String[] {Integer.toString(mId)}
 						);
-				
+
 				removed_snackbar.show();
 				mIsStarred = false;
 	    	} catch (Exception e) {
@@ -205,21 +206,26 @@ public class MountainPassItemActivity extends BaseActivity {
 						values,
 						MountainPasses.MOUNTAIN_PASS_ID + "=?",
 						new String[] {Integer.toString(mId)}
-						);			
-				
+						);
+
 				added_snackbar.show();
 				mIsStarred = true;
 			} catch (Exception e) {
 				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
 	    		Log.e("MountainPasItemActivity", "Error: " + e.getMessage());
 	    	}
-		}		
+		}
 	}
-	
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         //Save the selected tab in order to restore in screen rotation
         outState.putInt("tab", mTabLayout.getSelectedTabPosition());
+		if (mIsStarred){
+			outState.putInt("isStarred",  1);
+		}else{
+			outState.putInt("isStarred",  0);
+		}
     }
 }
