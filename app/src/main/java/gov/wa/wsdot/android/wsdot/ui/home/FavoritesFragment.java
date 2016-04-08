@@ -714,7 +714,7 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.lat = cursor.getFloat(cursor.getColumnIndex(MapLocation.LOCATION_LAT));
                 viewholder.zoom = cursor.getInt(cursor.getColumnIndex(MapLocation.LOCATION_ZOOM));
 
-                String latlong = String.format("Latitude: %.2f, Longitude: %.2f", viewholder.lat, viewholder.lng);
+                String latlong = String.format("%.2f, %.2f", viewholder.lat, viewholder.lng);
 
                 viewholder.latlong.setText(latlong);
                 viewholder.latlong.setTypeface(tf);

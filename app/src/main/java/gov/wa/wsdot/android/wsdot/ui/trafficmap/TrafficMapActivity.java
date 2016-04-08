@@ -424,21 +424,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
             case R.id.set_favorite:
 
-
-
-/*
-                final EditText input = new EditText(this);
-                LinearLayout.LayoutParams mRparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                mRparams.setMargins(1000, 64, 1000, 64);
-                input.setSingleLine(true);
-                input.setMaxLines(1);
-                input.setLayoutParams(mRparams);
-                input.setHint(R.string.favorite_location_hint);
-*/
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-               // builder.setView(input);
-
 
                 LayoutInflater factory = LayoutInflater.from(this);
                 final View textEntryView = factory.inflate(R.layout.alert_dialog_text_entry, null);
