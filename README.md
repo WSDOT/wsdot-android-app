@@ -1,7 +1,7 @@
 wsdot-android-app
 =================
 
-The WSDOT Android app contains traffic and travel information for the state of
+The [WSDOT Android app](https://play.google.com/store/apps/details?id=gov.wa.wsdot.android.wsdot&hl=en) contains traffic and travel information for the state of
 Washington. The app includes statewide traffic cameras and high priority travel
 alerts, mountain pass reports, northbound Canadian border wait times, ferry
 schedules and alerts as well as real time ferry locations.
