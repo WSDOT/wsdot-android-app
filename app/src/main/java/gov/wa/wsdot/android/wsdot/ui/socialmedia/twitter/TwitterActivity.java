@@ -56,6 +56,7 @@ public class TwitterActivity extends BaseActivity implements
 		mTwitterScreenNames.put("WSDOT Southwest", "wsdot_sw");
 		mTwitterScreenNames.put("WSDOT Tacoma", "wsdot_tacoma");
 		mTwitterScreenNames.put("WSDOT Traffic", "wsdot_traffic");
+        mTwitterScreenNames.put("WSDOT Jobs", "WSDOTjobs");
 
         // Set up custom spinner
         Spinner spinner = (Spinner) findViewById(R.id.spinner_nav);

@@ -137,7 +137,8 @@ public class TwitterFragment extends BaseFragment implements
 		mTwitterProfileImages.put("wsdot", R.drawable.ic_list_wsdot);
 		mTwitterProfileImages.put("wsdot_sw", R.drawable.ic_list_wsdot_sw);
 		mTwitterProfileImages.put("wsdot_tacoma", R.drawable.ic_list_wsdot_tacoma);
-		mTwitterProfileImages.put("wsdot_traffic", R.drawable.ic_list_wsdot_traffic);		
+		mTwitterProfileImages.put("wsdot_traffic", R.drawable.ic_list_wsdot_traffic);
+		mTwitterProfileImages.put("WSDOTjobs", R.drawable.ic_list_wsdot_jobs);
 		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.        
