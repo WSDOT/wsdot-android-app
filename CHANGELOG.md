@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [4.2.0] - 2016-04-19
 ### Added
 - WSDOTjobs twitter account to Twitter feeds.
 
@@ -11,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - Appbar star state saved on configuration change
+- "&"s now correctly display in twitter feeds.
 
 ## [4.1.3] - 2016-03-18
 ### Fixed
