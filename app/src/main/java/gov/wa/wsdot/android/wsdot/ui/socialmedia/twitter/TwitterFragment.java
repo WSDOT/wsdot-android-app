@@ -100,6 +100,7 @@ public class TwitterFragment extends BaseFragment implements
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
         mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -231,6 +232,7 @@ public class TwitterFragment extends BaseFragment implements
 			String urlPattern = "(https?:\\/\\/[-a-zA-Z0-9._~:\\/?#@!$&\'()*+,;=%]+)";
 			String atPattern = "@+([_a-zA-Z0-9-]+)";
 			String hashPattern = "#+([_a-zA-Z0-9-]+)";
+			String ampPattern = "(&amp;)";
 			String text;
 			String htmlText;
 
@@ -262,10 +264,11 @@ public class TwitterFragment extends BaseFragment implements
 					i = new TwitterItem();
 					htmlText = "";
 					text = item.getString("text");
+					text = text.replaceAll(ampPattern, "&");
 					htmlText = text.replaceAll(urlPattern, "<a href=\"$1\">$1</a>");
 					htmlText = htmlText.replaceAll(atPattern, "<a href=\"http://twitter.com/#!/$1\">@$1</a>");
 					htmlText = htmlText.replaceAll(hashPattern, "<a href=\"http://twitter.com/#!/search?q=%23$1\">#$1</a>");
-					
+
 					i.setId(item.getString("id"));
 					
 					JSONObject entities = item.getJSONObject("entities");
