@@ -4,15 +4,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.2.1] - 2016-04-21
+- Edited Google Analytics tracking name for Alerts in this Area.
+
 ## [4.2.0] - 2016-04-19
 ### Added
 - WSDOTjobs twitter account to Twitter feeds.
 
 ### Changed
-- Seattle Alerts feature has been removed. Replacing it is "Alerts in This Area"
+- Seattle Alerts feature has been removed. Replacing it is "Alerts in This Area".
 
 ### Fixed
-- Appbar star state saved on configuration change
+- Appbar star state saved on configuration change.
 - "&"s now correctly display in twitter feeds.
 
 ## [4.1.3] - 2016-03-18
