@@ -110,8 +110,10 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         
         int numDates = mScheduleDateItems.size();
         for (int i = 0; i < numDates; i++) {
-            mDaysOfWeek.add(dateFormat.format(new Date(
-                    Long.parseLong(mScheduleDateItems.get(i).getDate()))));
+            if (!mScheduleDateItems.get(i).getFerriesTerminalItem().isEmpty()){
+                mDaysOfWeek.add(dateFormat.format(new Date(
+                        Long.parseLong(mScheduleDateItems.get(i).getDate()))));
+            }
         }
 	}
 
