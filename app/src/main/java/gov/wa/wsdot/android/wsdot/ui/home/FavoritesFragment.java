@@ -49,12 +49,15 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MapLocation;
 import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
@@ -63,6 +66,7 @@ import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class FavoritesFragment extends BaseFragment implements
@@ -133,16 +137,26 @@ public class FavoritesFragment extends BaseFragment implements
 			FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED
 			};
 
+    private static final String[] location_projection = {
+            MapLocation._ID,
+            MapLocation.LOCATION_TITLE,
+            MapLocation.LOCATION_LAT,
+            MapLocation.LOCATION_LONG,
+            MapLocation.LOCATION_ZOOM
+    };
+
 	private static final int CAMERAS_LOADER_ID = 0;
 	private static final int MOUNTAIN_PASSES_LOADER_ID = 1;
 	private static final int TRAVEL_TIMES_LOADER_ID = 2;
 	private static final int FERRIES_SCHEDULES_LOADER_ID = 3;
+    private static final int LOCATION_LOADER_ID = 4;
 
     private static final int HEADER_VIEWTYPE = 10;
     private static final int CAMERAS_VIEWTYPE = 0;
     private static final int MOUNTAIN_PASSES_VIEWTYPE = 1;
     private static final int TRAVEL_TIMES_VIEWTYPE = 2;
     private static final int FERRIES_SCHEDULES_VIEWTYPE = 3;
+    private static final int LOCATION_VIEWTYPE = 4;
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
@@ -199,6 +213,9 @@ public class FavoritesFragment extends BaseFragment implements
                 final String[] item_id;
                 final int viewType = mFavoritesAdapter.getItemViewType(holder.getAdapterPosition());
 
+                //Keeps holders data for undo
+                holder.setIsRecyclable(false);
+
                 //get the camera id or tag for the item being removed.
                 switch (viewType){
                     case CAMERAS_VIEWTYPE:
@@ -216,6 +233,10 @@ public class FavoritesFragment extends BaseFragment implements
                     case MOUNTAIN_PASSES_VIEWTYPE:
                         PassViewHolder passholder = (PassViewHolder) holder;
                         item_id = new String[] {Integer.toString((Integer) passholder.star_button.getTag())};
+                        break;
+                    case LOCATION_VIEWTYPE:
+                        LocationViewHolder locholder = (LocationViewHolder) holder;
+                        item_id = new String[] {Integer.toString((Integer) locholder.title.getTag())};
                         break;
                     default:
                         item_id = null;
@@ -266,6 +287,7 @@ public class FavoritesFragment extends BaseFragment implements
 		getLoaderManager().initLoader(FERRIES_SCHEDULES_LOADER_ID, null, this);
         getLoaderManager().initLoader(MOUNTAIN_PASSES_LOADER_ID, null, this);
         getLoaderManager().initLoader(TRAVEL_TIMES_LOADER_ID, null, this);
+        getLoaderManager().initLoader(LOCATION_LOADER_ID, null, this);
 
 	    TextView t = (TextView) mEmptyView;
         t.setText(R.string.no_favorites);
@@ -355,6 +377,16 @@ public class FavoritesFragment extends BaseFragment implements
 					null
 					);
 			break;
+        case 4:
+            cursorLoader = new CursorLoader(
+                    getActivity(),
+                    MapLocation.CONTENT_URI,
+                    location_projection,
+                    null,
+                    null,
+                    MapLocation.LOCATION_TITLE + " ASC"
+            );
+            break;
 		}
 
 		return cursorLoader;
@@ -405,6 +437,7 @@ public class FavoritesFragment extends BaseFragment implements
                 add("Mountain Passes");
                 add("Travel Times");
                 add("Ferries Schedules");
+                add("Locations");
             }
         };
 
@@ -414,6 +447,7 @@ public class FavoritesFragment extends BaseFragment implements
                 put(MOUNTAIN_PASSES_VIEWTYPE, null);
                 put(TRAVEL_TIMES_VIEWTYPE, null);
                 put(FERRIES_SCHEDULES_VIEWTYPE, null);
+                put(LOCATION_VIEWTYPE, null);
             }
         };
 
@@ -443,6 +477,10 @@ public class FavoritesFragment extends BaseFragment implements
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_item_with_star, null);
                     return new FerryViewHolder(itemView);
+                case LOCATION_VIEWTYPE:
+                    itemView = LayoutInflater.
+                            from(parent.getContext()).inflate(R.layout.list_item_content, null);
+                    return new LocationViewHolder(itemView);
                 case HEADER_VIEWTYPE:
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_header, parent, false);
@@ -664,6 +702,45 @@ public class FavoritesFragment extends BaseFragment implements
                     });
                 }
 
+            }else if (holder instanceof LocationViewHolder){
+                LocationViewHolder viewholder = (LocationViewHolder) holder;
+                Cursor cursor = (Cursor) mFavoritesAdapter.getItem(position);
+
+                String title = cursor.getString(cursor.getColumnIndex(MapLocation.LOCATION_TITLE));
+                viewholder.title.setText(title);
+                viewholder.title.setTypeface(tf);
+
+                viewholder.lng = cursor.getFloat(cursor.getColumnIndex(MapLocation.LOCATION_LONG));
+                viewholder.lat = cursor.getFloat(cursor.getColumnIndex(MapLocation.LOCATION_LAT));
+                viewholder.zoom = cursor.getInt(cursor.getColumnIndex(MapLocation.LOCATION_ZOOM));
+
+                String latlong = String.format("%.2f, %.2f", viewholder.lat, viewholder.lng);
+
+                viewholder.latlong.setText(latlong);
+                viewholder.latlong.setTypeface(tf);
+
+
+                viewholder.title.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
+
+                final int pos = position;
+
+                // Set onClickListener for holder's view
+                viewholder.itemView.setOnClickListener(
+                        new View.OnClickListener() {
+                            public void onClick(View v) {
+                                Cursor c = (Cursor) mFavoritesAdapter.getItem(pos);
+                                Bundle b = new Bundle();
+                                Intent intent = new Intent(getActivity(), TrafficMapActivity.class);
+
+                                b.putFloat("lat", c.getFloat(c.getColumnIndex(MapLocation.LOCATION_LAT)));
+                                b.putFloat("long", c.getFloat(c.getColumnIndex(MapLocation.LOCATION_LONG)));
+                                b.putInt("zoom", c.getInt(c.getColumnIndex(MapLocation.LOCATION_ZOOM)));
+
+                                intent.putExtras(b);
+                                startActivity(intent);
+                            }
+                        }
+                );
 
             }else{
                 Log.i(TAG, "No view holder for type: " + holder.getClass().getName()); //TODO
@@ -844,6 +921,12 @@ public class FavoritesFragment extends BaseFragment implements
                             item_id
                     );
                     break;
+                case LOCATION_VIEWTYPE:
+                    getActivity().getContentResolver().delete(
+                            MapLocation.CONTENT_URI,
+                            MapLocation._ID + "=?",
+                            item_id
+                    );
             }
 
             notifyDataSetChanged();
@@ -910,6 +993,19 @@ public class FavoritesFragment extends BaseFragment implements
                             item_id
                     );
                     break;
+                case LOCATION_VIEWTYPE:
+
+                    LocationViewHolder locholder = (LocationViewHolder) holder;
+
+                    String title = locholder.title.getText().toString();
+
+                    values.put(WSDOTContract.MapLocation.LOCATION_TITLE, title);
+                    values.put(WSDOTContract.MapLocation.LOCATION_LAT, locholder.lat);
+                    values.put(WSDOTContract.MapLocation.LOCATION_LONG, locholder.lng);
+                    values.put(WSDOTContract.MapLocation.LOCATION_ZOOM, locholder.zoom);
+
+                    getActivity().getContentResolver().insert(
+                            WSDOTContract.MapLocation.CONTENT_URI, values);
             }
 
             notifyDataSetChanged();
@@ -928,7 +1024,6 @@ public class FavoritesFragment extends BaseFragment implements
             super(view);
             title = (TextView) view.findViewById(R.id.title);
         }
-
     }
 
     private class PassViewHolder extends RecyclerView.ViewHolder {
@@ -981,6 +1076,21 @@ public class FavoritesFragment extends BaseFragment implements
             alert_button = (ImageButton) view.findViewById(R.id.alert_button);
         }
     }
+
+    private class LocationViewHolder extends RecyclerView.ViewHolder {
+        TextView title;
+        TextView latlong;
+        int zoom;
+        float lat;
+        float lng;
+
+        public LocationViewHolder(View view) {
+            super(view);
+            title = (TextView) view.findViewById(R.id.title);
+            latlong = (TextView) view.findViewById(R.id.content);
+        }
+    }
+
 
     private class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView title;
@@ -1035,7 +1145,6 @@ public class FavoritesFragment extends BaseFragment implements
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String responseString = intent.getStringExtra("responseString");
-			
 			if (responseString != null) {
 				if (responseString.equals("OK")) {
 					getLoaderManager().restartLoader(TRAVEL_TIMES_LOADER_ID, null, FavoritesFragment.this);
@@ -1045,7 +1154,6 @@ public class FavoritesFragment extends BaseFragment implements
 					Log.e("TravelTimesSyncReceiver", responseString);
 				}
 			}
-			
 			swipeRefreshLayout.setRefreshing(false);
 		}
 	}

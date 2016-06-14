@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Favorite Map Locations.
 
 ## [4.2.1] - 2016-04-21
 - Edited Google Analytics tracking name for Alerts in this Area.
