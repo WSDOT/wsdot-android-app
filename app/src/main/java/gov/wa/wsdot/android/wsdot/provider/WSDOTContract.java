@@ -109,7 +109,15 @@ public class WSDOTContract {
 		String BORDER_WAIT_TIME = "wait";
 		String BORDER_WAIT_IS_STARRED = "is_starred";
 	}
-	
+
+	interface LocationColumns {
+		String LOCATION_ID = "id";
+		String LOCATION_TITLE = "title";
+		String LOCATION_LAT = "latitude";
+		String LOCATION_LONG = "longitude";
+		String LOCATION_ZOOM = "zoom";
+	}
+
 	public static final String CONTENT_AUTHORITY = "gov.wa.wsdot.android.wsdot.provider.WSDOTProvider";
 	public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
@@ -123,6 +131,7 @@ public class WSDOTContract {
 	private static final String PATH_FERRIES_SCHEDULES = "ferries_schedules";
 	private static final String PATH_FERRIES_TERMINAL_SAILING_SPACE = "ferries_terminal_sailing_space";
 	private static final String PATH_BORDER_WAIT = "border_wait";
+	private static final String PATH_MAP_LOCATION = "map_location";
 	
 	public static class Caches implements BaseColumns, CachesColumns {
 		public static final Uri CONTENT_URI =
@@ -213,6 +222,16 @@ public class WSDOTContract {
 	    public static final String CONTENT_ITEM_TYPE =
 	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/border_wait";
 
+	}
+
+	public static class MapLocation implements BaseColumns, LocationColumns {
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_MAP_LOCATION).build();
+
+		public static final String CONTENT_TYPE =
+				ContentResolver.CURSOR_DIR_BASE_TYPE + "/map_location";
+		public static final String CONTENT_ITEM_TYPE =
+				ContentResolver.CURSOR_ITEM_BASE_TYPE + "/map_location";
 	}
 	
 	private WSDOTContract() {

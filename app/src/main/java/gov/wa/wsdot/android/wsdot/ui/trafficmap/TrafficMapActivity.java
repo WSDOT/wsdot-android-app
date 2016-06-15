@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui.trafficmap;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,6 +32,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
 import android.support.v4.content.ContextCompat;
@@ -38,9 +40,15 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -74,6 +82,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTProvider;
 import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
 import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
 import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
@@ -167,6 +177,16 @@ public class TrafficMapActivity extends BaseActivity implements
         latitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LAT", "47.5990"));
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
         zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
+
+        // Check if we came from favorites
+        Bundle b = getIntent().getExtras();
+        if (getIntent().hasExtra("lat"))
+            latitude = b.getFloat("lat");
+        if (getIntent().hasExtra("long"))
+            longitude = b.getFloat("long");
+        if (getIntent().hasExtra("zoom"))
+            zoom = b.getInt("zoom");
+
 
         // Set up Service Intents.
         camerasIntent = new Intent(this, CamerasSyncService.class);
@@ -402,6 +422,41 @@ public class TrafficMapActivity extends BaseActivity implements
 
         switch (item.getItemId()) {
 
+            case R.id.set_favorite:
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+                LayoutInflater factory = LayoutInflater.from(this);
+                final View textEntryView = factory.inflate(R.layout.alert_dialog_text_entry, null);
+
+                builder.setView(textEntryView);
+                builder.setMessage(R.string.add_location_dialog);
+                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        dialog.dismiss();
+                    }
+
+                });
+                builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        EditText input = (EditText) textEntryView.findViewById(R.id.name);
+                        String value = input.getText().toString();
+                        dialog.dismiss();
+                        ContentValues values = new ContentValues();
+
+                        values.put(WSDOTContract.MapLocation.LOCATION_TITLE, value);
+                        values.put(WSDOTContract.MapLocation.LOCATION_LAT, String.valueOf(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().latitude));
+                        values.put(WSDOTContract.MapLocation.LOCATION_LONG, String.valueOf(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().longitude));
+                        values.put(WSDOTContract.MapLocation.LOCATION_ZOOM, (int) mMap.getCameraPosition().zoom);
+
+                        getContentResolver().insert(WSDOTContract.MapLocation.CONTENT_URI, values);
+                    }
+                });
+
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+
+                return true;
             case android.R.id.home:
                 finish();
                 return true;
