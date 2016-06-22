@@ -3,12 +3,14 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [4.3.0] - 2016-06-22
+### Added
+- Favorite Map Locations.
+
 ### Fixed
 - App crashes when viewing ferry departures from a new schedule. No longer lets users select a day with no data. 
   See this [issue](https://github.com/WSDOT/wsdot-wsf-schedule/issues/2) in our wsdot-wsf-schedule repo.
-
-### Added
-- Favorite Map Locations.
 
 ## [4.2.1] - 2016-04-21
 - Edited Google Analytics tracking name for Alerts in this Area.

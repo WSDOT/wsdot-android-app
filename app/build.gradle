@@ -8,8 +8,8 @@ android {
         applicationId "gov.wa.wsdot.android.wsdot"
         minSdkVersion 10
         targetSdkVersion 23
-        versionCode 1014421
-        versionName "4.2.1"
+        versionCode 1014430
+        versionName "4.3.0"
     }
     buildTypes {
         release {
