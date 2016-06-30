@@ -32,7 +32,6 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
 import android.support.v4.content.ContextCompat;
@@ -45,10 +44,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -83,13 +79,13 @@ import java.util.Map.Entry;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTProvider;
 import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
 import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
 import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
+import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
@@ -102,6 +98,7 @@ import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.map.CalloutsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.CamerasOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.HighwayAlertsOverlay;
+import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
 
 public class TrafficMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener,
@@ -114,9 +111,11 @@ public class TrafficMapActivity extends BaseActivity implements
     private GoogleMap mMap;
     private HighwayAlertsOverlay alertsOverlay = null;
     private CamerasOverlay camerasOverlay = null;
+    private RestAreasOverlay restAreasOverlay = null;
     private CalloutsOverlay calloutsOverlay = null;
     private List<CameraItem> cameras = new ArrayList<CameraItem>();
     private List<HighwayAlertsItem> alerts = new ArrayList<HighwayAlertsItem>();
+    private List<RestAreaItem> restAreas = new ArrayList<>();
     private List<CalloutItem> callouts = new ArrayList<CalloutItem>();
     private HashMap<Marker, String> markers = new HashMap<Marker, String>();
     boolean showCameras;
@@ -131,6 +130,7 @@ public class TrafficMapActivity extends BaseActivity implements
     private Intent alertsIntent;
     private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
     private static AsyncTask<Void, Void, Void> mHighwayAlertsOverlayTask = null;
+    private static AsyncTask<Void, Void, Void> mRestAreasOverlayTask = null;
     private static AsyncTask<Void, Void, Void> mCalloutsOverlayTask = null;
     private LatLngBounds bounds;
     private double latitude;
@@ -169,6 +169,7 @@ public class TrafficMapActivity extends BaseActivity implements
         // Initialize AsyncTasks
         mCamerasOverlayTask = new CamerasOverlayTask();
         mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask();
+        mRestAreasOverlayTask = new RestAreasOverlayTask();
         mCalloutsOverlayTask = new CalloutsOverlayTask();
 
         // Check preferences and set defaults if none set
@@ -266,8 +267,13 @@ public class TrafficMapActivity extends BaseActivity implements
         } else if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
             mCalloutsOverlayTask.execute();
         }
-    }
 
+        if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+            mRestAreasOverlayTask = new CalloutsOverlayTask().execute();
+        } else if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+            mRestAreasOverlayTask.execute();
+        }
+    }
 
     @Override
     protected void onPause() {
@@ -775,6 +781,55 @@ public class TrafficMapActivity extends BaseActivity implements
                 }
             }
 
+            setSupportProgressBarIndeterminateVisibility(false);
+        }
+    }
+
+    // TODO: Implement
+    /**
+     * Build and draw rest areas on the map
+     */
+    class RestAreasOverlayTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        public void onPreExecute() {
+            setSupportProgressBarIndeterminateVisibility(true);
+
+            restAreasOverlay = null;
+            if (mMap != null) {
+                bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+            }
+        }
+
+        @Override
+        public Void doInBackground(Void... unused) {
+            restAreasOverlay = new RestAreasOverlay();
+            return null;
+        }
+
+        @Override
+        public void onPostExecute(Void unused) {
+            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry<Marker, String> entry = iter.next();
+                if (entry.getValue().equalsIgnoreCase("restArea")) {
+                    entry.getKey().remove();
+                    iter.remove();
+                }
+            }
+            restAreas.clear();
+            restAreas = restAreasOverlay.getRestAreaItems();
+
+
+            for (int i = 0; i < restAreas.size(); i++) {
+                LatLng latLng = new LatLng(restAreas.get(i).getLatitude(), restAreas.get(i).getLongitude());
+                Marker marker = mMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(restAreas.get(i).getLocation())
+                        .snippet(restAreas.get(i).getDirection())
+                        .icon(BitmapDescriptorFactory.fromResource(restAreas.get(i).getIcon()))
+                        .visible(true));
+                markers.put(marker, "restArea");
+            }
             setSupportProgressBarIndeterminateVisibility(false);
         }
     }
