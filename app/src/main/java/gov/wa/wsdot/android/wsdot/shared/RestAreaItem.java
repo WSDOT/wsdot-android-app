@@ -1,6 +1,9 @@
 package gov.wa.wsdot.android.wsdot.shared;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RestAreaItem {
 
     private String route;
@@ -10,7 +13,9 @@ public class RestAreaItem {
     private Double latitude;
     private Double longitude;
     private Integer icon;
-    // TODO: Amenities? - On list of.. Strings?
+    private String notes;
+
+    private List<String> amenities = new ArrayList<>();
 
     public RestAreaItem() {}
 
@@ -35,4 +40,9 @@ public class RestAreaItem {
     public Integer getIcon(){return this.icon;}
     public void setIcon(Integer icon){this.icon = icon;}
 
+    public String getNotes(){return this.notes;}
+    public void setNotes(String restrictions){this.notes = restrictions;}
+
+    public List<String> getAmenities(){return this.amenities;}
+    public void addAmenitie(String amenities){this.amenities.add(amenities);}
 }

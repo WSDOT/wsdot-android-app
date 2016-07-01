@@ -24,6 +24,16 @@ package gov.wa.wsdot.android.wsdot.util.map;
         import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
 
 public class RestAreasOverlay {
+
+    final String visitor_info = "Visitor Information";
+    final String telephone = "Telephones";
+    final String picnic = "Picnic Areas";
+    final String vending = "Vending Machines";
+    final String water = "Drinking Water";
+    final String dump = "RV Dumping Station";
+    final String electric = "Electrical Vehicle Charging Station";
+    final String no_winter_dump = "RV Dumping Station Closed during the Winter.";
+
     @SuppressWarnings("unused")
     private static final String TAG = CalloutsOverlay.class.getSimpleName();
     private List<RestAreaItem> restAreaItems = new ArrayList<>();
@@ -44,6 +54,7 @@ public class RestAreasOverlay {
 
         List<RestAreaItem> restAreas = new ArrayList<>();
 
+        List<String> amenities = new ArrayList<>();
         RestAreaItem item;
         Integer restarea = R.drawable.restarea;
         Integer restarea_dump = R.drawable.restarea_trailerdump;
@@ -55,8 +66,13 @@ public class RestAreasOverlay {
         item.setMilepost(413);
         item.setDirection("EastBound");
         item.setIcon(restarea);
-        item.setLatitude(46.436279440);
-        item.setLongitude(-117.424693900);
+        item.setLatitude(46.4346999);
+        item.setLongitude(-117.424100000);
+        item.setNotes("None.");
+        item.addAmenitie(telephone);
+        item.addAmenitie(visitor_info);
+        item.addAmenitie(water);
+        item.addAmenitie(picnic);
         restAreas.add(item);
 
         // Alpowa Summit - MP 413
@@ -68,6 +84,11 @@ public class RestAreasOverlay {
         item.setIcon(restarea);
         item.setLatitude(46.436279440);
         item.setLongitude(-117.424693900);
+        item.setNotes("None.");
+        item.addAmenitie(telephone);
+        item.addAmenitie(visitor_info);
+        item.addAmenitie(water);
+        item.addAmenitie(picnic);
         restAreas.add(item);
 
         // Bevin Lake - MP 126
@@ -79,6 +100,9 @@ public class RestAreasOverlay {
         item.setIcon(restarea);
         item.setLatitude(46.55383);
         item.setLongitude(-121.7366);
+        item.setNotes("None.");
+        item.addAmenitie(water);
+        item.addAmenitie(picnic);
         restAreas.add(item);
 
         // Blue Lake - MP 89
@@ -90,13 +114,26 @@ public class RestAreasOverlay {
         item.setIcon(restarea);
         item.setLatitude(47.569423610);
         item.setLongitude(-119.447738600);
+        item.setNotes("None.");
+        item.addAmenitie(water);
+        item.addAmenitie(picnic);
         restAreas.add(item);
 
-
-
-
-
-
+        // Nason Creek - MP 81
+        item = new RestAreaItem();
+        item.setLocation("Nason Creek");
+        item.setRoute("US 02");
+        item.setMilepost(81);
+        item.setDirection("Multidirectional");
+        item.setIcon(restarea_dump);
+        item.setLatitude(47.766436390);
+        item.setLongitude(-120.793140300);
+        item.addAmenitie(telephone);
+        item.addAmenitie(water);
+        item.addAmenitie(picnic);
+        item.addAmenitie(vending);
+        item.setNotes(no_winter_dump);
+        restAreas.add(item);
         return restAreas;
     }
 }

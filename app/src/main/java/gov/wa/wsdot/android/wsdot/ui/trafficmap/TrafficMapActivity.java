@@ -69,6 +69,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,6 +94,7 @@ import gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.restareas.RestAreaActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes.TravelTimesActivity;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.map.CalloutsOverlay;
@@ -269,7 +271,7 @@ public class TrafficMapActivity extends BaseActivity implements
         }
 
         if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-            mRestAreasOverlayTask = new CalloutsOverlayTask().execute();
+            mRestAreasOverlayTask = new RestAreasOverlayTask().execute();
         } else if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
             mRestAreasOverlayTask.execute();
         }
@@ -331,13 +333,19 @@ public class TrafficMapActivity extends BaseActivity implements
             b.putString("id", marker.getSnippet());
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);
+        } else if (markers.get(marker).equalsIgnoreCase("restarea")) {
+
+            intent = new Intent(this, RestAreaActivity.class);
+            intent.putExtra("restarea_json", marker.getSnippet());
+            TrafficMapActivity.this.startActivity(intent);
+
+
         } else if (markers.get(marker).equalsIgnoreCase("callout")) {
             intent = new Intent(this, CalloutActivity.class);
             b.putString("url", marker.getSnippet());
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);
         }
-
         return true;
     }
 
@@ -785,7 +793,6 @@ public class TrafficMapActivity extends BaseActivity implements
         }
     }
 
-    // TODO: Implement
     /**
      * Build and draw rest areas on the map
      */
@@ -825,7 +832,8 @@ public class TrafficMapActivity extends BaseActivity implements
                 Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(latLng)
                         .title(restAreas.get(i).getLocation())
-                        .snippet(restAreas.get(i).getDirection())
+                        // Save the whole rest area object as the snippet
+                        .snippet(new Gson().toJson(restAreas.get(i)))
                         .icon(BitmapDescriptorFactory.fromResource(restAreas.get(i).getIcon()))
                         .visible(true));
                 markers.put(marker, "restArea");

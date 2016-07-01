@@ -188,6 +188,9 @@
    		<activity
    		    android:name=".ui.alert.HighwayAlertDetailsActivity" />
 
+		<activity
+			android:name=".ui.trafficmap.restareas.RestAreaActivity"/>
+
         <activity
             android:name=".ui.amtrakcascades.AmtrakCascadesActivity"
             android:label="@string/title_amtrakcascades" />
