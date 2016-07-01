@@ -121,6 +121,7 @@ public class TrafficMapActivity extends BaseActivity implements
     private List<CalloutItem> callouts = new ArrayList<CalloutItem>();
     private HashMap<Marker, String> markers = new HashMap<Marker, String>();
     boolean showCameras;
+    boolean showRestAreas;
     private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
 
     static final private int MENU_ITEM_ALERTS = Menu.FIRST;
@@ -177,6 +178,7 @@ public class TrafficMapActivity extends BaseActivity implements
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
+        showRestAreas = settings.getBoolean("KEY_SHOW_REST_AREAS", true);
         latitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LAT", "47.5990"));
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
         zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
@@ -402,6 +404,12 @@ public class TrafficMapActivity extends BaseActivity implements
             menu.getItem(0).setTitle("Show Cameras");
         }
 
+        if (showRestAreas) {
+            menu.getItem(3).setTitle("Hide Rest Areas");
+        } else {
+            menu.getItem(3).setTitle("Show Rest Areas");
+        }
+
         MenuItem menuItem_Alerts = menu.add(0, MENU_ITEM_ALERTS, menu.size(), "Alerts In This Area")
                 .setIcon(R.drawable.ic_menu_alerts);
 
@@ -476,6 +484,9 @@ public class TrafficMapActivity extends BaseActivity implements
                 return true;
             case R.id.toggle_cameras:
                 toggleCameras(item);
+                return true;
+            case R.id.toggle_rest_areas:
+                toggleRestAreas(item);
                 return true;
             case R.id.travel_times:
                 Intent timesIntent = new Intent(this, TravelTimesActivity.class);
@@ -647,6 +658,58 @@ public class TrafficMapActivity extends BaseActivity implements
         editor.putBoolean("KEY_SHOW_CAMERAS", showCameras);
         editor.commit();
     }
+
+
+    private void toggleRestAreas(MenuItem item) {
+        // GA tracker
+        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+
+        if (showRestAreas) {
+            for (Entry<Marker, String> entry : markers.entrySet()) {
+                Marker key = entry.getKey();
+                String value = entry.getValue();
+
+                if (value.equalsIgnoreCase("restarea")) {
+                    key.setVisible(false);
+                }
+            }
+
+            item.setTitle("Show Rest Areas");
+            showRestAreas = false;
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Traffic")
+                    .setAction("Rest Areas")
+                    .setLabel("Hide Rest Areas")
+                    .build());
+
+
+        } else {
+            for (Entry<Marker, String> entry : markers.entrySet()) {
+                Marker key = entry.getKey();
+                String value = entry.getValue();
+
+                if (value.equalsIgnoreCase("restarea")) {
+                    key.setVisible(true);
+                }
+            }
+            item.setTitle("Hide Rest Areas");
+            showRestAreas = true;
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Traffic")
+                    .setAction("Rest Areas")
+                    .setLabel("Show Rest Areas")
+                    .build());
+        }
+
+        // Save camera display preference
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("KEY_SHOW_REST_AREAS", showRestAreas);
+        editor.commit();
+    }
+
 
     public void goToLocation(String title, double latitude, double longitude, int zoomLevel) {
         LatLng latLng = new LatLng(latitude, longitude);

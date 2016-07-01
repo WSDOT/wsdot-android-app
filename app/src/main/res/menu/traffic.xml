@@ -22,14 +22,21 @@
 		android:id="@+id/set_favorite"
 		android:title="@string/description_favorite"
 		android:icon="@drawable/ic_menu_star"
-		android:orderInCategory="2"
+		android:orderInCategory="3"
+		wsdot:showAsAction="ifRoom|withText" />
+
+	<item
+		android:id="@+id/toggle_rest_areas"
+		android:title="@string/description_rest_areas"
+		android:icon="@drawable/ic_menu_info_details"
+		android:orderInCategory="4"
 		wsdot:showAsAction="ifRoom|withText" />
 
 	<item
 	    android:id="@+id/goto_location"
 		android:title="@string/description_gotolocation"
 		android:icon="@drawable/ic_menu_goto"
-		android:orderInCategory="3"
+		android:orderInCategory="5"
 		wsdot:showAsAction="ifRoom|withText" >
 		<menu>
 			<item android:orderInCategory="1" android:title="Bellingham" android:id="@+id/goto_bellingham" />
