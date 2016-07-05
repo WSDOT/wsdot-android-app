@@ -177,8 +177,8 @@ public class TrafficMapActivity extends BaseActivity implements
 
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
-        showRestAreas = settings.getBoolean("KEY_SHOW_REST_AREAS", true);
+        showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", false);
+        showRestAreas = settings.getBoolean("KEY_SHOW_REST_AREAS", false);
         latitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LAT", "47.5990"));
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
         zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
@@ -703,7 +703,7 @@ public class TrafficMapActivity extends BaseActivity implements
                     .build());
         }
 
-        // Save camera display preference
+        // Save rest areas display preference
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean("KEY_SHOW_REST_AREAS", showRestAreas);
@@ -898,7 +898,7 @@ public class TrafficMapActivity extends BaseActivity implements
                         // Save the whole rest area object as the snippet
                         .snippet(new Gson().toJson(restAreas.get(i)))
                         .icon(BitmapDescriptorFactory.fromResource(restAreas.get(i).getIcon()))
-                        .visible(true));
+                        .visible(showRestAreas));
                 markers.put(marker, "restArea");
             }
             setSupportProgressBarIndeterminateVisibility(false);

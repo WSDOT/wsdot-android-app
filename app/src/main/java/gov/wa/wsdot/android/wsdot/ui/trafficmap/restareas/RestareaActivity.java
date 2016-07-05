@@ -13,9 +13,6 @@ import android.webkit.WebViewClient;
 
 import com.google.gson.Gson;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -66,7 +63,7 @@ public class RestAreaActivity  extends BaseActivity {
             webview.getSettings().setJavaScriptEnabled(true);
             webview.loadDataWithBaseURL(null, buildContent(restAreaItem), "text/html", "utf-8", null);
 
-        } else {
+        } else { //TODO:
 
 
 
@@ -114,7 +111,7 @@ public class RestAreaActivity  extends BaseActivity {
     private String buildContent(RestAreaItem item) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("<p> <h3> Milepost: " + item.getMilepost() + " <br> " + item.getDirection()  + "</h3></p>");
+        sb.append("<p> <h3> Milepost: " + item.getMilepost() + " - " + item.getDirection()  + "</h3></p>");
         sb.append("<p> <b> Amenities: </b> </p>");
 
         sb.append("<ul>");
@@ -123,7 +120,14 @@ public class RestAreaActivity  extends BaseActivity {
         }
         sb.append("</ul>");
 
-        sb.append("<p><b>Special Notes: </b> </p>" + item.getNotes());
+        sb.append("<p><b>Special Notes: </b> </p> <p> " + item.getNotes() + " </p>");
+
+        sb.append("<img src=");
+        sb.append("'http://maps.googleapis.com/maps/api/staticmap?center=");
+        sb.append(item.getLatitude() + "," + item.getLongitude());
+        sb.append("&zoom=15&size=320x320&maptype=roadmap&markers=");
+        sb.append(item.getLatitude() + "," + item.getLongitude());
+        sb.append("&key=" + getString(R.string.google_static_map_key) + "'>");
 
         return sb.toString();
     }
