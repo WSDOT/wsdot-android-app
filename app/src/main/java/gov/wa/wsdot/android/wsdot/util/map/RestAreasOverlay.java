@@ -17,6 +17,18 @@
  */
 package gov.wa.wsdot.android.wsdot.util.map;
 
+        import org.json.JSONArray;
+        import org.json.JSONException;
+        import org.json.JSONObject;
+
+        import java.io.BufferedReader;
+        import java.io.IOException;
+        import java.io.InputStream;
+        import java.io.InputStreamReader;
+        import java.io.Reader;
+        import java.io.StringWriter;
+        import java.io.UnsupportedEncodingException;
+        import java.io.Writer;
         import java.util.ArrayList;
         import java.util.List;
 
@@ -25,21 +37,12 @@ package gov.wa.wsdot.android.wsdot.util.map;
 
 public class RestAreasOverlay {
 
-    final String visitor_info = "Visitor Information";
-    final String telephone = "Telephones";
-    final String picnic = "Picnic Areas";
-    final String vending = "Vending Machines";
-    final String water = "Drinking Water";
-    final String dump = "RV Dumping Station";
-    final String electric = "Electrical Vehicle Charging Station";
-    final String no_winter_dump = "RV Dumping Station Closed during the Winter.";
-
     @SuppressWarnings("unused")
-    private static final String TAG = CalloutsOverlay.class.getSimpleName();
+    private static final String TAG = RestAreasOverlay.class.getSimpleName();
     private List<RestAreaItem> restAreaItems = new ArrayList<>();
 
-    public RestAreasOverlay() {
-        restAreaItems = getRestAreas();
+    public RestAreasOverlay(InputStream inputStream) {
+        restAreaItems = getRestAreas(inputStream);
     }
 
     public List<RestAreaItem> getRestAreaItems() {
@@ -50,90 +53,71 @@ public class RestAreasOverlay {
         return restAreaItems.size();
     }
 
-    private List<RestAreaItem> getRestAreas() {
+    private List<RestAreaItem> getRestAreas(InputStream inputStream) {
 
         List<RestAreaItem> restAreas = new ArrayList<>();
-
-        List<String> amenities = new ArrayList<>();
         RestAreaItem item;
         Integer restarea = R.drawable.restarea;
         Integer restarea_dump = R.drawable.restarea_trailerdump;
 
-        // Alpowa Summit - MP 413
-        item = new RestAreaItem();
-        item.setLocation("Alpowa Summit");
-        item.setRoute("SR 12");
-        item.setMilepost(413);
-        item.setDirection("EastBound");
-        item.setIcon(restarea);
-        item.setLatitude(46.4346999);
-        item.setLongitude(-117.424100000);
-        item.setNotes("None.");
-        item.addAmenitie(telephone);
-        item.addAmenitie(visitor_info);
-        item.addAmenitie(water);
-        item.addAmenitie(picnic);
-        restAreas.add(item);
+        String jsonString = parseInputJsonFile(inputStream);
 
-        // Alpowa Summit - MP 413
-        item = new RestAreaItem();
-        item.setLocation("Alpowa Summit");
-        item.setRoute("SR 12");
-        item.setMilepost(413);
-        item.setDirection("WestBound");
-        item.setIcon(restarea);
-        item.setLatitude(46.436279440);
-        item.setLongitude(-117.424693900);
-        item.setNotes("None.");
-        item.addAmenitie(telephone);
-        item.addAmenitie(visitor_info);
-        item.addAmenitie(water);
-        item.addAmenitie(picnic);
-        restAreas.add(item);
+        JSONArray restAreasJSON = null;
 
-        // Bevin Lake - MP 126
-        item = new RestAreaItem();
-        item.setLocation("Bevin Lake");
-        item.setRoute("SR 12");
-        item.setMilepost(126);
-        item.setDirection("Multidirectional");
-        item.setIcon(restarea);
-        item.setLatitude(46.55383);
-        item.setLongitude(-121.7366);
-        item.setNotes("None.");
-        item.addAmenitie(water);
-        item.addAmenitie(picnic);
-        restAreas.add(item);
+        try {
+            restAreasJSON = new JSONArray(jsonString);
 
-        // Blue Lake - MP 89
-        item = new RestAreaItem();
-        item.setLocation("Blue Lake");
-        item.setRoute("SR 17");
-        item.setMilepost(89);
-        item.setDirection("Multidirectional");
-        item.setIcon(restarea);
-        item.setLatitude(47.569423610);
-        item.setLongitude(-119.447738600);
-        item.setNotes("None.");
-        item.addAmenitie(water);
-        item.addAmenitie(picnic);
-        restAreas.add(item);
+            for (int i = 0; i < restAreasJSON.length(); i++){
+                item = new RestAreaItem();
 
-        // Nason Creek - MP 81
-        item = new RestAreaItem();
-        item.setLocation("Nason Creek");
-        item.setRoute("US 02");
-        item.setMilepost(81);
-        item.setDirection("Multidirectional");
-        item.setIcon(restarea_dump);
-        item.setLatitude(47.766436390);
-        item.setLongitude(-120.793140300);
-        item.addAmenitie(telephone);
-        item.addAmenitie(water);
-        item.addAmenitie(picnic);
-        item.addAmenitie(vending);
-        item.setNotes(no_winter_dump);
-        restAreas.add(item);
+                JSONObject restAreaJSON = restAreasJSON.getJSONObject(i);
+
+                item.setLocation(restAreaJSON.getString("location"));
+                item.setRoute(restAreaJSON.getString("route"));
+                item.setMilepost(restAreaJSON.getInt("milepost"));
+                item.setDirection(restAreaJSON.getString("direction"));
+                item.setIcon(restAreaJSON.getBoolean("hasDump") ? restarea_dump : restarea);
+                item.setLatitude(Double.valueOf(restAreaJSON.getString("latitude")));
+                item.setLongitude(Double.valueOf(restAreaJSON.getString("longitude")));
+                item.setNotes(restAreaJSON.getString("notes"));
+
+                JSONArray amenitiesJSON = restAreaJSON.getJSONArray("amenities");
+                for (int j = 0; j < amenitiesJSON.length(); j++){
+                    item.addAmenitie(amenitiesJSON.getString(j));
+                }
+
+                restAreas.add(item);
+            }
+
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+
         return restAreas;
     }
+
+    private String parseInputJsonFile(InputStream is){
+        Writer writer = new StringWriter();
+        char[] buffer = new char[1024];
+        try {
+            Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            int n;
+            while ((n = reader.read(buffer)) != -1) {
+                writer.write(buffer, 0, n);
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        return writer.toString();
+    }
+
 }

@@ -872,7 +872,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
         @Override
         public Void doInBackground(Void... unused) {
-            restAreasOverlay = new RestAreasOverlay();
+            restAreasOverlay = new RestAreasOverlay(getResources().openRawResource(R.raw.restareas));
             return null;
         }
 
