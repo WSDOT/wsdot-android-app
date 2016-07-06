@@ -192,7 +192,6 @@ public class TrafficMapActivity extends BaseActivity implements
         if (getIntent().hasExtra("zoom"))
             zoom = b.getInt("zoom");
 
-
         // Set up Service Intents.
         camerasIntent = new Intent(this, CamerasSyncService.class);
         alertsIntent = new Intent(this, HighwayAlertsSyncService.class);
@@ -305,7 +304,6 @@ public class TrafficMapActivity extends BaseActivity implements
             editor.putString("KEY_TRAFFICMAP_LON", "-122.3350");
             editor.putInt("KEY_TRAFFICMAP_ZOOM", 12);
         }
-
         editor.commit();
     }
 
@@ -664,6 +662,8 @@ public class TrafficMapActivity extends BaseActivity implements
         // GA tracker
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
+        String label;
+
         if (showRestAreas) {
             for (Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
@@ -676,13 +676,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
             item.setTitle("Show Rest Areas");
             showRestAreas = false;
-
-            mTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory("Traffic")
-                    .setAction("Rest Areas")
-                    .setLabel("Hide Rest Areas")
-                    .build());
-
+            label = "Hide Rest Areas";
 
         } else {
             for (Entry<Marker, String> entry : markers.entrySet()) {
@@ -695,13 +689,15 @@ public class TrafficMapActivity extends BaseActivity implements
             }
             item.setTitle("Hide Rest Areas");
             showRestAreas = true;
+            label = "Show Rest Areas";
 
-            mTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory("Traffic")
-                    .setAction("Rest Areas")
-                    .setLabel("Show Rest Areas")
-                    .build());
         }
+
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Traffic")
+                .setAction("Rest Areas")
+                .setLabel(label)
+                .build());
 
         // Save rest areas display preference
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
