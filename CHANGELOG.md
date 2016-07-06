@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.3.1] - 2016-07-06
+### Changed
+- New toll rates effective July 1, 2016.
+
 ## [4.3.0] - 2016-06-22
 ### Added
 - Favorite Map Locations.
