@@ -95,6 +95,7 @@
     <string name="favorite_location_hint">Location name</string>
     <string name="submit">OK</string>
     <string name="cancel">CANCEL</string>
+    <string name="description_alerts_in_area">Alerts in This Area</string>
 
 
 </resources>

@@ -2,8 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:wsdot="http://schemas.android.com/apk/res-auto">
 
-
-
 	<item
 	    android:id="@+id/toggle_cameras"
 		android:title="@string/description_cameras"
@@ -19,24 +17,31 @@
 		wsdot:showAsAction="ifRoom|withText" />
 
 	<item
+		android:id="@+id/alerts_in_area"
+		android:title="@string/description_alerts_in_area"
+		android:icon="@drawable/ic_warning_white_24dp"
+		android:orderInCategory="3"
+		wsdot:showAsAction="ifRoom|withText" />
+
+	<item
 		android:id="@+id/set_favorite"
 		android:title="@string/description_favorite"
 		android:icon="@drawable/ic_menu_star"
-		android:orderInCategory="3"
+		android:orderInCategory="4"
 		wsdot:showAsAction="ifRoom|withText" />
 
 	<item
 		android:id="@+id/toggle_rest_areas"
 		android:title="@string/description_rest_areas"
 		android:icon="@drawable/ic_store_white_24dp"
-		android:orderInCategory="4"
+		android:orderInCategory="5"
 		wsdot:showAsAction="ifRoom|withText" />
 
 	<item
 	    android:id="@+id/goto_location"
 		android:title="@string/description_gotolocation"
 		android:icon="@drawable/ic_menu_goto"
-		android:orderInCategory="5"
+		android:orderInCategory="6"
 		wsdot:showAsAction="ifRoom|withText" >
 		<menu>
 			<item android:orderInCategory="1" android:title="Bellingham" android:id="@+id/goto_bellingham" />

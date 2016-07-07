@@ -125,7 +125,6 @@ public class TrafficMapActivity extends BaseActivity implements
     boolean showRestAreas;
     private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
 
-    static final private int MENU_ITEM_ALERTS = Menu.FIRST;
     static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST + 1;
 
     private CamerasSyncReceiver mCamerasReceiver;
@@ -404,16 +403,10 @@ public class TrafficMapActivity extends BaseActivity implements
         }
 
         if (showRestAreas) {
-            menu.getItem(3).setTitle("Hide Rest Areas");
+            menu.getItem(4).setTitle("Hide Rest Areas");
         } else {
-            menu.getItem(3).setTitle("Show Rest Areas");
+            menu.getItem(4).setTitle("Show Rest Areas");
         }
-
-        MenuItem menuItem_Alerts = menu.add(0, MENU_ITEM_ALERTS, menu.size(), "Alerts In This Area")
-                .setIcon(R.drawable.ic_menu_alerts);
-
-        MenuItemCompat.setShowAsAction(menuItem_Alerts,
-                MenuItemCompat.SHOW_AS_ACTION_IF_ROOM | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
 
         /**
          * Check if current location is within a lat/lon bounding box surrounding
@@ -476,8 +469,24 @@ public class TrafficMapActivity extends BaseActivity implements
 
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
-
                 return true;
+            case R.id.alerts_in_area:
+                LatLngBounds mBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+
+                Intent alertsIntent = new Intent(this, TrafficAlertsActivity.class);
+
+                alertsIntent.putExtra("nelat", mBounds.northeast.latitude);
+                alertsIntent.putExtra("nelong", mBounds.northeast.longitude);
+                alertsIntent.putExtra("swlat", mBounds.southwest.latitude);
+                alertsIntent.putExtra("swlong", mBounds.southwest.longitude);
+
+                startActivity(alertsIntent);
+                return true;
+            case MENU_ITEM_EXPRESS_LANES:
+                Intent expressIntent = new Intent(this, SeattleExpressLanesActivity.class);
+                startActivity(expressIntent);
+                return true;
+
             case android.R.id.home:
                 finish();
                 return true;
@@ -587,22 +596,7 @@ public class TrafficMapActivity extends BaseActivity implements
                 goToLocation("Yakima Traffic", 46.6063273, -120.4886952, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
-            case MENU_ITEM_ALERTS:
-                LatLngBounds mBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
-                Intent alertsIntent = new Intent(this, TrafficAlertsActivity.class);
-
-                alertsIntent.putExtra("nelat", mBounds.northeast.latitude);
-                alertsIntent.putExtra("nelong", mBounds.northeast.longitude);
-                alertsIntent.putExtra("swlat", mBounds.southwest.latitude);
-                alertsIntent.putExtra("swlong", mBounds.southwest.longitude);
-
-                startActivity(alertsIntent);
-                return true;
-            case MENU_ITEM_EXPRESS_LANES:
-                Intent expressIntent = new Intent(this, SeattleExpressLanesActivity.class);
-                startActivity(expressIntent);
-                return true;
         }
 
         return super.onOptionsItemSelected(item);
