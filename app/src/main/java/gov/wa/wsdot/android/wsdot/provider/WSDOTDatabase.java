@@ -107,7 +107,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + " TEXT,"
                 + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + " TEXT,"
                 + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " INTEGER,"
+                + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " TEXT,"
                 + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED + " INTEGER NOT NULL default 0);");
         
         db.execSQL("CREATE TABLE " + Tables.TRAVEL_TIMES + " ("
