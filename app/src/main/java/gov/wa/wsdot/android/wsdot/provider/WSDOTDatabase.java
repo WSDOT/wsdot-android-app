@@ -44,7 +44,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 	private static final int VER_3 = 3;
 	private static final int VER_4 = 4;
     private static final int VER_5 = 5;
-	private static final int DATABASE_VERSION = VER_5;
+	private static final int VER_6 = 6;
+	private static final int DATABASE_VERSION = VER_6;
 
     interface Tables {
     	String CACHES = "caches";
@@ -205,8 +206,36 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                         + LocationColumns.LOCATION_ZOOM + " INTEGER);");
 
             case VER_5:
-                version = VER_5;
-                Log.i(TAG, "DB at version " + DATABASE_VERSION);
+				Log.i(TAG, "Performing upgrade for DB version " + version);
+
+
+
+				db.execSQL("DROP TABLE IF EXISTS " + Tables.MOUNTAIN_PASSES);
+				db.execSQL("CREATE TABLE " + Tables.MOUNTAIN_PASSES + " ("
+						+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_ID + " INTEGER,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_NAME + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_WEATHER_CONDITION + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_ELEVATION + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_ROAD_CONDITION + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_TEMPERATURE + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_DATE_UPDATED + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_CAMERA + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_FORECAST + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " TEXT,"
+						+ MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED + " INTEGER NOT NULL default 0);");
+
+                db.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " =0 WHERE "
+                        + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.MOUNTAIN_PASSES + "' ");
+
+			case VER_6:
+				version = VER_6;
+				Log.i(TAG, "DB at version " + DATABASE_VERSION);
                 // Current version, no further action necessary.
 		}
 
