@@ -71,7 +71,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -125,7 +124,7 @@ public class TrafficMapActivity extends BaseActivity implements
     boolean showRestAreas;
     private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
 
-    static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST + 1;
+    static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST;
 
     private CamerasSyncReceiver mCamerasReceiver;
     private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
@@ -147,8 +146,6 @@ public class TrafficMapActivity extends BaseActivity implements
     private boolean mPermissionDenied = false;
 
     private Tracker mTracker;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

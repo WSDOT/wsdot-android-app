@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- Rest Area map overlay.
+
 ## [4.3.1] - 2016-07-06
 ### Changed
 - New toll rates effective July 1, 2016.

@@ -1,0 +1,841 @@
+[
+  {
+    "route": "SR 12",
+    "location": "Alpowa Sumit",
+    "description":"10.1 Miles E of Pomeroy",
+    "milepost": 413,
+    "direction": "Eastbound",
+    "latitude": "46.436279440",
+    "longitude": "-117.424693900",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "SR 12",
+    "location": "Alpowa Sumit",
+    "description":"20.2 Miles W of Clarkston",
+    "milepost": 413,
+    "direction": "Westbound",
+    "latitude": "46.435737",
+    "longitude": "-117.423777",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": []
+  },
+  {
+    "route": "SR 12",
+    "location": "Bevin Lake",
+    "description":"5.1 Miles W of Packwood",
+    "milepost": 126,
+    "direction": "Multidirectional",
+    "latitude": "46.553830000",
+    "longitude": "-121.736600000",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "SR 17",
+    "location": "Blue Lake",
+    "description":"13.1 Miles N of Soap Lake",
+    "milepost": 89,
+    "direction": "Multidirectional",
+    "latitude": "47.569423610",
+    "longitude": "-119.447738600",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Bow Hill",
+    "description":"11.6 Miles N of Mt Vernon",
+    "milepost": 238,
+    "direction": "Northbound",
+    "latitude": "48.582330449",
+    "longitude": "-122.344314042 ",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Bow Hill",
+    "description":"15.5 Miles S of Bellingham",
+    "milepost": 238,
+    "direction": "Southbound",
+    "latitude": "48.584669331",
+    "longitude": "-122.346532964",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "SR 14",
+    "location": "Chamberlain Lake",
+    "description":"7.6 Miles E of Binge",
+    "milepost": 73,
+    "direction": "Multidirectional",
+    "latitude": "45.705820097",
+    "longitude": "-121.324639840",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Custer",
+    "description":"Northbound",
+    "milepost": 267,
+    "direction": "Northbound",
+    "latitude": "48.909127900",
+    "longitude": "-122.622030442",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Custer",
+    "description":"6.6 Miles S of Blaine",
+    "milepost": 269,
+    "direction": "Southbound",
+    "latitude": "48.926668900",
+    "longitude": "-122.646182122",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "Electrical Vehicle Charging Station"
+    ]
+  },
+  {
+    "route": "SR 401",
+    "location": "Dismal Nitch",
+    "description":"10 Miles S of Naselle",
+    "milepost": 1,
+    "direction": "Multidirectional",
+    "latitude": "46.249786632",
+    "longitude": "-123.858799389",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "SR 12",
+    "location": "Dodge Junction",
+    "description":"13 Miles W of Pomeroy",
+    "milepost": 391,
+    "direction": "Multidirectional",
+    "latitude": "46.525020",
+    "longitude": "-117.822062",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": []
+  },
+  {
+    "route": "SR 26",
+    "location": "Dusty",
+    "description":"18 Miles W of Colfax",
+    "milepost": 118,
+    "direction": "Multidirectional",
+    "latitude": "46.811478",
+    "longitude": "-117.642053958",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": []
+  },
+  {
+    "route": "SR 07",
+    "location": "Elbe",
+    "description":"In the town of Elbe",
+    "milepost": 17,
+    "direction": "Multidirectional",
+    "latitude": "46.77017",
+    "longitude": "-122.18700",
+    "notes" : "Seasonal Hours: 7:30 am - 7pm - Weekends and Holidays.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Visitor Information",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "SR 08",
+    "location": "Elma",
+    "description":"2.3 Miles E of Elma",
+    "milepost": 2,
+    "direction": "Eastbound",
+    "latitude": "47.018104444",
+    "longitude": "-123.351503611",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "SR 504",
+    "location": "Forest Learning Center",
+    "description":"32.8 Miles E of Castle Rock",
+    "milepost": 33,
+    "direction": "Multidirectional",
+    "latitude": "46.308748890",
+    "longitude": "-122.395731400",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Gee Creek",
+    "description":"9.7 Miles N of Vancouver",
+    "milepost": 11,
+    "direction": "Northbound",
+    "latitude": "45.777080280",
+    "longitude": "-122.669537200",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping",
+      "Electrical Vehicle Charging Station"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Gee Creek",
+    "description":"8.1 Miles S of Woodland",
+    "milepost": 12,
+    "direction": "Southbound",
+    "latitude": "45.799147220",
+    "longitude": "-122.680607500",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "SR 26/US 395",
+    "location": "Hatton Coulee",
+    "description":"21.6 Miles W of Washtucna",
+    "milepost": 61,
+    "direction": "Multidirectional",
+    "latitude": "46.794039765",
+    "longitude": "-118.743104573",
+    "notes" : "RV Dumping Station Closed during the Winter.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "US 195",
+    "location": "Horn School",
+    "description":"21.9 Miles N of Colfax",
+    "milepost": 60,
+    "direction": "Multidirectional",
+    "latitude": "47.182460560",
+    "longitude": "-117.376908600",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "I-90",
+    "location": "Indian John Hill",
+    "description":"20 Miles W of Ellensburg",
+    "milepost": 89,
+    "direction": "Westbound",
+    "latitude": "47.161075015",
+    "longitude": "-120.849357099",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "I-90",
+    "location": "Indian John Hill ",
+    "description":"4.9 Miles E of Cle Elum",
+    "milepost": 89,
+    "direction": "Eastbound",
+    "latitude": "47.161304290",
+    "longitude": "-120.842516163",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "US 02",
+    "location": "Iron Goat",
+    "description":"9 Miles E of Skykomish",
+    "milepost": 58,
+    "direction": "Multidirectional",
+    "latitude": "47.711335",
+    "longitude": "-121.163113",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": []
+  },
+  {
+    "route": "SR 21",
+    "location": "Keller Ferry",
+    "description":"14.1 Miles N of Wilbur",
+    "milepost": 106,
+    "direction": "Multidirectional",
+    "latitude": "47.9321551",
+    "longitude": "-118.6991444",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Maytown",
+    "description":"11.6 Miles S of Olympia",
+    "milepost": 93,
+    "direction": "Southbound",
+    "latitude": "46.871095577",
+    "longitude": "-122.970358222",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "US 02",
+    "location": "Nason Creek",
+    "description":"17.9 W of Leavenworth",
+    "milepost": 81,
+    "direction": "Multidirectional",
+    "latitude": "47.766436390",
+    "longitude": "-120.793140300",
+    "notes" : "RV Dumping Station Closed during the Winter.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "I-82",
+    "location": "Prosser",
+    "description":"46.9 Miles E of Yakima",
+    "milepost": 80,
+    "direction": "Multidirectional",
+    "latitude": "46.220978330",
+    "longitude": "-119.789951700",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "SR 28",
+    "location": "Quincy Valley",
+    "description":"4.8 Miles W of Quincy",
+    "milepost": 25,
+    "direction": "Multidirectional",
+    "latitude": "47.232682426",
+    "longitude": "-119.955614890",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "I-90",
+    "location": "Ryegrass ",
+    "description":"17.9 Miles E of Ellensburg",
+    "milepost": 125,
+    "direction": "Eastbound ",
+    "latitude": "46.941507524",
+    "longitude": "-120.203489110",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines"
+    ]
+  },
+  {
+    "route": "I-90",
+    "location": "Ryegrass ",
+    "description":"10.9 Miles W of Vantage",
+    "milepost": 125,
+    "direction": "Westbound ",
+    "latitude": "46.947248931",
+    "longitude": "-120.208626951",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Scatter Creek",
+    "description":"8.8 Miles N of Centralia",
+    "milepost": 90,
+    "direction": "Northbound",
+    "latitude": "46.835349424",
+    "longitude": "-122.985250064",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "I-90",
+    "location": "Schrag",
+    "description":"22.8 Miles W of Ritzville",
+    "milepost": 198,
+    "direction": "Eastbound",
+    "latitude": "47.085086366",
+    "longitude": "-118.844743038",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines"
+    ]
+  },
+  {
+    "route": "I-90",
+    "location": "Schrag",
+    "description":"22.8 Miles W of Ritzville",
+    "milepost": 198,
+    "direction": "Westbound",
+    "latitude": "47.087106232",
+    "longitude": "-118.845271598",
+    "notes" : "RV Dumping Station Closed during the Winter.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "SeaTac",
+    "description":"7.2 Miles N of Tacoma",
+    "milepost": 7,
+    "direction": "Northbound",
+    "latitude": "47.271133531",
+    "longitude": "-122.314556889",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "I-82",
+    "location": "Selah Creek",
+    "description":"27.7 Miles W of Yakima",
+    "milepost": 22,
+    "direction": "Westbound",
+    "latitude": "46.697702094",
+    "longitude": "-120.443368616",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "I-82",
+    "location": "Selah Creek",
+    "description":"25.2 Miles E of Ellensburg",
+    "milepost": 24,
+    "direction": "Eastbound",
+    "latitude": "46.711383463",
+    "longitude": "-120.415931208",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Silver Lake",
+    "description":"5.9 Miles S of Everett",
+    "milepost": 188,
+    "direction": "Southbound",
+    "latitude": "47.902451004",
+    "longitude": "-122.215572895",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Smokey Point",
+    "description":"8.2 Miles N of Marysville",
+    "milepost": 207,
+    "direction": "Northbound",
+    "latitude": "48.168848575",
+    "longitude": "-122.188868463",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Smokey Point",
+    "description":"19.5 Miles S of Mt. Vernon",
+    "milepost": 207,
+    "direction": "Southbound",
+    "latitude": "48.169107740",
+    "longitude": "-122.194277510",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "I-90",
+    "location": "Sprague Lake",
+    "description":"38.7 Miles W of Spokane",
+    "milepost": 242,
+    "direction": "Westbound",
+    "latitude": "47.295699362",
+    "longitude": "-118.032559763",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines"
+    ]
+  },
+  {
+    "route": "I-90",
+    "location": "Sprague Lake",
+    "description":"20.3 Miles E of Ritzville",
+    "milepost": 241,
+    "direction": "Eastbound",
+    "latitude": "47.289545280",
+    "longitude": "-118.034318300",
+    "notes" : "RV Dumping Station Closed during the Winter.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "Vending Machines",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "US 02",
+    "location": "Telford",
+    "description":"12.9 Miles W of Davenport",
+    "milepost": 238,
+    "direction": "Multidirectional",
+    "latitude": "47.694648060",
+    "longitude": "-118.397776700",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Toutle River",
+    "description":"23.4 Mile S of Chehalis",
+    "milepost": 54,
+    "direction": "Southbound",
+    "latitude": "46.352330280",
+    "longitude": "-122.907977800",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "I-5",
+    "location": "Toutle River",
+    "description":"5 Miles N of Castle Rock",
+    "milepost": 54,
+    "direction": "Northbound",
+    "latitude": "46.350905840",
+    "longitude": "-122.904318984",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Visitor Information",
+      "Drinking Water",
+      "Picnic Areas"
+    ]
+  },
+  {
+    "route": "SR 906",
+    "location": "Travelers Rest",
+    "description":"at Snoqualmie Pass Summit",
+    "milepost": 1,
+    "direction": "Multidirectional",
+    "latitude": "47.420942",
+    "longitude": "-121.411531",
+    "notes" : "None.",
+    "hasDump" : false,
+    "isOpen" : true,
+    "amenities": [
+      "Drinking Water"
+    ]
+  },
+  {
+    "route": "SR 24",
+    "location": "Vernita",
+    "description":"14.6 miles S of Mattawa",
+    "milepost": 43,
+    "direction": "Multidirectional",
+    "latitude": "46.638045830",
+    "longitude": "-119.731533900",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Drinking Water",
+      "Picnic Areas",
+      "RV Dumping"
+    ]
+  },
+  {
+    "route": "I-90",
+    "location": "Winchester",
+    "description":"14.5 Miles W of Moses Lake ",
+    "milepost": 161,
+    "direction": "Westbound",
+    "latitude": "47.103407417",
+    "longitude": "-119.628738736",
+    "notes" : "None.",
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "RV Dumping"
+    ]
+  },
+  {
+  "route": "I-90",
+  "location": "Winchester",
+  "description":"24.6 Miles E of Vantage",
+  "milepost": 161,
+  "direction": "Eastbound",
+  "latitude": "47.104475235",
+  "longitude": "-119.617455976",
+  "notes" : "None.",
+  "hasDump" : true,
+  "isOpen" : true,
+  "amenities": [
+    "Telephones",
+    "Drinking Water",
+    "Picnic Areas",
+    "RV Dumping"
+  ]
+  }
+]
