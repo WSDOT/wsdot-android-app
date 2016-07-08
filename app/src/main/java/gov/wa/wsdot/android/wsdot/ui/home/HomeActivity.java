@@ -53,7 +53,6 @@ public class HomeActivity extends BaseActivity {
     private android.support.design.widget.AppBarLayout mAppBar;
     private Tracker mTracker;
 
-
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 

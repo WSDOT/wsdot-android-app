@@ -5,7 +5,7 @@
     <item
 		android:id="@+id/menu_about"
 		android:title="@string/description_about"
-		android:icon="@drawable/ic_menu_info_details"
+		android:icon="@drawable/ic_menu_info"
 		android:orderInCategory="1"
-		wsdot:showAsAction="never" />
+		wsdot:showAsAction="always" />
 </menu>

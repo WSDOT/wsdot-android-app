@@ -174,7 +174,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", false);
+        showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
         showRestAreas = settings.getBoolean("KEY_SHOW_REST_AREAS", false);
         latitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LAT", "47.5990"));
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
@@ -1081,5 +1081,4 @@ public class TrafficMapActivity extends BaseActivity implements
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-
 }
