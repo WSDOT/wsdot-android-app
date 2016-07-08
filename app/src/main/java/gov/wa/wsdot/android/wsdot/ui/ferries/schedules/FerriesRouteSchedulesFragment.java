@@ -321,7 +321,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 			} else {
 				holder.alert_button.setVisibility(View.VISIBLE);
 				holder.alert_button.setTag(cursor.getPosition());
-				holder.alert_button.setImageResource(R.drawable.btn_alert_on_holo_light);
+				holder.alert_button.setImageResource(R.drawable.btn_alert_on);
 	            holder.alert_button.setOnClickListener(new OnClickListener() {
 					public void onClick(View v) {
                         Cursor c = mAdapter.getCursor();

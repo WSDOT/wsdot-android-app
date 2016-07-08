@@ -50,7 +50,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
@@ -690,7 +689,7 @@ public class FavoritesFragment extends BaseFragment implements
                 } else {
                     viewholder.alert_button.setVisibility(View.VISIBLE);
                     viewholder.alert_button.setTag(cursor.getPosition());
-                    viewholder.alert_button.setImageResource(R.drawable.btn_alert_on_holo_light);
+                    viewholder.alert_button.setImageResource(R.drawable.btn_alert_on);
                     viewholder.alert_button.setOnClickListener(new OnClickListener() {
                         public void onClick(View v) {
                             Cursor c = (Cursor) mFavoritesAdapter.getItem(pos);
