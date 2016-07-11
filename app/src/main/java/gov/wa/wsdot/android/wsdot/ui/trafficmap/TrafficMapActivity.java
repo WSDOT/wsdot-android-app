@@ -32,7 +32,6 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
 import android.support.v4.content.ContextCompat;
@@ -45,10 +44,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -73,6 +69,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,13 +80,13 @@ import java.util.Map.Entry;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTProvider;
 import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
 import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
 import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
+import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
@@ -97,11 +94,13 @@ import gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.restareas.RestAreaActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes.TravelTimesActivity;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.map.CalloutsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.CamerasOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.HighwayAlertsOverlay;
+import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
 
 public class TrafficMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener,
@@ -114,16 +113,18 @@ public class TrafficMapActivity extends BaseActivity implements
     private GoogleMap mMap;
     private HighwayAlertsOverlay alertsOverlay = null;
     private CamerasOverlay camerasOverlay = null;
+    private RestAreasOverlay restAreasOverlay = null;
     private CalloutsOverlay calloutsOverlay = null;
     private List<CameraItem> cameras = new ArrayList<CameraItem>();
     private List<HighwayAlertsItem> alerts = new ArrayList<HighwayAlertsItem>();
+    private List<RestAreaItem> restAreas = new ArrayList<>();
     private List<CalloutItem> callouts = new ArrayList<CalloutItem>();
     private HashMap<Marker, String> markers = new HashMap<Marker, String>();
     boolean showCameras;
+    boolean showRestAreas;
     private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
 
-    static final private int MENU_ITEM_ALERTS = Menu.FIRST;
-    static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST + 1;
+    static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST;
 
     private CamerasSyncReceiver mCamerasReceiver;
     private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
@@ -131,6 +132,7 @@ public class TrafficMapActivity extends BaseActivity implements
     private Intent alertsIntent;
     private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
     private static AsyncTask<Void, Void, Void> mHighwayAlertsOverlayTask = null;
+    private static AsyncTask<Void, Void, Void> mRestAreasOverlayTask = null;
     private static AsyncTask<Void, Void, Void> mCalloutsOverlayTask = null;
     private LatLngBounds bounds;
     private double latitude;
@@ -144,8 +146,6 @@ public class TrafficMapActivity extends BaseActivity implements
     private boolean mPermissionDenied = false;
 
     private Tracker mTracker;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,11 +169,13 @@ public class TrafficMapActivity extends BaseActivity implements
         // Initialize AsyncTasks
         mCamerasOverlayTask = new CamerasOverlayTask();
         mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask();
+        mRestAreasOverlayTask = new RestAreasOverlayTask();
         mCalloutsOverlayTask = new CalloutsOverlayTask();
 
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
+        showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", false);
+        showRestAreas = settings.getBoolean("KEY_SHOW_REST_AREAS", false);
         latitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LAT", "47.5990"));
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
         zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
@@ -186,7 +188,6 @@ public class TrafficMapActivity extends BaseActivity implements
             longitude = b.getFloat("long");
         if (getIntent().hasExtra("zoom"))
             zoom = b.getInt("zoom");
-
 
         // Set up Service Intents.
         camerasIntent = new Intent(this, CamerasSyncService.class);
@@ -266,8 +267,13 @@ public class TrafficMapActivity extends BaseActivity implements
         } else if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
             mCalloutsOverlayTask.execute();
         }
-    }
 
+        if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+            mRestAreasOverlayTask = new RestAreasOverlayTask().execute();
+        } else if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+            mRestAreasOverlayTask.execute();
+        }
+    }
 
     @Override
     protected void onPause() {
@@ -295,7 +301,6 @@ public class TrafficMapActivity extends BaseActivity implements
             editor.putString("KEY_TRAFFICMAP_LON", "-122.3350");
             editor.putInt("KEY_TRAFFICMAP_ZOOM", 12);
         }
-
         editor.commit();
     }
 
@@ -325,13 +330,19 @@ public class TrafficMapActivity extends BaseActivity implements
             b.putString("id", marker.getSnippet());
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);
+        } else if (markers.get(marker).equalsIgnoreCase("restarea")) {
+
+            intent = new Intent(this, RestAreaActivity.class);
+            intent.putExtra("restarea_json", marker.getSnippet());
+            TrafficMapActivity.this.startActivity(intent);
+
+
         } else if (markers.get(marker).equalsIgnoreCase("callout")) {
             intent = new Intent(this, CalloutActivity.class);
             b.putString("url", marker.getSnippet());
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);
         }
-
         return true;
     }
 
@@ -388,11 +399,11 @@ public class TrafficMapActivity extends BaseActivity implements
             menu.getItem(0).setTitle("Show Cameras");
         }
 
-        MenuItem menuItem_Alerts = menu.add(0, MENU_ITEM_ALERTS, menu.size(), "Alerts In This Area")
-                .setIcon(R.drawable.ic_menu_alerts);
-
-        MenuItemCompat.setShowAsAction(menuItem_Alerts,
-                MenuItemCompat.SHOW_AS_ACTION_IF_ROOM | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
+        if (showRestAreas) {
+            menu.getItem(4).setTitle("Hide Rest Areas");
+        } else {
+            menu.getItem(4).setTitle("Show Rest Areas");
+        }
 
         /**
          * Check if current location is within a lat/lon bounding box surrounding
@@ -455,13 +466,32 @@ public class TrafficMapActivity extends BaseActivity implements
 
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
-
                 return true;
+            case R.id.alerts_in_area:
+                LatLngBounds mBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+
+                Intent alertsIntent = new Intent(this, TrafficAlertsActivity.class);
+
+                alertsIntent.putExtra("nelat", mBounds.northeast.latitude);
+                alertsIntent.putExtra("nelong", mBounds.northeast.longitude);
+                alertsIntent.putExtra("swlat", mBounds.southwest.latitude);
+                alertsIntent.putExtra("swlong", mBounds.southwest.longitude);
+
+                startActivity(alertsIntent);
+                return true;
+            case MENU_ITEM_EXPRESS_LANES:
+                Intent expressIntent = new Intent(this, SeattleExpressLanesActivity.class);
+                startActivity(expressIntent);
+                return true;
+
             case android.R.id.home:
                 finish();
                 return true;
             case R.id.toggle_cameras:
                 toggleCameras(item);
+                return true;
+            case R.id.toggle_rest_areas:
+                toggleRestAreas(item);
                 return true;
             case R.id.travel_times:
                 Intent timesIntent = new Intent(this, TravelTimesActivity.class);
@@ -563,22 +593,7 @@ public class TrafficMapActivity extends BaseActivity implements
                 goToLocation("Yakima Traffic", 46.6063273, -120.4886952, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
-            case MENU_ITEM_ALERTS:
-                LatLngBounds mBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
-                Intent alertsIntent = new Intent(this, TrafficAlertsActivity.class);
-
-                alertsIntent.putExtra("nelat", mBounds.northeast.latitude);
-                alertsIntent.putExtra("nelong", mBounds.northeast.longitude);
-                alertsIntent.putExtra("swlat", mBounds.southwest.latitude);
-                alertsIntent.putExtra("swlong", mBounds.southwest.longitude);
-
-                startActivity(alertsIntent);
-                return true;
-            case MENU_ITEM_EXPRESS_LANES:
-                Intent expressIntent = new Intent(this, SeattleExpressLanesActivity.class);
-                startActivity(expressIntent);
-                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -633,6 +648,56 @@ public class TrafficMapActivity extends BaseActivity implements
         editor.putBoolean("KEY_SHOW_CAMERAS", showCameras);
         editor.commit();
     }
+
+
+    private void toggleRestAreas(MenuItem item) {
+        // GA tracker
+        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+
+        String label;
+
+        if (showRestAreas) {
+            for (Entry<Marker, String> entry : markers.entrySet()) {
+                Marker key = entry.getKey();
+                String value = entry.getValue();
+
+                if (value.equalsIgnoreCase("restarea")) {
+                    key.setVisible(false);
+                }
+            }
+
+            item.setTitle("Show Rest Areas");
+            showRestAreas = false;
+            label = "Hide Rest Areas";
+
+        } else {
+            for (Entry<Marker, String> entry : markers.entrySet()) {
+                Marker key = entry.getKey();
+                String value = entry.getValue();
+
+                if (value.equalsIgnoreCase("restarea")) {
+                    key.setVisible(true);
+                }
+            }
+            item.setTitle("Hide Rest Areas");
+            showRestAreas = true;
+            label = "Show Rest Areas";
+
+        }
+
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Traffic")
+                .setAction("Rest Areas")
+                .setLabel(label)
+                .build());
+
+        // Save rest areas display preference
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("KEY_SHOW_REST_AREAS", showRestAreas);
+        editor.commit();
+    }
+
 
     public void goToLocation(String title, double latitude, double longitude, int zoomLevel) {
         LatLng latLng = new LatLng(latitude, longitude);
@@ -775,6 +840,55 @@ public class TrafficMapActivity extends BaseActivity implements
                 }
             }
 
+            setSupportProgressBarIndeterminateVisibility(false);
+        }
+    }
+
+    /**
+     * Build and draw rest areas on the map
+     */
+    class RestAreasOverlayTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        public void onPreExecute() {
+            setSupportProgressBarIndeterminateVisibility(true);
+
+            restAreasOverlay = null;
+            if (mMap != null) {
+                bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+            }
+        }
+
+        @Override
+        public Void doInBackground(Void... unused) {
+            restAreasOverlay = new RestAreasOverlay(getResources().openRawResource(R.raw.restareas));
+            return null;
+        }
+
+        @Override
+        public void onPostExecute(Void unused) {
+            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry<Marker, String> entry = iter.next();
+                if (entry.getValue().equalsIgnoreCase("restArea")) {
+                    entry.getKey().remove();
+                    iter.remove();
+                }
+            }
+            restAreas.clear();
+            restAreas = restAreasOverlay.getRestAreaItems();
+
+
+            for (int i = 0; i < restAreas.size(); i++) {
+                LatLng latLng = new LatLng(restAreas.get(i).getLatitude(), restAreas.get(i).getLongitude());
+                Marker marker = mMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(restAreas.get(i).getLocation())
+                        // Save the whole rest area object as the snippet
+                        .snippet(new Gson().toJson(restAreas.get(i)))
+                        .icon(BitmapDescriptorFactory.fromResource(restAreas.get(i).getIcon()))
+                        .visible(showRestAreas));
+                markers.put(marker, "restArea");
+            }
             setSupportProgressBarIndeterminateVisibility(false);
         }
     }

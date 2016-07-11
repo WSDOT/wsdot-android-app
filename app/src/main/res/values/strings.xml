@@ -57,6 +57,7 @@
     
     <string name="description_mylocation">My Location</string>
     <string name="description_cameras">Cameras</string>
+    <string name="description_rest_areas">Rest Areas</string>
     <string name="description_gotolocation">GoTo Location</string>
     <string name="description_travel_times">Travel Times</string>
     <string name="description_star">Star</string>
@@ -80,7 +81,7 @@
     <string name="drive_up_spaces_disclaimer">Vehicles in line for tollbooth are not included in this estimate</string>
 
     <string name="banner">banner image</string>
-    <string name="description_favorite">Favorite location</string>
+    <string name="description_favorite">Favorite this location</string>
 
     <string name="expresslanes_link_title">Express Lanes Schedule</string>
     <string name="expresslanes_info">WSDOT uses the I-5 and I-90 express lanes to assist the flow of
@@ -94,5 +95,7 @@
     <string name="favorite_location_hint">Location name</string>
     <string name="submit">OK</string>
     <string name="cancel">CANCEL</string>
+    <string name="description_alerts_in_area">Alerts in This Area</string>
+
 
 </resources>
