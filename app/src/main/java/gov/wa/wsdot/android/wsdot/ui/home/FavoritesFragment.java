@@ -36,6 +36,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -169,7 +170,7 @@ public class FavoritesFragment extends BaseFragment implements
 
 		mFerriesSchedulesIntent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
         getActivity().startService(mFerriesSchedulesIntent);
-		
+
 		mMountainPassesIntent = new Intent(getActivity(), MountainPassesSyncService.class);
         getActivity().startService(mMountainPassesIntent);
 		
@@ -555,7 +556,8 @@ public class FavoritesFragment extends BaseFragment implements
                     viewHolder.text.setTypeface(tf);
                 }
 
-                int icon = cursor.getInt(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_WEATHER_ICON));
+                int icon = getResources().getIdentifier(cursor.getString(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_WEATHER_ICON)),
+                        "drawable", getActivity().getPackageName());
                 viewHolder.icon.setImageResource(icon);
 
                 viewHolder.star_button.setVisibility(View.GONE);

@@ -44,7 +44,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 	private static final int VER_3 = 3;
 	private static final int VER_4 = 4;
     private static final int VER_5 = 5;
-	private static final int DATABASE_VERSION = VER_5;
+	private static final int VER_6 = 6;
+	private static final int DATABASE_VERSION = VER_6;
 
     interface Tables {
     	String CACHES = "caches";
@@ -107,7 +108,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + " TEXT,"
                 + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + " TEXT,"
                 + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " INTEGER,"
+                + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " TEXT,"
                 + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED + " INTEGER NOT NULL default 0);");
         
         db.execSQL("CREATE TABLE " + Tables.TRAVEL_TIMES + " ("
@@ -166,7 +167,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 		Log.d(TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
 		
 		int version = oldVersion;
-		
+
 		switch (version) {
     		case VER_1:
     		    Log.i(TAG, "Performing upgrade for DB version " + version);
@@ -205,8 +206,22 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                         + LocationColumns.LOCATION_ZOOM + " INTEGER);");
 
             case VER_5:
-                version = VER_5;
-                Log.i(TAG, "DB at version " + DATABASE_VERSION);
+				Log.i(TAG, "Performing upgrade for DB version " + version);
+                db.beginTransaction();
+                try {
+                    versionSixUpdate(db);
+                    db.setTransactionSuccessful();
+                    version = VER_6;
+                } catch(Exception e) {
+                    // Error
+                    Log.e(TAG, "failed to upgrade to version 6");
+                    version = VER_5;
+                } finally {
+                    db.endTransaction();
+                }
+
+			case VER_6:
+				Log.i(TAG, "DB at version " + DATABASE_VERSION);
                 // Current version, no further action necessary.
 		}
 
@@ -267,5 +282,60 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 		db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (8063, 'US 2 MP 65 Stevens Pass Ski Lodge', 'http://images.wsdot.wa.gov/us2/stvldg/sumtwest.jpg', 47.7513, -121.10619, 0, 'US 2', 0);");
 		db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (9145, 'US 2 MP 62 Old Faithful Avalanche Zone', 'http://images.wsdot.wa.gov/us2/oldfaithful/oldfaithful.jpg', 47.724431, -121.134085, 0, 'US 2', 0);");
 	}
-	
+
+    /* Version 6:
+         Changed value of MOUNTAIN_PASS_WEATHER_ICON from INTEGER to TEXT.
+         DB now saves icon filename instead of dynamic resource ID.
+
+         Saves users favorite passes in update.
+
+         See: https://github.com/WSDOT/wsdot-android-app/issues/83
+    */
+    private void versionSixUpdate(SQLiteDatabase db){
+        db.execSQL(
+                "CREATE TABLE new_table("
+                        + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_ID + " INTEGER,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_NAME + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_CONDITION + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_ELEVATION + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_ROAD_CONDITION + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_TEMPERATURE + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_DATE_UPDATED + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED + " INTEGER NOT NULL default 0); "
+                        + " INSERT INTO new_table (SELECT "
+                        + BaseColumns._ID + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_ID + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_NAME + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_CONDITION + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_ELEVATION + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_ROAD_CONDITION + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_TEMPERATURE + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_DATE_UPDATED + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED
+                        + " FROM " + Tables.MOUNTAIN_PASSES + "); "
+
+                        + " DROP TABLE " + Tables.MOUNTAIN_PASSES + "; "
+                        + " ALTER TABLE new_table RENAME TO " + Tables.MOUNTAIN_PASSES + ";"
+        );
+
+        db.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " =0 WHERE "
+                + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.MOUNTAIN_PASSES + "' ");
+
+    }
 }

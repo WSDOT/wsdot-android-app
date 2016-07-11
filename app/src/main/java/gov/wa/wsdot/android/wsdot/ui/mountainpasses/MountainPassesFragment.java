@@ -299,7 +299,9 @@ public class MountainPassesFragment extends BaseFragment implements
                 mtpassVH.text.setTypeface(tf);
             }
 
-            int icon = cursor.getInt(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_WEATHER_ICON));
+            int icon = getResources().getIdentifier(cursor.getString(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_WEATHER_ICON)),
+                    "drawable", getActivity().getPackageName());
+
             mtpassVH.icon.setImageResource(icon);
 
             mtpassVH.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));

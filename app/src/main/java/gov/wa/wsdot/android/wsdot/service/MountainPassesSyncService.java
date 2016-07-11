@@ -56,9 +56,9 @@ public class MountainPassesSyncService extends IntentService {
 
 	private static final String DEBUG_TAG = "MountainPassesSyncService";
 	@SuppressLint("UseSparseArrays")
-	private static HashMap<Integer, String[]> weatherPhrases = new HashMap<Integer, String[]>();
+	private static HashMap<String, String[]> weatherPhrases = new HashMap<>();
 	@SuppressLint("UseSparseArrays")
-	private static HashMap<Integer, String[]> weatherPhrasesNight = new HashMap<Integer, String[]>();
+	private static HashMap<String, String[]> weatherPhrasesNight = new HashMap<>();
 	private static DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m"); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
 	private static DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	private static final String MOUNTAIN_PASS_URL = "http://data.wsdot.wa.gov/mobile/MountainPassConditions.js.gz";
@@ -67,6 +67,7 @@ public class MountainPassesSyncService extends IntentService {
 		super("MountainPassesSyncService");
 	}
 
+	@SuppressLint("LongLogTag")
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		ContentResolver resolver = getContentResolver();
@@ -129,8 +130,8 @@ public class MountainPassesSyncService extends IntentService {
 				JSONObject result = obj.getJSONObject("GetMountainPassConditionsResult");
 				JSONArray passConditions = result.getJSONArray("PassCondition");
 				String weatherCondition;
-				Integer weather_image;
-				Integer forecast_weather_image;
+				String weather_image_name;
+				String forecast_weather_image_name;
 				List<ContentValues> passes = new ArrayList<ContentValues>();
 				
 				int numConditions = passConditions.length();
@@ -138,7 +139,7 @@ public class MountainPassesSyncService extends IntentService {
 					JSONObject pass = passConditions.getJSONObject(j);
 					ContentValues passData = new ContentValues();
 					weatherCondition = pass.getString("WeatherCondition");
-					weather_image = getWeatherImage(weatherPhrases, weatherCondition);
+					weather_image_name = getWeatherImage(weatherPhrases, weatherCondition);
 
 				    String tempDate = pass.getString("DateUpdated");
 				    
@@ -169,17 +170,17 @@ public class MountainPassesSyncService extends IntentService {
 						JSONObject forecast = forecasts.getJSONObject(l);
 						
 						if (isNight(forecast.getString("Day"))) {
-							forecast_weather_image = getWeatherImage(weatherPhrasesNight, forecast.getString("ForecastText"));
+							forecast_weather_image_name = getWeatherImage(weatherPhrasesNight, forecast.getString("ForecastText"));
 						} else {
-							forecast_weather_image = getWeatherImage(weatherPhrases, forecast.getString("ForecastText"));
+							forecast_weather_image_name = getWeatherImage(weatherPhrases, forecast.getString("ForecastText"));
 						}
 						
-						forecast.put("weather_icon", forecast_weather_image);
+						forecast.put("weather_icon", forecast_weather_image_name);
 						
 						if (l == 0) {
 							if (weatherCondition.equals("")) {
 								weatherCondition = forecast.getString("ForecastText").split("\\.")[0] + ".";
-								weather_image = forecast_weather_image;
+								weather_image_name = forecast_weather_image_name;
 							}
 						}
 						
@@ -188,7 +189,7 @@ public class MountainPassesSyncService extends IntentService {
 					
 					passData.put(MountainPasses.MOUNTAIN_PASS_ID, pass.getString("MountainPassId"));
 					passData.put(MountainPasses.MOUNTAIN_PASS_NAME, pass.getString("MountainPassName"));
-					passData.put(MountainPasses.MOUNTAIN_PASS_WEATHER_ICON, weather_image);
+					passData.put(MountainPasses.MOUNTAIN_PASS_WEATHER_ICON, weather_image_name);
 					passData.put(MountainPasses.MOUNTAIN_PASS_FORECAST, forecastItems.toString());
 					passData.put(MountainPasses.MOUNTAIN_PASS_WEATHER_CONDITION, weatherCondition);
 					passData.put(MountainPasses.MOUNTAIN_PASS_DATE_UPDATED, mDateUpdated);
@@ -257,57 +258,57 @@ public class MountainPassesSyncService extends IntentService {
 		String[] weather_hail = {"ice pellets", "light ice pellets", "heavy ice pellets", "hail"};
 		String[] weather_thunderstorm = {"thunderstorm", "thunderstorms"};
 		
-		weatherPhrases.put(R.drawable.ic_list_sunny, weather_clear);
-		weatherPhrases.put(R.drawable.ic_list_cloudy_1, weather_few_clouds);
-		weatherPhrases.put(R.drawable.ic_list_cloudy_2, weather_partly_cloudy);
-		weatherPhrases.put(R.drawable.ic_list_cloudy_3, weather_cloudy);
-		weatherPhrases.put(R.drawable.ic_list_cloudy_4, weather_mostly_cloudy);
-		weatherPhrases.put(R.drawable.ic_list_overcast, weather_overcast);
-		weatherPhrases.put(R.drawable.ic_list_light_rain, weather_light_rain);
-		weatherPhrases.put(R.drawable.ic_list_shower_3, weather_rain);
-		weatherPhrases.put(R.drawable.ic_list_snow_4, weather_snow);
-		weatherPhrases.put(R.drawable.ic_list_fog, weather_fog);
-		weatherPhrases.put(R.drawable.ic_list_sleet, weather_sleet);
-		weatherPhrases.put(R.drawable.ic_list_hail, weather_hail);
-		weatherPhrases.put(R.drawable.ic_list_tstorm_3, weather_thunderstorm);
+		weatherPhrases.put("ic_list_sunny", weather_clear);
+		weatherPhrases.put("ic_list_cloudy_1", weather_few_clouds);
+		weatherPhrases.put("ic_list_cloudy_2", weather_partly_cloudy);
+		weatherPhrases.put("ic_list_cloudy_3", weather_cloudy);
+		weatherPhrases.put("ic_list_cloudy_4", weather_mostly_cloudy);
+		weatherPhrases.put("ic_list_overcast", weather_overcast);
+		weatherPhrases.put("ic_list_light_rain", weather_light_rain);
+		weatherPhrases.put("ic_list_shower_3", weather_rain);
+		weatherPhrases.put("ic_list_snow_4", weather_snow);
+		weatherPhrases.put("ic_list_fog", weather_fog);
+		weatherPhrases.put("ic_list_sleet", weather_sleet);
+		weatherPhrases.put("ic_list_hail", weather_hail);
+		weatherPhrases.put("ic_list_tstorm_3", weather_thunderstorm);
 		
-		weatherPhrasesNight.put(R.drawable.ic_list_sunny_night, weather_clear);
-		weatherPhrasesNight.put(R.drawable.ic_list_cloudy_1_night, weather_few_clouds);
-		weatherPhrasesNight.put(R.drawable.ic_list_cloudy_2_night, weather_partly_cloudy);
-		weatherPhrasesNight.put(R.drawable.ic_list_cloudy_3_night, weather_cloudy);
-		weatherPhrasesNight.put(R.drawable.ic_list_cloudy_4_night, weather_mostly_cloudy);
-		weatherPhrasesNight.put(R.drawable.ic_list_overcast, weather_overcast);
-		weatherPhrasesNight.put(R.drawable.ic_list_light_rain, weather_light_rain);
-		weatherPhrasesNight.put(R.drawable.ic_list_shower_3, weather_rain);
-		weatherPhrasesNight.put(R.drawable.ic_list_snow_4, weather_snow);
-		weatherPhrasesNight.put(R.drawable.ic_list_fog_night, weather_fog);
-		weatherPhrasesNight.put(R.drawable.ic_list_sleet, weather_sleet);
-		weatherPhrasesNight.put(R.drawable.ic_list_hail, weather_hail);
-		weatherPhrasesNight.put(R.drawable.ic_list_tstorm_3, weather_thunderstorm);
+		weatherPhrasesNight.put("ic_list_sunny_night", weather_clear);
+		weatherPhrasesNight.put("ic_list_cloudy_1_night", weather_few_clouds);
+		weatherPhrasesNight.put("ic_list_cloudy_2_night", weather_partly_cloudy);
+		weatherPhrasesNight.put("ic_list_cloudy_3_night", weather_cloudy);
+		weatherPhrasesNight.put("ic_list_cloudy_4_night", weather_mostly_cloudy);
+		weatherPhrasesNight.put("ic_list_overcast", weather_overcast);
+		weatherPhrasesNight.put("ic_list_light_rain", weather_light_rain);
+		weatherPhrasesNight.put("ic_list_shower_3", weather_rain);
+		weatherPhrasesNight.put("ic_list_snow_4", weather_snow);
+		weatherPhrasesNight.put("ic_list_fog_night", weather_fog);
+		weatherPhrasesNight.put("ic_list_sleet", weather_sleet);
+		weatherPhrasesNight.put("ic_list_hail", weather_hail);
+		weatherPhrasesNight.put("ic_list_tstorm_3", weather_thunderstorm);
 		
 		return;
 	}
 	
-	private static Integer getWeatherImage(HashMap<Integer, String[]> weatherPhrases, String weather) {
-		Integer image = R.drawable.weather_na;
-		Set<Entry<Integer, String[]>> set = weatherPhrases.entrySet();
-		Iterator<Entry<Integer, String[]>> i = set.iterator();
+	private static String getWeatherImage(HashMap<String, String[]> weatherPhrases, String weather) {
+		String image_name = "weather_na";
+		Set<Entry<String, String[]>> set = weatherPhrases.entrySet();
+		Iterator<Entry<String, String[]>> i = set.iterator();
 		
-		if (weather.equals("")) return image;
+		if (weather.equals("")) return image_name;
 
 		String s0 = weather.split("\\.")[0]; // Pattern match on first sentence only.
 		
 		while(i.hasNext()) {
-			Entry<Integer, String[]> me = i.next();
+			Entry<String, String[]> me = i.next();
 			for (String phrase: (String[])me.getValue()) {
 				if (s0.toLowerCase().startsWith(phrase)) {
-					image = (Integer)me.getKey();
-					return image;
+					image_name = (String)me.getKey();
+					return image_name;
 				}
 			}
 		}
 		
-		return image;
+		return image_name;
 	}
     
 	private static boolean isNight(String text) {

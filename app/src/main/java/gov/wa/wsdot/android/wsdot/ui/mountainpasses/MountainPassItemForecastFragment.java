@@ -36,6 +36,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
@@ -69,7 +70,7 @@ public class MountainPassItemForecastFragment extends BaseFragment {
 				f = new ForecastItem();
 				f.setDay(forecast.getString("Day"));
 				f.setForecastText(forecast.getString("ForecastText"));
-				f.setWeatherIcon(forecast.getInt("weather_icon"));
+				f.setWeatherIcon(getResources().getIdentifier(forecast.getString("weather_icon"), "drawable", getActivity().getPackageName()));
 				forecastItems.add(f);
 			}
         } catch (JSONException e) {
