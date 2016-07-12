@@ -45,30 +45,26 @@ public class RestAreaActivity extends BaseActivity {
         if (restAreaItem != null){
 
             title = restAreaItem.getRoute() + " - " + restAreaItem.getLocation() + " Rest Area";
-
-            mToolbar = (Toolbar) findViewById(R.id.toolbar);
-            setSupportActionBar(mToolbar);
-
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(title);
-
-            disableAds();
-
-            mLoadingSpinner = findViewById(R.id.loading_spinner);
-            mLoadingSpinner.setVisibility(View.VISIBLE);
-
             webview = (WebView)findViewById(R.id.webview);
             webview.setVisibility(View.GONE);
             webview.setWebViewClient(new myWebViewClient());
             webview.getSettings().setJavaScriptEnabled(true);
             webview.loadDataWithBaseURL(null, buildContent(restAreaItem), "text/html", "utf-8", null);
 
-        } else { //TODO:
-
-
-
-
+        } else {
+            title = "Rest Area";
         }
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(title);
+
+        disableAds();
+
+        mLoadingSpinner = findViewById(R.id.loading_spinner);
+        mLoadingSpinner.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -111,23 +107,37 @@ public class RestAreaActivity extends BaseActivity {
     private String buildContent(RestAreaItem item) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("<p> <h3> Milepost: " + item.getMilepost() + " - " + item.getDirection()  + "</h3></p>");
+        sb.append("<p> <h3> Milepost: ");
+        sb.append(item.getMilepost());
+        sb.append(" - ");
+        sb.append(item.getDirection());
+        sb.append("</h3></p>");
         sb.append("<p> <b> Amenities: </b> </p>");
 
         sb.append("<ul>");
         for (String amenity : item.getAmenities()){
-            sb.append("<li>" + amenity + "</li>");
+            sb.append("<li>");
+            sb.append(amenity);
+            sb.append( "</li>");
         }
         sb.append("</ul>");
 
-        sb.append("<p><b>Special Notes: </b> </p> <p> " + item.getNotes() + " </p>");
+        sb.append("<p><b>Special Notes: </b> </p> <p> ");
+        sb.append(item.getNotes());
+        sb.append(" </p>");
 
         sb.append("<img src=");
         sb.append("'http://maps.googleapis.com/maps/api/staticmap?center=");
-        sb.append(item.getLatitude() + "," + item.getLongitude());
+        sb.append(item.getLatitude());
+        sb.append(",");
+        sb.append(item.getLongitude());
         sb.append("&zoom=15&size=320x320&maptype=roadmap&markers=");
-        sb.append(item.getLatitude() + "," + item.getLongitude());
-        sb.append("&key=" + getString(R.string.google_static_map_key) + "'>");
+        sb.append(item.getLatitude());
+        sb.append(",");
+        sb.append(item.getLongitude());
+        sb.append("&key=");
+        sb.append(getString(R.string.google_static_map_key));
+        sb.append("'>");
 
         return sb.toString();
     }
