@@ -42,19 +42,18 @@ public class RestAreaActivity extends BaseActivity {
             restAreaItem = new Gson().fromJson(jsonMyObject, RestAreaItem.class);
         }
 
+        webview = (WebView)findViewById(R.id.webview);
+        webview.setVisibility(View.GONE);
+        webview.setWebViewClient(new myWebViewClient());
+        webview.getSettings().setJavaScriptEnabled(true);
+
         if (restAreaItem != null){
-
             title = restAreaItem.getRoute() + " - " + restAreaItem.getLocation() + " Rest Area";
-            webview = (WebView)findViewById(R.id.webview);
-            webview.setVisibility(View.GONE);
-            webview.setWebViewClient(new myWebViewClient());
-            webview.getSettings().setJavaScriptEnabled(true);
             webview.loadDataWithBaseURL(null, buildContent(restAreaItem), "text/html", "utf-8", null);
-
         } else {
             title = "Rest Area";
+            webview.loadDataWithBaseURL(null, "Error loading rest area information.", "text/html", "utf-8", null);
         }
-
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
@@ -112,19 +111,21 @@ public class RestAreaActivity extends BaseActivity {
         sb.append(" - ");
         sb.append(item.getDirection());
         sb.append("</h3></p>");
-        sb.append("<p> <b> Amenities: </b> </p>");
 
+        sb.append("<p> <b> Amenities: </b> </p>");
         sb.append("<ul>");
-        for (String amenity : item.getAmenities()){
+        for (String amenity : item.getAmenities()) {
             sb.append("<li>");
             sb.append(amenity);
-            sb.append( "</li>");
+            sb.append("</li>");
         }
         sb.append("</ul>");
 
-        sb.append("<p><b>Special Notes: </b> </p> <p> ");
-        sb.append(item.getNotes());
-        sb.append(" </p>");
+        if (!item.getNotes().equals("null")) {
+            sb.append("<p><b>Special Notes: </b> </p> <p> ");
+            sb.append(item.getNotes());
+            sb.append(" </p>");
+        }
 
         sb.append("<img src=");
         sb.append("'http://maps.googleapis.com/maps/api/staticmap?center=");
