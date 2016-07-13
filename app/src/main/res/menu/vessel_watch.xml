@@ -5,14 +5,14 @@
 	<item
 	    android:id="@+id/toggle_cameras"
 		android:title="@string/description_cameras"
-		android:icon="@drawable/ic_menu_camera"
+		android:icon="@drawable/ic_menu_traffic_cam"
 		android:orderInCategory="1"
 		wsdot:showAsAction="ifRoom|withText" />
 		
 	<item
 	    android:id="@+id/goto_location"
 		android:title="@string/description_gotolocation"
-		android:icon="@drawable/ic_menu_goto"
+		android:icon="@drawable/ic_menu_place"
 		android:orderInCategory="2"
 		wsdot:showAsAction="ifRoom|withText" >
 		<menu>

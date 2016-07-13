@@ -366,6 +366,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
 			}
 			
 			item.setTitle("Show Cameras");
+            item.setIcon(R.drawable.ic_menu_traffic_cam_off);
 			showCameras = false;
 		    
 			mTracker.send(new HitBuilders.EventBuilder()
@@ -385,6 +386,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
             }
             
 			item.setTitle("Hide Cameras");
+            item.setIcon(R.drawable.ic_menu_traffic_cam);
 			showCameras = true;
 			
 			mTracker.send(new HitBuilders.EventBuilder()

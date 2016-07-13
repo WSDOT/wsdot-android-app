@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Rest Area map overlay.
 
+### Changed 
+- New icons. Camera icon now changes appearance depending on camera visibility.
+
 ## [4.3.1] - 2016-07-06
 ### Changed
 - New toll rates effective July 1, 2016.
