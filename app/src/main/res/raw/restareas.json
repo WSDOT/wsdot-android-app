@@ -1,16 +1,17 @@
 [
   {
     "route": "SR 12",
-    "location": "Alpowa Sumit",
+    "location": "Alpowa Summit",
     "description":"10.1 Miles E of Pomeroy",
     "milepost": 413,
     "direction": "Eastbound",
     "latitude": "46.436279440",
     "longitude": "-117.424693900",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -19,16 +20,18 @@
   },
   {
     "route": "SR 12",
-    "location": "Alpowa Sumit",
+    "location": "Alpowa Summit",
     "description":"20.2 Miles W of Clarkston",
     "milepost": 413,
     "direction": "Westbound",
-    "latitude": "46.435737",
-    "longitude": "-117.423777",
-    "notes" : "None.",
+    "latitude": "46.436279440",
+    "longitude": "-117.424693900",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
-    "amenities": []
+    "amenities": [
+      "ADA accessible restrooms"
+    ]
   },
   {
     "route": "SR 12",
@@ -38,10 +41,11 @@
     "direction": "Multidirectional",
     "latitude": "46.553830000",
     "longitude": "-121.736600000",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Drinking Water",
       "Picnic Areas"
     ]
@@ -54,10 +58,11 @@
     "direction": "Multidirectional",
     "latitude": "47.569423610",
     "longitude": "-119.447738600",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Drinking Water",
       "Picnic Areas"
     ]
@@ -70,10 +75,11 @@
     "direction": "Northbound",
     "latitude": "48.582330449",
     "longitude": "-122.344314042 ",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -88,10 +94,11 @@
     "direction": "Southbound",
     "latitude": "48.584669331",
     "longitude": "-122.346532964",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -106,10 +113,11 @@
     "direction": "Multidirectional",
     "latitude": "45.705820097",
     "longitude": "-121.324639840",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -124,10 +132,11 @@
     "direction": "Northbound",
     "latitude": "48.909127900",
     "longitude": "-122.622030442",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -143,10 +152,11 @@
     "direction": "Southbound",
     "latitude": "48.926668900",
     "longitude": "-122.646182122",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas",
@@ -162,10 +172,11 @@
     "direction": "Multidirectional",
     "latitude": "46.249786632",
     "longitude": "-123.858799389",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -180,10 +191,12 @@
     "direction": "Multidirectional",
     "latitude": "46.525020",
     "longitude": "-117.822062",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
-    "amenities": []
+    "amenities": [
+      "ADA accessible restrooms"
+    ]
   },
   {
     "route": "SR 26",
@@ -193,10 +206,12 @@
     "direction": "Multidirectional",
     "latitude": "46.811478",
     "longitude": "-117.642053958",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
-    "amenities": []
+    "amenities": [
+      "ADA accessible restrooms"
+    ]
   },
   {
     "route": "SR 07",
@@ -210,6 +225,7 @@
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Visitor Information",
       "Picnic Areas"
     ]
@@ -222,10 +238,11 @@
     "direction": "Eastbound",
     "latitude": "47.018104444",
     "longitude": "-123.351503611",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas",
@@ -241,10 +258,11 @@
     "direction": "Multidirectional",
     "latitude": "46.308748890",
     "longitude": "-122.395731400",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -259,10 +277,11 @@
     "direction": "Northbound",
     "latitude": "45.777080280",
     "longitude": "-122.669537200",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -280,10 +299,11 @@
     "direction": "Southbound",
     "latitude": "45.799147220",
     "longitude": "-122.680607500",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -304,6 +324,7 @@
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas",
@@ -318,10 +339,11 @@
     "direction": "Multidirectional",
     "latitude": "47.182460560",
     "longitude": "-117.376908600",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas"
@@ -335,10 +357,11 @@
     "direction": "Westbound",
     "latitude": "47.161075015",
     "longitude": "-120.849357099",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -355,10 +378,11 @@
     "direction": "Eastbound",
     "latitude": "47.161304290",
     "longitude": "-120.842516163",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -375,10 +399,12 @@
     "direction": "Multidirectional",
     "latitude": "47.711335",
     "longitude": "-121.163113",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
-    "amenities": []
+    "amenities": [
+      "ADA accessible restrooms"
+    ]
   },
   {
     "route": "SR 21",
@@ -388,10 +414,11 @@
     "direction": "Multidirectional",
     "latitude": "47.9321551",
     "longitude": "-118.6991444",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas"
@@ -405,10 +432,11 @@
     "direction": "Southbound",
     "latitude": "46.871095577",
     "longitude": "-122.970358222",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -427,6 +455,7 @@
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas",
@@ -442,10 +471,11 @@
     "direction": "Multidirectional",
     "latitude": "46.220978330",
     "longitude": "-119.789951700",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -461,10 +491,11 @@
     "direction": "Multidirectional",
     "latitude": "47.232682426",
     "longitude": "-119.955614890",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas"
@@ -478,10 +509,11 @@
     "direction": "Eastbound ",
     "latitude": "46.941507524",
     "longitude": "-120.203489110",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas",
@@ -496,10 +528,11 @@
     "direction": "Westbound ",
     "latitude": "46.947248931",
     "longitude": "-120.208626951",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas",
@@ -514,10 +547,11 @@
     "direction": "Northbound",
     "latitude": "46.835349424",
     "longitude": "-122.985250064",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -534,10 +568,11 @@
     "direction": "Eastbound",
     "latitude": "47.085086366",
     "longitude": "-118.844743038",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas",
@@ -556,6 +591,7 @@
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas",
@@ -571,10 +607,11 @@
     "direction": "Northbound",
     "latitude": "47.271133531",
     "longitude": "-122.314556889",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -591,10 +628,11 @@
     "direction": "Westbound",
     "latitude": "46.697702094",
     "longitude": "-120.443368616",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas",
@@ -609,10 +647,11 @@
     "direction": "Eastbound",
     "latitude": "46.711383463",
     "longitude": "-120.415931208",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -628,10 +667,11 @@
     "direction": "Southbound",
     "latitude": "47.902451004",
     "longitude": "-122.215572895",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -648,10 +688,11 @@
     "direction": "Northbound",
     "latitude": "48.168848575",
     "longitude": "-122.188868463",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -668,10 +709,11 @@
     "direction": "Southbound",
     "latitude": "48.169107740",
     "longitude": "-122.194277510",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -688,10 +730,11 @@
     "direction": "Westbound",
     "latitude": "47.295699362",
     "longitude": "-118.032559763",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas",
@@ -710,6 +753,7 @@
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas",
@@ -725,10 +769,11 @@
     "direction": "Multidirectional",
     "latitude": "47.694648060",
     "longitude": "-118.397776700",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas"
@@ -742,10 +787,11 @@
     "direction": "Southbound",
     "latitude": "46.352330280",
     "longitude": "-122.907977800",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -760,10 +806,11 @@
     "direction": "Northbound",
     "latitude": "46.350905840",
     "longitude": "-122.904318984",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Visitor Information",
       "Drinking Water",
@@ -778,10 +825,11 @@
     "direction": "Multidirectional",
     "latitude": "47.420942",
     "longitude": "-121.411531",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : false,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Drinking Water"
     ]
   },
@@ -793,10 +841,11 @@
     "direction": "Multidirectional",
     "latitude": "46.638045830",
     "longitude": "-119.731533900",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Drinking Water",
       "Picnic Areas",
       "RV Dumping"
@@ -810,10 +859,11 @@
     "direction": "Westbound",
     "latitude": "47.103407417",
     "longitude": "-119.628738736",
-    "notes" : "None.",
+    "notes" : null,
     "hasDump" : true,
     "isOpen" : true,
     "amenities": [
+      "ADA accessible restrooms",
       "Telephones",
       "Drinking Water",
       "Picnic Areas",
@@ -821,21 +871,22 @@
     ]
   },
   {
-  "route": "I-90",
-  "location": "Winchester",
-  "description":"24.6 Miles E of Vantage",
-  "milepost": 161,
-  "direction": "Eastbound",
-  "latitude": "47.104475235",
-  "longitude": "-119.617455976",
-  "notes" : "None.",
-  "hasDump" : true,
-  "isOpen" : true,
-  "amenities": [
-    "Telephones",
-    "Drinking Water",
-    "Picnic Areas",
-    "RV Dumping"
-  ]
+    "route": "I-90",
+    "location": "Winchester",
+    "description":"24.6 Miles E of Vantage",
+    "milepost": 161,
+    "direction": "Eastbound",
+    "latitude": "47.104475235",
+    "longitude": "-119.617455976",
+    "notes" : null,
+    "hasDump" : true,
+    "isOpen" : true,
+    "amenities": [
+      "ADA accessible restrooms",
+      "Telephones",
+      "Drinking Water",
+      "Picnic Areas",
+      "RV Dumping"
+    ]
   }
 ]

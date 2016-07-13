@@ -33,7 +33,7 @@
     <string name="title_ferriesroutealerts">Route Alerts</string>
     <string name="title_ferriesrouteschedules">Route Schedules</string>
     <string name="title_vesselwatch">Vessel Watch</string>
-    <string name="title_alerts">Traffic Alerts</string>
+    <string name="title_alerts">Alerts In This Area</string>
     <string name="title_traveltimes">Travel Times</string>
     <string name="title_expresslanes">Express Lanes</string>
     <string name="title_trafficmap">Traffic Map</string>
@@ -59,7 +59,7 @@
     <string name="description_cameras">Cameras</string>
     <string name="description_rest_areas">Rest Areas</string>
     <string name="description_gotolocation">GoTo Location</string>
-    <string name="description_travel_times">Travel Times</string>
+    <string name="description_travel_times">Travel Times</string>z
     <string name="description_star">Star</string>
     <string name="description_alert">Alert</string>
     <string name="description_favorites">Favorites</string>

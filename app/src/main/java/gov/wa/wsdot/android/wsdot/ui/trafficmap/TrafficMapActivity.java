@@ -174,7 +174,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", false);
+        showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
         showRestAreas = settings.getBoolean("KEY_SHOW_REST_AREAS", false);
         latitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LAT", "47.5990"));
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
@@ -395,8 +395,11 @@ public class TrafficMapActivity extends BaseActivity implements
 
         if (showCameras) {
             menu.getItem(0).setTitle("Hide Cameras");
+            menu.getItem(0).setIcon(R.drawable.ic_menu_traffic_cam);
         } else {
             menu.getItem(0).setTitle("Show Cameras");
+            menu.getItem(0).setIcon(R.drawable.ic_menu_traffic_cam_off);
+
         }
 
         if (showRestAreas) {
@@ -614,6 +617,7 @@ public class TrafficMapActivity extends BaseActivity implements
             }
 
             item.setTitle("Show Cameras");
+            item.setIcon(R.drawable.ic_menu_traffic_cam_off);
             showCameras = false;
 
             mTracker.send(new HitBuilders.EventBuilder()
@@ -633,6 +637,7 @@ public class TrafficMapActivity extends BaseActivity implements
                 }
             }
             item.setTitle("Hide Cameras");
+            item.setIcon(R.drawable.ic_menu_traffic_cam);
             showCameras = true;
 
             mTracker.send(new HitBuilders.EventBuilder()
@@ -1076,5 +1081,4 @@ public class TrafficMapActivity extends BaseActivity implements
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-
 }

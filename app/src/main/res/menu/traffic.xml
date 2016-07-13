@@ -5,44 +5,44 @@
 	<item
 	    android:id="@+id/toggle_cameras"
 		android:title="@string/description_cameras"
-		android:icon="@drawable/ic_menu_camera"
+		android:icon="@drawable/ic_menu_traffic_cam"
 		android:orderInCategory="1"
-		wsdot:showAsAction="ifRoom|withText" />	
+		wsdot:showAsAction="ifRoom" />
 
 	<item
 	    android:id="@+id/travel_times"
 		android:title="@string/description_travel_times"
 		android:icon="@drawable/ic_menu_travel_times"
 		android:orderInCategory="2"
-		wsdot:showAsAction="ifRoom|withText" />
+		wsdot:showAsAction="ifRoom" />
 
 	<item
 		android:id="@+id/alerts_in_area"
 		android:title="@string/description_alerts_in_area"
-		android:icon="@drawable/ic_warning_white_24dp"
+		android:icon="@drawable/ic_menu_alert"
 		android:orderInCategory="3"
-		wsdot:showAsAction="ifRoom|withText" />
+		wsdot:showAsAction="ifRoom" />
 
 	<item
 		android:id="@+id/set_favorite"
 		android:title="@string/description_favorite"
 		android:icon="@drawable/ic_menu_star"
 		android:orderInCategory="4"
-		wsdot:showAsAction="ifRoom|withText" />
+		wsdot:showAsAction="ifRoom" />
 
 	<item
 		android:id="@+id/toggle_rest_areas"
 		android:title="@string/description_rest_areas"
-		android:icon="@drawable/ic_store_white_24dp"
+		android:icon="@drawable/ic_menu_restarea"
 		android:orderInCategory="5"
-		wsdot:showAsAction="ifRoom|withText" />
+		wsdot:showAsAction="ifRoom" />
 
 	<item
 	    android:id="@+id/goto_location"
 		android:title="@string/description_gotolocation"
-		android:icon="@drawable/ic_menu_goto"
+		android:icon="@drawable/ic_menu_place"
 		android:orderInCategory="6"
-		wsdot:showAsAction="ifRoom|withText" >
+		wsdot:showAsAction="ifRoom" >
 		<menu>
 			<item android:orderInCategory="1" android:title="Bellingham" android:id="@+id/goto_bellingham" />
 			<item android:orderInCategory="2" android:title="Chehalis" android:id="@+id/goto_chehalis" />		
