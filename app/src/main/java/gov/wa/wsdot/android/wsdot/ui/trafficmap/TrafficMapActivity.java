@@ -224,6 +224,18 @@ public class TrafficMapActivity extends BaseActivity implements
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
 
         enableMyLocation();
+
+        if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+            mCalloutsOverlayTask = new CalloutsOverlayTask().execute();
+        } else if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+            mCalloutsOverlayTask.execute();
+        }
+
+        if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+            mRestAreasOverlayTask = new RestAreasOverlayTask().execute();
+        } else if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+            mRestAreasOverlayTask.execute();
+        }
     }
 
     /**
@@ -262,17 +274,6 @@ public class TrafficMapActivity extends BaseActivity implements
         mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
         registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
 
-        if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-            mCalloutsOverlayTask = new CalloutsOverlayTask().execute();
-        } else if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-            mCalloutsOverlayTask.execute();
-        }
-
-        if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-            mRestAreasOverlayTask = new RestAreasOverlayTask().execute();
-        } else if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-            mRestAreasOverlayTask.execute();
-        }
     }
 
     @Override
@@ -856,11 +857,7 @@ public class TrafficMapActivity extends BaseActivity implements
         @Override
         public void onPreExecute() {
             setSupportProgressBarIndeterminateVisibility(true);
-
             restAreasOverlay = null;
-            if (mMap != null) {
-                bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
-            }
         }
 
         @Override
@@ -870,7 +867,9 @@ public class TrafficMapActivity extends BaseActivity implements
         }
 
         @Override
-        public void onPostExecute(Void unused) {
+        public void onPostExecute(Void result) {
+            super.onPostExecute(result);
+
             Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
             while (iter.hasNext()) {
                 Map.Entry<Marker, String> entry = iter.next();
@@ -882,24 +881,28 @@ public class TrafficMapActivity extends BaseActivity implements
             restAreas.clear();
             restAreas = restAreasOverlay.getRestAreaItems();
 
-
-            for (int i = 0; i < restAreas.size(); i++) {
-                LatLng latLng = new LatLng(restAreas.get(i).getLatitude(), restAreas.get(i).getLongitude());
-                Marker marker = mMap.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title(restAreas.get(i).getLocation())
-                        // Save the whole rest area object as the snippet
-                        .snippet(new Gson().toJson(restAreas.get(i)))
-                        .icon(BitmapDescriptorFactory.fromResource(restAreas.get(i).getIcon()))
-                        .visible(showRestAreas));
-                markers.put(marker, "restArea");
+            try{
+                for (int i = 0; i < restAreas.size(); i++) {
+                    LatLng latLng = new LatLng(restAreas.get(i).getLatitude(), restAreas.get(i).getLongitude());
+                    Marker marker = mMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(restAreas.get(i).getLocation())
+                            // Save the whole rest area object as the snippet
+                            .snippet(new Gson().toJson(restAreas.get(i)))
+                            .icon(BitmapDescriptorFactory.fromResource(restAreas.get(i).getIcon()))
+                            .visible(showRestAreas));
+                    markers.put(marker, "restArea");
+                }
+            } catch (NullPointerException e) {
+                // Ignore for now. Simply don't draw the marker.
             }
+
             setSupportProgressBarIndeterminateVisibility(false);
         }
     }
 
     /**
-     * Build and draw any callouts on the map 
+     * Build and draw any callouts on the map
      */
     class CalloutsOverlayTask extends AsyncTask<Void, Void, Void> {
 
@@ -1066,6 +1069,7 @@ public class TrafficMapActivity extends BaseActivity implements
     }
 
     @Override
+    @SuppressWarnings({"MissingPermission"})
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_ACCESS_FINE_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
