@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- Null pointer exception in `TrafficMapActivity$RestAreasOverlayTask.onPostExecute`. Logic allowed markers to be place before map was ready.
+
 ## [4.4.0] - 2016-07-13
 ### Added
 - Rest Area map overlay.
