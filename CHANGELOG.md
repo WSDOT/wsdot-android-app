@@ -4,6 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.4.1] - 2016-08-01
 ### Fixed
 - Null pointer exception in `TrafficMapActivity$RestAreasOverlayTask.onPostExecute`. Logic allowed markers to be place before map was ready.
 
