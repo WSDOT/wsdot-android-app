@@ -167,20 +167,43 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                                 String departure = dateFormat.format(new Date(Long.parseLong(spaces.getString("Departure").substring(6, 19))));
                                 JSONArray spaceForArrivalTerminals = spaces.getJSONArray("SpaceForArrivalTerminals");
                                 for (int j=0; j < spaceForArrivalTerminals.length(); j++) {
+
                                     JSONObject terminals = spaceForArrivalTerminals.getJSONObject(j);
-                                    if (terminals.getInt("TerminalID") != terminalItem.getArrivingTerminalID()) {
-                                        continue;
-                                    } else {
+
+                                    JSONArray arrivalTerminalIDs = terminals.getJSONArray("ArrivalTerminalIDs");
+
+                                    // Check terminalID field
+                                    if (terminals.getInt("TerminalID") == terminalItem.getArrivingTerminalID()){
                                         int driveUpSpaceCount = terminals.getInt("DriveUpSpaceCount");
                                         int maxSpaceCount = terminals.getInt("MaxSpaceCount");
 
-                                        for (FerriesScheduleTimesItem time: times) {
+                                        for (FerriesScheduleTimesItem time : times) {
                                             if (dateFormat.format(new Date(Long.parseLong(time.getDepartingTime()))).equals(departure)) {
                                                 time.setDriveUpSpaceCount(driveUpSpaceCount);
                                                 time.setMaxSpaceCount(maxSpaceCount);
                                                 time.setLastUpdated(cursor.getString(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_LAST_UPDATED)));
                                             }
 
+                                        }
+                                    }
+
+                                    // Check terminals in ArrivalTerminalIDs array
+                                    for (int k=0; k < arrivalTerminalIDs.length(); k++) {
+                                        if (arrivalTerminalIDs.getInt(k)!= terminalItem.getArrivingTerminalID()) {
+                                            continue;
+                                        } else {
+                                            int driveUpSpaceCount = terminals.getInt("DriveUpSpaceCount");
+                                            int maxSpaceCount = terminals.getInt("MaxSpaceCount");
+
+                                            for (FerriesScheduleTimesItem time : times) {
+                                                if (dateFormat.format(new Date(Long.parseLong(time.getDepartingTime()))).equals(departure)) {
+                                                    time.setDriveUpSpaceCount(driveUpSpaceCount);
+                                                    time.setMaxSpaceCount(maxSpaceCount);
+                                                    time.setLastUpdated(cursor.getString(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_LAST_UPDATED)));
+                                                }
+
+                                            }
+                                            k = arrivalTerminalIDs.length();
                                         }
                                     }
                                 }
