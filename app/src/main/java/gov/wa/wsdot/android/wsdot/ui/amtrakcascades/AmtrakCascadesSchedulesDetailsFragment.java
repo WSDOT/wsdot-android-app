@@ -680,7 +680,6 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                 titleHolder.Arriving.setTypeface(tfb);
                 titleHolder.Departing.setTypeface(tfb);
             }else {
-                Log.e(TAG, Integer.toString(position));
                 AmtrakCascadesServiceItem item = this.getItem(position);
 
                 itemHolder = (AmtrakViewHolder) holder;

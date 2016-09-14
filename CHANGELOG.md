@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [4.4.3] - 2016-09-15
+### Fixed
+- Missing last train of the day in Amtrak Schedules.
+- Camera Toolbar icon in Vessel Watch will no longer get out of sync with actual camera display setting.
 
 ## [4.4.2] - 2016-08-17
 ### Fixed
