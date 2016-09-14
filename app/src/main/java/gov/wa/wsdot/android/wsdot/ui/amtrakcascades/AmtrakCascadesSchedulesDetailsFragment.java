@@ -306,7 +306,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                         }
 
                         if (scheduleFeed[i].getArrivalTime() != null) {
-                            scheduleItem.setArrivalTime(scheduleFeed[i].getArrivalTime().toString().substring(6, 19));
+                            scheduleItem.setArrivalTime(scheduleFeed[i].getArrivalTime().substring(6, 19));
                         }
 
                         if (scheduleFeed[i].getDepartureComment() != null) {
@@ -318,11 +318,11 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                         }
 
                         if (scheduleFeed[i].getDepartureTime() != null) {
-                            scheduleItem.setDepartureTime(scheduleFeed[i].getDepartureTime().toString().substring(6, 19));
+                            scheduleItem.setDepartureTime(scheduleFeed[i].getDepartureTime().substring(6, 19));
                         }
 
                         if (scheduleFeed[i].getScheduledArrivalTime() != null) {
-                            scheduleItem.setScheduledArrivalTime(scheduleFeed[i].getScheduledArrivalTime().toString().substring(6, 19));
+                            scheduleItem.setScheduledArrivalTime(scheduleFeed[i].getScheduledArrivalTime().substring(6, 19));
                         }
 
                         scheduleItem.setStationName(scheduleFeed[i].getStationName());
@@ -333,7 +333,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
                         if (scheduleFeed[i].getScheduledDepartureTime() != null) {
                             scheduleItem.setScheduledDepartureTime(
-                                    scheduleFeed[i].getScheduledDepartureTime().toString().substring(6, 19));
+                                    scheduleFeed[i].getScheduledDepartureTime().substring(6, 19));
 
                             // We sort by scheduled departure time of the From station.
                             if (fromLocation.equalsIgnoreCase(scheduleItem.getStationName())) {
@@ -363,7 +363,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                         }
                         scheduleItem.setTrainName(trainName);
                         scheduleItem.setTripNumber(scheduleFeed[i].getTripNumber());
-                        scheduleItem.setUpdateTime(scheduleFeed[i].getUpdateTime().toString().substring(6, 19));
+                        scheduleItem.setUpdateTime(scheduleFeed[i].getUpdateTime().substring(6, 19));
 
                         stationItems.put(scheduleItem.getStationName(), scheduleItem);
 
@@ -506,7 +506,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                     }
 
                     if (scheduleFeed[i].getArrivalTime() != null) {
-                        scheduleItem.setArrivalTime(scheduleFeed[i].getArrivalTime().toString().substring(6, 19));
+                        scheduleItem.setArrivalTime(scheduleFeed[i].getArrivalTime().substring(6, 19));
                     }
 
                     if (scheduleFeed[i].getDepartureComment() != null) {
@@ -518,7 +518,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                     }
 
                     if (scheduleFeed[i].getDepartureTime() != null) {
-                        scheduleItem.setDepartureTime(scheduleFeed[i].getDepartureTime().toString().substring(6, 19));
+                        scheduleItem.setDepartureTime(scheduleFeed[i].getDepartureTime().substring(6, 19));
                     }
 
                     scheduleItem.setStationName(scheduleFeed[i].getStationName());
@@ -529,7 +529,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
                     if (scheduleFeed[i].getScheduledArrivalTime() != null) {
                         scheduleItem.setScheduledArrivalTime(
-                                scheduleFeed[i].getScheduledArrivalTime().toString().substring(6, 19));
+                                scheduleFeed[i].getScheduledArrivalTime().substring(6, 19));
                         
                         if (fromLocation.equalsIgnoreCase(scheduleItem.getStationName())) {
                             scheduledTime = new Date(
@@ -540,7 +540,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
                     if (scheduleFeed[i].getScheduledDepartureTime() != null) {
                         scheduleItem.setScheduledDepartureTime(
-                                scheduleFeed[i].getScheduledDepartureTime().toString().substring(6, 19));
+                                scheduleFeed[i].getScheduledDepartureTime().substring(6, 19));
                         
                         // We sort by scheduled departure time of the From station.
                         if (fromLocation.equalsIgnoreCase(scheduleItem.getStationName())) {
@@ -558,7 +558,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                     }
                     scheduleItem.setTrainName(trainNumber + " " + serviceName);
                     scheduleItem.setTripNumber(scheduleFeed[i].getTripNumber());
-                    scheduleItem.setUpdateTime(scheduleFeed[i].getUpdateTime().toString().substring(6, 19));
+                    scheduleItem.setUpdateTime(scheduleFeed[i].getUpdateTime().substring(6, 19));
 
                     stationItems.put(scheduleItem.getStationName(), scheduleItem);
                     locationItems.add(stationItems);
@@ -680,7 +680,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                 titleHolder.Arriving.setTypeface(tfb);
                 titleHolder.Departing.setTypeface(tfb);
             }else {
-
+                Log.e(TAG, Integer.toString(position));
                 AmtrakCascadesServiceItem item = this.getItem(position);
 
                 itemHolder = (AmtrakViewHolder) holder;
@@ -886,10 +886,11 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
             }
         }
 
+        // Add plus one for the header cell.
         @Override
         public int getItemCount() {
             if (items != null) {
-                return items.size();
+                return items.size() + 1;
             }
             return 0;
         }
@@ -910,6 +911,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
             notifyDataSetChanged();
         }
 
+        // Because of the header cell the we do position - 1 to index into the data
         private AmtrakCascadesServiceItem getItem(int position){
             return items.get(position - 1);
         }
