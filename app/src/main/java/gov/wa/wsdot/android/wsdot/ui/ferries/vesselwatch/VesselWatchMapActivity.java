@@ -279,8 +279,10 @@ public class VesselWatchMapActivity extends BaseActivity implements
 
 	    if (showCameras) {
 	    	menu.getItem(0).setTitle("Hide Cameras");
+            menu.getItem(0).setIcon(R.drawable.ic_menu_traffic_cam);
 	    } else {
 	    	menu.getItem(0).setTitle("Show Cameras");
+            menu.getItem(0).setIcon(R.drawable.ic_menu_traffic_cam_off);
 	    }	    
 	    
 		return super.onPrepareOptionsMenu(menu);
