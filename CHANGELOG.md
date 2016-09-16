@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+### Added
+- More weather phrases for icon matching in mountain pass weather reports.
+
 ## [4.4.3] - 2016-09-15
 ### Fixed
 - Missing last train of the day in Amtrak Schedules.

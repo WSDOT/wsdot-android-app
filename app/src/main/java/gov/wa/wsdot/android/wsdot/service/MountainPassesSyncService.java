@@ -245,9 +245,9 @@ public class MountainPassesSyncService extends IntentService {
 	
 	private void buildWeatherPhrases() {
 		String[] weather_clear = {"fair", "sunny", "clear"};
-		String[] weather_few_clouds = {"few clouds", "scattered clouds", "mostly sunny", "mostly clear"};
+		String[] weather_few_clouds = {"few clouds", "scattered clouds", "scattered clouds", "mostly sunny", "mostly clear"};
 		String[] weather_partly_cloudy = {"partly cloudy", "partly sunny"};
-		String[] weather_cloudy = {"cloudy"};
+		String[] weather_cloudy = {"cloudy", "increasing clouds"};
 		String[] weather_mostly_cloudy = {"broken", "mostly cloudy"};
 		String[] weather_overcast = {"overcast"};
 		String[] weather_light_rain = {"light rain", "showers"};
