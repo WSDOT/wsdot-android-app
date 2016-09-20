@@ -4,8 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-### Added
+### Fixed
 - More weather phrases for icon matching in mountain pass weather reports.
+- Missing weather icons when reports did not include forecast in the first sentence. 
 
 ## [4.4.3] - 2016-09-15
 ### Fixed

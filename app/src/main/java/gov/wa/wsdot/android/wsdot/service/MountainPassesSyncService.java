@@ -172,7 +172,7 @@ public class MountainPassesSyncService extends IntentService {
 						if (isNight(forecast.getString("Day"))) {
 							forecast_weather_image_name = getWeatherImage(weatherPhrasesNight, forecast.getString("ForecastText"));
 						} else {
-							forecast_weather_image_name = getWeatherImage(weatherPhrases,  forecast.getString("ForecastText"));
+							forecast_weather_image_name = getWeatherImage(weatherPhrases, forecast.getString("ForecastText"));
 						}
 						
 						forecast.put("weather_icon", forecast_weather_image_name);
@@ -301,7 +301,6 @@ public class MountainPassesSyncService extends IntentService {
 		for (String forecastPart: forecastArr) {
 			while(i.hasNext()) {
 				Entry<String, String[]> me = i.next();
-
 				for (String phrase: me.getValue()) {
 					if (forecastPart.toLowerCase().trim().startsWith(phrase)) {
 						image_name = me.getKey();
