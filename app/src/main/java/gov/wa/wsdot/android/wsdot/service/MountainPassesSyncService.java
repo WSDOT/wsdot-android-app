@@ -291,23 +291,25 @@ public class MountainPassesSyncService extends IntentService {
 	
 	private static String getWeatherImage(HashMap<String, String[]> weatherPhrases, String weather) {
 		String image_name = "weather_na";
-		Set<Entry<String, String[]>> set = weatherPhrases.entrySet();
-		Iterator<Entry<String, String[]>> i = set.iterator();
+		Set<Entry<String, String[]>> weatherSet = weatherPhrases.entrySet();
+		Iterator<Entry<String, String[]>> i = weatherSet.iterator();
 		
 		if (weather.equals("")) return image_name;
 
-		String s0 = weather.split("\\.")[0]; // Pattern match on first sentence only.
-		
-		while(i.hasNext()) {
-			Entry<String, String[]> me = i.next();
-			for (String phrase: (String[])me.getValue()) {
-				if (s0.toLowerCase().startsWith(phrase)) {
-					image_name = (String)me.getKey();
-					return image_name;
+		String[] forecastArr = weather.split("\\.");
+
+		for (String forecastPart: forecastArr) {
+			while(i.hasNext()) {
+				Entry<String, String[]> me = i.next();
+				for (String phrase: me.getValue()) {
+					if (forecastPart.toLowerCase().trim().startsWith(phrase)) {
+						image_name = me.getKey();
+						return image_name;
+					}
 				}
 			}
+			i = weatherSet.iterator();
 		}
-		
 		return image_name;
 	}
     
