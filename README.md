@@ -1,18 +1,59 @@
-wsdot-android-app
-=================
+# WSDOT Android App #
 
-The [WSDOT Android app](https://play.google.com/store/apps/details?id=gov.wa.wsdot.android.wsdot&hl=en) contains traffic and travel information for the state of
-Washington. The app includes statewide traffic cameras and high priority travel
-alerts, mountain pass reports, northbound Canadian border wait times, ferry
-schedules and alerts as well as real time ferry locations.
 
-This app is written in Java using the <a href="http://developer.android.com/tools/studio/index.html">Android Studio IDE</a>.
 
-The code is not meant to illustrate best practices nor is it necessarily bug
-free. It is by no means static and is actively being updated and improved upon.
+Washington State Traveler information provide by The Washington State Department of Transportation.
+
+* Written in Java
+* Developed with Android Studio IDE 2.1.2
+
+Features - [View on Google Play](https://play.google.com/store/apps/details?id=gov.wa.wsdot.android.wsdot&hl=en)
+--------------------------------
+* Traffic Map with real-time alerts and conditions.
+* Ferry schedules, alerts and VesselWatch.
+* Mountain Pass condition and weather reports.
+* WSDOT Social media feeds for the latest news.
+* Toll Rates.
+* Canadian Border Waits.
+* Amtrak Cascades Schedules. 
+
+Dependencies
+------------
+* [Google Play Services](https://developers.google.com/android/guides/overview)
+  * [Analytics](https://developers.google.com/android/reference/com/google/android/gms/analytics/package-summary)
+  * [Location](https://developers.google.com/android/reference/com/google/android/gms/location/package-summary)
+  * [Maps](https://developers.google.com/android/reference/com/google/android/gms/maps/package-summary)
+  * [Ads](https://developers.google.com/android/reference/com/google/android/gms/ads/package-summary)
+* [Android Support Library](https://developer.android.com/topic/libraries/support-library/index.html)
+  * [Design](https://developer.android.com/topic/libraries/support-library/features.html#design)
+  * [Cardview](https://developer.android.com/topic/libraries/support-library/features.html#v7-cardview)
+  * [Recyclerview](https://developer.android.com/topic/libraries/support-library/features.html#v7-recyclerview)
+  * [v4 Support Libraries](https://developer.android.com/topic/libraries/support-library/features.html#v4)
+  * [v7 appcompat library](https://developer.android.com/topic/libraries/support-library/features.html#v7-appcompat)
+* [jsoup](https://github.com/jhy/jsoup)
+* [gson](https://github.com/google/gson)
+* [viewpagerindicator](http://viewpagerindicator.com/)
 
 Contributing
 ------------
 
-Find a bug? Got an idea? Send us a patch and we'll take a look at it.
+Find a bug? Got an idea? Send us a pull request or open an issue and we'll take a look.
+
+License
+-------
+
+Copyright (c) 2016 Washington State Department of Transportation
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>
 
