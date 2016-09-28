@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.4.4] - 2016-09-28
+### Changed
+- Updated permissions in manifest for new [location policy.](https://developer.android.com/guide/topics/location/strategies.html#Permission)
+
 ### Fixed
 - More weather phrases for icon matching in mountain pass weather reports.
 - Missing weather icons when reports did not include forecast in the first sentence. 
