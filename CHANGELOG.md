@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- Better Talk Back support for Ferries, Mountain Passes and Amtrak Cascades sections.
+
 ## [4.4.4] - 2016-09-28
 ### Changed
 - Updated permissions in manifest for new [location policy.](https://developer.android.com/guide/topics/location/strategies.html#Permission)
