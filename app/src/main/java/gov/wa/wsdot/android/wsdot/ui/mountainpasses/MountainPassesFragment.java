@@ -38,6 +38,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -310,7 +311,7 @@ public class MountainPassesFragment extends BaseFragment implements
             // and the call to setChecked() causes that code within the listener to run repeatedly.
             // Assigning null to setOnCheckedChangeListener seems to fix it.
             mtpassVH.star_button.setOnCheckedChangeListener(null);
-
+            mtpassVH.star_button.setContentDescription("favorite");
             mtpassVH.star_button
                     .setChecked(cursor.getInt(cursor
                             .getColumnIndex(MountainPasses.MOUNTAIN_PASS_IS_STARRED)) != 0);
@@ -325,6 +326,24 @@ public class MountainPassesFragment extends BaseFragment implements
 
                     Snackbar removed_snackbar = Snackbar
                             .make(getView(), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
+
+                    added_snackbar.setCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onShown(Snackbar snackbar) {
+                            super.onShown(snackbar);
+                            snackbar.getView().setContentDescription("added to favorites");
+                            snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+                        }
+                    });
+
+                    removed_snackbar.setCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onShown(Snackbar snackbar) {
+                            super.onShown(snackbar);
+                            snackbar.getView().setContentDescription("removed from favorites");
+                            snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+                        }
+                    });
 
                     if (isChecked){
                         added_snackbar.show();

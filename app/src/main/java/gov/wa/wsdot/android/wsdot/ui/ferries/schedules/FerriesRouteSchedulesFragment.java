@@ -319,9 +319,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 						}
 					});
 
-
-
-
                     if (isChecked){
                         added_snackbar.show();
                     }else{
