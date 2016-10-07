@@ -442,7 +442,9 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                 itemView = LayoutInflater.
                         from(parent.getContext()).
                         inflate(R.layout.list_item_departure_times_header, parent, false);
+
                 return new TitleViewHolder(itemView);
+
             }else if (viewType == TYPE_ITEM){
                 itemView = LayoutInflater.
                         from(parent.getContext()).
@@ -469,15 +471,32 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                 titleHolder.Arriving.setTypeface(tfb);
                 titleHolder.Departing.setTypeface(tfb);
 
+                // Accessibility
+                titleHolder.itemView.setContentDescription("departures and arrivals heading");
             }else {
 
                 FerriesScheduleTimesItem item = getItem(position);
 
                 itemHolder = (TimesViewHolder) holder;
 
+                StringBuilder contentDescription = new StringBuilder();
+
                 String annotation = "";
 
                 int numIndexes = item.getAnnotationIndexes().size();
+
+                itemHolder.departing.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
+                contentDescription.append("departing at ");
+                contentDescription.append(itemHolder.departing.getText());
+                contentDescription.append(". ");
+
+                if (!item.getArrivingTime().equals("N/A")) {
+                    itemHolder.arriving.setText(dateFormat.format(new Date(Long.parseLong(item.getArrivingTime()))));
+                    contentDescription.append("arriving at");
+                    contentDescription.append(itemHolder.departing.getText());
+                    contentDescription.append(". ");
+                }
+
                 for (int i = 0; i < numIndexes; i++) {
                     FerriesAnnotationsItem p = annotations.get(item.getAnnotationIndexes().get(i).getIndex());
                     annotation += p.getAnnotation();
@@ -487,12 +506,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                     itemHolder.annotation.setVisibility(View.GONE);
                 } else {
                     itemHolder.annotation.setVisibility(View.VISIBLE);
-                }
-
-                itemHolder.departing.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
-
-                if (!item.getArrivingTime().equals("N/A")) {
-                    itemHolder.arriving.setText(dateFormat.format(new Date(Long.parseLong(item.getArrivingTime()))));
+                    contentDescription.append(annotation);
+                    contentDescription.append(". ");
                 }
 
                 itemHolder.annotation.setText(android.text.Html.fromHtml(annotation));
@@ -508,6 +523,11 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                     itemHolder.driveUpSpacesDisclaimer.setVisibility(View.VISIBLE);
                     itemHolder.updated.setVisibility(View.VISIBLE);
                     itemHolder.updated.setText(ParserUtils.relativeTime(item.getLastUpdated(), "MMMM d, yyyy h:mm a", false));
+                    contentDescription.append(itemHolder.driveUpSpaceCount.getText());
+                    contentDescription.append(" drive-up spaces. ");
+                    contentDescription.append(itemHolder.driveUpSpacesDisclaimer.getText());
+                    contentDescription.append(". Drive-up spaces updated ");
+                    contentDescription.append(itemHolder.updated.getText());
                 } else {
                     itemHolder.vehicleSpaceGroup.setVisibility(View.GONE);
                     itemHolder.driveUpSpaceCount.setVisibility(View.GONE);
@@ -515,6 +535,9 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                     itemHolder.driveUpSpacesDisclaimer.setVisibility(View.GONE);
                     itemHolder.updated.setVisibility(View.GONE);
                 }
+
+                itemHolder.itemView.setContentDescription(contentDescription.toString());
+
             }
         }
 

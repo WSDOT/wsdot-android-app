@@ -39,6 +39,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -284,6 +285,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
             // and the call to setChecked() causes that code within the listener to run repeatedly.
             // Assigning null to setOnCheckedChangeListener seems to fix it.
             holder.star_button.setOnCheckedChangeListener(null);
+			holder.star_button.setContentDescription("favorite");
             holder.star_button
 					.setChecked(cursor.getInt(cursor
 							.getColumnIndex(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED)) != 0);
@@ -298,6 +300,27 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 
 					Snackbar removed_snackbar = Snackbar
 							.make(getView(), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
+
+					added_snackbar.setCallback(new Snackbar.Callback() {
+						@Override
+						public void onShown(Snackbar snackbar) {
+							super.onShown(snackbar);
+							snackbar.getView().setContentDescription("added to favorites");
+							snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+						}
+					});
+
+					removed_snackbar.setCallback(new Snackbar.Callback() {
+						@Override
+						public void onShown(Snackbar snackbar) {
+							super.onShown(snackbar);
+							snackbar.getView().setContentDescription("removed from favorites");
+							snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+						}
+					});
+
+
+
 
                     if (isChecked){
                         added_snackbar.show();

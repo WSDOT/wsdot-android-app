@@ -27,6 +27,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.Toast;
 
 import gov.wa.wsdot.android.wsdot.R;
@@ -74,8 +75,10 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 
 		if (mIsStarred) {
 			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
+			menu.getItem(MENU_ITEM_STAR).setTitle("Favorite checkbox, checked");
 		} else {
 			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
+			menu.getItem(MENU_ITEM_STAR).setTitle("Favorite checkbox, not checked");
 		}
 
 		return super.onCreateOptionsMenu(menu);
@@ -105,8 +108,27 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 		Snackbar removed_snackbar = Snackbar
 				.make(findViewById(R.id.day_sailings), "Removed from favorites", Snackbar.LENGTH_SHORT);
 
+		added_snackbar.setCallback(new Snackbar.Callback() {
+			@Override
+			public void onShown(Snackbar snackbar) {
+				super.onShown(snackbar);
+				snackbar.getView().setContentDescription("added to favorites");
+				snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+			}
+		});
+
+		removed_snackbar.setCallback(new Snackbar.Callback() {
+			@Override
+			public void onShown(Snackbar snackbar) {
+				super.onShown(snackbar);
+				snackbar.getView().setContentDescription("removed from favorites");
+				snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+			}
+		});
+
 		if (mIsStarred) {
 			item.setIcon(R.drawable.ic_menu_star);
+			item.setTitle("Favorite checkbox, not checked");
 			try {
 				ContentValues values = new ContentValues();
 				values.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, 0);
@@ -121,10 +143,11 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 				mIsStarred = false;
 	    	} catch (Exception e) {
 	    		Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-	    		Log.e("FerriesRouteSchedulesDaySailingsActivity", "Error: " + e.getMessage());
+	    		Log.e("DaySailings", "Error: " + e.getMessage());
 	    	}
 		} else {
 			item.setIcon(R.drawable.ic_menu_star_on);
+			item.setTitle("Favorite checkbox, checked");
 			try {
 				ContentValues values = new ContentValues();
 				values.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, 1);
@@ -139,7 +162,7 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 				mIsStarred = true;
 			} catch (Exception e) {
 				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-	    		Log.e("FerriesRouteSchedulesDaySailingsActivity", "Error: " + e.getMessage());
+	    		Log.e("DaySailings", "Error: " + e.getMessage());
 	    	}
 		}
 
