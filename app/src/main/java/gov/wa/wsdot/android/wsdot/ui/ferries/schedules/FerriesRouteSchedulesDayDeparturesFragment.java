@@ -479,22 +479,22 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
                 itemHolder = (TimesViewHolder) holder;
 
-                StringBuilder contentDescription = new StringBuilder();
+                StringBuilder contentDescriptionBuilder = new StringBuilder();
 
                 String annotation = "";
 
                 int numIndexes = item.getAnnotationIndexes().size();
 
                 itemHolder.departing.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
-                contentDescription.append("departing at ");
-                contentDescription.append(itemHolder.departing.getText());
-                contentDescription.append(". ");
+                contentDescriptionBuilder.append("departing at ");
+                contentDescriptionBuilder.append(itemHolder.departing.getText());
+                contentDescriptionBuilder.append(". ");
 
                 if (!item.getArrivingTime().equals("N/A")) {
                     itemHolder.arriving.setText(dateFormat.format(new Date(Long.parseLong(item.getArrivingTime()))));
-                    contentDescription.append("arriving at");
-                    contentDescription.append(itemHolder.departing.getText());
-                    contentDescription.append(". ");
+                    contentDescriptionBuilder.append("arriving at");
+                    contentDescriptionBuilder.append(itemHolder.departing.getText());
+                    contentDescriptionBuilder.append(". ");
                 }
 
                 for (int i = 0; i < numIndexes; i++) {
@@ -506,8 +506,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                     itemHolder.annotation.setVisibility(View.GONE);
                 } else {
                     itemHolder.annotation.setVisibility(View.VISIBLE);
-                    contentDescription.append(annotation);
-                    contentDescription.append(". ");
+                    contentDescriptionBuilder.append(annotation);
+                    contentDescriptionBuilder.append(". ");
                 }
 
                 itemHolder.annotation.setText(android.text.Html.fromHtml(annotation));
@@ -523,11 +523,11 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                     itemHolder.driveUpSpacesDisclaimer.setVisibility(View.VISIBLE);
                     itemHolder.updated.setVisibility(View.VISIBLE);
                     itemHolder.updated.setText(ParserUtils.relativeTime(item.getLastUpdated(), "MMMM d, yyyy h:mm a", false));
-                    contentDescription.append(itemHolder.driveUpSpaceCount.getText());
-                    contentDescription.append(" drive-up spaces. ");
-                    contentDescription.append(itemHolder.driveUpSpacesDisclaimer.getText());
-                    contentDescription.append(". Drive-up spaces updated ");
-                    contentDescription.append(itemHolder.updated.getText());
+                    contentDescriptionBuilder.append(itemHolder.driveUpSpaceCount.getText());
+                    contentDescriptionBuilder.append(" drive-up spaces. ");
+                    contentDescriptionBuilder.append(itemHolder.driveUpSpacesDisclaimer.getText());
+                    contentDescriptionBuilder.append(". Drive-up spaces updated ");
+                    contentDescriptionBuilder.append(itemHolder.updated.getText());
                 } else {
                     itemHolder.vehicleSpaceGroup.setVisibility(View.GONE);
                     itemHolder.driveUpSpaceCount.setVisibility(View.GONE);
@@ -536,7 +536,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                     itemHolder.updated.setVisibility(View.GONE);
                 }
 
-                itemHolder.itemView.setContentDescription(contentDescription.toString());
+                itemHolder.itemView.setContentDescription(contentDescriptionBuilder.toString());
 
             }
         }

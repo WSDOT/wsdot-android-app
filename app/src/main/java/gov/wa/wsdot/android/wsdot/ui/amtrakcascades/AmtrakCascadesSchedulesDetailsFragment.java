@@ -679,10 +679,12 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
                 titleHolder.Arriving.setTypeface(tfb);
                 titleHolder.Departing.setTypeface(tfb);
+                titleHolder.itemView.setContentDescription("departure and arrival times heading");
             }else {
                 AmtrakCascadesServiceItem item = this.getItem(position);
 
                 itemHolder = (AmtrakViewHolder) holder;
+                StringBuilder contentDescriptionBuilder = new StringBuilder();
 
                 // Departing Time
                 String schedDepartureTime = null;
@@ -693,8 +695,12 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
                 if (schedDepartureTime != null) {
                     itemHolder.scheduledDeparture.setText(dateFormat.format(new Date(Long.parseLong(schedDepartureTime))));
+                    contentDescriptionBuilder.append("Departing ");
+                    contentDescriptionBuilder.append(itemHolder.scheduledDeparture.getText());
+                    contentDescriptionBuilder.append(". ");
                 } else {
                     itemHolder.scheduledDeparture.setText("");
+                    contentDescriptionBuilder.append("Departing time not available. ");
                 }
 
                 // Arriving Time
@@ -707,6 +713,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                 if ((fromLocation.equalsIgnoreCase(toLocation))
                         && (schedDepartureTime != null && schedArrivalTime != null)) {
                     itemHolder.scheduledArrival.setText("");
+                    contentDescriptionBuilder.append("Arriving time not available. ");
                 } else {
                     if (schedArrivalTime != null) {
                         itemHolder.scheduledArrival.setText(dateFormat.format(new Date(Long.parseLong(schedArrivalTime))));
@@ -718,8 +725,12 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                      */
                         schedArrivalTime = item.getLocation().get(0).get(toLocation).getScheduledDepartureTime();
                         itemHolder.scheduledArrival.setText(dateFormat.format(new Date(Long.parseLong(schedArrivalTime))));
+                        contentDescriptionBuilder.append("Arriving ");
+                        contentDescriptionBuilder.append(itemHolder.scheduledArrival.getText());
+                        contentDescriptionBuilder.append(". ");
                     } else {
                         itemHolder.scheduledArrival.setText("");
+                        contentDescriptionBuilder.append("Arriving time not available. ");
                     }
                 }
 
@@ -762,6 +773,8 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                                     + dateFormat.format(departureTime));
                         }
                     }
+                    contentDescriptionBuilder.append(itemHolder.departureComment.getText());
+                    contentDescriptionBuilder.append(". ");
                 } else {
                     itemHolder.departureComment.setText("");
                 }
@@ -844,6 +857,8 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                                 }
                             }
                         }
+                        contentDescriptionBuilder.append(itemHolder.arrivalComment.getText());
+                        contentDescriptionBuilder.append(". ");
                     } else {
                         itemHolder.arrivalComment.setText("");
                     }
@@ -867,6 +882,10 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                             .getTrainMessage());
                 }
 
+                contentDescriptionBuilder.append("Via the ");
+                contentDescriptionBuilder.append(itemHolder.trainName.getText());
+                contentDescriptionBuilder.append(". ");
+
                 // Updated Time
                 String updatedTime = null;
                 try {
@@ -879,9 +898,12 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                 if (updatedTime != null) {
                     itemHolder.lastUpdated.setText(ParserUtils.relativeTime(updatedTime,
                             "MMMM d, yyyy h:mm a", false));
+                    contentDescriptionBuilder.append("updated ");
+                    contentDescriptionBuilder.append(itemHolder.lastUpdated.getText());
                 } else {
                     itemHolder.lastUpdated.setText("");
                 }
+                itemHolder.itemView.setContentDescription(contentDescriptionBuilder.toString());
             }
         }
 
