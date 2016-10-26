@@ -44,6 +44,7 @@ public class FerriesActivity extends BaseActivity {
 
         ImageView banner = (ImageView) findViewById(R.id.banner);
 		banner.setImageResource(R.drawable.ferry_banner);
+        banner.setContentDescription("banner image of a wsdot ferry.");
 
         // Disable the collapsing toolbar, lists are too small.
         CollapsingToolbarLayout mCollapse = (android.support.design.widget.CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
