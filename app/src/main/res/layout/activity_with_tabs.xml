@@ -65,6 +65,7 @@
         ads:adSize="SMART_BANNER"
         ads:adUnitId="@+string/banner_ad_unit_id"
         android:contentDescription="@string/adBannerDescription"
+        android:accessibilityLiveRegion="none"
         android:layout_gravity="center|bottom"
         android:layout_alignParentBottom="true"/>
 

@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
 import com.google.android.gms.ads.doubleclick.PublisherAdView;
 
@@ -65,9 +66,19 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     protected void enableAds() {
         mAdView = (PublisherAdView) findViewById(R.id.publisherAdView);
+
         PublisherAdRequest adRequest = new PublisherAdRequest.Builder()
                 .addTestDevice(PublisherAdRequest.DEVICE_ID_EMULATOR) // All emulators
                 .build();
+        mAdView.setVisibility(View.GONE);
+
+        mAdView.setAdListener(new AdListener() {
+            @Override public void onAdLoaded() {
+                super.onAdLoaded();
+                mAdView.setVisibility(View.VISIBLE);
+            }
+        });
+
         mAdView.loadAd(adRequest);
     }
     
