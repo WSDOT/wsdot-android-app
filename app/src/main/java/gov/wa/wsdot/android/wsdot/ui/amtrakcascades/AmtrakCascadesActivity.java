@@ -44,6 +44,7 @@ public class AmtrakCascadesActivity extends BaseActivity {
 
         ImageView banner = (ImageView) findViewById(R.id.banner);
         banner.setImageResource(R.drawable.amtrak_banner);
+        banner.setContentDescription("Banner image of an Amtrak Cascades train.");
 
         // Disable the collapsing toolbar, lists are too small.
         CollapsingToolbarLayout mCollapse = (android.support.design.widget.CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);

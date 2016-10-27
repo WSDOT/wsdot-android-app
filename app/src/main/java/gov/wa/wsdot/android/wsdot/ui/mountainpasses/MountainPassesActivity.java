@@ -42,6 +42,7 @@ public class MountainPassesActivity extends BaseActivity {
 
 		ImageView banner = (ImageView) findViewById(R.id.banner);
 		banner.setImageResource(R.drawable.pass_banner);
+		banner.setContentDescription("banner image of a mountain pass.");
 
 	}
 	

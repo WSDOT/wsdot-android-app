@@ -342,6 +342,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 				holder.alert_button.setVisibility(View.VISIBLE);
 				holder.alert_button.setTag(cursor.getPosition());
 				holder.alert_button.setImageResource(R.drawable.btn_alert_on);
+				holder.alert_button.setContentDescription("Route has active alerts");
 	            holder.alert_button.setOnClickListener(new OnClickListener() {
 					public void onClick(View v) {
                         Cursor c = mAdapter.getCursor();
@@ -410,7 +411,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 				    swipeRefreshLayout.setRefreshing(false);
 				} else {
 	                swipeRefreshLayout.setRefreshing(false);
-				    Log.e("FerriesSchedulesSyncReceiver", responseString);
+				    Log.e("FerriesScheSyncReceiver", responseString);
 	
 					if (!UIUtils.isNetworkAvailable(context)) {
 						responseString = getString(R.string.no_connection);

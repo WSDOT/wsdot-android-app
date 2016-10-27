@@ -24,8 +24,7 @@
             android:layout_height="wrap_content"
             android:scaleType="centerCrop"
             app:layout_collapseMode="parallax"
-            android:minHeight="200dp"
-            android:contentDescription="@string/banner"/>
+            android:minHeight="200dp"/>
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
