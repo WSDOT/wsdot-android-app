@@ -45,7 +45,10 @@ public class TwitterActivity extends BaseActivity implements
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
         // Mapping of account names to wsdot url call for tweets.
         mTwitterScreenNames.put("All Accounts", "all");

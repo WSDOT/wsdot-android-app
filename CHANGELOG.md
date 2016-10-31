@@ -4,8 +4,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.5.0] - 2016-10-31
 ### Added
 - Better Talk Back support for Ferries, Mountain Passes and Amtrak Cascades sections.
+- WSDOT North Traffic Twitter account.
+
+### Changed
+- Updated Google Play Services and Android Support Libraries.
+- Bumped minSDK to 14. Dropping Support for Android < 4.0.
+- New YouTube icon.
 
 ## [4.4.4] - 2016-09-28
 ### Changed

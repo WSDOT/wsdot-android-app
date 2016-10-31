@@ -39,11 +39,12 @@ public class FerriesRouteAlertsBulletinsActivity extends BaseActivity {
         String title = getString(R.string.title_ferriesroutealerts) + " - " + args.getString("title");
 
 		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		mToolbar.setTitle(title);
 		setSupportActionBar(mToolbar);
-
-        getSupportActionBar().setTitle(title);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 	}
 	
 	@Override

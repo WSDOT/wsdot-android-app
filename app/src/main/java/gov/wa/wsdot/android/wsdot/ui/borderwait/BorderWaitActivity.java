@@ -51,8 +51,10 @@ public class BorderWaitActivity extends BaseActivity {
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
         Spinner mSpinner = (Spinner) findViewById(R.id.spinner);
         mSpinner.setVisibility(View.GONE);
 

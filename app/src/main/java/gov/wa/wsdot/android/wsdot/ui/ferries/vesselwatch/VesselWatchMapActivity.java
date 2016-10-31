@@ -126,9 +126,10 @@ public class VesselWatchMapActivity extends BaseActivity implements
 
 		mToolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
-
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
         // Initialize AsyncTasks
         camerasOverlayTask = new CamerasOverlayTask();
         vesselsOverlayTask = new VesselsOverlayTask();

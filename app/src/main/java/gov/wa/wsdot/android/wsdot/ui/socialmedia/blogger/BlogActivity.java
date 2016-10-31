@@ -36,7 +36,10 @@ public class BlogActivity extends BaseActivity {
 		setContentView(R.layout.activity_blog);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		if(getSupportActionBar() != null){
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+		}
 
 	}
 	

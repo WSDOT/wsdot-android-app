@@ -3,8 +3,6 @@
       package="gov.wa.wsdot.android.wsdot"
       android:installLocation="auto">
 
-    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="23" />
-
     <permission
         android:name="gov.wa.wsdot.android.wsdot.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />

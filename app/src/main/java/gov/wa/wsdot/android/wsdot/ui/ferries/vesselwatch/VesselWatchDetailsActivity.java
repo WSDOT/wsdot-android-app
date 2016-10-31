@@ -54,10 +54,12 @@ public class VesselWatchDetailsActivity extends BaseActivity {
         setContentView(R.layout.activity_webview_with_spinner);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		mToolbar.setTitle(mTitle);
 		setSupportActionBar(mToolbar);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setTitle(mTitle);
-
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 		mLoadingSpinner = findViewById(R.id.loading_spinner);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)findViewById(R.id.webview);

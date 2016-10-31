@@ -158,7 +158,10 @@ public class TrafficMapActivity extends BaseActivity implements
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
         // Setup bounding box for Seattle area.
         seattleArea.add(new LatLonItem(48.01749, -122.46185));

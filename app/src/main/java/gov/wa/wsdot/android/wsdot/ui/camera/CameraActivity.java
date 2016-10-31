@@ -103,10 +103,12 @@ public class CameraActivity extends BaseActivity {
         mViewPager = (ViewPager) findViewById(R.id.pager);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(title);
-
+        mToolbar.setTitle(title);
+		setSupportActionBar(mToolbar);
+		if(getSupportActionBar() != null){
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			getSupportActionBar().setDisplayShowHomeEnabled(true);
+		}
 		Spinner mSpinner = (Spinner) findViewById(R.id.spinner);
 		mSpinner.setVisibility(View.GONE);
 

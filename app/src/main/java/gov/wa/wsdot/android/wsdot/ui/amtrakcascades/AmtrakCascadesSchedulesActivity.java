@@ -99,9 +99,10 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
 		setContentView(R.layout.amtrakcascades_schedules);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
         getDaysOfWeek();
         getAmtrakStations();
         getFromLocationNoGPS();

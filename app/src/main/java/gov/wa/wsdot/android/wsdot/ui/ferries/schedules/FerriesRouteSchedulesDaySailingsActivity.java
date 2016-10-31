@@ -61,11 +61,12 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
         }
 
 		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		mToolbar.setTitle(mTitle);
 		setSupportActionBar(mToolbar);
-
-        getSupportActionBar().setTitle(mTitle);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 	}
 
 	@Override
