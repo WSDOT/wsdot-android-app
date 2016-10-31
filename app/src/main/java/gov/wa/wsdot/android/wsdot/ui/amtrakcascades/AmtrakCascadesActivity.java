@@ -40,8 +40,10 @@ public class AmtrakCascadesActivity extends BaseActivity {
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
         ImageView banner = (ImageView) findViewById(R.id.banner);
         banner.setImageResource(R.drawable.amtrak_banner);
         banner.setContentDescription("Banner image of an Amtrak Cascades train.");

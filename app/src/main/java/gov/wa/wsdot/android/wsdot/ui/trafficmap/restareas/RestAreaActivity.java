@@ -55,10 +55,13 @@ public class RestAreaActivity extends BaseActivity {
             webview.loadDataWithBaseURL(null, "Error loading rest area information.", "text/html", "utf-8", null);
         }
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setTitle(title);
         setSupportActionBar(mToolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(title);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
         disableAds();
 

@@ -40,11 +40,12 @@ public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
 		String mAlertFullTitle = b.getString("AlertFullTitle");
 
 		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		mToolbar.setTitle(mAlertFullTitle);
 		setSupportActionBar(mToolbar);
-
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setTitle(mAlertFullTitle);
-
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 	}
 
 	@Override

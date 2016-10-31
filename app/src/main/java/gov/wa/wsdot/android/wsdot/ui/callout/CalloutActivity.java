@@ -41,9 +41,12 @@ public class CalloutActivity extends BaseActivity {
         args.putString("url", url);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setTitle("JBLM");
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("JBLM");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
     }
     
     @Override

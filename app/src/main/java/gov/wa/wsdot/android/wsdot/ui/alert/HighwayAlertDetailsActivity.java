@@ -113,11 +113,12 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
         description = alertItem.getHeadlineDescription();
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setTitle(title);
         setSupportActionBar(mToolbar);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setTitle(title);
-		
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 		disableAds();
 		
 		mLoadingSpinner = findViewById(R.id.loading_spinner);

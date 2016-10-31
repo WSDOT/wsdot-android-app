@@ -61,8 +61,10 @@ public class AboutActivity extends BaseActivity {
 
 		mToolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 		disableAds();
 		
 		mLoadingSpinner = findViewById(R.id.loading_spinner);
