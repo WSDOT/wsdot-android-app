@@ -13,6 +13,23 @@
 
     </style>
 
+    <!-- Base application theme. -->
+    <style name="WSDOT_popup" parent="Theme.AppCompat.Light.NoActionBar">
+        <!--   your app branding color for the app bar -->
+        <item name="colorPrimary">#008065</item>
+        <!--   darker variant for the status bar and contextual app bars -->
+        <item name="colorPrimaryDark">#004D40</item>
+        <!--   theme UI controls like checkboxes and text fields -->
+        <item name="colorAccent">#008065</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/cardview_light_background</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
+    </style>
+
     <style name="Text.Title">
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>

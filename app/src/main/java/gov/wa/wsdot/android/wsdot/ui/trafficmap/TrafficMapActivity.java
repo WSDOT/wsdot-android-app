@@ -32,18 +32,17 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
 import android.widget.EditText;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -58,14 +57,12 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -104,8 +101,8 @@ import gov.wa.wsdot.android.wsdot.util.map.HighwayAlertsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
 
 public class TrafficMapActivity extends BaseActivity implements
-        OnMarkerClickListener, OnMyLocationButtonClickListener,
-        OnCameraChangeListener, ConnectionCallbacks,
+        OnMarkerClickListener, OnMyLocationButtonClickListener, ConnectionCallbacks,
+        OnCameraIdleListener,
         OnConnectionFailedListener, LocationListener,
         OnRequestPermissionsResultCallback, OnMapReadyCallback {
 
@@ -116,14 +113,14 @@ public class TrafficMapActivity extends BaseActivity implements
     private CamerasOverlay camerasOverlay = null;
     private RestAreasOverlay restAreasOverlay = null;
     private CalloutsOverlay calloutsOverlay = null;
-    private List<CameraItem> cameras = new ArrayList<CameraItem>();
-    private List<HighwayAlertsItem> alerts = new ArrayList<HighwayAlertsItem>();
+    private List<CameraItem> cameras = new ArrayList<>();
+    private List<HighwayAlertsItem> alerts = new ArrayList<>();
     private List<RestAreaItem> restAreas = new ArrayList<>();
-    private List<CalloutItem> callouts = new ArrayList<CalloutItem>();
-    private HashMap<Marker, String> markers = new HashMap<Marker, String>();
+    private List<CalloutItem> callouts = new ArrayList<>();
+    private HashMap<Marker, String> markers = new HashMap<>();
     boolean showCameras;
     boolean showRestAreas;
-    private ArrayList<LatLonItem> seattleArea = new ArrayList<LatLonItem>();
+    private ArrayList<LatLonItem> seattleArea = new ArrayList<>();
 
     static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST;
 
@@ -143,8 +140,6 @@ public class TrafficMapActivity extends BaseActivity implements
     private LocationRequest mLocationRequest;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
-    private Toolbar mToolbar;
-    private boolean mPermissionDenied = false;
 
     private Tracker mTracker;
 
@@ -152,12 +147,11 @@ public class TrafficMapActivity extends BaseActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.map);
 
         enableAds();
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -221,7 +215,7 @@ public class TrafficMapActivity extends BaseActivity implements
         mMap.setTrafficEnabled(true);
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMarkerClickListener(this);
-        mMap.setOnCameraChangeListener(this);
+        mMap.setOnCameraIdleListener(this);
 
         LatLng latLng = new LatLng(latitude, longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
@@ -287,18 +281,12 @@ public class TrafficMapActivity extends BaseActivity implements
             editor.putString("KEY_TRAFFICMAP_LON", "-122.3350");
             editor.putInt("KEY_TRAFFICMAP_ZOOM", 12);
         }
-        editor.commit();
-    }
-
-    public void onCameraChange(CameraPosition cameraPosition) {
-        setSupportProgressBarIndeterminateVisibility(true);
-        startService(camerasIntent);
-        startService(alertsIntent);
+        editor.apply();
     }
 
     public boolean onMarkerClick(Marker marker) {
         Bundle b = new Bundle();
-        Intent intent = new Intent();
+        Intent intent;
 
         if (markers.get(marker).equalsIgnoreCase("camera")) {
 
@@ -330,6 +318,12 @@ public class TrafficMapActivity extends BaseActivity implements
             TrafficMapActivity.this.startActivity(intent);
         }
         return true;
+    }
+
+    @Override
+    public void onCameraIdle() {
+        startService(camerasIntent);
+        startService(alertsIntent);
     }
 
     public class CamerasSyncReceiver extends BroadcastReceiver {
@@ -424,23 +418,24 @@ public class TrafficMapActivity extends BaseActivity implements
 
             case R.id.set_favorite:
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.WSDOT_popup);
 
-                LayoutInflater factory = LayoutInflater.from(this);
-                final View textEntryView = factory.inflate(R.layout.alert_dialog_text_entry, null);
-
+                final EditText textEntryView = new EditText(this);
+                textEntryView.setInputType(InputType.TYPE_CLASS_TEXT);
                 builder.setView(textEntryView);
+
                 builder.setMessage(R.string.add_location_dialog);
+
                 builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         dialog.dismiss();
                     }
 
                 });
+
                 builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        EditText input = (EditText) textEntryView.findViewById(R.id.name);
-                        String value = input.getText().toString();
+                        String value = textEntryView.getText().toString();
                         dialog.dismiss();
                         ContentValues values = new ContentValues();
 
@@ -489,97 +484,97 @@ public class TrafficMapActivity extends BaseActivity implements
             case R.id.goto_bellingham:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Bellingham");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Bellingham Traffic", 48.756302, -122.46151, 12);
+                goToLocation(48.756302, -122.46151, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_chehalis:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Chehalis");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Chelalis Traffic", 46.635529, -122.937698, 11);
+                goToLocation(46.635529, -122.937698, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_hoodcanal:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Hood Canal");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Hood Canal Traffic", 47.85268, -122.628365, 13);
+                goToLocation(47.85268, -122.628365, 13);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_mtvernon:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Mt. Vernon");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Mt Vernon Traffic", 48.420657, -122.334824, 13);
+                goToLocation(48.420657, -122.334824, 13);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_stanwood:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Standwood");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Stanwood Traffic", 48.22959, -122.34581, 13);
+                goToLocation(48.22959, -122.34581, 13);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_monroe:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Monroe");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Monroe Traffic", 47.859476, -121.972446, 14);
+                goToLocation(47.859476, -121.972446, 14);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_sultan:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Sultan");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Sultan Traffic", 47.86034, -121.812286, 13);
+                goToLocation(47.86034, -121.812286, 13);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_olympia:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Olympia");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Olympia Traffic", 47.021461, -122.899933, 13);
+                goToLocation(47.021461, -122.899933, 13);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_seattle:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Seattle");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Seattle Area Traffic", 47.5990, -122.3350, 12);
+                goToLocation(47.5990, -122.3350, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_spokane:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Spokane");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Spokane Area Traffic", 47.658566, -117.425995, 12);
+                goToLocation(47.658566, -117.425995, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_tacoma:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Tacoma");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Tacoma Traffic", 47.206275, -122.46254, 12);
+                goToLocation(47.206275, -122.46254, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_vancouver:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Vancouver");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Vancouver Area Traffic", 45.639968, -122.610512, 11);
+                goToLocation(45.639968, -122.610512, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_wenatchee:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Wenatchee");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Wenatchee Traffic", 47.435867, -120.309563, 12);
+                goToLocation(47.435867, -120.309563, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_snoqualmiepass:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Snoqualmie Pass");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Snoqualmie Pass Traffic", 47.404481, -121.4232569, 12);
+                goToLocation(47.404481, -121.4232569, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_tricities:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Tri-Cities");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Tri-Cities Traffic", 46.2503607, -119.2063781, 11);
+                goToLocation(46.2503607, -119.2063781, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_yakima:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Yakima");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                goToLocation("Yakima Traffic", 46.6063273, -120.4886952, 11);
+                goToLocation(46.6063273, -120.4886952, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
 
@@ -637,7 +632,7 @@ public class TrafficMapActivity extends BaseActivity implements
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean("KEY_SHOW_CAMERAS", showCameras);
-        editor.commit();
+        editor.apply();
     }
 
 
@@ -686,11 +681,11 @@ public class TrafficMapActivity extends BaseActivity implements
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean("KEY_SHOW_REST_AREAS", showRestAreas);
-        editor.commit();
+        editor.apply();
     }
 
 
-    public void goToLocation(String title, double latitude, double longitude, int zoomLevel) {
+    public void goToLocation(double latitude, double longitude, int zoomLevel) {
         LatLng latLng = new LatLng(latitude, longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
@@ -710,16 +705,14 @@ public class TrafficMapActivity extends BaseActivity implements
      */
     public boolean inPolygon(ArrayList<LatLonItem> points, double latitude, double longitude) {
         int j = points.size() - 1;
-        double lat = latitude;
-        double lon = longitude;
         boolean inPoly = false;
 
         for (int i = 0; i < points.size(); i++) {
-            if ((points.get(i).getLongitude() < lon && points.get(j).getLongitude() >= lon) ||
-                    (points.get(j).getLongitude() < lon && points.get(i).getLongitude() >= lon)) {
-                if (points.get(i).getLatitude() + (lon - points.get(i).getLongitude()) /
+            if ((points.get(i).getLongitude() <longitude && points.get(j).getLongitude() >= longitude) ||
+                    (points.get(j).getLongitude() < longitude && points.get(i).getLongitude() >= longitude)) {
+                if (points.get(i).getLatitude() + (longitude - points.get(i).getLongitude()) /
                         (points.get(j).getLongitude() - points.get(i).getLongitude()) *
-                        (points.get(j).getLatitude() - points.get(i).getLatitude()) < lat) {
+                        (points.get(j).getLatitude() - points.get(i).getLatitude()) < latitude) {
                     inPoly = !inPoly;
                 }
             }
@@ -732,8 +725,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         @Override
         public void onPreExecute() {
-            setSupportProgressBarIndeterminateVisibility(true);
-
             camerasOverlay = null;
             if (mMap != null) {
                 bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
@@ -778,8 +769,6 @@ public class TrafficMapActivity extends BaseActivity implements
                     }
                 }
             }
-
-            setSupportProgressBarIndeterminateVisibility(false);
         }
     }
 
@@ -787,8 +776,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         @Override
         public void onPreExecute() {
-            setSupportProgressBarIndeterminateVisibility(true);
-
             alertsOverlay = null;
             if (mMap != null) {
                 bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
@@ -798,7 +785,6 @@ public class TrafficMapActivity extends BaseActivity implements
         @Override
         public Void doInBackground(Void... unused) {
             alertsOverlay = new HighwayAlertsOverlay(TrafficMapActivity.this, bounds);
-
             return null;
         }
 
@@ -830,8 +816,6 @@ public class TrafficMapActivity extends BaseActivity implements
                     }
                 }
             }
-
-            setSupportProgressBarIndeterminateVisibility(false);
         }
     }
 
@@ -841,7 +825,6 @@ public class TrafficMapActivity extends BaseActivity implements
     class RestAreasOverlayTask extends AsyncTask<Void, Void, Void> {
         @Override
         public void onPreExecute() {
-            setSupportProgressBarIndeterminateVisibility(true);
             restAreasOverlay = null;
         }
 
@@ -881,8 +864,6 @@ public class TrafficMapActivity extends BaseActivity implements
             } catch (NullPointerException e) {
                 // Ignore for now. Simply don't draw the marker.
             }
-
-            setSupportProgressBarIndeterminateVisibility(false);
         }
     }
 
@@ -894,8 +875,6 @@ public class TrafficMapActivity extends BaseActivity implements
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
-            setSupportProgressBarIndeterminateVisibility(true);
             calloutsOverlay = null;
         }
 
@@ -941,8 +920,6 @@ public class TrafficMapActivity extends BaseActivity implements
             } catch (NullPointerException e) {
                 // Ignore for now. Simply don't draw the marker.
             }
-
-            setSupportProgressBarIndeterminateVisibility(false);
         }
     }
 
@@ -959,11 +936,10 @@ public class TrafficMapActivity extends BaseActivity implements
                 handleNewLocation(location);
             }
         }
-
         return true;
     }
 
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         if (connectionResult.hasResolution()) {
             try {
                 // Start an Activity that tries to resolve the error
@@ -992,7 +968,7 @@ public class TrafficMapActivity extends BaseActivity implements
     }
 
     public void onLocationChanged(Location location) {
-        // TODO Auto-generated method stub
+        // No action taken on user location change
     }
 
     public void onConnectionSuspended(int i) {
@@ -1001,7 +977,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
     /**
      *
-     * @param location
+     * @param location - The new location returned from location updates
      */
     private void handleNewLocation(Location location) {
         Log.d(TAG, location.toString());
@@ -1072,7 +1048,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
     @Override
     @SuppressWarnings({"MissingPermission"})
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_ACCESS_FINE_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted
