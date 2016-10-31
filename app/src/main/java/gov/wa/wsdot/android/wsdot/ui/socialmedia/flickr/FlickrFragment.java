@@ -367,8 +367,6 @@ public class FlickrFragment extends BaseFragment implements
  * @param out The output stream to copy to.
  * @throws IOException If any error occurs during the copy.
  */
-
-
     private static void copy(InputStream in, OutputStream out) throws IOException {
         byte[] b = new byte[IO_BUFFER_SIZE];
         int read;
