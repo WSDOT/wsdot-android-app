@@ -267,7 +267,7 @@ public class CameraImageFragment extends Fragment implements
                             .getResources(), R.drawable.camera_offline);
                 }
 
-	            fos = getContext().openFileOutput(mCameraName, Context.MODE_WORLD_READABLE);
+	            fos = getContext().openFileOutput(mCameraName, Context.MODE_PRIVATE);
 	            image.compress(Bitmap.CompressFormat.JPEG, 75, fos);
 				fos.flush();
 				fos.close();
