@@ -28,14 +28,22 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
@@ -43,7 +51,9 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -63,11 +73,18 @@ import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
+import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.view.DefaultClusterRenderer;
+import com.google.maps.android.ui.IconGenerator;
+import com.google.maps.android.ui.SquareTextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,9 +119,10 @@ import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
 
 public class TrafficMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener, ConnectionCallbacks,
-        OnCameraIdleListener,
         OnConnectionFailedListener, LocationListener,
-        OnRequestPermissionsResultCallback, OnMapReadyCallback {
+        OnRequestPermissionsResultCallback, OnMapReadyCallback,
+        ClusterManager.OnClusterItemClickListener<CameraItem>,
+        ClusterManager.OnClusterClickListener<CameraItem> {
 
     private static final String TAG = TrafficMapActivity.class.getSimpleName();
 
@@ -140,6 +158,9 @@ public class TrafficMapActivity extends BaseActivity implements
     private LocationRequest mLocationRequest;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
+
+    // Declare a variable for the cluster manager.
+    private ClusterManager<CameraItem> mClusterManager;
 
     private Tracker mTracker;
 
@@ -206,36 +227,6 @@ public class TrafficMapActivity extends BaseActivity implements
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mMap.getUiSettings().setCompassEnabled(true);
-        mMap.getUiSettings().setZoomControlsEnabled(true);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        mMap.setTrafficEnabled(true);
-        mMap.setOnMyLocationButtonClickListener(this);
-        mMap.setOnMarkerClickListener(this);
-        mMap.setOnCameraIdleListener(this);
-
-        LatLng latLng = new LatLng(latitude, longitude);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-
-        enableMyLocation();
-
-        if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-            mCalloutsOverlayTask = new CalloutsOverlayTask().execute();
-        } else if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-            mCalloutsOverlayTask.execute();
-        }
-
-        if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-            mRestAreasOverlayTask = new RestAreasOverlayTask().execute();
-        } else if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-            mRestAreasOverlayTask.execute();
-        }
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
 
@@ -284,33 +275,78 @@ public class TrafficMapActivity extends BaseActivity implements
         editor.apply();
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mMap.getUiSettings().setCompassEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.setTrafficEnabled(true);
+        mMap.setOnMyLocationButtonClickListener(this);
+
+        mMap.setOnMarkerClickListener(this);
+
+        mMap.setOnCameraIdleListener(new OnCameraIdleListener() {
+            @Override
+            public void onCameraIdle() {
+                startService(camerasIntent);
+                startService(alertsIntent);
+                mClusterManager.onCameraIdle();
+            }
+        });
+
+        setUpClusterer();
+
+        LatLng latLng = new LatLng(latitude, longitude);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+
+        enableMyLocation();
+
+        if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+            mCalloutsOverlayTask = new CalloutsOverlayTask().execute();
+        } else if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+            mCalloutsOverlayTask.execute();
+        }
+
+        if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+            mRestAreasOverlayTask = new RestAreasOverlayTask().execute();
+        } else if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+            mRestAreasOverlayTask.execute();
+        }
+    }
+
+    // Icon Clustering helpers
+    private void setUpClusterer() {
+
+        // Position the map.
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
+
+        // Initialize the manager with the context and the map.
+        // (Activity extends context, so we can pass 'this' in the constructor.)
+        mClusterManager = new ClusterManager<>(this, mMap);
+        mClusterManager.setRenderer(new CameraRenderer());
+
+        mClusterManager.setOnClusterItemClickListener(this);
+        mClusterManager.setOnClusterClickListener(this);
+
+        mClusterManager.cluster();
+    }
+
     public boolean onMarkerClick(Marker marker) {
         Bundle b = new Bundle();
         Intent intent;
-
-        if (markers.get(marker).equalsIgnoreCase("camera")) {
-
-            // GA tracker
-            mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-            mTracker.setScreenName("/Traffic Map/Cameras");
-            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-
-            intent = new Intent(this, CameraActivity.class);
-            b.putInt("id", Integer.parseInt(marker.getSnippet()));
-            intent.putExtras(b);
-            TrafficMapActivity.this.startActivity(intent);
+        if (markers.get(marker) == null) { // Not in our markers, must be cluster icon
+            mClusterManager.onMarkerClick(marker);
         } else if (markers.get(marker).equalsIgnoreCase("alert")) {
             intent = new Intent(this, HighwayAlertDetailsActivity.class);
             b.putString("id", marker.getSnippet());
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);
         } else if (markers.get(marker).equalsIgnoreCase("restarea")) {
-
             intent = new Intent(this, RestAreaActivity.class);
             intent.putExtra("restarea_json", marker.getSnippet());
             TrafficMapActivity.this.startActivity(intent);
-
-
         } else if (markers.get(marker).equalsIgnoreCase("callout")) {
             intent = new Intent(this, CalloutActivity.class);
             b.putString("url", marker.getSnippet());
@@ -321,9 +357,39 @@ public class TrafficMapActivity extends BaseActivity implements
     }
 
     @Override
-    public void onCameraIdle() {
-        startService(camerasIntent);
-        startService(alertsIntent);
+    public boolean onClusterItemClick(CameraItem cameraItem) {
+        // GA tracker
+        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+        mTracker.setScreenName("/Traffic Map/Cameras");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        Bundle b = new Bundle();
+
+        Intent intent = new Intent(this, CameraActivity.class);
+        b.putInt("id", cameraItem.getCameraId());
+        intent.putExtras(b);
+        TrafficMapActivity.this.startActivity(intent);
+        return false;
+    }
+
+    @Override
+    public boolean onClusterClick(Cluster<CameraItem> cluster) {
+
+        if (cluster.getSize() > 1) {
+            LatLngBounds.Builder builder = LatLngBounds.builder();
+            for (ClusterItem item : cluster.getItems()) {
+                builder.include(item.getPosition());
+            }
+            // Get the LatLngBounds
+            final LatLngBounds bounds = builder.build();
+
+            // Animate camera to the bounds
+            try {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return true;
     }
 
     public class CamerasSyncReceiver extends BroadcastReceiver {
@@ -587,14 +653,7 @@ public class TrafficMapActivity extends BaseActivity implements
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         if (showCameras) {
-            for (Entry<Marker, String> entry : markers.entrySet()) {
-                Marker key = entry.getKey();
-                String value = entry.getValue();
 
-                if (value.equalsIgnoreCase("camera")) {
-                    key.setVisible(false);
-                }
-            }
 
             item.setTitle("Show Cameras");
             item.setIcon(R.drawable.ic_menu_traffic_cam_off);
@@ -608,14 +667,8 @@ public class TrafficMapActivity extends BaseActivity implements
 
 
         } else {
-            for (Entry<Marker, String> entry : markers.entrySet()) {
-                Marker key = entry.getKey();
-                String value = entry.getValue();
 
-                if (value.equalsIgnoreCase("camera")) {
-                    key.setVisible(true);
-                }
-            }
+
             item.setTitle("Hide Cameras");
             item.setIcon(R.drawable.ic_menu_traffic_cam);
             showCameras = true;
@@ -754,19 +807,9 @@ public class TrafficMapActivity extends BaseActivity implements
             cameras = camerasOverlay.getCameraMarkers();
 
             if (cameras != null) {
-                if (cameras.size() != 0) {
-                    for (int i = 0; i < cameras.size(); i++) {
-                        LatLng latLng = new LatLng(cameras.get(i).getLatitude(), cameras.get(i).getLongitude());
-                        Marker marker = mMap.addMarker(new MarkerOptions()
-                                .position(latLng)
-                                .title(cameras.get(i).getTitle())
-                                .snippet(cameras.get(i).getCameraId().toString())
-                                .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
-                                .visible(showCameras));
-
-                        markers.put(marker, "camera");
-                    }
-                }
+                mClusterManager.clearItems();
+                mClusterManager.addItems(cameras);
+                mClusterManager.cluster();
             }
         }
     }
@@ -1061,5 +1104,71 @@ public class TrafficMapActivity extends BaseActivity implements
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    /**
+     * Draws profile photos inside markers (using IconGenerator).
+     * When there are multiple people in the cluster, draw multiple photos (using MultiDrawable).
+     */
+    private class CameraRenderer extends DefaultClusterRenderer<CameraItem> {
+        private final IconGenerator mClusterIconGenerator;
+        private final float mDensity;
+
+        public CameraRenderer() {
+            super(getApplicationContext(), mMap, mClusterManager);
+            Context context = getApplicationContext();
+            mDensity = context.getResources().getDisplayMetrics().density;
+            mClusterIconGenerator = new IconGenerator(context);
+            mClusterIconGenerator.setContentView(makeSquareTextView(context));
+            mClusterIconGenerator.setTextAppearance(R.style.amu_ClusterIcon_TextAppearance);
+        }
+
+        private SquareTextView makeSquareTextView(Context context) {
+            SquareTextView squareTextView = new SquareTextView(context);
+            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            squareTextView.setLayoutParams(layoutParams);
+            squareTextView.setId(R.id.amu_text);
+            int twelveDpi = (int) (12 * mDensity);
+            squareTextView.setPadding(twelveDpi, twelveDpi, twelveDpi, twelveDpi);
+            return squareTextView;
+        }
+
+        private LayerDrawable makeClusterBackground() {
+            ShapeDrawable shape = new ShapeDrawable(new OvalShape());
+            ShapeDrawable outline = new ShapeDrawable(new OvalShape());
+            outline.getPaint().setColor(0x80ffffff); // Transparent white.
+            LayerDrawable background = new LayerDrawable(new Drawable[]{outline, ResourcesCompat.getDrawable(getResources(), R.drawable.camera_cluster_4, null)});
+            int strokeWidth = (int) (getApplication().getResources().getDisplayMetrics().density * 3);
+            background.setLayerInset(1, strokeWidth, strokeWidth, strokeWidth, strokeWidth);
+            return background;
+        }
+
+        @Override
+        protected void onBeforeClusterItemRendered(CameraItem camera, MarkerOptions markerOptions) {
+            // Draw a single camera
+            Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.camera);
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
+        }
+
+        @Override
+        protected void onBeforeClusterRendered(Cluster<CameraItem> cluster, MarkerOptions markerOptions) {
+            // Draw multiple cameras
+            //TODO cluster.getSize() - use to determine icon
+            int bucket = getBucket(cluster);
+            String countText = getClusterText(bucket);
+
+            mClusterIconGenerator.setBackground(makeClusterBackground());
+            Bitmap icon = mClusterIconGenerator.makeIcon(countText);
+
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
+            
+        }
+
+        @Override
+        protected boolean shouldRenderAsCluster(Cluster cluster) {
+            // Always render clusters.
+            return cluster.getSize() > 1;
+        }
+
     }
 }
