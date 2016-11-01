@@ -20,10 +20,13 @@ package gov.wa.wsdot.android.wsdot.shared;
 
 import android.graphics.drawable.Drawable;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.clustering.ClusterItem;
+
 import java.io.Serializable;
 import java.util.Comparator;
 
-public class CameraItem implements Serializable {
+public class CameraItem implements Serializable, ClusterItem {
 	private static final long serialVersionUID = 7852844361445836316L;
 	private String title;
 	private String imageUrl;
@@ -34,10 +37,12 @@ public class CameraItem implements Serializable {
 	private Integer cameraId;
 	private Integer cameraIcon;
 	private Integer distance;
-	
-	public CameraItem() {
-	}
-	
+	private final LatLng  clusterPosition;
+
+    public CameraItem(){
+        clusterPosition = null;
+    }
+
     public CameraItem(Double latitude, Double longitude, String title,
             Integer cameraId, Integer cameraIcon) {
 	    this.latitude = latitude;
@@ -45,6 +50,7 @@ public class CameraItem implements Serializable {
 	    this.title = title;
 	    this.cameraId = cameraId;
 	    this.cameraIcon = cameraIcon;
+		this.clusterPosition = new LatLng(latitude, longitude);
 	}
 	
 	public String getTitle() {
@@ -114,4 +120,9 @@ public class CameraItem implements Serializable {
             return cameraDistance1 - cameraDistance2;
         }
     };
+
+	@Override
+	public LatLng getPosition() {
+		return this.clusterPosition;
+	}
 }

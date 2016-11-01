@@ -182,7 +182,6 @@ public class FerriesTerminalCameraFragment extends BaseFragment
                     camera.setLatitude(cursor.getDouble(cursor.getColumnIndex(Cameras.CAMERA_LATITUDE)));
                     camera.setLongitude(cursor.getDouble(cursor.getColumnIndex(Cameras.CAMERA_LONGITUDE)));
                     camera.setDistance(distance);
-                    
                     cameraItems.add(camera);
                 }
                 cursor.moveToNext();

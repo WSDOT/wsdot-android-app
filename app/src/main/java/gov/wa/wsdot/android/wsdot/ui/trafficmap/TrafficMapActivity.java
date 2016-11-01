@@ -396,8 +396,7 @@ public class TrafficMapActivity extends BaseActivity implements
             LatLng center = mMap.getCameraPosition().target;
 
             if (inPolygon(seattleArea, center.latitude, center.longitude)) {
-
-
+                
                 MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
                 MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
             }
