@@ -654,6 +654,8 @@ public class TrafficMapActivity extends BaseActivity implements
 
         if (showCameras) {
 
+            mClusterManager.clearItems();
+            mClusterManager.cluster();
 
             item.setTitle("Show Cameras");
             item.setIcon(R.drawable.ic_menu_traffic_cam_off);
@@ -668,6 +670,10 @@ public class TrafficMapActivity extends BaseActivity implements
 
         } else {
 
+            if (cameras != null) {
+                mClusterManager.addItems(cameras);
+                mClusterManager.cluster();
+            }
 
             item.setTitle("Hide Cameras");
             item.setIcon(R.drawable.ic_menu_traffic_cam);
@@ -808,7 +814,9 @@ public class TrafficMapActivity extends BaseActivity implements
 
             if (cameras != null) {
                 mClusterManager.clearItems();
-                mClusterManager.addItems(cameras);
+                if (showCameras) {
+                    mClusterManager.addItems(cameras);
+                }
                 mClusterManager.cluster();
             }
         }
@@ -1107,8 +1115,8 @@ public class TrafficMapActivity extends BaseActivity implements
     }
 
     /**
-     * Draws profile photos inside markers (using IconGenerator).
-     * When there are multiple people in the cluster, draw multiple photos (using MultiDrawable).
+     * Based on custom renderer demo here:
+     * https://github.com/googlemaps/android-maps-utils/blob/master/library/src/com/google/maps/android/clustering/view/DefaultClusterRenderer.java
      */
     private class CameraRenderer extends DefaultClusterRenderer<CameraItem> {
         private final IconGenerator mClusterIconGenerator;
@@ -1161,7 +1169,7 @@ public class TrafficMapActivity extends BaseActivity implements
             Bitmap icon = mClusterIconGenerator.makeIcon(countText);
 
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
-            
+
         }
 
         @Override
