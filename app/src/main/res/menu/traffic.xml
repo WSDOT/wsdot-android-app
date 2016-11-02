@@ -31,17 +31,24 @@
 		wsdot:showAsAction="ifRoom" />
 
 	<item
+		android:id="@+id/toggle_clustering"
+		android:title="@string/description_toggle_clusters"
+		android:icon="@drawable/ic_menu_traffic_cam"
+		android:orderInCategory="5"
+		wsdot:showAsAction="ifRoom" />
+
+	<item
 		android:id="@+id/toggle_rest_areas"
 		android:title="@string/description_rest_areas"
 		android:icon="@drawable/ic_menu_restarea"
-		android:orderInCategory="5"
+		android:orderInCategory="6"
 		wsdot:showAsAction="ifRoom" />
 
 	<item
 	    android:id="@+id/goto_location"
 		android:title="@string/description_gotolocation"
 		android:icon="@drawable/ic_menu_place"
-		android:orderInCategory="6"
+		android:orderInCategory="7"
 		wsdot:showAsAction="ifRoom" >
 		<menu>
 			<item android:orderInCategory="1" android:title="Bellingham" android:id="@+id/goto_bellingham" />
