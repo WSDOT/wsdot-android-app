@@ -49,6 +49,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -72,6 +73,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -1121,6 +1123,7 @@ public class TrafficMapActivity extends BaseActivity implements
     private class CameraRenderer extends DefaultClusterRenderer<CameraItem> {
         private final IconGenerator mClusterIconGenerator;
         private final float mDensity;
+        private SparseArray<BitmapDescriptor> mIcons = new SparseArray<>();
 
         public CameraRenderer() {
             super(getApplicationContext(), mMap, mClusterManager);
@@ -1141,14 +1144,27 @@ public class TrafficMapActivity extends BaseActivity implements
             return squareTextView;
         }
 
-        private LayerDrawable makeClusterBackground() {
-            ShapeDrawable shape = new ShapeDrawable(new OvalShape());
+        private LayerDrawable makeClusterBackground(Drawable backgroundImage) {
             ShapeDrawable outline = new ShapeDrawable(new OvalShape());
             outline.getPaint().setColor(0x80ffffff); // Transparent white.
-            LayerDrawable background = new LayerDrawable(new Drawable[]{outline, ResourcesCompat.getDrawable(getResources(), R.drawable.camera_cluster_4, null)});
+            LayerDrawable background = new LayerDrawable(new Drawable[]{outline, backgroundImage});
             int strokeWidth = (int) (getApplication().getResources().getDisplayMetrics().density * 3);
             background.setLayerInset(1, strokeWidth, strokeWidth, strokeWidth, strokeWidth);
             return background;
+        }
+
+        private Drawable getBackgroundImage(int bucket){
+            if (bucket < 11){
+                return ResourcesCompat.getDrawable(getResources(), R.drawable.camera_cluster_1, null);
+            } else if (bucket < 51){
+                return ResourcesCompat.getDrawable(getResources(), R.drawable.camera_cluster_2, null);
+            } else if (bucket < 101){
+                return ResourcesCompat.getDrawable(getResources(), R.drawable.camera_cluster_3, null);
+            } else if (bucket < 201){
+                return ResourcesCompat.getDrawable(getResources(), R.drawable.camera_cluster_4, null);
+            } else {
+                return ResourcesCompat.getDrawable(getResources(), R.drawable.camera_cluster_5, null);
+            }
         }
 
         @Override
@@ -1165,11 +1181,16 @@ public class TrafficMapActivity extends BaseActivity implements
             int bucket = getBucket(cluster);
             String countText = getClusterText(bucket);
 
-            mClusterIconGenerator.setBackground(makeClusterBackground());
-            Bitmap icon = mClusterIconGenerator.makeIcon(countText);
+            BitmapDescriptor descriptor = mIcons.get(bucket);
 
-            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
+            if (descriptor == null) {
+                mClusterIconGenerator.setBackground(makeClusterBackground(getBackgroundImage(bucket)));
+                Bitmap icon = mClusterIconGenerator.makeIcon(countText);
+                descriptor = BitmapDescriptorFactory.fromBitmap(icon);
+                mIcons.put(bucket, descriptor);
+            }
 
+            markerOptions.icon(descriptor);
         }
 
         @Override
