@@ -338,6 +338,15 @@ public class TrafficMapActivity extends BaseActivity implements
         Intent intent;
         if (markers.get(marker) == null) { // Not in our markers, must be cluster icon
             mClusterManager.onMarkerClick(marker);
+        } else  if (markers.get(marker).equalsIgnoreCase("camera")) {
+            // GA tracker
+            mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+            mTracker.setScreenName("/Traffic Map/Cameras");
+            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+            intent = new Intent(this, CameraActivity.class);
+            b.putInt("id", Integer.parseInt(marker.getSnippet()));
+            intent.putExtras(b);
+            TrafficMapActivity.this.startActivity(intent);
         } else if (markers.get(marker).equalsIgnoreCase("alert")) {
             intent = new Intent(this, HighwayAlertDetailsActivity.class);
             b.putString("id", marker.getSnippet());
@@ -360,7 +369,7 @@ public class TrafficMapActivity extends BaseActivity implements
     public boolean onClusterItemClick(CameraItem cameraItem) {
         // GA tracker
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-        mTracker.setScreenName("/Traffic Map/Cameras");
+        mTracker.setScreenName("/Traffic Map/Camera");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
         Bundle b = new Bundle();
 
@@ -373,8 +382,14 @@ public class TrafficMapActivity extends BaseActivity implements
 
     @Override
     public boolean onClusterClick(Cluster<CameraItem> cluster) {
+        if (isCameraGroup(cluster)){
+            Log.i("CAMERAS", "you clicked a blue camera group.");
 
-        if (cluster.getSize() > 1) {
+
+
+
+
+        }else {
             LatLngBounds.Builder builder = LatLngBounds.builder();
             for (ClusterItem item : cluster.getItems()) {
                 builder.include(item.getPosition());
@@ -402,8 +417,10 @@ public class TrafficMapActivity extends BaseActivity implements
                 if (responseString.equals("OK") || responseString.equals("NOP")) {
                     // We've got cameras, now add them.
                     if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
+
                         mCamerasOverlayTask = new CamerasOverlayTask().execute();
                     } else if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
+
                         mCamerasOverlayTask.execute();
                     }
                 } else {
@@ -659,7 +676,11 @@ public class TrafficMapActivity extends BaseActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-
+    /*
+     *  Adds or removes cameras from the cluster manager.
+     *  When clustering is turned off all items are removed from the cluster manager and
+     *  markers are plotted normally.
+     */
     private void toggleCluster(MenuItem item){
         // GA tracker
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
@@ -669,6 +690,12 @@ public class TrafficMapActivity extends BaseActivity implements
             item.setTitle("Cluster Cameras");
             item.setIcon(R.drawable.ic_menu_traffic_cam_off);
             clusterCameras = false;
+
+            if (cameras != null) {
+                mClusterManager.clearItems();
+                mClusterManager.cluster();
+                addCameraMarkers(cameras);
+            }
 
             mTracker.send(new HitBuilders.EventBuilder()
                     .setCategory("Traffic")
@@ -682,14 +709,19 @@ public class TrafficMapActivity extends BaseActivity implements
             item.setIcon(R.drawable.ic_menu_traffic_cam);
             clusterCameras = true;
 
+            removeCameraMarkers();
+
+            if (cameras != null && showCameras) {
+                mClusterManager.addItems(cameras);
+                mClusterManager.cluster();
+            }
+
             mTracker.send(new HitBuilders.EventBuilder()
                     .setCategory("Traffic")
                     .setAction("Cameras")
                     .setLabel("Clustering on")
                     .build());
         }
-
-        mClusterManager.cluster();
 
         // Save camera display preference
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -698,13 +730,24 @@ public class TrafficMapActivity extends BaseActivity implements
         editor.apply();
     }
 
+    /**
+     * Toggle camera visibility
+     * checks clusterCameras to see the current state of the camera markers and hide
+     * them accordingly.
+     *
+     * @param item
+     */
     private void toggleCameras(MenuItem item) {
         // GA tracker
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         if (showCameras) {
-            mClusterManager.clearItems();
-            mClusterManager.cluster();
+            if (clusterCameras) {
+                mClusterManager.clearItems();
+                mClusterManager.cluster();
+            }else {
+                hideCameraMarkers();
+            }
 
             item.setTitle("Show Cameras");
             item.setIcon(R.drawable.ic_menu_traffic_cam_off);
@@ -719,9 +762,13 @@ public class TrafficMapActivity extends BaseActivity implements
 
         } else {
 
-            if (cameras != null) {
-                mClusterManager.addItems(cameras);
-                mClusterManager.cluster();
+            if (clusterCameras) {
+                if (cameras != null) {
+                    mClusterManager.addItems(cameras);
+                    mClusterManager.cluster();
+                }
+            } else {
+                showCameraMarkers();
             }
 
             item.setTitle("Hide Cameras");
@@ -743,6 +790,10 @@ public class TrafficMapActivity extends BaseActivity implements
     }
 
 
+    /**
+     * Toggles rest area markers on/off
+     * @param item
+     */
     private void toggleRestAreas(MenuItem item) {
         // GA tracker
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
@@ -828,6 +879,11 @@ public class TrafficMapActivity extends BaseActivity implements
         return inPoly;
     }
 
+    /**
+     * Loads Cameras.
+     * Checks clusterCameras boolean and will either add camera items to the
+     * cluster manager or simply plot them normally.
+     */
     class CamerasOverlayTask extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -844,7 +900,6 @@ public class TrafficMapActivity extends BaseActivity implements
                     TrafficMapActivity.this,
                     bounds,
                     null);
-
             return null;
         }
 
@@ -862,11 +917,15 @@ public class TrafficMapActivity extends BaseActivity implements
             cameras = camerasOverlay.getCameraMarkers();
 
             if (cameras != null) {
-                mClusterManager.clearItems();
-                if (showCameras) {
-                    mClusterManager.addItems(cameras);
+                if (clusterCameras) {
+                    mClusterManager.clearItems();
+                    if (showCameras) {
+                        mClusterManager.addItems(cameras);
+                    }
+                    mClusterManager.cluster();
+                }else {
+                    addCameraMarkers(cameras);
                 }
-                mClusterManager.cluster();
             }
         }
     }
@@ -1171,6 +1230,7 @@ public class TrafficMapActivity extends BaseActivity implements
         private final IconGenerator mClusterIconGenerator;
         private final float mDensity;
         private final Bitmap singleCameraIcon = BitmapFactory.decodeResource(getResources(), R.drawable.camera);
+        private final Bitmap openCameraGroupIcon = BitmapFactory.decodeResource(getResources(), R.drawable.camera_cluster_open);
         private SparseArray<BitmapDescriptor> mIcons = new SparseArray<>();
 
         private CameraRenderer() {
@@ -1224,27 +1284,120 @@ public class TrafficMapActivity extends BaseActivity implements
         @Override
         protected void onBeforeClusterRendered(Cluster<CameraItem> cluster, MarkerOptions markerOptions) {
             // Draw multiple cameras
+
+            // TODO: Open cluster groups as list of cameras if in same location
+            // Loop through all cameras in cluster, check lat/long, if same make group?
+            // How do we mark this special kind of cluster? With the blue icon.
+            // How to we capture click events and know it's one of these groups?
             int bucket = getBucket(cluster);
-            String countText = getClusterText(bucket);
 
-            BitmapDescriptor descriptor = mIcons.get(bucket);
+            if (isCameraGroup(cluster)) {
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(openCameraGroupIcon));
+            } else {
+                BitmapDescriptor descriptor = mIcons.get(bucket);
 
-            if (descriptor == null) {
-                mClusterIconGenerator.setBackground(makeClusterBackground(getBackgroundImage(bucket)));
-                Bitmap icon = mClusterIconGenerator.makeIcon(countText);
-                descriptor = BitmapDescriptorFactory.fromBitmap(icon);
-                mIcons.put(bucket, descriptor);
+                if (descriptor == null) {
+                    String countText = getClusterText(bucket);
+                    mClusterIconGenerator.setBackground(makeClusterBackground(getBackgroundImage(bucket)));
+                    Bitmap icon = mClusterIconGenerator.makeIcon(countText);
+                    descriptor = BitmapDescriptorFactory.fromBitmap(icon);
+                    mIcons.put(bucket, descriptor);
+                }
+                markerOptions.icon(descriptor);
             }
-            markerOptions.icon(descriptor);
         }
         @Override
         protected boolean shouldRenderAsCluster(Cluster cluster) {
-            // Always render clusters.
-            if (!clusterCameras) {
-                return false;
-            }
-
             return cluster.getSize() > 1;
+        }
+    }
+
+    // Camera marker and clustering Helper functions
+
+    /**
+     * Checks if this cluster can be opened to a list of cameras
+     * Arbitrarily assumes cameras in same space will have no more than 10 images. This also helps performance.
+     *
+     * @param cluster
+     * @return
+     */
+    private boolean isCameraGroup(Cluster<CameraItem> cluster){
+        if (cluster.getSize() < 10) {
+            CameraItem firstCamera = (CameraItem) cluster.getItems().toArray()[0];
+            for (CameraItem camera: cluster.getItems()){
+                if (!firstCamera.getLatitude().equals(camera.getLatitude()) || !firstCamera.getLongitude().equals(camera.getLongitude())){
+                    return false;
+                }
+            }
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    /**
+     * sets all camera marker visibility to false.
+     * NOTE: Doesn't work for clusters
+     */
+    private void hideCameraMarkers(){
+        for (Entry<Marker, String> entry : markers.entrySet()) {
+            Marker key = entry.getKey();
+            String value = entry.getValue();
+            if (value.equalsIgnoreCase("camera")) {
+                key.setVisible(false);
+            }
+        }
+    }
+
+    /**
+     * sets all camera marker visibility to true.
+     * NOTE: Doesn't work for clusters
+     */
+    private void showCameraMarkers(){
+        for (Entry<Marker, String> entry : markers.entrySet()) {
+            Marker key = entry.getKey();
+            String value = entry.getValue();
+            if (value.equalsIgnoreCase("camera")) {
+                key.setVisible(true);
+            }
+        }
+    }
+
+    /**
+     * Helper
+     * Adds camera markers from the map.
+     * NOTE: Doesn't work for clusters
+     */
+    private void addCameraMarkers(List<CameraItem>cameras){
+        if (cameras.size() != 0) {
+            for (int i = 0; i < cameras.size(); i++) {
+                LatLng latLng = new LatLng(cameras.get(i).getLatitude(), cameras.get(i).getLongitude());
+                Marker marker = mMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(cameras.get(i).getTitle())
+                        .snippet(cameras.get(i).getCameraId().toString())
+                        .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
+                        .visible(showCameras));
+
+                markers.put(marker, "camera");
+
+            }
+        }
+    }
+
+    /**
+     * Removes camera markers from the map.
+     * Uses for switching clustering on/off.
+     * NOTE: Doesn't work for clusters
+     */
+    private void removeCameraMarkers(){
+        for (Entry<Marker, String> entry : markers.entrySet()) {
+            Marker key = entry.getKey();
+            String value = entry.getValue();
+
+            if (value.equalsIgnoreCase("camera")) {
+                key.remove();
+            }
         }
     }
 }
