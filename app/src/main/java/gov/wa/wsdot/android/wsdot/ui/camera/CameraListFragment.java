@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.CameraImageAdapter;
 import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
@@ -52,7 +53,7 @@ public class CameraListFragment extends BaseFragment implements
     private static int[] cameraIds;
     private static String[] cameraUrls;
 
-    private static CameraListFragment.CameraImageAdapter mAdapter;
+    private static CameraGroupImageAdapter mAdapter;
     private static View mLoadingSpinner;
 
     protected RecyclerView mRecyclerView;
@@ -72,7 +73,7 @@ public class CameraListFragment extends BaseFragment implements
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new gov.wa.wsdot.android.wsdot.ui.camera.CameraListFragment.CameraImageAdapter(getActivity(), null);
+        mAdapter = new CameraGroupImageAdapter(getActivity(), null);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -188,43 +189,18 @@ public class CameraListFragment extends BaseFragment implements
 
     }
 
-    /**
-     * Custom adapter for items in recycler view.
-     * <p>
-     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
-     * class to it's data.
-     *
-     * @see android.support.v7.widget.RecyclerView.Adapter
-     */
-    private class CameraImageAdapter extends RecyclerView.Adapter<CameraListFragment.CameraViewHolder> {
+    private class CameraGroupImageAdapter extends CameraImageAdapter {
 
-
-        private ArrayList<CameraItem> items;
-        private ImageManager imageManager;
-
-        public CameraImageAdapter(Context context, ArrayList<CameraItem> data) {
-            this.items = data;
-            imageManager = new ImageManager(context, 5 * DateUtils.MINUTE_IN_MILLIS); // Cache for 5 minutes.
+        public CameraGroupImageAdapter(Context context, ArrayList<CameraItem> data) {
+            super(context, data);
         }
 
         @Override
-        public CameraListFragment.CameraViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-            View itemView = LayoutInflater.
-                    from(parent.getContext()).
-                    inflate(R.layout.list_item_resizeable_image, parent, false);
-            return new CameraListFragment.CameraViewHolder(itemView);
-
-        }
-
-        @Override
-        public void onBindViewHolder(CameraListFragment.CameraViewHolder viewholder, int position) {
+        public void onBindViewHolder(CameraViewHolder viewholder, int position) {
 
             CameraItem item = items.get(position);
-
-            viewholder.image.setTag(item.getImageUrl());
-            imageManager.displayImage(item.getImageUrl(), getActivity(), viewholder.image);
-
+            viewholder.setImageTag(item.getImageUrl());
+            imageManager.displayImage(item.getImageUrl(), getActivity(), viewholder.getImage());
             final int pos = position;
 
             viewholder.itemView.setOnClickListener(
@@ -240,35 +216,5 @@ public class CameraListFragment extends BaseFragment implements
                     }
             );
         }
-
-        @Override
-        public int getItemCount() {
-            if (items != null) {
-                return items.size();
-            }
-            return 0;
-        }
-
-        public void setData(ArrayList<CameraItem> data) {
-            this.items = data;
-            notifyDataSetChanged();
-        }
-
-        public void clear() {
-            if (items != null) {
-                this.items.clear();
-                notifyDataSetChanged();
-            }
-        }
-    }
-
-    public static class CameraViewHolder extends RecyclerView.ViewHolder {
-        protected ImageView image;
-
-        public CameraViewHolder(View itemView) {
-            super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.image);
-        }
-
     }
 }
