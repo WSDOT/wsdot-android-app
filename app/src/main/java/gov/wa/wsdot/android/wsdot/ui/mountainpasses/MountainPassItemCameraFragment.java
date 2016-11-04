@@ -18,7 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,11 +26,9 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -45,7 +42,6 @@ import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.util.CameraImageAdapter;
-import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class MountainPassItemCameraFragment extends BaseFragment implements
@@ -60,18 +56,12 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		
-		Bundle args = activity.getIntent().getExtras();
-		camerasArray = args.getString("Cameras");
-	}    
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle args = getActivity().getIntent().getExtras();
+        camerasArray = args.getString("Cameras");
     }
 
 	@Override

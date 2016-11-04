@@ -18,7 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -68,18 +67,13 @@ public class FerriesTerminalCameraFragment extends BaseFragment
     protected LinearLayoutManager mLayoutManager;
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        
-        Bundle args = activity.getIntent().getExtras();
-        
-        mTerminalId = args.getInt("terminalId");
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
+        Bundle args = getActivity().getIntent().getExtras();
+
+        mTerminalId = args.getInt("terminalId");
+
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
