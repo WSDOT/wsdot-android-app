@@ -33,7 +33,7 @@
 	<item
 		android:id="@+id/toggle_clustering"
 		android:title="@string/description_toggle_clusters"
-		android:icon="@drawable/ic_menu_traffic_cam"
+		android:icon="@drawable/ic_menu_camera_cluster"
 		android:orderInCategory="5"
 		wsdot:showAsAction="ifRoom" />
 
