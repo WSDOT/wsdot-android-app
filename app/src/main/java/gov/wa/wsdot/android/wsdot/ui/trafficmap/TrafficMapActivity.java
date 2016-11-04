@@ -106,6 +106,7 @@ import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
+import gov.wa.wsdot.android.wsdot.ui.camera.CameraListActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.restareas.RestAreaActivity;
@@ -382,14 +383,35 @@ public class TrafficMapActivity extends BaseActivity implements
 
     @Override
     public boolean onClusterClick(Cluster<CameraItem> cluster) {
+        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
         if (isCameraGroup(cluster)){
             Log.i("CAMERAS", "you clicked a blue camera group.");
+            mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+            mTracker.setScreenName("/Traffic Map/Camera Group");
+            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+            Bundle b = new Bundle();
+            Intent intent;
+            intent = new Intent(this, CameraListActivity.class);
 
+            // Load camera ids into array for bundle.
+            int cameraIds[] = new int[cluster.getSize()];
+            String cameraUrls[] = new String[cluster.getSize()];
 
+            int index = 0;
+            for (CameraItem camera: cluster.getItems()) {
+                cameraIds[index] = camera.getCameraId();
+                cameraUrls[index] = camera.getImageUrl();
+                index++;
+            }
 
+            b.putStringArray("cameraUrls", cameraUrls);
+            b.putIntArray("cameraIds", cameraIds);
 
-
+            intent.putExtras(b);
+            TrafficMapActivity.this.startActivity(intent);
         }else {
+            mTracker.setScreenName("/Traffic Map/Camera Cluster");
+            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
             LatLngBounds.Builder builder = LatLngBounds.builder();
             for (ClusterItem item : cluster.getItems()) {
                 builder.include(item.getPosition());
@@ -917,6 +939,8 @@ public class TrafficMapActivity extends BaseActivity implements
             cameras = camerasOverlay.getCameraMarkers();
 
             if (cameras != null) {
+
+
                 if (clusterCameras) {
                     mClusterManager.clearItems();
                     if (showCameras) {

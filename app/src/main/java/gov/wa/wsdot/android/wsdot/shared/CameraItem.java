@@ -43,12 +43,13 @@ public class CameraItem implements Serializable, ClusterItem {
         clusterPosition = null;
     }
 
-    public CameraItem(Double latitude, Double longitude, String title,
+    public CameraItem(Double latitude, Double longitude, String title, String imageUrl,
             Integer cameraId, Integer cameraIcon) {
 	    this.latitude = latitude;
 	    this.longitude = longitude;
 	    this.title = title;
 	    this.cameraId = cameraId;
+		this.imageUrl = imageUrl;
 	    this.cameraIcon = cameraIcon;
 		this.clusterPosition = new LatLng(latitude, longitude);
 	}

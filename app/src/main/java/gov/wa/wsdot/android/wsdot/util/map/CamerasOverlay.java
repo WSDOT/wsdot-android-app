@@ -85,9 +85,11 @@ public class CamerasOverlay {
 						        cameraCursor.getDouble(0),
 						        cameraCursor.getDouble(1),
 						        cameraCursor.getString(2),
+                                cameraCursor.getString(3),
 								cameraCursor.getInt(5),
 								cameraIcon
 								));
+
 					}
 					cameraCursor.moveToNext();
 				}
