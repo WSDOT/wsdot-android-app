@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -49,10 +50,14 @@ import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -692,7 +697,21 @@ public class TrafficMapActivity extends BaseActivity implements
                 goToLocation(46.6063273, -120.4886952, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
+            case R.id.map_legend:
+                // TODO: Pop up with map legend?
+                AlertDialog.Builder imageDialog = new AlertDialog.Builder(this, R.style.WSDOT_popup);
+                LayoutInflater inflater = (LayoutInflater) this.getSystemService(LAYOUT_INFLATER_SERVICE);
 
+                View layout = inflater.inflate(R.layout.map_legend_layout, null);
+                imageDialog.setView(layout);
+                imageDialog.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    dialog.dismiss();
+                    }
+                });
+                imageDialog.create();
+                imageDialog.show();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
