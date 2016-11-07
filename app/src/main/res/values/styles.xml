@@ -10,10 +10,8 @@
         <item name="colorPrimaryDark">#004D40</item>
         <!--   theme UI controls like checkboxes and text fields -->
         <item name="colorAccent">#FFEA00</item>
-
     </style>
 
-    <!-- Base application theme. -->
     <style name="WSDOT_popup" parent="Theme.AppCompat.Light.NoActionBar">
         <!--   your app branding color for the app bar -->
         <item name="colorPrimary">#008065</item>
@@ -28,6 +26,10 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
         <item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
+    </style>
+
+    <style name="AppToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:colorBackground">#004D40</item>
     </style>
 
     <style name="Text.Title">

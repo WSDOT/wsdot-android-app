@@ -70,4 +70,11 @@
 		</menu>
 	</item>
 
+    <item
+        android:id="@+id/map_legend"
+        android:title="@string/description_map_legend"
+        android:icon="@drawable/ic_menu_info"
+        android:orderInCategory="8"
+        wsdot:showAsAction="ifRoom"/>
+
 </menu>

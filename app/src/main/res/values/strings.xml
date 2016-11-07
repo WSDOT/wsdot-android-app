@@ -98,6 +98,7 @@
     <string name="submit">OK</string>
     <string name="cancel">CANCEL</string>
     <string name="description_alerts_in_area">Alerts in This Area</string>
+    <string name="description_map_legend">Map Legend</string>
 
 
 </resources>

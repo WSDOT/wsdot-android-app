@@ -5,4 +5,5 @@
     android:minHeight="?attr/actionBarSize"
     android:layout_below="@+id/tab_layout"
     android:layout_weight="1"
+    android:theme="@style/AppToolbar"
     />
