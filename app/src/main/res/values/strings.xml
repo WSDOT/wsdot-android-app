@@ -57,6 +57,7 @@
     
     <string name="description_mylocation">My Location</string>
     <string name="description_cameras">Cameras</string>
+    <string name="description_toggle_clusters">Clustering off</string>
     <string name="description_rest_areas">Rest Areas</string>
     <string name="description_gotolocation">GoTo Location</string>
     <string name="description_travel_times">Travel Times</string>z

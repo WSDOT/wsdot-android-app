@@ -18,7 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,12 +30,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -51,7 +48,7 @@ import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
-import gov.wa.wsdot.android.wsdot.util.ImageManager;
+import gov.wa.wsdot.android.wsdot.util.CameraImageAdapter;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class FerriesTerminalCameraFragment extends BaseFragment
@@ -70,18 +67,13 @@ public class FerriesTerminalCameraFragment extends BaseFragment
     protected LinearLayoutManager mLayoutManager;
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        
-        Bundle args = activity.getIntent().getExtras();
-        
-        mTerminalId = args.getInt("terminalId");
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
+        Bundle args = getActivity().getIntent().getExtras();
+
+        mTerminalId = args.getInt("terminalId");
+
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
         setRetainInstance(true);
@@ -120,12 +112,11 @@ public class FerriesTerminalCameraFragment extends BaseFragment
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new CameraImageAdapter(getActivity(), null);
+        mAdapter = new FerryTerminalCameraImageAdapter(getActivity(), null);
 
         mRecyclerView.setAdapter(mAdapter);
 
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
-
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -182,7 +173,6 @@ public class FerriesTerminalCameraFragment extends BaseFragment
                     camera.setLatitude(cursor.getDouble(cursor.getColumnIndex(Cameras.CAMERA_LATITUDE)));
                     camera.setLongitude(cursor.getDouble(cursor.getColumnIndex(Cameras.CAMERA_LONGITUDE)));
                     camera.setDistance(distance);
-                    
                     cameraItems.add(camera);
                 }
                 cursor.moveToNext();
@@ -267,33 +257,10 @@ public class FerriesTerminalCameraFragment extends BaseFragment
         }
     }
 
-    /**
-     * Custom adapter for items in recycler view.
-     *
-     * Extending RecyclerView adapter this adapter binds the custom ViewHolder
-     * class to it's data.
-     *
-     * @see android.support.v7.widget.RecyclerView.Adapter
-     */
-    private class CameraImageAdapter extends RecyclerView.Adapter<CameraViewHolder> {
+    private class FerryTerminalCameraImageAdapter extends gov.wa.wsdot.android.wsdot.util.CameraImageAdapter {
 
-
-        private ArrayList<CameraItem> items;
-        private ImageManager imageManager;
-
-        public CameraImageAdapter(Context context, ArrayList<CameraItem> data) {
-            this.items = data;
-            imageManager = new ImageManager(context, 5 * DateUtils.MINUTE_IN_MILLIS); // Cache for 5 minutes.
-        }
-
-        @Override
-        public CameraViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-            View itemView = LayoutInflater.
-                    from(parent.getContext()).
-                    inflate(R.layout.list_item_resizeable_image, parent, false);
-            return new CameraViewHolder(itemView);
-
+        public FerryTerminalCameraImageAdapter(Context context, ArrayList<CameraItem> data) {
+            super(context, data);
         }
 
         @Override
@@ -301,8 +268,8 @@ public class FerriesTerminalCameraFragment extends BaseFragment
 
             CameraItem item = items.get(position);
 
-            viewholder.image.setTag(item.getImageUrl());
-            imageManager.displayImage(item.getImageUrl(), getActivity(), viewholder.image);
+            viewholder.setImageTag(item.getImageUrl());
+            imageManager.displayImage(item.getImageUrl(), getActivity(), viewholder.getImage());
 
             final int pos = position;
 
@@ -319,35 +286,6 @@ public class FerriesTerminalCameraFragment extends BaseFragment
                     }
             );
         }
-
-        @Override
-        public int getItemCount() {
-            if (items != null) {
-                return items.size();
-            }
-            return 0;
-        }
-        public void setData(ArrayList<CameraItem> data) {
-            this.items = data;
-            notifyDataSetChanged();
-        }
-
-        public void clear() {
-            if (items != null) {
-                this.items.clear();
-                notifyDataSetChanged();
-            }
-        }
-    }
-
-    public static class CameraViewHolder extends RecyclerView.ViewHolder {
-        protected ImageView image;
-
-        public CameraViewHolder(View itemView) {
-            super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.image);
-        }
-
     }
 
     /**

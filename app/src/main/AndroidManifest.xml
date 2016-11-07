@@ -182,6 +182,9 @@
         <activity
             android:name=".ui.camera.CameraActivity" />
 
+		<activity
+			android:name=".ui.camera.CameraListActivity"/>
+
    		<activity
    		    android:name=".ui.alert.HighwayAlertDetailsActivity" />
 

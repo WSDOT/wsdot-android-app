@@ -18,7 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,11 +26,9 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -44,7 +41,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
-import gov.wa.wsdot.android.wsdot.util.ImageManager;
+import gov.wa.wsdot.android.wsdot.util.CameraImageAdapter;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class MountainPassItemCameraFragment extends BaseFragment implements
@@ -59,18 +56,12 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		
-		Bundle args = activity.getIntent().getExtras();
-		camerasArray = args.getString("Cameras");
-	}    
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle args = getActivity().getIntent().getExtras();
+        camerasArray = args.getString("Cameras");
     }
 
 	@Override
@@ -82,7 +73,7 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new CameraImageAdapter(getActivity(), null);
+        mAdapter = new PassCameraImageAdapter(getActivity(), null);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -208,86 +199,34 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
 		
 	}
 
-	/**
-	 * Custom adapter for items in recycler view.
-	 *
-	 * Extending RecyclerView adapter this adapter binds the custom ViewHolder
-	 * class to it's data.
-	 *
-	 * @see android.support.v7.widget.RecyclerView.Adapter
-	 */
-	private class CameraImageAdapter extends RecyclerView.Adapter<CameraViewHolder> {
+	private class PassCameraImageAdapter extends gov.wa.wsdot.android.wsdot.util.CameraImageAdapter {
 
-
-		private ArrayList<CameraItem> items;
-        private ImageManager imageManager;
-
-        public CameraImageAdapter(Context context, ArrayList<CameraItem> data) {
-            this.items = data;
-            imageManager = new ImageManager(context, 5 * DateUtils.MINUTE_IN_MILLIS); // Cache for 5 minutes.
-        }
-
-		@Override
-		public CameraViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-			View itemView = LayoutInflater.
-					from(parent.getContext()).
-					inflate(R.layout.list_item_resizeable_image, parent, false);
-			return new CameraViewHolder(itemView);
-
+		public PassCameraImageAdapter(Context context, ArrayList<CameraItem> data) {
+			super(context, data);
 		}
 
-        @Override
+		@Override
 		public void onBindViewHolder(CameraViewHolder viewholder, int position) {
 
-            CameraItem item = items.get(position);
+			CameraItem item = items.get(position);
 
-            viewholder.image.setTag(item.getImageUrl());
-            imageManager.displayImage(item.getImageUrl(), getActivity(), viewholder.image);
+			viewholder.setImageTag(item.getImageUrl());
+			imageManager.displayImage(item.getImageUrl(), getActivity(), viewholder.getImage());
 
-            final int pos = position;
+			final int pos = position;
 
-            viewholder.itemView.setOnClickListener(
-                    new View.OnClickListener() {
-                        public void onClick(View v) {
-                            Bundle b = new Bundle();
-                            Intent intent = new Intent(getActivity(), CameraActivity.class);
-                            b.putInt("id", bitmapImages.get(pos).getCameraId());
-                            intent.putExtras(b);
+			viewholder.itemView.setOnClickListener(
+					new View.OnClickListener() {
+						public void onClick(View v) {
+							Bundle b = new Bundle();
+							Intent intent = new Intent(getActivity(), CameraActivity.class);
+							b.putInt("id", bitmapImages.get(pos).getCameraId());
+							intent.putExtras(b);
 
-                            startActivity(intent);
-                        }
-                    }
-            );
+							startActivity(intent);
+						}
+					}
+			);
 		}
-
-		@Override
-		public int getItemCount() {
-            if (items != null) {
-                return items.size();
-            }
-            return 0;
-		}
-        public void setData(ArrayList<CameraItem> data) {
-            this.items = data;
-            notifyDataSetChanged();
-        }
-
-        public void clear() {
-            if (items != null) {
-                this.items.clear();
-                notifyDataSetChanged();
-            }
-        }
 	}
-
-	public static class CameraViewHolder extends RecyclerView.ViewHolder {
-		protected ImageView image;
-
-		public CameraViewHolder(View itemView) {
-			super(itemView);
-			image = (ImageView) itemView.findViewById(R.id.image);
-		}
-
-    }
 }
