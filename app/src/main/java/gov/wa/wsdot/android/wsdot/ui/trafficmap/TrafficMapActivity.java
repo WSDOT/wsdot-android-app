@@ -493,7 +493,7 @@ public class TrafficMapActivity extends BaseActivity implements
         }
 
         if (clusterCameras) {
-            menu.getItem(4).setTitle("Uncluster Cameras");
+            menu.getItem(4).setTitle("Separate Cameras");
             menu.getItem(4).setIcon(R.drawable.ic_menu_traffic_cam);
         } else {
             menu.getItem(4).setTitle("Cluster Cameras");
@@ -746,7 +746,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
         } else {
 
-            item.setTitle("Uncluster Cameras");
+            item.setTitle("Separate Cameras");
             item.setIcon(R.drawable.ic_menu_traffic_cam);
             clusterCameras = true;
 
