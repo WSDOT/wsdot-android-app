@@ -30,6 +30,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
 
     compile 'com.google.firebase:firebase-core:9.8.0'
+    compile 'com.google.firebase:firebase-crash:9.8.0'
 
     compile 'com.google.android.gms:play-services-analytics:9.8.0'
     compile 'com.google.android.gms:play-services-location:9.8.0'
