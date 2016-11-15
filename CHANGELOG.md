@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - Traffic Map camera clustering.
+- Added Firebase analytics and crash reporting.
 
 ## [4.5.0] - 2016-10-31
 ### Added

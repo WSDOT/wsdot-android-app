@@ -1359,13 +1359,13 @@ public class TrafficMapActivity extends BaseActivity implements
 
     /**
      * Checks if this cluster can be opened to a list of cameras
-     * Arbitrarily assumes cameras in same space will have no more than 10 images. This also helps performance.
+     * Arbitrarily assumes cameras in same space will have no more than 20 images. This also helps performance.
      *
      * @param cluster
      * @return
      */
     private boolean isCameraGroup(Cluster<CameraItem> cluster){
-        if (cluster.getSize() < 10) {
+        if (cluster.getSize() < 20) {
             CameraItem firstCamera = (CameraItem) cluster.getItems().toArray()[0];
             for (CameraItem camera: cluster.getItems()){
                 if (!firstCamera.getLatitude().equals(camera.getLatitude()) || !firstCamera.getLongitude().equals(camera.getLongitude())){
