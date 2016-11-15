@@ -4,11 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.5.0] - 2016-11-15
 ### Added
 - Traffic Map camera clustering.
 - Added Firebase analytics and crash reporting.
 
-## [4.5.0] - 2016-10-31
+## [4.4.5] - 2016-10-31
 ### Added
 - Better Talk Back support for Ferries, Mountain Passes and Amtrak Cascades sections.
 - WSDOT North Traffic Twitter account.
