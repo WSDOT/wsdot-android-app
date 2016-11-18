@@ -507,17 +507,13 @@ public class TrafficMapActivity extends BaseActivity implements
          */
         try {
             LatLng center = mMap.getCameraPosition().target;
-
             if (inPolygon(seattleArea, center.latitude, center.longitude)) {
-                
                 MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
                 MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
             }
-
         } catch (NullPointerException e) {
             Log.e(TAG, "Error getting LatLng center");
         }
-
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -542,7 +538,6 @@ public class TrafficMapActivity extends BaseActivity implements
                     public void onClick(DialogInterface dialog, int whichButton) {
                         dialog.dismiss();
                     }
-
                 });
 
                 builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
@@ -706,7 +701,6 @@ public class TrafficMapActivity extends BaseActivity implements
                 imageDialog.show();
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -792,8 +786,6 @@ public class TrafficMapActivity extends BaseActivity implements
                     .setAction("Cameras")
                     .setLabel("Hide Cameras")
                     .build());
-
-
         } else {
 
             if (clusterCameras) {
@@ -1150,8 +1142,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
     public void onLocationChanged(Location location) {
         // check users speed
-        Log.e("TEST", "location changed! speed: " + Float.toString(location.getSpeed()));
-
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 
         if (location.getSpeed() > 9 && !settings.getBoolean("KEY_SEEN_DRIVER_ALERT", false)) {
@@ -1231,6 +1221,8 @@ public class TrafficMapActivity extends BaseActivity implements
                     // Permission granted
                     Log.i(TAG, "Request permissions granted!!!");
                     mMap.setMyLocationEnabled(true);
+                    LocationServices.FusedLocationApi.requestLocationUpdates(
+                            mGoogleApiClient, mLocationRequest, this);
                 } else {
                     // Permission was denied or request was cancelled
                     Log.i(TAG, "Request permissions denied...");
