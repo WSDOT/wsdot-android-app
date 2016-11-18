@@ -19,7 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -55,9 +54,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.EditText;
-import android.widget.ImageView;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -695,7 +692,6 @@ public class TrafficMapActivity extends BaseActivity implements
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.map_legend:
-                // TODO: Pop up with map legend?
                 AlertDialog.Builder imageDialog = new AlertDialog.Builder(this, R.style.WSDOT_popup);
                 LayoutInflater inflater = (LayoutInflater) this.getSystemService(LAYOUT_INFLATER_SERVICE);
 
@@ -1166,9 +1162,9 @@ public class TrafficMapActivity extends BaseActivity implements
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.WSDOT_popup);
             builder.setCancelable(false);
-            builder.setTitle("We noticed you're moving fast.");
-            builder.setMessage("Please confirm you are a passenger.");
-            builder.setPositiveButton("I'm a passenger", new DialogInterface.OnClickListener() {
+            builder.setTitle("You're moving fast.");
+            builder.setMessage("Remember to not use the app while driving.");
+            builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int id) {}
             });
@@ -1186,7 +1182,6 @@ public class TrafficMapActivity extends BaseActivity implements
      */
     private void moveToNewLocation(Location location) {
         Log.d(TAG, location.toString());
-
         double currentLatitude = location.getLatitude();
         double currentLongitude = location.getLongitude();
         LatLng latLng = new LatLng(currentLatitude, currentLongitude);
@@ -1231,13 +1226,15 @@ public class TrafficMapActivity extends BaseActivity implements
     @SuppressWarnings({"MissingPermission"})
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_ACCESS_FINE_LOCATION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
-                Log.i(TAG, "Request permissions granted!!!");
-                mMap.setMyLocationEnabled(true);
-            } else {
-                // Permission was denied or request was cancelled
-                Log.i(TAG, "Request permissions denied...");
+            if (grantResults.length > 0 || permissions.length > 0) { // Check if request was canceled.
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted
+                    Log.i(TAG, "Request permissions granted!!!");
+                    mMap.setMyLocationEnabled(true);
+                } else {
+                    // Permission was denied or request was cancelled
+                    Log.i(TAG, "Request permissions denied...");
+                }
             }
         }
     }
@@ -1397,9 +1394,7 @@ public class TrafficMapActivity extends BaseActivity implements
                         .snippet(cameras.get(i).getCameraId().toString())
                         .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
                         .visible(showCameras));
-
                 markers.put(marker, "camera");
-
             }
         }
     }
