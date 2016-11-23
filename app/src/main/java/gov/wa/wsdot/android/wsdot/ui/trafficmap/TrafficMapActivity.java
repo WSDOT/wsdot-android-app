@@ -141,6 +141,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
     boolean clusterCameras;
     boolean showCameras;
+    boolean showAlerts;
     boolean showRestAreas;
 
     private ArrayList<LatLonItem> seattleArea = new ArrayList<>();
@@ -200,6 +201,7 @@ public class TrafficMapActivity extends BaseActivity implements
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         clusterCameras = settings.getBoolean("KEY_CLUSTER_CAMERAS", false);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
+        showAlerts = settings.getBoolean("KEY_SHOW_ALERTS", true);
         showRestAreas = settings.getBoolean("KEY_SHOW_REST_AREAS", false);
         latitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LAT", "47.5990"));
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
@@ -249,7 +251,6 @@ public class TrafficMapActivity extends BaseActivity implements
         alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
         mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
         registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
-
     }
 
     @Override
@@ -495,13 +496,23 @@ public class TrafficMapActivity extends BaseActivity implements
             menu.getItem(4).setIcon(R.drawable.ic_menu_traffic_cam_off);
         }
 
-        if (showRestAreas) {
-            menu.getItem(5).setTitle("Hide Rest Areas");
+        if (showAlerts) {
+            menu.getItem(5).setTitle("Hide Highway Alerts");
         } else {
-            menu.getItem(5).setTitle("Show Rest Areas");
+            menu.getItem(5).setTitle("Show Highway Alerts");
         }
 
+        if (showRestAreas) {
+            menu.getItem(6).setTitle("Hide Rest Areas");
+        } else {
+            menu.getItem(6).setTitle("Show Rest Areas");
+        }
+        menu.getItem(4).setChecked(clusterCameras);
+        menu.getItem(5).setChecked(showAlerts);
+        menu.getItem(6).setChecked(showRestAreas);
+
         /**
+         * Check if current location is within a lat/lon bounding box surrounding
          * Check if current location is within a lat/lon bounding box surrounding
          * the greater Seattle area.
          */
@@ -583,6 +594,9 @@ public class TrafficMapActivity extends BaseActivity implements
             case R.id.toggle_cameras:
                 toggleCameras(item);
                 return true;
+            case R.id.toggle_alerts:
+                toggleAlerts(item);
+                return false;
             case R.id.toggle_rest_areas:
                 toggleRestAreas(item);
                 return true;
@@ -715,7 +729,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         if (clusterCameras) {
 
-            item.setTitle("Cluster Cameras");
             item.setIcon(R.drawable.ic_menu_camera_cluster);
             clusterCameras = false;
 
@@ -733,7 +746,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         } else {
 
-            item.setTitle("Uncluster Cameras");
             item.setIcon(R.drawable.ic_menu_camera_cluster);
             clusterCameras = true;
 
@@ -750,6 +762,8 @@ public class TrafficMapActivity extends BaseActivity implements
                     .setLabel("Clustering on")
                     .build());
         }
+
+        item.setChecked(clusterCameras);
 
         // Save camera display preference
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -836,7 +850,6 @@ public class TrafficMapActivity extends BaseActivity implements
                 }
             }
 
-            item.setTitle("Show Rest Areas");
             showRestAreas = false;
             label = "Hide Rest Areas";
 
@@ -849,11 +862,12 @@ public class TrafficMapActivity extends BaseActivity implements
                     key.setVisible(true);
                 }
             }
-            item.setTitle("Hide Rest Areas");
             showRestAreas = true;
             label = "Show Rest Areas";
 
         }
+
+        item.setChecked(showRestAreas);
 
         mTracker.send(new HitBuilders.EventBuilder()
                 .setCategory("Traffic")
@@ -868,6 +882,57 @@ public class TrafficMapActivity extends BaseActivity implements
         editor.apply();
     }
 
+    /**
+     * Toggles alert markers on/off
+     * @param item
+     */
+    private void toggleAlerts(MenuItem item) {
+        // GA tracker
+        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+
+        String label;
+
+        if (showAlerts) {
+            for (Entry<Marker, String> entry : markers.entrySet()) {
+                Marker key = entry.getKey();
+                String value = entry.getValue();
+
+                if (value.equalsIgnoreCase("alert")) {
+                    key.setVisible(false);
+                }
+            }
+
+            showAlerts = false;
+            label = "Hide Alerts";
+
+        } else {
+            for (Entry<Marker, String> entry : markers.entrySet()) {
+                Marker key = entry.getKey();
+                String value = entry.getValue();
+
+                if (value.equalsIgnoreCase("alert")) {
+                    key.setVisible(true);
+                }
+            }
+            showAlerts = true;
+            label = "Show Alerts";
+
+        }
+
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Traffic")
+                .setAction("Highway Alerts")
+                .setLabel(label)
+                .build());
+
+        item.setChecked(showAlerts);
+
+        // Save rest areas display preference
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("KEY_SHOW_ALERTS", showAlerts);
+        editor.apply();
+    }
 
     public void goToLocation(double latitude, double longitude, int zoomLevel) {
         LatLng latLng = new LatLng(latitude, longitude);
@@ -996,7 +1061,7 @@ public class TrafficMapActivity extends BaseActivity implements
                                 .title(alerts.get(i).getEventCategory())
                                 .snippet(alerts.get(i).getAlertId())
                                 .icon(BitmapDescriptorFactory.fromResource(alerts.get(i).getCategoryIcon()))
-                                .visible(true));
+                                .visible(showAlerts));
 
                         markers.put(marker, "alert");
                     }
