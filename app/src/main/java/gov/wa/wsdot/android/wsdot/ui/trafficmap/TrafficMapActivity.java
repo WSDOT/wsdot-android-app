@@ -507,9 +507,6 @@ public class TrafficMapActivity extends BaseActivity implements
         } else {
             menu.getItem(6).setTitle("Show Rest Areas");
         }
-        menu.getItem(4).setChecked(clusterCameras);
-        menu.getItem(5).setChecked(showAlerts);
-        menu.getItem(6).setChecked(showRestAreas);
 
         /**
          * Check if current location is within a lat/lon bounding box surrounding
@@ -729,7 +726,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         if (clusterCameras) {
 
-            item.setIcon(R.drawable.ic_menu_camera_cluster);
             clusterCameras = false;
 
             if (cameras != null) {
@@ -746,7 +742,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         } else {
 
-            item.setIcon(R.drawable.ic_menu_camera_cluster);
             clusterCameras = true;
 
             removeCameraMarkers();
@@ -762,8 +757,6 @@ public class TrafficMapActivity extends BaseActivity implements
                     .setLabel("Clustering on")
                     .build());
         }
-
-        item.setChecked(clusterCameras);
 
         // Save camera display preference
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -867,8 +860,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         }
 
-        item.setChecked(showRestAreas);
-
         mTracker.send(new HitBuilders.EventBuilder()
                 .setCategory("Traffic")
                 .setAction("Rest Areas")
@@ -924,8 +915,6 @@ public class TrafficMapActivity extends BaseActivity implements
                 .setAction("Highway Alerts")
                 .setLabel(label)
                 .build());
-
-        item.setChecked(showAlerts);
 
         // Save rest areas display preference
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);

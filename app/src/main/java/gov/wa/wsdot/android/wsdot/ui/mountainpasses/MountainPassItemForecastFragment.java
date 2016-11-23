@@ -36,7 +36,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;

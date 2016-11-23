@@ -48,7 +48,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 
