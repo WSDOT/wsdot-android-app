@@ -30,9 +30,9 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CamerasColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedulesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpaceColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.LocationColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPassesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimesColumns;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.LocationColumns;
 
 public class WSDOTDatabase extends SQLiteOpenHelper {
 

@@ -17,23 +17,23 @@
  */
 package gov.wa.wsdot.android.wsdot.util.map;
 
-        import org.json.JSONArray;
-        import org.json.JSONException;
-        import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-        import java.io.BufferedReader;
-        import java.io.IOException;
-        import java.io.InputStream;
-        import java.io.InputStreamReader;
-        import java.io.Reader;
-        import java.io.StringWriter;
-        import java.io.UnsupportedEncodingException;
-        import java.io.Writer;
-        import java.util.ArrayList;
-        import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
-        import gov.wa.wsdot.android.wsdot.R;
-        import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
 
 public class RestAreasOverlay {
 

@@ -26,12 +26,9 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -40,7 +37,6 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.CameraImageAdapter;
-import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class CameraListFragment extends BaseFragment implements

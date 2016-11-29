@@ -7,14 +7,14 @@
 		android:title="@string/description_cameras"
 		android:icon="@drawable/ic_menu_traffic_cam"
 		android:orderInCategory="1"
-		wsdot:showAsAction="ifRoom" />
+		wsdot:showAsAction="always" />
 
 	<item
 	    android:id="@+id/travel_times"
 		android:title="@string/description_travel_times"
 		android:icon="@drawable/ic_menu_travel_times"
 		android:orderInCategory="2"
-		wsdot:showAsAction="ifRoom" />
+		wsdot:showAsAction="always" />
 
 	<item
 		android:id="@+id/alerts_in_area"
@@ -33,23 +33,26 @@
 	<item
 		android:id="@+id/toggle_clustering"
 		android:title="@string/description_toggle_clusters"
-		android:icon="@drawable/ic_menu_camera_cluster"
 		android:orderInCategory="5"
-		wsdot:showAsAction="ifRoom" />
+		wsdot:showAsAction="never" />
+
+	<item
+		android:id="@+id/toggle_alerts"
+		android:title="@string/description_alerts_toggle"
+		android:orderInCategory="6"
+		wsdot:showAsAction="never" />
 
 	<item
 		android:id="@+id/toggle_rest_areas"
 		android:title="@string/description_rest_areas"
-		android:icon="@drawable/ic_menu_restarea"
-		android:orderInCategory="6"
-		wsdot:showAsAction="ifRoom" />
+		android:orderInCategory="7"
+		wsdot:showAsAction="never" />
 
 	<item
 	    android:id="@+id/goto_location"
 		android:title="@string/description_gotolocation"
-		android:icon="@drawable/ic_menu_place"
-		android:orderInCategory="7"
-		wsdot:showAsAction="ifRoom" >
+		android:orderInCategory="8"
+		wsdot:showAsAction="never" >
 		<menu>
 			<item android:orderInCategory="1" android:title="Bellingham" android:id="@+id/goto_bellingham" />
 			<item android:orderInCategory="2" android:title="Chehalis" android:id="@+id/goto_chehalis" />		
@@ -73,8 +76,7 @@
     <item
         android:id="@+id/map_legend"
         android:title="@string/description_map_legend"
-        android:icon="@drawable/ic_menu_info"
         android:orderInCategory="8"
-        wsdot:showAsAction="ifRoom"/>
+        wsdot:showAsAction="never"/>
 
 </menu>

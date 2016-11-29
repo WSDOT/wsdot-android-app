@@ -18,8 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.shared;
 
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
-
 public class HighwayAlertsItem {
     private String priority;
     private String lastUpdatedTime;
