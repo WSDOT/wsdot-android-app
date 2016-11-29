@@ -18,6 +18,8 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 
 import android.app.Application;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
@@ -31,6 +33,16 @@ import gov.wa.wsdot.android.wsdot.R;
 public class WsdotApplication extends Application {
   private Tracker mTracker;
 
+  @Override
+  public void onCreate() {
+    super.onCreate();
+
+    //reset driver alert message on app startup.
+    SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+    SharedPreferences.Editor editor = settings.edit();
+    editor.putBoolean("KEY_SEEN_DRIVER_ALERT", false);
+    editor.apply();
+  }
 
   /**
    * Gets the default {@link Tracker} for this {@link Application}.

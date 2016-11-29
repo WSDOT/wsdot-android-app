@@ -19,7 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -55,9 +54,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.EditText;
-import android.widget.ImageView;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -390,7 +387,6 @@ public class TrafficMapActivity extends BaseActivity implements
     public boolean onClusterClick(Cluster<CameraItem> cluster) {
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
         if (isCameraGroup(cluster)){
-            Log.i("CAMERAS", "you clicked a blue camera group.");
             mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
             mTracker.setScreenName("/Traffic Map/Camera Group");
             mTracker.send(new HitBuilders.ScreenViewBuilder().build());
@@ -489,7 +485,6 @@ public class TrafficMapActivity extends BaseActivity implements
         } else {
             menu.getItem(0).setTitle("Show Cameras");
             menu.getItem(0).setIcon(R.drawable.ic_menu_traffic_cam_off);
-
         }
 
         if (clusterCameras) {
@@ -498,7 +493,6 @@ public class TrafficMapActivity extends BaseActivity implements
         } else {
             menu.getItem(4).setTitle("Cluster Cameras");
             menu.getItem(4).setIcon(R.drawable.ic_menu_traffic_cam_off);
-
         }
 
         if (showRestAreas) {
@@ -513,17 +507,13 @@ public class TrafficMapActivity extends BaseActivity implements
          */
         try {
             LatLng center = mMap.getCameraPosition().target;
-
             if (inPolygon(seattleArea, center.latitude, center.longitude)) {
-                
                 MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
                 MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
             }
-
         } catch (NullPointerException e) {
             Log.e(TAG, "Error getting LatLng center");
         }
-
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -548,7 +538,6 @@ public class TrafficMapActivity extends BaseActivity implements
                     public void onClick(DialogInterface dialog, int whichButton) {
                         dialog.dismiss();
                     }
-
                 });
 
                 builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
@@ -698,7 +687,6 @@ public class TrafficMapActivity extends BaseActivity implements
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.map_legend:
-                // TODO: Pop up with map legend?
                 AlertDialog.Builder imageDialog = new AlertDialog.Builder(this, R.style.WSDOT_popup);
                 LayoutInflater inflater = (LayoutInflater) this.getSystemService(LAYOUT_INFLATER_SERVICE);
 
@@ -713,7 +701,6 @@ public class TrafficMapActivity extends BaseActivity implements
                 imageDialog.show();
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -799,8 +786,6 @@ public class TrafficMapActivity extends BaseActivity implements
                     .setAction("Cameras")
                     .setLabel("Hide Cameras")
                     .build());
-
-
         } else {
 
             if (clusterCameras) {
@@ -1127,14 +1112,12 @@ public class TrafficMapActivity extends BaseActivity implements
     public boolean onMyLocationButtonClick() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-
             Location location = LocationServices.FusedLocationApi
                     .getLastLocation(mGoogleApiClient);
+            requestLocationUpdates();
 
-            if (location == null) {
-                requestLocationUpdates();
-            } else {
-                handleNewLocation(location);
+            if (location != null) {
+                moveToNewLocation(location);
             }
         }
         return true;
@@ -1155,21 +1138,28 @@ public class TrafficMapActivity extends BaseActivity implements
 
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "Location services connected.");
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-
-            Location location = LocationServices.FusedLocationApi
-                    .getLastLocation(mGoogleApiClient);
-
-            if (location == null) {
-                requestLocationUpdates();
-            }
-        }
     }
 
     public void onLocationChanged(Location location) {
-        // No action taken on user location change
+        // check users speed
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (location.getSpeed() > 9 && !settings.getBoolean("KEY_SEEN_DRIVER_ALERT", false)) {
+
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("KEY_SEEN_DRIVER_ALERT", true);
+            editor.apply();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.WSDOT_popup);
+            builder.setCancelable(false);
+            builder.setTitle("You're moving fast.");
+            builder.setMessage("Remember to not use the app while driving.");
+            builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {}
+            });
+            builder.create().show();
+        }
     }
 
     public void onConnectionSuspended(int i) {
@@ -1180,9 +1170,8 @@ public class TrafficMapActivity extends BaseActivity implements
      *
      * @param location - The new location returned from location updates
      */
-    private void handleNewLocation(Location location) {
+    private void moveToNewLocation(Location location) {
         Log.d(TAG, location.toString());
-
         double currentLatitude = location.getLatitude();
         double currentLongitude = location.getLongitude();
         LatLng latLng = new LatLng(currentLatitude, currentLongitude);
@@ -1196,34 +1185,10 @@ public class TrafficMapActivity extends BaseActivity implements
     private void requestLocationUpdates() {
         if (ContextCompat.checkSelfPermission(TrafficMapActivity.this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    TrafficMapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show explanation to user explaining why we need the permission
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage("To receive relevant location based notifications you must allow us access to your location.");
-                builder.setTitle("Location Services");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        ActivityCompat.requestPermissions(
-                                TrafficMapActivity.this,
-                                new String[]{
-                                        Manifest.permission.ACCESS_FINE_LOCATION},
-                                REQUEST_ACCESS_FINE_LOCATION);
-                    }
-                });
-                builder.setNegativeButton("Cancel", null);
-                builder.show();
-
-            } else {
-                // No explanation needed, we can request the permission
-                ActivityCompat.requestPermissions(TrafficMapActivity.this,
-                        new String[]{
-                                Manifest.permission.ACCESS_FINE_LOCATION},
-                        REQUEST_ACCESS_FINE_LOCATION);
-            }
+            ActivityCompat.requestPermissions(TrafficMapActivity.this,
+                    new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_ACCESS_FINE_LOCATION);
         } else {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, mLocationRequest, this);
@@ -1251,18 +1216,19 @@ public class TrafficMapActivity extends BaseActivity implements
     @SuppressWarnings({"MissingPermission"})
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_ACCESS_FINE_LOCATION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
-                Log.i(TAG, "Request permissions granted!!!");
-                mMap.setMyLocationEnabled(true);
-                LocationServices.FusedLocationApi.requestLocationUpdates(
-                        mGoogleApiClient, mLocationRequest, this);
-            } else {
-                // Permission was denied or request was cancelled
-                Log.i(TAG, "Request permissions denied...");
+            if (grantResults.length > 0 || permissions.length > 0) { // Check if request was canceled.
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted
+                    Log.i(TAG, "Request permissions granted!!!");
+                    mMap.setMyLocationEnabled(true);
+                    LocationServices.FusedLocationApi.requestLocationUpdates(
+                            mGoogleApiClient, mLocationRequest, this);
+                } else {
+                    // Permission was denied or request was cancelled
+                    Log.i(TAG, "Request permissions denied...");
+                }
             }
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     /**
@@ -1328,7 +1294,6 @@ public class TrafficMapActivity extends BaseActivity implements
         protected void onBeforeClusterRendered(Cluster<CameraItem> cluster, MarkerOptions markerOptions) {
             // Draw multiple cameras
 
-            // TODO: Open cluster groups as list of cameras if in same location
             // Loop through all cameras in cluster, check lat/long, if same make group?
             // How do we mark this special kind of cluster? With the blue icon.
             // How to we capture click events and know it's one of these groups?
@@ -1421,9 +1386,7 @@ public class TrafficMapActivity extends BaseActivity implements
                         .snippet(cameras.get(i).getCameraId().toString())
                         .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
                         .visible(showCameras));
-
                 markers.put(marker, "camera");
-
             }
         }
     }
