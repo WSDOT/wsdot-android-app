@@ -1454,7 +1454,6 @@ public class TrafficMapActivity extends BaseActivity implements
         for (Entry<Marker, String> entry : markers.entrySet()) {
             Marker key = entry.getKey();
             String value = entry.getValue();
-
             if (value.equalsIgnoreCase("camera")) {
                 key.remove();
             }

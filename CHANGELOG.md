@@ -4,7 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.6.0] - 2016-11-30
 ### Added
+- Can now turn the traffic alerts map overlay off.
 - Alert dialog when app detects speeds above ~20mph. Reminds user to not use the app while driving.
 
 ### Fixed
