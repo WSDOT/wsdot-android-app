@@ -4,13 +4,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- Crash when rotating the app while requesting permissions in the Amtrak Cascades section. 
+
 ## [4.6.0] - 2016-11-30
 ### Added
 - Can now turn the traffic alerts map overlay off.
 - Alert dialog when app detects speeds above ~20mph. Reminds user to not use the app while driving.
 
 ### Fixed
-- Crash when rotating the app while requesting permissions. 
+- Crash when rotating the app while requesting permissions on the Traffic Map. 
 
 ## [4.5.0] - 2016-11-15
 ### Added

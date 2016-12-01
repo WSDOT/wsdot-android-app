@@ -410,18 +410,20 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
     
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_ACCESS_FINE_LOCATION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
-                    Log.i(TAG, "Request permissions granted!!!");
-                } else {
-                    // Permission was denied or request was cancelled
-                    Log.i(TAG, "Request permissions denied...");
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length > 0 || permissions.length > 0) { // Check if request was canceled.
+            switch (requestCode) {
+                case REQUEST_ACCESS_FINE_LOCATION:
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        // Permission granted
+                        Log.i(TAG, "Request permissions granted!!!");
+                    } else {
+                        // Permission was denied or request was cancelled
+                        Log.i(TAG, "Request permissions denied...");
+                    }
+                    break;
+                default:
+                    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            }
         }
     }
 
