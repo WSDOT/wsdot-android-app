@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Fixed
+- Index out of bounds exception when viewing a cameras list caused by threading issues. 
 - Crash when rotating the app while requesting permissions in the Amtrak Cascades section. 
 
 ## [4.6.0] - 2016-11-30
