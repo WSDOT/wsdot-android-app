@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.widget.ImageView;
 
 import org.jsoup.Jsoup;
@@ -54,12 +55,15 @@ public class ImageManager {
 		}
 	}
 
-
 	private void queueImage(String url, Activity activity, ImageView imageView) {
 		// This ImageView might have been used for other images, so we clear 
 		// the queue of old tasks before starting.
-		imageQueue.Clean(imageView);
-		ImageRef p=new ImageRef(url, imageView);
+
+        synchronized(imageQueue.imageRefs) {
+            imageQueue.Clean(imageView);
+        }
+
+        ImageRef p=new ImageRef(url, imageView);
 
 		synchronized(imageQueue.imageRefs) {
 			imageQueue.imageRefs.push(p);
@@ -133,11 +137,10 @@ public class ImageManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		return null;
 	}
 
-	public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+	private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
 	    // Raw height and width of original image
 	    final int height = options.outHeight;
 	    final int width = options.outWidth;
@@ -156,7 +159,6 @@ public class ImageManager {
 	
 	private void writeFile(Bitmap bmp, File f) {
 		FileOutputStream out = null;
-
 		try {
 			out = new FileOutputStream(f);
 			bmp.compress(Bitmap.CompressFormat.JPEG, 75, out);
@@ -165,12 +167,13 @@ public class ImageManager {
 		}
 		finally { 
 			try { if (out != null ) out.close(); }
-			catch(Exception ex) {} 
+			catch(Exception ex) {
+                Log.e("ImageManager", ex.getMessage());
+            }
 		}
 	}
 
 	/** Classes **/
-
 	private class ImageRef {
 		public String url;
 		public ImageView imageView;
@@ -183,16 +186,13 @@ public class ImageManager {
 
 	//stores list of images to download
 	private class ImageQueue {
-		private Stack<ImageRef> imageRefs = 
-				new Stack<ImageRef>();
-
+		private final Stack<ImageRef> imageRefs = new Stack<>();
 		//removes all instances of this ImageView
 		public void Clean(ImageView view) {
-
-			for(int i = 0 ;i < imageRefs.size();) {
-				if(imageRefs.get(i).imageView == view)
-					imageRefs.remove(i);
-				else ++i;
+			for(int i = 0 ; i < imageRefs.size();) {
+				if(imageRefs.get(i).imageView == view) {
+                    imageRefs.remove(i);
+                } else ++i;
 			}
 		}
 	}
