@@ -651,15 +651,17 @@ public class VesselWatchMapActivity extends BaseActivity implements
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_ACCESS_FINE_LOCATION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
-                Log.i(TAG, "Request permissions granted!!!");
-                mMap.setMyLocationEnabled(true);
-                LocationServices.FusedLocationApi.requestLocationUpdates(
-                        mGoogleApiClient, mLocationRequest, this);
-            } else {
-                // Permission was denied or request was cancelled
-                Log.i(TAG, "Request permissions denied...");
+            if (grantResults.length > 0 || permissions.length > 0) { // Check if request was canceled.
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted
+                    Log.i(TAG, "Request permissions granted!!!");
+                    mMap.setMyLocationEnabled(true);
+                    LocationServices.FusedLocationApi.requestLocationUpdates(
+                            mGoogleApiClient, mLocationRequest, this);
+                } else {
+                    // Permission was denied or request was cancelled
+                    Log.i(TAG, "Request permissions denied...");
+                }
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
