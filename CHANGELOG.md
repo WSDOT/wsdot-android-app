@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- Updated Play Services. 
+
 ### Fixed
 - Index out of bounds exception when viewing a cameras list caused by threading issues. 
 - Crash when rotating the app while requesting permissions in the Amtrak Cascades and Vessel Watch sections.
