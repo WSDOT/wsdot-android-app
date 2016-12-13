@@ -106,7 +106,7 @@
     <string name="pref_header_notifications">Notifications</string>
 
     <string name="pref_title_emergency_alerts">Emergency Traffic Alerts</string>
-    <string name="pref_desc_emergency_alerts">Receive alerts involving major road way closures and incidents.</string>
+    <string name="pref_desc_emergency_alerts">Receive alerts about major road way closures and incidents.</string>
 
 
 </resources>
