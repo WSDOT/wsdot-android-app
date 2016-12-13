@@ -24,12 +24,16 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +59,18 @@ public class HomeActivity extends BaseActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        FirebaseMessaging.getInstance().subscribeToTopic("test");
+
+        Bundle args = getIntent().getExtras();
+        //Date date = new Date(Long.parseLong(args.getString("AlertPublishDate")));
+
+        if (args != null) {
+            String extra = args.getString("test");
+            if (extra != null) {
+                Log.e(TAG, extra);
+            }
+        }
 
         // Force use of overflow menu on devices with ICS and menu button.
         UIUtils.setHasPermanentMenuKey(this, false);
