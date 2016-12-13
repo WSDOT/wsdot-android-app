@@ -7,5 +7,11 @@
 		android:title="@string/description_about"
 		android:icon="@drawable/ic_menu_info"
 		android:orderInCategory="1"
-		wsdot:showAsAction="always" />
+		wsdot:showAsAction="ifRoom" />
+	<item
+		android:id="@+id/menu_setting"
+		android:title="@string/description_about"
+		android:icon="@drawable/ic_menu_settings_white"
+		android:orderInCategory="1"
+		wsdot:showAsAction="ifRoom" />
 </menu>

@@ -60,7 +60,7 @@ public class HomeActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FirebaseMessaging.getInstance().subscribeToTopic("test");
+
 
         Bundle args = getIntent().getExtras();
         //Date date = new Date(Long.parseLong(args.getString("AlertPublishDate")));
@@ -142,6 +142,9 @@ public class HomeActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.menu_about:
             	startActivity(new Intent(this, AboutActivity.class));
+                break;
+            case R.id.menu_setting:
+                startActivity(new Intent(this, SettingsActivity.class));
                 break;
         }
         return super.onOptionsItemSelected(item);
