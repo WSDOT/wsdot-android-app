@@ -30,10 +30,6 @@ import android.view.MenuItem;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,8 +55,6 @@ public class HomeActivity extends BaseActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
 
         Bundle args = getIntent().getExtras();
         //Date date = new Date(Long.parseLong(args.getString("AlertPublishDate")));
@@ -120,14 +114,11 @@ public class HomeActivity extends BaseActivity {
                     mAppBar.setExpanded(true);
                 }
             }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
     }
 
@@ -149,8 +140,4 @@ public class HomeActivity extends BaseActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-
-
-
 }
