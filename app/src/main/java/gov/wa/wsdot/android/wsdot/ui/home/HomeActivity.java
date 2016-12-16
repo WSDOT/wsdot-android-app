@@ -19,12 +19,13 @@
 package gov.wa.wsdot.android.wsdot.ui.home;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -37,6 +38,8 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
+import gov.wa.wsdot.android.wsdot.ui.socialmedia.blogger.BlogActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.HomePager;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
@@ -56,15 +59,7 @@ public class HomeActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle args = getIntent().getExtras();
-        //Date date = new Date(Long.parseLong(args.getString("AlertPublishDate")));
-
-        if (args != null) {
-            String extra = args.getString("test");
-            if (extra != null) {
-                Log.e(TAG, extra);
-            }
-        }
+        checkForCloudMessage(getIntent().getExtras());
 
         // Force use of overflow menu on devices with ICS and menu button.
         UIUtils.setHasPermanentMenuKey(this, false);
@@ -139,5 +134,51 @@ public class HomeActivity extends BaseActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void checkForCloudMessage(Bundle data){
+        if (data != null) {
+
+            String command = data.getString("open");
+
+            // FCM included extra content
+            if (command != null) {
+                switch (command) {
+
+                    case "blog":
+                        Intent intent = new Intent(this, BlogActivity.class);
+                        startActivity(intent);
+                        break;
+                    case "map":
+                        intent = new Intent(this, TrafficMapActivity.class);
+
+                        if (data.get("latitude") != null && data.get("longitude") != null) {
+
+                            String latitude = data.getString("latitude");
+                            String longitude = data.getString("longitude");
+                            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+                            SharedPreferences.Editor editor = settings.edit();
+
+                            try {
+                                editor.putString("KEY_TRAFFICMAP_LAT", String.valueOf(latitude));
+                                editor.putString("KEY_TRAFFICMAP_LON", String.valueOf(longitude));
+                                editor.putInt("KEY_TRAFFICMAP_ZOOM", 13);
+                            } catch (NullPointerException e) {
+                                editor.putString("KEY_TRAFFICMAP_LAT", "47.5990");
+                                editor.putString("KEY_TRAFFICMAP_LON", "-122.3350");
+                                editor.putInt("KEY_TRAFFICMAP_ZOOM", 12);
+                            }
+
+                            editor.apply();
+                        }
+                        startActivity(intent);
+                        break;
+                    default:
+                        intent = new Intent(this, HomeActivity.class);
+                        startActivity(intent);
+                        break;
+                }
+            }
+        }
     }
 }
