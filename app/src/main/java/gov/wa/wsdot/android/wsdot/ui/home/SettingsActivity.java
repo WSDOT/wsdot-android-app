@@ -63,9 +63,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
                 if (preference.getKey().equals(PREF_ALL_EMERGENCY_ALERTS)) {
                     if ((boolean)value){
-                        FirebaseMessaging.getInstance().subscribeToTopic("test");
+                        FirebaseMessaging.getInstance().subscribeToTopic("emergency_notifications");
                     }else {
-                        FirebaseMessaging.getInstance().unsubscribeFromTopic("test");
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("emergency_notifications");
                     }
                 }
             }

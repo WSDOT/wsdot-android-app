@@ -18,10 +18,6 @@ import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 public class PushNotificationAlertActivity extends BaseActivity {
 
     private static final String TAG = PushNotificationAlertActivity.class.getSimpleName();
-    private TextView textview;
-    private Button details_button;
-    private Button dismiss_button;
-    private String message;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +25,7 @@ public class PushNotificationAlertActivity extends BaseActivity {
 
         setContentView(R.layout.push_notification_alert);
 
-        message = "";
+        String message = "";
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -38,10 +34,10 @@ public class PushNotificationAlertActivity extends BaseActivity {
             message = "Error loading message content.";
         }
 
-        textview = (TextView)findViewById(R.id.textview);
+        TextView textview = (TextView) findViewById(R.id.textview);
         textview.setText(message);
 
-        dismiss_button = (Button)findViewById(R.id.dismiss_button);
+        Button dismiss_button = (Button) findViewById(R.id.dismiss_button);
         dismiss_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
@@ -49,7 +45,7 @@ public class PushNotificationAlertActivity extends BaseActivity {
             }
         });
 
-        details_button = (Button)findViewById(R.id.details_button);
+        Button details_button = (Button) findViewById(R.id.details_button);
 
         checkForCloudMessageCommand(getIntent().getExtras(), details_button);
 
@@ -122,13 +118,8 @@ public class PushNotificationAlertActivity extends BaseActivity {
                         });
                         break;
                     default:
-                        details_button.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view){
-                                Intent intent = new Intent(view.getContext(), HomeActivity.class);
-                                startActivity(intent);
-                            }
-                        });
+                        // failed to match payload to a command
+                        details_button.setVisibility(View.GONE);
                         break;
                 }
             }
