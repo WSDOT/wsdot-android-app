@@ -15,7 +15,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.Map;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.ui.home.HomeActivity;
+import gov.wa.wsdot.android.wsdot.ui.alert.PushNotificationAlertActivity;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -23,7 +23,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        sendNotification(remoteMessage.getNotification().getBody(), remoteMessage.getData());
+        //sendNotification(remoteMessage.getNotification().getBody(), remoteMessage.getData());
+
+        Intent intent = new Intent(this, PushNotificationAlertActivity.class);
+        intent.putExtra("message", remoteMessage.getNotification().getBody());
+        for (Map.Entry<String, String> entry : remoteMessage.getData().entrySet()) {
+            intent.putExtra(entry.getKey(), entry.getValue());
+        }
+        startActivity(intent);
+
+
     }
 
     /**
@@ -44,7 +53,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri);
 
-        Intent intent = new Intent(this, HomeActivity.class);
+        Intent intent = new Intent(this, PushNotificationAlertActivity.class);
         for (Map.Entry<String, String> entry : data.entrySet()) {
             intent.putExtra(entry.getKey(), entry.getValue());
         }

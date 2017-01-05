@@ -17,8 +17,10 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -31,12 +33,12 @@ import gov.wa.wsdot.android.wsdot.R;
  * the {@link Tracker}.
  */
 public class WsdotApplication extends Application {
+
   private Tracker mTracker;
 
   @Override
   public void onCreate() {
     super.onCreate();
-
     //reset driver alert message on app startup.
     SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
     SharedPreferences.Editor editor = settings.edit();
@@ -56,4 +58,5 @@ public class WsdotApplication extends Application {
     }
     return mTracker;
   }
+
 }

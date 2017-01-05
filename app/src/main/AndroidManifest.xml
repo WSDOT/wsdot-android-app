@@ -174,14 +174,24 @@
             android:name=".ui.amtrakcascades.AmtrakCascadesSchedulesDetailsActivity"
             android:label="@string/title_amtrakcascades_train_schedules" />
         <activity android:name=".ui.callout.CalloutActivity" />
+
         <activity
             android:name=".ui.home.SettingsActivity"
             android:label="@string/title_activity_settings" />
+
+        <activity android:name=".ui.alert.PushNotificationAlertActivity"
+            android:label="WSDOT Alert"
+            android:theme="@style/Theme.AppCompat.Light.Dialog.Alert"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            />
 
         <service
             android:name=".service.MyFirebaseInstanceIDService"
             android:enabled="true"
             android:exported="true"></service>
+
+
     </application>
 
 </manifest>

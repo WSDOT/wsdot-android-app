@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textview"
+            android:scrollbars="none"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="24dp"
+            android:layout_alignParentTop="true"
+
+            />
+
+        <Button
+            android:id="@+id/details_button"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+
+            android:text="@string/notifications_view_details"
+            android:textAllCaps="true"
+            android:paddingTop="8dp"
+            android:paddingRight="8dp"
+            android:paddingEnd="8dp"
+            android:paddingLeft="8dp"
+            android:paddingStart="8dp"
+            android:paddingBottom="8dp"
+            android:layout_below="@id/textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/dismiss_button"
+            android:layout_toStartOf="@+id/dismiss_button"
+            />
+
+        <Button
+            android:id="@+id/dismiss_button"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:text="@string/notification_dismiss"
+
+            android:textAllCaps="true"
+            android:paddingTop="8dp"
+            android:paddingStart="8dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            android:layout_below="@id/textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
+</RelativeLayout>
