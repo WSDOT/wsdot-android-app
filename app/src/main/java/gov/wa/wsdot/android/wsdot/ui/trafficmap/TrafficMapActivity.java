@@ -1207,8 +1207,8 @@ public class TrafficMapActivity extends BaseActivity implements
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.WSDOT_popup);
             builder.setCancelable(false);
             builder.setTitle("You're moving fast.");
-            builder.setMessage("Remember to not use the app while driving.");
-            builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+            builder.setMessage("Please do not use the app while driving.");
+            builder.setPositiveButton("I'm a Passenger", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int id) {}
             });
