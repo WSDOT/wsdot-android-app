@@ -56,6 +56,7 @@ public class TwitterActivity extends BaseActivity implements
 		mTwitterScreenNames.put("Good To Go!", "GoodToGoWSDOT");
 		mTwitterScreenNames.put("Snoqualmie Pass", "SnoqualmiePass");
 		mTwitterScreenNames.put("WSDOT", "wsdot");
+        mTwitterScreenNames.put("WSDOT East", "WSDOT_East");
         mTwitterScreenNames.put("WSDOT Jobs", "WSDOTjobs");
         mTwitterScreenNames.put("WSDOT North Traffic", "wsdot_north");
 		mTwitterScreenNames.put("WSDOT Southwest", "wsdot_sw");
