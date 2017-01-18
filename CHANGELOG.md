@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.6.2] - 2016-01-18
+### Added
+- WSDOT East Twitter Account.
+
 ## [4.6.1] - 2016-12-05
 ### Changed
 - Updated Play Services. 
