@@ -84,7 +84,7 @@ public class FerriesFragment extends BaseListFragment {
         
         listViewItems = new ArrayList<ListViewItem>();
         listViewItems.add(new ListViewItem("Route Schedules", FerriesRouteSchedulesActivity.class));
-        listViewItems.add(new ListViewItem("Vehicle Reservations", "http://www.wsdot.wa.gov/ferries/reservations"));
+        listViewItems.add(new ListViewItem("Vehicle Reservations", "https://secureapps.wsdot.wa.gov/Ferries/Reservations/Vehicle/Mobile/MobileDefault.aspx"));
         listViewItems.add(new ListViewItem("Vessel Watch", VesselWatchMapActivity.class));
         
         mAdapter = new ListViewArrayAdapter(getActivity(), R.layout.list_item, listViewItems);
