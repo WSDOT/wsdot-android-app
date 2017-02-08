@@ -126,7 +126,7 @@ public class FerriesSchedulesSyncService extends IntentService {
 					schedule.put(FerriesSchedules.FERRIES_SCHEDULE_UPDATED,
 							dateFormat.format(new Date(Long.parseLong(item
 									.getString("CacheDate").substring(6, 19)))));
-					
+
 					if (starred.contains(item.getInt("RouteID"))) {
 						schedule.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, 1);
 					}

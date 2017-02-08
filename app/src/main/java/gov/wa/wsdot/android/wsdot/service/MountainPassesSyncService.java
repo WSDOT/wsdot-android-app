@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -58,7 +59,7 @@ public class MountainPassesSyncService extends IntentService {
 	private static HashMap<String, String[]> weatherPhrases = new HashMap<>();
 	@SuppressLint("UseSparseArrays")
 	private static HashMap<String, String[]> weatherPhrasesNight = new HashMap<>();
-	private static DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m"); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
+	private static DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,HH,m"); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
 	private static DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 	private static final String MOUNTAIN_PASS_URL = "http://data.wsdot.wa.gov/mobile/MountainPassConditions.js.gz";
 	
@@ -152,9 +153,13 @@ public class MountainPassesSyncService extends IntentService {
 							sb.append(a[m]);
 							sb.append(",");
 						}
+
 						tempDate = sb.toString().trim();
 						tempDate = tempDate.substring(0, tempDate.length()-1);
-						Date date = parseDateFormat.parse(tempDate);
+
+                        parseDateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+                        Date date = parseDateFormat.parse(tempDate);
+
 						mDateUpdated = displayDateFormat.format(date);
 					} catch (Exception e) {
 						Log.e(DEBUG_TAG, "Error parsing date: " + tempDate, e);

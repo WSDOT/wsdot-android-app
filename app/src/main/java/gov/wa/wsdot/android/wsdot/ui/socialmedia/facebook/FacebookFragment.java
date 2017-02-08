@@ -193,9 +193,9 @@ public class FacebookFragment extends BaseFragment implements
 						i.setId(item.getString("id"));
 						
 		            	try {
-                        i.setCreatedAt(ParserUtils.relativeTime(
+                        	i.setCreatedAt(ParserUtils.relativeTimeFromUTC(
                                 item.getString("created_at"),
-                                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
+                                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
 		            	} catch (Exception e) {
 		            		i.setCreatedAt("");
 		            		Log.e(TAG, "Error parsing date", e);
@@ -206,7 +206,6 @@ public class FacebookFragment extends BaseFragment implements
 			} catch (Exception e) {
 				Log.e(TAG, "Error in network call", e);
 			}
-			
 			return mFacebookItems;
 		}
 
@@ -282,7 +281,7 @@ public class FacebookFragment extends BaseFragment implements
 
             // Set onClickListener for holder's view
             holder.itemView.setOnClickListener(
-                    new View.OnClickListener() {
+					new View.OnClickListener() {
                         public void onClick(View v) {
                             String url = "https://facebook.com/" + postID;
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));

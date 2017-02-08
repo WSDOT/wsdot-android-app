@@ -272,7 +272,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
             borderVH.tt.setTypeface(tfb);
 
             String created_at = cursor.getString(cursor.getColumnIndex(BorderWait.BORDER_WAIT_UPDATED));
-            borderVH.bt.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
+            borderVH.bt.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", true));
             borderVH.bt.setTypeface(tf);
 
             int wait = cursor.getInt(cursor.getColumnIndex(BorderWait.BORDER_WAIT_TIME));

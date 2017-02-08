@@ -287,6 +287,7 @@ public class MountainPassesFragment extends BaseFragment implements
             mtpassVH.setCursorPos(cursor.getPosition());
 
             String created_at = cursor.getString(cursor.getColumnIndex(MountainPasses.MOUNTAIN_PASS_DATE_UPDATED));
+
             mtpassVH.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
             mtpassVH.created_at.setTypeface(tf);
 

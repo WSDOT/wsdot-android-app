@@ -332,7 +332,7 @@ public class TravelTimesFragment extends BaseFragment implements
             holder.current_time.setTypeface(tfb);
 
             String created_at = cursor.getString(cursor.getColumnIndex(TravelTimes.TRAVEL_TIMES_UPDATED));
-            holder.updated.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
+            holder.updated.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", true));
             holder.updated.setTypeface(tf);
 
             holder.star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));

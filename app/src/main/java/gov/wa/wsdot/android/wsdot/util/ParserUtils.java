@@ -27,16 +27,45 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class ParserUtils {
+
+
+	public static String relativeTimeFromUTC(String createdAt, String datePattern) {
+
+		DateFormat parseDateFormat = new SimpleDateFormat(datePattern);
+		parseDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		Date parseDate;
+
+		try {
+			parseDate = parseDateFormat.parse(createdAt);
+		} catch (ParseException e) {
+			return "Unavailable";
+		} catch (NullPointerException e) {
+			return "";
+		}
+
+		return getRelative(parseDate);
+
+	}
 	
 	@SuppressLint("SimpleDateFormat")
-	public static String relativeTime(String createdAt, String datePattern, boolean isUTC) {
+	public static String relativeTime(String createdAt, String datePattern, boolean shouldConvertTimeZome) {
 		DateFormat parseDateFormat = new SimpleDateFormat(datePattern);
 		Date parseDate;
 
-		if (isUTC) {
-			parseDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		// createdAt is in America/Los_Angeles time zone
+		if (shouldConvertTimeZome){
+
+			DateFormat dateFormat = new SimpleDateFormat(datePattern);
+			dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+
+			try {
+				Date localDate = dateFormat.parse(createdAt);
+				return getRelative(new Date(localDate.getTime()));
+			} catch(ParseException e){
+				return "Unavailable";
+			}
 		}		
-		
+
 		try {
 			parseDate = parseDateFormat.parse(createdAt);
 		} catch (ParseException e) {

@@ -38,6 +38,7 @@ import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class BorderWaitSyncService extends IntentService {
 
