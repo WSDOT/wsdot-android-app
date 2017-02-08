@@ -26,6 +26,8 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,12 +58,14 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
-    
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getActivity().getIntent().getExtras();
         camerasArray = args.getString("Cameras");
+
+        getLoaderManager().initLoader(0, null, this);
     }
 
 	@Override
@@ -78,7 +82,6 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
         mRecyclerView.setAdapter(mAdapter);
 
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
-
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -147,7 +150,6 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
 					c = new CameraItem();
 					c.setImageUrl(camera.getString("url"));
 					c.setCameraId(camera.getInt("id"));
-					
 					bitmapImages.add(c);
 				}
 			} catch (JSONException e) {
@@ -196,7 +198,16 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
 	        // Ensure the loader is stopped
 	        onStopLoading();			
 		}
-		
+	}
+
+	/**
+	 *  Refresh camera images by adding seconds since 1970 to clear cache.
+	 */
+	public void refresh() {
+		for (int i=0; i < bitmapImages.size(); i++){
+			bitmapImages.get(i).setImageUrl(bitmapImages.get(i).getImageUrl() + "?" + (System.currentTimeMillis() / 1000));
+		}
+		mRecyclerView.getAdapter().notifyDataSetChanged();
 	}
 
 	private class PassCameraImageAdapter extends gov.wa.wsdot.android.wsdot.util.CameraImageAdapter {
@@ -228,5 +239,10 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
 					}
 			);
 		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
 	}
 }

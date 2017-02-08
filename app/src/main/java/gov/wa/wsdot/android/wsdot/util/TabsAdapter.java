@@ -5,7 +5,10 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.SparseArray;
+import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -18,9 +21,9 @@ import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
  * be created when the tab is selected.
  */
 public class TabsAdapter extends FragmentStatePagerAdapter {
-    int mNumOfTabs;
     private final Context mContext;
-    private final List<Class<? extends Fragment>> mFragments;
+    private final List<Class<? extends Fragment>> mFragmentClasses;
+    private final SparseArray<Fragment> mFragments = new SparseArray<>();
     private final Bundle mArgs;
 
     /**
@@ -33,10 +36,10 @@ public class TabsAdapter extends FragmentStatePagerAdapter {
      */
     public TabsAdapter(BaseActivity activity, List<Class<? extends Fragment>> tabFrags, FragmentManager fm, int NumOfTabs) {
         super(fm);
-        this.mNumOfTabs = NumOfTabs;
         mContext = activity;
-        mFragments = tabFrags;
+        mFragmentClasses = tabFrags;
         mArgs = null;
+
     }
 
     /**
@@ -44,19 +47,35 @@ public class TabsAdapter extends FragmentStatePagerAdapter {
      */
     public TabsAdapter(BaseActivity activity, List<Class<? extends Fragment>> tabFrags, FragmentManager fm, int NumOfTabs, Bundle args) {
         super(fm);
-        this.mNumOfTabs = NumOfTabs;
         mContext = activity;
-        mFragments = tabFrags;
+        mFragmentClasses = tabFrags;
         mArgs = args;
     }
 
     @Override
     public Fragment getItem(int position) {
-        return Fragment.instantiate(mContext, mFragments.get(position).getName(), mArgs);
+        return Fragment.instantiate(mContext,  mFragmentClasses.get(position).getName(), mArgs);
     }
 
     @Override
     public int getCount() {
-        return mNumOfTabs;
+        return mFragmentClasses.size();
+    }
+
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        Fragment fragment = (Fragment) super.instantiateItem(container, position);
+        mFragments.put(position, fragment);
+        return fragment;
+    }
+
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        mFragments.remove(position);
+        super.destroyItem(container, position, object);
+    }
+
+    public Fragment getRegisteredFragment(int position) {
+        return mFragments.get(position);
     }
 }

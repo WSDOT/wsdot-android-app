@@ -125,14 +125,12 @@ public class MountainPassesFragment extends BaseFragment implements
     @Override
     public void onPause() {
         super.onPause();
-
         getActivity().unregisterReceiver(mMountainPassesSyncReceiver);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
         IntentFilter filter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
         filter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -160,7 +158,6 @@ public class MountainPassesFragment extends BaseFragment implements
                 MountainPasses.MOUNTAIN_PASS_TEMPERATURE
         };
 
-        // We are only displaying the highest impact alerts on the dashboard.
         CursorLoader cursorLoader = new MountainPassItemsLoader(getActivity(),
                 MountainPasses.CONTENT_URI,
                 projection,

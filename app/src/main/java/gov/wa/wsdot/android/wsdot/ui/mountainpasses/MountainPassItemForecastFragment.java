@@ -20,9 +20,12 @@ package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
 import android.app.Activity;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +39,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
@@ -47,39 +51,39 @@ public class MountainPassItemForecastFragment extends BaseFragment {
 	private MountainPassItemForecastAdapter mAdapter;
 	private static String forecastsArray;
 
+	private int mPassId;
+
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		
-		Bundle args = activity.getIntent().getExtras();
-		forecastsArray = args.getString("Forecasts");
-        
-        JSONArray forecasts;
-        ForecastItem f = null;
-        forecastItems = new ArrayList<ForecastItem>();
-        
-        try {
-			forecasts = new JSONArray(forecastsArray);
-			int numForecasts = forecasts.length();
-			for (int i=0; i < numForecasts; i++) {
-				JSONObject forecast = forecasts.getJSONObject(i);
-				f = new ForecastItem();
-				f.setDay(forecast.getString("Day"));
-				f.setForecastText(forecast.getString("ForecastText"));
-				f.setWeatherIcon(getResources().getIdentifier(forecast.getString("weather_icon"), "drawable", getActivity().getPackageName()));
-				forecastItems.add(f);
-			}
-        } catch (JSONException e) {
-			e.printStackTrace();
-		}
-	}
-	
+	String[] projection = {
+			WSDOTContract.MountainPasses._ID,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_ID,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_DATE_UPDATED,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_IS_STARRED,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_NAME,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_WEATHER_CONDITION,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_WEATHER_ICON,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_CAMERA,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_ELEVATION,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_FORECAST,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_ROAD_CONDITION,
+			WSDOTContract.MountainPasses.MOUNTAIN_PASS_TEMPERATURE
+	};
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+		Bundle args = getActivity().getIntent().getExtras();
+		mPassId = args.getInt("id");
+        forecastItems = new ArrayList<>();
+        loadForecast();
+
 	}
 	
 	@Override
@@ -104,6 +108,77 @@ public class MountainPassItemForecastFragment extends BaseFragment {
         
     	return root;
 	}
+
+
+	public void loadForecast() {
+
+		Cursor passCursor = null;
+		Uri baseUri;
+
+		baseUri = WSDOTContract.MountainPasses.CONTENT_URI;
+
+		try {
+
+			Log.e(TAG, "setting up cursor");
+
+			passCursor = getActivity().getContentResolver().query(
+					baseUri,
+					projection,
+					null,
+					null,
+					null
+			);
+
+
+			if (passCursor.moveToFirst()) {
+				while (!passCursor.isAfterLast()) {
+
+					Log.e(TAG, "passCursor.getInt(0) = " + passCursor.getInt(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_ID)));
+					Log.e(TAG, "mPassId = " + mPassId);
+
+					if (passCursor.getInt(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_ID)) == mPassId){
+
+                        forecastItems.clear();
+
+                        forecastsArray = passCursor.getString(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_FORECAST));
+
+                        JSONArray forecasts;
+                        ForecastItem f = null;
+
+                        try {
+                            forecasts = new JSONArray(forecastsArray);
+                            int numForecasts = forecasts.length();
+                            for (int i=0; i < numForecasts; i++) {
+                                JSONObject forecast = forecasts.getJSONObject(i);
+                                f = new ForecastItem();
+                                f.setDay(forecast.getString("Day"));
+                                f.setForecastText(forecast.getString("ForecastText"));
+                                f.setWeatherIcon(getResources().getIdentifier(forecast.getString("weather_icon"), "drawable", getActivity().getPackageName()));
+                                forecastItems.add(f);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+						passCursor.moveToLast();
+						passCursor.moveToNext();
+					} else {
+						passCursor.moveToNext();
+					}
+
+				}
+			}
+
+		} catch (Exception e) {
+			Log.e(TAG, "Error in network call", e);
+		} finally {
+			if (passCursor != null) {
+				passCursor.close();
+			}
+		}
+	}
+
+
 
 	/**
 	 * Custom adapter for items in recycler view.
