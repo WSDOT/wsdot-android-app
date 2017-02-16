@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Refrseh button to pass report page.
+
+### Changed
+- Link to Ferry reservation site now uses mobile link.
+
+### Fixed
+- Fixed timestamp time zone issue.
 
 ## [4.6.2] - 2016-01-18
 ### Added

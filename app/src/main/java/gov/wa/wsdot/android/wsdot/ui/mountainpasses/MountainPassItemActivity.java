@@ -18,21 +18,38 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
+import android.app.Application;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -46,30 +63,39 @@ import java.util.Locale;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
+import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
+import gov.wa.wsdot.android.wsdot.shared.MountainPassItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
+import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
+
+import static android.R.attr.data;
 
 public class MountainPassItemActivity extends BaseActivity {
-	
-	private DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,H,m", Locale.US); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
-	private DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a", Locale.US);
+
 	private boolean mIsStarred = false;
 	private ContentResolver resolver;
 	private int mId;
 	private Tracker mTracker;
+
+    private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
+
+    private MountainPassItemReportFragment mReportFrag;
 
     private TabLayout mTabLayout;
     private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
     private ViewPager mViewPager;
     private gov.wa.wsdot.android.wsdot.util.TabsAdapter mTabsAdapter;
     private Toolbar mToolbar;
-	
+
 	static final private int MENU_ITEM_STAR = 0;
-	
+	static final private int MENU_ITEM_REFRESH = 1;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
-	    
+
 	    Bundle b = getIntent().getExtras();
 	    mId = b.getInt("id");
 	    String mountainPassName = b.getString("MountainPassName");
@@ -126,14 +152,10 @@ public class MountainPassItemActivity extends BaseActivity {
 			}
 
 			@Override
-			public void onTabUnselected(TabLayout.Tab tab) {
-
-			}
+			public void onTabUnselected(TabLayout.Tab tab) {}
 
 			@Override
-			public void onTabReselected(TabLayout.Tab tab) {
-
-			}
+			public void onTabReselected(TabLayout.Tab tab) {}
 		});
 
         enableAds();
@@ -145,11 +167,28 @@ public class MountainPassItemActivity extends BaseActivity {
         }
 	}
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.unregisterReceiver(mMountainPassesSyncReceiver);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        IntentFilter filter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
+        this.registerReceiver(mMountainPassesSyncReceiver, filter);
+    }
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
-		MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
 
+        MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
+        MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
 		if (mIsStarred) {
 			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
 			menu.getItem(MENU_ITEM_STAR).setTitle("Favorite checkbox, checked");
@@ -158,20 +197,27 @@ public class MountainPassItemActivity extends BaseActivity {
 			menu.getItem(MENU_ITEM_STAR).setTitle("Favorite checkbox, not checked");
 		}
 
+        MenuItem menuItem_Refresh = menu.add(1, MENU_ITEM_REFRESH, menu.size(), R.string.description_refresh);
+        MenuItemCompat.setShowAsAction(menuItem_Refresh, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+        menu.getItem(MENU_ITEM_REFRESH).setIcon(R.drawable.ic_menu_refresh);
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
-	    case android.R.id.home:
-	    	finish();
-	    	return true;
-		case MENU_ITEM_STAR:
-			toggleStar(item);
-			return true;
+			case android.R.id.home:
+				finish();
+	    		return true;
+			case MENU_ITEM_STAR:
+				toggleStar(item);
+				return true;
+			case MENU_ITEM_REFRESH:
+                startRefreshAnimation();
+                refresh();
+				return true;
 		}
-
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -241,6 +287,91 @@ public class MountainPassItemActivity extends BaseActivity {
 	    	}
 		}
 	}
+
+    protected void refresh() {
+
+        mTabsAdapter.notifyDataSetChanged();
+
+        Intent intent = new Intent(this, MountainPassesSyncService.class);
+        intent.putExtra("forceUpdate", true);
+        this.startService(intent);
+    }
+
+    private void startRefreshAnimation(){
+        MenuItem item = mToolbar.getMenu().findItem(MENU_ITEM_REFRESH);
+        if (item == null) return;
+
+        // define the animation for rotation
+        Animation animation = new RotateAnimation(360.0f, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f);
+        animation.setDuration(1000);
+
+        animation.setRepeatCount(Animation.INFINITE);
+
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) { }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).setActionView(null);
+                mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).setIcon(R.drawable.ic_menu_refresh);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+
+        ImageView imageView = new ImageView(this, null, android.R.style.Widget_Material_ActionButton);
+        imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_menu_refresh));
+
+        imageView.setPadding(31, imageView.getPaddingTop(), 32, imageView.getPaddingBottom());
+
+        imageView.startAnimation(animation);
+        item.setActionView(imageView);
+    }
+
+    public class MountainPassesSyncReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String responseString = intent.getStringExtra("responseString");
+
+            mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView().getAnimation().setRepeatCount(0);
+
+            if (responseString != null) {
+                switch (responseString) {
+                    case "OK":
+                        Toast.makeText(mTabLayout.getContext(), "Updated", Toast.LENGTH_SHORT).show();
+
+                        SparseArray<Fragment> fragments = mTabsAdapter.getFragments();
+
+                        for (int i = 0; i < fragments.size(); i++){
+                            if (fragments.get(i) instanceof MountainPassItemReportFragment) {
+                                ((MountainPassItemReportFragment) fragments.get(i)).loadReport();
+                            } else if (fragments.get(i) instanceof MountainPassItemForecastFragment) {
+                                ((MountainPassItemForecastFragment) fragments.get(i)).loadForecast();
+                            } else if (fragments.get(i) instanceof MountainPassItemCameraFragment) {
+                                ((MountainPassItemCameraFragment) fragments.get(i)).refresh();
+                            }
+                        }
+
+                        break;
+                    case "NOP":
+                        Toast.makeText(mTabLayout.getContext(), "Updated", Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        Log.e("MountPassSyncReceiver", responseString);
+                        if (!UIUtils.isNetworkAvailable(context)) {
+                            responseString = getString(R.string.no_connection);
+                        }
+                        Toast.makeText(mTabLayout.getContext(), responseString, Toast.LENGTH_LONG).show();
+                        break;
+                }
+            }
+        }
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
