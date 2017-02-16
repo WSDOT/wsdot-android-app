@@ -40,6 +40,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -344,14 +345,16 @@ public class MountainPassItemActivity extends BaseActivity {
                     case "OK":
                         Toast.makeText(mTabLayout.getContext(), "Updated", Toast.LENGTH_SHORT).show();
 
-                        Fragment currentFragment = mTabsAdapter.getRegisteredFragment(mViewPager.getCurrentItem());
+                        SparseArray<Fragment> fragments = mTabsAdapter.getFragments();
 
-                        if (currentFragment instanceof MountainPassItemReportFragment) {
-                            ((MountainPassItemReportFragment) currentFragment).loadReport();
-                        } else if (currentFragment instanceof MountainPassItemForecastFragment) {
-                            ((MountainPassItemForecastFragment) currentFragment).loadForecast();
-                        } else if (currentFragment instanceof MountainPassItemCameraFragment) {
-                            ((MountainPassItemCameraFragment) currentFragment).refresh();
+                        for (int i = 0; i < fragments.size(); i++){
+                            if (fragments.get(i) instanceof MountainPassItemReportFragment) {
+                                ((MountainPassItemReportFragment) fragments.get(i)).loadReport();
+                            } else if (fragments.get(i) instanceof MountainPassItemForecastFragment) {
+                                ((MountainPassItemForecastFragment) fragments.get(i)).loadForecast();
+                            } else if (fragments.get(i) instanceof MountainPassItemCameraFragment) {
+                                ((MountainPassItemCameraFragment) fragments.get(i)).refresh();
+                            }
                         }
 
                         break;

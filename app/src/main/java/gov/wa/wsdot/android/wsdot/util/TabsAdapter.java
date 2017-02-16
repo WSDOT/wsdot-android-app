@@ -75,7 +75,7 @@ public class TabsAdapter extends FragmentStatePagerAdapter {
         super.destroyItem(container, position, object);
     }
 
-    public Fragment getRegisteredFragment(int position) {
-        return mFragments.get(position);
+    public SparseArray<Fragment> getFragments() {
+        return mFragments;
     }
 }
