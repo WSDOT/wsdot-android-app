@@ -119,8 +119,6 @@ public class MountainPassItemForecastFragment extends BaseFragment {
 
 		try {
 
-			Log.e(TAG, "setting up cursor");
-
 			passCursor = getActivity().getContentResolver().query(
 					baseUri,
 					projection,
@@ -132,9 +130,6 @@ public class MountainPassItemForecastFragment extends BaseFragment {
 
 			if (passCursor.moveToFirst()) {
 				while (!passCursor.isAfterLast()) {
-
-					Log.e(TAG, "passCursor.getInt(0) = " + passCursor.getInt(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_ID)));
-					Log.e(TAG, "mPassId = " + mPassId);
 
 					if (passCursor.getInt(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_ID)) == mPassId){
 
