@@ -178,8 +178,6 @@ public class MountainPassItemForecastFragment extends BaseFragment {
 		}
 	}
 
-
-
 	/**
 	 * Custom adapter for items in recycler view.
 	 *

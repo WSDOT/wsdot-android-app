@@ -27,7 +27,6 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,8 +63,6 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
         super.onCreate(savedInstanceState);
         Bundle args = getActivity().getIntent().getExtras();
         camerasArray = args.getString("Cameras");
-
-        getLoaderManager().initLoader(0, null, this);
     }
 
 	@Override

@@ -158,7 +158,6 @@ public class MountainPassItemReportFragment extends BaseFragment {
                     null
             );
 
-
             if (passCursor.moveToFirst()) {
                 while (!passCursor.isAfterLast()) {
                     if (passCursor.getInt(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_ID)) == mPassId){
@@ -202,27 +201,4 @@ public class MountainPassItemReportFragment extends BaseFragment {
             }
         }
     }
-
-	public void displayNewReport(Bundle args){
-
-		mWeatherCondition = args.getString("WeatherCondition");
-		mTemperatureInFahrenheit = args.getString("TemperatureInFahrenheit");
-
-		if (mWeatherCondition.equals("")) mWeatherCondition = "Not available";
-		if (mTemperatureInFahrenheit.equals("null")) {
-			mTemperatureInFahrenheit = "Not available";
-		} else {
-			mTemperatureInFahrenheit = mTemperatureInFahrenheit + "\u00b0F";
-		}
-
-		mDateUpdated = args.getString("DateUpdated");
-		mElevationInFeet = args.getString("ElevationInFeet");
-		mRoadCondition = args.getString("RoadCondition");
-		mRestrictionOneTravelDirection = args.getString("RestrictionOneTravelDirection");
-		mRestrictionOneText = args.getString("RestrictionOneText");
-		mRestrictionTwoTravelDirection = args.getString("RestrictionTwoTravelDirection");
-		mRestrictionTwoText = args.getString("RestrictionTwoText");
-
-		setUpView();
-	}
 }
