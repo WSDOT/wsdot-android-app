@@ -91,9 +91,8 @@ public class CamerasSyncService extends IntentService {
 		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
 		
 		if (shouldUpdate || forceUpdate) {
-			List<Integer> starred = new ArrayList<Integer>();
-			
-			starred = getStarred();
+
+            List<Integer> starred = getStarred();
 			
 	    	try {
 				URL url = new URL(CAMERAS_URL);

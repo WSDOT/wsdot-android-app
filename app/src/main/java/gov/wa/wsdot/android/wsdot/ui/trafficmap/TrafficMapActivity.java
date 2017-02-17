@@ -54,7 +54,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -147,6 +150,7 @@ public class TrafficMapActivity extends BaseActivity implements
     private ArrayList<LatLonItem> seattleArea = new ArrayList<>();
 
     static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST;
+    static final private int MENU_ITEM_REFRESH = 1;
 
     private CamerasSyncReceiver mCamerasReceiver;
     private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
@@ -168,6 +172,7 @@ public class TrafficMapActivity extends BaseActivity implements
     // Declare a variable for the cluster manager.
     private ClusterManager<CameraItem> mClusterManager;
 
+    private Toolbar mToolbar;
     private Tracker mTracker;
 
     @Override
@@ -178,7 +183,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
         enableAds();
 
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -489,23 +494,23 @@ public class TrafficMapActivity extends BaseActivity implements
         }
 
         if (clusterCameras) {
-            menu.getItem(4).setTitle("Uncluster Cameras");
-            menu.getItem(4).setIcon(R.drawable.ic_menu_traffic_cam);
+            menu.getItem(5).setTitle("Uncluster Cameras");
+            menu.getItem(5).setIcon(R.drawable.ic_menu_traffic_cam);
         } else {
-            menu.getItem(4).setTitle("Cluster Cameras");
-            menu.getItem(4).setIcon(R.drawable.ic_menu_traffic_cam_off);
+            menu.getItem(5).setTitle("Cluster Cameras");
+            menu.getItem(5).setIcon(R.drawable.ic_menu_traffic_cam_off);
         }
 
         if (showAlerts) {
-            menu.getItem(5).setTitle("Hide Highway Alerts");
+            menu.getItem(6).setTitle("Hide Highway Alerts");
         } else {
-            menu.getItem(5).setTitle("Show Highway Alerts");
+            menu.getItem(6).setTitle("Show Highway Alerts");
         }
 
         if (showRestAreas) {
-            menu.getItem(6).setTitle("Hide Rest Areas");
+            menu.getItem(7).setTitle("Hide Rest Areas");
         } else {
-            menu.getItem(6).setTitle("Show Rest Areas");
+            menu.getItem(7).setTitle("Show Rest Areas");
         }
 
         /**
@@ -565,6 +570,9 @@ public class TrafficMapActivity extends BaseActivity implements
 
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
+                return true;
+            case R.id.refresh:
+                refreshOverlays(item);
                 return true;
             case R.id.alerts_in_area:
                 LatLngBounds mBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
@@ -713,6 +721,47 @@ public class TrafficMapActivity extends BaseActivity implements
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void refreshOverlays(final MenuItem item){
+
+        // Force service intents to refresh data
+        // Set extra back to false so force wont happen on idle.
+        camerasIntent.putExtra("forceUpdate", true);
+        alertsIntent.putExtra("forceUpdate", true);
+
+        // define the animation for rotation
+        Animation animation = new RotateAnimation(360.0f, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f);
+        animation.setDuration(1000);
+        animation.setRepeatCount(Animation.INFINITE);
+
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) { }
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).setActionView(null);
+                mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).setIcon(R.drawable.ic_menu_refresh);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+
+        ImageView imageView = new ImageView(this, null, android.R.style.Widget_Material_ActionButton);
+        imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_menu_refresh));
+        imageView.setPadding(31, imageView.getPaddingTop(), 32, imageView.getPaddingBottom());
+        imageView.startAnimation(animation);
+        item.setActionView(imageView);
+
+        startService(camerasIntent);
+        startService(alertsIntent);
+        camerasIntent.putExtra("forceUpdate", false);
+        alertsIntent.putExtra("forceUpdate", false);
+
     }
 
     /*
@@ -1005,9 +1054,12 @@ public class TrafficMapActivity extends BaseActivity implements
                         mClusterManager.addItems(cameras);
                     }
                     mClusterManager.cluster();
-                }else {
+                } else {
                     addCameraMarkers(cameras);
                 }
+            }
+            if (mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView() != null) {
+                mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView().getAnimation().setRepeatCount(0);
             }
         }
     }
@@ -1055,6 +1107,9 @@ public class TrafficMapActivity extends BaseActivity implements
                         markers.put(marker, "alert");
                     }
                 }
+            }
+            if (mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView() != null) {
+                mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView().getAnimation().setRepeatCount(0);
             }
         }
     }
