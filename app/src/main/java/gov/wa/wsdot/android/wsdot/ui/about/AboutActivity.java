@@ -129,7 +129,11 @@ public class AboutActivity extends BaseActivity {
 			} else if (url.startsWith("mailto:")) {
 				Intent emailIntent = new Intent(Intent.ACTION_SEND);
 				emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {"webfeedback@wsdot.wa.gov"});
-				emailIntent.putExtra(Intent.EXTRA_SUBJECT, "WSDOT Android App");
+				if (versionName.equalsIgnoreCase("Not available")) {
+					emailIntent.putExtra(Intent.EXTRA_SUBJECT, "WSDOT Android App");
+				}else {
+					emailIntent.putExtra(Intent.EXTRA_SUBJECT, "WSDOT Android App " + versionName);
+				}
 				emailIntent.setType("message/rfc822"); // this prompts email client only
 				startActivity(Intent.createChooser(emailIntent, "Send Email using"));
 			} else {
