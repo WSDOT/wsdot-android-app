@@ -30,6 +30,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -47,8 +48,10 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,7 +61,10 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
@@ -121,6 +127,8 @@ import gov.wa.wsdot.android.wsdot.util.map.CalloutsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.CamerasOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.HighwayAlertsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
+
+import static android.view.View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION;
 
 public class TrafficMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener, ConnectionCallbacks,
@@ -244,6 +252,41 @@ public class TrafficMapActivity extends BaseActivity implements
         super.onResume();
 
         mGoogleApiClient.connect();
+
+        ArrayList<View> views = new ArrayList<>();
+
+        mToolbar.getRootView().findViewsWithText(views, "overflow", FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean seenTip = settings.getBoolean("KEY_SEEN_TRAFFIC_MENU_TIP", false);
+
+        if (!seenTip && !clusterCameras && showCameras && showAlerts) {
+            TapTargetView.showFor(this,                 // `this` is an Activity
+                    TapTarget.forToolbarOverflow(mToolbar, "Map Options", "Save locations to your favorites, edit traffic map layers & more.")
+                            // All options below are optional
+                            .outerCircleColor(R.color.primary)      // Specify a color for the outer circle
+                            .targetCircleColor(R.color.white)   // Specify a color for the target circle
+                            .titleTextSize(20)                  // Specify the size (in sp) of the title text
+                            .titleTextColor(R.color.white)      // Specify the color of the title text
+                            .descriptionTextSize(15)            // Specify the size (in sp) of the description text
+                            .textColor(R.color.white)            // Specify a color for both the title and description text
+                            .textTypeface(Typeface.SANS_SERIF)  // Specify a typeface for the text
+                            .dimColor(R.color.black)            // If set, will dim behind the view with 30% opacity of the given color
+                            .drawShadow(true)                   // Whether to draw a drop shadow or not
+                            .cancelable(true)                  // Whether tapping outside the outer circle dismisses the view
+                            .tintTarget(true)                   // Whether to tint the target view's color
+                            .transparentTarget(false)           // Specify whether the target is transparent (displays the content underneath)
+                            .targetRadius(60),                  // Specify the target radius (in dp)
+                    new TapTargetView.Listener() {          // The listener can listen for regular clicks, long clicks or cancels
+                        @Override
+                        public void onTargetClick(TapTargetView view) {
+                            super.onTargetClick(view);      // This call is optional
+
+                        }
+                    });
+        }
+
+        settings.edit().putBoolean("KEY_SEEN_TRAFFIC_MENU_TIP", true).apply();
 
         IntentFilter camerasFilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");

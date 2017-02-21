@@ -4,7 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Refrseh button to pass report page.
+- Refresh button to pass report page.
+- Tip View for traffic map overflow menu.
 
 ### Changed
 - Link to Ferry reservation site now uses mobile link.
