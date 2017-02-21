@@ -21,4 +21,5 @@
     <color name="alerts">#E0E0E0</color>
 
     <color name="primary">#008065</color>
+    <color name="primary_dark">#004F50</color>
 </resources>

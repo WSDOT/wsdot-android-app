@@ -48,6 +48,8 @@ dependencies {
     compile 'org.jsoup:jsoup:1.7.2'
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.viewpagerindicator:library:2.4.1@aar'
+
+    compile 'com.getkeepsafe.taptargetview:taptargetview:1.8.0'
 }
 
 apply plugin: 'com.google.gms.google-services'
