@@ -77,6 +77,9 @@ public class WSDOTProvider extends ContentProvider {
 
     private static final int MAP_LOCATION = 800;
     private static final int MAP_LOCATION_ID = 801;
+
+    private static final int MY_ROUTE = 900;
+    private static final int MY_ROUTE_ID = 901;
     
     private static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -102,6 +105,8 @@ public class WSDOTProvider extends ContentProvider {
         matcher.addURI(authority, "border_wait/#", BORDER_WAIT_ID);
         matcher.addURI(authority, "map_location", MAP_LOCATION);
         matcher.addURI(authority, "map_location/#", MAP_LOCATION_ID);
+        matcher.addURI(authority, "my_route", MY_ROUTE);
+        matcher.addURI(authority, "my_route/#", MY_ROUTE_ID);
         
         return matcher;
 	}
@@ -156,6 +161,10 @@ public class WSDOTProvider extends ContentProvider {
             return WSDOTContract.MapLocation.CONTENT_TYPE;
         case MAP_LOCATION_ID:
             return WSDOTContract.MapLocation.CONTENT_ITEM_TYPE;
+        case MY_ROUTE:
+            return WSDOTContract.MyRoute.CONTENT_TYPE;
+        case MY_ROUTE_ID:
+            return WSDOTContract.MyRoute.CONTENT_ITEM_TYPE;
         default:
         	throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -250,7 +259,14 @@ public class WSDOTProvider extends ContentProvider {
             queryBuilder.setTables(WSDOTDatabase.Tables.MAP_LOCATION);
             queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
             break;
-
+        case MY_ROUTE:
+            queryBuilder.setTables(Tables.MY_ROUTE);
+            // no filter
+            break;
+        case MY_ROUTE_ID:
+            queryBuilder.setTables(Tables.MY_ROUTE);
+            queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
+            break;
 	    default:
 	    	throw new IllegalArgumentException("Unknown URI " + uri);
 	    }
@@ -387,7 +403,19 @@ public class WSDOTProvider extends ContentProvider {
                         selectionArgs);
             }
             break;
-        
+        case MY_ROUTE:
+            rowsAffected = sqlDB.delete(Tables.MY_ROUTE, selection, selectionArgs);
+            break;
+        case MY_ROUTE_ID:
+            id = uri.getLastPathSegment();
+            if (TextUtils.isEmpty(selection)) {
+                rowsAffected = sqlDB.delete(Tables.MY_ROUTE, BaseColumns._ID + "=" + id, null);
+            } else {
+                rowsAffected = sqlDB.delete(Tables.MY_ROUTE,
+                        selection + " and " + BaseColumns._ID + "=" + id,
+                        selectionArgs);
+            }
+            break;
         default:
             throw new IllegalArgumentException("Unknown or Invalid URI " + uri);
         }
@@ -514,8 +542,20 @@ public class WSDOTProvider extends ContentProvider {
             }
 
             return rowsAdded;
+        case MY_ROUTE:
+            sqlDB.beginTransaction();
+            try {
+                for (ContentValues value : values) {
+                    sqlDB.insert(Tables.MY_ROUTE, null, value);
+                }
+                sqlDB.setTransactionSuccessful();
+                rowsAdded = values.length;
+            } finally {
+                getContext().getContentResolver().notifyChange(uri, null);
+                sqlDB.endTransaction();
+            }
 
-
+            return rowsAdded;
         default:
     		throw new UnsupportedOperationException("Unknown uri: " + uri);
     	}
@@ -645,6 +685,19 @@ public class WSDOTProvider extends ContentProvider {
             } catch (SQLiteConstraintException e) {
                 Log.i(DEBUG_TAG, "Ignoring constraint failure.");
             }
+        case MY_ROUTE:
+            try {
+                long rowId = sqlDB.insertOrThrow(Tables.MY_ROUTE, null, values);
+                if (rowId > 0) {
+                    Uri newUri = ContentUris.withAppendedId(uri, rowId);
+                    getContext().getContentResolver().notifyChange(uri, null);
+                    return newUri;
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+            } catch (SQLiteConstraintException e) {
+                Log.i(DEBUG_TAG, "Ignoring constraint failure.");
+            }
         default:
     		throw new UnsupportedOperationException("Unknown uri: " + uri);
     	}
@@ -681,7 +734,10 @@ public class WSDOTProvider extends ContentProvider {
         	rowsAffected = sqlDB.update(Tables.BORDER_WAIT, values, selection, selectionArgs);
         	break;
         case MAP_LOCATION:
-            rowsAffected = sqlDB.update(Tables.BORDER_WAIT, values, selection, selectionArgs);
+            rowsAffected = sqlDB.update(Tables.MAP_LOCATION, values, selection, selectionArgs);
+            break;
+        case MY_ROUTE:
+            rowsAffected = sqlDB.update(Tables.MY_ROUTE, values, selection, selectionArgs);
             break;
         default:
             throw new IllegalArgumentException("Unknown or Invalid URI");

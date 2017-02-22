@@ -82,7 +82,7 @@ public class FavoritesFragment extends BaseFragment implements
 	private Intent mMountainPassesIntent;
 	private Intent mTravelTimesIntent;
 	
-	private static SwipeRefreshLayout swipeRefreshLayout;
+	private SwipeRefreshLayout swipeRefreshLayout;
 	
 	private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
@@ -1091,7 +1091,6 @@ public class FavoritesFragment extends BaseFragment implements
         }
     }
 
-
     private class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView title;
         LinearLayout divider;
@@ -1169,5 +1168,3 @@ public class FavoritesFragment extends BaseFragment implements
         getActivity().startService(mTravelTimesIntent);        
     }
 }
-
-

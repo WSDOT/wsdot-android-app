@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:wsdot="http://schemas.android.com/apk/res-auto">
-    
+
+	<item
+		android:id="@+id/menu_route"
+		android:title="@string/description_my_route"
+		android:icon="@drawable/ic_menu_route"
+		android:orderInCategory="1"
+		wsdot:showAsAction="ifRoom" />
+
     <item
 		android:id="@+id/menu_about"
 		android:title="@string/description_about"
 		android:icon="@drawable/ic_menu_info"
-		android:orderInCategory="1"
-		wsdot:showAsAction="always" />
+		android:orderInCategory="2"
+		wsdot:showAsAction="ifRoom" />
+
+
 </menu>

@@ -1,211 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="gov.wa.wsdot.android.wsdot"
-      android:installLocation="auto">
+    package="gov.wa.wsdot.android.wsdot"
+    android:installLocation="auto">
 
     <permission
         android:name="gov.wa.wsdot.android.wsdot.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> 
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-	<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>   
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 
-	<!-- Required OpenGL ES 2.0. for Maps V2 -->
-	<uses-feature
+    <!-- Required OpenGL ES 2.0. for Maps V2 -->
+    <uses-feature
+        android:name="android.hardware.location.gps"
         android:glEsVersion="0x00020000"
-        android:required="true"
-		android:name="android.hardware.location.gps"/>
+        android:required="true" />
 
     <application
         android:name=".ui.WsdotApplication"
-	 	android:icon="@drawable/ic_launcher"
-	 	android:label="@string/app_name"
-		android:theme="@style/WSDOT"
-        android:allowBackup="true" >
-
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/WSDOT">
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyBfeBLDQdt0QV7qwHZrZQBuBMzNmm_LsP0"/>
+            android:value="AIzaSyBfeBLDQdt0QV7qwHZrZQBuBMzNmm_LsP0" />
 
         <provider
             android:name=".provider.WSDOTProvider"
             android:authorities="gov.wa.wsdot.android.wsdot.provider.WSDOTProvider"
             android:exported="false" />
 
-		<!-- Optionally, register AnalyticsReceiver and AnalyticsService to support background
-          	 dispatching on non-Google Play devices -->
-     	<receiver android:name="com.google.android.gms.analytics.AnalyticsReceiver"
-        	android:enabled="true"
-        	android:exported="false">
-        	<intent-filter>
-            	<action android:name="com.google.android.gms.analytics.ANALYTICS_DISPATCH" />
-        	</intent-filter>
-     	</receiver>
-     	<service android:name="com.google.android.gms.analytics.AnalyticsService"
-        		 android:enabled="true"
-                 android:exported="false"/>
-
-        
-        <service
-            android:name=".service.CamerasSyncService" />
+        <!--
+             Optionally, register AnalyticsReceiver and AnalyticsService to support background
+          	 dispatching on non-Google Play devices
+        -->
+        <receiver
+            android:name="com.google.android.gms.analytics.AnalyticsReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.analytics.ANALYTICS_DISPATCH" />
+            </intent-filter>
+        </receiver>
 
         <service
-            android:name=".service.HighwayAlertsSyncService" />
-
-        <service
-            android:name=".service.MountainPassesSyncService" />
-
-        <service
-            android:name=".service.TravelTimesSyncService" />
-
-        <service
-            android:name=".service.FerriesSchedulesSyncService" />
-
-        <service
-            android:name=".service.FerriesTerminalSailingSpaceSyncService" />
-
-        <service
-            android:name=".service.BorderWaitSyncService" />
+            android:name="com.google.android.gms.analytics.AnalyticsService"
+            android:enabled="true"
+            android:exported="false" />
+        <service android:name=".service.CamerasSyncService" />
+        <service android:name=".service.HighwayAlertsSyncService" />
+        <service android:name=".service.MountainPassesSyncService" />
+        <service android:name=".service.TravelTimesSyncService" />
+        <service android:name=".service.FerriesSchedulesSyncService" />
+        <service android:name=".service.FerriesTerminalSailingSpaceSyncService" />
+        <service android:name=".service.BorderWaitSyncService" />
 
         <activity
             android:name=".ui.home.HomeActivity"
-            android:label="@string/app_name" >
-        	<intent-filter>
-            	<action android:name="android.intent.action.MAIN" />
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!--Include the AdActivity configChanges and theme. -->
-        <activity android:name="com.google.android.gms.ads.AdActivity"
+        <!-- Include the AdActivity configChanges and theme. -->
+        <activity
+            android:name="com.google.android.gms.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@android:style/Theme.Translucent" />
-
         <activity
             android:name=".ui.socialmedia.news.NewsActivity"
             android:label="@string/title_news" />
-
         <activity
             android:name=".ui.about.AboutActivity"
             android:label="@string/title_about" />
-
-   		<activity
-   		    android:name=".ui.socialmedia.blogger.BlogActivity"
-   		    android:label="@string/title_blog" />
-
         <activity
-   		    android:name=".ui.socialmedia.twitter.TwitterActivity"
-   		    android:label="@string/title_twitter" />
-
+            android:name=".ui.socialmedia.blogger.BlogActivity"
+            android:label="@string/title_blog" />
         <activity
-   		    android:name=".ui.socialmedia.facebook.FacebookActivity"
-   		    android:label="@string/title_facebook" />
-
+            android:name=".ui.socialmedia.twitter.TwitterActivity"
+            android:label="@string/title_twitter" />
         <activity
-   		    android:name=".ui.socialmedia.flickr.FlickrActivity"
-   		    android:label="@string/title_flickr" />
-
+            android:name=".ui.socialmedia.facebook.FacebookActivity"
+            android:label="@string/title_facebook" />
         <activity
-   		    android:name=".ui.socialmedia.SocialMediaActivity"
-   		    android:label="@string/title_socialmedia" />
-
-   		<activity
-   		    android:name=".ui.mountainpasses.MountainPassesActivity"
-   		    android:label="@string/title_mountainpasses" />
-
-   		<activity
-   		    android:name=".ui.mountainpasses.MountainPassItemActivity" />
-
-   		<activity
-   		    android:name=".ui.trafficmap.TrafficMapActivity"
-   		    android:label="@string/title_trafficmap" />
-
-   		<activity
-   		    android:name=".ui.trafficmap.incidents.TrafficAlertsActivity"
-   		    android:label="@string/title_alerts" />
-
-   		<activity
-   		    android:name=".ui.trafficmap.traveltimes.TravelTimesActivity"
-   		    android:label="@string/title_traveltimes" />
-
-   		<activity
-   		    android:name=".ui.trafficmap.expresslanes.SeattleExpressLanesActivity"
-   		    android:label="@string/title_expresslanes" />
-
-   		<activity
+            android:name=".ui.socialmedia.flickr.FlickrActivity"
+            android:label="@string/title_flickr" />
+        <activity
+            android:name=".ui.socialmedia.SocialMediaActivity"
+            android:label="@string/title_socialmedia" />
+        <activity
+            android:name=".ui.mountainpasses.MountainPassesActivity"
+            android:label="@string/title_mountainpasses" />
+        <activity android:name=".ui.mountainpasses.MountainPassItemActivity" />
+        <activity
+            android:name=".ui.trafficmap.TrafficMapActivity"
+            android:label="@string/title_trafficmap" />
+        <activity
+            android:name=".ui.trafficmap.incidents.TrafficAlertsActivity"
+            android:label="@string/title_alerts" />
+        <activity
+            android:name=".ui.trafficmap.traveltimes.TravelTimesActivity"
+            android:label="@string/title_traveltimes" />
+        <activity
+            android:name=".ui.trafficmap.expresslanes.SeattleExpressLanesActivity"
+            android:label="@string/title_expresslanes" />
+        <activity
             android:name=".ui.borderwait.BorderWaitActivity"
             android:label="@string/title_borderwait" />
-
-   		<activity
+        <activity
             android:name=".ui.ferries.FerriesActivity"
             android:label="@string/title_ferries" />
-
         <activity
             android:name=".ui.ferries.schedules.FerriesRouteSchedulesActivity"
             android:label="@string/title_ferriesrouteschedules" />
-
+        <activity android:name=".ui.ferries.schedules.FerriesRouteSchedulesDayDeparturesActivity" />
+        <activity android:name=".ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity" />
+        <activity android:name=".ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity" />
+        <activity android:name=".ui.ferries.schedules.FerriesRouteAlertsBulletinDetailsActivity" />
         <activity
-            android:name=".ui.ferries.schedules.FerriesRouteSchedulesDayDeparturesActivity" />
-
+            android:name=".ui.ferries.vesselwatch.VesselWatchMapActivity"
+            android:label="@string/title_vesselwatch" />
+        <activity android:name=".ui.ferries.vesselwatch.VesselWatchDetailsActivity" />
         <activity
-            android:name=".ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity" />
-
+            android:name=".ui.tollrates.TollRatesActivity"
+            android:label="@string/title_tollrates" />
         <activity
-            android:name=".ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity" />
-
-   		<activity
-            android:name=".ui.ferries.schedules.FerriesRouteAlertsBulletinDetailsActivity" />
-
-   		<activity
-   		    android:name=".ui.ferries.vesselwatch.VesselWatchMapActivity"
-   		    android:label="@string/title_vesselwatch" />
-
-   		<activity
-   		    android:name=".ui.ferries.vesselwatch.VesselWatchDetailsActivity" />
-
-   		<activity
-   		    android:name=".ui.tollrates.TollRatesActivity"
-   		    android:label="@string/title_tollrates" />
-
-   		<activity
-   		    android:name=".ui.socialmedia.youtube.YouTubeActivity"
-   		    android:label="@string/title_youtube" />
-
-        <activity
-            android:name=".ui.camera.CameraActivity" />
-
-		<activity
-			android:name=".ui.camera.CameraListActivity"/>
-
-   		<activity
-   		    android:name=".ui.alert.HighwayAlertDetailsActivity" />
-
-		<activity
-			android:name=".ui.trafficmap.restareas.RestAreaActivity"/>
-
+            android:name=".ui.socialmedia.youtube.YouTubeActivity"
+            android:label="@string/title_youtube" />
+        <activity android:name=".ui.camera.CameraActivity" />
+        <activity android:name=".ui.camera.CameraListActivity" />
+        <activity android:name=".ui.alert.HighwayAlertDetailsActivity" />
+        <activity android:name=".ui.trafficmap.restareas.RestAreaActivity" />
         <activity
             android:name=".ui.amtrakcascades.AmtrakCascadesActivity"
             android:label="@string/title_amtrakcascades" />
-
         <activity
             android:name=".ui.amtrakcascades.AmtrakCascadesSchedulesActivity"
             android:label="@string/title_amtrakcascades_schedules" />
-
         <activity
             android:name=".ui.amtrakcascades.AmtrakCascadesSchedulesDetailsActivity"
             android:label="@string/title_amtrakcascades_train_schedules" />
-
+        <activity android:name=".ui.callout.CalloutActivity" />
         <activity
-            android:name=".ui.callout.CalloutActivity" />
-
+            android:name=".ui.myroute.MyRouteActivity"
+            android:label="@string/title_activity_my_route"
+            android:theme="@style/WSDOT" />
+        <activity
+            android:name=".ui.myroute.newroute.NewRouteActivity"
+            android:label="@string/title_activity_new_route"
+            android:theme="@style/WSDOT"></activity>
     </application>
 
 </manifest>

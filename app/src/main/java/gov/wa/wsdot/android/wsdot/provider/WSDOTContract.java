@@ -118,6 +118,21 @@ public class WSDOTContract {
 		String LOCATION_ZOOM = "zoom";
 	}
 
+	interface MyRouteColumns {
+		String MY_ROUTE_ID = "id";
+		String MY_ROUTE_TITLE = "title";
+
+		String MY_ROUTE_LOCATIONS = "locations";
+
+		String MY_ROUTE_DISPLAY_LAT = "latitude";
+		String MY_ROUTE_DISPLAY_LONG = "longitude";
+		String MY_ROUTE_DISPLAY_ZOOM = "zoom";
+
+		String MY_ROUTE_FOUND_FAVORITES = "found_favorites";
+
+		String MY_ROUTE_IS_STARRED = "is_starred";
+	}
+
 	public static final String CONTENT_AUTHORITY = "gov.wa.wsdot.android.wsdot.provider.WSDOTProvider";
 	public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
@@ -132,6 +147,7 @@ public class WSDOTContract {
 	private static final String PATH_FERRIES_TERMINAL_SAILING_SPACE = "ferries_terminal_sailing_space";
 	private static final String PATH_BORDER_WAIT = "border_wait";
 	private static final String PATH_MAP_LOCATION = "map_location";
+	private static final String PATH_MY_ROUTE = "my_route";
 	
 	public static class Caches implements BaseColumns, CachesColumns {
 		public static final Uri CONTENT_URI =
@@ -232,6 +248,16 @@ public class WSDOTContract {
 				ContentResolver.CURSOR_DIR_BASE_TYPE + "/map_location";
 		public static final String CONTENT_ITEM_TYPE =
 				ContentResolver.CURSOR_ITEM_BASE_TYPE + "/map_location";
+	}
+
+	public static class MyRoute implements BaseColumns, MyRouteColumns {
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_MY_ROUTE).build();
+
+		public static final String CONTENT_TYPE =
+				ContentResolver.CURSOR_DIR_BASE_TYPE + "/my_route";
+		public static final String CONTENT_ITEM_TYPE =
+				ContentResolver.CURSOR_ITEM_BASE_TYPE + "/my_route";
 	}
 	
 	private WSDOTContract() {

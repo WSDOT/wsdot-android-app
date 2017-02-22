@@ -31,6 +31,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedulesColumns
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpaceColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.LocationColumns;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MyRouteColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPassesColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimesColumns;
 
@@ -45,7 +46,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 	private static final int VER_4 = 4;
     private static final int VER_5 = 5;
 	private static final int VER_6 = 6;
-	private static final int DATABASE_VERSION = VER_6;
+    private static final int VER_7 = 7;
+	private static final int DATABASE_VERSION = VER_7;
 
     interface Tables {
     	String CACHES = "caches";
@@ -57,6 +59,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         String FERRIES_TERMINAL_SAILING_SPACE = "ferries_terminal_sailing_space";
         String BORDER_WAIT  = "border_wait";
         String MAP_LOCATION = "map_location";
+        String MY_ROUTE = "my_route";
     }
     
 	public WSDOTDatabase(Context context) {
@@ -158,6 +161,17 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + LocationColumns.LOCATION_LAT + " INTEGER,"
                 + LocationColumns.LOCATION_LONG + " INTEGER,"
                 + LocationColumns.LOCATION_ZOOM + " INTEGER);");
+
+        db.execSQL("CREATE TABLE " + Tables.MY_ROUTE + " ("
+                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + MyRouteColumns.MY_ROUTE_ID + " INTEGER,"
+                + MyRouteColumns.MY_ROUTE_TITLE + " TEXT,"
+                + MyRouteColumns.MY_ROUTE_LOCATIONS + " TEXT,"
+                + MyRouteColumns.MY_ROUTE_DISPLAY_LAT + " INTEGER,"
+                + MyRouteColumns.MY_ROUTE_DISPLAY_LONG + " INTEGER,"
+                + MyRouteColumns.MY_ROUTE_DISPLAY_ZOOM + " INTEGER,"
+                + MyRouteColumns.MY_ROUTE_FOUND_FAVORITES + " INTEGER NOT NULL default 0,"
+                + MyRouteColumns.MY_ROUTE_IS_STARRED + " INTEGER NOT NULL default 0);");
         
         seedData(db);
 	}
@@ -221,6 +235,21 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 }
 
 			case VER_6:
+
+                Log.i(TAG, "Performing upgrade for DB version " + version);
+
+                db.execSQL("CREATE TABLE " + Tables.MY_ROUTE + " ("
+                        + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        + MyRouteColumns.MY_ROUTE_ID + " INTEGER,"
+                        + MyRouteColumns.MY_ROUTE_TITLE + " TEXT,"
+                        + MyRouteColumns.MY_ROUTE_LOCATIONS + " TEXT,"
+                        + MyRouteColumns.MY_ROUTE_DISPLAY_LAT + " INTEGER,"
+                        + MyRouteColumns.MY_ROUTE_DISPLAY_LONG + " INTEGER,"
+                        + MyRouteColumns.MY_ROUTE_DISPLAY_ZOOM + " INTEGER,"
+                        + MyRouteColumns.MY_ROUTE_FOUND_FAVORITES + " INTEGER NOT NULL default 0,"
+                        + MyRouteColumns.MY_ROUTE_IS_STARRED + " INTEGER NOT NULL default 0);");
+
+            case VER_7:
 				Log.i(TAG, "DB at version " + DATABASE_VERSION);
                 // Current version, no further action necessary.
 		}

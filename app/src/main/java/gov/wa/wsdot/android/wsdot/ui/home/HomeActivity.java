@@ -35,6 +35,7 @@ import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.HomePager;
@@ -44,7 +45,6 @@ import gov.wa.wsdot.android.wsdot.util.UIUtils;
 public class HomeActivity extends BaseActivity {
 
     private static final String TAG = HomeActivity.class.getSimpleName();
-
     private TabLayout mTabLayout;
     private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
     private HomePager mViewPager;
@@ -126,6 +126,9 @@ public class HomeActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.menu_about:
             	startActivity(new Intent(this, AboutActivity.class));
+                break;
+            case R.id.menu_route:
+                startActivity(new Intent(this, MyRouteActivity.class));
                 break;
         }
         return super.onOptionsItemSelected(item);

@@ -20,10 +20,17 @@ package gov.wa.wsdot.android.wsdot.util;
 
 import android.annotation.SuppressLint;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 public class ParserUtils {
@@ -104,8 +111,7 @@ public class ParserUtils {
 			}
 		} catch (Exception e) {
 			return "Unavailable";
-		}		
-		
+		}
 	}
 	
     /**
@@ -119,4 +125,23 @@ public class ParserUtils {
     public static String pluralize(int count, String singular, String plural) {
         return (count == 1 ? singular : plural);
     }
+
+	/**
+	 * @param id of the route in database
+	 * @return json array of lat/long JSONObjects
+	 */
+    public static JSONArray convertLocationsToJson(List<LatLng> locations){
+		JSONArray locationsJson = new JSONArray();
+		try {
+			for (LatLng location : locations) {
+				JSONObject locationJson = new JSONObject();
+				locationJson.put("latitude", location.latitude);
+				locationJson.put("longitude", location.longitude);
+				locationsJson.put(locationJson);
+			}
+		} catch (JSONException e){
+			e.printStackTrace();
+		}
+		return locationsJson;
+	}
 }

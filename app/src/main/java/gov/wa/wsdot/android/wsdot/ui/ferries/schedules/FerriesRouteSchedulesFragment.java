@@ -132,7 +132,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
     @Override
 	public void onPause() {
 		super.onPause();
-		
 		getActivity().unregisterReceiver(mFerriesSchedulesSyncReceiver);
 	}
 
@@ -301,7 +300,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 					Snackbar removed_snackbar = Snackbar
 							.make(getView(), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
 
-					added_snackbar.setCallback(new Snackbar.Callback() {
+					added_snackbar.addCallback(new Snackbar.Callback() {
 						@Override
 						public void onShown(Snackbar snackbar) {
 							super.onShown(snackbar);
@@ -310,7 +309,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 						}
 					});
 
-					removed_snackbar.setCallback(new Snackbar.Callback() {
+					removed_snackbar.addCallback(new Snackbar.Callback() {
 						@Override
 						public void onShown(Snackbar snackbar) {
 							super.onShown(snackbar);
