@@ -304,7 +304,7 @@ public class TwitterFragment extends BaseFragment implements
 	            	i.setScreenName(user.getString("screen_name"));
 					
 	            	try {
-	            		i.setCreatedAt(ParserUtils.relativeTime(item.getString("created_at"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", true));
+	            		i.setCreatedAt(ParserUtils.relativeTimeFromUTC(item.getString("created_at"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
 	            	} catch (Exception e) {
 	            		i.setCreatedAt("");
 	            		Log.e(TAG, "Error parsing date", e);
