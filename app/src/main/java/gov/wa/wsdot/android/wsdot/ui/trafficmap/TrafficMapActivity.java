@@ -48,10 +48,8 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -61,7 +59,6 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
@@ -153,6 +150,7 @@ public class TrafficMapActivity extends BaseActivity implements
     boolean clusterCameras;
     boolean showCameras;
     boolean showAlerts;
+    boolean showCallouts;
     boolean showRestAreas;
 
     private ArrayList<LatLonItem> seattleArea = new ArrayList<>();
@@ -215,6 +213,7 @@ public class TrafficMapActivity extends BaseActivity implements
         clusterCameras = settings.getBoolean("KEY_CLUSTER_CAMERAS", false);
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
         showAlerts = settings.getBoolean("KEY_SHOW_ALERTS", true);
+        showCallouts = settings.getBoolean("KEY_SHOW_CALLOUTS", true);
         showRestAreas = settings.getBoolean("KEY_SHOW_REST_AREAS", false);
         latitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LAT", "47.5990"));
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
@@ -550,10 +549,16 @@ public class TrafficMapActivity extends BaseActivity implements
             menu.getItem(6).setTitle("Show Highway Alerts");
         }
 
-        if (showRestAreas) {
-            menu.getItem(7).setTitle("Hide Rest Areas");
+        if (showCallouts) {
+            menu.getItem(7).setTitle("Hide JBLM");
         } else {
-            menu.getItem(7).setTitle("Show Rest Areas");
+            menu.getItem(7).setTitle("Show JBLM");
+        }
+
+        if (showRestAreas) {
+            menu.getItem(8).setTitle("Hide Rest Areas");
+        } else {
+            menu.getItem(8).setTitle("Show Rest Areas");
         }
 
         /**
@@ -644,7 +649,10 @@ public class TrafficMapActivity extends BaseActivity implements
                 return true;
             case R.id.toggle_alerts:
                 toggleAlerts(item);
-                return false;
+                return true;
+            case R.id.toggle_callouts:
+                toggleCallouts();
+                return true;
             case R.id.toggle_rest_areas:
                 toggleRestAreas(item);
                 return true;
@@ -914,6 +922,39 @@ public class TrafficMapActivity extends BaseActivity implements
         editor.apply();
     }
 
+    /**
+     * Toggles callout markers
+     */
+    private void toggleCallouts() {
+        // GA tracker
+        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+
+        String label;
+
+        if (showCallouts) {
+            hideCalloutMarkers();
+            showCallouts = false;
+            label = "Hide JBLM";
+
+        } else {
+            showCalloutMarkers();
+            showCallouts = true;
+            label = "Show JBLM";
+
+        }
+
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Traffic")
+                .setAction("Toggle JBLM")
+                .setLabel(label)
+                .build());
+
+        // Save rest areas display preference
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("KEY_SHOW_CALLOUTS", showCallouts);
+        editor.apply();
+    }
 
     /**
      * Toggles rest area markers on/off
@@ -1249,7 +1290,7 @@ public class TrafficMapActivity extends BaseActivity implements
                                     .title(callouts.get(i).getTitle())
                                     .snippet(callouts.get(i).getImageUrl())
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.jblm))
-                                    .visible(true));
+                                    .visible(showCallouts));
 
                             markers.put(marker, "callout");
                         }
@@ -1492,6 +1533,26 @@ public class TrafficMapActivity extends BaseActivity implements
             return true;
         }else {
             return false;
+        }
+    }
+
+    private void hideCalloutMarkers() {
+        for (Entry<Marker, String> entry : markers.entrySet()) {
+            Marker key = entry.getKey();
+            String value = entry.getValue();
+            if (value.equalsIgnoreCase("callout")) {
+                key.setVisible(false);
+            }
+        }
+    }
+
+    private void showCalloutMarkers() {
+        for (Entry<Marker, String> entry : markers.entrySet()) {
+            Marker key = entry.getKey();
+            String value = entry.getValue();
+            if (value.equalsIgnoreCase("callout")) {
+                key.setVisible(true);
+            }
         }
     }
 

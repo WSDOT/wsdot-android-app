@@ -100,7 +100,7 @@
     <string name="cancel">Cancel</string>
     <string name="description_alerts_in_area">Alerts in This Area</string>
     <string name="description_map_legend">Map Legend</string>
-
+    <string name="description_callouts_toggle">Hide JBLM</string>
 
 
 </resources>

@@ -51,15 +51,21 @@
 		wsdot:showAsAction="never" />
 
 	<item
+		android:id="@+id/toggle_callouts"
+		android:title="@string/description_callouts_toggle"
+		android:orderInCategory="8"
+		wsdot:showAsAction="never" />
+
+	<item
 		android:id="@+id/toggle_rest_areas"
 		android:title="@string/description_rest_areas"
-		android:orderInCategory="8"
+		android:orderInCategory="9"
 		wsdot:showAsAction="never" />
 
 	<item
 	    android:id="@+id/goto_location"
 		android:title="@string/description_gotolocation"
-		android:orderInCategory="9"
+		android:orderInCategory="10"
 		wsdot:showAsAction="never" >
 		<menu>
 			<item android:orderInCategory="1" android:title="Bellingham" android:id="@+id/goto_bellingham" />
@@ -84,7 +90,7 @@
     <item
         android:id="@+id/map_legend"
         android:title="@string/description_map_legend"
-        android:orderInCategory="10"
+        android:orderInCategory="11"
         wsdot:showAsAction="never"/>
 
 </menu>
