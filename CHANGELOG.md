@@ -4,14 +4,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [4.7.2] - 2016-27-02
+## [4.7.2] - 2017-02-28
 - Added option to toggle JBLM marker on/off.
 
-## [4.7.1] - 2016-28-02
+## [4.7.1] - 2017-02-27
 ### Fixed
 - timestamp issue
 
-## [4.7.0] - 2016-21-02
+## [4.7.0] - 2017-02-21
 ### Added
 - Refresh button to pass report page.
 - Tip View for traffic map overflow menu.
@@ -23,7 +23,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Fixed timestamp time zone issue.
 
-## [4.6.2] - 2016-01-18
+## [4.6.2] - 2017-01-18
 ### Added
 - WSDOT East Twitter Account.
 
