@@ -159,7 +159,13 @@
         <activity
             android:name=".ui.myroute.newroute.NewRouteActivity"
             android:label="@string/title_activity_new_route"
-            android:theme="@style/WSDOT"></activity>
+            android:theme="@style/WSDOT" />
+        <activity
+            android:name=".ui.myroute.myroutealerts.MyRouteAlertsActivity"
+            android:theme="@style/WSDOT" />
+
+        <activity
+            android:name=".ui.myroute.MyRouteMapActivity"/>
     </application>
 
 </manifest>

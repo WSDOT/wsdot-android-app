@@ -22,6 +22,13 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_new_route" />
+    <fragment
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteMapActivity" />
 
 </android.support.design.widget.CoordinatorLayout>
+

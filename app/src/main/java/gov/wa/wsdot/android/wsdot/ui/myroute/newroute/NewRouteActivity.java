@@ -59,7 +59,7 @@ public class NewRouteActivity extends AppCompatActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
         GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks,
         LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, OnMapReadyCallback,
-        TrackingRouteFragment.TrackingRouteDialogListener {
+        TrackingRouteDialogFragment.TrackingRouteDialogListener {
 
     private final String TAG = "NewRouteActivity";
 
@@ -250,7 +250,7 @@ public class NewRouteActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-
+    // TODO
     private void showAddFavoritesDialog(String id){
 
 
@@ -276,9 +276,9 @@ public class NewRouteActivity extends AppCompatActivity implements
 
     private void showTrackingDialog() {
         FragmentManager fm = getSupportFragmentManager();
-        TrackingRouteFragment  trackingRouteFragment = TrackingRouteFragment.newInstance("Tracking Route");
-        trackingRouteFragment.setCancelable(false);
-        trackingRouteFragment.show(fm, "fragment_edit_name");
+        TrackingRouteDialogFragment trackingRouteDialogFragment = TrackingRouteDialogFragment.newInstance("Tracking Route");
+        trackingRouteDialogFragment.setCancelable(false);
+        trackingRouteDialogFragment.show(fm, "fragment_edit_name");
     }
 
     @Override
@@ -474,7 +474,6 @@ public class NewRouteActivity extends AppCompatActivity implements
             if (ActivityCompat.shouldShowRequestPermissionRationale(
                     NewRouteActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-
                 // Show explanation to user explaining why we need the permission
                 AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
                 builder.setMessage("To create a route you must allow WSDOT access to your location.");
@@ -534,4 +533,20 @@ public class NewRouteActivity extends AppCompatActivity implements
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+
+    public void test(){
+        myRouteLocations.clear();
+        try {
+            JSONArray jsonLocations = new JSONArray("[{\"latitude\":47.033629,\"longitude\":-122.8877723},{\"latitude\":47.033629,\"longitude\":-122.8877723},{\"latitude\":47.0360839,\"longitude\":-122.8941043},{\"latitude\":47.0361707,\"longitude\":-122.8944393},{\"latitude\":47.0360577,\"longitude\":-122.8946311},{\"latitude\":47.0362396,\"longitude\":-122.8940395},{\"latitude\":47.0362396,\"longitude\":-122.8940395},{\"latitude\":47.0336688,\"longitude\":-122.8933905},{\"latitude\":47.0350931,\"longitude\":-122.8942445},{\"latitude\":47.0350931,\"longitude\":-122.8942445},{\"latitude\":47.0350931,\"longitude\":-122.8942445},{\"latitude\":47.0350931,\"longitude\":-122.8942445},{\"latitude\":47.0350931,\"longitude\":-122.8942445},{\"latitude\":47.0350931,\"longitude\":-122.8942445},{\"latitude\":47.0350931,\"longitude\":-122.8942445},{\"latitude\":47.014124,\"longitude\":-122.9050358},{\"latitude\":47.014124,\"longitude\":-122.9050358},{\"latitude\":47.0264555,\"longitude\":-122.9068465},{\"latitude\":47.0251839,\"longitude\":-122.9005929},{\"latitude\":47.0237438,\"longitude\":-122.9118355},{\"latitude\":47.0237438,\"longitude\":-122.9118355},{\"latitude\":47.0237438,\"longitude\":-122.9118355},{\"latitude\":47.0237438,\"longitude\":-122.9118355},{\"latitude\":47.0237438,\"longitude\":-122.9118355}]");
+            for (int i = 0; i < jsonLocations.length(); i++){
+                myRouteLocations.add(new LatLng(jsonLocations.getJSONObject(i).getDouble("latitude"), jsonLocations.getJSONObject(i).getDouble("longitude")));
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        Log.e(TAG, String.valueOf(myRouteLocations.size()));
+
+        drawRouteOnMap();
+    }
 }

@@ -745,5 +745,4 @@ public class WSDOTProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return rowsAffected;
 	}
-
 }

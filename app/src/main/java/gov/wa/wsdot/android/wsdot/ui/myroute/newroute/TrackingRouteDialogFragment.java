@@ -10,21 +10,21 @@ import android.widget.Button;
 
 import gov.wa.wsdot.android.wsdot.R;
 
-public class TrackingRouteFragment extends DialogFragment implements View.OnClickListener {
+public class TrackingRouteDialogFragment extends DialogFragment implements View.OnClickListener {
 
 
     public interface TrackingRouteDialogListener {
         void onFinishTrackingDialog();
     }
 
-    public TrackingRouteFragment() {
+    public TrackingRouteDialogFragment() {
         // Empty constructor is required for DialogFragment
         // Make sure not to add arguments to the constructor
         // Use `newInstance` instead as shown below
     }
 
-    public static TrackingRouteFragment newInstance(String title) {
-        TrackingRouteFragment frag = new TrackingRouteFragment();
+    public static TrackingRouteDialogFragment newInstance(String title) {
+        TrackingRouteDialogFragment frag = new TrackingRouteDialogFragment();
         Bundle args = new Bundle();
         args.putString("title", title);
         frag.setArguments(args);

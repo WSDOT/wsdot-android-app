@@ -1,22 +1,4 @@
-/*
- * Copyright (c) 2015 Washington State Department of Transportation
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- */
-
-package gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents;
+package gov.wa.wsdot.android.wsdot.ui.alert;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -26,7 +8,7 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -38,9 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,20 +37,26 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsListFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
-public class TrafficAlertsFragment extends BaseFragment
-        implements LoaderCallbacks<Cursor>,
+/**
+ * Fragment for displaying a list of alerts.
+ *
+ *  getAlerts() left Abstract for custom implementations
+ */
+
+public abstract class AlertsListFragment extends BaseFragment
+        implements
+        LoaderManager.LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener {
 
-	private static final String TAG = TrafficAlertsFragment.class.getSimpleName();
-	private static ArrayList<HighwayAlertsItem> trafficAlertItems = null;
-    private static Adapter mAdapter;
-	private static View mEmptyView;
-	private static SwipeRefreshLayout swipeRefreshLayout;
+    private static final String TAG = TrafficAlertsListFragment.class.getSimpleName();
+    private static ArrayList<HighwayAlertsItem> trafficAlertItems = new ArrayList<>();
+    private static AlertsListFragment.Adapter mAdapter;
+    private static SwipeRefreshLayout swipeRefreshLayout;
 
-    private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
+    private AlertsListFragment.HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
     private Intent alertsIntent;
 
     private Typeface tf;
@@ -79,39 +65,31 @@ public class TrafficAlertsFragment extends BaseFragment
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
-    private LatLngBounds mBounds;
-
     private final int INCIDENT = 0;
     private final int CONSTRUCTION = 1;
     private final int CLOSURE = 2;
     private final int SPECIAL_EVENTS = 3;
     private final int AMBER = 24;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    /**
+     * What alerts will be displayed in the list.
+     * @param cursor
+     * @return
+     */
+    protected abstract ArrayList<HighwayAlertsItem> getAlerts(Cursor cursor);
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
+
         setRetainInstance(true);
+    }
 
-        //Retrieve the bounds from the intent. Defaults to 0
-        Intent intent = getActivity().getIntent();
-
-        Double nelat = intent.getDoubleExtra("nelat", 0.0);
-        Double nelong = intent.getDoubleExtra("nelong", 0.0);
-        Double swlat = intent.getDoubleExtra("swlat", 0.0);
-        Double swlong = intent.getDoubleExtra("swlong", 0.0);
-
-        LatLng northEast = new LatLng(nelat, nelong);
-        LatLng southWest = new LatLng(swlat, swlong);
-
-        mBounds = new LatLngBounds(southWest, northEast);
-	}    
-    
-	@Override
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
 
         tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
@@ -123,7 +101,7 @@ public class TrafficAlertsFragment extends BaseFragment
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new Adapter();
+        mAdapter = new AlertsListFragment.Adapter();
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -139,17 +117,16 @@ public class TrafficAlertsFragment extends BaseFragment
                 R.color.holo_green_light,
                 R.color.holo_orange_light,
                 R.color.holo_red_light);
-        
-        mEmptyView = root.findViewById(R.id.empty_list_view);
 
         return root;
     }
-    
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         alertsIntent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-	}
+        alertsIntent.putExtra("force", true);
+    }
 
     @Override
     public void onResume() {
@@ -158,12 +135,11 @@ public class TrafficAlertsFragment extends BaseFragment
         IntentFilter alertsFilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
         alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
+        mHighwayAlertsSyncReceiver = new AlertsListFragment.HighwayAlertsSyncReceiver();
         getActivity().registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
 
         getActivity().startService(alertsIntent);
     }
-
 
     @Override
     public void onPause() {
@@ -183,7 +159,7 @@ public class TrafficAlertsFragment extends BaseFragment
 
         Uri baseUri = Uri.withAppendedPath(WSDOTContract.HighwayAlerts.CONTENT_URI, Uri.encode(""));
 
-        CursorLoader cursorLoader = new HighwayLoader(getActivity(),
+        CursorLoader cursorLoader = new TrafficAlertsListFragment.HighwayLoader(getActivity(),
                 baseUri,
                 projection,
                 null,
@@ -197,8 +173,8 @@ public class TrafficAlertsFragment extends BaseFragment
     public static class HighwayLoader extends CursorLoader {
 
         public HighwayLoader(Context context, Uri uri,
-                                  String[] projection, String selection, String[] selectionArgs,
-                                  String sortOrder) {
+                             String[] projection, String selection, String[] selectionArgs,
+                             String sortOrder) {
             super(context, uri, projection, selection, selectionArgs, sortOrder);
         }
 
@@ -209,6 +185,7 @@ public class TrafficAlertsFragment extends BaseFragment
             swipeRefreshLayout.setRefreshing(true);
             forceLoad();
         }
+
         @Override
         public Cursor loadInBackground() {
             return super.loadInBackground();
@@ -217,46 +194,18 @@ public class TrafficAlertsFragment extends BaseFragment
 
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.clear();
-        mEmptyView.setVisibility(View.GONE);
-        HighwayAlertsItem i;
-        trafficAlertItems = new ArrayList<>();
 
-        if (cursor.moveToFirst()) {
-            while (!cursor.isAfterLast()) {
+        trafficAlertItems = getAlerts(cursor);
 
-                Double latitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LATITUDE));
-                Double longitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LONGITUDE));
-
-                LatLng alertLocation = new LatLng(latitude, longitude);
-
-                // If alert is within bounds of shown screen show it on list
-                if (mBounds.contains(alertLocation) ||
-                        cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY)).toLowerCase().equals("amber")) {
-
-                    i = new HighwayAlertsItem();
-
-                    i.setHeadlineDescription(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_HEADLINE)));
-                    i.setEventCategory(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY)).toLowerCase());
-                    i.setLastUpdatedTime(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED)));
-                    i.setAlertId(Integer.toString(cursor.getInt(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_ID))));
-
-                    trafficAlertItems.add(i);
-                }
-                cursor.moveToNext();
-            }
-            mAdapter.setData(trafficAlertItems);
-        } else {
-            TextView t = (TextView) mEmptyView;
-            t.setText(R.string.no_list_data);
-            mEmptyView.setVisibility(View.VISIBLE);
-        }
+        mAdapter.setData(trafficAlertItems);
 
         swipeRefreshLayout.setRefreshing(false);
+
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-            mAdapter.setData(null);
+        mAdapter.setData(null);
     }
 
 
@@ -269,9 +218,11 @@ public class TrafficAlertsFragment extends BaseFragment
             if (responseString != null) {
                 if (responseString.equals("OK") || responseString.equals("NOP")) {
                     // We've got cameras, now add them.
-                    getLoaderManager().initLoader(0, null, TrafficAlertsFragment.this);
+                    getLoaderManager().initLoader(0, null, AlertsListFragment.this);
                 } else {
-                    Log.e("CameraDownloadReceiver", responseString);
+                    Toast.makeText(AlertsListFragment.this.getContext(), "Failed to load alerts. Check your connection.", Toast.LENGTH_SHORT).show();
+                    Log.e("HighwaySyncReceiver", responseString);
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
         }
@@ -279,7 +230,7 @@ public class TrafficAlertsFragment extends BaseFragment
 
     /**
      * Custom adapter for items in recycler view.
-     *
+     * <p>
      * Extending RecyclerView adapter this adapter binds the custom ViewHolder
      * class to it's data.
      *
@@ -307,12 +258,12 @@ public class TrafficAlertsFragment extends BaseFragment
                     itemView = LayoutInflater.
                             from(parent.getContext()).
                             inflate(R.layout.incident_item, parent, false);
-                    return new ItemViewHolder(itemView);
+                    return new AlertsListFragment.ItemViewHolder(itemView);
                 case TYPE_SEPARATOR:
                     itemView = LayoutInflater.
                             from(parent.getContext()).
                             inflate(R.layout.list_header, parent, false);
-                    return new TitleViewHolder(itemView);
+                    return new AlertsListFragment.TitleViewHolder(itemView);
             }
             return null;
         }
@@ -320,22 +271,22 @@ public class TrafficAlertsFragment extends BaseFragment
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder viewholder, int position) {
 
-            ItemViewHolder itemholder;
-            TitleViewHolder titleholder;
+            TrafficAlertsListFragment.ItemViewHolder itemholder;
+            TrafficAlertsListFragment.TitleViewHolder titleholder;
 
-            if (getItemViewType(position) == TYPE_ITEM){
-                itemholder = (ItemViewHolder) viewholder;
+            if (getItemViewType(position) == TYPE_ITEM) {
+                itemholder = (TrafficAlertsListFragment.ItemViewHolder) viewholder;
                 itemholder.textView.setText(mData.get(position).getHeadlineDescription());
                 itemholder.updated.setText(ParserUtils.relativeTime(
                         mData.get(position).getLastUpdatedTime(),
                         "MMMM d, yyyy h:mm a", false));
                 itemholder.id = mData.get(position).getAlertId();
-            }else{
-                titleholder = (TitleViewHolder) viewholder;
+            } else {
+                titleholder = (TrafficAlertsListFragment.TitleViewHolder) viewholder;
                 titleholder.textView.setText(mData.get(position).getHeadlineDescription());
-                if (position == 0){
+                if (position == 0) {
                     titleholder.divider.setVisibility(View.GONE);
-                }else{
+                } else {
                     titleholder.divider.setVisibility(View.VISIBLE);
                 }
             }
@@ -358,17 +309,13 @@ public class TrafficAlertsFragment extends BaseFragment
                     // Check if there is an active amber alert
                     if (category_id.equals(AMBER)) {
                         amberalert.push(data.get(i));
-                    }
-                    else if (category_id.equals(CLOSURE)) {
+                    } else if (category_id.equals(CLOSURE)) {
                         closure.push(data.get(i));
-                    }
-                    else if (category_id.equals(CONSTRUCTION)) {
+                    } else if (category_id.equals(CONSTRUCTION)) {
                         construction.push(data.get(i));
-                    }
-                    else if (category_id.equals(INCIDENT)) {
+                    } else if (category_id.equals(INCIDENT)) {
                         incident.push(data.get(i));
-                    }
-                    else if (category_id.equals(SPECIAL_EVENTS)) {
+                    } else if (category_id.equals(SPECIAL_EVENTS)) {
                         special.push(data.get(i));
                     }
                 }
@@ -432,7 +379,7 @@ public class TrafficAlertsFragment extends BaseFragment
             notifyDataSetChanged();
         }
 
-        public void clear(){
+        public void clear() {
             mData.clear();
             mSeparatorsSet.clear();
             closure.clear();
@@ -451,7 +398,7 @@ public class TrafficAlertsFragment extends BaseFragment
 
     /**
      * ViewHolder for a traffic alert
-     *
+     * <p>
      * holds the alert id for onClick()
      */
     public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -479,9 +426,10 @@ public class TrafficAlertsFragment extends BaseFragment
             }
         }
     }
+
     public class TitleViewHolder extends RecyclerView.ViewHolder {
-        protected TextView textView;
-        protected LinearLayout divider;
+        private TextView textView;
+        private LinearLayout divider;
 
         public TitleViewHolder(View itemView) {
             super(itemView);
@@ -492,7 +440,7 @@ public class TrafficAlertsFragment extends BaseFragment
     }
 
     public void onRefresh() {
-        getLoaderManager().restartLoader(0, null, this);        
+        getActivity().startService(alertsIntent);
     }
 
     private int getCategoryID(String category) {
@@ -514,9 +462,9 @@ public class TrafficAlertsFragment extends BaseFragment
 
         if (category.equals("")) return INCIDENT;
 
-        while(i.hasNext()) {
+        while (i.hasNext()) {
             Map.Entry<String, String[]> me = i.next();
-            for (String phrase: me.getValue()) {
+            for (String phrase : me.getValue()) {
                 Pattern pattern = Pattern.compile(phrase, Pattern.CASE_INSENSITIVE);
                 Matcher matcher = pattern.matcher(category);
                 boolean matchFound = matcher.find();
@@ -526,9 +474,9 @@ public class TrafficAlertsFragment extends BaseFragment
                         return CLOSURE;
                     } else if (keyWord.equalsIgnoreCase("construction")) {
                         return CONSTRUCTION;
-                    } else if (keyWord.equalsIgnoreCase("amber")){
+                    } else if (keyWord.equalsIgnoreCase("amber")) {
                         return AMBER;
-                    } else if (keyWord.equalsIgnoreCase("special")){
+                    } else if (keyWord.equalsIgnoreCase("special")) {
                         return SPECIAL_EVENTS;
                     }
                 }

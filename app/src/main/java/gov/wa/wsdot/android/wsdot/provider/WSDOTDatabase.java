@@ -163,14 +163,14 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + LocationColumns.LOCATION_ZOOM + " INTEGER);");
 
         db.execSQL("CREATE TABLE " + Tables.MY_ROUTE + " ("
-                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + MyRouteColumns.MY_ROUTE_ID + " INTEGER,"
-                + MyRouteColumns.MY_ROUTE_TITLE + " TEXT,"
-                + MyRouteColumns.MY_ROUTE_LOCATIONS + " TEXT,"
-                + MyRouteColumns.MY_ROUTE_DISPLAY_LAT + " INTEGER,"
-                + MyRouteColumns.MY_ROUTE_DISPLAY_LONG + " INTEGER,"
-                + MyRouteColumns.MY_ROUTE_DISPLAY_ZOOM + " INTEGER,"
-                + MyRouteColumns.MY_ROUTE_FOUND_FAVORITES + " INTEGER NOT NULL default 0,"
+                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + MyRouteColumns.MY_ROUTE_ID + " INTEGER, "
+                + MyRouteColumns.MY_ROUTE_TITLE + " TEXT, "
+                + MyRouteColumns.MY_ROUTE_LOCATIONS + " TEXT, "
+                + MyRouteColumns.MY_ROUTE_DISPLAY_LAT + " INTEGER, "
+                + MyRouteColumns.MY_ROUTE_DISPLAY_LONG + " INTEGER, "
+                + MyRouteColumns.MY_ROUTE_DISPLAY_ZOOM + " INTEGER, "
+                + MyRouteColumns.MY_ROUTE_FOUND_FAVORITES + " INTEGER NOT NULL default 0, "
                 + MyRouteColumns.MY_ROUTE_IS_STARRED + " INTEGER NOT NULL default 0);");
         
         seedData(db);
@@ -267,6 +267,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + Tables.FERRIES_TERMINAL_SAILING_SPACE);
 	        db.execSQL("DROP TABLE IF EXISTS " + Tables.BORDER_WAIT);
             db.execSQL("DROP TABLE IF EXISTS " + Tables.MAP_LOCATION);
+            db.execSQL("DROP TABLE IF EXISTS " + Tables.MY_ROUTE);
 	        
 	        onCreate(db);
 		}

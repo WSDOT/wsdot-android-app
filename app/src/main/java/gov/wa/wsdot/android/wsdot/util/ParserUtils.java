@@ -127,7 +127,7 @@ public class ParserUtils {
     }
 
 	/**
-	 * @param id of the route in database
+	 * @param locations - array of lat/longs that make up a route.
 	 * @return json array of lat/long JSONObjects
 	 */
     public static JSONArray convertLocationsToJson(List<LatLng> locations){
@@ -144,4 +144,8 @@ public class ParserUtils {
 		}
 		return locationsJson;
 	}
+
+
+
+
 }

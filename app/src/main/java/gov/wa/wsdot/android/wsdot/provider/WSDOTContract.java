@@ -122,7 +122,7 @@ public class WSDOTContract {
 		String MY_ROUTE_ID = "id";
 		String MY_ROUTE_TITLE = "title";
 
-		String MY_ROUTE_LOCATIONS = "locations";
+		String MY_ROUTE_LOCATIONS = "route_locations";
 
 		String MY_ROUTE_DISPLAY_LAT = "latitude";
 		String MY_ROUTE_DISPLAY_LONG = "longitude";

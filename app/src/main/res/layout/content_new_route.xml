@@ -1,7 +1,5 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:weightSum="5"
     android:layout_marginTop="?attr/actionBarSize"
@@ -14,8 +12,7 @@
         android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3"
-        />
+        android:layout_weight="3"/>
 
     <RelativeLayout
         android:id="@+id/start_recording_view"

@@ -4,6 +4,8 @@
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
     android:fillViewport="true"
+    android:focusable="true"
+    android:clickable="false"
     android:descendantFocusability="blocksDescendants" >
 
     <CheckBox
@@ -46,8 +48,8 @@
     <ImageButton
         android:id="@+id/alert_button"
         android:contentDescription="@string/description_alert"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
 
         android:layout_toStartOf="@+id/map_button"
         android:layout_toLeftOf="@+id/map_button"
@@ -60,13 +62,13 @@
         android:layout_marginTop="12dp"
         android:layout_marginBottom="12dp"
 
-        android:background="@null"/>
+        android:background="@drawable/ic_route_alert"/>
 
     <ImageButton
         android:id="@+id/map_button"
         android:contentDescription="@string/description_map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
 
         android:layout_toStartOf="@+id/settings_button"
         android:layout_toLeftOf="@+id/settings_button"
@@ -79,12 +81,12 @@
         android:layout_marginTop="12dp"
         android:layout_marginBottom="12dp"
 
-        android:background="@null"/>
+        android:background="@drawable/ic_map"/>
 
     <ImageButton
         android:id="@+id/settings_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
 
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
@@ -97,7 +99,7 @@
         android:layout_marginTop="12dp"
         android:layout_marginBottom="12dp"
 
-        android:background="@null"/>
+        android:background="@drawable/ic_menu_more"/>
 
 
 </RelativeLayout>
