@@ -53,13 +53,13 @@ public class TrafficAlertsListFragment extends AlertsListFragment {
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
 
-                Double latitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LATITUDE));
-                Double longitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LONGITUDE));
+                Double startLatitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE));
+                Double startLongitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE));
 
-                LatLng alertLocation = new LatLng(latitude, longitude);
+                LatLng alertStartLocation = new LatLng(startLatitude, startLongitude);
 
                 // If alert is within bounds of shown on screen show it on list
-                if (mBounds.contains(alertLocation) ||
+                if (mBounds.contains(alertStartLocation) ||
                         cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY)).toLowerCase().equals("amber")) {
 
                     i = new HighwayAlertsItem();

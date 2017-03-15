@@ -17,7 +17,7 @@
     <string-array name="my_route_options">
         <item>Delete</item>
         <item>Rename</item>
-        <item>Show Route On Map</item>
+        <item>Check Route On Map</item>
         <item>Find Favorites on Route</item>
     </string-array>
 

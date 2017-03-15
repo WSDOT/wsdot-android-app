@@ -8,7 +8,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
 /**
- * Created by simsl on 3/10/17.
+ * Displays a list of alerts on the users selected custom route
  */
 
 public class MyRouteAlertsActivity extends BaseActivity {

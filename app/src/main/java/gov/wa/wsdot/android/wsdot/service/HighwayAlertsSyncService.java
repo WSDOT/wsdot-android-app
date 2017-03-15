@@ -45,7 +45,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 
 public class HighwayAlertsSyncService extends IntentService {
 	
-	private static final String DEBUG_TAG = "HighwayAlertsSyncService";
+	private static final String DEBUG_TAG = "HighwayAlertsService";
 	private static final String HIGHWAY_ALERTS_URL = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js";
 
 	private String[] projection = {
@@ -119,19 +119,20 @@ public class HighwayAlertsSyncService extends IntentService {
 				for (int j=0; j < numItems; j++) {
 					JSONObject item = items.getJSONObject(j);
 					JSONObject startRoadwayLocation = item.getJSONObject("StartRoadwayLocation");
+					JSONObject endRoadwayLocation = item.getJSONObject("EndRoadwayLocation");
 					ContentValues alertData = new ContentValues();
-	
 					alertData.put(HighwayAlerts.HIGHWAY_ALERT_ID, item.getString("AlertID"));
 					alertData.put(HighwayAlerts.HIGHWAY_ALERT_HEADLINE, item.getString("HeadlineDescription"));
 					alertData.put(HighwayAlerts.HIGHWAY_ALERT_CATEGORY, item.getString("EventCategory"));
 					alertData.put(HighwayAlerts.HIGHWAY_ALERT_PRIORITY, item.getString("Priority"));
-					alertData.put(HighwayAlerts.HIGHWAY_ALERT_LATITUDE, startRoadwayLocation.getString("Latitude"));
-					alertData.put(HighwayAlerts.HIGHWAY_ALERT_LONGITUDE, startRoadwayLocation.getString("Longitude"));
+					alertData.put(HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE, startRoadwayLocation.getString("Latitude"));
+					alertData.put(HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE, startRoadwayLocation.getString("Longitude"));
+					alertData.put(HighwayAlerts.HIGHWAY_ALERT_END_LATITUDE, endRoadwayLocation.getString("Latitude"));
+					alertData.put(HighwayAlerts.HIGHWAY_ALERT_END_LONGITUDE, endRoadwayLocation.getString("Longitude"));
 					alertData.put(HighwayAlerts.HIGHWAY_ALERT_ROAD_NAME, startRoadwayLocation.getString("RoadName"));
 					alertData.put(HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED,
 					        dateFormat.format(new Date(Long.parseLong(item
 					                .getString("LastUpdatedTime").substring(6, 19)))));
-					
 					alerts.add(alertData);
 				}
 				

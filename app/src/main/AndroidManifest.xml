@@ -11,7 +11,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+                    android:maxSdkVersion="18"/>
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 
     <!-- Required OpenGL ES 2.0. for Maps V2 -->
@@ -62,6 +63,7 @@
         <service android:name=".service.FerriesSchedulesSyncService" />
         <service android:name=".service.FerriesTerminalSailingSpaceSyncService" />
         <service android:name=".service.BorderWaitSyncService" />
+        <service android:name=".service.MyRouteTrackingService" />
 
         <activity
             android:name=".ui.home.HomeActivity"

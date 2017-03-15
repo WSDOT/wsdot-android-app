@@ -21,13 +21,11 @@ import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
-import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -35,24 +33,14 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.gms.location.LocationServices;
-
-import org.json.JSONArray;
-
-import java.util.Date;
-
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MyRoute;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsActivity;
-import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsListFragment;
 import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
-
-import static gov.wa.wsdot.android.wsdot.util.ParserUtils.convertLocationsToJson;
 
 /**
  * A placeholder fragment containing a simple view.

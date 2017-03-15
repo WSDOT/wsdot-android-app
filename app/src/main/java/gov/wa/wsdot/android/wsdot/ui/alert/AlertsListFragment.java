@@ -153,8 +153,10 @@ public abstract class AlertsListFragment extends BaseFragment
                 WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
                 WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
                 WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED,
-                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LATITUDE,
-                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LONGITUDE,
+                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE,
+                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE,
+                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_END_LATITUDE,
+                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_END_LONGITUDE,
         };
 
         Uri baseUri = Uri.withAppendedPath(WSDOTContract.HighwayAlerts.CONTENT_URI, Uri.encode(""));

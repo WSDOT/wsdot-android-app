@@ -6,6 +6,7 @@
     android:fillViewport="true"
     android:focusable="true"
     android:clickable="false"
+    android:weightSum="10"
     android:descendantFocusability="blocksDescendants" >
 
     <CheckBox
@@ -28,22 +29,27 @@
 
     <TextView
         android:id="@+id/title"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
         android:layout_toRightOf="@+id/star_button"
         android:layout_toEndOf="@+id/star_button"
-        android:textSize="@dimen/text_size_large"
-        android:textColor="@color/black"
+
+        android:layout_toLeftOf="@+id/alert_button"
+        android:layout_toStartOf="@+id/alert_button"
 
         android:layout_marginLeft="12dp"
         android:layout_marginStart="12dp"
         android:layout_marginRight="12dp"
         android:layout_marginEnd="12dp"
-
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
 
+        android:textSize="@dimen/text_size_large"
+        android:textColor="@color/black"
 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        />
 
     <ImageButton
         android:id="@+id/alert_button"
@@ -70,8 +76,8 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
 
-        android:layout_toStartOf="@+id/settings_button"
         android:layout_toLeftOf="@+id/settings_button"
+        android:layout_toStartOf="@+id/settings_button"
 
         android:layout_marginLeft="12dp"
         android:layout_marginStart="12dp"

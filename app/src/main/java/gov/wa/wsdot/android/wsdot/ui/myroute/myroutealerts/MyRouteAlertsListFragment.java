@@ -24,6 +24,7 @@ import gov.wa.wsdot.android.wsdot.ui.alert.AlertsListFragment;
 public class MyRouteAlertsListFragment extends AlertsListFragment {
 
     final String TAG = "MyRouteAlertsListFrag";
+    final Double MAX_ALERT_DISTANCE = 0.248548;
 
     protected ArrayList<HighwayAlertsItem> getAlerts(Cursor cursor){
 
@@ -49,23 +50,37 @@ public class MyRouteAlertsListFragment extends AlertsListFragment {
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
 
-                Double latitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LATITUDE));
-                Double longitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LONGITUDE));
+                Double startLatitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE));
+                Double startLongitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE));
 
-                LatLng alertLocation = new LatLng(latitude, longitude);
+                Double endLatitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_END_LATITUDE));
+                Double endLongitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_END_LONGITUDE));
 
-                // TODO Get end lat/long
+                LatLng alertStartLocation = new LatLng(startLatitude, startLongitude);
+                LatLng alertEndLocation = new LatLng(endLatitude, endLongitude);
+
                 try {
                     for (int i = 0; i < routeJSON.length(); i++) {
                         JSONObject locationJSON = routeJSON.getJSONObject(i);
-
-                        if (getDistanceFromPoints(alertLocation.latitude, alertLocation.longitude, locationJSON.getDouble("latitude"), locationJSON.getDouble("longitude")) < 0.248548){
+                        if (getDistanceFromPoints(alertStartLocation.latitude, alertStartLocation.longitude, locationJSON.getDouble("latitude"), locationJSON.getDouble("longitude")) < MAX_ALERT_DISTANCE){
                             HighwayAlertsItem item = new HighwayAlertsItem();
                             item.setHeadlineDescription(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_HEADLINE)));
                             item.setEventCategory(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY)).toLowerCase());
                             item.setLastUpdatedTime(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED)));
                             item.setAlertId(Integer.toString(cursor.getInt(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_ID))));
-                            items.add(item);
+
+                            if (!items.contains(item)) {
+                                items.add(item);
+                            }
+                        } else if (getDistanceFromPoints(alertEndLocation.latitude, alertEndLocation.longitude, locationJSON.getDouble("latitude"), locationJSON.getDouble("longitude")) < MAX_ALERT_DISTANCE) {
+                            HighwayAlertsItem item = new HighwayAlertsItem();
+                            item.setHeadlineDescription(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_HEADLINE)));
+                            item.setEventCategory(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY)).toLowerCase());
+                            item.setLastUpdatedTime(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED)));
+                            item.setAlertId(Integer.toString(cursor.getInt(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_ID))));
+                            if (!items.contains(item)) {
+                                items.add(item);
+                            }
                         }
                     }
                 } catch (JSONException e){

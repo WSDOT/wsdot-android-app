@@ -47,7 +47,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
     private static final int VER_5 = 5;
 	private static final int VER_6 = 6;
     private static final int VER_7 = 7;
-	private static final int DATABASE_VERSION = VER_7;
+    private static final int VER_8 = 8;
+	private static final int DATABASE_VERSION = VER_8;
 
     interface Tables {
     	String CACHES = "caches";
@@ -88,8 +89,10 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
         		+ HighwayAlertsColumns.HIGHWAY_ALERT_ID + " INTEGER,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_HEADLINE + " TEXT,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_LATITUDE + " REAL,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_LONGITUDE + " REAL,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_START_LATITUDE + " REAL,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_START_LONGITUDE + " REAL,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_END_LATITUDE + " REAL,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_END_LONGITUDE + " REAL,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_CATEGORY + " TEXT,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_PRIORITY + " TEXT,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_ROAD_NAME + " TEXT,"
@@ -250,8 +253,11 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                         + MyRouteColumns.MY_ROUTE_IS_STARRED + " INTEGER NOT NULL default 0);");
 
             case VER_7:
-				Log.i(TAG, "DB at version " + DATABASE_VERSION);
-                // Current version, no further action necessary.
+                Log.i(TAG, "Performing upgrade for DB version " + version);
+                versionEightUpdate(db);
+
+            case VER_8:
+                Log.i(TAG, "DB at version " + DATABASE_VERSION);
 		}
 
 		Log.d(TAG, "After upgrade logic, at version " + version);
@@ -393,8 +399,37 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                         + " ALTER TABLE new_table RENAME TO " + Tables.MOUNTAIN_PASSES + ";"
         );
 
-        db.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " =0 WHERE "
+        db.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " = 0 WHERE "
                 + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.MOUNTAIN_PASSES + "' ");
+    }
+
+    /* Version 7:
+         Added end location of traffic alerts. This is so the My Routes feature can
+         better locate alerts on the users route using the start & end location.
+    */
+
+    private void versionEightUpdate(SQLiteDatabase db) {
+
+        db.execSQL("CREATE TABLE new_table ("
+                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_ID + " INTEGER,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_HEADLINE + " TEXT,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_START_LATITUDE + " REAL,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_START_LONGITUDE + " REAL,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_END_LATITUDE + " REAL,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_END_LONGITUDE + " REAL,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_CATEGORY + " TEXT,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_PRIORITY + " TEXT,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_ROAD_NAME + " TEXT,"
+                + HighwayAlertsColumns.HIGHWAY_ALERT_LAST_UPDATED + " TEXT);"
+                + " DROP TABLE " + Tables.HIGHWAY_ALERTS + "; "
+                + " ALTER TABLE new_table RENAME TO " + Tables.HIGHWAY_ALERTS + ";"
+        );
+
+        // Expire cache time
+        db.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " = 0 WHERE "
+                + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.HIGHWAY_ALERTS + "' ");
+
 
     }
 }

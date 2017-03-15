@@ -39,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -72,8 +73,10 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
         
         String[] projection = {
                 HighwayAlerts.HIGHWAY_ALERT_ID,
-                HighwayAlerts.HIGHWAY_ALERT_LATITUDE,
-                HighwayAlerts.HIGHWAY_ALERT_LONGITUDE,
+                HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE,
+                HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE,
+                HighwayAlerts.HIGHWAY_ALERT_END_LATITUDE,
+                HighwayAlerts.HIGHWAY_ALERT_END_LONGITUDE,
                 HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
                 HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
                 HighwayAlerts.HIGHWAY_ALERT_PRIORITY,
@@ -94,8 +97,9 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
             
             if (cursor != null && cursor.moveToFirst()) {
                 alertItem = new HighwayAlertsItem(cursor.getDouble(1),
-                        cursor.getDouble(2), cursor.getString(3),
-                        cursor.getString(4), cursor.getString(6));
+                        cursor.getDouble(2), cursor.getDouble(3),
+                        cursor.getDouble(4), cursor.getString(5),
+                        cursor.getString(6), cursor.getString(7));
             } else {
                 alertItem = new HighwayAlertsItem();
                 alertItem.setEventCategory("ERROR");

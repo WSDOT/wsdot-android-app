@@ -45,8 +45,10 @@ public class HighwayAlertsOverlay {
 
 	private String[] projection = {
 	        HighwayAlerts.HIGHWAY_ALERT_ID,
-			HighwayAlerts.HIGHWAY_ALERT_LATITUDE,
-			HighwayAlerts.HIGHWAY_ALERT_LONGITUDE,
+			HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE,
+			HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE,
+			HighwayAlerts.HIGHWAY_ALERT_END_LATITUDE,
+			HighwayAlerts.HIGHWAY_ALERT_END_LONGITUDE,
 			HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
 			HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
 			HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED,
@@ -74,7 +76,8 @@ public class HighwayAlertsOverlay {
 					null,
 					null
 					);
-			
+
+
 			if (alertCursor.moveToFirst()) {
 				while (!alertCursor.isAfterLast()) {
 				    LatLng alertLocation = new LatLng(alertCursor.getDouble(1), alertCursor.getDouble(2));
@@ -84,14 +87,16 @@ public class HighwayAlertsOverlay {
     				            alertCursor.getString(0),
     							alertCursor.getDouble(1),
     							alertCursor.getDouble(2),
-    							alertCursor.getString(3),
-    							alertCursor.getString(4),
+								alertCursor.getDouble(3),
+								alertCursor.getDouble(4),
     							alertCursor.getString(5),
     							alertCursor.getString(6),
+    							alertCursor.getString(7),
+    							alertCursor.getString(8),
     							getCategoryIcon(
                                         eventCategories,
-                                        alertCursor.getString(3), // Category
-                                        alertCursor.getString(6)) // Priority
+                                        alertCursor.getString(5), // Category
+                                        alertCursor.getString(8)) // Priority
     							));
 				    }
 					alertCursor.moveToNext();

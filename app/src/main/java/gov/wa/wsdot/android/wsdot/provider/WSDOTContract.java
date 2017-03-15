@@ -43,8 +43,10 @@ public class WSDOTContract {
 	interface HighwayAlertsColumns {
 		String HIGHWAY_ALERT_ID = "highway_alert_id";
 		String HIGHWAY_ALERT_HEADLINE = "highway_alert_headline";
-		String HIGHWAY_ALERT_LATITUDE = "highway_alert_latitude";
-		String HIGHWAY_ALERT_LONGITUDE = "highway_alert_longitude";
+		String HIGHWAY_ALERT_START_LATITUDE = "highway_alert_start_latitude";
+		String HIGHWAY_ALERT_START_LONGITUDE = "highway_alert_start_longitude";
+		String HIGHWAY_ALERT_END_LATITUDE = "highway_alert_end_latitude";
+		String HIGHWAY_ALERT_END_LONGITUDE = "highway_alert_end_longitude";
 		String HIGHWAY_ALERT_CATEGORY = "highway_alert_category";
 		String HIGHWAY_ALERT_PRIORITY = "highway_alert_priority";
 		String HIGHWAY_ALERT_ROAD_NAME = "highway_alert_road_name";
