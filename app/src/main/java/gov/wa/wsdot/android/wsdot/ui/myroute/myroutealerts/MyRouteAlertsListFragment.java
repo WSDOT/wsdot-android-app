@@ -2,10 +2,9 @@ package gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,7 +12,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.alert.AlertsListFragment;
 
@@ -26,13 +24,12 @@ public class MyRouteAlertsListFragment extends AlertsListFragment {
     final String TAG = "MyRouteAlertsListFrag";
     final Double MAX_ALERT_DISTANCE = 0.248548;
 
-    protected ArrayList<HighwayAlertsItem> getAlerts(Cursor cursor){
+    protected ArrayList<HighwayAlertsItem> getAlerts(ArrayList<HighwayAlertsItem> alerts, AsyncTask<Cursor, Void, ArrayList<HighwayAlertsItem>> task){
 
         //Retrieve the bounds from the intent. Defaults to 0
         Intent intent = getActivity().getIntent();
 
         String routeString = intent.getExtras().getString("route");
-
         JSONArray routeJSON = new JSONArray();
 
         try {
@@ -41,56 +38,28 @@ public class MyRouteAlertsListFragment extends AlertsListFragment {
             e.printStackTrace();
             Toast.makeText(getContext(), "Error reading route coordinates.", Toast.LENGTH_SHORT).show();
         }
+        //Log.e(TAG, "ROUTE: " + routeString.toString());
+        ArrayList<HighwayAlertsItem> alertsOnRoute = new ArrayList<>();
 
-        Log.e(TAG, "ROUTE: " + routeString.toString());
-
-        ArrayList<HighwayAlertsItem> items = new ArrayList<>();
-        items.clear();
-
-        if (cursor.moveToFirst()) {
-            while (!cursor.isAfterLast()) {
-
-                Double startLatitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE));
-                Double startLongitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE));
-
-                Double endLatitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_END_LATITUDE));
-                Double endLongitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_END_LONGITUDE));
-
-                LatLng alertStartLocation = new LatLng(startLatitude, startLongitude);
-                LatLng alertEndLocation = new LatLng(endLatitude, endLongitude);
-
-                try {
-                    for (int i = 0; i < routeJSON.length(); i++) {
-                        JSONObject locationJSON = routeJSON.getJSONObject(i);
-                        if (getDistanceFromPoints(alertStartLocation.latitude, alertStartLocation.longitude, locationJSON.getDouble("latitude"), locationJSON.getDouble("longitude")) < MAX_ALERT_DISTANCE){
-                            HighwayAlertsItem item = new HighwayAlertsItem();
-                            item.setHeadlineDescription(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_HEADLINE)));
-                            item.setEventCategory(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY)).toLowerCase());
-                            item.setLastUpdatedTime(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED)));
-                            item.setAlertId(Integer.toString(cursor.getInt(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_ID))));
-
-                            if (!items.contains(item)) {
-                                items.add(item);
-                            }
-                        } else if (getDistanceFromPoints(alertEndLocation.latitude, alertEndLocation.longitude, locationJSON.getDouble("latitude"), locationJSON.getDouble("longitude")) < MAX_ALERT_DISTANCE) {
-                            HighwayAlertsItem item = new HighwayAlertsItem();
-                            item.setHeadlineDescription(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_HEADLINE)));
-                            item.setEventCategory(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY)).toLowerCase());
-                            item.setLastUpdatedTime(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED)));
-                            item.setAlertId(Integer.toString(cursor.getInt(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_ID))));
-                            if (!items.contains(item)) {
-                                items.add(item);
-                            }
-                        }
+        for (HighwayAlertsItem alert: alerts){
+            if (task.isCancelled()) {
+                return new ArrayList<>();
+            }
+            try {
+                for (int i = 0; i < routeJSON.length(); i++) {
+                    JSONObject locationJSON = routeJSON.getJSONObject(i);
+                    if (getDistanceFromPoints(alert.getStartLatitude(), alert.getStartLongitude(), locationJSON.getDouble("latitude"), locationJSON.getDouble("longitude")) < MAX_ALERT_DISTANCE ||
+                            getDistanceFromPoints(alert.getEndLatitude(), alert.getEndLongitude(), locationJSON.getDouble("latitude"), locationJSON.getDouble("longitude")) < MAX_ALERT_DISTANCE) {
+                        alertsOnRoute.add(alert);
+                        break;
                     }
-                } catch (JSONException e){
-                    e.printStackTrace();
-                    Toast.makeText(getContext(), "Error reading route coordinate.", Toast.LENGTH_SHORT).show();
                 }
-                cursor.moveToNext();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Toast.makeText(getContext(), "Error reading route coordinate.", Toast.LENGTH_SHORT).show();
             }
         }
-        return items;
+        return alertsOnRoute;
     }
 
     /**

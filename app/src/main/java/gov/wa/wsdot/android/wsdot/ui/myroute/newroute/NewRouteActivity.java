@@ -6,16 +6,20 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
@@ -31,6 +35,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -56,9 +63,11 @@ import static gov.wa.wsdot.android.wsdot.util.ParserUtils.convertLocationsToJson
 public class NewRouteActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback, OnMapReadyCallback,
         TrackingRouteDialogFragment.TrackingRouteDialogListener,
-        MyRouteTrackingService.Callbacks{
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        MyRouteTrackingService.Callbacks {
 
     private final String TAG = "NewRouteActivity";
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
     private GoogleMap mMap;
 
@@ -70,13 +79,14 @@ public class NewRouteActivity extends AppCompatActivity implements
     private Button discardButton;
     private Button saveButton;
 
+    private GoogleApiClient mGoogleApiClient;
+
     private final String TRACKING_DIALOG_FRAGMENT_TAG = "tracking_dialog";
     private String routeName = "My Route";
 
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
 
     private List<LatLng> myRouteLocations = new ArrayList<>();
-    private Boolean tracking = false;
     private Boolean rebinding = false;
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -135,6 +145,79 @@ public class NewRouteActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API).build();
+
+        initStartButton();
+
+        initDiscardButton();
+
+        initSaveButton();
+
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
+
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
+        mapFragment.getMapAsync(this);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        checkLocationPermissionError();
+        checkGoogleServiceConnectError();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        doUnbindService();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // TODO
+    private void showAddFavoritesDialog(String id) {
+
+
+
+
+
+        ContentValues values = new ContentValues();
+        values.put(WSDOTContract.MyRoute.MY_ROUTE_FOUND_FAVORITES,  1);
+
+        this.getContentResolver().update(
+                WSDOTContract.MyRoute.CONTENT_URI,
+                values,
+                WSDOTContract.MyRoute._ID + "=?",
+                new String[] {id}
+        );
+    }
+
+
+    private void initStartButton(){
         startButton = (Button) findViewById(R.id.start_button);
 
         startButton.setOnClickListener(new Button.OnClickListener() {
@@ -142,7 +225,6 @@ public class NewRouteActivity extends AppCompatActivity implements
                 if (ContextCompat.checkSelfPermission(NewRouteActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ){
                     Log.e(TAG, "You gave us permission!! - Tracking location");
                     myRouteLocations.clear();
-                    tracking = true;
 
                     startService(new Intent(NewRouteActivity.this, MyRouteTrackingService.class));
                     doBindService();
@@ -169,7 +251,9 @@ public class NewRouteActivity extends AppCompatActivity implements
                 }
             }
         });
+    }
 
+    private void initDiscardButton(){
         discardButton = (Button) findViewById(R.id.discard_button);
 
         discardButton.setOnClickListener(new Button.OnClickListener() {
@@ -177,10 +261,12 @@ public class NewRouteActivity extends AppCompatActivity implements
                 showStartView();
                 mMap.clear();
                 myRouteLocations.clear();
-                //TODO onMyLocationButtonClick();
+                moveToCurrentLocation();
             }
         });
+    }
 
+    private void initSaveButton(){
         saveButton = (Button) findViewById(R.id.save_button);
 
         saveButton.setOnClickListener(new Button.OnClickListener() {
@@ -243,7 +329,7 @@ public class NewRouteActivity extends AppCompatActivity implements
 
                         mMap.clear();
                         myRouteLocations.clear();
-                        //TODO onMyLocationButtonClick();
+                        moveToCurrentLocation();
 
                         Snackbar.make(findViewById(android.R.id.content), "Route Successfully Saved", Snackbar.LENGTH_LONG)
                                 .show();
@@ -253,56 +339,6 @@ public class NewRouteActivity extends AppCompatActivity implements
                 builder.show();
             }
         });
-
-        if(getSupportActionBar() != null){
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-
-
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
-        mapFragment.getMapAsync(this);
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        checkLocationPermissionError();
-        checkGoogleServiceConnectError();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        doUnbindService();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    // TODO
-    private void showAddFavoritesDialog(String id) {
-
-
-
-
-
-        ContentValues values = new ContentValues();
-        values.put(WSDOTContract.MyRoute.MY_ROUTE_FOUND_FAVORITES,  1);
-
-        this.getContentResolver().update(
-                WSDOTContract.MyRoute.CONTENT_URI,
-                values,
-                WSDOTContract.MyRoute._ID + "=?",
-                new String[] {id}
-        );
     }
 
     private void showTrackingDialog() {
@@ -316,8 +352,6 @@ public class NewRouteActivity extends AppCompatActivity implements
     @Override
     public void onFinishTrackingDialog() {
         mMap.clear();
-        tracking = false;
-
         if (mIsBound) {
             myRouteLocations = mBoundService.getRouteLocations();
 
@@ -360,6 +394,7 @@ public class NewRouteActivity extends AppCompatActivity implements
         mMap.getUiSettings().setZoomControlsEnabled(true);
         if (ContextCompat.checkSelfPermission(NewRouteActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ){
             mMap.setMyLocationEnabled(true);
+            moveToCurrentLocation();
         }
     }
 
@@ -396,31 +431,14 @@ public class NewRouteActivity extends AppCompatActivity implements
         LatLng latLng = new LatLng(47.5990, -122.3350);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
 
-        enableMyLocation();
-    }
-
-    /**
-     * Enables the My Location layer if the fine location permission has been granted.
-     */
-    private void enableMyLocation() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission to access the location is missing.
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_ACCESS_FINE_LOCATION);
-        } else if (mMap != null) {
-            // Access to the location has been granted to the app.
-            mMap.setMyLocationEnabled(true);
-        }
+        requestLocationPermission();
     }
 
     /**
      * Request location updates after checking permissions first.
      */
     private void requestLocationPermission() {
+
         if (ContextCompat.checkSelfPermission(NewRouteActivity.this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
@@ -454,21 +472,23 @@ public class NewRouteActivity extends AppCompatActivity implements
             }
         } else {
             mMap.setMyLocationEnabled(true);
+            moveToCurrentLocation();
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
         switch (requestCode) {
             case REQUEST_ACCESS_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (ContextCompat.checkSelfPermission(NewRouteActivity.this,
-                            Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        Log.i(TAG, "Request permissions granted!!!");
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
                         mMap.setMyLocationEnabled(true);
                     }
+                    moveToCurrentLocation();
                 }
                 return;
             }
@@ -503,6 +523,45 @@ public class NewRouteActivity extends AppCompatActivity implements
             SharedPreferences.Editor editor = settings.edit();
             editor.putBoolean(MyRouteTrackingService.PERMISSION_ERROR_KEY, false);
             editor.apply();
+        }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        moveToCurrentLocation();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.i(TAG, "Location services suspended. Please reconnect.");
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        if (connectionResult.hasResolution()) {
+            try {
+                // Start an Activity that tries to resolve the error
+                connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+            } catch (IntentSender.SendIntentException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.i(TAG, "Location services connection failed with code " + connectionResult.getErrorCode());
+        }
+    }
+
+    private void moveToCurrentLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Location location = LocationServices.FusedLocationApi
+                    .getLastLocation(mGoogleApiClient);
+            if (location != null) {
+                Log.d(TAG, location.toString());
+                double currentLatitude = location.getLatitude();
+                double currentLongitude = location.getLongitude();
+                LatLng latLng = new LatLng(currentLatitude, currentLongitude);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+            }
         }
     }
 }

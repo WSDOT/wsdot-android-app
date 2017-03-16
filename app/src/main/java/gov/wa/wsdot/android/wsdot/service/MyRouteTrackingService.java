@@ -26,6 +26,7 @@ import java.util.ArrayList;
  *  Service for tracking users route.
  *  Uses the fusedLocation api to collect location data while the user is tracking their route.
  */
+
 public class MyRouteTrackingService extends Service
         implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, LocationListener {
 
@@ -34,8 +35,8 @@ public class MyRouteTrackingService extends Service
     public static final String API_CONNECTION_ERROR_KEY = "KEY_TRACKING_ROUTE_GOOGLE_CONNECTION_ERROR";
     public static final String PERMISSION_ERROR_KEY = "KEY_TRACKING_ROUTE_LOCATION_PERMISSION_ERROR";
 
-    private static final int LOCATION_INTERVAL = 5000; // in milliseconds
-    private static final float LOCATION_DISTANCE = 400f; // in meters
+    private static final int LOCATION_INTERVAL = 3000; // in milliseconds
+    private static final float LOCATION_DISTANCE = 200f; // in meters
     private static final float LOCATION_ACCURACY = 100f; // in meters
 
     private GoogleApiClient mGoogleApiClient;

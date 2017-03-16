@@ -92,14 +92,12 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
                     projection,
                     HighwayAlerts.HIGHWAY_ALERT_ID + "=?",
                     new String[] {id},
-                    null
-                    );
-            
+                    null);
             if (cursor != null && cursor.moveToFirst()) {
                 alertItem = new HighwayAlertsItem(cursor.getDouble(1),
                         cursor.getDouble(2), cursor.getDouble(3),
                         cursor.getDouble(4), cursor.getString(5),
-                        cursor.getString(6), cursor.getString(7));
+                        cursor.getString(6), cursor.getString(8));
             } else {
                 alertItem = new HighwayAlertsItem();
                 alertItem.setEventCategory("ERROR");

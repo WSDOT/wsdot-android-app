@@ -4,9 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -21,6 +24,11 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,6 +64,8 @@ public abstract class AlertsListFragment extends BaseFragment
     private static AlertsListFragment.Adapter mAdapter;
     private static SwipeRefreshLayout swipeRefreshLayout;
 
+    private GetAlertsTask alertsTask = null;
+
     private AlertsListFragment.HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
     private Intent alertsIntent;
 
@@ -72,11 +82,12 @@ public abstract class AlertsListFragment extends BaseFragment
     private final int AMBER = 24;
 
     /**
-     * What alerts will be displayed in the list.
-     * @param cursor
+     *
+     * @param alerts
+     * @param task
      * @return
      */
-    protected abstract ArrayList<HighwayAlertsItem> getAlerts(Cursor cursor);
+    protected abstract ArrayList<HighwayAlertsItem> getAlerts(ArrayList<HighwayAlertsItem> alerts, AsyncTask<Cursor, Void, ArrayList<HighwayAlertsItem>> task);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -125,7 +136,7 @@ public abstract class AlertsListFragment extends BaseFragment
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         alertsIntent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-        alertsIntent.putExtra("force", true);
+        alertsIntent.putExtra("forceUpdate", true);
     }
 
     @Override
@@ -145,6 +156,20 @@ public abstract class AlertsListFragment extends BaseFragment
     public void onPause() {
         super.onPause();
         getActivity().unregisterReceiver(mHighwayAlertsSyncReceiver);
+        if (alertsTask != null) {
+            alertsTask.cancel(true);
+        }
+      //  getLoaderManager().destroyLoader(0);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        getActivity().unregisterReceiver(mHighwayAlertsSyncReceiver);
+        if (alertsTask != null) {
+            alertsTask.cancel(true);
+        }
+       // getLoaderManager().destroyLoader(0);
     }
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -183,7 +208,6 @@ public abstract class AlertsListFragment extends BaseFragment
         @Override
         protected void onStartLoading() {
             super.onStartLoading();
-            mAdapter.clear();
             swipeRefreshLayout.setRefreshing(true);
             forceLoad();
         }
@@ -195,21 +219,31 @@ public abstract class AlertsListFragment extends BaseFragment
     }
 
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        mAdapter.clear();
+        alertsTask = new GetAlertsTask();
+        alertsTask.execute(cursor);
+    }
 
-        trafficAlertItems = getAlerts(cursor);
+    private class GetAlertsTask extends AsyncTask<Cursor, Void, ArrayList<HighwayAlertsItem>> {
+        protected ArrayList<HighwayAlertsItem> doInBackground(Cursor... cursors) {
+            int count = cursors.length;
+            Log.e(TAG, "cursors length: " + count);
+            for (int i = 0; i < count; i++) {
+                return getAlerts(getAllAlerts(cursors[i]), this);
+            }
+            return new ArrayList<>();
+        }
 
-        mAdapter.setData(trafficAlertItems);
-
-        swipeRefreshLayout.setRefreshing(false);
+        protected void onPostExecute(ArrayList<HighwayAlertsItem> result) {
+            trafficAlertItems = result;
+            mAdapter.clear();
+            mAdapter.setData(trafficAlertItems);
+            swipeRefreshLayout.setRefreshing(false);
+        }
 
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.setData(null);
-    }
-
+    public void onLoaderReset(Loader<Cursor> loader) {}
 
     public class HighwayAlertsSyncReceiver extends BroadcastReceiver {
 
@@ -220,15 +254,41 @@ public abstract class AlertsListFragment extends BaseFragment
             if (responseString != null) {
                 if (responseString.equals("OK") || responseString.equals("NOP")) {
                     // We've got cameras, now add them.
+                    getLoaderManager().destroyLoader(0);
                     getLoaderManager().initLoader(0, null, AlertsListFragment.this);
                 } else {
-                    Toast.makeText(AlertsListFragment.this.getContext(), "Failed to load alerts. Check your connection.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AlertsListFragment.this.getContext(), "Failed to load. Check your connection.", Toast.LENGTH_SHORT).show();
                     Log.e("HighwaySyncReceiver", responseString);
                     swipeRefreshLayout.setRefreshing(false);
                 }
             }
         }
     }
+
+
+
+    private ArrayList<HighwayAlertsItem> getAllAlerts(Cursor cursor){
+        ArrayList<HighwayAlertsItem> allAlerts = new ArrayList<>();
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                HighwayAlertsItem item = new HighwayAlertsItem();
+                item.setHeadlineDescription(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_HEADLINE)));
+                item.setEventCategory(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY)).toLowerCase());
+                item.setLastUpdatedTime(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED)));
+                item.setAlertId(Integer.toString(cursor.getInt(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_ID))));
+                item.setStartLatitude(cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE)));
+                item.setStartLongitude(cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE)));
+                item.setEndLatitude(cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_END_LATITUDE)));
+                item.setEndLongitude(cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_END_LONGITUDE)));
+
+                allAlerts.add(item);
+                cursor.moveToNext();
+            }
+        }
+        return allAlerts;
+    }
+
 
     /**
      * Custom adapter for items in recycler view.
@@ -442,6 +502,7 @@ public abstract class AlertsListFragment extends BaseFragment
     }
 
     public void onRefresh() {
+
         getActivity().startService(alertsIntent);
     }
 

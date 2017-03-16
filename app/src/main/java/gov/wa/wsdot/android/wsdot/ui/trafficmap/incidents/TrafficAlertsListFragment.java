@@ -20,9 +20,14 @@ package gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -32,7 +37,7 @@ import gov.wa.wsdot.android.wsdot.ui.alert.AlertsListFragment;
 
 public class TrafficAlertsListFragment extends AlertsListFragment {
 
-    protected ArrayList<HighwayAlertsItem> getAlerts(Cursor cursor){
+    protected ArrayList<HighwayAlertsItem> getAlerts(ArrayList<HighwayAlertsItem> alerts, AsyncTask<Cursor, Void, ArrayList<HighwayAlertsItem>> task){
 
         //Retrieve the bounds from the intent. Defaults to 0
         Intent intent = getActivity().getIntent();
@@ -47,34 +52,20 @@ public class TrafficAlertsListFragment extends AlertsListFragment {
 
         LatLngBounds mBounds = new LatLngBounds(southWest, northEast);
 
-        HighwayAlertsItem i;
-        ArrayList<HighwayAlertsItem> items = new ArrayList<>();
+        ArrayList<HighwayAlertsItem> alertsInArea = new ArrayList<>();
 
-        if (cursor.moveToFirst()) {
-            while (!cursor.isAfterLast()) {
+        for (HighwayAlertsItem alert: alerts) {
+            if (task.isCancelled()) {
+                return new ArrayList<>();
+            }
+            LatLng alertStartLocation = new LatLng(alert.getStartLatitude(), alert.getStartLongitude());
 
-                Double startLatitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE));
-                Double startLongitude = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE));
-
-                LatLng alertStartLocation = new LatLng(startLatitude, startLongitude);
-
-                // If alert is within bounds of shown on screen show it on list
-                if (mBounds.contains(alertStartLocation) ||
-                        cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY)).toLowerCase().equals("amber")) {
-
-                    i = new HighwayAlertsItem();
-
-                    i.setHeadlineDescription(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_HEADLINE)));
-                    i.setEventCategory(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY)).toLowerCase());
-                    i.setLastUpdatedTime(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED)));
-                    i.setAlertId(Integer.toString(cursor.getInt(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_ID))));
-
-                    items.add(i);
-                }
-                cursor.moveToNext();
+            // If alert is within bounds of shown on screen show it on list
+            if (mBounds.contains(alertStartLocation) ||
+                    alert.getEventCategory().toLowerCase().equals("amber")) {
+                alertsInArea.add(alert);
             }
         }
-
-        return items;
+        return alertsInArea;
     }
 }
