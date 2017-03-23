@@ -31,8 +31,8 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedulesColumns
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpaceColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.LocationColumns;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MyRouteColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPassesColumns;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MyRouteColumns;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimesColumns;
 
 public class WSDOTDatabase extends SQLiteOpenHelper {
@@ -112,6 +112,8 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + " TEXT,"
                 + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + " TEXT,"
                 + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + " TEXT,"
+                + MountainPassesColumns.MOUNTAIN_PASS_LATITUDE + " REAL,"
+                + MountainPassesColumns.MOUNTAIN_PASS_LONGITUDE + " REAL,"
                 + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + " TEXT,"
                 + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + " TEXT,"
                 + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " TEXT,"
@@ -125,6 +127,10 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + TravelTimesColumns.TRAVEL_TIMES_DISTANCE + " TEXT,"
                 + TravelTimesColumns.TRAVEL_TIMES_AVERAGE + " INTEGER,"
                 + TravelTimesColumns.TRAVEL_TIMES_CURRENT + " INTEGER,"
+                + TravelTimesColumns.TRAVEL_TIMES_START_LATITUDE + " REAL,"
+                + TravelTimesColumns.TRAVEL_TIMES_START_LONGITUDE + " REAL,"
+                + TravelTimesColumns.TRAVEL_TIMES_END_LATITUDE + " REAL,"
+                + TravelTimesColumns.TRAVEL_TIMES_END_LONGITUDE + " REAL,"
                 + TravelTimesColumns.TRAVEL_TIMES_IS_STARRED + " INTEGER NOT NULL default 0);");
         
         db.execSQL("CREATE TABLE " + Tables.FERRIES_SCHEDULES + " ("
@@ -404,12 +410,17 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
     }
 
     /* Version 7:
-         Added end location of traffic alerts. This is so the My Routes feature can
-         better locate alerts on the users route using the start & end location.
+         Added end location of traffic alerts.
+         Added start & end locations of travel times.
+         Added lat/long to mountain pass table.
+
+         This way My Routes feature can
+         better locate items on the users route using the start & end location.
     */
 
     private void versionEightUpdate(SQLiteDatabase db) {
 
+        // Add end location fields to highway alerts table
         db.execSQL("CREATE TABLE new_table ("
                 + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + HighwayAlertsColumns.HIGHWAY_ALERT_ID + " INTEGER,"
@@ -430,6 +441,84 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         db.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " = 0 WHERE "
                 + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.HIGHWAY_ALERTS + "' ");
 
+        // Add start & end location fields to travel times
+        db.execSQL("CREATE TABLE new_table ("
+                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + TravelTimesColumns.TRAVEL_TIMES_ID + " INTEGER,"
+                + TravelTimesColumns.TRAVEL_TIMES_TITLE + " TEXT,"
+                + TravelTimesColumns.TRAVEL_TIMES_UPDATED + " TEXT,"
+                + TravelTimesColumns.TRAVEL_TIMES_DISTANCE + " TEXT,"
+                + TravelTimesColumns.TRAVEL_TIMES_AVERAGE + " INTEGER,"
+                + TravelTimesColumns.TRAVEL_TIMES_CURRENT + " INTEGER,"
+                + TravelTimesColumns.TRAVEL_TIMES_START_LATITUDE + " REAL default 0,"
+                + TravelTimesColumns.TRAVEL_TIMES_START_LONGITUDE + " REAL default 0,"
+                + TravelTimesColumns.TRAVEL_TIMES_END_LATITUDE + " REAL default 0,"
+                + TravelTimesColumns.TRAVEL_TIMES_END_LONGITUDE + " REAL default 0,"
+                + TravelTimesColumns.TRAVEL_TIMES_IS_STARRED + " INTEGER NOT NULL default 0);"
+                + " INSERT INTO new_table (SELECT "
+                + BaseColumns._ID + ", "
+                + TravelTimesColumns.TRAVEL_TIMES_ID + ", "
+                + TravelTimesColumns.TRAVEL_TIMES_TITLE + ", "
+                + TravelTimesColumns.TRAVEL_TIMES_UPDATED + ", "
+                + TravelTimesColumns.TRAVEL_TIMES_DISTANCE + ", "
+                + TravelTimesColumns.TRAVEL_TIMES_AVERAGE + ", "
+                + TravelTimesColumns.TRAVEL_TIMES_CURRENT + ", "
+                + TravelTimesColumns.TRAVEL_TIMES_IS_STARRED
+                + " FROM " + Tables.TRAVEL_TIMES + "); "
+                + " DROP TABLE " + Tables.TRAVEL_TIMES + "; "
+                + " ALTER TABLE new_table RENAME TO " + Tables.TRAVEL_TIMES);
 
+        // Expire cache time
+        db.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " = 0 WHERE "
+                + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.TRAVEL_TIMES + "' ");
+
+        // Add latitude & longitude to mountain pass table
+        db.execSQL(
+                "CREATE TABLE new_table("
+                        + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_ID + " INTEGER,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_NAME + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_CONDITION + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_ELEVATION + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_ROAD_CONDITION + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_TEMPERATURE + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_DATE_UPDATED + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_LATITUDE + " REAL,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_LONGITUDE + " REAL,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED + " INTEGER NOT NULL default 0); "
+                        + " INSERT INTO new_table (SELECT "
+                        + BaseColumns._ID + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_ID + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_NAME + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_CONDITION + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_ELEVATION + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_ROAD_CONDITION + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_TEMPERATURE + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_DATE_UPDATED + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + ", "
+                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " TEXT,"
+                        + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED
+                        + " FROM " + Tables.MOUNTAIN_PASSES + "); "
+
+                        + " DROP TABLE " + Tables.MOUNTAIN_PASSES + "; "
+                        + " ALTER TABLE new_table RENAME TO " + Tables.MOUNTAIN_PASSES + ";"
+        );
+
+        db.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " = 0 WHERE "
+                + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.MOUNTAIN_PASSES + "' ");
     }
 }

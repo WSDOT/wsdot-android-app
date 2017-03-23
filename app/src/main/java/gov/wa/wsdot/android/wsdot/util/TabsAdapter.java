@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;

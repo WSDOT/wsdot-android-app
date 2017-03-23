@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class MyRouteMapActivity extends BaseActivity implements OnMapReadyCallback {
 
@@ -72,7 +74,7 @@ public class MyRouteMapActivity extends BaseActivity implements OnMapReadyCallba
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         fetchRouteData(route_id);
-        drawRouteOnMap(getRouteArrayList(routeJSON));
+        drawRouteOnMap(ParserUtils.getRouteArrayList(routeJSON));
         LatLng latLng = new LatLng(displayLat, displayLong);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, displayZoom));
     }
@@ -85,22 +87,6 @@ public class MyRouteMapActivity extends BaseActivity implements OnMapReadyCallba
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * converts a JSONArray of location data (ex. [{"latitude":0.0, "longitude":0.0}, ...]) into an ArrayList<LatLng>
-     * @param jsonLocations
-     */
-    private ArrayList<LatLng> getRouteArrayList(JSONArray jsonLocations){
-        ArrayList<LatLng> myRouteLocations = new ArrayList<>();
-        try {
-            for (int i = 0; i < jsonLocations.length(); i++){
-                myRouteLocations.add(new LatLng(jsonLocations.getJSONObject(i).getDouble("latitude"), jsonLocations.getJSONObject(i).getDouble("longitude")));
-            }
-        } catch (JSONException e){
-            e.printStackTrace();
-        }
-        return myRouteLocations;
     }
 
     /**

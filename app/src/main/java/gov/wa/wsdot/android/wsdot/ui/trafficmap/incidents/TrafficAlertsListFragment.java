@@ -21,17 +21,12 @@ package gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.alert.AlertsListFragment;
 

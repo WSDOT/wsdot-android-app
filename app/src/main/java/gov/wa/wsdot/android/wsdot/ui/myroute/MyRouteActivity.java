@@ -1,27 +1,32 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteActivity;
 
-public class MyRouteActivity extends BaseActivity
+public class MyRouteActivity extends FindFavoritesOnRouteActivity
         implements RouteOptionsDialogFragment.Listener {
+
+    private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
+    private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
+    private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
+    private CamerasSyncReceiver mCamerasSyncReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +80,47 @@ public class MyRouteActivity extends BaseActivity
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+        // Ferries Route Schedules
+        IntentFilter ferriesSchedulesFilter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
+        ferriesSchedulesFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mFerriesSchedulesSyncReceiver = new FerriesSchedulesSyncReceiver();
+        registerReceiver(mFerriesSchedulesSyncReceiver, ferriesSchedulesFilter);
+
+        // Mountain Passes
+        IntentFilter mountainPassesFilter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
+        mountainPassesFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
+        registerReceiver(mMountainPassesSyncReceiver, mountainPassesFilter);
+
+        // Travel Times
+        IntentFilter travelTimesFilter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
+        travelTimesFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mTravelTimesSyncReceiver = new TravelTimesSyncReceiver();
+        registerReceiver(mTravelTimesSyncReceiver, travelTimesFilter);
+
+        // Cameras
+        IntentFilter camerasFilter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
+        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mCamerasSyncReceiver = new CamerasSyncReceiver();
+        registerReceiver(mCamerasSyncReceiver, camerasFilter);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        unregisterReceiver(mFerriesSchedulesSyncReceiver);
+        unregisterReceiver(mMountainPassesSyncReceiver);
+        unregisterReceiver(mTravelTimesSyncReceiver);
+        unregisterReceiver(mCamerasSyncReceiver);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case android.R.id.home:
@@ -87,5 +133,17 @@ public class MyRouteActivity extends BaseActivity
     public void onOptionClicked(long routeID, int position) {
         MyRouteFragment fragment = (MyRouteFragment) getSupportFragmentManager().findFragmentById(R.id.my_route_fragment);
         fragment.onOptionSelected(routeID, position);
+    }
+
+    @Override
+    protected void taskComplete() {
+        MyRouteFragment fragment = (MyRouteFragment) getSupportFragmentManager().findFragmentById(R.id.my_route_fragment);
+        fragment.myTaskComplete();
+    }
+
+    @Override
+    protected List<LatLng> getRoute() {
+        MyRouteFragment fragment = (MyRouteFragment) getSupportFragmentManager().findFragmentById(R.id.my_route_fragment);
+        return fragment.myGetRoute();
     }
 }

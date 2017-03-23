@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;

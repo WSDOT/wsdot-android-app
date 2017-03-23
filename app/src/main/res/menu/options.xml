@@ -5,7 +5,7 @@
 	<item
 		android:id="@+id/menu_route"
 		android:title="@string/description_my_route"
-		android:icon="@drawable/ic_menu_route"
+
 		android:orderInCategory="1"
 		wsdot:showAsAction="ifRoom" />
 

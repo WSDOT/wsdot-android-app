@@ -69,6 +69,8 @@ public class WSDOTContract {
 		String MOUNTAIN_PASS_CAMERA = "camera";
 		String MOUNTAIN_PASS_FORECAST = "forecast";
 		String MOUNTAIN_PASS_WEATHER_ICON = "weather_icon";
+        String MOUNTAIN_PASS_LATITUDE = "latitude";
+        String MOUNTAIN_PASS_LONGITUDE = "longitude";
 		String MOUNTAIN_PASS_IS_STARRED = "is_starred";
 	}
 	
@@ -79,6 +81,10 @@ public class WSDOTContract {
 		String TRAVEL_TIMES_DISTANCE = "distance";
 		String TRAVEL_TIMES_AVERAGE = "average";
 		String TRAVEL_TIMES_CURRENT = "current";
+		String TRAVEL_TIMES_START_LATITUDE = "start_latitude";
+		String TRAVEL_TIMES_START_LONGITUDE = "start_longitude";
+		String TRAVEL_TIMES_END_LATITUDE = "end_latitude";
+		String TRAVEL_TIMES_END_LONGITUDE = "end_longitude";
 		String TRAVEL_TIMES_IS_STARRED = "is_starred";
 	}
 	

@@ -21,7 +21,6 @@ import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,15 +31,29 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MyRoute;
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MyRoute;
+import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
+import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
+import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
+import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.ProgressDialogFragment;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -51,6 +64,11 @@ public class MyRouteFragment extends BaseFragment
     final String TAG = MyRouteFragment.class.getSimpleName();
 
     final int MY_CURSOR_ID = 1;
+
+    private ProgressDialogFragment progressDialog;
+    private int runningTasks = 0;
+
+    List<LatLng> myRoute = new ArrayList<>();
 
     final private String[] projection = {
             MyRoute._ID,
@@ -81,12 +99,8 @@ public class MyRouteFragment extends BaseFragment
     }
 
     public void onOptionSelected(final long routeID, int position){
-        Log.e("onOptionClicked!", "You tapped option " + position + " for route with ID " + routeID);
 
         String routeName = getRouteName(routeID);
-
-        Log.e(TAG, routeName);
-
         switch (position){
             case 0: // Delete Route
                 deleteRouteAction(routeName, routeID);
@@ -103,9 +117,7 @@ public class MyRouteFragment extends BaseFragment
                 startActivity(intent);
                 break;
             case 3: // Find favorites
-
-
-
+                findFavoritesOnRoute(routeID);
                 break;
             default:
                 break;
@@ -135,7 +147,7 @@ public class MyRouteFragment extends BaseFragment
         return routeName;
     }
 
-    public void deleteRouteAction(String routeName, final long routeID){
+    public void deleteRouteAction(final String routeName, final long routeID){
         AlertDialog.Builder builder =
                 new AlertDialog.Builder(getContext(), R.style.AppCompatAlertDialogStyle);
         builder.setTitle("Delete Route: " + routeName + "?");
@@ -212,6 +224,78 @@ public class MyRouteFragment extends BaseFragment
         builder.show();
     }
 
+    public void findFavoritesOnRoute(final long routeID){
+
+        Cursor data = getActivity().getContentResolver().query(
+                MyRoute.CONTENT_URI,
+                projection,
+                MyRoute._ID + "=?",
+                new String[] {String.valueOf(routeID)},
+                null
+        );
+
+        if (data != null){
+            data.moveToFirst();
+            try {
+                myRoute = ParserUtils.getRouteArrayList(new JSONArray(data.getString(data.getColumnIndex(MyRoute.MY_ROUTE_LOCATIONS))));
+
+                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setTitle("Add Favorites?")
+                        .setMessage("Traffic cameras, travel times, pass reports, and other content will " +
+                                "be added to your favorites if they are on this route. ")
+
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                progressDialog = new ProgressDialogFragment();
+                                Bundle args = new Bundle();
+                                args.putString("message", "Finding Favorites...");
+                                progressDialog.setArguments(args);
+                                progressDialog.show(getActivity().getSupportFragmentManager(), "progress_dialog");
+
+                                runningTasks = ((FindFavoritesOnRouteActivity) getActivity()).MAX_NUM_TASKS;
+
+                                Intent mCamerasIntent = new Intent(getActivity(), CamerasSyncService.class);
+                                getActivity().startService(mCamerasIntent);
+
+                                Intent mTravelTimesIntent = new Intent(getActivity(), TravelTimesSyncService.class);
+                                getActivity().startService(mTravelTimesIntent);
+
+                                Intent mFerriesSchedulesIntent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
+                                getActivity().startService(mFerriesSchedulesIntent);
+
+                                Intent mMountainPassesIntent = new Intent(getActivity(), MountainPassesSyncService.class);
+                                getActivity().startService(mMountainPassesIntent);
+                            }
+                        })
+
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .show();
+
+            } catch (JSONException e){
+                Toast.makeText(getActivity(), "Error reading saved route.", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(getActivity(), "Error finding saved route.", Toast.LENGTH_LONG).show();
+        }
+
+    }
+
+    public List<LatLng> myGetRoute() {
+        return myRoute;
+    }
+
+    public void myTaskComplete(){
+        runningTasks--;
+        if (runningTasks == 0){
+            progressDialog.dismiss();
+        }
+    }
+
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(),
                 Uri.withAppendedPath(MyRoute.CONTENT_URI, Uri.encode("")),
@@ -261,6 +345,7 @@ public class MyRouteFragment extends BaseFragment
 
             TextView title = (TextView) view.findViewById(R.id.title);
             title.setText(cursor.getString(cursor.getColumnIndex(WSDOTContract.MyRoute.MY_ROUTE_TITLE)));
+
             title.setTypeface(tfb);
 
             CheckBox star_button = (CheckBox) view.findViewById(R.id.star_button);

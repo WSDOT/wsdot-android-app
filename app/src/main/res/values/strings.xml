@@ -101,7 +101,7 @@
 
     <string name="description_callouts_toggle">Hide JBLM</string>
 
-    <string name="description_my_route">My Route</string>
+    <string name="description_my_route">My Routes</string>
     <string name="title_activity_my_route">My Routes</string>
     <string name="title_activity_my_route2">MyRouteActivity2</string>
     <string name="action_settings">Settings</string>

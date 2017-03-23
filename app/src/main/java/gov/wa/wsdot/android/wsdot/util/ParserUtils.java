@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -145,7 +146,21 @@ public class ParserUtils {
 		return locationsJson;
 	}
 
-
+	/**
+	 * converts a JSONArray of location data (ex. [{"latitude":0.0, "longitude":0.0}, ...]) into an ArrayList<LatLng>
+	 * @param jsonLocations
+	 */
+	public static ArrayList<LatLng> getRouteArrayList(JSONArray jsonLocations){
+		ArrayList<LatLng> myRouteLocations = new ArrayList<>();
+		try {
+			for (int i = 0; i < jsonLocations.length(); i++){
+				myRouteLocations.add(new LatLng(jsonLocations.getJSONObject(i).getDouble("latitude"), jsonLocations.getJSONObject(i).getDouble("longitude")));
+			}
+		} catch (JSONException e){
+			e.printStackTrace();
+		}
+		return myRouteLocations;
+	}
 
 
 }

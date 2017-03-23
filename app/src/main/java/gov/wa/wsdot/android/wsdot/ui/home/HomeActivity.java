@@ -35,9 +35,9 @@ import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
-import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
+import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.HomePager;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;

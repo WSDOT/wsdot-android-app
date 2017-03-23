@@ -39,7 +39,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;

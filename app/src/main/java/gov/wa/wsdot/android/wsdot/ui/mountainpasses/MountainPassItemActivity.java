@@ -18,24 +18,17 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
-import android.app.Application;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
@@ -49,28 +42,20 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
-import gov.wa.wsdot.android.wsdot.shared.MountainPassItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
-import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
-
-import static android.R.attr.data;
 
 public class MountainPassItemActivity extends BaseActivity {
 

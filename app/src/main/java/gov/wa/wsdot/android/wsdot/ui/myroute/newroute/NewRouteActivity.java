@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -25,7 +26,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
@@ -55,12 +55,18 @@ import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
+import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
+import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
+import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
 import gov.wa.wsdot.android.wsdot.service.MyRouteTrackingService;
+import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
+import gov.wa.wsdot.android.wsdot.ui.myroute.FindFavoritesOnRouteActivity;
+import gov.wa.wsdot.android.wsdot.util.ProgressDialogFragment;
 
 import static android.view.View.GONE;
 import static gov.wa.wsdot.android.wsdot.util.ParserUtils.convertLocationsToJson;
 
-public class NewRouteActivity extends AppCompatActivity implements
+public class NewRouteActivity extends FindFavoritesOnRouteActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback, OnMapReadyCallback,
         TrackingRouteDialogFragment.TrackingRouteDialogListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -69,24 +75,31 @@ public class NewRouteActivity extends AppCompatActivity implements
     private final String TAG = "NewRouteActivity";
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
+    private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
+    private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
+    private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
+    private CamerasSyncReceiver mCamerasSyncReceiver;
+
+    private String DEFAULT_ROUTE_NAME = "My Route";
+
+    private final int REQUEST_ACCESS_FINE_LOCATION = 100;
+
     private GoogleMap mMap;
 
     private boolean mIsBound = false;
 
     private MyRouteTrackingService mBoundService;
 
-    private Button startButton;
-    private Button discardButton;
-    private Button saveButton;
+    private ProgressDialogFragment progressDialog;
+    private int runningTasks = 0;
 
     private GoogleApiClient mGoogleApiClient;
 
     private final String TRACKING_DIALOG_FRAGMENT_TAG = "tracking_dialog";
-    private String routeName = "My Route";
 
-    private final int REQUEST_ACCESS_FINE_LOCATION = 100;
 
     private List<LatLng> myRouteLocations = new ArrayList<>();
+
     private Boolean rebinding = false;
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -161,9 +174,9 @@ public class NewRouteActivity extends AppCompatActivity implements
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
         mapFragment.getMapAsync(this);
+
     }
 
     @Override
@@ -172,6 +185,35 @@ public class NewRouteActivity extends AppCompatActivity implements
         checkLocationPermissionError();
         checkGoogleServiceConnectError();
         mGoogleApiClient.connect();
+
+        // Ferries Route Schedules
+        IntentFilter ferriesSchedulesFilter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
+        ferriesSchedulesFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mFerriesSchedulesSyncReceiver = new FerriesSchedulesSyncReceiver();
+        registerReceiver(mFerriesSchedulesSyncReceiver, ferriesSchedulesFilter);
+
+        // Mountain Passes
+        IntentFilter mountainPassesFilter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
+        mountainPassesFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
+        registerReceiver(mMountainPassesSyncReceiver, mountainPassesFilter);
+
+        // Travel Times
+        IntentFilter travelTimesFilter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
+        travelTimesFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mTravelTimesSyncReceiver = new TravelTimesSyncReceiver();
+        registerReceiver(mTravelTimesSyncReceiver, travelTimesFilter);
+
+        // Cameras
+        IntentFilter camerasFilter = new IntentFilter(
+                "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
+        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        mCamerasSyncReceiver = new CamerasSyncReceiver();
+        registerReceiver(mCamerasSyncReceiver, camerasFilter);
+
     }
 
     @Override
@@ -180,6 +222,12 @@ public class NewRouteActivity extends AppCompatActivity implements
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
+
+        unregisterReceiver(mFerriesSchedulesSyncReceiver);
+        unregisterReceiver(mMountainPassesSyncReceiver);
+        unregisterReceiver(mTravelTimesSyncReceiver);
+        unregisterReceiver(mCamerasSyncReceiver);
+
     }
 
     @Override
@@ -198,32 +246,58 @@ public class NewRouteActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    // TODO
-    private void showAddFavoritesDialog(String id) {
+    private void showAddFavoritesDialog() {
 
+        new AlertDialog.Builder(NewRouteActivity.this, R.style.AppCompatAlertDialogStyle)
+                .setTitle("Add Favorites?")
+                .setMessage("Traffic cameras, travel times, pass reports, and other content will " +
+                        "be added to your favorites if they are on this route. " +
+                        "\n\n You can do this later by tapping Edit on the My Routes screen.")
 
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
 
+                        progressDialog = new ProgressDialogFragment();
+                        Bundle args = new Bundle();
+                        args.putString("message", "Finding Favorites...");
+                        progressDialog.setArguments(args);
+                        progressDialog.show(getSupportFragmentManager(), "progress_dialog");
 
+                        runningTasks = MAX_NUM_TASKS;
 
-        ContentValues values = new ContentValues();
-        values.put(WSDOTContract.MyRoute.MY_ROUTE_FOUND_FAVORITES,  1);
+                        Intent mCamerasIntent = new Intent(NewRouteActivity.this, CamerasSyncService.class);
+                        startService(mCamerasIntent);
 
-        this.getContentResolver().update(
-                WSDOTContract.MyRoute.CONTENT_URI,
-                values,
-                WSDOTContract.MyRoute._ID + "=?",
-                new String[] {id}
-        );
+                        Intent mTravelTimesIntent = new Intent(NewRouteActivity.this, TravelTimesSyncService.class);
+                        startService(mTravelTimesIntent);
+
+                        Intent mFerriesSchedulesIntent = new Intent(NewRouteActivity.this, FerriesSchedulesSyncService.class);
+                        startService(mFerriesSchedulesIntent);
+
+                        Intent mMountainPassesIntent = new Intent(NewRouteActivity.this, MountainPassesSyncService.class);
+                        startService(mMountainPassesIntent);
+                    }
+                })
+
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        showStartView();
+                        mMap.clear();
+                        moveToCurrentLocation();
+                        Snackbar.make(findViewById(android.R.id.content), "Route Successfully Saved", Snackbar.LENGTH_LONG)
+                                .show();
+                    }
+                })
+                .show();
     }
 
 
     private void initStartButton(){
-        startButton = (Button) findViewById(R.id.start_button);
+        Button startButton = (Button) findViewById(R.id.start_button);
 
         startButton.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 if (ContextCompat.checkSelfPermission(NewRouteActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ){
-                    Log.e(TAG, "You gave us permission!! - Tracking location");
                     myRouteLocations.clear();
 
                     startService(new Intent(NewRouteActivity.this, MyRouteTrackingService.class));
@@ -239,7 +313,7 @@ public class NewRouteActivity extends AppCompatActivity implements
                                 .setMessage("You must grant WSDOT permission to use this feature.")
                                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        // continue with delete
+
                                     }
                                 })
                                 .setIcon(R.drawable.ic_menu_mylocation)
@@ -254,7 +328,7 @@ public class NewRouteActivity extends AppCompatActivity implements
     }
 
     private void initDiscardButton(){
-        discardButton = (Button) findViewById(R.id.discard_button);
+        Button discardButton = (Button) findViewById(R.id.discard_button);
 
         discardButton.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
@@ -267,7 +341,7 @@ public class NewRouteActivity extends AppCompatActivity implements
     }
 
     private void initSaveButton(){
-        saveButton = (Button) findViewById(R.id.save_button);
+        Button saveButton = (Button) findViewById(R.id.save_button);
 
         saveButton.setOnClickListener(new Button.OnClickListener() {
             public void onClick(final View v) {
@@ -284,17 +358,20 @@ public class NewRouteActivity extends AppCompatActivity implements
                 if(Build.VERSION.SDK_INT > 16) {
                     input.setBackground(drawable); // set the new drawable to EditText
                 }else{
-                    input.setBackgroundDrawable(drawable); // use setBackgroundDrawable because setBackground required API 16
+                    input.setBackgroundDrawable(drawable); // use setBackground Drawable because setBackground required API 16
                 }
 
                 // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
                 input.setInputType(InputType.TYPE_CLASS_TEXT);
                 builder.setView(input);
-
+                builder.setCancelable(false);
                 // Set up the buttons
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
+                        String routeName = DEFAULT_ROUTE_NAME;
+
                         if (!input.getText().toString().trim().equals("")) {
                             routeName = input.getText().toString();
                         }
@@ -303,11 +380,7 @@ public class NewRouteActivity extends AppCompatActivity implements
 
                         ContentValues values = new ContentValues();
 
-                        Log.e(TAG, String.valueOf(myRouteLocations.size()));
-
                         JSONArray json = convertLocationsToJson(myRouteLocations);
-
-                        Log.e(TAG, json.toString());
 
                         String id = String.valueOf(new Date().getTime()/1000);
 
@@ -322,17 +395,7 @@ public class NewRouteActivity extends AppCompatActivity implements
 
                         getContentResolver().insert(WSDOTContract.MyRoute.CONTENT_URI, values);
 
-                        //TODO: Add favorites?
-                        //showAddFavoritesDialog(id);
-
-                        showStartView();
-
-                        mMap.clear();
-                        myRouteLocations.clear();
-                        moveToCurrentLocation();
-
-                        Snackbar.make(findViewById(android.R.id.content), "Route Successfully Saved", Snackbar.LENGTH_LONG)
-                                .show();
+                        showAddFavoritesDialog();
 
                     }
                 });
@@ -364,11 +427,9 @@ public class NewRouteActivity extends AppCompatActivity implements
             } else {
                 Toast.makeText(this, "Not enough location data to make a route.", Toast.LENGTH_LONG).show();
             }
-            Log.e(TAG, "collected " + myRouteLocations.size() + " lat/lng points");
 
         } else {
             // Need to rebind
-            Log.e(TAG, "rebinding");
             rebinding = true;
             doBindService();
         }
@@ -498,7 +559,6 @@ public class NewRouteActivity extends AppCompatActivity implements
 
     @Override
     public void trackingError(String message) {
-        Log.e(TAG, "Oops!");
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         if (getSupportFragmentManager().findFragmentByTag(TRACKING_DIALOG_FRAGMENT_TAG) != null){
             ((TrackingRouteDialogFragment) getSupportFragmentManager().findFragmentByTag(TRACKING_DIALOG_FRAGMENT_TAG)).dismiss();
@@ -564,4 +624,23 @@ public class NewRouteActivity extends AppCompatActivity implements
             }
         }
     }
+
+    @Override
+    protected void taskComplete(){
+        runningTasks--;
+        if (runningTasks == 0){
+            progressDialog.dismiss();
+            showStartView();
+            mMap.clear();
+            moveToCurrentLocation();
+            Snackbar.make(findViewById(android.R.id.content), "Route Successfully Saved", Snackbar.LENGTH_LONG)
+                    .show();
+        }
+    }
+
+    @Override
+    protected List<LatLng> getRoute() {
+        return this.myRouteLocations;
+    }
+
 }
