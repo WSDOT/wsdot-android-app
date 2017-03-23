@@ -69,25 +69,30 @@ public class I405TollRatesFragment extends BaseFragment {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("<p><strong>I-405 Express Toll Lanes between Bellevue and Lynnwood</strong><br />");
-		sb.append("I-405 express toll lanes will let drivers choose to travel faster by paying a toll. "); 
+		sb.append("I-405 express toll lanes let drivers choose to travel faster by paying a toll 5 a.m.-7 p.m. Monday-Friday. ");
 		sb.append("Toll rates will adjust between 75 cents and $10 based on traffic volumes in the express ");
 		sb.append("toll lane. Drivers will pay the rate they see upon entering the lanes, even if they see "); 
 		sb.append("a higher price down the road. Transit, vanpools, carpools and motorcycles can use the ");
-		sb.append("lanes for free with a <em>Good To Go!</em> account and pass.</p>");
+		sb.append("lanes for free with a <em>Good To Go!</em> account and pass. The lanes are open to all ");
+		sb.append("vehicles toll-free Monday-Friday 7 p.m.-5 a.m., on weekends, and on New Years Day, Memorial Day, ");
+		sb.append("Independence Day, Labor Day, Thanksgiving Day, and Christmas Day.</p>");
+
 		sb.append("<p><strong>Access to express toll lanes</strong><br />");
 		sb.append("Drivers who choose to use the lanes, will merge to the far left regular lane and can ");
 		sb.append("enter express toll lanes at designated access points that are marked with dashed lines. ");
 		sb.append("Just remember that failure to use designated access points will result in a $136 ticket ");
 		sb.append("for crossing the double white lines.</p>");
+
 		sb.append("<p>There are two direct access ramps to I-405 express toll lanes that allow you to ");
 		sb.append("directly enter the express toll lanes from the middle of the freeway. These ramps are at ");
 		sb.append("Northeast 6th Street in Bellevue and Northeast 128th Street in Kirkland.</p>");
+
 		sb.append("<p><strong>Using the lanes</strong><br />");
 		sb.append("Any existing <em>Good To Go!</em> pass can be used to pay a toll.</p>");
 		sb.append("<p>If you carpool on the I-405 express toll lanes, you must meet the occupancy requirements ");
 		sb.append("and have a <em>Good To Go!</em> account and Flex Pass set to HOV mode to travel toll-free. Carpool ");
-		sb.append("requirements are three occupants during weekday peaks hours (5-9 a.m. and 3-7 p.m.) and two ");
-		sb.append("occupants during off-peak hours (mid-day, evenings and weekends).</p>");
+		sb.append("requirements are three occupants during weekday peak hours (5-9 a.m. and 3-7 p.m.) and two ");
+		sb.append("occupants during off-peak hours (9 a.m.-3 p.m.).</p>");
 		sb.append("<p>If a driver does not have a <em>Good To Go!</em> account, a Pay By Mail toll bill will be mailed ");
 		sb.append("to the vehicle’s registered owner for an additional $2 per toll transaction.</p>");
 	    sb.append("<p>Visit <a href=\"http://www.GoodToGo405.org\">GoodToGo405.org</a> for more information.</p>");
