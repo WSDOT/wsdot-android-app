@@ -19,14 +19,21 @@
 package gov.wa.wsdot.android.wsdot.ui.home;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
@@ -41,6 +48,8 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.HomePager;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
+
+import static android.view.View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION;
 
 public class HomeActivity extends BaseActivity {
 
@@ -89,6 +98,7 @@ public class HomeActivity extends BaseActivity {
         mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+
                 mViewPager.setCurrentItem(tab.getPosition());
                 AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
 
@@ -113,12 +123,29 @@ public class HomeActivity extends BaseActivity {
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
+
+
+        final Handler handler = new Handler();
+
+        final Runnable r = new Runnable() {
+            public void run() {
+                showTapTargetHint();
+            }
+        };
+
+        handler.postDelayed(r, 800);
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.options, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu){
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -134,7 +161,39 @@ public class HomeActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void showTapTargetHint() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean seenTip = settings.getBoolean("KEY_SEEN_MY_ROUTE_HOME_TIP", false);
 
+        ArrayList<View> views = new ArrayList<>();
 
+        mToolbar.getRootView().findViewsWithText(views, "my routes", FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
 
+        if (!seenTip) {
+            TapTargetView.showFor(this,                 // `this` is an Activity
+                    TapTarget.forToolbarMenuItem(mToolbar, R.id.menu_route, "Know before you go", "Check for highway alerts on your commute by creating a route.")
+                            // All options below are optional
+                            .outerCircleColor(R.color.primary)      // Specify a color for the outer circle
+                            .targetCircleColor(R.color.white)   // Specify a color for the target circle
+                            .titleTextSize(20)                  // Specify the size (in sp) of the title text
+                            .titleTextColor(R.color.white)      // Specify the color of the title text
+                            .descriptionTextSize(15)            // Specify the size (in sp) of the description text
+                            .textColor(R.color.white)            // Specify a color for both the title and description text
+                            .textTypeface(Typeface.SANS_SERIF)  // Specify a typeface for the text
+                            .dimColor(R.color.black)            // If set, will dim behind the view with 30% opacity of the given color
+                            .drawShadow(true)                   // Whether to draw a drop shadow or not
+                            .cancelable(true)                  // Whether tapping outside the outer circle dismisses the view
+                            .tintTarget(true)                   // Whether to tint the target view's color
+                            .transparentTarget(false)           // Specify whether the target is transparent (displays the content underneath)
+                            .targetRadius(60),                  // Specify the target radius (in dp)
+                    new TapTargetView.Listener() {          // The listener can listen for regular clicks, long clicks or cancels
+                        @Override
+                        public void onTargetClick(TapTargetView view) {
+                            super.onTargetClick(view);      // This call is optional
+                            startActivity(new Intent(HomeActivity.this, MyRouteActivity.class));
+                        }
+                    });
+        }
+        settings.edit().putBoolean("KEY_SEEN_MY_ROUTE_HOME_TIP", true).apply();
+    }
 }

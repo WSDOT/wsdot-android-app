@@ -41,9 +41,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.accessibility.AccessibilityEvent;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -68,7 +66,6 @@ import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemActivity;
-import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
@@ -412,8 +409,8 @@ public class FavoritesFragment extends BaseFragment implements
                     getActivity(),
                     MyRoute.CONTENT_URI,
                     my_route_projection,
-                    null,
-                    null,
+                    MyRoute.MY_ROUTE_IS_STARRED + "=?",
+                    new String[] {Integer.toString(1)},
                     MyRoute.MY_ROUTE_TITLE + " ASC"
             );
             break;

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:wsdot="http://schemas.android.com/apk/res-auto">
+    xmlns:wsdot="http://schemas.android.com/apk/res-auto">
 
 	<item
 		android:id="@+id/menu_route"
 		android:title="@string/description_my_route"
+        android:contentDescription="my routes"
 
 		android:orderInCategory="1"
 		wsdot:showAsAction="ifRoom" />

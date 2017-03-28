@@ -252,10 +252,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         mGoogleApiClient.connect();
 
-        ArrayList<View> views = new ArrayList<>();
-
-        mToolbar.getRootView().findViewsWithText(views, "overflow", FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
-
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         boolean seenTip = settings.getBoolean("KEY_SEEN_TRAFFIC_MENU_TIP", false);
 
