@@ -45,6 +45,7 @@ import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;
+import gov.wa.wsdot.android.wsdot.ui.settings.SettingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.HomePager;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
@@ -124,9 +125,7 @@ public class HomeActivity extends BaseActivity {
             }
         });
 
-
         final Handler handler = new Handler();
-
         final Runnable r = new Runnable() {
             public void run() {
                 showTapTargetHint();
@@ -134,7 +133,6 @@ public class HomeActivity extends BaseActivity {
         };
 
         handler.postDelayed(r, 800);
-
     }
 
     @Override
@@ -153,6 +151,9 @@ public class HomeActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.menu_about:
             	startActivity(new Intent(this, AboutActivity.class));
+                break;
+            case R.id.menu_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
                 break;
             case R.id.menu_route:
                 startActivity(new Intent(this, MyRouteActivity.class));

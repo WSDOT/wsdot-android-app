@@ -559,7 +559,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         /**
          * Check if current location is within a lat/lon bounding box surrounding
-         * Check if current location is within a lat/lon bounding box surrounding
          * the greater Seattle area.
          */
         try {

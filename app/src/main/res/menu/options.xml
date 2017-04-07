@@ -15,7 +15,13 @@
 		android:title="@string/description_about"
 		android:icon="@drawable/ic_menu_info"
 		android:orderInCategory="2"
-		wsdot:showAsAction="ifRoom" />
+		wsdot:showAsAction="never" />
 
+	<item
+		android:id="@+id/menu_settings"
+		android:title="@string/description_settings"
+		android:icon="@drawable/ic_menu_settings"
+		android:orderInCategory="2"
+		wsdot:showAsAction="never" />
 
 </menu>

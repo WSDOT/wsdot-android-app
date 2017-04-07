@@ -162,14 +162,25 @@ public class FavoritesFragment extends BaseFragment implements
 	private static final int FERRIES_SCHEDULES_LOADER_ID = 14;
     private static final int LOCATION_LOADER_ID = 15;
 
-    private static final int MY_ROUTE_VIEWTYPE = 0;
-    private static final int CAMERAS_VIEWTYPE = 1;
-    private static final int MOUNTAIN_PASSES_VIEWTYPE = 2;
-    private static final int TRAVEL_TIMES_VIEWTYPE = 3;
-    private static final int FERRIES_SCHEDULES_VIEWTYPE = 4;
-    private static final int LOCATION_VIEWTYPE = 5;
+    public static final int MY_ROUTE_VIEWTYPE = 0;
+    public static final int CAMERAS_VIEWTYPE = 1;
+    public static final int MOUNTAIN_PASSES_VIEWTYPE = 2;
+    public static final int TRAVEL_TIMES_VIEWTYPE = 3;
+    public static final int FERRIES_SCHEDULES_VIEWTYPE = 4;
+    public static final int LOCATION_VIEWTYPE = 5;
 
     private static final int HEADER_VIEWTYPE = 6;
+
+    public static LinkedHashMap headers = new LinkedHashMap<Integer, String>(){
+        {
+            put(MY_ROUTE_VIEWTYPE, "My Routes");
+            put(CAMERAS_VIEWTYPE, "Cameras");
+            put(MOUNTAIN_PASSES_VIEWTYPE, "Mountain Passes");
+            put(TRAVEL_TIMES_VIEWTYPE, "Travel Times");
+            put(FERRIES_SCHEDULES_VIEWTYPE, "Ferries Schedules");
+            put(LOCATION_VIEWTYPE, "Locations");
+        }
+    };
 
     private int orderedViewTypes[] = new int[6];
 
@@ -182,14 +193,6 @@ public class FavoritesFragment extends BaseFragment implements
 
 		setHasOptionsMenu(true);
 
-        // Check preferences and set defaults if none set
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
-        orderedViewTypes[0] = settings.getInt("KEY_FIRST_FAVORITES_SECTION", MY_ROUTE_VIEWTYPE);
-        orderedViewTypes[1] = settings.getInt("KEY_SECOND_FAVORITES_SECTION", CAMERAS_VIEWTYPE);
-        orderedViewTypes[2] = settings.getInt("KEY_THIRD_FAVORITES_SECTION", FERRIES_SCHEDULES_VIEWTYPE);
-        orderedViewTypes[3] = settings.getInt("KEY_FOURTH_FAVORITES_SECTION", MOUNTAIN_PASSES_VIEWTYPE);
-        orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", TRAVEL_TIMES_VIEWTYPE);
-        orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", LOCATION_VIEWTYPE);
 
 		mFerriesSchedulesIntent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
         getActivity().startService(mFerriesSchedulesIntent);
@@ -334,6 +337,16 @@ public class FavoritesFragment extends BaseFragment implements
 	public void onResume() {
 		super.onResume();
 
+        // Check preferences and set defaults if none set
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
+        orderedViewTypes[0] = settings.getInt("KEY_FIRST_FAVORITES_SECTION", MY_ROUTE_VIEWTYPE);
+        orderedViewTypes[1] = settings.getInt("KEY_SECOND_FAVORITES_SECTION", CAMERAS_VIEWTYPE);
+        orderedViewTypes[2] = settings.getInt("KEY_THIRD_FAVORITES_SECTION", FERRIES_SCHEDULES_VIEWTYPE);
+        orderedViewTypes[3] = settings.getInt("KEY_FOURTH_FAVORITES_SECTION", MOUNTAIN_PASSES_VIEWTYPE);
+        orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", TRAVEL_TIMES_VIEWTYPE);
+        orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", LOCATION_VIEWTYPE);
+        mFavoritesAdapter.notifyDataSetChanged();
+
         // Ferries Route Schedules
         IntentFilter ferriesSchedulesFilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
@@ -477,17 +490,6 @@ public class FavoritesFragment extends BaseFragment implements
                 put(TRAVEL_TIMES_LOADER_ID, TRAVEL_TIMES_VIEWTYPE);
                 put(FERRIES_SCHEDULES_LOADER_ID, FERRIES_SCHEDULES_VIEWTYPE);
                 put(LOCATION_LOADER_ID, LOCATION_VIEWTYPE);
-            }
-        };
-
-        public LinkedHashMap headers = new LinkedHashMap<Integer, String>(){
-            {
-                put(MY_ROUTE_VIEWTYPE, "My Routes");
-                put(CAMERAS_VIEWTYPE, "Cameras");
-                put(MOUNTAIN_PASSES_VIEWTYPE, "Mountain Passes");
-                put(TRAVEL_TIMES_VIEWTYPE, "Travel Times");
-                put(FERRIES_SCHEDULES_VIEWTYPE, "Ferries Schedules");
-                put(LOCATION_VIEWTYPE, "Locations");
             }
         };
 
@@ -1136,7 +1138,6 @@ public class FavoritesFragment extends BaseFragment implements
     /**
      * View holders for favorite items
      */
-
     private class CamViewHolder extends RecyclerView.ViewHolder{
         TextView title;
 
