@@ -48,6 +48,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import java.util.LinkedHashMap;
 
 import gov.wa.wsdot.android.wsdot.R;
@@ -83,7 +86,9 @@ public class FavoritesFragment extends BaseFragment implements
 	private Intent mFerriesSchedulesIntent;
 	private Intent mMountainPassesIntent;
 	private Intent mTravelTimesIntent;
-	
+
+    private Tracker mTracker;
+
 	private SwipeRefreshLayout swipeRefreshLayout;
 	
 	private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
@@ -817,6 +822,13 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.alerts_button.setContentDescription("Check alerts on route");
                 viewholder.alerts_button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Button Tap")
+                                .setAction("Check Alerts")
+                                .setLabel("My Routes")
+                                .build());
+
                         Cursor c = (Cursor) mFavoritesAdapter.getItem(pos);
                         Bundle b = new Bundle();
 
@@ -834,6 +846,13 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.map_button.setContentDescription("Check map for route");
                 viewholder.map_button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Button Tap")
+                                .setAction("Check Map for Route")
+                                .setLabel("My Routes")
+                                .build());
+
                         Cursor c = (Cursor) mFavoritesAdapter.getItem(pos);
                         Bundle b = new Bundle();
 
@@ -901,7 +920,6 @@ public class FavoritesFragment extends BaseFragment implements
                 return null;
             }
 
-            Log.e(TAG, "matching id " + id + " with " + loaderIdToViewType.get(id));
             sections.put(loaderIdToViewType.get(id), newCursor);
 
             if (newCursor != null) {

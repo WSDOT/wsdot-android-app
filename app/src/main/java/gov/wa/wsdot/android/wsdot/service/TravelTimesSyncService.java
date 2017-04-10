@@ -156,7 +156,6 @@ public class TravelTimesSyncService extends IntentService {
 		} else {
 			responseString = "NOP";
 		}
-        Log.e("TEST", "sending broadcast");
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction("gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);

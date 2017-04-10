@@ -33,6 +33,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
@@ -49,6 +51,7 @@ import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
@@ -64,7 +67,7 @@ public class MyRouteFragment extends BaseFragment
     final String TAG = MyRouteFragment.class.getSimpleName();
 
     final int MY_CURSOR_ID = 1;
-
+    private Tracker mTracker;
     private ProgressDialogFragment progressDialog;
     private int runningTasks = 0;
 
@@ -100,15 +103,33 @@ public class MyRouteFragment extends BaseFragment
 
     public void onOptionSelected(final long routeID, int position){
 
+        // GA tracker
+        mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
+
         String routeName = getRouteName(routeID);
         switch (position){
             case 0: // Delete Route
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Button Tap")
+                        .setAction("Delete Route")
+                        .setLabel("My Routes")
+                        .build());
                 deleteRouteAction(routeName, routeID);
                 break;
             case 1: // Rename route
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Button Tap")
+                        .setAction("Rename Route")
+                        .setLabel("My Routes")
+                        .build());
                 renameRouteAction(routeName, routeID);
                 break;
             case 2: // Show on Map
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Button Tap")
+                        .setAction("Show Route on Map")
+                        .setLabel("My Routes")
+                        .build());
                 Bundle b = new Bundle();
                 Intent intent = new Intent(getActivity(), MyRouteMapActivity.class);
                 b.putLong("route_id", routeID);
@@ -117,6 +138,11 @@ public class MyRouteFragment extends BaseFragment
                 startActivity(intent);
                 break;
             case 3: // Find favorites
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Button Tap")
+                        .setAction("Find Favorites")
+                        .setLabel("My Routes")
+                        .build());
                 findFavoritesOnRoute(routeID);
                 break;
             default:
@@ -328,7 +354,6 @@ public class MyRouteFragment extends BaseFragment
     private class MyRouteAdapter extends CursorAdapter {
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
-        private Context context;
 
         public MyRouteAdapter(Context context, Cursor cursor) {
             super(context, cursor, 0);
@@ -410,6 +435,13 @@ public class MyRouteFragment extends BaseFragment
             alert_button.setContentDescription("Check alerts on route");
             alert_button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Button Tap")
+                            .setAction("Check Alerts")
+                            .setLabel("My Routes")
+                            .build());
+
                     Cursor c = myRouteAdapter.getCursor();
                     c.moveToPosition(position);
                     Bundle b = new Bundle();
@@ -429,6 +461,13 @@ public class MyRouteFragment extends BaseFragment
             map_button.setContentDescription("Check map for route");
             map_button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Button Tap")
+                            .setAction("Check Map for Route")
+                            .setLabel("My Routes")
+                            .build());
+
                     Cursor c = myRouteAdapter.getCursor();
                     c.moveToPosition(position);
                     Bundle b = new Bundle();

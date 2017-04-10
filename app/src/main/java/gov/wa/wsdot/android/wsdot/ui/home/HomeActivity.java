@@ -30,7 +30,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.view.accessibility.AccessibilityManager;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
@@ -49,8 +49,6 @@ import gov.wa.wsdot.android.wsdot.ui.settings.SettingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.HomePager;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
-
-import static android.view.View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION;
 
 public class HomeActivity extends BaseActivity {
 
@@ -166,13 +164,10 @@ public class HomeActivity extends BaseActivity {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         boolean seenTip = settings.getBoolean("KEY_SEEN_MY_ROUTE_HOME_TIP", false);
 
-        ArrayList<View> views = new ArrayList<>();
-
-        mToolbar.getRootView().findViewsWithText(views, "my routes", FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
-
-        if (!seenTip) {
+        AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+        if (!seenTip && !am.isEnabled()) {
             TapTargetView.showFor(this,                 // `this` is an Activity
-                    TapTarget.forToolbarMenuItem(mToolbar, R.id.menu_route, "Know before you go", "Check for highway alerts on your commute by creating a route.")
+                    TapTarget.forToolbarMenuItem(mToolbar, R.id.menu_route, "My Routes", "Easily check for highway alerts affecting your commute by creating a route.")
                             // All options below are optional
                             .outerCircleColor(R.color.primary)      // Specify a color for the outer circle
                             .targetCircleColor(R.color.white)   // Specify a color for the target circle

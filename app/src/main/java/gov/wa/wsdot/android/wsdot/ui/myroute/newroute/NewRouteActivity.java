@@ -252,7 +252,7 @@ public class NewRouteActivity extends FindFavoritesOnRouteActivity implements
                 .setTitle("Add Favorites?")
                 .setMessage("Traffic cameras, travel times, pass reports, and other content will " +
                         "be added to your favorites if they are on this route. " +
-                        "\n\n You can do this later by tapping Edit on the My Routes screen.")
+                        "\n\n You can do this later by tapping the settings button next to your route.")
 
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -406,7 +406,6 @@ public class NewRouteActivity extends FindFavoritesOnRouteActivity implements
 
     private void showTrackingDialog() {
         FragmentManager fm = getSupportFragmentManager();
-
         TrackingRouteDialogFragment trackingRouteDialogFragment = TrackingRouteDialogFragment.newInstance("Tracking Route");
         trackingRouteDialogFragment.setCancelable(false);
         trackingRouteDialogFragment.show(fm, TRACKING_DIALOG_FRAGMENT_TAG);

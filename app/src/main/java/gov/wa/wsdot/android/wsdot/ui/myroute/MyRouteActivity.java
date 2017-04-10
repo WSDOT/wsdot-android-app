@@ -10,14 +10,18 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.accessibility.AccessibilityManager;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteActivity;
 
 public class MyRouteActivity extends FindFavoritesOnRouteActivity
@@ -27,6 +31,7 @@ public class MyRouteActivity extends FindFavoritesOnRouteActivity
     private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
     private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
     private CamerasSyncReceiver mCamerasSyncReceiver;
+    private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +49,13 @@ public class MyRouteActivity extends FindFavoritesOnRouteActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // GA tracker
+                mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Button Tap")
+                        .setAction("Create New Route")
+                        .setLabel("My Routes")
+                        .build());
                 startActivity(new Intent(MyRouteActivity.this, NewRouteActivity.class));
             }
         });
@@ -51,9 +63,10 @@ public class MyRouteActivity extends FindFavoritesOnRouteActivity
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         boolean seenTip = settings.getBoolean("KEY_SEEN_NEW_MY_ROUTE_TIP", false);
 
-        if (!seenTip) {
+        AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+        if (!seenTip && !am.isEnabled()) {
             TapTargetView.showFor(this, // `this` is an Activity
-                    TapTarget.forView(fab, "Create your first route", "Use your phone's GPS to track your drive anywhere. Check for highway alerts and automatically have content added to your favorites.")
+                    TapTarget.forView(fab, "Create your first route", "Track your commute using your phone's GPS to get a personal list of highway alerts only on your route.")
                             // All options below are optional
                             .outerCircleColor(R.color.primary)      // Specify a color for the outer circle
                             .titleTextSize(20)                  // Specify the size (in sp) of the title text
