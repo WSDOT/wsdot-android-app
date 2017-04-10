@@ -252,10 +252,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         mGoogleApiClient.connect();
 
-        ArrayList<View> views = new ArrayList<>();
-
-        mToolbar.getRootView().findViewsWithText(views, "overflow", FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
-
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         boolean seenTip = settings.getBoolean("KEY_SEEN_TRAFFIC_MENU_TIP", false);
 
@@ -563,7 +559,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         /**
          * Check if current location is within a lat/lon bounding box surrounding
-         * Check if current location is within a lat/lon bounding box surrounding
          * the greater Seattle area.
          */
         try {
@@ -586,21 +581,17 @@ public class TrafficMapActivity extends BaseActivity implements
         switch (item.getItemId()) {
 
             case R.id.set_favorite:
-
                 AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.WSDOT_popup);
 
                 final EditText textEntryView = new EditText(this);
                 textEntryView.setInputType(InputType.TYPE_CLASS_TEXT);
                 builder.setView(textEntryView);
-
                 builder.setMessage(R.string.add_location_dialog);
-
                 builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         dialog.dismiss();
                     }
                 });
-
                 builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String value = textEntryView.getText().toString();
@@ -615,7 +606,6 @@ public class TrafficMapActivity extends BaseActivity implements
                         getContentResolver().insert(WSDOTContract.MapLocation.CONTENT_URI, values);
                     }
                 });
-
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
                 return true;
@@ -624,14 +614,11 @@ public class TrafficMapActivity extends BaseActivity implements
                 return true;
             case R.id.alerts_in_area:
                 LatLngBounds mBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
-
                 Intent alertsIntent = new Intent(this, TrafficAlertsActivity.class);
-
                 alertsIntent.putExtra("nelat", mBounds.northeast.latitude);
                 alertsIntent.putExtra("nelong", mBounds.northeast.longitude);
                 alertsIntent.putExtra("swlat", mBounds.southwest.latitude);
                 alertsIntent.putExtra("swlong", mBounds.southwest.longitude);
-
                 startActivity(alertsIntent);
                 return true;
             case MENU_ITEM_EXPRESS_LANES:
@@ -801,18 +788,15 @@ public class TrafficMapActivity extends BaseActivity implements
             @Override
             public void onAnimationRepeat(Animation animation) {}
         });
-
         ImageView imageView = new ImageView(this, null, android.R.style.Widget_Material_ActionButton);
         imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_menu_refresh));
         imageView.setPadding(31, imageView.getPaddingTop(), 32, imageView.getPaddingBottom());
         imageView.startAnimation(animation);
         item.setActionView(imageView);
-
         startService(camerasIntent);
         startService(alertsIntent);
         camerasIntent.putExtra("forceUpdate", false);
         alertsIntent.putExtra("forceUpdate", false);
-
     }
 
     /*

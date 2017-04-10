@@ -20,10 +20,18 @@ package gov.wa.wsdot.android.wsdot.util;
 
 import android.annotation.SuppressLint;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 public class ParserUtils {
@@ -104,8 +112,7 @@ public class ParserUtils {
 			}
 		} catch (Exception e) {
 			return "Unavailable";
-		}		
-		
+		}
 	}
 	
     /**
@@ -119,4 +126,41 @@ public class ParserUtils {
     public static String pluralize(int count, String singular, String plural) {
         return (count == 1 ? singular : plural);
     }
+
+	/**
+	 * @param locations - array of lat/longs that make up a route.
+	 * @return json array of lat/long JSONObjects
+	 */
+    public static JSONArray convertLocationsToJson(List<LatLng> locations){
+		JSONArray locationsJson = new JSONArray();
+		try {
+			for (LatLng location : locations) {
+				JSONObject locationJson = new JSONObject();
+				locationJson.put("latitude", location.latitude);
+				locationJson.put("longitude", location.longitude);
+				locationsJson.put(locationJson);
+			}
+		} catch (JSONException e){
+			e.printStackTrace();
+		}
+		return locationsJson;
+	}
+
+	/**
+	 * converts a JSONArray of location data (ex. [{"latitude":0.0, "longitude":0.0}, ...]) into an ArrayList<LatLng>
+	 * @param jsonLocations
+	 */
+	public static ArrayList<LatLng> getRouteArrayList(JSONArray jsonLocations){
+		ArrayList<LatLng> myRouteLocations = new ArrayList<>();
+		try {
+			for (int i = 0; i < jsonLocations.length(); i++){
+				myRouteLocations.add(new LatLng(jsonLocations.getJSONObject(i).getDouble("latitude"), jsonLocations.getJSONObject(i).getDouble("longitude")));
+			}
+		} catch (JSONException e){
+			e.printStackTrace();
+		}
+		return myRouteLocations;
+	}
+
+
 }

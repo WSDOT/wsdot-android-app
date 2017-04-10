@@ -126,8 +126,10 @@ public class HighImpactAlertsFragment extends BaseFragment implements
         // This is called when a new Loader needs to be created.
 		String[] projection = {
 	            HighwayAlerts.HIGHWAY_ALERT_ID,
-				HighwayAlerts.HIGHWAY_ALERT_LATITUDE,
-				HighwayAlerts.HIGHWAY_ALERT_LONGITUDE,
+				HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE,
+				HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE,
+				HighwayAlerts.HIGHWAY_ALERT_END_LATITUDE,
+				HighwayAlerts.HIGHWAY_ALERT_END_LONGITUDE,
 				HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
 				HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
 				HighwayAlerts.HIGHWAY_ALERT_PRIORITY,
@@ -155,9 +157,11 @@ public class HighImpactAlertsFragment extends BaseFragment implements
                 item.setAlertId(cursor.getString(0));
                 item.setStartLatitude(cursor.getDouble(1));
                 item.setStartLongitude(cursor.getDouble(2));
-                item.setEventCategory(cursor.getString(3));
-				item.setExtendedDescription(cursor.getString(4));
-				item.setLastUpdatedTime(cursor.getString(6));
+				item.setEndLatitude(cursor.getDouble(3));
+				item.setEndLongitude(cursor.getDouble(4));
+                item.setEventCategory(cursor.getString(5));
+				item.setExtendedDescription(cursor.getString(6));
+				item.setLastUpdatedTime(cursor.getString(7));
 				alertItems.add(item);
 
 				cursor.moveToNext();
@@ -297,7 +301,7 @@ public class HighImpactAlertsFragment extends BaseFragment implements
 				} else if (responseString.equals("NOP")) {
 					// Nothing to do.
 				} else {
-					Log.e("HighwayAlertsSyncReceiver", responseString);
+					Log.e("HighwayAlertsReceiver", responseString);
 					mLoadingSpinner.setVisibility(View.GONE);
 					
 					alertItems.clear();

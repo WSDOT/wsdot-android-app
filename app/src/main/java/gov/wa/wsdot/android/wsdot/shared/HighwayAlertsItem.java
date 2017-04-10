@@ -44,20 +44,26 @@ public class HighwayAlertsItem {
     }
 
     public HighwayAlertsItem(Double startLatitude, Double startLongitude,
-            String eventCategory, String headlineDescription,
-            String lastUpdatedTime) {
+                             Double endLatitude, Double endLongitude,
+                             String eventCategory, String headlineDescription,
+                             String lastUpdatedTime) {
         this.startLatitude = startLatitude;
         this.startLongitude = startLongitude;
+        this.endLatitude = endLatitude;
+        this.endLongitude = endLongitude;
         this.eventCategory = eventCategory;
         this.headlineDescription = headlineDescription;
         this.lastUpdatedTime = lastUpdatedTime;
     }
     
     public HighwayAlertsItem(String alertId, Double startLatitude, Double startLongitude,
-            String eventCategory, String headlineDescription, String lastUpdatedTime,
-            String priority, Integer categoryIcon) {
+                             Double endLatitude, Double endLongitude,
+                             String eventCategory, String headlineDescription, String lastUpdatedTime,
+                             String priority, Integer categoryIcon) {
         this.alertId = alertId;
         this.startLatitude = startLatitude;
+        this.startLongitude = startLongitude;
+        this.endLatitude = endLatitude;
         this.startLongitude = startLongitude;
         this.eventCategory = eventCategory;
         this.headlineDescription = headlineDescription;
@@ -192,5 +198,19 @@ public class HighwayAlertsItem {
 
     public void setCategoryIcon(Integer categoryIcon) {
         this.categoryIcon = categoryIcon;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object != null && object instanceof HighwayAlertsItem) {
+            HighwayAlertsItem alert = (HighwayAlertsItem) object;
+            if (this.alertId == null) {
+                return (alert.alertId == null);
+            }
+            else {
+                return alertId.equals(alert.alertId);
+            }
+        }
+        return false;
     }
 }

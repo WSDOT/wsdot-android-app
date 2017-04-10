@@ -115,9 +115,8 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 				R.color.holo_green_light,
 				R.color.holo_orange_light,
 				R.color.holo_red_light);
-        
+
         mEmptyView = root.findViewById( R.id.empty_list_view );;
-        
         return root;
 	}
 
@@ -132,7 +131,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
     @Override
 	public void onPause() {
 		super.onPause();
-		
 		getActivity().unregisterReceiver(mFerriesSchedulesSyncReceiver);
 	}
 
@@ -187,7 +185,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 
 	public static class RouteSchedulesLoader extends CursorLoader {
 
-
 		public RouteSchedulesLoader(Context context, Uri uri,
 				String[] projection, String selection, String[] selectionArgs,
 				String sortOrder) {
@@ -197,7 +194,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 		@Override
 		protected void onStartLoading() {
 			super.onStartLoading();
-
 			swipeRefreshLayout.post(new Runnable() {
 				public void run() {
 					swipeRefreshLayout.setRefreshing(true);
@@ -301,7 +297,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 					Snackbar removed_snackbar = Snackbar
 							.make(getView(), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
 
-					added_snackbar.setCallback(new Snackbar.Callback() {
+					added_snackbar.addCallback(new Snackbar.Callback() {
 						@Override
 						public void onShown(Snackbar snackbar) {
 							super.onShown(snackbar);
@@ -310,7 +306,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 						}
 					});
 
-					removed_snackbar.setCallback(new Snackbar.Callback() {
+					removed_snackbar.addCallback(new Snackbar.Callback() {
 						@Override
 						public void onShown(Snackbar snackbar) {
 							super.onShown(snackbar);
@@ -364,10 +360,8 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
             FerryScheduleVH viewholder = new FerryScheduleVH(view);
 			view.setTag(viewholder);
             mItems.add(viewholder);
-
             return viewholder;
 		}
-
 
         @Override
         public int getItemViewType(int position) {

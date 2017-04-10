@@ -1,0 +1,87 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:weightSum="5"
+    android:layout_marginTop="?attr/actionBarSize"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <fragment
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/map_fragment"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"/>
+
+    <RelativeLayout
+        android:id="@+id/start_recording_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2">
+
+        <Button android:theme="@style/AppTheme.Button"
+            android:layout_marginTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Tracking Route"
+            android:id="@+id/start_button"
+            android:layout_centerHorizontal="true"
+            android:enabled="true" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="15dp"
+            android:layout_marginLeft="10dp"
+            android:layout_below="@id/start_button"
+            android:layout_gravity="bottom"
+            android:layout_marginRight="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:text="Your route information is stored on your device and is not shared with anyone.
+WSDOT provides traffic alert information for Washington State highways only."/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/done_recording_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:visibility="gone">
+
+        <Button android:theme="@style/AppTheme.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Save"
+            android:id="@+id/save_button"
+
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+
+            android:layout_centerHorizontal="true"
+            android:enabled="true" />
+
+        <Button android:theme="@style/AppTheme.ButtonNegative"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+
+            android:layout_below="@+id/save_button"
+            android:text="Discard"
+            android:id="@+id/discard_button"
+            android:layout_centerHorizontal="true"
+            android:enabled="true" />
+
+    </RelativeLayout>
+
+</LinearLayout>

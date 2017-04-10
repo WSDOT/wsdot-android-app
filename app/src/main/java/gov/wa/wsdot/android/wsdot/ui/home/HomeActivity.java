@@ -19,14 +19,21 @@
 package gov.wa.wsdot.android.wsdot.ui.home;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.accessibility.AccessibilityManager;
 
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
@@ -37,6 +44,8 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
+import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;
+import gov.wa.wsdot.android.wsdot.ui.settings.SettingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.HomePager;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
@@ -44,7 +53,6 @@ import gov.wa.wsdot.android.wsdot.util.UIUtils;
 public class HomeActivity extends BaseActivity {
 
     private static final String TAG = HomeActivity.class.getSimpleName();
-
     private TabLayout mTabLayout;
     private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
     private HomePager mViewPager;
@@ -89,6 +97,7 @@ public class HomeActivity extends BaseActivity {
         mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+
                 mViewPager.setCurrentItem(tab.getPosition());
                 AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
 
@@ -113,6 +122,15 @@ public class HomeActivity extends BaseActivity {
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
+
+        final Handler handler = new Handler();
+        final Runnable r = new Runnable() {
+            public void run() {
+                showTapTargetHint();
+            }
+        };
+
+        handler.postDelayed(r, 800);
     }
 
     @Override
@@ -122,16 +140,56 @@ public class HomeActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu){
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_about:
             	startActivity(new Intent(this, AboutActivity.class));
                 break;
+            case R.id.menu_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                break;
+            case R.id.menu_route:
+                startActivity(new Intent(this, MyRouteActivity.class));
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void showTapTargetHint() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean seenTip = settings.getBoolean("KEY_SEEN_MY_ROUTE_HOME_TIP", false);
 
-
-
+        AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+        if (!seenTip && !am.isEnabled()) {
+            TapTargetView.showFor(this,                 // `this` is an Activity
+                    TapTarget.forToolbarMenuItem(mToolbar, R.id.menu_route, "My Routes", "Easily check for highway alerts affecting your commute by creating a route.")
+                            // All options below are optional
+                            .outerCircleColor(R.color.primary)      // Specify a color for the outer circle
+                            .targetCircleColor(R.color.white)   // Specify a color for the target circle
+                            .titleTextSize(20)                  // Specify the size (in sp) of the title text
+                            .titleTextColor(R.color.white)      // Specify the color of the title text
+                            .descriptionTextSize(15)            // Specify the size (in sp) of the description text
+                            .textColor(R.color.white)            // Specify a color for both the title and description text
+                            .textTypeface(Typeface.SANS_SERIF)  // Specify a typeface for the text
+                            .dimColor(R.color.black)            // If set, will dim behind the view with 30% opacity of the given color
+                            .drawShadow(true)                   // Whether to draw a drop shadow or not
+                            .cancelable(true)                  // Whether tapping outside the outer circle dismisses the view
+                            .tintTarget(true)                   // Whether to tint the target view's color
+                            .transparentTarget(false)           // Specify whether the target is transparent (displays the content underneath)
+                            .targetRadius(60),                  // Specify the target radius (in dp)
+                    new TapTargetView.Listener() {          // The listener can listen for regular clicks, long clicks or cancels
+                        @Override
+                        public void onTargetClick(TapTargetView view) {
+                            super.onTargetClick(view);      // This call is optional
+                            startActivity(new Intent(HomeActivity.this, MyRouteActivity.class));
+                        }
+                    });
+        }
+        settings.edit().putBoolean("KEY_SEEN_MY_ROUTE_HOME_TIP", true).apply();
+    }
 }

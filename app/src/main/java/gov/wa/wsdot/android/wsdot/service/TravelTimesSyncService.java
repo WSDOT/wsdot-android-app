@@ -122,6 +122,10 @@ public class TravelTimesSyncService extends IntentService {
 					timesValues.put(TravelTimes.TRAVEL_TIMES_DISTANCE, item.getString("distance") + " miles");
 					timesValues.put(TravelTimes.TRAVEL_TIMES_ID, Integer.parseInt(item.getString("routeid")));
 					timesValues.put(TravelTimes.TRAVEL_TIMES_UPDATED, item.getString("updated"));
+					timesValues.put(TravelTimes.TRAVEL_TIMES_START_LATITUDE, item.getDouble("startLatitude"));
+					timesValues.put(TravelTimes.TRAVEL_TIMES_START_LONGITUDE, item.getDouble("startLongitude"));
+					timesValues.put(TravelTimes.TRAVEL_TIMES_END_LATITUDE, item.getDouble("endLatitude"));
+					timesValues.put(TravelTimes.TRAVEL_TIMES_END_LONGITUDE, item.getDouble("endLongitude"));
 					
 					if (starred.contains(Integer.parseInt(item.getString("routeid")))) {
 						timesValues.put(TravelTimes.TRAVEL_TIMES_IS_STARRED, 1);
@@ -152,7 +156,6 @@ public class TravelTimesSyncService extends IntentService {
 		} else {
 			responseString = "NOP";
 		}
-		
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction("gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);

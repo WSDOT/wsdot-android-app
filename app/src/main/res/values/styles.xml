@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
+
     <style name="Text"></style>
 
     <!-- Base application theme. -->
@@ -10,6 +11,20 @@
         <item name="colorPrimaryDark">#004D40</item>
         <!--   theme UI controls like checkboxes and text fields -->
         <item name="colorAccent">#FFEA00</item>
+    </style>
+
+    <style name="AppTheme.Button" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">#008065</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="AppTheme.ButtonNegative" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">#e53935</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">#008065</item>
     </style>
 
     <style name="WSDOT_popup" parent="Theme.AppCompat.Light.NoActionBar">
@@ -87,6 +102,7 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:singleLine">true</item>
     </style>
+
     <style name="spinnerDropDownItemWhite" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
         <item name="android:textColor">@color/white</item>
         <item name="android:singleLine">true</item>
@@ -116,15 +132,15 @@
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">end</item>
     </style>
- 
+
     <style name="HighImpactAlertsButtonItem" parent="style/HighImpactAlertsStaticItem">
         <item name="android:textColor">@color/accent_1</item>
         <item name="android:background">@drawable/high_impact_alerts_button</item>
         <item name="android:paddingRight">@dimen/high_impact_alerts_button_right_padding</item>
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>
-    </style> 
- 
+    </style>
+
     <style name="TextHeader">
         <item name="android:textSize">@dimen/text_size_large</item>
         <item name="android:textStyle">bold</item>
@@ -136,10 +152,14 @@
         <item name="android:textSize">@dimen/text_size_small</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textColor">@color/body_text_2</item>
-    </style>    
-    
+    </style>
+
     <style name="StarButton">
         <item name="android:button">@drawable/btn_star_holo_light</item>
     </style>
-    
+
+    <style name="WSDOT.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="WSDOT.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 </resources>

@@ -208,6 +208,8 @@ public class MountainPassesSyncService extends IntentService {
 					JSONObject restrictionTwo = pass.getJSONObject("RestrictionTwo");
 					passData.put(MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO, restrictionTwo.getString("RestrictionText"));
 					passData.put(MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION, restrictionTwo.getString("TravelDirection"));
+					passData.put(MountainPasses.MOUNTAIN_PASS_LATITUDE, pass.getDouble("Latitude"));
+					passData.put(MountainPasses.MOUNTAIN_PASS_LONGITUDE, pass.getDouble("Longitude"));
 					
 					if (starred.contains(Integer.parseInt(pass.getString("MountainPassId")))) {
 						passData.put(MountainPasses.MOUNTAIN_PASS_IS_STARRED, 1);

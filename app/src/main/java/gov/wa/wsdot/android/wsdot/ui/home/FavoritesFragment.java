@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-
 package gov.wa.wsdot.android.wsdot.ui.home;
 
 import android.content.BroadcastReceiver;
@@ -24,10 +23,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -47,7 +48,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import java.util.LinkedHashMap;
 
 import gov.wa.wsdot.android.wsdot.R;
@@ -57,6 +60,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MapLocation;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MyRoute;
 import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
@@ -65,6 +69,7 @@ import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemActivity;
+import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
@@ -81,52 +86,54 @@ public class FavoritesFragment extends BaseFragment implements
 	private Intent mFerriesSchedulesIntent;
 	private Intent mMountainPassesIntent;
 	private Intent mTravelTimesIntent;
-	
-	private static SwipeRefreshLayout swipeRefreshLayout;
+
+    private Tracker mTracker;
+
+	private SwipeRefreshLayout swipeRefreshLayout;
 	
 	private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
 	private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
 	private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
 
-	private static final String[] cameras_projection = {
-		Cameras._ID,
-		Cameras.CAMERA_ID,
-		Cameras.CAMERA_TITLE,
-		Cameras.CAMERA_IS_STARRED
-		};		
+    private static final String[] cameras_projection = {
+            Cameras._ID,
+            Cameras.CAMERA_ID,
+            Cameras.CAMERA_TITLE,
+            Cameras.CAMERA_IS_STARRED
+    };
 
 	private static final String[] mountain_passes_projection = {
-		MountainPasses._ID,
-		MountainPasses.MOUNTAIN_PASS_ID,
-		MountainPasses.MOUNTAIN_PASS_DATE_UPDATED,
-		MountainPasses.MOUNTAIN_PASS_IS_STARRED,
-		MountainPasses.MOUNTAIN_PASS_NAME,
-		MountainPasses.MOUNTAIN_PASS_WEATHER_CONDITION,
-		MountainPasses.MOUNTAIN_PASS_WEATHER_ICON,
-		MountainPasses.MOUNTAIN_PASS_CAMERA,
-		MountainPasses.MOUNTAIN_PASS_ELEVATION,
-		MountainPasses.MOUNTAIN_PASS_FORECAST,
-		MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE,
-		MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION,
-		MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO,
-		MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION,
-		MountainPasses.MOUNTAIN_PASS_ROAD_CONDITION,
-		MountainPasses.MOUNTAIN_PASS_TEMPERATURE
-		};
-	
+            MountainPasses._ID,
+            MountainPasses.MOUNTAIN_PASS_ID,
+            MountainPasses.MOUNTAIN_PASS_DATE_UPDATED,
+            MountainPasses.MOUNTAIN_PASS_IS_STARRED,
+            MountainPasses.MOUNTAIN_PASS_NAME,
+            MountainPasses.MOUNTAIN_PASS_WEATHER_CONDITION,
+            MountainPasses.MOUNTAIN_PASS_WEATHER_ICON,
+            MountainPasses.MOUNTAIN_PASS_CAMERA,
+            MountainPasses.MOUNTAIN_PASS_ELEVATION,
+            MountainPasses.MOUNTAIN_PASS_FORECAST,
+            MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE,
+            MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION,
+            MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO,
+            MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION,
+            MountainPasses.MOUNTAIN_PASS_ROAD_CONDITION,
+            MountainPasses.MOUNTAIN_PASS_TEMPERATURE
+    };
+
 	private static final String[] travel_times_projection = {
-		TravelTimes._ID,
-		TravelTimes.TRAVEL_TIMES_ID,
-		TravelTimes.TRAVEL_TIMES_TITLE,
-		TravelTimes.TRAVEL_TIMES_UPDATED,
-		TravelTimes.TRAVEL_TIMES_DISTANCE,
-		TravelTimes.TRAVEL_TIMES_AVERAGE,
-		TravelTimes.TRAVEL_TIMES_CURRENT,
-		TravelTimes.TRAVEL_TIMES_IS_STARRED
-		};
-	
+            TravelTimes._ID,
+            TravelTimes.TRAVEL_TIMES_ID,
+            TravelTimes.TRAVEL_TIMES_TITLE,
+            TravelTimes.TRAVEL_TIMES_UPDATED,
+            TravelTimes.TRAVEL_TIMES_DISTANCE,
+            TravelTimes.TRAVEL_TIMES_AVERAGE,
+            TravelTimes.TRAVEL_TIMES_CURRENT,
+            TravelTimes.TRAVEL_TIMES_IS_STARRED
+    };
+
 	private static final String[] ferries_schedules_projection = {
-			FerriesSchedules._ID,
+            FerriesSchedules._ID,
 			FerriesSchedules.FERRIES_SCHEDULE_ID,
 			FerriesSchedules.FERRIES_SCHEDULE_TITLE,
 			FerriesSchedules.FERRIES_SCHEDULE_CROSSING_TIME,
@@ -134,7 +141,7 @@ public class FavoritesFragment extends BaseFragment implements
 			FerriesSchedules.FERRIES_SCHEDULE_ALERT,
 			FerriesSchedules.FERRIES_SCHEDULE_UPDATED,
 			FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED
-			};
+    };
 
     private static final String[] location_projection = {
             MapLocation._ID,
@@ -144,18 +151,43 @@ public class FavoritesFragment extends BaseFragment implements
             MapLocation.LOCATION_ZOOM
     };
 
-	private static final int CAMERAS_LOADER_ID = 0;
-	private static final int MOUNTAIN_PASSES_LOADER_ID = 1;
-	private static final int TRAVEL_TIMES_LOADER_ID = 2;
-	private static final int FERRIES_SCHEDULES_LOADER_ID = 3;
-    private static final int LOCATION_LOADER_ID = 4;
+    private static final String[] my_route_projection = {
+            MyRoute._ID,
+            MyRoute.MY_ROUTE_TITLE,
+            MyRoute.MY_ROUTE_DISPLAY_LAT,
+            MyRoute.MY_ROUTE_DISPLAY_LONG,
+            MyRoute.MY_ROUTE_DISPLAY_ZOOM,
+            MyRoute.MY_ROUTE_LOCATIONS
+    };
 
-    private static final int HEADER_VIEWTYPE = 10;
-    private static final int CAMERAS_VIEWTYPE = 0;
-    private static final int MOUNTAIN_PASSES_VIEWTYPE = 1;
-    private static final int TRAVEL_TIMES_VIEWTYPE = 2;
-    private static final int FERRIES_SCHEDULES_VIEWTYPE = 3;
-    private static final int LOCATION_VIEWTYPE = 4;
+    private static final int MY_ROUTE_LOADER_ID = 10;
+	private static final int CAMERAS_LOADER_ID = 11;
+	private static final int MOUNTAIN_PASSES_LOADER_ID = 12;
+	private static final int TRAVEL_TIMES_LOADER_ID = 13;
+	private static final int FERRIES_SCHEDULES_LOADER_ID = 14;
+    private static final int LOCATION_LOADER_ID = 15;
+
+    public static final int MY_ROUTE_VIEWTYPE = 0;
+    public static final int CAMERAS_VIEWTYPE = 1;
+    public static final int MOUNTAIN_PASSES_VIEWTYPE = 2;
+    public static final int TRAVEL_TIMES_VIEWTYPE = 3;
+    public static final int FERRIES_SCHEDULES_VIEWTYPE = 4;
+    public static final int LOCATION_VIEWTYPE = 5;
+
+    private static final int HEADER_VIEWTYPE = 6;
+
+    public static LinkedHashMap headers = new LinkedHashMap<Integer, String>(){
+        {
+            put(MY_ROUTE_VIEWTYPE, "My Routes");
+            put(CAMERAS_VIEWTYPE, "Cameras");
+            put(MOUNTAIN_PASSES_VIEWTYPE, "Mountain Passes");
+            put(TRAVEL_TIMES_VIEWTYPE, "Travel Times");
+            put(FERRIES_SCHEDULES_VIEWTYPE, "Ferries Schedules");
+            put(LOCATION_VIEWTYPE, "Locations");
+        }
+    };
+
+    private int orderedViewTypes[] = new int[6];
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
@@ -165,6 +197,7 @@ public class FavoritesFragment extends BaseFragment implements
 		super.onCreate(savedInstanceState);
 
 		setHasOptionsMenu(true);
+
 
 		mFerriesSchedulesIntent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
         getActivity().startService(mFerriesSchedulesIntent);
@@ -237,6 +270,10 @@ public class FavoritesFragment extends BaseFragment implements
                         LocationViewHolder locholder = (LocationViewHolder) holder;
                         item_id = new String[] {Integer.toString((Integer) locholder.title.getTag())};
                         break;
+                    case MY_ROUTE_VIEWTYPE:
+                        MyRouteViewHolder routeholder = (MyRouteViewHolder) holder;
+                        item_id = new String[] {Integer.toString((Integer) routeholder.title.getTag())};
+                        break;
                     default:
                         item_id = null;
                 }
@@ -287,6 +324,7 @@ public class FavoritesFragment extends BaseFragment implements
         getLoaderManager().initLoader(MOUNTAIN_PASSES_LOADER_ID, null, this);
         getLoaderManager().initLoader(TRAVEL_TIMES_LOADER_ID, null, this);
         getLoaderManager().initLoader(LOCATION_LOADER_ID, null, this);
+        getLoaderManager().initLoader(MY_ROUTE_LOADER_ID, null, this);
 
 	    TextView t = (TextView) mEmptyView;
         t.setText(R.string.no_favorites);
@@ -295,7 +333,6 @@ public class FavoritesFragment extends BaseFragment implements
 	@Override
 	public void onPause() {
         super.onPause();
-
 		getActivity().unregisterReceiver(mFerriesSchedulesSyncReceiver);
 		getActivity().unregisterReceiver(mMountainPassesSyncReceiver);
 		getActivity().unregisterReceiver(mTravelTimesSyncReceiver);
@@ -304,6 +341,16 @@ public class FavoritesFragment extends BaseFragment implements
 	@Override
 	public void onResume() {
 		super.onResume();
+
+        // Check preferences and set defaults if none set
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
+        orderedViewTypes[0] = settings.getInt("KEY_FIRST_FAVORITES_SECTION", MY_ROUTE_VIEWTYPE);
+        orderedViewTypes[1] = settings.getInt("KEY_SECOND_FAVORITES_SECTION", CAMERAS_VIEWTYPE);
+        orderedViewTypes[2] = settings.getInt("KEY_THIRD_FAVORITES_SECTION", FERRIES_SCHEDULES_VIEWTYPE);
+        orderedViewTypes[3] = settings.getInt("KEY_FOURTH_FAVORITES_SECTION", MOUNTAIN_PASSES_VIEWTYPE);
+        orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", TRAVEL_TIMES_VIEWTYPE);
+        orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", LOCATION_VIEWTYPE);
+        mFavoritesAdapter.notifyDataSetChanged();
 
         // Ferries Route Schedules
         IntentFilter ferriesSchedulesFilter = new IntentFilter(
@@ -336,7 +383,7 @@ public class FavoritesFragment extends BaseFragment implements
         });
 
 		switch(id) {
-	    case 0:
+	    case CAMERAS_LOADER_ID:
 			cursorLoader = new CursorLoader(
 					getActivity(),
 					Cameras.CONTENT_URI,
@@ -346,7 +393,7 @@ public class FavoritesFragment extends BaseFragment implements
 					null
 					);
 			break;
-	    case 1:
+	    case MOUNTAIN_PASSES_LOADER_ID:
 			cursorLoader = new CursorLoader(
 					getActivity(),
 					MountainPasses.CONTENT_URI,
@@ -356,7 +403,7 @@ public class FavoritesFragment extends BaseFragment implements
 					null
 					);
 			break;
-	    case 2:
+	    case TRAVEL_TIMES_LOADER_ID:
 			cursorLoader = new CursorLoader(
 					getActivity(),
 					TravelTimes.CONTENT_URI,
@@ -366,7 +413,7 @@ public class FavoritesFragment extends BaseFragment implements
 					null
 					);
 			break;
-	    case 3:
+	    case FERRIES_SCHEDULES_LOADER_ID:
 			cursorLoader = new CursorLoader(
 					getActivity(),
 					FerriesSchedules.CONTENT_URI,
@@ -376,7 +423,7 @@ public class FavoritesFragment extends BaseFragment implements
 					null
 					);
 			break;
-        case 4:
+        case LOCATION_LOADER_ID:
             cursorLoader = new CursorLoader(
                     getActivity(),
                     MapLocation.CONTENT_URI,
@@ -384,6 +431,16 @@ public class FavoritesFragment extends BaseFragment implements
                     null,
                     null,
                     MapLocation.LOCATION_TITLE + " ASC"
+            );
+            break;
+        case MY_ROUTE_LOADER_ID:
+            cursorLoader = new CursorLoader(
+                    getActivity(),
+                    MyRoute.CONTENT_URI,
+                    my_route_projection,
+                    MyRoute.MY_ROUTE_IS_STARRED + "=?",
+                    new String[] {Integer.toString(1)},
+                    MyRoute.MY_ROUTE_TITLE + " ASC"
             );
             break;
 		}
@@ -430,18 +487,20 @@ public class FavoritesFragment extends BaseFragment implements
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
-        public ArrayList headers = new ArrayList<String>(){
+        public LinkedHashMap loaderIdToViewType = new LinkedHashMap<Integer, Integer>(){
             {
-                add("Cameras");
-                add("Mountain Passes");
-                add("Travel Times");
-                add("Ferries Schedules");
-                add("Locations");
+                put(MY_ROUTE_LOADER_ID, MY_ROUTE_VIEWTYPE);
+                put(CAMERAS_LOADER_ID, CAMERAS_VIEWTYPE);
+                put(MOUNTAIN_PASSES_LOADER_ID, MOUNTAIN_PASSES_VIEWTYPE);
+                put(TRAVEL_TIMES_LOADER_ID, TRAVEL_TIMES_VIEWTYPE);
+                put(FERRIES_SCHEDULES_LOADER_ID, FERRIES_SCHEDULES_VIEWTYPE);
+                put(LOCATION_LOADER_ID, LOCATION_VIEWTYPE);
             }
         };
 
         public final LinkedHashMap sections = new LinkedHashMap<Integer, Cursor>(){
             {
+                put(MY_ROUTE_VIEWTYPE, null);
                 put(CAMERAS_VIEWTYPE, null);
                 put(MOUNTAIN_PASSES_VIEWTYPE, null);
                 put(TRAVEL_TIMES_VIEWTYPE, null);
@@ -449,10 +508,6 @@ public class FavoritesFragment extends BaseFragment implements
                 put(LOCATION_VIEWTYPE, null);
             }
         };
-
-        public FavItemAdapter(){
-            super();
-        }
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -480,12 +535,16 @@ public class FavoritesFragment extends BaseFragment implements
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_item_content, null);
                     return new LocationViewHolder(itemView);
+                case MY_ROUTE_VIEWTYPE:
+                    itemView = LayoutInflater
+                            .from(parent.getContext()).inflate(R.layout.list_item_my_route_favorite, null);
+                    return new MyRouteViewHolder(itemView);
                 case HEADER_VIEWTYPE:
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_header, parent, false);
                     return new HeaderViewHolder(itemView);
                 default:
-                    Log.i(TAG, "No matching view type for type: " + viewType); //TODO
+                    Log.e(TAG, "No matching view type for type: " + viewType);
             }
             return null;
         }
@@ -503,7 +562,7 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.title.setTypeface(tfb);
 
                 //Remove divider if first element in favorites list
-                if (position == 0){
+                if (position == 0) {
                     viewholder.divider.setVisibility(View.GONE);
                 }else{
                     viewholder.divider.setVisibility(View.VISIBLE);
@@ -702,7 +761,7 @@ public class FavoritesFragment extends BaseFragment implements
                     });
                 }
 
-            }else if (holder instanceof LocationViewHolder){
+            }else if (holder instanceof LocationViewHolder) {
                 LocationViewHolder viewholder = (LocationViewHolder) holder;
                 Cursor cursor = (Cursor) mFavoritesAdapter.getItem(position);
 
@@ -718,7 +777,6 @@ public class FavoritesFragment extends BaseFragment implements
 
                 viewholder.latlong.setText(latlong);
                 viewholder.latlong.setTypeface(tf);
-
 
                 viewholder.title.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
 
@@ -742,6 +800,74 @@ public class FavoritesFragment extends BaseFragment implements
                         }
                 );
 
+            }else if (holder instanceof  MyRouteViewHolder) {
+
+                MyRouteViewHolder viewholder = (MyRouteViewHolder) holder;
+                Cursor cursor = (Cursor) mFavoritesAdapter.getItem(position);
+
+                String title = cursor.getString(cursor.getColumnIndex(MyRoute.MY_ROUTE_TITLE));
+
+                viewholder.title.setText(title);
+                viewholder.title.setTypeface(tf);
+
+                viewholder.title.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
+
+                viewholder.lng = cursor.getFloat(cursor.getColumnIndex(MyRoute.MY_ROUTE_DISPLAY_LAT));
+                viewholder.lat = cursor.getFloat(cursor.getColumnIndex(MyRoute.MY_ROUTE_DISPLAY_LONG));
+                viewholder.zoom = cursor.getInt(cursor.getColumnIndex(MyRoute.MY_ROUTE_DISPLAY_ZOOM));
+
+                final int pos = position;
+
+                viewholder.alerts_button.setTag(cursor.getPosition());
+                viewholder.alerts_button.setContentDescription("Check alerts on route");
+                viewholder.alerts_button.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Button Tap")
+                                .setAction("Check Alerts")
+                                .setLabel("My Routes")
+                                .build());
+
+                        Cursor c = (Cursor) mFavoritesAdapter.getItem(pos);
+                        Bundle b = new Bundle();
+
+                        Intent intent = new Intent(getActivity(), MyRouteAlertsActivity.class);
+
+                        b.putString("title", "Alerts on Route: " + c.getString(c.getColumnIndex(MyRoute.MY_ROUTE_TITLE)));
+                        b.putString("route", c.getString(c.getColumnIndexOrThrow(MyRoute.MY_ROUTE_LOCATIONS)));
+
+                        intent.putExtras(b);
+                        startActivity(intent);
+                    }
+                });
+
+                viewholder.map_button.setTag(cursor.getPosition());
+                viewholder.map_button.setContentDescription("Check map for route");
+                viewholder.map_button.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Button Tap")
+                                .setAction("Check Map for Route")
+                                .setLabel("My Routes")
+                                .build());
+
+                        Cursor c = (Cursor) mFavoritesAdapter.getItem(pos);
+                        Bundle b = new Bundle();
+
+                        Intent intent = new Intent(getActivity(), TrafficMapActivity.class);
+
+                        b.putFloat("lat", c.getFloat(c.getColumnIndex(MyRoute.MY_ROUTE_DISPLAY_LAT)));
+                        b.putFloat("long", c.getFloat(c.getColumnIndex(MyRoute.MY_ROUTE_DISPLAY_LONG)));
+                        b.putInt("zoom", c.getInt(c.getColumnIndex(MyRoute.MY_ROUTE_DISPLAY_ZOOM)));
+
+                        intent.putExtras(b);
+                        startActivity(intent);
+                    }
+                });
+
+
             }else{
                 Log.i(TAG, "No view holder for type: " + holder.getClass().getName()); //TODO
             }
@@ -751,7 +877,7 @@ public class FavoritesFragment extends BaseFragment implements
          * Returns the viewType at a given position.
          *
          * If new items become favorite-able they will need to
-         * be able to be identified in by using this function.
+         * be able to be identified by using this function.
          *
          * @param position
          * @return The viewType of the item at position
@@ -759,24 +885,19 @@ public class FavoritesFragment extends BaseFragment implements
         @Override
         public int getItemViewType(int position) {
 
-            int type = 0;
-            while(type < headers.size()) {
-
-                Cursor c = (Cursor) sections.get(type);
+            for (int viewType : orderedViewTypes) {
+                Cursor c = (Cursor) sections.get(viewType);
                 int size = 0;
-
                 if (c != null) {
                     if (c.getCount() > 0) {
                         size = c.getCount() + 1;
                     }
                 }
                 // check if position inside this section
-                if(position == 0 && size > 0) return HEADER_VIEWTYPE;
-                if(position < size) return type;
+                if (position == 0 && size > 0) return HEADER_VIEWTYPE;
+                if (position < size) return viewType;
 
-                // otherwise jump into next section
                 position -= size;
-                type += 1;
             }
             return -1;
         }
@@ -799,15 +920,14 @@ public class FavoritesFragment extends BaseFragment implements
                 return null;
             }
 
-            Cursor oldCursor = cursor;
-            sections.remove(id);
-            sections.put(id, newCursor);
+            sections.put(loaderIdToViewType.get(id), newCursor);
+
             if (newCursor != null) {
                 notifyDataSetChanged();
             } else {
                 notifyItemRangeRemoved(0, getItemCount());
             }
-            return oldCursor;
+            return cursor;
 
         }
 
@@ -819,10 +939,8 @@ public class FavoritesFragment extends BaseFragment implements
          */
         public Object getItem(int position){
 
-            int id = 0;
-
-            while (id < headers.size()){
-                Cursor c = (Cursor) sections.get(id);
+            for (int viewType : orderedViewTypes) {
+                Cursor c = (Cursor) sections.get(viewType);
 
                 int size = 0;
 
@@ -833,18 +951,19 @@ public class FavoritesFragment extends BaseFragment implements
                 }
 
                 // check if position inside this section
-                if(position == 0 && size > 0) return headers.get(id);
+                if(position == 0 && size > 0) return headers.get(viewType);
+
                 if(position < size && c != null) {
                     c.moveToPosition(position - 1);
                     return c;
                 }
+
                 // otherwise jump into next section
                 position -= size;
-                id += 1;
+
             }
             return null;
         }
-
 
         @Override
         public int getItemCount(){
@@ -927,6 +1046,17 @@ public class FavoritesFragment extends BaseFragment implements
                             MapLocation._ID + "=?",
                             item_id
                     );
+                    break;
+                case MY_ROUTE_VIEWTYPE:
+                    values.put(MyRoute.MY_ROUTE_IS_STARRED, 0);
+
+                    getActivity().getContentResolver().update(
+                            MyRoute.CONTENT_URI,
+                            values,
+                            MyRoute._ID + "=?",
+                            item_id
+                    );
+                    break;
             }
 
             notifyDataSetChanged();
@@ -1006,8 +1136,18 @@ public class FavoritesFragment extends BaseFragment implements
 
                     getActivity().getContentResolver().insert(
                             WSDOTContract.MapLocation.CONTENT_URI, values);
-            }
+                    break;
+                case MY_ROUTE_VIEWTYPE:
+                    values.put(MyRoute.MY_ROUTE_IS_STARRED, 1);
 
+                    getActivity().getContentResolver().update(
+                            MyRoute.CONTENT_URI,
+                            values,
+                            MyRoute._ID + "=?",
+                            item_id
+                    );
+                    break;
+                }
             notifyDataSetChanged();
         }
 
@@ -1016,7 +1156,6 @@ public class FavoritesFragment extends BaseFragment implements
     /**
      * View holders for favorite items
      */
-
     private class CamViewHolder extends RecyclerView.ViewHolder{
         TextView title;
 
@@ -1091,6 +1230,21 @@ public class FavoritesFragment extends BaseFragment implements
         }
     }
 
+    private class MyRouteViewHolder extends  RecyclerView.ViewHolder {
+        TextView title;
+        ImageButton alerts_button;
+        ImageButton map_button;
+        int zoom;
+        float lat;
+        float lng;
+
+        public MyRouteViewHolder(View view){
+            super(view);
+            title = (TextView) view.findViewById(R.id.title);
+            alerts_button = (ImageButton) view.findViewById(R.id.alert_button);
+            map_button = (ImageButton) view.findViewById(R.id.map_button);
+        }
+    }
 
     private class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView title;
@@ -1169,5 +1323,3 @@ public class FavoritesFragment extends BaseFragment implements
         getActivity().startService(mTravelTimesIntent);        
     }
 }
-
-

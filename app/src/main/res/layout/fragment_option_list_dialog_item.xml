@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:adjustViewBounds="true"
+        android:gravity="center_vertical"
+        android:tint="@color/cardview_dark_background"
+        android:layout_marginLeft="@dimen/list_item_spacing"
+        android:layout_marginRight="@dimen/list_item_spacing"
+        android:layout_marginStart="@dimen/list_item_spacing"
+        android:layout_marginEnd="@dimen/list_item_spacing"
+        android:layout_marginBottom="@dimen/list_item_spacing_half"
+        android:layout_marginTop="@dimen/list_item_spacing_half" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:background="?attr/selectableItemBackground"
+        android:paddingBottom="@dimen/list_item_spacing"
+        android:paddingLeft="@dimen/list_item_spacing"
+        android:paddingRight="@dimen/list_item_spacing"
+        android:paddingTop="@dimen/list_item_spacing"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        tools:text="Hello" />
+</LinearLayout>

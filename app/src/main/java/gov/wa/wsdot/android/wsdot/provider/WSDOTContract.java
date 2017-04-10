@@ -43,8 +43,10 @@ public class WSDOTContract {
 	interface HighwayAlertsColumns {
 		String HIGHWAY_ALERT_ID = "highway_alert_id";
 		String HIGHWAY_ALERT_HEADLINE = "highway_alert_headline";
-		String HIGHWAY_ALERT_LATITUDE = "highway_alert_latitude";
-		String HIGHWAY_ALERT_LONGITUDE = "highway_alert_longitude";
+		String HIGHWAY_ALERT_START_LATITUDE = "highway_alert_start_latitude";
+		String HIGHWAY_ALERT_START_LONGITUDE = "highway_alert_start_longitude";
+		String HIGHWAY_ALERT_END_LATITUDE = "highway_alert_end_latitude";
+		String HIGHWAY_ALERT_END_LONGITUDE = "highway_alert_end_longitude";
 		String HIGHWAY_ALERT_CATEGORY = "highway_alert_category";
 		String HIGHWAY_ALERT_PRIORITY = "highway_alert_priority";
 		String HIGHWAY_ALERT_ROAD_NAME = "highway_alert_road_name";
@@ -67,6 +69,8 @@ public class WSDOTContract {
 		String MOUNTAIN_PASS_CAMERA = "camera";
 		String MOUNTAIN_PASS_FORECAST = "forecast";
 		String MOUNTAIN_PASS_WEATHER_ICON = "weather_icon";
+        String MOUNTAIN_PASS_LATITUDE = "latitude";
+        String MOUNTAIN_PASS_LONGITUDE = "longitude";
 		String MOUNTAIN_PASS_IS_STARRED = "is_starred";
 	}
 	
@@ -77,6 +81,10 @@ public class WSDOTContract {
 		String TRAVEL_TIMES_DISTANCE = "distance";
 		String TRAVEL_TIMES_AVERAGE = "average";
 		String TRAVEL_TIMES_CURRENT = "current";
+		String TRAVEL_TIMES_START_LATITUDE = "start_latitude";
+		String TRAVEL_TIMES_START_LONGITUDE = "start_longitude";
+		String TRAVEL_TIMES_END_LATITUDE = "end_latitude";
+		String TRAVEL_TIMES_END_LONGITUDE = "end_longitude";
 		String TRAVEL_TIMES_IS_STARRED = "is_starred";
 	}
 	
@@ -118,6 +126,21 @@ public class WSDOTContract {
 		String LOCATION_ZOOM = "zoom";
 	}
 
+	interface MyRouteColumns {
+		String MY_ROUTE_ID = "id";
+		String MY_ROUTE_TITLE = "title";
+
+		String MY_ROUTE_LOCATIONS = "route_locations";
+
+		String MY_ROUTE_DISPLAY_LAT = "latitude";
+		String MY_ROUTE_DISPLAY_LONG = "longitude";
+		String MY_ROUTE_DISPLAY_ZOOM = "zoom";
+
+		String MY_ROUTE_FOUND_FAVORITES = "found_favorites";
+
+		String MY_ROUTE_IS_STARRED = "is_starred";
+	}
+
 	public static final String CONTENT_AUTHORITY = "gov.wa.wsdot.android.wsdot.provider.WSDOTProvider";
 	public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
@@ -132,6 +155,7 @@ public class WSDOTContract {
 	private static final String PATH_FERRIES_TERMINAL_SAILING_SPACE = "ferries_terminal_sailing_space";
 	private static final String PATH_BORDER_WAIT = "border_wait";
 	private static final String PATH_MAP_LOCATION = "map_location";
+	private static final String PATH_MY_ROUTE = "my_route";
 	
 	public static class Caches implements BaseColumns, CachesColumns {
 		public static final Uri CONTENT_URI =
@@ -232,6 +256,16 @@ public class WSDOTContract {
 				ContentResolver.CURSOR_DIR_BASE_TYPE + "/map_location";
 		public static final String CONTENT_ITEM_TYPE =
 				ContentResolver.CURSOR_ITEM_BASE_TYPE + "/map_location";
+	}
+
+	public static class MyRoute implements BaseColumns, MyRouteColumns {
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_MY_ROUTE).build();
+
+		public static final String CONTENT_TYPE =
+				ContentResolver.CURSOR_DIR_BASE_TYPE + "/my_route";
+		public static final String CONTENT_ITEM_TYPE =
+				ContentResolver.CURSOR_ITEM_BASE_TYPE + "/my_route";
 	}
 	
 	private WSDOTContract() {
