@@ -65,6 +65,7 @@ import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
 import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity;
@@ -822,7 +823,7 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.alerts_button.setContentDescription("Check alerts on route");
                 viewholder.alerts_button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-
+                        mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
                         mTracker.send(new HitBuilders.EventBuilder()
                                 .setCategory("Button Tap")
                                 .setAction("Check Alerts")
@@ -846,7 +847,7 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.map_button.setContentDescription("Check map for route");
                 viewholder.map_button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-
+                        mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
                         mTracker.send(new HitBuilders.EventBuilder()
                                 .setCategory("Button Tap")
                                 .setAction("Check Map for Route")

@@ -66,7 +66,7 @@ public class MyRouteActivity extends FindFavoritesOnRouteActivity
         AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
         if (!seenTip && !am.isEnabled()) {
             TapTargetView.showFor(this, // `this` is an Activity
-                    TapTarget.forView(fab, "Create your first route", "Track your commute using your phone's GPS to get a personal list of highway alerts only on your route.")
+                    TapTarget.forView(fab, "Create your first route", "Track your commute using your phone's GPS to get a personal list of highway alerts on your route.")
                             // All options below are optional
                             .outerCircleColor(R.color.primary)      // Specify a color for the outer circle
                             .titleTextSize(20)                  // Specify the size (in sp) of the title text

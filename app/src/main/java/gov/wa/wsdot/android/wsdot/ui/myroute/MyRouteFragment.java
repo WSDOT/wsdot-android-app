@@ -435,7 +435,7 @@ public class MyRouteFragment extends BaseFragment
             alert_button.setContentDescription("Check alerts on route");
             alert_button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-
+                    mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
                     mTracker.send(new HitBuilders.EventBuilder()
                             .setCategory("Button Tap")
                             .setAction("Check Alerts")
@@ -461,7 +461,7 @@ public class MyRouteFragment extends BaseFragment
             map_button.setContentDescription("Check map for route");
             map_button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-
+                    mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
                     mTracker.send(new HitBuilders.EventBuilder()
                             .setCategory("Button Tap")
                             .setAction("Check Map for Route")

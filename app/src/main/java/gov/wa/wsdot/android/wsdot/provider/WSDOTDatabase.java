@@ -274,7 +274,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 		// Front load the mountain pass cameras
 
         // Blewett
-        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (1138, 'US 97 MP 164 Blewett Pass Summit', 'http://images.wsdot.wa.gov/us97/blewett/sumtnorth.jpg', 47.334975, -120.578397, 0, 'US 97', 0);");
+        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (1138, 'US 97: Blewett Pass Summit', 'http://images.wsdot.wa.gov/nc/097vc16375.jpg', 47.334975, -120.578397, 0, 'US 97', 0);");
 
         // Cayuse
         // Chinook
@@ -282,7 +282,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         // Disautel
 
         // Loup Loup
-        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (4030, 'SR 20 MP 214.5 (View East)', 'http://images.wsdot.wa.gov/sr20/louploup/sr20louploup_east.jpg', 48.3904, -119.87925, 0, 'SR 20', 0);");
+        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (4030, 'SR 20: Loup Loup Pass (East)', 'http://images.wsdot.wa.gov/nc/020vc21450.jpg', 48.3904, -119.87925, 0, 'SR 20', 0);");
 
         // Manastash
         db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (1127, 'Manastash Ridge Summit on I-82 @ MP 7', 'http://images.wsdot.wa.gov/rweather/UMRidge_medium.jpg', 46.89184, -120.43773, 0, 'I-82', 0);");
@@ -317,11 +317,11 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (1105, 'Rocky Canyon on I-90 @ MP 96.2', 'http://images.wsdot.wa.gov/rweather/rocky_medium.jpg', 47.091975, -120.750985, 0, 'I-90', 0);");
 
         // Stevens
-        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (8083, 'US 2 MP 87 Winton', 'http://images.wsdot.wa.gov/us2/winton/winton.jpg', 47.7497, -120.73673, 0, 'US 2', 0);");
-        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (9437, 'US 2 MP 63 Big Windy', 'http://images.wsdot.wa.gov/us2/bigwindy/us2bigwindy.jpg', 47.7461, -121.121215, 0, 'US 2', 0);");
-        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (9145, 'US 2 MP 62 Old Faithful Avalanche Zone', 'http://images.wsdot.wa.gov/us2/oldfaithful/oldfaithful.jpg', 47.724431, -121.134085, 0, 'US 2', 0);");
-        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (8062, 'US 2 MP 64 Stevens Pass Summit', 'http://images.wsdot.wa.gov/us2/stevens/sumteast.jpg', 47.7513, -121.10619, 0, 'US 2', 0);");
-		db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (8063, 'US 2 MP 65 Stevens Pass Ski Lodge', 'http://images.wsdot.wa.gov/us2/stvldg/sumtwest.jpg', 47.7513, -121.10619, 0, 'US 2', 0);");
+        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (8083, 'US 2 MP 87 Winton', 'http://images.wsdot.wa.gov/nc/winton.jpg', 47.7497, -120.73673, 0, 'US 2', 0);");
+        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (9437, 'US 2 MP 63 Big Windy', 'http://images.wsdot.wa.gov/nc/002vc06300.jpg', 47.7461, -121.121215, 0, 'US 2', 0);");
+        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (9145, 'US 2 MP 62 Old Faithful Avalanche Zone', 'http://images.wsdot.wa.gov/nc/002vc06190.jpg', 47.724431, -121.134085, 0, 'US 2', 0);");
+        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (8062, 'US 2 MP 64 Stevens Pass Summit', 'http://images.wsdot.wa.gov/nc/002vc06458.jpg', 47.7513, -121.10619, 0, 'US 2', 0);");
+		db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (8063, 'US 2 MP 65 Stevens Pass Ski Lodge', 'http://images.wsdot.wa.gov/nc/002vc06430.jpg', 47.7513, -121.10619, 0, 'US 2', 0);");
 
         // Wauconda
 

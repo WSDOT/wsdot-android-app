@@ -16,7 +16,7 @@
 
     <TextView
         android:id="@+id/empty_list_view"
-        android:text="No Saved Routes \n\n Track your commute using your phone's GPS \n to get a personal list of highway alerts only on your route."
+        android:text="No Saved Routes \n\n Track your commute using your phone's GPS \n to get a personal list of highway alerts on your route."
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:gravity="center"/>

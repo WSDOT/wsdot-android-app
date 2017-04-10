@@ -16,7 +16,7 @@ import gov.wa.wsdot.android.wsdot.ui.alert.AlertsListFragment;
 import gov.wa.wsdot.android.wsdot.util.Utils;
 
 /**
- * Created by simsl on 3/10/17.
+ * Implements abstract methods from AlertsListFragment for displaying a list of alerts on users route.
  */
 
 public class MyRouteAlertsListFragment extends AlertsListFragment {
@@ -38,7 +38,7 @@ public class MyRouteAlertsListFragment extends AlertsListFragment {
             e.printStackTrace();
             Toast.makeText(getContext(), "Error reading route coordinates.", Toast.LENGTH_SHORT).show();
         }
-        //Log.e(TAG, "ROUTE: " + routeString.toString());
+
         ArrayList<HighwayAlertsItem> alertsOnRoute = new ArrayList<>();
 
         for (HighwayAlertsItem alert: alerts){
