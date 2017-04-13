@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
@@ -26,6 +27,8 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteActivity;
 
 public class MyRouteActivity extends FindFavoritesOnRouteActivity
         implements RouteOptionsDialogFragment.Listener {
+
+    final String TAG = MyRouteActivity.class.getSimpleName();
 
     private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
     private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
@@ -65,6 +68,7 @@ public class MyRouteActivity extends FindFavoritesOnRouteActivity
 
         AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
         if (!seenTip && !am.isEnabled()) {
+            try {
             TapTargetView.showFor(this, // `this` is an Activity
                     TapTarget.forView(fab, "Create your first route", "Track your commute using your phone's GPS to get a personal list of highway alerts on your route.")
                             // All options below are optional
@@ -87,6 +91,9 @@ public class MyRouteActivity extends FindFavoritesOnRouteActivity
                             startActivity(new Intent(MyRouteActivity.this, NewRouteActivity.class));
                         }
                     });
+            } catch (NullPointerException e){
+                Log.e(TAG, "Null pointer exception while trying to show tip view");
+            }
         }
 
         settings.edit().putBoolean("KEY_SEEN_NEW_MY_ROUTE_TIP", true).apply();

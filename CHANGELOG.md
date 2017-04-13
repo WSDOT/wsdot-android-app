@@ -4,8 +4,22 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.8.0] - 2017-04-13
+## Fixed
+- Temp fix for crash caused by tap target view.
+
+## [4.8.0] - 2017-04-11
+## Fixed
+- Analytics for My Route section.
+
+## [4.8.0] - 2017-04-10
+## Added
+- My Routes Feature. Lets users log their routes to receive a list of active alerts on their route auto populate their favorites.
+- Option to sort favorites lists.
+
 ## [4.7.2] - 2017-02-28
-- Added option to toggle JBLM marker on/off.
+## Added
+- Option to toggle JBLM marker on/off.
 
 ## [4.7.1] - 2017-02-27
 ### Fixed

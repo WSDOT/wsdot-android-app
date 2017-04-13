@@ -256,7 +256,8 @@ public class TrafficMapActivity extends BaseActivity implements
         boolean seenTip = settings.getBoolean("KEY_SEEN_TRAFFIC_MENU_TIP", false);
 
         if (!seenTip && !clusterCameras && showCameras && showAlerts) {
-            TapTargetView.showFor(this,                 // `this` is an Activity
+            try {
+                TapTargetView.showFor(this,                 // `this` is an Activity
                     TapTarget.forToolbarOverflow(mToolbar, "Map Options", "Save locations to your favorites, edit traffic map layers & more.")
                             // All options below are optional
                             .outerCircleColor(R.color.primary)      // Specify a color for the outer circle
@@ -279,6 +280,9 @@ public class TrafficMapActivity extends BaseActivity implements
 
                         }
                     });
+            } catch (NullPointerException e){
+                Log.e(TAG, "Null pointer exception while trying to show tip view");
+            }
         }
 
         settings.edit().putBoolean("KEY_SEEN_TRAFFIC_MENU_TIP", true).apply();

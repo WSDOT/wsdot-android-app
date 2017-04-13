@@ -59,14 +59,14 @@ import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 public class MountainPassItemActivity extends BaseActivity {
 
+    private final String TAG = MountainPassItemActivity.class.getSimpleName();
+
 	private boolean mIsStarred = false;
 	private ContentResolver resolver;
 	private int mId;
 	private Tracker mTracker;
 
     private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
-
-    private MountainPassItemReportFragment mReportFrag;
 
     private TabLayout mTabLayout;
     private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
@@ -76,6 +76,9 @@ public class MountainPassItemActivity extends BaseActivity {
 
 	static final private int MENU_ITEM_STAR = 0;
 	static final private int MENU_ITEM_REFRESH = 1;
+
+    private final String REFRESHING_KEY = "refreshing";
+    private Boolean mRefreshState = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -186,6 +189,10 @@ public class MountainPassItemActivity extends BaseActivity {
         MenuItemCompat.setShowAsAction(menuItem_Refresh, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
         menu.getItem(MENU_ITEM_REFRESH).setIcon(R.drawable.ic_menu_refresh);
 
+        if (mRefreshState){
+            startRefreshAnimation();
+        }
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -282,10 +289,12 @@ public class MountainPassItemActivity extends BaseActivity {
         this.startService(intent);
     }
 
-    private void startRefreshAnimation(){
+    private void startRefreshAnimation() {
         MenuItem item = mToolbar.getMenu().findItem(MENU_ITEM_REFRESH);
-        if (item == null) return;
-
+        if (item == null) {
+            Log.e(TAG, "null");
+            return;
+        }
         // define the animation for rotation
         Animation animation = new RotateAnimation(360.0f, 0.0f,
                 Animation.RELATIVE_TO_SELF, 0.5f,
@@ -315,6 +324,7 @@ public class MountainPassItemActivity extends BaseActivity {
 
         imageView.startAnimation(animation);
         item.setActionView(imageView);
+        mRefreshState = true;
     }
 
     public class MountainPassesSyncReceiver extends BroadcastReceiver {
@@ -324,6 +334,8 @@ public class MountainPassItemActivity extends BaseActivity {
             String responseString = intent.getStringExtra("responseString");
 
             mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView().getAnimation().setRepeatCount(0);
+
+            mRefreshState = false;
 
             if (responseString != null) {
                 switch (responseString) {
@@ -361,6 +373,9 @@ public class MountainPassItemActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        outState.putBoolean(REFRESHING_KEY, mRefreshState);
+
         //Save the selected tab in order to restore in screen rotation
         outState.putInt("tab", mTabLayout.getSelectedTabPosition());
 		if (mIsStarred){
@@ -368,5 +383,10 @@ public class MountainPassItemActivity extends BaseActivity {
 		}else{
 			outState.putInt("isStarred",  0);
 		}
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        mRefreshState = savedInstanceState.getBoolean(REFRESHING_KEY);
     }
 }

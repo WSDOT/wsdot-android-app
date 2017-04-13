@@ -28,6 +28,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.accessibility.AccessibilityManager;
@@ -123,14 +124,6 @@ public class HomeActivity extends BaseActivity {
             }
         });
 
-        final Handler handler = new Handler();
-        final Runnable r = new Runnable() {
-            public void run() {
-                showTapTargetHint();
-            }
-        };
-
-        handler.postDelayed(r, 800);
     }
 
     @Override
@@ -141,6 +134,13 @@ public class HomeActivity extends BaseActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu){
+        final Handler handler = new Handler();
+        final Runnable r = new Runnable() {
+            public void run() {
+                showTapTargetHint();
+            }
+        };
+        handler.postDelayed(r, 500);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -166,29 +166,33 @@ public class HomeActivity extends BaseActivity {
 
         AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
         if (!seenTip && !am.isEnabled()) {
-            TapTargetView.showFor(this,                 // `this` is an Activity
-                    TapTarget.forToolbarMenuItem(mToolbar, R.id.menu_route, "My Routes", "Easily check for highway alerts affecting your commute by creating a route.")
-                            // All options below are optional
-                            .outerCircleColor(R.color.primary)      // Specify a color for the outer circle
-                            .targetCircleColor(R.color.white)   // Specify a color for the target circle
-                            .titleTextSize(20)                  // Specify the size (in sp) of the title text
-                            .titleTextColor(R.color.white)      // Specify the color of the title text
-                            .descriptionTextSize(15)            // Specify the size (in sp) of the description text
-                            .textColor(R.color.white)            // Specify a color for both the title and description text
-                            .textTypeface(Typeface.SANS_SERIF)  // Specify a typeface for the text
-                            .dimColor(R.color.black)            // If set, will dim behind the view with 30% opacity of the given color
-                            .drawShadow(true)                   // Whether to draw a drop shadow or not
-                            .cancelable(true)                  // Whether tapping outside the outer circle dismisses the view
-                            .tintTarget(true)                   // Whether to tint the target view's color
-                            .transparentTarget(false)           // Specify whether the target is transparent (displays the content underneath)
-                            .targetRadius(60),                  // Specify the target radius (in dp)
-                    new TapTargetView.Listener() {          // The listener can listen for regular clicks, long clicks or cancels
-                        @Override
-                        public void onTargetClick(TapTargetView view) {
-                            super.onTargetClick(view);      // This call is optional
-                            startActivity(new Intent(HomeActivity.this, MyRouteActivity.class));
-                        }
-                    });
+            try {
+                TapTargetView.showFor(this,                 // `this` is an Activity
+                        TapTarget.forToolbarMenuItem(mToolbar, R.id.menu_route, "My Routes", "Easily check for highway alerts affecting your commute by creating a route.")
+                                // All options below are optional
+                                .outerCircleColor(R.color.primary)      // Specify a color for the outer circle
+                                .targetCircleColor(R.color.white)   // Specify a color for the target circle
+                                .titleTextSize(20)                  // Specify the size (in sp) of the title text
+                                .titleTextColor(R.color.white)      // Specify the color of the title text
+                                .descriptionTextSize(15)            // Specify the size (in sp) of the description text
+                                .textColor(R.color.white)            // Specify a color for both the title and description text
+                                .textTypeface(Typeface.SANS_SERIF)  // Specify a typeface for the text
+                                .dimColor(R.color.black)            // If set, will dim behind the view with 30% opacity of the given color
+                                .drawShadow(true)                   // Whether to draw a drop shadow or not
+                                .cancelable(true)                  // Whether tapping outside the outer circle dismisses the view
+                                .tintTarget(true)                   // Whether to tint the target view's color
+                                .transparentTarget(false)           // Specify whether the target is transparent (displays the content underneath)
+                                .targetRadius(60),                  // Specify the target radius (in dp)
+                        new TapTargetView.Listener() {          // The listener can listen for regular clicks, long clicks or cancels
+                            @Override
+                            public void onTargetClick(TapTargetView view) {
+                                super.onTargetClick(view);      // This call is optional
+                                startActivity(new Intent(HomeActivity.this, MyRouteActivity.class));
+                            }
+                        });
+            } catch (NullPointerException e){
+                Log.e(TAG, "Null pointer exception while trying to show tip view");
+            }
         }
         settings.edit().putBoolean("KEY_SEEN_MY_ROUTE_HOME_TIP", true).apply();
     }
