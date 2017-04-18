@@ -206,6 +206,7 @@ public class MountainPassItemActivity extends BaseActivity {
 				toggleStar(item);
 				return true;
 			case MENU_ITEM_REFRESH:
+                mRefreshState = true;
                 startRefreshAnimation();
                 refresh();
 				return true;
@@ -324,7 +325,7 @@ public class MountainPassItemActivity extends BaseActivity {
 
         imageView.startAnimation(animation);
         item.setActionView(imageView);
-        mRefreshState = true;
+
     }
 
     public class MountainPassesSyncReceiver extends BroadcastReceiver {
@@ -333,7 +334,10 @@ public class MountainPassItemActivity extends BaseActivity {
         public void onReceive(Context context, Intent intent) {
             String responseString = intent.getStringExtra("responseString");
 
-            mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView().getAnimation().setRepeatCount(0);
+            // If there is a loading animation playing on finish, stop it.
+            if (mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView() != null) {
+                mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView().getAnimation().setRepeatCount(0);
+            }
 
             mRefreshState = false;
 

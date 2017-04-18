@@ -19,7 +19,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,8 +83,6 @@ public class MyRouteFragment extends BaseFragment
     };
 
     MyRouteAdapter myRouteAdapter;
-
-    protected RecyclerView mRecyclerView;
 
     public MyRouteFragment() {}
 

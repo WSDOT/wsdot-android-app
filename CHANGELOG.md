@@ -4,11 +4,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [4.8.0] - 2017-04-13
+## [4.8.3] - 2017-04-17
+## Fixed
+- Added null check for refresh icon animation for pass reports. App saves refresh state on configuration change to add animation again, but still seeing crashes.
+
+## [4.8.2] - 2017-04-13
 ## Fixed
 - Temp fix for crash caused by tap target view.
 
-## [4.8.0] - 2017-04-11
+## [4.8.1] - 2017-04-11
 ## Fixed
 - Analytics for My Route section.
 

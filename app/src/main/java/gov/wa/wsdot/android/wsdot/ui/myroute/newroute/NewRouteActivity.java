@@ -279,7 +279,7 @@ public class NewRouteActivity extends FindFavoritesOnRouteActivity implements
                     }
                 })
 
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                .setNegativeButton("NOT NOW", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         showStartView();
                         mMap.clear();
