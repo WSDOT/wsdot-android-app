@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.8.4] - 2017-04-20
+## Fixed
+- Crash caused by trying to update the map camera location before the map loaded in NewRouteActivity
+- Crash in the AlertsListFragment caused by a invalid cursor.
+
 ## [4.8.3] - 2017-04-17
 ## Fixed
 - Added null check for refresh icon animation for pass reports. App saves refresh state on configuration change to add animation again, but still seeing crashes.
