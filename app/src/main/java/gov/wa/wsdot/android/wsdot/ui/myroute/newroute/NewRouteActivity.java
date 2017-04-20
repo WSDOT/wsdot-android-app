@@ -587,7 +587,7 @@ public class NewRouteActivity extends FindFavoritesOnRouteActivity implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        moveToCurrentLocation();
+        Log.i(TAG, "Location services connected.");
     }
 
     @Override
