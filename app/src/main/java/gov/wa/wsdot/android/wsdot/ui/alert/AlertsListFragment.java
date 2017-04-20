@@ -78,17 +78,15 @@ public abstract class AlertsListFragment extends BaseFragment
     /**
      *
      * @param alerts
-     * @param task
      * @return
      */
-    protected abstract ArrayList<HighwayAlertsItem> getAlerts(ArrayList<HighwayAlertsItem> alerts, AsyncTask<Cursor, Void, ArrayList<HighwayAlertsItem>> task);
+    protected abstract ArrayList<HighwayAlertsItem> getAlerts(ArrayList<HighwayAlertsItem> alerts);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Tell the framework to try to keep this fragment around
         // during a configuration change.
-
         setRetainInstance(true);
     }
 
@@ -153,7 +151,6 @@ public abstract class AlertsListFragment extends BaseFragment
         if (alertsTask != null) {
             alertsTask.cancel(true);
         }
-      //  getLoaderManager().destroyLoader(0);
     }
 
     @Override
@@ -163,7 +160,6 @@ public abstract class AlertsListFragment extends BaseFragment
         if (alertsTask != null) {
             alertsTask.cancel(true);
         }
-       // getLoaderManager().destroyLoader(0);
     }
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -212,19 +208,24 @@ public abstract class AlertsListFragment extends BaseFragment
         }
     }
 
+    @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         alertsTask = new GetAlertsTask();
-        alertsTask.execute(cursor);
+        // We can ignore this warning because we know the varargs param
+        // will for sure be an ArrayList of HighwayAlertItems.
+        alertsTask.execute(getAllAlerts(cursor));
     }
 
-    private class GetAlertsTask extends AsyncTask<Cursor, Void, ArrayList<HighwayAlertsItem>> {
-        protected ArrayList<HighwayAlertsItem> doInBackground(Cursor... cursors) {
-            int count = cursors.length;
-            Log.e(TAG, "cursors length: " + count);
-            for (int i = 0; i < count; i++) {
-                return getAlerts(getAllAlerts(cursors[i]), this);
-            }
-            return new ArrayList<>();
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        alertsTask.cancel(true);
+    }
+
+    private class GetAlertsTask extends AsyncTask<ArrayList<HighwayAlertsItem>, Void, ArrayList<HighwayAlertsItem>> {
+
+        @Override
+        protected ArrayList<HighwayAlertsItem> doInBackground(ArrayList<HighwayAlertsItem>[] params) {
+            return getAlerts(params[0]);
         }
 
         protected void onPostExecute(ArrayList<HighwayAlertsItem> result) {
@@ -233,32 +234,7 @@ public abstract class AlertsListFragment extends BaseFragment
             mAdapter.setData(trafficAlertItems);
             swipeRefreshLayout.setRefreshing(false);
         }
-
     }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {}
-
-    public class HighwayAlertsSyncReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String responseString = intent.getStringExtra("responseString");
-
-            if (responseString != null) {
-                if (responseString.equals("OK") || responseString.equals("NOP")) {
-                    // We've got cameras, now add them.
-                    getLoaderManager().destroyLoader(0);
-                    getLoaderManager().initLoader(0, null, AlertsListFragment.this);
-                } else {
-                    Toast.makeText(AlertsListFragment.this.getContext(), "Failed to load. Check your connection.", Toast.LENGTH_SHORT).show();
-                    Log.e("HighwaySyncReceiver", responseString);
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-        }
-    }
-
 
 
     private ArrayList<HighwayAlertsItem> getAllAlerts(Cursor cursor){
@@ -283,6 +259,25 @@ public abstract class AlertsListFragment extends BaseFragment
         return allAlerts;
     }
 
+    public class HighwayAlertsSyncReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String responseString = intent.getStringExtra("responseString");
+
+            if (responseString != null) {
+                if (responseString.equals("OK") || responseString.equals("NOP")) {
+                    // We've got cameras, now add them.
+                    getLoaderManager().destroyLoader(0);
+                    getLoaderManager().initLoader(0, null, AlertsListFragment.this);
+                } else {
+                    Toast.makeText(AlertsListFragment.this.getContext(), "Failed to load. Check your connection.", Toast.LENGTH_SHORT).show();
+                    Log.e("HighwaySyncReceiver", responseString);
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            }
+        }
+    }
 
     /**
      * Custom adapter for items in recycler view.

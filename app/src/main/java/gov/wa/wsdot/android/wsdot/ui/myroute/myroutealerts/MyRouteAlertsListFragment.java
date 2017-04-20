@@ -24,7 +24,7 @@ public class MyRouteAlertsListFragment extends AlertsListFragment {
     final String TAG = "MyRouteAlertsListFrag";
     final Double MAX_ALERT_DISTANCE = 0.248548;
 
-    protected ArrayList<HighwayAlertsItem> getAlerts(ArrayList<HighwayAlertsItem> alerts, AsyncTask<Cursor, Void, ArrayList<HighwayAlertsItem>> task){
+    protected ArrayList<HighwayAlertsItem> getAlerts(ArrayList<HighwayAlertsItem> alerts){
 
         //Retrieve the bounds from the intent. Defaults to 0
         Intent intent = getActivity().getIntent();
@@ -42,9 +42,6 @@ public class MyRouteAlertsListFragment extends AlertsListFragment {
         ArrayList<HighwayAlertsItem> alertsOnRoute = new ArrayList<>();
 
         for (HighwayAlertsItem alert: alerts){
-            if (task.isCancelled()) {
-                return new ArrayList<>();
-            }
             try {
                 for (int i = 0; i < routeJSON.length(); i++) {
                     JSONObject locationJSON = routeJSON.getJSONObject(i);

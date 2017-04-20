@@ -32,7 +32,7 @@ import gov.wa.wsdot.android.wsdot.ui.alert.AlertsListFragment;
 
 public class TrafficAlertsListFragment extends AlertsListFragment {
 
-    protected ArrayList<HighwayAlertsItem> getAlerts(ArrayList<HighwayAlertsItem> alerts, AsyncTask<Cursor, Void, ArrayList<HighwayAlertsItem>> task){
+    protected ArrayList<HighwayAlertsItem> getAlerts(ArrayList<HighwayAlertsItem> alerts){
 
         //Retrieve the bounds from the intent. Defaults to 0
         Intent intent = getActivity().getIntent();
@@ -50,9 +50,6 @@ public class TrafficAlertsListFragment extends AlertsListFragment {
         ArrayList<HighwayAlertsItem> alertsInArea = new ArrayList<>();
 
         for (HighwayAlertsItem alert: alerts) {
-            if (task.isCancelled()) {
-                return new ArrayList<>();
-            }
             LatLng alertStartLocation = new LatLng(alert.getStartLatitude(), alert.getStartLongitude());
 
             // If alert is within bounds of shown on screen show it on list
