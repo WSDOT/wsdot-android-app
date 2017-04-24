@@ -134,28 +134,17 @@ public abstract class AlertsListFragment extends BaseFragment
     @Override
     public void onResume() {
         super.onResume();
-
         IntentFilter alertsFilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
         alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
         mHighwayAlertsSyncReceiver = new AlertsListFragment.HighwayAlertsSyncReceiver();
         getActivity().registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
-
         getActivity().startService(alertsIntent);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        getActivity().unregisterReceiver(mHighwayAlertsSyncReceiver);
-        if (alertsTask != null) {
-            alertsTask.cancel(true);
-        }
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
         getActivity().unregisterReceiver(mHighwayAlertsSyncReceiver);
         if (alertsTask != null) {
             alertsTask.cancel(true);
