@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.8.5] - 2017-04-24
+## Fixed
+- Potential crash caused by calling unregisterReceiver() twice in AlertsListFragment.
+
 ## [4.8.4] - 2017-04-20
 ## Fixed
 - Crash caused by trying to update the map camera location before the map loaded in NewRouteActivity
