@@ -91,9 +91,10 @@ public class AboutActivity extends BaseActivity {
 	private String formatText()	{
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("<p>The mission of the Washington State Department of Transportation ");
-		sb.append("is to keep people and business moving by operating and improving the state's ");
-		sb.append("transportation systems vital to our taxpayers and communities.</p>");
+		sb.append("<p>The Washington State Department of Transportation provides and supports safe, ");
+		sb.append("reliable and cost-effective transportation options to improve livable ");
+		sb.append("communities and economic vitality for people and businesses. </p>");
+
 		sb.append("<p>The WSDOT mobile app was created to make it easier for you to know the latest ");
 		sb.append("about Washington's transportation system.</p>");
 		sb.append("<p>Questions, comments or suggestions about this app can be e-mailed to the ");

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:wsdot="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_mygoodtogo_link"
+        android:title="@string/description_my_goodtogo"
+        android:contentDescription="@string/description_my_goodtogo"
+        android:orderInCategory="1"
+        wsdot:showAsAction="always"/>
+</menu>

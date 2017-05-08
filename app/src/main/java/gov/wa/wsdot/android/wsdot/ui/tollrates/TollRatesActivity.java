@@ -18,11 +18,14 @@
 
 package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Spinner;
@@ -116,10 +119,29 @@ public class TollRatesActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_tollrates, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
+                return true;
+            case R.id.menu_mygoodtogo_link:
+                Intent intent = new Intent();
+
+                // GA tracker
+                mTracker = ((WsdotApplication) this.getApplication()).getDefaultTracker();
+                mTracker.setScreenName("/Toll Rates/MyGoodToGo.com");
+                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://mygoodtogo.com"));
+
+                startActivity(intent);
                 return true;
         }
         return super.onOptionsItemSelected(item);

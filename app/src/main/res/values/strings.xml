@@ -111,6 +111,7 @@
     <string name="title_activity_settings">Settings</string>
     <string name="drag_and_drop_description">drag and drop to rearrange</string>
     <string name="new_route_description">Create a new route</string>
+    <string name="description_my_goodtogo">MyGoodToGo.com</string>
 
 
 </resources>
