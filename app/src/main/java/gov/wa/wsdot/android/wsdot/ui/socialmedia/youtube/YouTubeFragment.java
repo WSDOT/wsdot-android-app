@@ -217,7 +217,7 @@ public class YouTubeFragment extends BaseFragment implements
 
             try {
                 URL url = new URL("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=10&playlistId=UUmWr7UYgRp4v_HvRfEgquXg&key="
-                        + this.getContext().getString(R.string.google_youtube_key));
+                        + this.getContext().getString(R.string.google_static_map_key));
                 URLConnection urlConn = url.openConnection();
                 BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
                 String jsonFile = "";

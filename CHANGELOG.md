@@ -4,6 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.8.6] - 2017-05-08
+## Added
+- MyGoodToGo.com link in Toll Rates.
+
+## Changed
+- Updated mission statement. 
+
 ## [4.8.5] - 2017-04-24
 ## Fixed
 - Potential crash caused by calling unregisterReceiver() twice in AlertsListFragment.
