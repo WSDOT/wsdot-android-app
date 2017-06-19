@@ -146,7 +146,7 @@ public class MountainPassItemActivity extends BaseActivity {
 			public void onTabReselected(TabLayout.Tab tab) {}
 		});
 
-        enableAds();
+        enableAds(getString(R.string.passes_ad_target));
 
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));

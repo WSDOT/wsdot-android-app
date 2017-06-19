@@ -99,7 +99,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity{
             }
         });
 
-        disableAds();
+        enableAds(getString(R.string.ferries_ad_target));
 
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));

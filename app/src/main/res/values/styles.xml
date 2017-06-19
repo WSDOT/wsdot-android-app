@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
 
-
     <!-- Base application theme. -->
     <style name="WSDOT" parent="Theme.AppCompat.Light.NoActionBar">
         <!--   your app branding color for the app bar -->

@@ -53,6 +53,8 @@ public class FerriesActivity extends BaseActivity {
         AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mCollapse.getLayoutParams();
         params.setScrollFlags(0);
 
+        enableAds(getString(R.string.ferries_ad_target));
+
     }
     
     @Override

@@ -279,6 +279,7 @@ public class FerriesTerminalCameraFragment extends BaseFragment
                             Bundle b = new Bundle();
                             Intent intent = new Intent(getActivity(), CameraActivity.class);
                             b.putInt("id", cameraItems.get(pos).getCameraId());
+                            b.putString("advertisingTarget", "ferries");
                             intent.putExtras(b);
 
                             startActivity(intent);

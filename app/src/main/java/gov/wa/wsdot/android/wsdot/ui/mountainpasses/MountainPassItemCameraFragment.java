@@ -228,6 +228,7 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
 							Bundle b = new Bundle();
 							Intent intent = new Intent(getActivity(), CameraActivity.class);
 							b.putInt("id", bitmapImages.get(pos).getCameraId());
+							b.putString("advertisingTarget", "passes");
 							intent.putExtras(b);
 
 							startActivity(intent);

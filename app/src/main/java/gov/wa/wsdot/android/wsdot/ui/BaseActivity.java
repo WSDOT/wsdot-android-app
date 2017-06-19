@@ -20,11 +20,13 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
 import com.google.android.gms.ads.doubleclick.PublisherAdView;
+import com.google.android.gms.ads.mediation.admob.AdMobExtras;
 
 import gov.wa.wsdot.android.wsdot.R;
 
@@ -64,12 +66,14 @@ public abstract class BaseActivity extends AppCompatActivity {
     /**
      * Initialize and display ads.
      */
-    protected void enableAds() {
+    protected void enableAds(String target) {
         mAdView = (PublisherAdView) findViewById(R.id.publisherAdView);
 
         PublisherAdRequest adRequest = new PublisherAdRequest.Builder()
-                .addTestDevice(PublisherAdRequest.DEVICE_ID_EMULATOR) // All emulators
+                //.addTestDevice(PublisherAdRequest.DEVICE_ID_EMULATOR) // All emulators
+                .addCustomTargeting("wsdotapp", target)
                 .build();
+
         mAdView.setVisibility(View.GONE);
 
         mAdView.setAdListener(new AdListener() {

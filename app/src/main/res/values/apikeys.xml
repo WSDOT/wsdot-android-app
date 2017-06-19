@@ -7,4 +7,9 @@
     <string name="wsdot_api_access_code">INSERT_WSDOT_API_KEY_HERE</string>
     <string name="banner_ad_unit_id">/6499/example/banner</string>
 
+    <string name="default_ad_target">other</string>
+    <string name="ferries_ad_target">ferries</string>
+    <string name="passes_ad_target">passes</string>
+    <string name="border_ad_target">border</string>
+
 </resources>

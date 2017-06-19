@@ -122,7 +122,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.map);
         
-        enableAds();
+        enableAds(getString(R.string.ferries_ad_target));
 
 		mToolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);

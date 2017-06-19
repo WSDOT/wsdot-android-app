@@ -33,7 +33,7 @@ public class MyRouteAlertsActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        enableAds();
+        enableAds(getString(R.string.default_ad_target));
     }
 
     @Override

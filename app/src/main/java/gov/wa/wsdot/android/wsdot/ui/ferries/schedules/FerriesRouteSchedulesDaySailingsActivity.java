@@ -67,6 +67,8 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
+        enableAds(getString(R.string.ferries_ad_target));
 	}
 
 	@Override

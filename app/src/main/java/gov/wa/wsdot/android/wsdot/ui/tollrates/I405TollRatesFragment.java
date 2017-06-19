@@ -61,7 +61,6 @@ public class I405TollRatesFragment extends BaseFragment {
 
 		disableAds(mRootView);
 
-
 		return mRootView;
 	}
 

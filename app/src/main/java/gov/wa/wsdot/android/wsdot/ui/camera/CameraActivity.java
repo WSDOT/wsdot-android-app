@@ -26,6 +26,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Spinner;
@@ -70,7 +71,8 @@ public class CameraActivity extends BaseActivity {
 	    
 	    Bundle b = getIntent().getExtras();
 	    int id = b.getInt("id");
-	    
+
+
 		try {
 			cursor = resolver.query(
 					Cameras.CONTENT_URI,
@@ -153,12 +155,13 @@ public class CameraActivity extends BaseActivity {
                 (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
         params.setScrollFlags(0);
 
-		disableAds();
-
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
             tab.select();
         }
+
+        String adTarget = b.getString("advertisingTarget");
+        enableAds(adTarget);
 	}
 
 	@Override

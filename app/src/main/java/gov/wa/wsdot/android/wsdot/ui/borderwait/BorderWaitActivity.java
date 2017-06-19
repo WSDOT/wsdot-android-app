@@ -89,7 +89,7 @@ public class BorderWaitActivity extends BaseActivity {
             }
         });
 
-        enableAds();
+        enableAds(getString(R.string.border_ad_target));
 
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));

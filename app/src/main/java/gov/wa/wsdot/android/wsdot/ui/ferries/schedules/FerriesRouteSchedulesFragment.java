@@ -116,7 +116,8 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 				R.color.holo_orange_light,
 				R.color.holo_red_light);
 
-        mEmptyView = root.findViewById( R.id.empty_list_view );;
+        mEmptyView = root.findViewById( R.id.empty_list_view );
+
         return root;
 	}
 

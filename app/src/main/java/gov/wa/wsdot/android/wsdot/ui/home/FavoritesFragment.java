@@ -586,6 +586,7 @@ public class FavoritesFragment extends BaseFragment implements
                                 Bundle b = new Bundle();
                                 Intent intent = new Intent(getActivity(), CameraActivity.class);
                                 b.putInt("id", c.getInt(c.getColumnIndex(Cameras.CAMERA_ID)));
+                                b.putString("advertisingTarget", "other");
                                 intent.putExtras(b);
                                 startActivity(intent);
                             }

@@ -1,19 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/day_sailings">
+    android:layout_height="match_parent">
 
-    <include layout="@layout/toolbar_scrolling"/>
-
-    <fragment
-        android:name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDaySailingsFragment"
-        android:id="@+id/fragment_ferries_route_schedules_day_sailings"
+    <android.support.design.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        />
+        android:layout_above="@+id/publisherAdView"
+        android:id="@+id/day_sailings">
 
-</android.support.design.widget.CoordinatorLayout>
+        <include layout="@layout/toolbar_scrolling"/>
+
+        <fragment
+            android:name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesDaySailingsFragment"
+            android:id="@+id/fragment_ferries_route_schedules_day_sailings"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+    </android.support.design.widget.CoordinatorLayout>
+
+    <com.google.android.gms.ads.doubleclick.PublisherAdView
+        android:id="@+id/publisherAdView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="@+string/banner_ad_unit_id"
+        android:contentDescription="@string/adBannerDescription"
+        android:layout_gravity="center|bottom"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>
