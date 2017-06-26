@@ -8,9 +8,10 @@ android {
         applicationId "gov.wa.wsdot.android.wsdot"
         minSdkVersion 14
         targetSdkVersion 25
-        versionCode 1414486
-        versionName "4.8.6"
+        versionCode 1414490
+        versionName "4.9.0"
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -22,24 +23,25 @@ android {
 
 repositories {
     maven { url "http://dl.bintray.com/populov/maven" }
+    maven { url "https://maven.google.com" }
     mavenCentral()
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile 'com.google.firebase:firebase-core:11.0.0'
-    compile 'com.google.firebase:firebase-crash:11.0.0'
-    compile 'com.google.android.gms:play-services-analytics:11.0.0'
-    compile 'com.google.android.gms:play-services-location:11.0.0'
-    compile 'com.google.android.gms:play-services-maps:11.0.0'
-    compile 'com.google.android.gms:play-services-ads:11.0.0'
+    compile 'com.google.firebase:firebase-core:11.0.1'
+    compile 'com.google.firebase:firebase-crash:11.0.1'
+    compile 'com.google.android.gms:play-services-analytics:11.0.1'
+    compile 'com.google.android.gms:play-services-location:11.0.1'
+    compile 'com.google.android.gms:play-services-maps:11.0.1'
+    compile 'com.google.android.gms:play-services-ads:11.0.1'
     compile 'com.google.maps.android:android-maps-utils:0.4.4'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:cardview-v7:25.3.1'
-    compile 'com.android.support:recyclerview-v7:25.3.1'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.4.0'
+    compile 'com.android.support:cardview-v7:25.4.0'
+    compile 'com.android.support:recyclerview-v7:25.4.0'
+    compile 'com.android.support:support-v4:25.4.0'
+    compile 'com.android.support:appcompat-v7:25.4.0'
     compile 'org.jsoup:jsoup:1.8.3'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.viewpagerindicator:library:2.4.1@aar'

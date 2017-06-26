@@ -70,7 +70,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         mAdView = (PublisherAdView) findViewById(R.id.publisherAdView);
 
         PublisherAdRequest adRequest = new PublisherAdRequest.Builder()
-                //.addTestDevice(PublisherAdRequest.DEVICE_ID_EMULATOR) // All emulators
+                .addTestDevice(PublisherAdRequest.DEVICE_ID_EMULATOR) // All emulators
                 .addCustomTargeting("wsdotapp", target)
                 .build();
 

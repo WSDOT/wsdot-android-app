@@ -64,10 +64,12 @@ public abstract class BaseFragment extends Fragment {
     /**
      * Initialize and display ads
      */
-    protected void enableAds(ViewGroup root) {
+    protected void enableAds(ViewGroup root, String target) {
+
         mAdView = (PublisherAdView) root.findViewById(R.id.publisherAdView);
         PublisherAdRequest adRequest = new PublisherAdRequest.Builder()
                 .addTestDevice(PublisherAdRequest.DEVICE_ID_EMULATOR) // All emulators
+                .addCustomTargeting("wsdotapp", target)
                 .build();
         mAdView.loadAd(adRequest);
     }
