@@ -62,7 +62,6 @@ import gov.wa.wsdot.android.wsdot.shared.FlickrItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.decoration.SpacesItemDecoration;
 
-
 public class FlickrFragment extends BaseFragment implements
         LoaderManager.LoaderCallbacks<ArrayList<FlickrItem>>,
         SwipeRefreshLayout.OnRefreshListener {
@@ -163,7 +162,6 @@ public class FlickrFragment extends BaseFragment implements
         public FlickrItemsLoader(Context context) {
             super(context);
         }
-
 
         @Override
         public ArrayList<FlickrItem> loadInBackground() {

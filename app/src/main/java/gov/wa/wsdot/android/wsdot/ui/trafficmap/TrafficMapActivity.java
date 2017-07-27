@@ -59,6 +59,7 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
@@ -93,12 +94,21 @@ import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
 import com.google.maps.android.ui.SquareTextView;
 
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
@@ -109,12 +119,14 @@ import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
 import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
+import gov.wa.wsdot.android.wsdot.shared.TravelChartRouteItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraListActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.besttimestotravel.TravelChartsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.restareas.RestAreaActivity;
@@ -124,8 +136,6 @@ import gov.wa.wsdot.android.wsdot.util.map.CalloutsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.CamerasOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.HighwayAlertsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
-
-import static android.view.View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION;
 
 public class TrafficMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener, ConnectionCallbacks,
@@ -153,10 +163,13 @@ public class TrafficMapActivity extends BaseActivity implements
     boolean showCallouts;
     boolean showRestAreas;
 
+    boolean bestTimesAvailable = false;
+    String bestTimesTitle = "";
+
     private ArrayList<LatLonItem> seattleArea = new ArrayList<>();
 
     static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST;
-    static final private int MENU_ITEM_REFRESH = 1;
+    static private int menu_item_refresh = 1;
 
     private CamerasSyncReceiver mCamerasReceiver;
     private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
@@ -244,6 +257,9 @@ public class TrafficMapActivity extends BaseActivity implements
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
         mapFragment.getMapAsync(this);
+
+        // check for travel charts
+        new TravelChartsAvailableTask().execute();
     }
 
     @Override
@@ -523,46 +539,87 @@ public class TrafficMapActivity extends BaseActivity implements
         }
     }
 
+    /**
+     * Set up the App bar menu
+     *
+     * Loop through all menu items, checking ID for set up.
+     * We do it this way because item indices aren't set since the menu is dynamic.
+     * (ex. travel charts may be added to the start)
+     *
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
         getMenuInflater().inflate(R.menu.traffic, menu);
 
-        if (showCameras) {
-            menu.getItem(0).setTitle("Hide Cameras");
-            menu.getItem(0).setIcon(R.drawable.ic_menu_traffic_cam);
+        if (bestTimesAvailable) {
+            menu.add(0, R.id.best_times_to_travel, 0, "Best Times to Travel")
+                    .setIcon(R.drawable.ic_menu_chart)
+                    .setActionView(R.layout.action_bar_notification_icon)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+            final MenuItem chartMenuItem = menu.findItem(R.id.best_times_to_travel);
+            // Since we added an action view, need to hook up the onclick ourselves.
+            chartMenuItem.getActionView().setOnClickListener(new View.OnClickListener() {
+                                                                 @Override
+                                                                 public void onClick(View v) {
+                                                                     TrafficMapActivity.this.onMenuItemSelected(0, chartMenuItem);
+                                                                 }
+                                                             });
+            menu_item_refresh = 2;
         } else {
-            menu.getItem(0).setTitle("Show Cameras");
-            menu.getItem(0).setIcon(R.drawable.ic_menu_traffic_cam_off);
+            menu_item_refresh = 1;
         }
 
-        if (clusterCameras) {
-            menu.getItem(5).setTitle("Uncluster Cameras");
-            menu.getItem(5).setIcon(R.drawable.ic_menu_traffic_cam);
-        } else {
-            menu.getItem(5).setTitle("Cluster Cameras");
-            menu.getItem(5).setIcon(R.drawable.ic_menu_traffic_cam_off);
+        for (int i = 0; i < menu.size(); i++){
+            switch (menu.getItem(i).getItemId()){
+                case R.id.toggle_cameras:
+                    if (showCameras) {
+                        menu.getItem(i).setTitle("Hide Cameras");
+                        menu.getItem(i).setIcon(R.drawable.ic_menu_traffic_cam);
+                    } else {
+                        menu.getItem(i).setTitle("Show Cameras");
+                        menu.getItem(i).setIcon(R.drawable.ic_menu_traffic_cam_off);
+                    }
+                    break;
+                case R.id.toggle_clustering:
+                    if (clusterCameras) {
+                        menu.getItem(i).setTitle("Uncluster Cameras");
+                        menu.getItem(i).setIcon(R.drawable.ic_menu_traffic_cam);
+                    } else {
+                        menu.getItem(i).setTitle("Cluster Cameras");
+                        menu.getItem(i).setIcon(R.drawable.ic_menu_traffic_cam_off);
+                    }
+                    break;
+                case R.id.toggle_alerts:
+                    if (showAlerts) {
+                        menu.getItem(i).setTitle("Hide Highway Alerts");
+                    } else {
+                        menu.getItem(i).setTitle("Show Highway Alerts");
+                    }
+                    break;
+                case R.id.toggle_callouts:
+                    if (showCallouts) {
+                        menu.getItem(i).setTitle("Hide JBLM");
+                    } else {
+                        menu.getItem(i).setTitle("Show JBLM");
+                    }
+                    break;
+                case R.id.toggle_rest_areas:
+                    if (showRestAreas) {
+                        menu.getItem(i).setTitle("Hide Rest Areas");
+                    } else {
+                        menu.getItem(i).setTitle("Show Rest Areas");
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
-        if (showAlerts) {
-            menu.getItem(6).setTitle("Hide Highway Alerts");
-        } else {
-            menu.getItem(6).setTitle("Show Highway Alerts");
-        }
-
-        if (showCallouts) {
-            menu.getItem(7).setTitle("Hide JBLM");
-        } else {
-            menu.getItem(7).setTitle("Show JBLM");
-        }
-
-        if (showRestAreas) {
-            menu.getItem(8).setTitle("Hide Rest Areas");
-        } else {
-            menu.getItem(8).setTitle("Show Rest Areas");
-        }
-
-        /**
+        /*
          * Check if current location is within a lat/lon bounding box surrounding
          * the greater Seattle area.
          */
@@ -585,6 +642,14 @@ public class TrafficMapActivity extends BaseActivity implements
 
         switch (item.getItemId()) {
 
+            case R.id.best_times_to_travel:
+
+                Intent chartsIntent = new Intent(this, TravelChartsActivity.class);
+                chartsIntent.putExtra("title", bestTimesTitle);
+
+                startActivity(chartsIntent);
+
+                break;
             case R.id.set_favorite:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.WSDOT_popup);
 
@@ -786,8 +851,8 @@ public class TrafficMapActivity extends BaseActivity implements
             public void onAnimationStart(Animation animation) { }
             @Override
             public void onAnimationEnd(Animation animation) {
-                mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).setActionView(null);
-                mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).setIcon(R.drawable.ic_menu_refresh);
+                mToolbar.getMenu().getItem(menu_item_refresh).setActionView(null);
+                mToolbar.getMenu().getItem(menu_item_refresh).setIcon(R.drawable.ic_menu_refresh);
             }
 
             @Override
@@ -1029,7 +1094,6 @@ public class TrafficMapActivity extends BaseActivity implements
             }
             showAlerts = true;
             label = "Show Alerts";
-
         }
 
         mTracker.send(new HitBuilders.EventBuilder()
@@ -1131,8 +1195,8 @@ public class TrafficMapActivity extends BaseActivity implements
                     addCameraMarkers(cameras);
                 }
             }
-            if (mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView() != null) {
-                mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView().getAnimation().setRepeatCount(0);
+            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
+                mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
             }
         }
     }
@@ -1181,8 +1245,8 @@ public class TrafficMapActivity extends BaseActivity implements
                     }
                 }
             }
-            if (mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView() != null) {
-                mToolbar.getMenu().getItem(MENU_ITEM_REFRESH).getActionView().getAnimation().setRepeatCount(0);
+            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
+                mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
             }
         }
     }
@@ -1238,7 +1302,7 @@ public class TrafficMapActivity extends BaseActivity implements
     /**
      * Build and draw any callouts on the map
      */
-    class CalloutsOverlayTask extends AsyncTask<Void, Void, Void> {
+    private class CalloutsOverlayTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -1288,6 +1352,48 @@ public class TrafficMapActivity extends BaseActivity implements
             } catch (NullPointerException e) {
                 // Ignore for now. Simply don't draw the marker.
             }
+        }
+    }
+
+    /**
+     *  Checks for posted travel charts.
+     */
+    private class TravelChartsAvailableTask extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            try {
+                URL url = new URL("http://data.wsdot.wa.gov/mobile/travelCharts.js.gz");
+                URLConnection urlConn = url.openConnection();
+
+                BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
+                GZIPInputStream gzin = new GZIPInputStream(bis);
+                InputStreamReader is = new InputStreamReader(gzin);
+                BufferedReader in = new BufferedReader(is);
+
+                String jsonFile = "";
+                String line;
+                while ((line = in.readLine()) != null)
+                    jsonFile += line;
+                in.close();
+
+                JSONObject obj = new JSONObject(jsonFile);
+
+                TrafficMapActivity.this.bestTimesTitle = obj.getString("name");
+
+                return obj.getBoolean("available");
+
+            } catch (Exception e) {
+                Log.e(TAG, "Error parsing travel chart JSON feed", e);
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            TrafficMapActivity.this.bestTimesAvailable = result;
+            TrafficMapActivity.this.invalidateOptionsMenu();
         }
     }
 

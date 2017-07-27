@@ -45,7 +45,10 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.viewpagerindicator:library:2.4.1@aar'
     compile 'com.getkeepsafe.taptargetview:taptargetview:1.8.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
 }
+
+
 
 apply plugin: 'com.google.gms.google-services'

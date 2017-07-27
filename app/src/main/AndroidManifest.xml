@@ -116,6 +116,9 @@
             android:name=".ui.trafficmap.traveltimes.TravelTimesActivity"
             android:label="@string/title_traveltimes" />
         <activity
+            android:name=".ui.trafficmap.besttimestotravel.TravelChartsActivity"
+            android:label="@string/title_besttimes" />
+        <activity
             android:name=".ui.trafficmap.expresslanes.SeattleExpressLanesActivity"
             android:label="@string/title_expresslanes" />
         <activity
@@ -170,7 +173,7 @@
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:theme="@style/WSDOT"></activity>
+            android:theme="@style/WSDOT" />8
     </application>
 
 </manifest>
