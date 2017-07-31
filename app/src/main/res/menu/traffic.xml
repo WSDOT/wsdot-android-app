@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:wsdot="http://schemas.android.com/apk/res-auto">
+    xmlns:wsdot="http://schemas.android.com/apk/res-auto">
 
-	<item
+
+
+    <item
 	    android:id="@+id/toggle_cameras"
 		android:title="@string/description_cameras"
 		android:icon="@drawable/ic_menu_traffic_cam"
 		android:orderInCategory="1"
 		wsdot:showAsAction="always" />
-
 	<item
 		android:id="@+id/refresh"
 		android:title="@string/menu_refresh"
@@ -16,52 +17,44 @@
 		android:orderInCategory="2"
 		wsdot:showAsAction="always" />
 
-
 	<item
 	    android:id="@+id/travel_times"
 		android:title="@string/description_travel_times"
 		android:icon="@drawable/ic_menu_travel_times"
 		android:orderInCategory="3"
 		wsdot:showAsAction="ifRoom" />
-
 	<item
 		android:id="@+id/alerts_in_area"
 		android:title="@string/description_alerts_in_area"
 		android:icon="@drawable/ic_menu_alert"
 		android:orderInCategory="4"
 		wsdot:showAsAction="ifRoom" />
-
 	<item
 		android:id="@+id/set_favorite"
 		android:title="@string/description_favorite"
 		android:icon="@drawable/ic_menu_star"
 		android:orderInCategory="5"
 		wsdot:showAsAction="ifRoom" />
-
 	<item
 		android:id="@+id/toggle_clustering"
 		android:title="@string/description_toggle_clusters"
 		android:orderInCategory="6"
 		wsdot:showAsAction="never" />
-
 	<item
 		android:id="@+id/toggle_alerts"
 		android:title="@string/description_alerts_toggle"
 		android:orderInCategory="7"
 		wsdot:showAsAction="never" />
-
 	<item
 		android:id="@+id/toggle_callouts"
 		android:title="@string/description_callouts_toggle"
 		android:orderInCategory="8"
 		wsdot:showAsAction="never" />
-
 	<item
 		android:id="@+id/toggle_rest_areas"
 		android:title="@string/description_rest_areas"
 		android:orderInCategory="9"
 		wsdot:showAsAction="never" />
-
 	<item
 	    android:id="@+id/goto_location"
 		android:title="@string/description_gotolocation"
@@ -86,11 +79,9 @@
 			<item android:orderInCategory="16" android:title="Yakima" android:id="@+id/goto_yakima" />
 		</menu>
 	</item>
-
     <item
         android:id="@+id/map_legend"
         android:title="@string/description_map_legend"
         android:orderInCategory="11"
         wsdot:showAsAction="never"/>
-
 </menu>

@@ -106,7 +106,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         mPosition = args.getInt("position");
         mScheduleDateItems = (ArrayList<FerriesScheduleDateItem>) args.getSerializable("scheduleDateItems");
         terminalItem = mScheduleDateItems.get(0).getFerriesTerminalItem().get(mPosition);
-        mDaysOfWeek = new ArrayList<CharSequence>();
+        mDaysOfWeek = new ArrayList<>();
         
         int numDates = mScheduleDateItems.size();
         for (int i = 0; i < numDates; i++) {

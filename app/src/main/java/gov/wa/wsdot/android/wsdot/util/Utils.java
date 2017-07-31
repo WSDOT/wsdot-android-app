@@ -2,6 +2,10 @@ package gov.wa.wsdot.android.wsdot.util;
 
 import android.util.SparseArray;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 
 /**
@@ -59,6 +63,23 @@ public class Utils {
         ferriesTerminalMap.put(22, new FerriesTerminalItem(22, "Vashon Island", 47.51095, -122.463639));
 
         return ferriesTerminalMap;
+    }
+
+
+    /**
+     * Copy the content of the input stream into the output stream, using a
+     * temporary byte array buffer whose size is defined by
+     *
+     * @param in The input stream to copy from.
+     * @param out The output stream to copy to.
+     * @throws IOException If any error occurs during the copy.
+     */
+    public static void copy(InputStream in, OutputStream out, int bufferSize) throws IOException {
+        byte[] b = new byte[bufferSize];
+        int read;
+        while ((read = in.read(b)) != -1) {
+            out.write(b, 0, read);
+        }
     }
 
 }

@@ -120,7 +120,7 @@ public class CameraListFragment extends BaseFragment implements
     }
 
     /**
-     * A custom Loader that loads all of the camera images for this mountain pass.
+     * A custom Loader that loads all of the camera images.
      */
     public static class CameraImagesLoader extends AsyncTaskLoader<ArrayList<CameraItem>> {
 
@@ -182,7 +182,6 @@ public class CameraListFragment extends BaseFragment implements
             // Ensure the loader is stopped
             onStopLoading();
         }
-
     }
 
     private class CameraGroupImageAdapter extends CameraImageAdapter {
