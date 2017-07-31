@@ -1363,7 +1363,7 @@ public class TrafficMapActivity extends BaseActivity implements
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                URL url = new URL("http://data.wsdot.wa.gov/mobile/travelCharts.js.gz");
+                URL url = new URL(getResources().getString(R.string.travel_charts_url));
                 URLConnection urlConn = url.openConnection();
 
                 BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());

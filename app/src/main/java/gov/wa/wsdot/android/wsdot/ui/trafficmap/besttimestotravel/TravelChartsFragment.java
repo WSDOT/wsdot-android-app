@@ -184,7 +184,7 @@ public class TravelChartsFragment extends Fragment implements
             ArrayList<TravelChartRouteItem> mTravelChartRoutes = new ArrayList<>();
 
             try {
-                URL url = new URL("http://data.wsdot.wa.gov/mobile/travelCharts.js.gz");
+                URL url = new URL(getContext().getResources().getString(R.string.travel_charts_url));
                 URLConnection urlConn = url.openConnection();
 
                 BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());

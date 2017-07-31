@@ -175,5 +175,4 @@
             android:label="@string/title_activity_settings"
             android:theme="@style/WSDOT" />8
     </application>
-
 </manifest>
