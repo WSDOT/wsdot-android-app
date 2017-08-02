@@ -38,6 +38,7 @@ import java.util.zip.GZIPInputStream;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.TravelChartItem;
 import gov.wa.wsdot.android.wsdot.shared.TravelChartRouteItem;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.Utils;
 
 /**
@@ -184,7 +185,7 @@ public class TravelChartsFragment extends Fragment implements
             ArrayList<TravelChartRouteItem> mTravelChartRoutes = new ArrayList<>();
 
             try {
-                URL url = new URL(getContext().getResources().getString(R.string.travel_charts_url));
+                URL url = new URL(APIEndPoints.TRAVEL_CHARTS);
                 URLConnection urlConn = url.openConnection();
 
                 BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +46,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
 public class CameraVideoFragment extends Fragment implements
         LoaderCallbacks<Boolean> {
@@ -67,7 +68,7 @@ public class CameraVideoFragment extends Fragment implements
 		int dotIndex = url.lastIndexOf(".");
 		String cameraName = url.substring(slashIndex + 1, dotIndex);
 		
-		mVideoPath = "http://images.wsdot.wa.gov/nwvideo/" + cameraName + ".mp4";
+		mVideoPath = APIEndPoints.CAMERA_VIDEOS + cameraName + ".mp4";
     }
 
 	@Override

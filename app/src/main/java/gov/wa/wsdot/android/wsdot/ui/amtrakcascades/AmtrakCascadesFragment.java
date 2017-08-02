@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class AmtrakCascadesFragment extends BaseFragment {
@@ -68,7 +69,7 @@ public class AmtrakCascadesFragment extends BaseFragment {
 
         // Build items for list
         listViewItems = new ArrayList<>();
-        listViewItems.add(new ViewItem("Buy Tickets", "http://m.amtrak.com"));
+        listViewItems.add(new ViewItem("Buy Tickets", APIEndPoints.AMTRAK_WEBSITE));
         listViewItems.add(new ViewItem("Check Schedules and Status", AmtrakCascadesSchedulesActivity.class));
 
         mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);

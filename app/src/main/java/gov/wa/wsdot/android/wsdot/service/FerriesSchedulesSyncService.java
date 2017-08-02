@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,13 +41,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
 public class FerriesSchedulesSyncService extends IntentService {
 
 	private static final String DEBUG_TAG = "FerriesSchedulesSyncService";
-	private static final String FERRIES_SCHEDULES_URL = "http://data.wsdot.wa.gov/mobile/WSFRouteSchedules.js.gz";
 	
 	public FerriesSchedulesSyncService() {
 		super("FerriesSchedulesSyncService");
@@ -96,7 +97,8 @@ public class FerriesSchedulesSyncService extends IntentService {
 			starred = getStarred();
 			
 			try {
-				URL url = new URL(FERRIES_SCHEDULES_URL);
+				URL url = new URL(APIEndPoints.FERRY_SCHEDULES);
+
 				URLConnection urlConn = url.openConnection();
 				
 				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());

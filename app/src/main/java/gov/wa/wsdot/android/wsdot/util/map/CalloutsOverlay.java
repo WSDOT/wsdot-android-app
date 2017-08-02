@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
 public class CalloutsOverlay {
 	@SuppressWarnings("unused")
@@ -31,7 +32,7 @@ public class CalloutsOverlay {
 	public CalloutsOverlay() {
         CalloutItem item = new CalloutItem();
         item.setTitle("JBLM");
-        item.setImageUrl("http://images.wsdot.wa.gov/traffic/flowmaps/jblm.png");
+        item.setImageUrl(APIEndPoints.JBLM_IMAGE);
         item.setLatitude(47.103033);
         item.setLongitude(-122.584394);
 

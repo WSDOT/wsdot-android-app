@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ import java.util.Locale;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.NewsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class NewsFragment extends BaseFragment implements
@@ -163,7 +164,7 @@ public class NewsFragment extends BaseFragment implements
 			NewsItem i = null;
 			
 			try {
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/News.js");
+				URL url = new URL(APIEndPoints.WSDOT_NEWS);
 				URLConnection urlConn = url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String jsonFile = "";

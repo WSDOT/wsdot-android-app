@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import android.app.IntentService;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -36,13 +37,14 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWait;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
 public class BorderWaitSyncService extends IntentService {
 
 	private static final String DEBUG_TAG = "BorderWaitSyncService";
-	private static final String BORDER_WAIT_URL = "http://data.wsdot.wa.gov/mobile/BorderCrossings.js";
 	
 	public BorderWaitSyncService() {
 		super("BorderWaitSyncService");
@@ -90,7 +92,7 @@ public class BorderWaitSyncService extends IntentService {
 			starred = getStarred();
 			
 			try {
-				URL url = new URL(BORDER_WAIT_URL);
+				URL url = new URL(APIEndPoints.BORDER_WAITS);
 				URLConnection urlConn = url.openConnection();
 				
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));

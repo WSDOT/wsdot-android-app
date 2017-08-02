@@ -1,7 +1,7 @@
 package gov.wa.wsdot.android.wsdot.ui.socialmedia.flickr;
 
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,6 +60,7 @@ import java.util.zip.GZIPInputStream;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.FlickrItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.decoration.SpacesItemDecoration;
 
 public class FlickrFragment extends BaseFragment implements
@@ -167,12 +168,12 @@ public class FlickrFragment extends BaseFragment implements
         public ArrayList<FlickrItem> loadInBackground() {
             BufferedInputStream ins;
             BufferedOutputStream out;
-            mFlickrItems = new ArrayList<FlickrItem>();
+            mFlickrItems = new ArrayList<>();
             String content;
             String tmpContent;
 
             try {
-                URL url = new URL("http://data.wsdot.wa.gov/mobile/FlickrPhotos.js.gz");
+                URL url = new URL(APIEndPoints.WSDOT_FLICKR);
                 URLConnection urlConn = url.openConnection();
 
                 BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
@@ -188,7 +189,7 @@ public class FlickrFragment extends BaseFragment implements
 
                 JSONObject obj = new JSONObject(jsonFile);
                 JSONArray items = obj.getJSONArray("items");
-                mFlickrItems = new ArrayList<FlickrItem>();
+                mFlickrItems = new ArrayList<>();
                 FlickrItem i = null;
 
                 int numItems = items.length();

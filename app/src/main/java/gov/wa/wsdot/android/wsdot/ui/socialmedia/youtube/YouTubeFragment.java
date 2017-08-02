@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@ import java.util.List;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.YouTubeItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
@@ -212,11 +213,11 @@ public class YouTubeFragment extends BaseFragment implements
 
         @Override
         public ArrayList<YouTubeItem> loadInBackground() {
-            mItems = new ArrayList<YouTubeItem>();
+            mItems = new ArrayList<>();
             YouTubeItem i = null;
 
             try {
-                URL url = new URL("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=10&playlistId=UUmWr7UYgRp4v_HvRfEgquXg&key="
+                URL url = new URL(APIEndPoints.YOUTUBE + "?part=snippet&maxResults=10&playlistId=UUmWr7UYgRp4v_HvRfEgquXg&key="
                         + this.getContext().getString(R.string.google_static_map_key));
                 URLConnection urlConn = url.openConnection();
                 BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
@@ -348,7 +349,7 @@ public class YouTubeFragment extends BaseFragment implements
             holder.itemView.setOnClickListener(
                     new View.OnClickListener() {
                         public void onClick(View v) {
-                            String url = "http://www.youtube.com/watch?v=" + videoId;
+                            String url = APIEndPoints.YOUTUBE_WATCH + "?v=" + videoId;
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                             startActivity(intent);
                         }

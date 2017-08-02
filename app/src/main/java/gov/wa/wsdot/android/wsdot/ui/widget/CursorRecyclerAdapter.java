@@ -2,7 +2,7 @@ package gov.wa.wsdot.android.wsdot.ui.widget;
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Matthieu Harlé
+ * Copyright (c) 2017 Matthieu Harlé
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

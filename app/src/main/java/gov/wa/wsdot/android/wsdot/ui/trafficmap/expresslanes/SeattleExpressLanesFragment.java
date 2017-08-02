@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,6 +53,7 @@ import java.util.List;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.ExpressLaneItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.DividerNoBottom;
 
@@ -67,8 +68,6 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 	private HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
-
-	private final String URL = "http://www.wsdot.wa.gov/Northwest/King/ExpressLanes";
 
 	protected RecyclerView mRecyclerView;
 	protected LinearLayoutManager mLayoutManager;
@@ -169,7 +168,7 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 			ExpressLaneItem i = null;
 
 			try {
-				URL url = new URL("http://data.wsdot.wa.gov/mobile/ExpressLanes.js");
+				URL url = new URL(APIEndPoints.EXPRESS_LANES);
 				URLConnection urlConn = url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String jsonFile = "";
@@ -334,7 +333,7 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 								public void onClick(View v) {
 									Intent intent = new Intent();
 									intent.setAction(Intent.ACTION_VIEW);
-									intent.setData(Uri.parse(URL));
+									intent.setData(Uri.parse(APIEndPoints.EXPRESS_LANES_WEBSITE));
 									startActivity(intent);
 								}
 							}

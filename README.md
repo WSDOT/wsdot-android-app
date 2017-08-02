@@ -42,7 +42,7 @@ Find a bug? Got an idea? Send us a pull request or open an issue and we'll take 
 License
 -------
 
-Copyright (c) 2016 Washington State Department of Transportation
+Copyright (c) 2017 Washington State Department of Transportation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

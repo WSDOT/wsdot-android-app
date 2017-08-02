@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ import java.util.List;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.BlogItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
@@ -158,7 +159,7 @@ public class BlogFragment extends BaseFragment implements
 			BlogItem i = null;
 			
 			try {
-				URL url = new URL("http://wsdotblog.blogspot.com/feeds/posts/default?alt=json&max-results=10");
+				URL url = new URL(APIEndPoints.WSDOT_BLOG + "?alt=json&max-results=10");
 				URLConnection urlConn = url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String jsonFile = "";

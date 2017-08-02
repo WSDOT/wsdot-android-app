@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,13 +38,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
 public class TravelTimesSyncService extends IntentService {
 	
 	private static final String DEBUG_TAG = "TravelTimesSyncService";
-	private static final String TRAVEL_TIMES_URL = "http://data.wsdot.wa.gov/mobile/TravelTimes.js.gz";
 
 	public TravelTimesSyncService() {
 		super("TravelTimesSyncService");
@@ -92,7 +93,7 @@ public class TravelTimesSyncService extends IntentService {
 			starred = getStarred();
 			
 			try {
-				URL url = new URL(TRAVEL_TIMES_URL);
+				URL url = new URL(APIEndPoints.TRAVEL_TIMES);
 				URLConnection urlConn = url.openConnection();
 				
 				BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,13 +40,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
 public class HighwayAlertsSyncService extends IntentService {
 	
 	private static final String DEBUG_TAG = "HighwayAlertsService";
-	private static final String HIGHWAY_ALERTS_URL = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js";
 
 	private String[] projection = {
     		Caches.CACHE_LAST_UPDATED
@@ -97,7 +98,7 @@ public class HighwayAlertsSyncService extends IntentService {
 		if (shouldUpdate || forceUpdate) {
 			
 	    	try {
-				URL url = new URL(HIGHWAY_ALERTS_URL);
+				URL url = new URL(APIEndPoints.HIGHWAY_ALERTS);
 				URLConnection urlConn = url.openConnection();
 				
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));

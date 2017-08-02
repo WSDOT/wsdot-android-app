@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ import java.util.Locale;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
 public class VesselsOverlay {
 	private static final String TAG = VesselsOverlay.class.getSimpleName();
@@ -70,7 +71,7 @@ public class VesselsOverlay {
 					
 		try {
 
-			URL url = new URL("http://www.wsdot.wa.gov/ferries/api/vessels/rest/vessellocations?apiaccesscode=" + api_key);
+			URL url = new URL(APIEndPoints.VESSEL_LOCATIONS + "?apiaccesscode=" + api_key);
 			Log.w(TAG, "URL: " + url.toString());
 			URLConnection urlConn = url.openConnection();
 			BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));

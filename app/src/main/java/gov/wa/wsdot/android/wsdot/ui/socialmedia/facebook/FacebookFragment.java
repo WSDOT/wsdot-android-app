@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ import java.util.List;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.FacebookItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
@@ -163,12 +164,12 @@ public class FacebookFragment extends BaseFragment implements
 			String text;
 			String htmlText;
 
-            mFacebookItems = new ArrayList<FacebookItem>();
+            mFacebookItems = new ArrayList<>();
 			FacebookItem i = null;
 			URL url;
 			
 			try {
-				url = new URL("http://www.wsdot.wa.gov/news/socialroom/posts/facebook");
+				url = new URL(APIEndPoints.WSDOT_FACEBOOK);
 				URLConnection urlConn = url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String jsonFile = "";

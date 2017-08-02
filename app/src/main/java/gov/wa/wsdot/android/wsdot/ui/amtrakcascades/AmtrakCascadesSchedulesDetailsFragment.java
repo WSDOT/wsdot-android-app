@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@ import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesScheduleFeed;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesScheduleItem;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesServiceItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
@@ -257,7 +258,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
             try {
                 url = new URL(
-                        "http://www.wsdot.wa.gov/traffic/api/amtrak/Schedulerest.svc/GetScheduleAsJson"
+                        APIEndPoints.AMTRAK_SCHEDULE
                                 + "?AccessCode=" + WSDOT_API_ACCESS_CODE
                                 + "&StatusDate=" + statusDate
                                 + "&TrainNumber=-1"
@@ -466,7 +467,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
             try {
                 url = new URL(
-                        "http://www.wsdot.wa.gov/traffic/api/amtrak/Schedulerest.svc/GetScheduleAsJson"
+                        APIEndPoints.AMTRAK_SCHEDULE
                                 + "?AccessCode=" + WSDOT_API_ACCESS_CODE
                                 + "&StatusDate=" + statusDate
                                 + "&TrainNumber=-1"

@@ -1,0 +1,57 @@
+/*
+ * Copyright (c) 2017 Washington State Department of Transportation
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+package gov.wa.wsdot.android.wsdot.util;
+
+public class APIEndPoints {
+
+    // Google Maps
+    public static final String STATIC_GOOGLE_MAPS = "http://maps.googleapis.com/maps/api/staticmap";
+
+    // Traffic
+    public static final String CAMERAS = "http://data.wsdot.wa.gov/mobile/Cameras.js.gz";
+    public static final String CAMERA_VIDEOS = "http://images.wsdot.wa.gov/nwvideo/";
+    public static final String HIGHWAY_ALERTS = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js";
+    public static final String TRAVEL_TIMES = "http://data.wsdot.wa.gov/mobile/TravelTimes.js.gz";
+    public static final String BORDER_WAITS = "http://data.wsdot.wa.gov/mobile/BorderCrossings.js";
+    public static final String TRAVEL_CHARTS = "http://data.wsdot.wa.gov/mobile/travelCharts.js.gz";
+    public static final String EXPRESS_LANES = "http://data.wsdot.wa.gov/mobile/ExpressLanes.js";
+    public static final String EXPRESS_LANES_WEBSITE = "http://www.wsdot.wa.gov/Northwest/King/ExpressLanes";
+    public static final String JBLM_IMAGE = "http://images.wsdot.wa.gov/traffic/flowmaps/jblm.png";
+
+    // Ferries
+    public static final String FERRY_SCHEDULES = "http://data.wsdot.wa.gov/mobile/WSFRouteSchedules.js.gz";
+    public static final String SAILING_SPACES = "http://www.wsdot.wa.gov/ferries/api/terminals/rest/terminalsailingspace";
+    public static final String VESSEL_LOCATIONS = "http://www.wsdot.wa.gov/ferries/api/vessels/rest/vessellocations";
+
+    // Passes
+    public static final String PASS_CONDITIONS = "http://data.wsdot.wa.gov/mobile/MountainPassConditions.js.gz";
+
+    // Amtrak
+    public static final String AMTRAK_SCHEDULE = "http://www.wsdot.wa.gov/traffic/api/amtrak/Schedulerest.svc/GetScheduleAsJson";
+    public static final String AMTRAK_WEBSITE = "http://m.amtrak.com";
+
+    // Social Media
+    public static final String WSDOT_NEWS = "http://data.wsdot.wa.gov/mobile/News.js";
+    public static final String WSDOT_BLOG = "http://wsdotblog.blogspot.com/feeds/posts/default";
+    public static final String WSDOT_FLICKR = "http://data.wsdot.wa.gov/mobile/FlickrPhotos.js.gz";
+    public static final String WSDOT_FACEBOOK = "http://www.wsdot.wa.gov/news/socialroom/posts/facebook";
+    public static final String WSDOT_TWITTER = "http://www.wsdot.wa.gov/news/socialroom/posts/twitter/";
+    public static final String YOUTUBE = "https://www.googleapis.com/youtube/v3/playlistItems";
+    public static final String YOUTUBE_WATCH = "http://www.youtube.com/watch";
+
+}

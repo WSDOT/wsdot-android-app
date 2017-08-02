@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,6 +57,7 @@ import java.util.List;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.TwitterItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
@@ -244,9 +245,9 @@ public class TwitterFragment extends BaseFragment implements
 			
 			try {
 				if (mScreenName == null || mScreenName == "all") {
-					url = new URL("http://www.wsdot.wa.gov/news/socialroom/posts/twitter");
+					url = new URL(APIEndPoints.WSDOT_TWITTER);
 				} else {
-					url = new URL("http://www.wsdot.wa.gov/news/socialroom/posts/twitter/" + mScreenName);
+					url = new URL(APIEndPoints.WSDOT_TWITTER + mScreenName);
 				}
 				
 				URLConnection urlConn = url.openConnection();

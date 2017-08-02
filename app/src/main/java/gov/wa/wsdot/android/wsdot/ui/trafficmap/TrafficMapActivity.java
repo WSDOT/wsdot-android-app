@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -131,6 +131,7 @@ import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanes
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.restareas.RestAreaActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes.TravelTimesActivity;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.map.CalloutsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.CamerasOverlay;
@@ -1363,7 +1364,7 @@ public class TrafficMapActivity extends BaseActivity implements
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                URL url = new URL(getResources().getString(R.string.travel_charts_url));
+                URL url = new URL(APIEndPoints.TRAVEL_CHARTS);
                 URLConnection urlConn = url.openConnection();
 
                 BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());

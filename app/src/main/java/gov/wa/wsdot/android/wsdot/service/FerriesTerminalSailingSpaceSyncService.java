@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ import java.util.List;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpace;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
 public class FerriesTerminalSailingSpaceSyncService extends IntentService {
 
@@ -92,8 +93,8 @@ public class FerriesTerminalSailingSpaceSyncService extends IntentService {
             starred = getStarred();
             
             try {
-                String sailingSpaceUrl = "http://www.wsdot.wa.gov/ferries/api/terminals/rest/terminalsailingspace?"
-                        + "apiaccesscode=" + getString(R.string.wsdot_api_access_code);
+                String sailingSpaceUrl =  APIEndPoints.SAILING_SPACES
+                        + "?apiaccesscode=" + getString(R.string.wsdot_api_access_code);
 
                 URL url = new URL(sailingSpaceUrl);
                 URLConnection urlConn = url.openConnection();

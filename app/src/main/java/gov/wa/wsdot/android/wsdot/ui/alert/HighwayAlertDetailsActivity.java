@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Washington State Department of Transportation
+ * Copyright (c) 2017 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class HighwayAlertDetailsActivity extends BaseActivity {
@@ -204,8 +205,9 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
                         "MMMM d, yyyy h:mm a", false) + "</p>");
         
         if (!item.getEventCategory().equalsIgnoreCase("error")) {
-            sb.append("<img src=");
-            sb.append("'http://maps.googleapis.com/maps/api/staticmap?center=");
+            sb.append("<img src='");
+            sb.append(APIEndPoints.STATIC_GOOGLE_MAPS);
+            sb.append("?center=");
             sb.append(item.getStartLatitude() + "," + item.getStartLongitude());
             sb.append("&zoom=15&size=320x320&maptype=roadmap&markers=");
             sb.append(item.getStartLatitude() + "," + item.getStartLongitude());

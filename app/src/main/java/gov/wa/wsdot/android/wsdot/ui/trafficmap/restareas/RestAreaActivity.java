@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
 public class RestAreaActivity extends BaseActivity {
 
@@ -130,8 +131,9 @@ public class RestAreaActivity extends BaseActivity {
             sb.append(" </p>");
         }
 
-        sb.append("<img src=");
-        sb.append("'http://maps.googleapis.com/maps/api/staticmap?center=");
+        sb.append("<img src='");
+        sb.append(APIEndPoints.STATIC_GOOGLE_MAPS);
+        sb.append("?center=");
         sb.append(item.getLatitude());
         sb.append(",");
         sb.append(item.getLongitude());
