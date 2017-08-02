@@ -95,24 +95,26 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
     protected LinearLayoutManager mLayoutManager;
 	
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
+	public void onAttach(Context context) {
+		super.onAttach(context);
 		
         DateFormat dateFormat = new SimpleDateFormat("EEEE");
         dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
-		
-		Bundle args = activity.getIntent().getExtras();
-		
-        mPosition = args.getInt("position");
-        mScheduleDateItems = (ArrayList<FerriesScheduleDateItem>) args.getSerializable("scheduleDateItems");
-        terminalItem = mScheduleDateItems.get(0).getFerriesTerminalItem().get(mPosition);
-        mDaysOfWeek = new ArrayList<>();
-        
-        int numDates = mScheduleDateItems.size();
-        for (int i = 0; i < numDates; i++) {
-            if (!mScheduleDateItems.get(i).getFerriesTerminalItem().isEmpty()){
-                mDaysOfWeek.add(dateFormat.format(new Date(
-                        Long.parseLong(mScheduleDateItems.get(i).getDate()))));
+
+        if (context instanceof Activity) {
+            Bundle args = ((Activity)context).getIntent().getExtras();
+
+            mPosition = args.getInt("position");
+            mScheduleDateItems = (ArrayList<FerriesScheduleDateItem>) args.getSerializable("scheduleDateItems");
+            terminalItem = mScheduleDateItems.get(0).getFerriesTerminalItem().get(mPosition);
+            mDaysOfWeek = new ArrayList<>();
+
+            int numDates = mScheduleDateItems.size();
+            for (int i = 0; i < numDates; i++) {
+                if (!mScheduleDateItems.get(i).getFerriesTerminalItem().isEmpty()) {
+                    mDaysOfWeek.add(dateFormat.format(new Date(
+                            Long.parseLong(mScheduleDateItems.get(i).getDate()))));
+                }
             }
         }
 	}

@@ -36,11 +36,6 @@ public class SR167TollRatesFragment extends BaseFragment {
     private static final String TAG = SR167TollRatesFragment.class.getSimpleName();
     private WebView webview;
 	private ViewGroup mRootView;
-	
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

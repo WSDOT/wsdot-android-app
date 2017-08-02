@@ -60,12 +60,14 @@ public class CalloutFragment extends Fragment implements
     private Tracker mTracker;
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        
-        Bundle args = activity.getIntent().getExtras();
-        mUrl = args.getString("url");
-        
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof Activity) {
+            Bundle args = ((Activity)context).getIntent().getExtras();
+            mUrl = args.getString("url");
+        }
+
     	mTracker = ((WsdotApplication) this.getActivity().getApplication()).getDefaultTracker();
         mTracker.setScreenName("/TrafficMap/Callout/" + mUrl);
 		mTracker.send(new HitBuilders.ScreenViewBuilder().build());

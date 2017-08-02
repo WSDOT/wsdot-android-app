@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -55,15 +56,19 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment {
 	private View mLoadingSpinner;
 	
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		
-		Bundle args = activity.getIntent().getExtras();
-		Date date = new Date(Long.parseLong(args.getString("AlertPublishDate")));
-		mAlertPublishDate = displayDateFormat.format(date);
-		mAlertDescription = args.getString("AlertDescription");
-		mAlertFullText = args.getString("AlertFullText");
-		mContent = formatText(mAlertPublishDate, mAlertDescription, mAlertFullText);		
+	public void onAttach(Context context) {
+		super.onAttach(context);
+
+		if (context instanceof Activity) {
+			Bundle args = ((Activity) context).getIntent().getExtras();
+			Date date = new Date(Long.parseLong(args.getString("AlertPublishDate")));
+			mAlertPublishDate = displayDateFormat.format(date);
+			mAlertDescription = args.getString("AlertDescription");
+			mAlertFullText = args.getString("AlertFullText");
+			mAlertFullTitle = args.getString("AlertFullTitle");
+			mContent = formatText(mAlertPublishDate, mAlertDescription, mAlertFullText);
+		}
+
 	}
 	
 	@Override

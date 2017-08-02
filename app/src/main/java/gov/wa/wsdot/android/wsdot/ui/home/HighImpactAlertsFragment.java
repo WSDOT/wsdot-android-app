@@ -65,11 +65,6 @@ public class HighImpactAlertsFragment extends BaseFragment implements
 	private ArrayList<HighwayAlertsItem> alertItems = new ArrayList<HighwayAlertsItem>();
 	private Handler mHandler = new Handler();
     
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }    
-    
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);		

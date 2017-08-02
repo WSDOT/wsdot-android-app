@@ -63,11 +63,13 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseFragment
 	protected LinearLayoutManager mLayoutManager;
 
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
+	public void onAttach(Context context) {
+		super.onAttach(context);
 
-		Bundle args = activity.getIntent().getExtras();
-		mDates = args.getString("date");
+		if (context instanceof Activity) {
+			Bundle args = ((Activity)context).getIntent().getExtras();
+			mDates = args.getString("date");
+		}
 	}
 
 	@Override

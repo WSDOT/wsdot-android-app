@@ -58,8 +58,8 @@ public class CameraVideoFragment extends Fragment implements
 	private static String mCameraName = "cameraVideo.mp4";
 	
     @Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
+	public void onAttach(Context context) {
+		super.onAttach(context);
 
 		Bundle args = getArguments();
 		String url = args.getString("url");

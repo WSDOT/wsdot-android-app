@@ -84,13 +84,15 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
     protected LinearLayoutManager mLayoutManager;
     
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        
-        Bundle args = activity.getIntent().getExtras();
-        statusDate = args.getString("dayId");
-        fromLocation = args.getString("originId");
-        toLocation = args.getString("destinationId");
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof Activity) {
+            Bundle args = ((Activity)context).getIntent().getExtras();
+            statusDate = args.getString("dayId");
+            fromLocation = args.getString("originId");
+            toLocation = args.getString("destinationId");
+        }
     }
 
     @Override

@@ -56,11 +56,13 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
 	private static String mAlerts;
 	
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
+	public void onAttach(Context context) {
+		super.onAttach(context);
 
-		Bundle args = activity.getIntent().getExtras();
-		mAlerts = args.getString("alert");
+        if (context instanceof Activity) {
+            Bundle args = ((Activity)context).getIntent().getExtras();
+            mAlerts = args.getString("alert");
+        }
 	}
 
 	@Override

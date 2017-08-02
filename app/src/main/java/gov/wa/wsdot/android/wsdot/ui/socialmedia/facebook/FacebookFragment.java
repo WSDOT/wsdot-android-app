@@ -64,11 +64,6 @@ public class FacebookFragment extends BaseFragment implements
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-	}
 	
     @Override
 	public void onCreate(Bundle savedInstanceState) {

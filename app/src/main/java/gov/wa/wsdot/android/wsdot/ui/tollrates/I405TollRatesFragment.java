@@ -38,11 +38,6 @@ public class I405TollRatesFragment extends BaseFragment {
     private static final String TAG = I405TollRatesFragment.class.getSimpleName();
     private WebView webview;
 	private ViewGroup mRootView;
-	
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
