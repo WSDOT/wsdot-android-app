@@ -4,6 +4,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+
+## [4.10.1] - 2017-08-02
+## Added
+- Travel Charts section. App checks data from a JSON file, if there are travel charts a new app bar item will be created that opens to a menu with the travel chart information form the JSON file.
+
+## [4.9.2] - 2017-06-28
+## Changed
+- Updated Toll Rates for 2017
+
+## [4.9.1] - 2017-06-26
+## Added
+- Support for targeted advertisements 
+
 ## [4.8.6] - 2017-05-08
 ## Added
 - MyGoodToGo.com link in Toll Rates.
