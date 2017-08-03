@@ -27,6 +27,7 @@
             android:layout_below="@+id/toolbar"
             android:background="?attr/colorPrimary"
             android:minHeight="?attr/actionBarSize"
+            style="@style/FullTabLayout"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
     </android.support.design.widget.AppBarLayout>
 
