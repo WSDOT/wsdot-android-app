@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.10.1] - 2017-08-02
+## Changed
+- Made My Routes tracking service a foreground service. This prevents Android (especially Android O) from reducing location updates or killing the service while routes are recording.
 
 ## [4.10.1] - 2017-08-02
 ## Added
