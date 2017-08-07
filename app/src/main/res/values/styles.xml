@@ -50,6 +50,11 @@
         <item name="textAllCaps">false</item>
     </style>
 
+    <style name="FullTabLayout" parent="Widget.Design.TabLayout">
+        <item name="tabGravity">fill</item>
+        <item name="tabMaxWidth">0dp</item>
+    </style>
+
     <style name="Text"/>
 
     <style name="Text.Title">

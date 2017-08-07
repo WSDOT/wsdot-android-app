@@ -1,6 +1,8 @@
 package gov.wa.wsdot.android.wsdot.service;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +13,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -22,13 +25,17 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
+import gov.wa.wsdot.android.wsdot.R;
+
 /**
  *  Service for tracking users route.
  *  Uses the fusedLocation api to collect location data while the user is tracking their route.
  */
 
-public class MyRouteTrackingService extends Service
-        implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, LocationListener {
+public class MyRouteTrackingService extends Service implements
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks,
+        LocationListener {
 
     private static final String TAG = MyRouteTrackingService.class.getSimpleName();
 
@@ -43,6 +50,8 @@ public class MyRouteTrackingService extends Service
     private LocationRequest mLocationRequest;
 
     private final IBinder mBinder = new LocalBinder();
+
+    private static int FOREGROUND_SERVICE_ID = 900;
 
     Callbacks activity;
 
@@ -67,6 +76,9 @@ public class MyRouteTrackingService extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mGoogleApiClient.connect();
+
+        startForeground(FOREGROUND_SERVICE_ID, buildForegroundNotification());
+
         return START_STICKY;
     }
 
@@ -184,5 +196,17 @@ public class MyRouteTrackingService extends Service
 
         editor.putBoolean(PERMISSION_ERROR_KEY, true);
         editor.apply();
+    }
+
+    private Notification buildForegroundNotification() {
+        NotificationCompat.Builder b = new NotificationCompat.Builder(this);
+
+        b.setOngoing(true)
+                .setContentTitle("Creating a Route.")
+                .setContentText("WSDOT is recording your location.")
+                .setSmallIcon(R.drawable.ic_list_wsdot)
+                .setTicker("Creating a Route.");
+
+        return(b.build());
     }
 }

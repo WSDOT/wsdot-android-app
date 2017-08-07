@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
+    xmlns:style="http://schemas.android.com/tools"
     android:id="@+id/activity_with_tabs"
     android:theme="@style/WSDOT"
     android:layout_width="match_parent"
@@ -43,6 +43,7 @@
             android:layout_below="@+id/toolbar"
             android:background="?attr/colorPrimary"
             android:minHeight="?attr/actionBarSize"
+            style="@style/FullTabLayout"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     </android.support.design.widget.AppBarLayout>
