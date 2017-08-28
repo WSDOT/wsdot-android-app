@@ -46,6 +46,8 @@ public class MountainPassesActivity extends BaseActivity {
 		banner.setImageResource(R.drawable.pass_banner);
 		banner.setContentDescription("banner image of a mountain pass.");
 
+		enableAds(getString(R.string.passes_ad_target));
+
 	}
 	
 	@Override

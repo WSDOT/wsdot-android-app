@@ -201,7 +201,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
         setContentView(R.layout.map);
 
-        enableAds(getString(R.string.default_ad_target));
+        enableAds(getString(R.string.traffic_ad_target));
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -413,7 +413,7 @@ public class TrafficMapActivity extends BaseActivity implements
             mTracker.send(new HitBuilders.ScreenViewBuilder().build());
             intent = new Intent(this, CameraActivity.class);
             b.putInt("id", Integer.parseInt(marker.getSnippet()));
-            b.putString("advertisingTarget", "other");
+            b.putString("advertisingTarget", getString(R.string.traffic_ad_target));
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);
         } else if (markers.get(marker).equalsIgnoreCase("alert")) {
