@@ -65,6 +65,7 @@ public class AboutActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
 		disableAds();
 		
 		mLoadingSpinner = findViewById(R.id.loading_spinner);
@@ -74,7 +75,6 @@ public class AboutActivity extends BaseActivity {
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);
-
 	
 	}
 	
@@ -98,7 +98,7 @@ public class AboutActivity extends BaseActivity {
 		sb.append("<p>The WSDOT mobile app was created to make it easier for you to know the latest ");
 		sb.append("about Washington's transportation system.</p>");
 
-		sb.append("<p>To report HOV, HOT lane or ferry line violators please call <a href=\"tel:1-877-764-4376\">1-877-764-4376</a> ");
+		sb.append("<p>To report HOV, HOT lane or ferry line violators please call <a href=\"tel:+1-877-764-4376\">1-877-764-4376</a> ");
 		sb.append("or use our <a href=\"http://www.wsdot.wa.gov/HOV/reporting\">online reporting form</a>.</p>");
 
 		sb.append("<p>Questions, comments or suggestions about this app can be e-mailed to the ");
@@ -132,15 +132,18 @@ public class AboutActivity extends BaseActivity {
 				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 				startActivity(browserIntent);
 			} else if (url.startsWith("mailto:")) {
-				Intent emailIntent = new Intent(Intent.ACTION_SEND);
-				emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {"webfeedback@wsdot.wa.gov"});
-				if (versionName.equalsIgnoreCase("Not available")) {
-					emailIntent.putExtra(Intent.EXTRA_SUBJECT, "WSDOT Android App");
-				}else {
-					emailIntent.putExtra(Intent.EXTRA_SUBJECT, "WSDOT Android App " + versionName);
-				}
-				emailIntent.setType("message/rfc822"); // this prompts email client only
-				startActivity(Intent.createChooser(emailIntent, "Send Email using"));
+                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"webfeedback@wsdot.wa.gov"});
+                if (versionName.equalsIgnoreCase("Not available")) {
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "WSDOT Android App");
+                } else {
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "WSDOT Android App " + versionName);
+                }
+                emailIntent.setType("message/rfc822"); // this prompts email client only
+                startActivity(Intent.createChooser(emailIntent, "Send Email using"));
+            } else if (url.startsWith("tel:")) {
+                Intent phoneIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(phoneIntent);
 			} else {
 				view.loadUrl(url);
 			}
