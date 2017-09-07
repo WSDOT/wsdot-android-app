@@ -4,6 +4,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.10.5] - 2017-09-07
+## Changed
+- Updated app with new WSDOT api key.
+
+## [4.10.4] - 2017-28-07
+## Added 
+- HERO report contact info.
+## Changed
+- Added "traffic" advertisement topic.
+
+## [4.10.3] - unreleased
+
 ## [4.10.2] - 2017-08-07
 ## Changed
 - Made My Routes tracking service a foreground service. This prevents Android (especially Android O) from reducing location updates or killing the service while routes are recording.
