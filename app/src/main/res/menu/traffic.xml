@@ -5,7 +5,7 @@
 	<item
 		android:id="@+id/alerts_in_area"
 		android:title="@string/description_alerts_in_area"
-		android:icon="@drawable/ic_menu_alert"
+		android:icon="@drawable/ic_alert_diamond"
 		android:orderInCategory="1"
 		wsdot:showAsAction="always" />
 
