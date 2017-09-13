@@ -187,7 +187,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
     private ArrayList<LatLonItem> seattleArea = new ArrayList<>();
 
-    static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST;
     static private int menu_item_refresh = 1;
 
     private CamerasSyncReceiver mCamerasReceiver;
@@ -709,19 +708,6 @@ public class TrafficMapActivity extends BaseActivity implements
             }
         }
 
-        /*
-         * Check if current location is within a lat/lon bounding box surrounding
-         * the greater Seattle area.
-         */
-        try {
-            LatLng center = mMap.getCameraPosition().target;
-            if (inPolygon(seattleArea, center.latitude, center.longitude)) {
-                MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
-                MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
-            }
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Error getting LatLng center");
-        }
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -787,7 +773,7 @@ public class TrafficMapActivity extends BaseActivity implements
                 alertsIntent.putExtra("swlong", mBounds.southwest.longitude);
                 startActivity(alertsIntent);
                 return true;
-            case MENU_ITEM_EXPRESS_LANES:
+            case R.id.express_lanes:
                 Intent expressIntent = new Intent(this, SeattleExpressLanesActivity.class);
                 startActivity(expressIntent);
                 return true;

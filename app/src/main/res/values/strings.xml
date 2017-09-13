@@ -113,6 +113,7 @@
     <string name="new_route_description">Create a new route</string>
     <string name="description_my_goodtogo">MyGoodToGo.com</string>
     <string name="title_besttimes">Best Times To Travel</string>
+    <string name="description_express_lanes">Express Lanes</string>
 
 
 </resources>
