@@ -32,7 +32,6 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -48,7 +47,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
@@ -64,7 +62,6 @@ import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
@@ -102,7 +99,6 @@ import com.google.maps.android.ui.SquareTextView;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -124,7 +120,6 @@ import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
 import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
-import gov.wa.wsdot.android.wsdot.shared.TravelChartRouteItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
@@ -169,17 +164,19 @@ public class TrafficMapActivity extends BaseActivity implements
     boolean showCallouts;
     boolean showRestAreas;
 
+    FloatingActionButton fabLayers;
     FloatingActionButton fabCameras;
-    FloatingActionButton fab1;
-    FloatingActionButton fab2;
-    FloatingActionButton fab3;
-    FloatingActionButton fab4;
+    FloatingActionButton fabClusters;
+    FloatingActionButton fabAlerts;
+    FloatingActionButton fabRestareas;
+    FloatingActionButton fabJBLM;
 
     LinearLayout fabLayoutCameras;
-    LinearLayout fabLayout1;
-    LinearLayout fabLayout2;
-    LinearLayout fabLayout3;
-    LinearLayout fabLayout4;
+    LinearLayout fabLayoutClusters;
+    LinearLayout fabLayoutAlerts;
+    LinearLayout fabLayoutRestareas;
+    LinearLayout fabLayoutJBLM;
+
     boolean isFABOpen = false;
 
     boolean bestTimesAvailable = false;
@@ -289,39 +286,38 @@ public class TrafficMapActivity extends BaseActivity implements
         mGoogleApiClient.connect();
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean seenTip = settings.getBoolean("KEY_SEEN_TRAFFIC_MENU_TIP", false);
+        boolean seenTip = settings.getBoolean("KEY_SEEN_TRAFFIC_LAYERS_TIP", false);
 
-        if (!seenTip && !clusterCameras && showCameras && showAlerts) {
+        if (!seenTip) {
             try {
-                TapTargetView.showFor(this,                 // `this` is an Activity
-                    TapTarget.forToolbarOverflow(mToolbar, "Map Options", "Save locations to your favorites, edit traffic map layers & more.")
-                            // All options below are optional
-                            .outerCircleColor(R.color.primary)      // Specify a color for the outer circle
-                            .targetCircleColor(R.color.white)   // Specify a color for the target circle
-                            .titleTextSize(20)                  // Specify the size (in sp) of the title text
-                            .titleTextColor(R.color.white)      // Specify the color of the title text
-                            .descriptionTextSize(15)            // Specify the size (in sp) of the description text
-                            .textColor(R.color.white)            // Specify a color for both the title and description text
-                            .textTypeface(Typeface.SANS_SERIF)  // Specify a typeface for the text
-                            .dimColor(R.color.black)            // If set, will dim behind the view with 30% opacity of the given color
-                            .drawShadow(true)                   // Whether to draw a drop shadow or not
-                            .cancelable(true)                  // Whether tapping outside the outer circle dismisses the view
-                            .tintTarget(true)                   // Whether to tint the target view's color
-                            .transparentTarget(false)           // Specify whether the target is transparent (displays the content underneath)
-                            .targetRadius(60),                  // Specify the target radius (in dp)
-                    new TapTargetView.Listener() {          // The listener can listen for regular clicks, long clicks or cancels
-                        @Override
-                        public void onTargetClick(TapTargetView view) {
-                            super.onTargetClick(view);      // This call is optional
-
-                        }
-                    });
+                TapTargetView.showFor(this, // `this` is an Activity
+                        TapTarget.forView(fabLayers, "Map Layers", "Tap to toggle visible layers.")
+                                // All options below are optional
+                                .outerCircleColor(R.color.primary)
+                                .titleTextSize(20)
+                                .titleTextColor(R.color.white)
+                                .descriptionTextSize(15)
+                                .textColor(R.color.white)
+                                .textTypeface(Typeface.SANS_SERIF)
+                                .dimColor(R.color.black)
+                                .drawShadow(true)
+                                .cancelable(true)
+                                .tintTarget(true)
+                                .transparentTarget(true)
+                                .targetRadius(40),
+                        new TapTargetView.Listener() {
+                            @Override
+                            public void onTargetClick(TapTargetView view) {
+                                super.onTargetClick(view);      // This call is optional
+                                showFABMenu();
+                            }
+                        });
             } catch (NullPointerException e){
                 Log.e(TAG, "Null pointer exception while trying to show tip view");
             }
         }
 
-        settings.edit().putBoolean("KEY_SEEN_TRAFFIC_MENU_TIP", true).apply();
+        settings.edit().putBoolean("KEY_SEEN_TRAFFIC_LAYERS_TIP", true).apply();
 
         IntentFilter camerasFilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
@@ -423,41 +419,41 @@ public class TrafficMapActivity extends BaseActivity implements
     private void setUpFabMenu() {
 
         // set up layers FAB menu
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fabLayers = (FloatingActionButton) findViewById(R.id.fab);
 
         fabLayoutCameras = (LinearLayout) findViewById(R.id.fabLayoutCameras);
-        fabLayout1 = (LinearLayout) findViewById(R.id.fabLayout1);
-        fabLayout2 = (LinearLayout) findViewById(R.id.fabLayout2);
-        fabLayout3 = (LinearLayout) findViewById(R.id.fabLayout3);
-        fabLayout4 = (LinearLayout) findViewById(R.id.fabLayout4);
+        fabLayoutClusters = (LinearLayout) findViewById(R.id.fabLayoutClusters);
+        fabLayoutAlerts = (LinearLayout) findViewById(R.id.fabLayoutAlerts);
+        fabLayoutRestareas = (LinearLayout) findViewById(R.id.fabLayoutRestareas);
+        fabLayoutJBLM = (LinearLayout) findViewById(R.id.fabLayoutJBLM);
 
         fabCameras = (FloatingActionButton) findViewById(R.id.fabCameras);
-        fab1 = (FloatingActionButton) findViewById(R.id.fab1);
-        fab2 = (FloatingActionButton) findViewById(R.id.fab2);
-        fab3 = (FloatingActionButton) findViewById(R.id.fab3);
-        fab4 = (FloatingActionButton) findViewById(R.id.fab4);
+        fabClusters = (FloatingActionButton) findViewById(R.id.fabClusters);
+        fabAlerts = (FloatingActionButton) findViewById(R.id.fabAlerts);
+        fabRestareas = (FloatingActionButton) findViewById(R.id.fabRestareas);
+        fabJBLM = (FloatingActionButton) findViewById(R.id.fabJBLM);
 
         if (!showCameras){
             toggleFabOff(fabCameras);
         }
 
         if (!clusterCameras) {
-            toggleFabOff(fab1);
+            toggleFabOff(fabClusters);
         }
 
         if (!showAlerts){
-            toggleFabOff(fab2);
+            toggleFabOff(fabAlerts);
         }
 
         if (!showRestAreas) {
-            toggleFabOff(fab3);
+            toggleFabOff(fabRestareas);
         }
 
         if (!showCallouts) {
-            toggleFabOff(fab4);
+            toggleFabOff(fabJBLM);
         }
 
-        fab.setOnClickListener(new View.OnClickListener() {
+        fabLayers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(!isFABOpen){
@@ -472,34 +468,39 @@ public class TrafficMapActivity extends BaseActivity implements
             @Override
             public void onClick(View v) {
                 toggleCameras(fabCameras);
+                closeFABMenu();
             }
         });
 
-        fab1.setOnClickListener(new View.OnClickListener() {
+        fabClusters.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleCluster(fab1);
+                toggleCluster(fabClusters);
+                closeFABMenu();
             }
         });
 
-        fab2.setOnClickListener(new View.OnClickListener() {
+        fabAlerts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleAlerts(fab2);
+                toggleAlerts(fabAlerts);
+                closeFABMenu();
             }
         });
 
-        fab3.setOnClickListener(new View.OnClickListener() {
+        fabRestareas.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleRestAreas(fab3);
+                toggleRestAreas(fabRestareas);
+                closeFABMenu();
             }
         });
 
-        fab4.setOnClickListener(new View.OnClickListener() {
+        fabJBLM.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleCallouts(fab4);
+                toggleCallouts(fabJBLM);
+                closeFABMenu();
             }
         });
     }
@@ -1212,16 +1213,16 @@ public class TrafficMapActivity extends BaseActivity implements
         isFABOpen = true;
 
         fabLayoutCameras.setVisibility(View.VISIBLE);
-        fabLayout1.setVisibility(View.VISIBLE);
-        fabLayout2.setVisibility(View.VISIBLE);
-        fabLayout3.setVisibility(View.VISIBLE);
-        fabLayout4.setVisibility(View.VISIBLE);
+        fabLayoutClusters.setVisibility(View.VISIBLE);
+        fabLayoutAlerts.setVisibility(View.VISIBLE);
+        fabLayoutRestareas.setVisibility(View.VISIBLE);
+        fabLayoutJBLM.setVisibility(View.VISIBLE);
 
         fabLayoutCameras.animate().translationY(-getResources().getDimension(R.dimen.fab_1));
-        fabLayout1.animate().translationY(-getResources().getDimension(R.dimen.fab_2));
-        fabLayout2.animate().translationY(-getResources().getDimension(R.dimen.fab_3));
-        fabLayout3.animate().translationY(-getResources().getDimension(R.dimen.fab_4));
-        fabLayout4.animate().translationY(-getResources().getDimension(R.dimen.fab_5));
+        fabLayoutClusters.animate().translationY(-getResources().getDimension(R.dimen.fab_2));
+        fabLayoutAlerts.animate().translationY(-getResources().getDimension(R.dimen.fab_3));
+        fabLayoutRestareas.animate().translationY(-getResources().getDimension(R.dimen.fab_4));
+        fabLayoutJBLM.animate().translationY(-getResources().getDimension(R.dimen.fab_5));
 
     }
 
@@ -1232,11 +1233,11 @@ public class TrafficMapActivity extends BaseActivity implements
             isFABOpen = false;
 
             fabLayoutCameras.animate().translationY(0);
-            fabLayout1.animate().translationY(0);
-            fabLayout2.animate().translationY(0);
-            fabLayout3.animate().translationY(0);
+            fabLayoutClusters.animate().translationY(0);
+            fabLayoutAlerts.animate().translationY(0);
+            fabLayoutRestareas.animate().translationY(0);
 
-            fabLayout4.animate().translationY(0).setListener(new Animator.AnimatorListener() {
+            fabLayoutJBLM.animate().translationY(0).setListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {
 
@@ -1245,11 +1246,11 @@ public class TrafficMapActivity extends BaseActivity implements
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     fabLayoutCameras.setVisibility(View.GONE);
-                    fabLayout1.setVisibility(View.GONE);
-                    fabLayout2.setVisibility(View.GONE);
-                    fabLayout3.setVisibility(View.GONE);
-                    fabLayout4.setVisibility(View.GONE);
-                    fabLayout4.animate().setListener(null);
+                    fabLayoutClusters.setVisibility(View.GONE);
+                    fabLayoutAlerts.setVisibility(View.GONE);
+                    fabLayoutRestareas.setVisibility(View.GONE);
+                    fabLayoutJBLM.setVisibility(View.GONE);
+                    fabLayoutJBLM.animate().setListener(null);
                 }
 
                 @Override

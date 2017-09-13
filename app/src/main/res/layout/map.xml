@@ -21,7 +21,7 @@
             android:layout_height="match_parent"/>
 
         <LinearLayout
-            android:id="@+id/fabLayout4"
+            android:id="@+id/fabLayoutJBLM"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
@@ -39,7 +39,7 @@
                 android:text="JBLM"/>
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab4"
+                android:id="@+id/fabJBLM"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:layout_gravity="bottom|end"
@@ -52,7 +52,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/fabLayout3"
+            android:id="@+id/fabLayoutRestareas"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
@@ -70,7 +70,7 @@
                 android:text="Rest Areas"/>
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab3"
+                android:id="@+id/fabRestareas"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:layout_gravity="bottom|end"
@@ -83,7 +83,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/fabLayout2"
+            android:id="@+id/fabLayoutAlerts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
@@ -101,7 +101,7 @@
                 android:text="Highway Alerts"/>
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab2"
+                android:id="@+id/fabAlerts"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:layout_gravity="bottom|end"
@@ -114,7 +114,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/fabLayout1"
+            android:id="@+id/fabLayoutClusters"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
@@ -129,10 +129,10 @@
                 android:background="@android:color/background_light"
                 android:padding="3dp"
                 android:elevation="6dp"
-                android:text="Camera Clusters"/>
+                android:text="Cluster Cameras"/>
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab1"
+                android:id="@+id/fabClusters"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:layout_gravity="bottom|end"
