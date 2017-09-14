@@ -17,29 +17,41 @@
 		wsdot:showAsAction="always" />
 
 	<item
+		android:id="@+id/social_media"
+		android:title="@string/description_social_media"
+		android:orderInCategory="3"
+		wsdot:showAsAction="never" />
+
+	<item
 	    android:id="@+id/travel_times"
 		android:title="@string/description_travel_times"
 		android:icon="@drawable/ic_menu_travel_times"
-		android:orderInCategory="3"
+		android:orderInCategory="4"
 		wsdot:showAsAction="ifRoom" />
 
 	<item
 		android:id="@+id/express_lanes"
 		android:title="@string/description_express_lanes"
-		android:orderInCategory="4"
+		android:orderInCategory="5"
+		wsdot:showAsAction="never" />
+
+	<item
+		android:id="@+id/news"
+		android:title="@string/description_news"
+		android:orderInCategory="6"
 		wsdot:showAsAction="never" />
 
 	<item
 		android:id="@+id/set_favorite"
 		android:title="@string/description_favorite"
 		android:icon="@drawable/ic_menu_star"
-		android:orderInCategory="5"
+		android:orderInCategory="7"
 		wsdot:showAsAction="ifRoom" />
 
 	<item
 	    android:id="@+id/goto_location"
 		android:title="@string/description_gotolocation"
-		android:orderInCategory="6"
+		android:orderInCategory="8"
 		wsdot:showAsAction="never" >
 
 		<menu>
@@ -66,6 +78,6 @@
     <item
         android:id="@+id/map_legend"
         android:title="@string/description_map_legend"
-        android:orderInCategory="7"
+        android:orderInCategory="9"
         wsdot:showAsAction="never"/>
 </menu>

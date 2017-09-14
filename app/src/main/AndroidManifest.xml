@@ -82,7 +82,7 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@android:style/Theme.Translucent" />
         <activity
-            android:name=".ui.socialmedia.news.NewsActivity"
+            android:name=".ui.trafficmap.news.NewsActivity"
             android:label="@string/title_news" />
         <activity
             android:name=".ui.about.AboutActivity"
@@ -100,9 +100,6 @@
             android:name=".ui.socialmedia.flickr.FlickrActivity"
             android:label="@string/title_flickr" />
         <activity
-            android:name=".ui.socialmedia.SocialMediaActivity"
-            android:label="@string/title_socialmedia" />
-        <activity
             android:name=".ui.mountainpasses.MountainPassesActivity"
             android:label="@string/title_mountainpasses" />
         <activity android:name=".ui.mountainpasses.MountainPassItemActivity" />
@@ -115,6 +112,9 @@
         <activity
             android:name=".ui.trafficmap.traveltimes.TravelTimesActivity"
             android:label="@string/title_traveltimes" />
+        <activity
+            android:name=".ui.trafficmap.socialmedia.SocialMediaTabActivity"
+            android:label="Happening Now" />
         <activity
             android:name=".ui.trafficmap.besttimestotravel.TravelChartsActivity"
             android:label="@string/title_besttimes" />

@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.socialmedia.twitter;
+package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia;
 
 import android.content.Context;
 import android.content.Intent;
@@ -39,7 +39,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -63,16 +66,21 @@ import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class TwitterFragment extends BaseFragment implements
         LoaderCallbacks<ArrayList<TwitterItem>>,
+        AdapterView.OnItemSelectedListener,
         SwipeRefreshLayout.OnRefreshListener {
 	
 	private static final String TAG = TwitterFragment.class.getSimpleName();
 	private static TwitterItemAdapter mAdapter;
 	private static String mScreenName;
+
+    private String[] accounts = {"all", "wsferries", "SnoqualmiePass", "wsdot", "WSDOT_East", "wsdot_north", "wsdot_sw", "wsdot_tacoma", "wsdot_traffic"};
+
 	private HashMap<String, Integer> mTwitterProfileImages = new HashMap<String, Integer>();
 	
 	@SuppressWarnings("unused")
     private ActionMode mActionMode;
 	private View mEmptyView;
+
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
     protected RecyclerView mRecyclerView;
@@ -81,12 +89,7 @@ public class TwitterFragment extends BaseFragment implements
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		
-		try {
-			mScreenName = getArguments().getString("account");
-		} catch (Exception e) {
-			
-		}
+        mScreenName = "all";
 	}
 	
     @Override
@@ -98,9 +101,8 @@ public class TwitterFragment extends BaseFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner_swipe_refresh, null);
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
         mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -109,7 +111,6 @@ public class TwitterFragment extends BaseFragment implements
         mAdapter = new TwitterItemAdapter(null);
 
         mRecyclerView.setAdapter(mAdapter);
-
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -125,16 +126,22 @@ public class TwitterFragment extends BaseFragment implements
                 R.color.holo_red_light);
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
-        
+
+        Spinner spinner = (Spinner) root.findViewById(R.id.spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.twitter_accounts, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(this);
+
         return root;
     }    
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
+
 		mTwitterProfileImages.put("wsferries", R.drawable.ic_list_wsdot_ferries);
-		mTwitterProfileImages.put("GoodToGoWSDOT", R.drawable.ic_list_wsdot_goodtogo);
 		mTwitterProfileImages.put("SnoqualmiePass", R.drawable.ic_list_wsdot_snoqualmie_pass);
 		mTwitterProfileImages.put("wsdot", R.drawable.ic_list_wsdot);
 		mTwitterProfileImages.put("WSDOT_East", R.drawable.ic_list_wsdot_east);
@@ -142,14 +149,22 @@ public class TwitterFragment extends BaseFragment implements
 		mTwitterProfileImages.put("wsdot_tacoma", R.drawable.ic_list_wsdot_tacoma);
 		mTwitterProfileImages.put("wsdot_traffic", R.drawable.ic_list_wsdot_traffic);
 		mTwitterProfileImages.put("wsdot_north", R.drawable.ic_list_wsdot_north);
-		mTwitterProfileImages.put("WSDOTjobs", R.drawable.ic_list_wsdot_jobs);
 		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.        
         getLoaderManager().initLoader(0, null, this);		
 	}
 
-	private final class ActionModeCallback implements ActionMode.Callback {
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        mScreenName = accounts[position];
+        this.onRefresh();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {}
+
+    private final class ActionModeCallback implements ActionMode.Callback {
 		private String mText;
 
 		public ActionModeCallback(String text) {
@@ -239,12 +254,12 @@ public class TwitterFragment extends BaseFragment implements
 			String text;
 			String htmlText;
 
-	    	mItems = new ArrayList<TwitterItem>();
-			TwitterItem i = null;
+	    	mItems = new ArrayList<>();
+			TwitterItem i;
 			URL url;
 			
 			try {
-				if (mScreenName == null || mScreenName == "all") {
+				if (mScreenName == null || mScreenName.equals("all")) {
 					url = new URL(APIEndPoints.WSDOT_TWITTER);
 				} else {
 					url = new URL(APIEndPoints.WSDOT_TWITTER + mScreenName);
@@ -265,7 +280,6 @@ public class TwitterFragment extends BaseFragment implements
 				for (int j=0; j < numItems; j++) {
 					JSONObject item = items.getJSONObject(j);
 					i = new TwitterItem();
-					htmlText = "";
 					text = item.getString("text");
 					text = text.replaceAll(ampPattern, "&");
 					htmlText = text.replaceAll(urlPattern, "<a href=\"$1\">$1</a>");

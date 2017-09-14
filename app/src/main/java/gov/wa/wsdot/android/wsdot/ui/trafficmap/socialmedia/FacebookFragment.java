@@ -16,9 +16,8 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.socialmedia.facebook;
+package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;

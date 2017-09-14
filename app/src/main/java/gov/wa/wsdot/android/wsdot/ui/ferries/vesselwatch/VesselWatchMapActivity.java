@@ -32,6 +32,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -39,6 +40,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -112,7 +114,9 @@ public class VesselWatchMapActivity extends BaseActivity implements
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
 	private Toolbar mToolbar;
     private boolean mPermissionDenied = false;
-    
+
+    FloatingActionButton fabLayers;
+
     private Tracker mTracker;
 	
 	@Override
@@ -130,6 +134,10 @@ public class VesselWatchMapActivity extends BaseActivity implements
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
+        // Hide map fab
+        fabLayers = (FloatingActionButton) findViewById(R.id.fab);
+        fabLayers.setVisibility(View.INVISIBLE);
 
         // Initialize AsyncTasks
         camerasOverlayTask = new CamerasOverlayTask();

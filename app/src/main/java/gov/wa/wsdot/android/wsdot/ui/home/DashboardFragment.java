@@ -30,7 +30,6 @@ import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerriesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity;
-import gov.wa.wsdot.android.wsdot.ui.socialmedia.SocialMediaActivity;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 
@@ -58,12 +57,6 @@ public class DashboardFragment extends BaseFragment {
             	startActivity(new Intent(getActivity(), MountainPassesActivity.class));
             }
         });
-
-        root.findViewById(R.id.home_btn_social).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-            	startActivity(new Intent(getActivity(), SocialMediaActivity.class));
-            }
-        });
         
         root.findViewById(R.id.home_btn_tolling).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -82,8 +75,6 @@ public class DashboardFragment extends BaseFragment {
                 startActivity(new Intent(getActivity(), AmtrakCascadesActivity.class));                
             }
         });
-        
         return root;
     }
-
 }

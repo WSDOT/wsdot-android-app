@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <Spinner
-        android:id="@+id/day_spinner"
+        android:id="@+id/spinner"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_alignParentTop="true" />
@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/publisherAdView"
-        android:layout_below="@+id/day_spinner">
+        android:layout_below="@+id/spinner">
         
         <android.support.v4.widget.SwipeRefreshLayout
             xmlns:android="http://schemas.android.com/apk/res/android"

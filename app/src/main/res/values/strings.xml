@@ -114,6 +114,8 @@
     <string name="description_my_goodtogo">MyGoodToGo.com</string>
     <string name="title_besttimes">Best Times To Travel</string>
     <string name="description_express_lanes">Express Lanes</string>
+    <string name="description_social_media">Happening Now</string>
+    <string name="description_news">News Releases</string>
 
 
 </resources>

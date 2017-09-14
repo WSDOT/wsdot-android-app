@@ -129,7 +129,10 @@ import gov.wa.wsdot.android.wsdot.ui.camera.CameraListActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.besttimestotravel.TravelChartsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.restareas.RestAreaActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.SocialMediaTabActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes.TravelTimesActivity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
@@ -169,13 +172,11 @@ public class TrafficMapActivity extends BaseActivity implements
     FloatingActionButton fabClusters;
     FloatingActionButton fabAlerts;
     FloatingActionButton fabRestareas;
-    FloatingActionButton fabJBLM;
 
     LinearLayout fabLayoutCameras;
     LinearLayout fabLayoutClusters;
     LinearLayout fabLayoutAlerts;
     LinearLayout fabLayoutRestareas;
-    LinearLayout fabLayoutJBLM;
 
     boolean isFABOpen = false;
 
@@ -193,7 +194,6 @@ public class TrafficMapActivity extends BaseActivity implements
     private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
     private static AsyncTask<Void, Void, Void> mHighwayAlertsOverlayTask = null;
     private static AsyncTask<Void, Void, Void> mRestAreasOverlayTask = null;
-    private static AsyncTask<Void, Void, Void> mCalloutsOverlayTask = null;
     private LatLngBounds bounds;
     private double latitude;
     private double longitude;
@@ -234,7 +234,6 @@ public class TrafficMapActivity extends BaseActivity implements
         mCamerasOverlayTask = new CamerasOverlayTask();
         mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask();
         mRestAreasOverlayTask = new RestAreasOverlayTask();
-        mCalloutsOverlayTask = new CalloutsOverlayTask();
 
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -403,12 +402,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         enableMyLocation();
 
-        if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-            mCalloutsOverlayTask = new CalloutsOverlayTask().execute();
-        } else if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-            mCalloutsOverlayTask.execute();
-        }
-
         if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
             mRestAreasOverlayTask = new RestAreasOverlayTask().execute();
         } else if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
@@ -425,13 +418,11 @@ public class TrafficMapActivity extends BaseActivity implements
         fabLayoutClusters = (LinearLayout) findViewById(R.id.fabLayoutClusters);
         fabLayoutAlerts = (LinearLayout) findViewById(R.id.fabLayoutAlerts);
         fabLayoutRestareas = (LinearLayout) findViewById(R.id.fabLayoutRestareas);
-        fabLayoutJBLM = (LinearLayout) findViewById(R.id.fabLayoutJBLM);
 
         fabCameras = (FloatingActionButton) findViewById(R.id.fabCameras);
         fabClusters = (FloatingActionButton) findViewById(R.id.fabClusters);
         fabAlerts = (FloatingActionButton) findViewById(R.id.fabAlerts);
         fabRestareas = (FloatingActionButton) findViewById(R.id.fabRestareas);
-        fabJBLM = (FloatingActionButton) findViewById(R.id.fabJBLM);
 
         if (!showCameras){
             toggleFabOff(fabCameras);
@@ -447,10 +438,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         if (!showRestAreas) {
             toggleFabOff(fabRestareas);
-        }
-
-        if (!showCallouts) {
-            toggleFabOff(fabJBLM);
         }
 
         fabLayers.setOnClickListener(new View.OnClickListener() {
@@ -496,13 +483,6 @@ public class TrafficMapActivity extends BaseActivity implements
             }
         });
 
-        fabJBLM.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleCallouts(fabJBLM);
-                closeFABMenu();
-            }
-        });
     }
 
     // Icon Clustering helpers
@@ -708,7 +688,6 @@ public class TrafficMapActivity extends BaseActivity implements
                     break;
             }
         }
-
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -724,14 +703,10 @@ public class TrafficMapActivity extends BaseActivity implements
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         switch (item.getItemId()) {
-
             case R.id.best_times_to_travel:
-
                 Intent chartsIntent = new Intent(this, TravelChartsActivity.class);
                 chartsIntent.putExtra("title", bestTimesTitle);
-
                 startActivity(chartsIntent);
-
                 break;
             case R.id.set_favorite:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.WSDOT_popup);
@@ -781,9 +756,17 @@ public class TrafficMapActivity extends BaseActivity implements
             case android.R.id.home:
                 finish();
                 return true;
+            case R.id.social_media:
+                Intent socialIntent = new Intent(this, SocialMediaTabActivity.class);
+                startActivity(socialIntent);
+                return true;
             case R.id.travel_times:
                 Intent timesIntent = new Intent(this, TravelTimesActivity.class);
                 startActivity(timesIntent);
+                return true;
+            case R.id.news:
+                Intent newsIntent = new Intent(this, NewsActivity.class);
+                startActivity(newsIntent);
                 return true;
             case R.id.goto_bellingham:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Bellingham");
@@ -1099,9 +1082,7 @@ public class TrafficMapActivity extends BaseActivity implements
         String label;
 
         if (showRestAreas) {
-
             toggleFabOff(fab);
-
             for (Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();
@@ -1115,9 +1096,7 @@ public class TrafficMapActivity extends BaseActivity implements
             label = "Hide Rest Areas";
 
         } else {
-
             toggleFabOn(fab);
-
             for (Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();
@@ -1128,7 +1107,6 @@ public class TrafficMapActivity extends BaseActivity implements
             }
             showRestAreas = true;
             label = "Show Rest Areas";
-
         }
 
         mTracker.send(new HitBuilders.EventBuilder()
@@ -1155,9 +1133,7 @@ public class TrafficMapActivity extends BaseActivity implements
         String label;
 
         if (showAlerts) {
-
             toggleFabOff(fab);
-
             for (Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();
@@ -1171,9 +1147,7 @@ public class TrafficMapActivity extends BaseActivity implements
             label = "Hide Alerts";
 
         } else {
-
             toggleFabOn(fab);
-
             for (Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();
@@ -1205,7 +1179,6 @@ public class TrafficMapActivity extends BaseActivity implements
         mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
     }
 
-
     /**
      * Layers FAB menu logic
      */
@@ -1216,14 +1189,11 @@ public class TrafficMapActivity extends BaseActivity implements
         fabLayoutClusters.setVisibility(View.VISIBLE);
         fabLayoutAlerts.setVisibility(View.VISIBLE);
         fabLayoutRestareas.setVisibility(View.VISIBLE);
-        fabLayoutJBLM.setVisibility(View.VISIBLE);
 
-        fabLayoutCameras.animate().translationY(-getResources().getDimension(R.dimen.fab_1));
-        fabLayoutClusters.animate().translationY(-getResources().getDimension(R.dimen.fab_2));
-        fabLayoutAlerts.animate().translationY(-getResources().getDimension(R.dimen.fab_3));
-        fabLayoutRestareas.animate().translationY(-getResources().getDimension(R.dimen.fab_4));
-        fabLayoutJBLM.animate().translationY(-getResources().getDimension(R.dimen.fab_5));
-
+        fabLayoutCameras.animate().translationY(-getResources().getDimension(R.dimen.fab_1)).setDuration(270);
+        fabLayoutClusters.animate().translationY(-getResources().getDimension(R.dimen.fab_2)).setDuration(270);
+        fabLayoutAlerts.animate().translationY(-getResources().getDimension(R.dimen.fab_3)).setDuration(270);
+        fabLayoutRestareas.animate().translationY(-getResources().getDimension(R.dimen.fab_4)).setDuration(270);
     }
 
     private void closeFABMenu(){
@@ -1235,13 +1205,10 @@ public class TrafficMapActivity extends BaseActivity implements
             fabLayoutCameras.animate().translationY(0);
             fabLayoutClusters.animate().translationY(0);
             fabLayoutAlerts.animate().translationY(0);
-            fabLayoutRestareas.animate().translationY(0);
+            fabLayoutRestareas.animate().translationY(0).setListener(new Animator.AnimatorListener() {
 
-            fabLayoutJBLM.animate().translationY(0).setListener(new Animator.AnimatorListener() {
                 @Override
-                public void onAnimationStart(Animator animation) {
-
-                }
+                public void onAnimationStart(Animator animation) {}
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -1249,19 +1216,14 @@ public class TrafficMapActivity extends BaseActivity implements
                     fabLayoutClusters.setVisibility(View.GONE);
                     fabLayoutAlerts.setVisibility(View.GONE);
                     fabLayoutRestareas.setVisibility(View.GONE);
-                    fabLayoutJBLM.setVisibility(View.GONE);
-                    fabLayoutJBLM.animate().setListener(null);
+                    fabLayoutRestareas.animate().setListener(null);
                 }
 
                 @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
+                public void onAnimationCancel(Animator animation) {}
 
                 @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
+                public void onAnimationRepeat(Animator animation) {}
             });
 
         }

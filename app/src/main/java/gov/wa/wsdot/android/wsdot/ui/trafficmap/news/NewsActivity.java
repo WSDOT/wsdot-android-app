@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.socialmedia.blogger;
+package gov.wa.wsdot.android.wsdot.ui.trafficmap.news;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -25,23 +25,23 @@ import android.view.MenuItem;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class BlogActivity extends BaseActivity {
+public class NewsActivity extends BaseActivity {
 
-    private Toolbar mToolbar;
+	private Toolbar mToolbar;
 
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		setContentView(R.layout.activity_blog);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
+		setContentView(R.layout.activity_news);
+
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
 		if(getSupportActionBar() != null){
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
 
-	}
+    }
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -52,4 +52,5 @@ public class BlogActivity extends BaseActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
 }

@@ -8,7 +8,7 @@
     <include layout="@layout/toolbar_scrolling"/>
 
     <fragment
-        android:name="gov.wa.wsdot.android.wsdot.ui.socialmedia.news.NewsFragment"
+        android:name="gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsFragment"
         android:id="@+id/fragment_news"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

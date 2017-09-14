@@ -16,10 +16,6 @@
         style="@style/DashboardButton"
         android:text="@string/btn_passes"
         android:drawableTop="@drawable/home_btn_passes" />
-    <Button android:id="@+id/home_btn_social"
-        style="@style/DashboardButton"
-        android:text="@string/btn_social"
-        android:drawableTop="@drawable/home_btn_social" />
     <Button android:id="@+id/home_btn_tolling"
         style="@style/DashboardButton"
         android:text="@string/btn_tolling"
@@ -32,5 +28,8 @@
         style="@style/DashboardButton"
         android:text="@string/btn_amtrakcascades"
         android:drawableTop="@drawable/home_btn_amtrak" />
+    <Button android:id="@+id/dummy"
+        style="@style/DashboardButton"
+        android:visibility="invisible" />
 
 </gov.wa.wsdot.android.wsdot.ui.widget.DashboardLayout>
