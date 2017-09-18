@@ -34,6 +34,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -62,6 +63,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
@@ -97,6 +99,7 @@ import com.google.maps.android.ui.IconGenerator;
 import com.google.maps.android.ui.SquareTextView;
 
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -141,6 +144,8 @@ import gov.wa.wsdot.android.wsdot.util.map.CamerasOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.HighwayAlertsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+
 public class TrafficMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener, ConnectionCallbacks,
         OnConnectionFailedListener, LocationListener,
@@ -172,6 +177,11 @@ public class TrafficMapActivity extends BaseActivity implements
     FloatingActionButton fabClusters;
     FloatingActionButton fabAlerts;
     FloatingActionButton fabRestareas;
+
+    TextView fabLabelCameras;
+    TextView fabLabelClusters;
+    TextView fabLabelAlerts;
+    TextView fabLabelRestareas;
 
     LinearLayout fabLayoutCameras;
     LinearLayout fabLayoutClusters;
@@ -418,6 +428,11 @@ public class TrafficMapActivity extends BaseActivity implements
         fabLayoutClusters = (LinearLayout) findViewById(R.id.fabLayoutClusters);
         fabLayoutAlerts = (LinearLayout) findViewById(R.id.fabLayoutAlerts);
         fabLayoutRestareas = (LinearLayout) findViewById(R.id.fabLayoutRestareas);
+
+        fabLabelCameras = (TextView) findViewById(R.id.fabLabelCameras);
+        fabLabelClusters = (TextView) findViewById(R.id.fabLabelClusters);
+        fabLabelAlerts = (TextView) findViewById(R.id.fabLabelAlerts);
+        fabLabelRestareas = (TextView) findViewById(R.id.fabLabelRestareas);
 
         fabCameras = (FloatingActionButton) findViewById(R.id.fabCameras);
         fabClusters = (FloatingActionButton) findViewById(R.id.fabClusters);
@@ -1190,10 +1205,40 @@ public class TrafficMapActivity extends BaseActivity implements
         fabLayoutAlerts.setVisibility(View.VISIBLE);
         fabLayoutRestareas.setVisibility(View.VISIBLE);
 
-        fabLayoutCameras.animate().translationY(-getResources().getDimension(R.dimen.fab_1)).setDuration(270);
-        fabLayoutClusters.animate().translationY(-getResources().getDimension(R.dimen.fab_2)).setDuration(270);
-        fabLayoutAlerts.animate().translationY(-getResources().getDimension(R.dimen.fab_3)).setDuration(270);
-        fabLayoutRestareas.animate().translationY(-getResources().getDimension(R.dimen.fab_4)).setDuration(270);
+        if (getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
+
+            fabLabelCameras.setPivotX(fabLabelCameras.getWidth());
+            fabLabelCameras.setPivotY(fabLabelCameras.getHeight());
+            fabLabelCameras.setRotation(40);
+
+            fabLabelClusters.setPivotX(fabLabelClusters.getWidth());
+            fabLabelClusters.setPivotY(fabLabelClusters.getHeight());
+            fabLabelClusters.setRotation(40);
+
+            fabLabelAlerts.setPivotX(fabLabelAlerts.getWidth());
+            fabLabelAlerts.setPivotY(fabLabelAlerts.getHeight());
+            fabLabelAlerts.setRotation(40);
+
+            fabLabelRestareas.setPivotX(fabLabelRestareas.getWidth());
+            fabLabelRestareas.setPivotY(fabLabelRestareas.getHeight());
+            fabLabelRestareas.setRotation(40);
+
+            fabLabelCameras.animate().translationY(-fabCameras.getHeight()/2).setDuration(0);
+            fabLabelClusters.animate().translationY(-fabClusters.getHeight()/2).setDuration(0);
+            fabLabelAlerts.animate().translationY(-fabAlerts.getHeight()/2).setDuration(0);
+            fabLabelRestareas.animate().translationY(-fabRestareas.getHeight()/2).setDuration(0);
+
+            fabLayoutCameras.animate().translationX(-getResources().getDimension(R.dimen.fab_1)).setDuration(270);
+            fabLayoutClusters.animate().translationX(-getResources().getDimension(R.dimen.fab_2)).setDuration(270);
+            fabLayoutAlerts.animate().translationX(-getResources().getDimension(R.dimen.fab_3)).setDuration(270);
+            fabLayoutRestareas.animate().translationX(-getResources().getDimension(R.dimen.fab_4)).setDuration(270);
+
+        } else {
+            fabLayoutCameras.animate().translationY(-getResources().getDimension(R.dimen.fab_1)).setDuration(270);
+            fabLayoutClusters.animate().translationY(-getResources().getDimension(R.dimen.fab_2)).setDuration(270);
+            fabLayoutAlerts.animate().translationY(-getResources().getDimension(R.dimen.fab_3)).setDuration(270);
+            fabLayoutRestareas.animate().translationY(-getResources().getDimension(R.dimen.fab_4)).setDuration(270);
+        }
     }
 
     private void closeFABMenu(){
@@ -1202,30 +1247,62 @@ public class TrafficMapActivity extends BaseActivity implements
 
             isFABOpen = false;
 
-            fabLayoutCameras.animate().translationY(0);
-            fabLayoutClusters.animate().translationY(0);
-            fabLayoutAlerts.animate().translationY(0);
-            fabLayoutRestareas.animate().translationY(0).setListener(new Animator.AnimatorListener() {
+            if (getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
+                fabLayoutCameras.animate().translationX(0);
+                fabLayoutClusters.animate().translationX(0);
+                fabLayoutAlerts.animate().translationX(0);
+                fabLayoutRestareas.animate().translationX(0).setListener(new Animator.AnimatorListener() {
 
-                @Override
-                public void onAnimationStart(Animator animation) {}
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                    }
 
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    fabLayoutCameras.setVisibility(View.GONE);
-                    fabLayoutClusters.setVisibility(View.GONE);
-                    fabLayoutAlerts.setVisibility(View.GONE);
-                    fabLayoutRestareas.setVisibility(View.GONE);
-                    fabLayoutRestareas.animate().setListener(null);
-                }
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        fabLayoutCameras.setVisibility(View.GONE);
+                        fabLayoutClusters.setVisibility(View.GONE);
+                        fabLayoutAlerts.setVisibility(View.GONE);
+                        fabLayoutRestareas.setVisibility(View.GONE);
+                        fabLayoutRestareas.animate().setListener(null);
+                    }
 
-                @Override
-                public void onAnimationCancel(Animator animation) {}
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                    }
 
-                @Override
-                public void onAnimationRepeat(Animator animation) {}
-            });
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+                    }
+                });
 
+            } else {
+                fabLayoutCameras.animate().translationY(0);
+                fabLayoutClusters.animate().translationY(0);
+                fabLayoutAlerts.animate().translationY(0);
+                fabLayoutRestareas.animate().translationY(0).setListener(new Animator.AnimatorListener() {
+
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        fabLayoutCameras.setVisibility(View.GONE);
+                        fabLayoutClusters.setVisibility(View.GONE);
+                        fabLayoutAlerts.setVisibility(View.GONE);
+                        fabLayoutRestareas.setVisibility(View.GONE);
+                        fabLayoutRestareas.animate().setListener(null);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+                    }
+                });
+            }
         }
     }
 
