@@ -24,6 +24,7 @@
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.besttimestotravel.TravelChartsActivity">/Traffic Map/Travel Charts</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsActivity">/Traffic Map/News</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsDetailsActivity">/Traffic Map/News/Details</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.SocialMediaTabActivity">/Traffic Map/Happening Now</screenName>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity">/Traffic Map/Callout</screenName>
 
