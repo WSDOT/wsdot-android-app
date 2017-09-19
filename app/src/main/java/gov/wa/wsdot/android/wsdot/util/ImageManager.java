@@ -40,7 +40,7 @@ public class ImageManager {
 
 	public void displayImage(String url, Activity activity, ImageView imageView) {
 		Bitmap bitmapToShow = null;
-		
+
 		if(imageMap.containsKey(url)) {
 			bitmapToShow = imageMap.get(url).get();
 			if(bitmapToShow != null) {

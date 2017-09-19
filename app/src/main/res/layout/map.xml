@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/map">
@@ -11,14 +12,156 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/publisherAdView"
+        android:clipToPadding="false"
+        android:clipChildren="false"
         android:layout_below="@+id/toolbar">
-    
+
         <fragment
             class="com.google.android.gms.maps.MapFragment"
             android:id="@+id/mapview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
+            android:layout_height="match_parent"/>
+
+        <LinearLayout
+            android:id="@+id/fabLayoutRestareas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:padding="21dp"
+            android:gravity="center_vertical"
+            android:layout_gravity="bottom|end"
+            android:visibility="invisible">
+
+            <TextView
+                android:id="@+id/fabLabelRestareas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/background_light"
+                android:padding="3dp"
+                android:elevation="6dp"
+                android:text="Rest Areas"/>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fabRestareas"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
+                android:scaleType="center"
+                android:tint="@color/white"
+                app:backgroundTint="@color/primary"
+                app:srcCompat="@drawable/ic_on" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/fabLayoutAlerts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+
+            android:padding="21dp"
+
+            android:gravity="center_vertical"
+            android:layout_gravity="bottom|end"
+            android:visibility="invisible">
+
+            <TextView
+                android:id="@+id/fabLabelAlerts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/background_light"
+                android:padding="3dp"
+                android:elevation="6dp"
+                android:text="Highway Alerts"/>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fabAlerts"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
+                android:scaleType="center"
+                android:tint="@color/white"
+                app:backgroundTint="@color/primary"
+                app:srcCompat="@drawable/ic_on" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/fabLayoutClusters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:padding="21dp"
+            android:gravity="center_vertical"
+            android:layout_gravity="bottom|end"
+            android:visibility="invisible">
+
+            <TextView
+                android:id="@+id/fabLabelClusters"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/background_light"
+                android:padding="3dp"
+                android:elevation="6dp"
+                android:text="Camera Clustering"/>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fabClusters"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
+                android:scaleType="center"
+                android:tint="@color/white"
+                app:backgroundTint="@color/primary"
+                app:srcCompat="@drawable/ic_on" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/fabLayoutCameras"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:padding="21dp"
+            android:gravity="center_vertical"
+            android:layout_gravity="bottom|end"
+            android:visibility="invisible">
+
+            <TextView
+                android:id="@+id/fabLabelCameras"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/background_light"
+                android:padding="3dp"
+                android:elevation="6dp"
+                android:text="Cameras"/>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fabCameras"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
+                android:scaleType="center"
+                android:tint="@color/white"
+                app:backgroundTint="@color/primary"
+                app:srcCompat="@drawable/ic_on" />
+        </LinearLayout>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            android:scaleType="center"
+            android:tint="@color/black"
+            app:backgroundTint="@color/accent"
+            app:srcCompat="@drawable/ic_layers" />
 
     </FrameLayout>
 
@@ -31,5 +174,5 @@
         ads:adSize="SMART_BANNER"
         ads:adUnitId="@+string/banner_ad_unit_id"
         android:contentDescription="@string/adBannerDescription"/>
-    
+
 </RelativeLayout>

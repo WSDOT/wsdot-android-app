@@ -2,14 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:wsdot="http://schemas.android.com/apk/res-auto">
 
-
-
-    <item
-	    android:id="@+id/toggle_cameras"
-		android:title="@string/description_cameras"
-		android:icon="@drawable/ic_menu_traffic_cam"
+	<item
+		android:id="@+id/alerts_in_area"
+		android:title="@string/description_alerts_in_area"
+		android:icon="@drawable/ic_alert_diamond"
 		android:orderInCategory="1"
 		wsdot:showAsAction="always" />
+
 	<item
 		android:id="@+id/refresh"
 		android:title="@string/menu_refresh"
@@ -18,48 +17,43 @@
 		wsdot:showAsAction="always" />
 
 	<item
+		android:id="@+id/social_media"
+		android:title="@string/description_social_media"
+		android:orderInCategory="3"
+		wsdot:showAsAction="never" />
+
+	<item
 	    android:id="@+id/travel_times"
 		android:title="@string/description_travel_times"
 		android:icon="@drawable/ic_menu_travel_times"
-		android:orderInCategory="3"
-		wsdot:showAsAction="ifRoom" />
-	<item
-		android:id="@+id/alerts_in_area"
-		android:title="@string/description_alerts_in_area"
-		android:icon="@drawable/ic_menu_alert"
 		android:orderInCategory="4"
 		wsdot:showAsAction="ifRoom" />
+
+	<item
+		android:id="@+id/express_lanes"
+		android:title="@string/description_express_lanes"
+		android:orderInCategory="5"
+		wsdot:showAsAction="never" />
+
+	<item
+		android:id="@+id/news"
+		android:title="@string/description_news"
+		android:orderInCategory="6"
+		wsdot:showAsAction="never" />
+
 	<item
 		android:id="@+id/set_favorite"
 		android:title="@string/description_favorite"
 		android:icon="@drawable/ic_menu_star"
-		android:orderInCategory="5"
-		wsdot:showAsAction="ifRoom" />
-	<item
-		android:id="@+id/toggle_clustering"
-		android:title="@string/description_toggle_clusters"
-		android:orderInCategory="6"
-		wsdot:showAsAction="never" />
-	<item
-		android:id="@+id/toggle_alerts"
-		android:title="@string/description_alerts_toggle"
 		android:orderInCategory="7"
-		wsdot:showAsAction="never" />
-	<item
-		android:id="@+id/toggle_callouts"
-		android:title="@string/description_callouts_toggle"
-		android:orderInCategory="8"
-		wsdot:showAsAction="never" />
-	<item
-		android:id="@+id/toggle_rest_areas"
-		android:title="@string/description_rest_areas"
-		android:orderInCategory="9"
-		wsdot:showAsAction="never" />
+		wsdot:showAsAction="ifRoom" />
+
 	<item
 	    android:id="@+id/goto_location"
 		android:title="@string/description_gotolocation"
-		android:orderInCategory="10"
+		android:orderInCategory="8"
 		wsdot:showAsAction="never" >
+
 		<menu>
 			<item android:orderInCategory="1" android:title="Bellingham" android:id="@+id/goto_bellingham" />
 			<item android:orderInCategory="2" android:title="Chehalis" android:id="@+id/goto_chehalis" />		
@@ -78,10 +72,12 @@
 			<item android:orderInCategory="15" android:title="Wenatchee" android:id="@+id/goto_wenatchee" />
 			<item android:orderInCategory="16" android:title="Yakima" android:id="@+id/goto_yakima" />
 		</menu>
+
 	</item>
+
     <item
         android:id="@+id/map_legend"
         android:title="@string/description_map_legend"
-        android:orderInCategory="11"
+        android:orderInCategory="9"
         wsdot:showAsAction="never"/>
 </menu>

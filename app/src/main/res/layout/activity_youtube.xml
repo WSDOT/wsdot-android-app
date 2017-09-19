@@ -9,7 +9,7 @@
     <include layout="@layout/toolbar_scrolling"/>
 
     <fragment
-        android:name="gov.wa.wsdot.android.wsdot.ui.socialmedia.youtube.YouTubeFragment"
+        android:name="gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.YouTubeFragment"
         android:id="@+id/fragment_youtube"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

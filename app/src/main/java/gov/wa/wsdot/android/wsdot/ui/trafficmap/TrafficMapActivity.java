@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap;
 
 import android.Manifest;
+import android.animation.Animator;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -28,10 +29,12 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -40,11 +43,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
@@ -59,7 +62,8 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
@@ -95,9 +99,9 @@ import com.google.maps.android.ui.IconGenerator;
 import com.google.maps.android.ui.SquareTextView;
 
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -119,7 +123,6 @@ import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
 import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
-import gov.wa.wsdot.android.wsdot.shared.TravelChartRouteItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
@@ -129,7 +132,10 @@ import gov.wa.wsdot.android.wsdot.ui.camera.CameraListActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.besttimestotravel.TravelChartsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.restareas.RestAreaActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.SocialMediaTabActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes.TravelTimesActivity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
@@ -137,6 +143,8 @@ import gov.wa.wsdot.android.wsdot.util.map.CalloutsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.CamerasOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.HighwayAlertsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
+
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 
 public class TrafficMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener, ConnectionCallbacks,
@@ -164,12 +172,29 @@ public class TrafficMapActivity extends BaseActivity implements
     boolean showCallouts;
     boolean showRestAreas;
 
+    FloatingActionButton fabLayers;
+    FloatingActionButton fabCameras;
+    FloatingActionButton fabClusters;
+    FloatingActionButton fabAlerts;
+    FloatingActionButton fabRestareas;
+
+    TextView fabLabelCameras;
+    TextView fabLabelClusters;
+    TextView fabLabelAlerts;
+    TextView fabLabelRestareas;
+
+    LinearLayout fabLayoutCameras;
+    LinearLayout fabLayoutClusters;
+    LinearLayout fabLayoutAlerts;
+    LinearLayout fabLayoutRestareas;
+
+    boolean isFABOpen = false;
+
     boolean bestTimesAvailable = false;
     String bestTimesTitle = "";
 
     private ArrayList<LatLonItem> seattleArea = new ArrayList<>();
 
-    static final private int MENU_ITEM_EXPRESS_LANES = Menu.FIRST;
     static private int menu_item_refresh = 1;
 
     private CamerasSyncReceiver mCamerasReceiver;
@@ -179,7 +204,6 @@ public class TrafficMapActivity extends BaseActivity implements
     private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
     private static AsyncTask<Void, Void, Void> mHighwayAlertsOverlayTask = null;
     private static AsyncTask<Void, Void, Void> mRestAreasOverlayTask = null;
-    private static AsyncTask<Void, Void, Void> mCalloutsOverlayTask = null;
     private LatLngBounds bounds;
     private double latitude;
     private double longitude;
@@ -220,7 +244,6 @@ public class TrafficMapActivity extends BaseActivity implements
         mCamerasOverlayTask = new CamerasOverlayTask();
         mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask();
         mRestAreasOverlayTask = new RestAreasOverlayTask();
-        mCalloutsOverlayTask = new CalloutsOverlayTask();
 
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -259,6 +282,8 @@ public class TrafficMapActivity extends BaseActivity implements
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
         mapFragment.getMapAsync(this);
 
+        setUpFabMenu();
+
         // check for travel charts
         new TravelChartsAvailableTask().execute();
     }
@@ -270,39 +295,38 @@ public class TrafficMapActivity extends BaseActivity implements
         mGoogleApiClient.connect();
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean seenTip = settings.getBoolean("KEY_SEEN_TRAFFIC_MENU_TIP", false);
+        boolean seenTip = settings.getBoolean("KEY_SEEN_TRAFFIC_LAYERS_TIP", false);
 
-        if (!seenTip && !clusterCameras && showCameras && showAlerts) {
+        if (!seenTip) {
             try {
-                TapTargetView.showFor(this,                 // `this` is an Activity
-                    TapTarget.forToolbarOverflow(mToolbar, "Map Options", "Save locations to your favorites, edit traffic map layers & more.")
-                            // All options below are optional
-                            .outerCircleColor(R.color.primary)      // Specify a color for the outer circle
-                            .targetCircleColor(R.color.white)   // Specify a color for the target circle
-                            .titleTextSize(20)                  // Specify the size (in sp) of the title text
-                            .titleTextColor(R.color.white)      // Specify the color of the title text
-                            .descriptionTextSize(15)            // Specify the size (in sp) of the description text
-                            .textColor(R.color.white)            // Specify a color for both the title and description text
-                            .textTypeface(Typeface.SANS_SERIF)  // Specify a typeface for the text
-                            .dimColor(R.color.black)            // If set, will dim behind the view with 30% opacity of the given color
-                            .drawShadow(true)                   // Whether to draw a drop shadow or not
-                            .cancelable(true)                  // Whether tapping outside the outer circle dismisses the view
-                            .tintTarget(true)                   // Whether to tint the target view's color
-                            .transparentTarget(false)           // Specify whether the target is transparent (displays the content underneath)
-                            .targetRadius(60),                  // Specify the target radius (in dp)
-                    new TapTargetView.Listener() {          // The listener can listen for regular clicks, long clicks or cancels
-                        @Override
-                        public void onTargetClick(TapTargetView view) {
-                            super.onTargetClick(view);      // This call is optional
-
-                        }
-                    });
+                TapTargetView.showFor(this, // `this` is an Activity
+                        TapTarget.forView(fabLayers, "Map Layers", "Tap to edit what information displays on the Traffic Map.")
+                                // All options below are optional
+                                .outerCircleColor(R.color.primary)
+                                .titleTextSize(20)
+                                .titleTextColor(R.color.white)
+                                .descriptionTextSize(15)
+                                .textColor(R.color.white)
+                                .textTypeface(Typeface.SANS_SERIF)
+                                .dimColor(R.color.black)
+                                .drawShadow(true)
+                                .cancelable(true)
+                                .tintTarget(true)
+                                .transparentTarget(true)
+                                .targetRadius(40),
+                        new TapTargetView.Listener() {
+                            @Override
+                            public void onTargetClick(TapTargetView view) {
+                                super.onTargetClick(view);      // This call is optional
+                                showFABMenu();
+                            }
+                        });
             } catch (NullPointerException e){
                 Log.e(TAG, "Null pointer exception while trying to show tip view");
             }
         }
 
-        settings.edit().putBoolean("KEY_SEEN_TRAFFIC_MENU_TIP", true).apply();
+        settings.edit().putBoolean("KEY_SEEN_TRAFFIC_LAYERS_TIP", true).apply();
 
         IntentFilter camerasFilter = new IntentFilter(
                 "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
@@ -320,6 +344,8 @@ public class TrafficMapActivity extends BaseActivity implements
     @Override
     protected void onPause() {
         super.onPause();
+
+        closeFABMenu();
 
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
@@ -351,12 +377,17 @@ public class TrafficMapActivity extends BaseActivity implements
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setCompassEnabled(true);
-        mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.setTrafficEnabled(true);
         mMap.setOnMyLocationButtonClickListener(this);
-
         mMap.setOnMarkerClickListener(this);
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                closeFABMenu();
+            }
+        });
 
         mMap.setOnCameraIdleListener(new OnCameraIdleListener() {
             @Override
@@ -367,6 +398,13 @@ public class TrafficMapActivity extends BaseActivity implements
             }
         });
 
+        mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
+            @Override
+            public void onCameraMoveStarted(int i) {
+                closeFABMenu();
+            }
+        });
+
         setUpClusterer();
 
         LatLng latLng = new LatLng(latitude, longitude);
@@ -374,17 +412,92 @@ public class TrafficMapActivity extends BaseActivity implements
 
         enableMyLocation();
 
-        if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-            mCalloutsOverlayTask = new CalloutsOverlayTask().execute();
-        } else if (mCalloutsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-            mCalloutsOverlayTask.execute();
-        }
-
         if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
             mRestAreasOverlayTask = new RestAreasOverlayTask().execute();
         } else if (mRestAreasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
             mRestAreasOverlayTask.execute();
         }
+    }
+
+    private void setUpFabMenu() {
+
+        // set up layers FAB menu
+        fabLayers = (FloatingActionButton) findViewById(R.id.fab);
+
+        fabLayoutCameras = (LinearLayout) findViewById(R.id.fabLayoutCameras);
+        fabLayoutClusters = (LinearLayout) findViewById(R.id.fabLayoutClusters);
+        fabLayoutAlerts = (LinearLayout) findViewById(R.id.fabLayoutAlerts);
+        fabLayoutRestareas = (LinearLayout) findViewById(R.id.fabLayoutRestareas);
+
+        fabLabelCameras = (TextView) findViewById(R.id.fabLabelCameras);
+        fabLabelClusters = (TextView) findViewById(R.id.fabLabelClusters);
+        fabLabelAlerts = (TextView) findViewById(R.id.fabLabelAlerts);
+        fabLabelRestareas = (TextView) findViewById(R.id.fabLabelRestareas);
+
+        fabCameras = (FloatingActionButton) findViewById(R.id.fabCameras);
+        fabClusters = (FloatingActionButton) findViewById(R.id.fabClusters);
+        fabAlerts = (FloatingActionButton) findViewById(R.id.fabAlerts);
+        fabRestareas = (FloatingActionButton) findViewById(R.id.fabRestareas);
+
+        if (!showCameras){
+            toggleFabOff(fabCameras);
+        }
+
+        if (!clusterCameras) {
+            toggleFabOff(fabClusters);
+        }
+
+        if (!showAlerts){
+            toggleFabOff(fabAlerts);
+        }
+
+        if (!showRestAreas) {
+            toggleFabOff(fabRestareas);
+        }
+
+        fabLayers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isFABOpen){
+                    showFABMenu();
+                }else{
+                    closeFABMenu();
+                }
+            }
+        });
+
+        fabCameras.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleCameras(fabCameras);
+                closeFABMenu();
+            }
+        });
+
+        fabClusters.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleCluster(fabClusters);
+                closeFABMenu();
+            }
+        });
+
+        fabAlerts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleAlerts(fabAlerts);
+                closeFABMenu();
+            }
+        });
+
+        fabRestareas.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleRestAreas(fabRestareas);
+                closeFABMenu();
+            }
+        });
+
     }
 
     // Icon Clustering helpers
@@ -553,6 +666,7 @@ public class TrafficMapActivity extends BaseActivity implements
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
+
         getMenuInflater().inflate(R.menu.traffic, menu);
 
         if (bestTimesAvailable) {
@@ -585,55 +699,17 @@ public class TrafficMapActivity extends BaseActivity implements
                         menu.getItem(i).setIcon(R.drawable.ic_menu_traffic_cam_off);
                     }
                     break;
-                case R.id.toggle_clustering:
-                    if (clusterCameras) {
-                        menu.getItem(i).setTitle("Uncluster Cameras");
-                        menu.getItem(i).setIcon(R.drawable.ic_menu_traffic_cam);
-                    } else {
-                        menu.getItem(i).setTitle("Cluster Cameras");
-                        menu.getItem(i).setIcon(R.drawable.ic_menu_traffic_cam_off);
-                    }
-                    break;
-                case R.id.toggle_alerts:
-                    if (showAlerts) {
-                        menu.getItem(i).setTitle("Hide Highway Alerts");
-                    } else {
-                        menu.getItem(i).setTitle("Show Highway Alerts");
-                    }
-                    break;
-                case R.id.toggle_callouts:
-                    if (showCallouts) {
-                        menu.getItem(i).setTitle("Hide JBLM");
-                    } else {
-                        menu.getItem(i).setTitle("Show JBLM");
-                    }
-                    break;
-                case R.id.toggle_rest_areas:
-                    if (showRestAreas) {
-                        menu.getItem(i).setTitle("Hide Rest Areas");
-                    } else {
-                        menu.getItem(i).setTitle("Show Rest Areas");
-                    }
-                    break;
                 default:
                     break;
             }
         }
-
-        /*
-         * Check if current location is within a lat/lon bounding box surrounding
-         * the greater Seattle area.
-         */
-        try {
-            LatLng center = mMap.getCameraPosition().target;
-            if (inPolygon(seattleArea, center.latitude, center.longitude)) {
-                MenuItem menuItem_Lanes = menu.add(0, MENU_ITEM_EXPRESS_LANES, menu.size(), "Express Lanes");
-                MenuItemCompat.setShowAsAction(menuItem_Lanes, MenuItemCompat.SHOW_AS_ACTION_NEVER);
-            }
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Error getting LatLng center");
-        }
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        closeFABMenu();
+        return super.onMenuOpened(featureId, menu);
     }
 
     @Override
@@ -642,14 +718,10 @@ public class TrafficMapActivity extends BaseActivity implements
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         switch (item.getItemId()) {
-
             case R.id.best_times_to_travel:
-
                 Intent chartsIntent = new Intent(this, TravelChartsActivity.class);
                 chartsIntent.putExtra("title", bestTimesTitle);
-
                 startActivity(chartsIntent);
-
                 break;
             case R.id.set_favorite:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.WSDOT_popup);
@@ -692,31 +764,24 @@ public class TrafficMapActivity extends BaseActivity implements
                 alertsIntent.putExtra("swlong", mBounds.southwest.longitude);
                 startActivity(alertsIntent);
                 return true;
-            case MENU_ITEM_EXPRESS_LANES:
+            case R.id.express_lanes:
                 Intent expressIntent = new Intent(this, SeattleExpressLanesActivity.class);
                 startActivity(expressIntent);
                 return true;
             case android.R.id.home:
                 finish();
                 return true;
-            case R.id.toggle_clustering:
-                toggleCluster(item);
-                return true;
-            case R.id.toggle_cameras:
-                toggleCameras(item);
-                return true;
-            case R.id.toggle_alerts:
-                toggleAlerts(item);
-                return true;
-            case R.id.toggle_callouts:
-                toggleCallouts();
-                return true;
-            case R.id.toggle_rest_areas:
-                toggleRestAreas(item);
+            case R.id.social_media:
+                Intent socialIntent = new Intent(this, SocialMediaTabActivity.class);
+                startActivity(socialIntent);
                 return true;
             case R.id.travel_times:
                 Intent timesIntent = new Intent(this, TravelTimesActivity.class);
                 startActivity(timesIntent);
+                return true;
+            case R.id.news:
+                Intent newsIntent = new Intent(this, NewsActivity.class);
+                startActivity(newsIntent);
                 return true;
             case R.id.goto_bellingham:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Bellingham");
@@ -875,13 +940,15 @@ public class TrafficMapActivity extends BaseActivity implements
      *  When clustering is turned off all items are removed from the cluster manager and
      *  markers are plotted normally.
      */
-    private void toggleCluster(MenuItem item){
+    private void toggleCluster(FloatingActionButton fab){
         // GA tracker
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         if (clusterCameras) {
 
             clusterCameras = false;
+
+            toggleFabOff(fab);
 
             if (cameras != null) {
                 mClusterManager.clearItems();
@@ -898,6 +965,8 @@ public class TrafficMapActivity extends BaseActivity implements
         } else {
 
             clusterCameras = true;
+
+            toggleFabOn(fab);
 
             removeCameraMarkers();
 
@@ -925,9 +994,9 @@ public class TrafficMapActivity extends BaseActivity implements
      * checks clusterCameras to see the current state of the camera markers and hide
      * them accordingly.
      *
-     * @param item
+     * @param fab
      */
-    private void toggleCameras(MenuItem item) {
+    private void toggleCameras(FloatingActionButton fab) {
         // GA tracker
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
@@ -939,8 +1008,8 @@ public class TrafficMapActivity extends BaseActivity implements
                 hideCameraMarkers();
             }
 
-            item.setTitle("Show Cameras");
-            item.setIcon(R.drawable.ic_menu_traffic_cam_off);
+            toggleFabOff(fab);
+
             showCameras = false;
 
             mTracker.send(new HitBuilders.EventBuilder()
@@ -959,8 +1028,8 @@ public class TrafficMapActivity extends BaseActivity implements
                 showCameraMarkers();
             }
 
-            item.setTitle("Hide Cameras");
-            item.setIcon(R.drawable.ic_menu_traffic_cam);
+            toggleFabOn(fab);
+
             showCameras = true;
 
             mTracker.send(new HitBuilders.EventBuilder()
@@ -980,18 +1049,24 @@ public class TrafficMapActivity extends BaseActivity implements
     /**
      * Toggles callout markers
      */
-    private void toggleCallouts() {
+    private void toggleCallouts(FloatingActionButton fab) {
         // GA tracker
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         String label;
 
         if (showCallouts) {
+
+            toggleFabOff(fab);
+
             hideCalloutMarkers();
             showCallouts = false;
             label = "Hide JBLM";
 
         } else {
+
+            toggleFabOn(fab);
+
             showCalloutMarkers();
             showCallouts = true;
             label = "Show JBLM";
@@ -1013,15 +1088,16 @@ public class TrafficMapActivity extends BaseActivity implements
 
     /**
      * Toggles rest area markers on/off
-     * @param item
+     * @param fab
      */
-    private void toggleRestAreas(MenuItem item) {
+    private void toggleRestAreas(FloatingActionButton fab) {
         // GA tracker
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         String label;
 
         if (showRestAreas) {
+            toggleFabOff(fab);
             for (Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();
@@ -1035,6 +1111,7 @@ public class TrafficMapActivity extends BaseActivity implements
             label = "Hide Rest Areas";
 
         } else {
+            toggleFabOn(fab);
             for (Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();
@@ -1045,7 +1122,6 @@ public class TrafficMapActivity extends BaseActivity implements
             }
             showRestAreas = true;
             label = "Show Rest Areas";
-
         }
 
         mTracker.send(new HitBuilders.EventBuilder()
@@ -1063,15 +1139,16 @@ public class TrafficMapActivity extends BaseActivity implements
 
     /**
      * Toggles alert markers on/off
-     * @param item
+     * @param fab
      */
-    private void toggleAlerts(MenuItem item) {
+    private void toggleAlerts(FloatingActionButton fab) {
         // GA tracker
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         String label;
 
         if (showAlerts) {
+            toggleFabOff(fab);
             for (Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();
@@ -1085,6 +1162,7 @@ public class TrafficMapActivity extends BaseActivity implements
             label = "Hide Alerts";
 
         } else {
+            toggleFabOn(fab);
             for (Entry<Marker, String> entry : markers.entrySet()) {
                 Marker key = entry.getKey();
                 String value = entry.getValue();
@@ -1115,6 +1193,129 @@ public class TrafficMapActivity extends BaseActivity implements
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
     }
+
+    /**
+     * Layers FAB menu logic
+     */
+    private void showFABMenu(){
+        isFABOpen = true;
+
+        fabLayoutCameras.setVisibility(View.VISIBLE);
+        fabLayoutClusters.setVisibility(View.VISIBLE);
+        fabLayoutAlerts.setVisibility(View.VISIBLE);
+        fabLayoutRestareas.setVisibility(View.VISIBLE);
+
+        if (getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
+
+            fabLabelCameras.setPivotX(fabLabelCameras.getWidth());
+            fabLabelCameras.setPivotY(fabLabelCameras.getHeight());
+            fabLabelCameras.setRotation(40);
+
+            fabLabelClusters.setPivotX(fabLabelClusters.getWidth());
+            fabLabelClusters.setPivotY(fabLabelClusters.getHeight());
+            fabLabelClusters.setRotation(40);
+
+            fabLabelAlerts.setPivotX(fabLabelAlerts.getWidth());
+            fabLabelAlerts.setPivotY(fabLabelAlerts.getHeight());
+            fabLabelAlerts.setRotation(40);
+
+            fabLabelRestareas.setPivotX(fabLabelRestareas.getWidth());
+            fabLabelRestareas.setPivotY(fabLabelRestareas.getHeight());
+            fabLabelRestareas.setRotation(40);
+
+            fabLabelCameras.animate().translationY(-fabCameras.getHeight()/2).setDuration(0);
+            fabLabelClusters.animate().translationY(-fabClusters.getHeight()/2).setDuration(0);
+            fabLabelAlerts.animate().translationY(-fabAlerts.getHeight()/2).setDuration(0);
+            fabLabelRestareas.animate().translationY(-fabRestareas.getHeight()/2).setDuration(0);
+
+            fabLayoutCameras.animate().translationX(-getResources().getDimension(R.dimen.fab_1)).setDuration(270);
+            fabLayoutClusters.animate().translationX(-getResources().getDimension(R.dimen.fab_2)).setDuration(270);
+            fabLayoutAlerts.animate().translationX(-getResources().getDimension(R.dimen.fab_3)).setDuration(270);
+            fabLayoutRestareas.animate().translationX(-getResources().getDimension(R.dimen.fab_4)).setDuration(270);
+
+        } else {
+            fabLayoutCameras.animate().translationY(-getResources().getDimension(R.dimen.fab_1)).setDuration(270);
+            fabLayoutClusters.animate().translationY(-getResources().getDimension(R.dimen.fab_2)).setDuration(270);
+            fabLayoutAlerts.animate().translationY(-getResources().getDimension(R.dimen.fab_3)).setDuration(270);
+            fabLayoutRestareas.animate().translationY(-getResources().getDimension(R.dimen.fab_4)).setDuration(270);
+        }
+    }
+
+    private void closeFABMenu(){
+
+        if (isFABOpen) {
+
+            isFABOpen = false;
+
+            if (getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
+                fabLayoutCameras.animate().translationX(0);
+                fabLayoutClusters.animate().translationX(0);
+                fabLayoutAlerts.animate().translationX(0);
+                fabLayoutRestareas.animate().translationX(0).setListener(new Animator.AnimatorListener() {
+
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        fabLayoutCameras.setVisibility(View.GONE);
+                        fabLayoutClusters.setVisibility(View.GONE);
+                        fabLayoutAlerts.setVisibility(View.GONE);
+                        fabLayoutRestareas.setVisibility(View.GONE);
+                        fabLayoutRestareas.animate().setListener(null);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+                    }
+                });
+
+            } else {
+                fabLayoutCameras.animate().translationY(0);
+                fabLayoutClusters.animate().translationY(0);
+                fabLayoutAlerts.animate().translationY(0);
+                fabLayoutRestareas.animate().translationY(0).setListener(new Animator.AnimatorListener() {
+
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        fabLayoutCameras.setVisibility(View.GONE);
+                        fabLayoutClusters.setVisibility(View.GONE);
+                        fabLayoutAlerts.setVisibility(View.GONE);
+                        fabLayoutRestareas.setVisibility(View.GONE);
+                        fabLayoutRestareas.animate().setListener(null);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+                    }
+                });
+            }
+        }
+    }
+
+    private void toggleFabOn(FloatingActionButton fab){
+        fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary)));
+        fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_on));
+    }
+
+    private void toggleFabOff(FloatingActionButton fab){
+        fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.semi_white)));
+        fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_off));
+    }
+
 
     /**
      * Determine whether a point is inside a complex polygon.

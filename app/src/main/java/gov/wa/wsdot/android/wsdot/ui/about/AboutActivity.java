@@ -24,12 +24,15 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -98,13 +101,18 @@ public class AboutActivity extends BaseActivity {
 		sb.append("<p>The WSDOT mobile app was created to make it easier for you to know the latest ");
 		sb.append("about Washington's transportation system.</p>");
 
+		sb.append("<p>Looking for a career at WSDOT? Check our ");
+		sb.append("<a href=\"https://www.governmentjobs.com/careers/washington?department%5B0%5D=Dept.%20of%20Transportation\">current job openings</a>.");
+
 		sb.append("<p>To report HOV, HOT lane or ferry line violators please call <a href=\"tel:+1-877-764-4376\">1-877-764-4376</a> ");
 		sb.append("or use our <a href=\"http://www.wsdot.wa.gov/HOV/reporting\">online reporting form</a>.</p>");
 
 		sb.append("<p>Questions, comments or suggestions about this app can be e-mailed to the ");
 		sb.append("<a href=\"mailto:webfeedback@wsdot.wa.gov\">WSDOT ");
 		sb.append("Communications Office</a>.</p>");
-		sb.append("<br /><p style=\"color:#959595;\">App Version: " + versionName);
+
+		sb.append("<br/> <p style=\"color:#959595;\">App Version: ");
+		sb.append(versionName);
 			
 		return sb.toString();
 	}
@@ -150,7 +158,7 @@ public class AboutActivity extends BaseActivity {
 			
 			return true;
 		}
-		
+
 		@Override
 		public void onPageFinished(WebView view, String url) {
 			super.onPageFinished(view, url);

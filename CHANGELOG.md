@@ -4,6 +4,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.11.0] - 2017-09-19
+
+## Changed
+- Social media feeds moved into "Happening Now" section accessible from the traffic map.
+- Map layer settings added to FAB menu for the traffic map
+
+## Removed
+- JBLM callout.
+- Flickr feed.
+- Jobs and Good To Go twitter feeds.
+
 ## [4.10.5] - 2017-09-07
 ## Changed
 - Updated app with new WSDOT api key.

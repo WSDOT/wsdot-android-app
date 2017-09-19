@@ -20,4 +20,11 @@
     <dimen name="list_item_spacing_half">8dp</dimen>
     <dimen name="text_margin">16dp</dimen>
 
+    <!-- FAB dims -->
+    <dimen name="fab_1">60dp</dimen>
+    <dimen name="fab_2">120dp</dimen>
+    <dimen name="fab_3">180dp</dimen>
+    <dimen name="fab_4">240dp</dimen>
+    <dimen name="fab_5">300dp</dimen>
+
 </resources>

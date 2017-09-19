@@ -16,9 +16,8 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.socialmedia.youtube;
+package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -236,7 +235,7 @@ public class YouTubeFragment extends BaseFragment implements
                     i.setId(resourceId.getString("videoId"));
                     i.setTitle(snippet.getString("title"));
                     i.setDescription(snippet.getString("description"));
-                    i.setThumbNailUrl(thumbnail.getJSONObject("default").getString("url"));
+                    i.setThumbNailUrl(thumbnail.getJSONObject("high").getString("url"));
 
                     i.setViewCount("Unavailable");
 
