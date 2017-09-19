@@ -300,7 +300,7 @@ public class TrafficMapActivity extends BaseActivity implements
         if (!seenTip) {
             try {
                 TapTargetView.showFor(this, // `this` is an Activity
-                        TapTarget.forView(fabLayers, "Map Layers", "Tap to edit what information is displayed on the Traffic Map.")
+                        TapTarget.forView(fabLayers, "Map Layers", "Tap to edit what information displays on the Traffic Map.")
                                 // All options below are optional
                                 .outerCircleColor(R.color.primary)
                                 .titleTextSize(20)

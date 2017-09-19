@@ -52,7 +52,7 @@ public class SocialMediaTabActivity extends BaseActivity {
 
         // GA tracker
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-        mTracker.setScreenName("/Mountain Passes/Details/Twitter");
+        mTracker.setScreenName("/Traffic Map/Happening Now//Twitter");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         setContentView(R.layout.activity_with_tabs);
@@ -95,7 +95,7 @@ public class SocialMediaTabActivity extends BaseActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
                 // GA tracker
-                mTracker.setScreenName("/Mountain Passes/Details/" + tab.getText());
+                mTracker.setScreenName("/Traffic Map/Happening Now/" + tab.getText());
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
             }
 

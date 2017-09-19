@@ -15,20 +15,6 @@
     <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteActivity">/My Route/New Route</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteMapActivity">/My Route/Map of Route</screenName>
 
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.SocialMediaActivity">/Social Media</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.blogger.BlogActivity">/Social Media/Blog</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.blogger.BlogDetailsActivity">/Social Media/Blog/Details</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.facebook.FacebookActivity">/Social Media/Facebook</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.facebook.FacebookDetailsActivity">/Social Media/Facebook/Details</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.flickr.FlickrActivity">/Social Media/Flickr</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.flickr.FlickrDetailsActivity">/Social Media/Flickr/Details</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsActivity">/Social Media/News</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsDetailsActivity">/Social Media/News/Details</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.twitter.TwitterActivity">/Social Media/Twitter</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.twitter.TwitterDetailsActivity">/Social Media/Twitter/Details</screenName>
-
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.socialmedia.youtube.YouTubeActivity">/Social Media/YouTube</screenName>
-
     <screenName name="gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesActivity">/Toll Rates</screenName>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity">/Traffic Map</screenName>
@@ -36,6 +22,9 @@
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsActivity">/Traffic Map/Alerts In This Area</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes.TravelTimesActivity">/Traffic Map/Travel Times</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.besttimestotravel.TravelChartsActivity">/Traffic Map/Travel Charts</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsActivity">/Traffic Map/News</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsDetailsActivity">/Traffic Map/News/Details</screenName>
+
     <screenName name="gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity">/Traffic Map/Callout</screenName>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity">/Cameras</screenName>
