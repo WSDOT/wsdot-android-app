@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -34,19 +35,23 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -198,7 +203,6 @@ public class FavoritesFragment extends BaseFragment implements
 		super.onCreate(savedInstanceState);
 
 		setHasOptionsMenu(true);
-
 
 		mFerriesSchedulesIntent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
         getActivity().startService(mFerriesSchedulesIntent);
@@ -763,8 +767,8 @@ public class FavoritesFragment extends BaseFragment implements
                     });
                 }
 
-            }else if (holder instanceof LocationViewHolder) {
-                LocationViewHolder viewholder = (LocationViewHolder) holder;
+            } else if (holder instanceof LocationViewHolder) {
+                final LocationViewHolder viewholder = (LocationViewHolder) holder;
                 Cursor cursor = (Cursor) mFavoritesAdapter.getItem(position);
 
                 String title = cursor.getString(cursor.getColumnIndex(MapLocation.LOCATION_TITLE));
@@ -802,7 +806,38 @@ public class FavoritesFragment extends BaseFragment implements
                         }
                 );
 
-            }else if (holder instanceof  MyRouteViewHolder) {
+                viewholder.itemView.setOnLongClickListener(
+                        new View.OnLongClickListener() {
+                            @Override
+                            public boolean onLongClick(View v) {
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.WSDOT_popup);
+
+                                final EditText textEntryView = new EditText(getContext());
+                                textEntryView.setInputType(InputType.TYPE_CLASS_TEXT);
+                                builder.setView(textEntryView);
+                                builder.setMessage(R.string.rename_location_dialog);
+                                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                                builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        String value = textEntryView.getText().toString();
+                                        dialog.dismiss();
+                                        editTitle(new String[] {Integer.toString((Integer) viewholder.title.getTag())}, LOCATION_VIEWTYPE, value);
+                                    }
+                                });
+                                AlertDialog alertDialog = builder.create();
+                                alertDialog.show();
+
+                                return true;
+                            }
+                        }
+                );
+
+            } else if (holder instanceof  MyRouteViewHolder) {
 
                 MyRouteViewHolder viewholder = (MyRouteViewHolder) holder;
                 Cursor cursor = (Cursor) mFavoritesAdapter.getItem(position);
@@ -870,7 +905,7 @@ public class FavoritesFragment extends BaseFragment implements
                 });
 
 
-            }else{
+            } else{
                 Log.i(TAG, "No view holder for type: " + holder.getClass().getName()); //TODO
             }
         }
@@ -980,6 +1015,37 @@ public class FavoritesFragment extends BaseFragment implements
                 }
             }
             return count;
+        }
+
+        /**
+         * Edits an item form the favorites list.
+         */
+        public void editTitle(final String[] item_id, final int viewtype, final String newTitle){
+
+            final ContentValues values = new ContentValues();
+
+            switch (viewtype){
+                case CAMERAS_VIEWTYPE:
+                    break;
+                case MOUNTAIN_PASSES_VIEWTYPE:
+                    break;
+                case TRAVEL_TIMES_VIEWTYPE:
+                    break;
+                case FERRIES_SCHEDULES_VIEWTYPE:
+                    break;
+                case LOCATION_VIEWTYPE:
+                    values.put(MapLocation.LOCATION_TITLE, newTitle);
+                    getActivity().getContentResolver().update(
+                            MapLocation.CONTENT_URI,
+                            values,
+                            MapLocation._ID + "=?",
+                            item_id
+                    );
+                    break;
+                case MY_ROUTE_VIEWTYPE:
+                    break;
+            }
+            notifyDataSetChanged();
         }
 
         /**
