@@ -28,7 +28,14 @@
         style="@style/DashboardButton"
         android:text="@string/btn_amtrakcascades"
         android:drawableTop="@drawable/home_btn_amtrak" />
-    <Button android:id="@+id/dummy"
+    <Button android:id="@+id/dummy1"
+        style="@style/DashboardButton"
+        android:visibility="invisible" />
+    <Button android:id="@+id/home_btn_my_routes"
+        style="@style/DashboardButton"
+        android:text="@string/btn_my_routes"
+        android:drawableTop="@drawable/home_btn_my_routes" />
+    <Button android:id="@+id/dummy2"
         style="@style/DashboardButton"
         android:visibility="invisible" />
 

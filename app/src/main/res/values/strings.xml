@@ -117,6 +117,7 @@
     <string name="description_social_media">Happening Now</string>
     <string name="description_news">News Releases</string>
     <string name="rename_location_dialog">Rename favorite location</string>
+    <string name="btn_my_routes">My Routes</string>
 
 
 </resources>
