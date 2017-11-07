@@ -171,8 +171,12 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
         trainNumberMap.put(510, "Amtrak Cascades Train");
         trainNumberMap.put(511, "Amtrak Cascades Train");
         trainNumberMap.put(513, "Amtrak Cascades Train");
+        trainNumberMap.put(514, "Amtrak Cascades Train");
+        trainNumberMap.put(515, "Amtrak Cascades Train");
         trainNumberMap.put(516, "Amtrak Cascades Train");
         trainNumberMap.put(517, "Amtrak Cascades Train");
+        trainNumberMap.put(518, "Amtrak Cascades Train");
+        trainNumberMap.put(519, "Amtrak Cascades Train");
     }
 
     private void getAmtrakStations() {

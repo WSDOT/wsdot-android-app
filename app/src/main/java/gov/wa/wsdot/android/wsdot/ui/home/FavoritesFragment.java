@@ -904,8 +904,7 @@ public class FavoritesFragment extends BaseFragment implements
                     }
                 });
 
-
-            } else{
+            } else {
                 Log.i(TAG, "No view holder for type: " + holder.getClass().getName()); //TODO
             }
         }
@@ -922,20 +921,25 @@ public class FavoritesFragment extends BaseFragment implements
         @Override
         public int getItemViewType(int position) {
 
+            Log.e(TAG, "getItemViewType called...");
+
             for (int viewType : orderedViewTypes) {
                 Cursor c = (Cursor) sections.get(viewType);
                 int size = 0;
+
                 if (c != null) {
                     if (c.getCount() > 0) {
                         size = c.getCount() + 1;
                     }
                 }
+
                 // check if position inside this section
                 if (position == 0 && size > 0) return HEADER_VIEWTYPE;
                 if (position < size) return viewType;
 
                 position -= size;
             }
+
             return -1;
         }
 
@@ -1076,7 +1080,6 @@ public class FavoritesFragment extends BaseFragment implements
                     }
                     break;
                 case MOUNTAIN_PASSES_VIEWTYPE:
-
                     values.put(MountainPasses.MOUNTAIN_PASS_IS_STARRED, 0);
 
                     getActivity().getContentResolver().update(
@@ -1087,7 +1090,6 @@ public class FavoritesFragment extends BaseFragment implements
                     );
                     break;
                 case TRAVEL_TIMES_VIEWTYPE:
-
                     values.put(TravelTimes.TRAVEL_TIMES_IS_STARRED, 0);
 
                     getActivity().getContentResolver().update(
