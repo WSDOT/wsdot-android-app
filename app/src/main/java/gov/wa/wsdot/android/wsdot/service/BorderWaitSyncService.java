@@ -58,7 +58,7 @@ public class BorderWaitSyncService extends IntentService {
 		boolean shouldUpdate = true;
 		String responseString = "";
 
-		/** 
+		/**
 		 * Check the cache table for the last time data was downloaded. If we are within
 		 * the allowed time period, don't sync, otherwise get fresh data from the server.
 		 */
@@ -70,7 +70,7 @@ public class BorderWaitSyncService extends IntentService {
 					new String[] {"border_wait"},
 					null
 					);
-			
+
 			if (cursor != null && cursor.moveToFirst()) {
 				long lastUpdated = cursor.getLong(0);
 				//long deltaMinutes = (now - lastUpdated) / DateUtils.MINUTE_IN_MILLIS;
@@ -82,7 +82,7 @@ public class BorderWaitSyncService extends IntentService {
 				cursor.close();
 			}
 		}
-		
+
 		// Ability to force a refresh of camera data.
 		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
 		
