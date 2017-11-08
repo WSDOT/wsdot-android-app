@@ -7,10 +7,10 @@ android {
         applicationId "gov.wa.wsdot.android.wsdot"
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 14144111
-        versionName "4.11.1"
-
+        versionCode 14144112
+        versionName "4.11.2"
     }
+
     buildTypes {
         release {
             minifyEnabled false
