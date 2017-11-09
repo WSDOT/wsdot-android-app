@@ -291,7 +291,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         // North Cascade Hwy
 
         // Staus
-        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (1137, 'Satus Pass on US 97 @ MP 27', 'http://images.wsdot.wa.gov/vancouver/097vc02711.jpg', 45.98296, -120.65381, 0, 'US 97', 0);");
+        db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (1137, 'Satus Pass on US 97 @ MP 27', 'http://images.wsdot.wa.gov/sw/097vc02711.jpg', 45.98296, -120.65381, 0, 'US 97', 0);");
 
         // Sherman
         db.execSQL("insert into cameras (id, title, url, latitude, longitude, has_video, road_name, is_starred) values (1161, 'Sherman Pass on SR-20 @ MP 320', 'http://images.wsdot.wa.gov/rweather/shermanpass_medium.jpg', 48.604742, -118.459912, 0, 'SR 20', 0);");
