@@ -152,17 +152,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 + FerriesTerminalSailingSpaceColumns.TERMINAL_DEPARTING_SPACES + " TEXT,"
                 + FerriesTerminalSailingSpaceColumns.TERMINAL_LAST_UPDATED + " TEXT,"
                 + FerriesTerminalSailingSpaceColumns.TERMINAL_IS_STARRED + " INTEGER NOT NULL default 0);");
-        
-        db.execSQL("CREATE TABLE " + Tables.BORDER_WAIT + " ("
-        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-        		+ BorderWaitColumns.BORDER_WAIT_ID + " INTEGER,"
-        		+ BorderWaitColumns.BORDER_WAIT_TITLE + " TEXT,"
-        		+ BorderWaitColumns.BORDER_WAIT_UPDATED + " TEXT,"
-        		+ BorderWaitColumns.BORDER_WAIT_LANE + " TEXT,"
-        		+ BorderWaitColumns.BORDER_WAIT_ROUTE + " INTEGER,"
-        		+ BorderWaitColumns.BORDER_WAIT_DIRECTION + " TEXT,"
-        		+ BorderWaitColumns.BORDER_WAIT_TIME + " INTEGER,"
-        		+ BorderWaitColumns.BORDER_WAIT_IS_STARRED + " INTEGER NOT NULL default 0);");
+
 
         db.execSQL("CREATE TABLE " + Tables.MAP_LOCATION + " ("
                 + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -241,6 +231,9 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
                 version = VER_7;
 
             case VER_7:
+                Log.i(TAG, "DB at version " + DATABASE_VERSION);
+
+            case VER_8:
                 Log.i(TAG, "DB at version " + DATABASE_VERSION);
 		}
 

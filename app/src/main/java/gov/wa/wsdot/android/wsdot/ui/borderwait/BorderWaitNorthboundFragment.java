@@ -19,41 +19,32 @@
 package gov.wa.wsdot.android.wsdot.ui.borderwait;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
-import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitRepository;
-import gov.wa.wsdot.android.wsdot.database.borderwaits.LoadBorderWaitsCallback;
-import gov.wa.wsdot.android.wsdot.database.borderwaits.LocalBorderWaitDataSource;
-import gov.wa.wsdot.android.wsdot.tasks.BorderWaitsTaskReceiverFragment;
-import gov.wa.wsdot.android.wsdot.tasks.DownloadBorderWaitsAsyncTask;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
+import gov.wa.wsdot.android.wsdot.viewmodal.borderwait.BorderWaitViewModel;
 
 public class BorderWaitNorthboundFragment extends BaseFragment implements
-        SwipeRefreshLayout.OnRefreshListener, BorderWaitsTaskReceiverFragment {
+        SwipeRefreshLayout.OnRefreshListener {
 	
     private static final String TAG = BorderWaitNorthboundFragment.class.getSimpleName();
 	
@@ -67,13 +58,37 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
-    DownloadBorderWaitsAsyncTask downloadTask;
+    private static String direction = "";
 
     private static List<BorderWaitEntity> mBorderWaits = new ArrayList<>();
 
-	@Override
+    private static BorderWaitViewModel viewModel;
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        viewModel = ViewModelProviders.of(this).get(BorderWaitViewModel.class);
+        viewModel.init("northbound");
+
+        viewModel.getBorderWaits().observe(this, borderWaits -> { // TODO: Understand what is going on HERE
+            mBorderWaits.clear();
+            mBorderWaits = borderWaits;
+            mAdapter.notifyDataSetChanged();
+            swipeRefreshLayout.setRefreshing(false);
+        });
+
+        routeImage.put(5, R.drawable.ic_list_i5);
+        routeImage.put(9, R.drawable.ic_list_sr9);
+        routeImage.put(539, R.drawable.ic_list_sr539);
+        routeImage.put(543, R.drawable.ic_list_sr543);
+        routeImage.put(97, R.drawable.ic_list_us97);
+    }
+
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
@@ -83,7 +98,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new BorderWaitAdapter(getActivity());
+        mAdapter = new BorderWaitNorthboundFragment.BorderWaitAdapter(getActivity());
         mRecyclerView.setAdapter(mAdapter);
 
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
@@ -96,90 +111,21 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
         swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
-				R.color.holo_blue_bright,
-				R.color.holo_green_light,
-				R.color.holo_orange_light,
-				R.color.holo_red_light);
-
-
-        downloadTask = new DownloadBorderWaitsAsyncTask(this);
-        downloadTask.execute();
+                R.color.holo_blue_bright,
+                R.color.holo_green_light,
+                R.color.holo_orange_light,
+                R.color.holo_red_light);
 
         swipeRefreshLayout.setRefreshing(true);
 
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
+
+
         return root;
-    } 	
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        
-        routeImage.put(5, R.drawable.ic_list_i5);
-        routeImage.put(9, R.drawable.ic_list_sr9);
-        routeImage.put(539, R.drawable.ic_list_sr539);
-        routeImage.put(543, R.drawable.ic_list_sr543);
-        routeImage.put(97, R.drawable.ic_list_us97);
     }
 
-    @Override
-    public void receiveBorderWaitsDownloadResponse(String response) {
-	    
-        String responseString = response;
 
-        mEmptyView.setVisibility(View.GONE);
-
-        if (responseString != null) {
-            if (responseString.equals("OK")) {
-
-                LoadBorderWaitsCallback callback = new LoadBorderWaitsCallback() {
-                    @Override
-                    public void onBorderWaitsLoaded(BorderWaitEntity[] borderWaits) {
-
-                        mBorderWaits.clear();
-
-                        mAdapter.notifyDataSetChanged();
-
-                        mBorderWaits = new ArrayList<>(Arrays.asList(borderWaits));
-
-                        mAdapter.notifyDataSetChanged();
-                        swipeRefreshLayout.setRefreshing(false);
-
-                        Log.e("TEST 3", String.valueOf(mBorderWaits.size()));
-                    }
-
-                    @Override
-                    public void onDataNotAvailable() {
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                };
-
-                BorderWaitRepository borderWaitRepo = new BorderWaitRepository(LocalBorderWaitDataSource.getInstance());
-                borderWaitRepo.getBorderWaitsFor("northbound", callback);
-
-            } else if (responseString.equals("NOP")) {
-                swipeRefreshLayout.setRefreshing(false);
-            } else {
-                swipeRefreshLayout.setRefreshing(false);
-                Log.e("BorderWaitAsyncTask", responseString);
-
-                if (!UIUtils.isNetworkAvailable(this.getContext())) {
-                    responseString = getString(R.string.no_connection);
-                }
-
-                if (mAdapter.getItemCount() > 0) {
-                    Toast.makeText(this.getContext(), responseString, Toast.LENGTH_LONG).show();
-                } else {
-                    TextView t = (TextView) mEmptyView;
-                    t.setText(responseString);
-                    mEmptyView.setVisibility(View.VISIBLE);
-                }
-            }
-        } else {
-            swipeRefreshLayout.setRefreshing(false);
-        }
-    }
 
 	/**
 	 * Binds the custom ViewHolder class to it's data.
@@ -266,9 +212,8 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
 				swipeRefreshLayout.setRefreshing(true);
 			}
 		});
-		downloadTask.cancel(false);
-        downloadTask = new DownloadBorderWaitsAsyncTask(this);
-        downloadTask.execute();
+
+
     }
 
 }

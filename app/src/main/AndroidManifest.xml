@@ -63,7 +63,6 @@
         <service android:name=".service.TravelTimesSyncService" />
         <service android:name=".service.FerriesSchedulesSyncService" />
         <service android:name=".service.FerriesTerminalSailingSpaceSyncService" />
-        <service android:name=".service.BorderWaitSyncService" />
         <service android:name=".service.MyRouteTrackingService" />
 
         <activity

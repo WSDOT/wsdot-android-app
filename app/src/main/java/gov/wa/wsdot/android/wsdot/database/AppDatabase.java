@@ -16,7 +16,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
 
-    public abstract BorderWaitDao userDao();
+    public abstract BorderWaitDao borderWaitDao();
 
     private static final Object sLock = new Object();
 
@@ -33,8 +33,8 @@ public abstract class AppDatabase extends RoomDatabase {
             if (INSTANCE == null) {
                 INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                         AppDatabase.class, "wsdot.db")
-                        //.fallbackToDestructiveMigration()
-                        //.addMigrations(MIGRATION_7_8)
+                        .fallbackToDestructiveMigration()
+                        .addMigrations(MIGRATION_7_8)
                         .build();
             }
             return INSTANCE;

@@ -1,89 +1,92 @@
 package gov.wa.wsdot.android.wsdot.database.borderwaits;
 
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Process;
+import android.arch.lifecycle.LiveData;
 import android.util.Log;
 
-import java.lang.ref.WeakReference;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executor;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
+
+@Singleton  // informs Dagger that this class should be constructed once
 public class BorderWaitRepository {
 
-    private BorderWaitDataSource mBorderWaitDataSource;
+    private static String TAG = BorderWaitRepository.class.getSimpleName();
 
-    private BorderWaitEntity[] mCachedBorderWaits;
+    private final Executor executor;
+    private final BorderWaitDao borderWaitDao;
 
-    public BorderWaitRepository(BorderWaitDataSource userDataSource) {
-        mBorderWaitDataSource = userDataSource;
+    @Inject
+    public BorderWaitRepository(BorderWaitDao borderWaitDao, Executor executor) {
+        this.borderWaitDao = borderWaitDao;
+        this.executor = executor;
     }
 
-    public void getBorderWaitsFor(final String direction, LoadBorderWaitsCallback callback) {
-        final WeakReference<LoadBorderWaitsCallback> loadBorderWaitsCallback = new WeakReference<>(callback);
+    public LiveData<List<BorderWaitEntity>> getBorderWaitsFor(String direction) {
+        refreshBorderWaits();
+        // return a LiveData directly from the database.
+        return borderWaitDao.loadBorderWaitsFor(direction);
+    }
 
+    // TODO: cache time so we aren't always refreshing
+    private void refreshBorderWaits() {
+        executor.execute(() -> {
+            try {
+                URL url = new URL(APIEndPoints.BORDER_WAITS);
+                URLConnection urlConn = url.openConnection();
 
+                BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+                String jsonFile = "";
+                String line;
 
-        AsyncTask.execute(new Runnable() {
-            public void run() {
+                while ((line = in.readLine()) != null)
+                    jsonFile += line;
+                in.close();
 
-                android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_DISPLAY);
+                JSONObject obj = new JSONObject(jsonFile);
+                JSONObject result = obj.getJSONObject("waittimes");
+                JSONArray items = result.getJSONArray("items");
 
-                final BorderWaitEntity[] borderWaits = mBorderWaitDataSource.getBorderWaitsFor(direction);
+                List<BorderWaitEntity> waits = new ArrayList<>();
 
-                // notify on the main thread
-                Handler mainHandler = new Handler(Looper.getMainLooper());
+                int numItems = items.length();
 
-                Runnable myRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        final LoadBorderWaitsCallback borderWaitsCallback = loadBorderWaitsCallback.get();
-                        if (borderWaitsCallback == null) {
-                            Log.e("4", "callback null");
-                            return;
-                        }
-                        if (borderWaits == null) {
-                            Log.e("4", "no data...?");
-                            borderWaitsCallback.onDataNotAvailable();
-                        } else {
-                            Log.e("4", "success!");
-                            mCachedBorderWaits = borderWaits;
-                            borderWaitsCallback.onBorderWaitsLoaded(mCachedBorderWaits);
-                        }
-                    }
-                };
-                mainHandler.post(myRunnable);
+                for (int j=0; j < numItems; j++) {
+                    JSONObject item = items.getJSONObject(j);
+
+                    BorderWaitEntity wait = new BorderWaitEntity();
+
+                    wait.setId(item.getInt("id"));
+                    wait.setTitle(item.getString("name"));
+                    wait.setDirection(item.getString("direction"));
+                    wait.setLane(item.getString("lane"));
+                    wait.setRoute(item.getInt("route"));
+                    wait.setWait(item.getInt("wait"));
+                    wait.setUpdated(item.getString("updated"));
+                    wait.setIsStarred(0);
+
+                    waits.add(wait);
+                }
+
+                BorderWaitEntity[] waitsArray = new BorderWaitEntity[waits.size()];
+                waitsArray = waits.toArray(waitsArray);
+
+                borderWaitDao.insertBorderWaits(waitsArray);
+
+            } catch (Exception e) {
+                Log.e(TAG, "Error: " + e.getMessage());
             }
         });
-    }
-
-    public void getStarredBorderWaits(LoadBorderWaitsCallback callback) {
-        final WeakReference<LoadBorderWaitsCallback> loadBorderWaitsCallback = new WeakReference<>(callback);
-
-        new Runnable() {
-            public void run() {
-
-                final BorderWaitEntity[] borderWaits = mBorderWaitDataSource.getStarredBorderWaits();
-
-                // notify on the main thread
-                Handler mainHandler = new Handler(Looper.getMainLooper());
-
-                Runnable myRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        final LoadBorderWaitsCallback borderWaitsCallback = loadBorderWaitsCallback.get();
-                        if (borderWaitsCallback == null) {
-                            return;
-                        }
-                        if (borderWaits == null) {
-                            borderWaitsCallback.onDataNotAvailable();
-                        } else {
-                            mCachedBorderWaits = borderWaits;
-                            borderWaitsCallback.onBorderWaitsLoaded(mCachedBorderWaits);
-                        }
-                    }
-                };
-                mainHandler.post(myRunnable);
-            }
-        };
     }
 }

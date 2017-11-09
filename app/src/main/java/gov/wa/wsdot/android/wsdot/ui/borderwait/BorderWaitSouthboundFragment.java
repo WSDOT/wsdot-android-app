@@ -19,7 +19,11 @@
 package gov.wa.wsdot.android.wsdot.ui.borderwait;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -34,25 +38,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitRepository;
-import gov.wa.wsdot.android.wsdot.database.borderwaits.LoadBorderWaitsCallback;
-import gov.wa.wsdot.android.wsdot.database.borderwaits.LocalBorderWaitDataSource;
-import gov.wa.wsdot.android.wsdot.tasks.BorderWaitsTaskReceiverFragment;
-import gov.wa.wsdot.android.wsdot.tasks.DownloadBorderWaitsAsyncTask;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
+import gov.wa.wsdot.android.wsdot.viewmodal.borderwait.BorderWaitViewModel;
 
 public class BorderWaitSouthboundFragment extends BaseFragment implements
-		SwipeRefreshLayout.OnRefreshListener, BorderWaitsTaskReceiverFragment {
+		SwipeRefreshLayout.OnRefreshListener {
 
-	private static final String TAG = BorderWaitNorthboundFragment.class.getSimpleName();
+	private static final String TAG = BorderWaitSouthboundFragment.class.getSimpleName();
+
 
 	@SuppressLint("UseSparseArrays")
 	private static HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
@@ -64,17 +67,33 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 	protected RecyclerView mRecyclerView;
 	protected LinearLayoutManager mLayoutManager;
 
-	DownloadBorderWaitsAsyncTask downloadTask;
+	private static String direction = "";
 
-	private static BorderWaitEntity[] mBorderWaits;
+	private static List<BorderWaitEntity> mBorderWaits = new ArrayList<>();
+
+	private static BorderWaitViewModel viewModel;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
 
-		downloadTask = new DownloadBorderWaitsAsyncTask(this);
-		downloadTask.execute();
+		viewModel = ViewModelProviders.of(this).get(BorderWaitViewModel.class);
+		viewModel.init("southbound");
+		
+
+		viewModel.getBorderWaits().observe(this, borderWaits -> { // TODO: Understand what is going on HERE
+			mBorderWaits.clear();
+			mBorderWaits = borderWaits;
+			mAdapter.notifyDataSetChanged();
+			swipeRefreshLayout.setRefreshing(false);
+		});
+		routeImage.put(5, R.drawable.ic_list_i5);
+		routeImage.put(9, R.drawable.ic_list_sr9);
+		routeImage.put(539, R.drawable.ic_list_sr539);
+		routeImage.put(543, R.drawable.ic_list_sr543);
+		routeImage.put(97, R.drawable.ic_list_us97);
 	}
+
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -106,70 +125,14 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 				R.color.holo_orange_light,
 				R.color.holo_red_light);
 
+		swipeRefreshLayout.setRefreshing(true);
+
 		mEmptyView = root.findViewById( R.id.empty_list_view );
+
 
 		return root;
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		routeImage.put(5, R.drawable.ic_list_i5);
-		routeImage.put(9, R.drawable.ic_list_sr9);
-		routeImage.put(539, R.drawable.ic_list_sr539);
-		routeImage.put(543, R.drawable.ic_list_sr543);
-		routeImage.put(97, R.drawable.ic_list_us97);
-	}
-
-	@Override
-	public void receiveBorderWaitsDownloadResponse(String response) {
-
-		String responseString = response;
-
-		mEmptyView.setVisibility(View.GONE);
-
-		if (responseString != null) {
-			if (responseString.equals("OK")) {
-
-				LoadBorderWaitsCallback callback = new LoadBorderWaitsCallback() {
-					@Override
-					public void onBorderWaitsLoaded(BorderWaitEntity[] borderWaits) {
-						mBorderWaits = borderWaits;
-						swipeRefreshLayout.setRefreshing(false);
-					}
-
-					@Override
-					public void onDataNotAvailable() {
-						swipeRefreshLayout.setRefreshing(false);
-					}
-				};
-
-				BorderWaitRepository borderWaitRepo = new BorderWaitRepository(LocalBorderWaitDataSource.getInstance());
-				borderWaitRepo.getBorderWaitsFor("southbound", callback);
-
-			} else if (responseString.equals("NOP")) {
-				swipeRefreshLayout.setRefreshing(false);
-			} else {
-				swipeRefreshLayout.setRefreshing(false);
-				Log.e("BorderWaitAsyncTask", responseString);
-
-				if (!UIUtils.isNetworkAvailable(this.getContext())) {
-					responseString = getString(R.string.no_connection);
-				}
-
-				if (mAdapter.getItemCount() > 0) {
-					Toast.makeText(this.getContext(), responseString, Toast.LENGTH_LONG).show();
-				} else {
-					TextView t = (TextView) mEmptyView;
-					t.setText(responseString);
-					mEmptyView.setVisibility(View.VISIBLE);
-				}
-			}
-		} else {
-			swipeRefreshLayout.setRefreshing(false);
-		}
-	}
 
 	/**
 	 * Binds the custom ViewHolder class to it's data.
@@ -181,7 +144,9 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
 		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 		private Context context;
+
 		private List<BorderWaitSouthboundFragment.BorderWaitAdapter.BorderWaitVH> mItems = new ArrayList<>();
+
 
 		public BorderWaitAdapter(Context context) {
 			super();
@@ -203,17 +168,17 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 
 			BorderWaitSouthboundFragment.BorderWaitAdapter.BorderWaitVH borderVH = (BorderWaitSouthboundFragment.BorderWaitAdapter.BorderWaitVH) viewHolder;
 
-			String title = mBorderWaits[i].getTitle();
-			String lane = mBorderWaits[i].getLane();
+			String title = mBorderWaits.get(i).getTitle();
+			String lane = mBorderWaits.get(i).getLane();
 
 			borderVH.tt.setText(title + " (" + lane + ")");
 			borderVH.tt.setTypeface(tfb);
 
-			String created_at = mBorderWaits[i].getUpdated();
+			String created_at = mBorderWaits.get(i).getUpdated();
 			borderVH.bt.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", true));
 			borderVH.bt.setTypeface(tf);
 
-			int wait = mBorderWaits[i].getWait();
+			int wait = mBorderWaits.get(i).getWait();
 			if (wait == -1) {
 				borderVH.rt.setText("N/A");
 			} else if (wait < 5) {
@@ -223,12 +188,12 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 			}
 			borderVH.rt.setTypeface(tfb);
 
-			borderVH.iv.setImageResource(routeImage.get(mBorderWaits[i].getRoute()));
+			borderVH.iv.setImageResource(routeImage.get(mBorderWaits.get(i).getRoute()));
 		}
 
 		@Override
 		public int getItemCount() {
-			return 0;
+			return mBorderWaits.size();
 		}
 
 		// View Holder for list items.
@@ -254,9 +219,8 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 				swipeRefreshLayout.setRefreshing(true);
 			}
 		});
-		downloadTask.cancel(false);
-		downloadTask = new DownloadBorderWaitsAsyncTask(this);
-		downloadTask.execute();
+
+
 	}
 
 }

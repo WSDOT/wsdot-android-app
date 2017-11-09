@@ -18,6 +18,10 @@ android {
             zipAlignEnabled true
         }
     }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 
 repositories {
@@ -47,7 +51,12 @@ dependencies {
     compile 'com.getkeepsafe.taptargetview:taptargetview:1.8.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
-    compile 'android.arch.persistence.room:runtime:1.0.0'
+    compile 'com.google.dagger:dagger:2.13'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.13'
+
+    implementation "android.arch.lifecycle:extensions:1.0.0"
+    implementation "android.arch.persistence.room:runtime:1.0.0"
+
     annotationProcessor 'android.arch.persistence.room:compiler:1.0.0'
 
     testCompile 'junit:junit:4.12'
