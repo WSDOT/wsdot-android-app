@@ -13,6 +13,7 @@ lint.xml
 /app/res/values/apikeys.xml
 /app/app-release.apk
 /app/build
+/app/release
 .idea
 .gradle
 local.properties
