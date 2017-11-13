@@ -17,31 +17,43 @@
 package gov.wa.wsdot.android.wsdot.ui;
 
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjector;
+import dagger.android.DispatchingAndroidInjector;
+import dagger.android.HasActivityInjector;
+import dagger.android.support.HasSupportFragmentInjector;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.database.AppDatabase;
+import gov.wa.wsdot.android.wsdot.di.AppInjector;
 
 /**
  * This is a subclass of {@link Application} used to provide shared objects for this app, such as
  * the {@link Tracker}.
  */
-public class WsdotApplication extends Application {
+public class WsdotApplication extends Application implements HasActivityInjector, HasSupportFragmentInjector {
+
+  @Inject
+  DispatchingAndroidInjector<Activity> dispatchingAndroidActivityInjector;
+
+  @Inject
+  DispatchingAndroidInjector<Fragment> dispatchingAndroidFragmentInjector;
 
   private Tracker mTracker;
-
-  public static AppDatabase database;
 
   @Override
   public void onCreate() {
     super.onCreate();
 
-    database = AppDatabase.getInstance(getApplicationContext());
+    AppInjector.init(this);
 
     //reset driver alert message on app startup.
     SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -49,6 +61,7 @@ public class WsdotApplication extends Application {
     editor.putBoolean("KEY_SEEN_DRIVER_ALERT", false);
     editor.apply();
   }
+
 
   /**
    * Gets the default {@link Tracker} for this {@link Application}.
@@ -61,5 +74,15 @@ public class WsdotApplication extends Application {
       mTracker = analytics.newTracker(R.xml.global_tracker);
     }
     return mTracker;
+  }
+
+  @Override
+  public DispatchingAndroidInjector<Activity> activityInjector() {
+      return dispatchingAndroidActivityInjector;
+  }
+
+  @Override
+  public AndroidInjector<android.support.v4.app.Fragment> supportFragmentInjector() {
+      return dispatchingAndroidFragmentInjector;
   }
 }

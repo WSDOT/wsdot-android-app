@@ -53,6 +53,8 @@ dependencies {
 
     compile 'com.google.dagger:dagger:2.13'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.13'
+    compile 'com.google.dagger:dagger-android-support:2.13'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.13'
 
     implementation "android.arch.lifecycle:extensions:1.0.0"
     implementation "android.arch.persistence.room:runtime:1.0.0"

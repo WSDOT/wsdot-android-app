@@ -11,7 +11,7 @@ import android.support.annotation.VisibleForTesting;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 
-@Database(entities = {BorderWaitEntity.class}, version = 8)
+@Database(entities = {BorderWaitEntity.class}, version = 9)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;

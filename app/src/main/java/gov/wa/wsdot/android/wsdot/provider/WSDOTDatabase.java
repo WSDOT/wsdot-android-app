@@ -49,7 +49,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 	private static final int VER_6 = 6;
     private static final int VER_7 = 7;
     private static final int VER_8 = 8;
-	private static final int DATABASE_VERSION = VER_8;
+	private static final int DATABASE_VERSION = VER_7;
 
     interface Tables {
     	String CACHES = "caches";

@@ -18,19 +18,20 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
+import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 
 @Singleton  // informs Dagger that this class should be constructed once
 public class BorderWaitRepository {
 
     private static String TAG = BorderWaitRepository.class.getSimpleName();
 
-    private final Executor executor;
+    private final AppExecutors appExecutors;
     private final BorderWaitDao borderWaitDao;
 
     @Inject
-    public BorderWaitRepository(BorderWaitDao borderWaitDao, Executor executor) {
+    public BorderWaitRepository(BorderWaitDao borderWaitDao, AppExecutors appExecutors) {
         this.borderWaitDao = borderWaitDao;
-        this.executor = executor;
+        this.appExecutors = appExecutors;
     }
 
     public LiveData<List<BorderWaitEntity>> getBorderWaitsFor(String direction) {
@@ -41,7 +42,7 @@ public class BorderWaitRepository {
 
     // TODO: cache time so we aren't always refreshing
     private void refreshBorderWaits() {
-        executor.execute(() -> {
+        appExecutors.diskIO().execute(() -> {
             try {
                 URL url = new URL(APIEndPoints.BORDER_WAITS);
                 URLConnection urlConn = url.openConnection();

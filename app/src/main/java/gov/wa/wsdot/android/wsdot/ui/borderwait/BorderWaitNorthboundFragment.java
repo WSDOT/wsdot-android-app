@@ -19,13 +19,16 @@
 package gov.wa.wsdot.android.wsdot.ui.borderwait;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,15 +39,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 import gov.wa.wsdot.android.wsdot.viewmodal.borderwait.BorderWaitViewModel;
 
 public class BorderWaitNorthboundFragment extends BaseFragment implements
-        SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener, Injectable {
 	
     private static final String TAG = BorderWaitNorthboundFragment.class.getSimpleName();
 	
@@ -58,20 +64,21 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
-    private static String direction = "";
-
     private static List<BorderWaitEntity> mBorderWaits = new ArrayList<>();
 
     private static BorderWaitViewModel viewModel;
 
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        viewModel = ViewModelProviders.of(this).get(BorderWaitViewModel.class);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(BorderWaitViewModel.class);
         viewModel.init("northbound");
 
-        viewModel.getBorderWaits().observe(this, borderWaits -> { // TODO: Understand what is going on HERE
+        viewModel.getBorderWaits(false).observe(this, borderWaits -> {
             mBorderWaits.clear();
             mBorderWaits = borderWaits;
             mAdapter.notifyDataSetChanged();
@@ -120,12 +127,8 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
 
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
-
-
         return root;
     }
-
-
 
 	/**
 	 * Binds the custom ViewHolder class to it's data.
@@ -207,14 +210,12 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
 	}
 
     public void onRefresh() {
-		swipeRefreshLayout.post(new Runnable() {
-			public void run() {
-				swipeRefreshLayout.setRefreshing(true);
-			}
-		});
-
-
+		swipeRefreshLayout.setRefreshing(true);
+        viewModel.getBorderWaits(true).observe(this, borderWaits -> {
+            mBorderWaits.clear();
+            mBorderWaits = borderWaits;
+            mAdapter.notifyDataSetChanged();
+            swipeRefreshLayout.setRefreshing(false);
+        });
     }
-
 }
-
