@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.viewmodal.borderwait;
+package gov.wa.wsdot.android.wsdot.ui.borderwait;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
@@ -9,7 +9,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
-import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitRepository;
+import gov.wa.wsdot.android.wsdot.repository.BorderWaitRepository;
 
 public class BorderWaitViewModel extends ViewModel {
 

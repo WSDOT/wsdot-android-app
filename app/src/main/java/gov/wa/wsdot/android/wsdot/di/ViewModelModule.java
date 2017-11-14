@@ -7,8 +7,12 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
 import gov.wa.wsdot.android.wsdot.viewmodal.ViewModelFactory;
-import gov.wa.wsdot.android.wsdot.viewmodal.borderwait.BorderWaitViewModel;
+import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitViewModel;
 
+/**
+ *  For Dagger 2. A list of classes passed to the Object Graph that
+ *  must be able to inject.
+ */
 @Module
 abstract class ViewModelModule {
 

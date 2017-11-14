@@ -9,6 +9,10 @@ import dagger.Component;
 import dagger.android.AndroidInjectionModule;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 
+/**
+ *  Root component for Dagger 2.
+ *  Assembles other components in graph
+ */
 @Singleton
 @Component(modules = {
         AndroidInjectionModule.class,
@@ -16,6 +20,7 @@ import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
         ActivityModule.class,
         FragmentModule.class
 })
+
 public interface AppComponent {
     @Component.Builder
     interface Builder {

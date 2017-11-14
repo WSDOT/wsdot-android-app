@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.database.borderwaits;
+package gov.wa.wsdot.android.wsdot.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.util.Log;
@@ -12,11 +12,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
+import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 

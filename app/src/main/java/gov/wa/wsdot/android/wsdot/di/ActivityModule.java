@@ -21,6 +21,14 @@ import dagger.android.ContributesAndroidInjector;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
 
+/**
+ *  For Dagger 2. A list of classes passed to the Object Graph that
+ *  must be able to inject.
+ *
+ *  ContrubutesAndroidInjector lets dagger 2 build a basic injector
+ *  for each class.
+ */
+
 @Module
 public abstract class ActivityModule {
 

@@ -17,5 +17,6 @@ package gov.wa.wsdot.android.wsdot.di;
  */
 /**
  * Marks an activity / fragment injectable.
+ * {@link AppInjector} checks for this type.
  */
 public interface Injectable {}
