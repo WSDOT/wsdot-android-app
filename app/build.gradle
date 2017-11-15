@@ -7,8 +7,8 @@ android {
         applicationId "gov.wa.wsdot.android.wsdot"
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 14144112
-        versionName "4.11.2"
+        versionCode 14144113
+        versionName "4.11.3"
     }
 
     buildTypes {
