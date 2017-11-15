@@ -38,8 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimes;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
@@ -59,30 +57,6 @@ public class TravelTimesSyncService extends IntentService {
 		boolean shouldUpdate = true;
 		String responseString = "";
 
-		/** 
-		 * Check the cache table for the last time data was downloaded. If we are within
-		 * the allowed time period, don't sync, otherwise get fresh data from the server.
-		 */
-		try {
-			cursor = resolver.query(
-					Caches.CONTENT_URI,
-					new String[] {Caches.CACHE_LAST_UPDATED},
-					Caches.CACHE_TABLE_NAME + " LIKE ?",
-					new String[] {"travel_times"},
-					null
-					);
-			
-			if (cursor != null && cursor.moveToFirst()) {
-				long lastUpdated = cursor.getLong(0);
-				//long deltaMinutes = (now - lastUpdated) / DateUtils.MINUTE_IN_MILLIS;
-				//Log.d(DEBUG_TAG, "Delta since last update is " + deltaMinutes + " min");
-				shouldUpdate = (Math.abs(now - lastUpdated) > (5 * DateUtils.MINUTE_IN_MILLIS));
-			}
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
 		
 		// Ability to force a refresh of camera data.
 		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
@@ -139,14 +113,8 @@ public class TravelTimesSyncService extends IntentService {
 				resolver.delete(TravelTimes.CONTENT_URI, null, null);
 				// Bulk insert all the new travel times
 				resolver.bulkInsert(TravelTimes.CONTENT_URI, times.toArray(new ContentValues[times.size()]));		
-				// Update the cache table with the time we did the update
-				ContentValues values = new ContentValues();
-				values.put(Caches.CACHE_LAST_UPDATED, System.currentTimeMillis());
-				resolver.update(
-						Caches.CONTENT_URI,
-						values, Caches.CACHE_TABLE_NAME + "=?",
-						new String[] {"travel_times"}
-						);
+				//todo  Update the cache table with the time we did the update
+
 				
 				responseString = "OK";				
 	    	} catch (Exception e) {

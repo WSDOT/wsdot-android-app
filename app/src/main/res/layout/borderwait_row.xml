@@ -20,7 +20,8 @@
         android:layout_toRightOf="@id/icon"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true" />
-    <TextView
+
+    <TextView
         android:id="@+id/bottomtext"
         android:textSize="@dimen/text_size_small"
         android:textColor="@color/semi_black"

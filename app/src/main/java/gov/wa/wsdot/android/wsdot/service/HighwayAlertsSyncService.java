@@ -40,8 +40,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
@@ -49,10 +47,6 @@ public class HighwayAlertsSyncService extends IntentService {
 	
 	private static final String DEBUG_TAG = "HighwayAlertsService";
 
-	private String[] projection = {
-    		Caches.CACHE_LAST_UPDATED
-    		};
-    
     public HighwayAlertsSyncService() {
 		super("HighwayAlertsSyncService");
 	}
@@ -67,30 +61,6 @@ public class HighwayAlertsSyncService extends IntentService {
 		String responseString = "";
 		DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
-		/** 
-		 * Check the cache table for the last time data was downloaded. If we are within
-		 * the allowed time period, don't sync, otherwise get fresh data from the server.
-		 */
-		try {
-			cursor = resolver.query(
-					Caches.CONTENT_URI,
-					projection,
-					Caches.CACHE_TABLE_NAME + " LIKE ?",
-					new String[] {"highway_alerts"},
-					null
-					);
-			
-			if (cursor != null && cursor.moveToFirst()) {
-				long lastUpdated = cursor.getLong(0);
-				//long deltaMinutes = (now - lastUpdated) / DateUtils.MINUTE_IN_MILLIS;
-				//Log.d(DEBUG_TAG, "Delta since last update is " + deltaMinutes + " min");
-				shouldUpdate = (Math.abs(now - lastUpdated) > (5 * DateUtils.MINUTE_IN_MILLIS));
-			}
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
 		
 		// Tapping the refresh button will force a data refresh.
 		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
@@ -141,14 +111,8 @@ public class HighwayAlertsSyncService extends IntentService {
 				resolver.delete(HighwayAlerts.CONTENT_URI, null, null);
 				// Bulk insert all the new highway alerts
 				resolver.bulkInsert(HighwayAlerts.CONTENT_URI, alerts.toArray(new ContentValues[alerts.size()]));
-				// Update the cache table with the time we did the update
-				ContentValues values = new ContentValues();
-				values.put(Caches.CACHE_LAST_UPDATED, System.currentTimeMillis());
-				resolver.update(
-						Caches.CONTENT_URI,
-						values, Caches.CACHE_TABLE_NAME + " LIKE ?",
-						new String[] {"highway_alerts"}
-						);
+				// todo Update the cache table with the time we did the update
+
 				
 				responseString = "OK";
 	    	} catch (Exception e) {

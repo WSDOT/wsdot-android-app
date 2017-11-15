@@ -209,11 +209,6 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 
 	public void onRefresh() {
 		swipeRefreshLayout.setRefreshing(true);
-		viewModel.getBorderWaits(true).observe(this, borderWaits -> {
-			mBorderWaits.clear();
-			mBorderWaits = borderWaits;
-			mAdapter.notifyDataSetChanged();
-			swipeRefreshLayout.setRefreshing(false);
-		});
+		viewModel.getBorderWaits(true);
 	}
 }

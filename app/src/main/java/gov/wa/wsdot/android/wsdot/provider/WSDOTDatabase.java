@@ -21,26 +21,12 @@ package gov.wa.wsdot.android.wsdot.provider;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Build;
-import android.provider.BaseColumns;
-import android.util.Log;
-
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.BorderWaitColumns;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CachesColumns;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.CamerasColumns;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedulesColumns;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpaceColumns;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlertsColumns;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.LocationColumns;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPassesColumns;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MyRouteColumns;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.TravelTimesColumns;
 
 public class WSDOTDatabase extends SQLiteOpenHelper {
 
 	private static final String TAG = WSDOTDatabase.class.getSimpleName();
 	private static final String DATABASE_NAME = "wsdot.db";
-    
+
 	private static final int VER_1 = 1;
 	private static final int VER_2 = 2;
 	private static final int VER_3 = 3;
@@ -48,11 +34,10 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
     private static final int VER_5 = 5;
 	private static final int VER_6 = 6;
     private static final int VER_7 = 7;
-    private static final int VER_8 = 8;
 	private static final int DATABASE_VERSION = VER_7;
 
     interface Tables {
-    	String CACHES = "caches";
+        String CACHES = "caches";
         String CAMERAS = "cameras";
         String HIGHWAY_ALERTS = "highway_alerts";
         String MOUNTAIN_PASSES = "mountain_passes";
@@ -63,207 +48,22 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         String MAP_LOCATION = "map_location";
         String MY_ROUTE = "my_route";
     }
-    
+
 	public WSDOTDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + Tables.CACHES + " ("
-        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + CachesColumns.CACHE_TABLE_NAME + " TEXT,"
-                + CachesColumns.CACHE_LAST_UPDATED + " INTEGER);");
-		
-		db.execSQL("CREATE TABLE " + Tables.CAMERAS + " ("
-        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-        		+ CamerasColumns.CAMERA_ID + " INTEGER,"
-                + CamerasColumns.CAMERA_TITLE + " TEXT,"
-                + CamerasColumns.CAMERA_URL + " TEXT,"
-                + CamerasColumns.CAMERA_LATITUDE + " REAL,"
-                + CamerasColumns.CAMERA_LONGITUDE + " REAL,"
-                + CamerasColumns.CAMERA_HAS_VIDEO + " INTEGER NOT NULL default 0,"
-                + CamerasColumns.CAMERA_ROAD_NAME + " TEXT,"
-                + CamerasColumns.CAMERA_IS_STARRED + " INTEGER NOT NULL default 0);");
-		
-        db.execSQL("CREATE TABLE " + Tables.HIGHWAY_ALERTS + " ("
-        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-        		+ HighwayAlertsColumns.HIGHWAY_ALERT_ID + " INTEGER,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_HEADLINE + " TEXT,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_START_LATITUDE + " REAL,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_START_LONGITUDE + " REAL,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_END_LATITUDE + " REAL,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_END_LONGITUDE + " REAL,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_CATEGORY + " TEXT,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_PRIORITY + " TEXT,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_ROAD_NAME + " TEXT,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_LAST_UPDATED + " TEXT);");
 
-        db.execSQL("CREATE TABLE " + Tables.MOUNTAIN_PASSES + " ("
-        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_ID + " INTEGER,"
-                + MountainPassesColumns.MOUNTAIN_PASS_NAME + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_CONDITION + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_ELEVATION + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_ROAD_CONDITION + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_TEMPERATURE + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_DATE_UPDATED + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_LATITUDE + " REAL,"
-                + MountainPassesColumns.MOUNTAIN_PASS_LONGITUDE + " REAL,"
-                + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " TEXT,"
-                + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED + " INTEGER NOT NULL default 0);");
-        
-        db.execSQL("CREATE TABLE " + Tables.TRAVEL_TIMES + " ("
-        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + TravelTimesColumns.TRAVEL_TIMES_ID + " INTEGER,"
-                + TravelTimesColumns.TRAVEL_TIMES_TITLE + " TEXT,"
-                + TravelTimesColumns.TRAVEL_TIMES_UPDATED + " TEXT,"
-                + TravelTimesColumns.TRAVEL_TIMES_DISTANCE + " TEXT,"
-                + TravelTimesColumns.TRAVEL_TIMES_AVERAGE + " INTEGER,"
-                + TravelTimesColumns.TRAVEL_TIMES_CURRENT + " INTEGER,"
-                + TravelTimesColumns.TRAVEL_TIMES_START_LATITUDE + " REAL,"
-                + TravelTimesColumns.TRAVEL_TIMES_START_LONGITUDE + " REAL,"
-                + TravelTimesColumns.TRAVEL_TIMES_END_LATITUDE + " REAL,"
-                + TravelTimesColumns.TRAVEL_TIMES_END_LONGITUDE + " REAL,"
-                + TravelTimesColumns.TRAVEL_TIMES_IS_STARRED + " INTEGER NOT NULL default 0);");
-        
-        db.execSQL("CREATE TABLE " + Tables.FERRIES_SCHEDULES + " ("
-        		+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + FerriesSchedulesColumns.FERRIES_SCHEDULE_ID + " INTEGER,"
-                + FerriesSchedulesColumns.FERRIES_SCHEDULE_TITLE + " TEXT,"
-                + FerriesSchedulesColumns.FERRIES_SCHEDULE_CROSSING_TIME + " TEXT,"
-                + FerriesSchedulesColumns.FERRIES_SCHEDULE_DATE + " TEXT,"
-                + FerriesSchedulesColumns.FERRIES_SCHEDULE_ALERT + " TEXT,"
-                + FerriesSchedulesColumns.FERRIES_SCHEDULE_UPDATED + " TEXT,"
-                + FerriesSchedulesColumns.FERRIES_SCHEDULE_IS_STARRED + " INTEGER NOT NULL default 0);");
-        
-        db.execSQL("CREATE TABLE " + Tables.FERRIES_TERMINAL_SAILING_SPACE + " ("
-                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + FerriesTerminalSailingSpaceColumns.TERMINAL_ID + " INTEGER,"
-                + FerriesTerminalSailingSpaceColumns.TERMINAL_NAME + " TEXT,"
-                + FerriesTerminalSailingSpaceColumns.TERMINAL_ABBREV + " TEXT,"
-                + FerriesTerminalSailingSpaceColumns.TERMINAL_DEPARTING_SPACES + " TEXT,"
-                + FerriesTerminalSailingSpaceColumns.TERMINAL_LAST_UPDATED + " TEXT,"
-                + FerriesTerminalSailingSpaceColumns.TERMINAL_IS_STARRED + " INTEGER NOT NULL default 0);");
-
-
-        db.execSQL("CREATE TABLE " + Tables.MAP_LOCATION + " ("
-                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + LocationColumns.LOCATION_ID + " INTEGER,"
-                + LocationColumns.LOCATION_TITLE + " TEXT,"
-                + LocationColumns.LOCATION_LAT + " INTEGER,"
-                + LocationColumns.LOCATION_LONG + " INTEGER,"
-                + LocationColumns.LOCATION_ZOOM + " INTEGER);");
-
-        db.execSQL("CREATE TABLE " + Tables.MY_ROUTE + " ("
-                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + MyRouteColumns.MY_ROUTE_ID + " INTEGER, "
-                + MyRouteColumns.MY_ROUTE_TITLE + " TEXT, "
-                + MyRouteColumns.MY_ROUTE_LOCATIONS + " TEXT, "
-                + MyRouteColumns.MY_ROUTE_DISPLAY_LAT + " INTEGER, "
-                + MyRouteColumns.MY_ROUTE_DISPLAY_LONG + " INTEGER, "
-                + MyRouteColumns.MY_ROUTE_DISPLAY_ZOOM + " INTEGER, "
-                + MyRouteColumns.MY_ROUTE_FOUND_FAVORITES + " INTEGER NOT NULL default 0, "
-                + MyRouteColumns.MY_ROUTE_IS_STARRED + " INTEGER NOT NULL default 0);");
-        
-        seedData(db);
 	}
 
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.d(TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
-		
-		int version = oldVersion;
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
 
-		switch (version) {
-    		case VER_1:
-    		    Log.i(TAG, "Performing upgrade for DB version " + version);
+    }
 
-    		    db.execSQL("ALTER TABLE " + Tables.HIGHWAY_ALERTS
-                        + " ADD COLUMN " + HighwayAlertsColumns.HIGHWAY_ALERT_LAST_UPDATED + " TEXT");
-    		case VER_2:
-    		    Log.i(TAG, "Performing upgrade for DB version " + version);
-    		    
-    	        db.execSQL("CREATE TABLE " + Tables.FERRIES_TERMINAL_SAILING_SPACE + " ("
-                        + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                        + FerriesTerminalSailingSpaceColumns.TERMINAL_ID + " INTEGER,"
-                        + FerriesTerminalSailingSpaceColumns.TERMINAL_NAME + " TEXT,"
-                        + FerriesTerminalSailingSpaceColumns.TERMINAL_ABBREV + " TEXT,"
-                        + FerriesTerminalSailingSpaceColumns.TERMINAL_DEPARTING_SPACES + " TEXT,"
-                        + FerriesTerminalSailingSpaceColumns.TERMINAL_LAST_UPDATED + " TEXT,"
-                        + FerriesTerminalSailingSpaceColumns.TERMINAL_IS_STARRED + " INTEGER NOT NULL default 0);");
-    	        
-    	        db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_terminal_sailing_space', 0);");
-    		    
-    		case VER_3:
-    		    Log.i(TAG, "Performing upgrade for DB version " + version);
-
-                db.execSQL("ALTER TABLE " + Tables.FERRIES_SCHEDULES
-                        + " ADD COLUMN " + FerriesSchedulesColumns.FERRIES_SCHEDULE_CROSSING_TIME + " TEXT");
-
-            case VER_4:
-                Log.i(TAG, "Performing upgrade for DB version " + version);
-
-                db.execSQL("CREATE TABLE " + Tables.MAP_LOCATION + " ("
-                        + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                        + LocationColumns.LOCATION_ID + " INTEGER,"
-                        + LocationColumns.LOCATION_TITLE + " TEXT,"
-                        + LocationColumns.LOCATION_LAT + " INTEGER,"
-                        + LocationColumns.LOCATION_LONG + " INTEGER,"
-                        + LocationColumns.LOCATION_ZOOM + " INTEGER);");
-
-            case VER_5:
-				Log.i(TAG, "Performing upgrade for DB version " + version);
-
-                versionSixUpdate(db);
-                version = VER_6;
-
-			case VER_6:
-                Log.i(TAG, "Performing upgrade for DB version " + version);
-                versionSevenUpdate(db);
-                version = VER_7;
-
-            case VER_7:
-                Log.i(TAG, "DB at version " + DATABASE_VERSION);
-
-            case VER_8:
-                Log.i(TAG, "DB at version " + DATABASE_VERSION);
-		}
-
-		Log.d(TAG, "After upgrade logic, at version " + version);
-		if (version != DATABASE_VERSION) {
-		    Log.i(TAG, "Destroying old data during upgrade");
-
-            db.execSQL("DROP TABLE IF EXISTS " + Tables.CACHES);
-	        db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMERAS);
-	        db.execSQL("DROP TABLE IF EXISTS " + Tables.HIGHWAY_ALERTS);
-	        db.execSQL("DROP TABLE IF EXISTS " + Tables.MOUNTAIN_PASSES);
-	        db.execSQL("DROP TABLE IF EXISTS " + Tables.TRAVEL_TIMES);
-            db.execSQL("DROP TABLE IF EXISTS " + Tables.FERRIES_SCHEDULES);
-            db.execSQL("DROP TABLE IF EXISTS " + Tables.FERRIES_TERMINAL_SAILING_SPACE);
-	        db.execSQL("DROP TABLE IF EXISTS " + Tables.BORDER_WAIT);
-            db.execSQL("DROP TABLE IF EXISTS " + Tables.MAP_LOCATION);
-            db.execSQL("DROP TABLE IF EXISTS " + Tables.MY_ROUTE);
-	        
-	        onCreate(db);
-		}
-	}
-	
-	private void seedData(SQLiteDatabase db) {
-		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('cameras', 0);");
-		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('highway_alerts', 0);");
-		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('mountain_passes', 0);");
-		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('travel_times', 0);");
-		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_schedules', 0);");
-		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_terminal_sailing_space', 0);");
-		db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('border_wait', 0);");
+    private void seedData(SQLiteDatabase db) {
 
 		// Front load the mountain pass cameras
 
@@ -325,208 +125,4 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 
     }
 
-    /* Version 6:
-         Changed value of MOUNTAIN_PASS_WEATHER_ICON from INTEGER to TEXT.
-         DB now saves icon filename instead of dynamic resource ID.
-
-         Saves users favorite passes in update.
-
-         See: https://github.com/WSDOT/wsdot-android-app/issues/83
-    */
-    private void versionSixUpdate(SQLiteDatabase db){
-        db.execSQL(
-                "CREATE TABLE new_table("
-                        + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_ID + " INTEGER,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_NAME + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_CONDITION + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_ELEVATION + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_ROAD_CONDITION + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_TEMPERATURE + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_DATE_UPDATED + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED + " INTEGER NOT NULL default 0); "
-                        + " INSERT INTO new_table (SELECT "
-                        + BaseColumns._ID + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_ID + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_NAME + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_CONDITION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_ELEVATION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_ROAD_CONDITION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_TEMPERATURE + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_DATE_UPDATED + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED
-                        + " FROM " + Tables.MOUNTAIN_PASSES + "); "
-
-                        + " DROP TABLE " + Tables.MOUNTAIN_PASSES + "; "
-                        + " ALTER TABLE new_table RENAME TO " + Tables.MOUNTAIN_PASSES + ";"
-        );
-
-        db.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " = 0 WHERE "
-                + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.MOUNTAIN_PASSES + "' ");
-    }
-
-    /* Version 7:
-         Added my routes table
-         Added end location of traffic alerts.
-         Added start & end locations of travel times.
-         Added lat/long to mountain pass table.
-
-         This way My Routes feature can
-         better locate items on the users route using the start & end location.
-    */
-    private void versionSevenUpdate(SQLiteDatabase db) {
-
-        db.execSQL("CREATE TABLE " + Tables.MY_ROUTE + " ("
-                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + MyRouteColumns.MY_ROUTE_ID + " INTEGER,"
-                + MyRouteColumns.MY_ROUTE_TITLE + " TEXT,"
-                + MyRouteColumns.MY_ROUTE_LOCATIONS + " TEXT,"
-                + MyRouteColumns.MY_ROUTE_DISPLAY_LAT + " INTEGER,"
-                + MyRouteColumns.MY_ROUTE_DISPLAY_LONG + " INTEGER,"
-                + MyRouteColumns.MY_ROUTE_DISPLAY_ZOOM + " INTEGER,"
-                + MyRouteColumns.MY_ROUTE_FOUND_FAVORITES + " INTEGER NOT NULL default 0,"
-                + MyRouteColumns.MY_ROUTE_IS_STARRED + " INTEGER NOT NULL default 0);");
-
-        db.execSQL("DROP TABLE " + Tables.HIGHWAY_ALERTS + "; ");
-        db.execSQL("CREATE TABLE " + Tables.HIGHWAY_ALERTS + " ("
-                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_ID + " INTEGER,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_HEADLINE + " TEXT,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_START_LATITUDE + " REAL,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_START_LONGITUDE + " REAL,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_END_LATITUDE + " REAL,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_END_LONGITUDE + " REAL,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_CATEGORY + " TEXT,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_PRIORITY + " TEXT,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_ROAD_NAME + " TEXT,"
-                + HighwayAlertsColumns.HIGHWAY_ALERT_LAST_UPDATED + " TEXT);");
-
-
-        // Expire cache time
-        db.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " = 0 WHERE "
-                + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.HIGHWAY_ALERTS + "'; ");
-
-        // Add start & end location fields to travel times
-        db.execSQL("CREATE TABLE new_times_table ("
-                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + TravelTimesColumns.TRAVEL_TIMES_ID + " INTEGER,"
-                + TravelTimesColumns.TRAVEL_TIMES_TITLE + " TEXT,"
-                + TravelTimesColumns.TRAVEL_TIMES_UPDATED + " TEXT,"
-                + TravelTimesColumns.TRAVEL_TIMES_DISTANCE + " TEXT,"
-                + TravelTimesColumns.TRAVEL_TIMES_AVERAGE + " INTEGER,"
-                + TravelTimesColumns.TRAVEL_TIMES_CURRENT + " INTEGER,"
-                + TravelTimesColumns.TRAVEL_TIMES_START_LATITUDE + " REAL default 0,"
-                + TravelTimesColumns.TRAVEL_TIMES_START_LONGITUDE + " REAL default 0,"
-                + TravelTimesColumns.TRAVEL_TIMES_END_LATITUDE + " REAL default 0,"
-                + TravelTimesColumns.TRAVEL_TIMES_END_LONGITUDE + " REAL default 0,"
-                + TravelTimesColumns.TRAVEL_TIMES_IS_STARRED + " INTEGER NOT NULL default 0); ");
-
-        db.execSQL("INSERT INTO new_times_table ("
-                + BaseColumns._ID + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_ID + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_TITLE + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_UPDATED + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_DISTANCE + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_AVERAGE + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_CURRENT + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_IS_STARRED + ") "
-                + " SELECT "
-                + BaseColumns._ID + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_ID + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_TITLE + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_UPDATED + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_DISTANCE + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_AVERAGE + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_CURRENT + ", "
-                + TravelTimesColumns.TRAVEL_TIMES_IS_STARRED
-                + " FROM " + Tables.TRAVEL_TIMES + "; ");
-
-        db.execSQL("DROP TABLE " + Tables.TRAVEL_TIMES + "; ");
-        db.execSQL(" ALTER TABLE new_times_table RENAME TO " + Tables.TRAVEL_TIMES + "; ");
-
-        // Expire cache time
-        db.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " = 0 WHERE "
-                + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.TRAVEL_TIMES + "'; ");
-
-        // Add latitude & longitude to mountain pass table
-        db.execSQL("CREATE TABLE new_passes_table("
-                        + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_ID + " INTEGER,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_NAME + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_CONDITION + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_ELEVATION + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_ROAD_CONDITION + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_TEMPERATURE + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_DATE_UPDATED + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_LATITUDE + " REAL default 0,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_LONGITUDE + " REAL default 0,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + " TEXT,"
-                        + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED + " INTEGER NOT NULL default 0); ");
-
-        db.execSQL(" INSERT INTO new_passes_table ( "
-                        + BaseColumns._ID + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_ID + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_NAME + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_CONDITION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_ELEVATION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_ROAD_CONDITION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_TEMPERATURE + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_DATE_UPDATED + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED + ") "
-                        + "SELECT "
-                        + BaseColumns._ID + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_ID + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_NAME + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_CONDITION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_ELEVATION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_TRAVEL_ADVISORY_ACTIVE + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_ROAD_CONDITION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_TEMPERATURE + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_DATE_UPDATED + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_CAMERA + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_FORECAST + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_WEATHER_ICON + ", "
-                        + MountainPassesColumns.MOUNTAIN_PASS_IS_STARRED
-                        + " FROM " + Tables.MOUNTAIN_PASSES + "; ");
-
-        db.execSQL(" DROP TABLE " + Tables.MOUNTAIN_PASSES + "; ");
-        db.execSQL(" ALTER TABLE new_passes_table RENAME TO " + Tables.MOUNTAIN_PASSES + "; ");
-
-        db.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " = 0 WHERE "
-                + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.MOUNTAIN_PASSES + "'; ");
-    }
 }

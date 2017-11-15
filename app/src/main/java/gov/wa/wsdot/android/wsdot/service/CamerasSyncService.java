@@ -38,18 +38,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
 public class CamerasSyncService extends IntentService {
 	
 	private static final String DEBUG_TAG = "CamerasSyncService";
-	
-    private String[] projection = {
-    		Caches.CACHE_LAST_UPDATED
-    		};
+
     
     public CamerasSyncService() {
 		super("CamerasSyncService");
@@ -63,31 +58,7 @@ public class CamerasSyncService extends IntentService {
 		boolean shouldUpdate = true;
 		String responseString = "";
 
-		/** 
-		 * Check the cache table for the last time data was downloaded. If we are within
-		 * the allowed time period, don't sync, otherwise get fresh data from the server.
-		 */
-		try {
-			cursor = resolver.query(
-					Caches.CONTENT_URI,
-					projection,
-					Caches.CACHE_TABLE_NAME + " LIKE ?",
-					new String[] {"cameras"},
-					null
-					);
-			
-			if (cursor != null && cursor.moveToFirst()) {
-				long lastUpdated = cursor.getLong(0);
-				//long deltaDays = (now - lastUpdated) / DateUtils.DAY_IN_MILLIS;
-				//Log.d(DEBUG_TAG, "Delta since last update is " + deltaDays + " day(s)");
-				shouldUpdate = (Math.abs(now - lastUpdated) > (7 * DateUtils.DAY_IN_MILLIS));
-			}
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
-		
+
 		// Ability to force a refresh of camera data.
 		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
 		
@@ -140,14 +111,7 @@ public class CamerasSyncService extends IntentService {
 				resolver.delete(Cameras.CONTENT_URI, null, null);
 				// Bulk insert all the new cameras
 				resolver.bulkInsert(Cameras.CONTENT_URI, cams.toArray(new ContentValues[cams.size()]));
-				// Update the cache table with the time we did the update
-				ContentValues values = new ContentValues();
-				values.put(Caches.CACHE_LAST_UPDATED, System.currentTimeMillis());
-				resolver.update(
-						Caches.CONTENT_URI,
-						values, Caches.CACHE_TABLE_NAME + " LIKE ?",
-						new String[] {"cameras"}
-						);
+				// todo Update the cache table with the time we did the update
 				
 				responseString = "OK";
 	    	} catch (Exception e) {

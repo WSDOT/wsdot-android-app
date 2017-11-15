@@ -28,6 +28,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,16 +74,6 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(BorderWaitViewModel.class);
-        viewModel.init("northbound");
-
-        viewModel.getBorderWaits(false).observe(this, borderWaits -> {
-            mBorderWaits.clear();
-            mBorderWaits = borderWaits;
-            mAdapter.notifyDataSetChanged();
-            swipeRefreshLayout.setRefreshing(false);
-        });
-
         routeImage.put(5, R.drawable.ic_list_i5);
         routeImage.put(9, R.drawable.ic_list_sr9);
         routeImage.put(539, R.drawable.ic_list_sr539);
@@ -122,6 +113,18 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
                 R.color.holo_red_light);
 
         swipeRefreshLayout.setRefreshing(true);
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(BorderWaitViewModel.class);
+        viewModel.init("northbound");
+
+        viewModel.getBorderWaits(false).observe(this, borderWaits -> {
+            if (borderWaits.size() > 0) {
+                mBorderWaits.clear();
+                mBorderWaits = borderWaits;
+                mAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
@@ -209,11 +212,6 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
 
     public void onRefresh() {
 		swipeRefreshLayout.setRefreshing(true);
-        viewModel.getBorderWaits(true).observe(this, borderWaits -> {
-            mBorderWaits.clear();
-            mBorderWaits = borderWaits;
-            mAdapter.notifyDataSetChanged();
-            swipeRefreshLayout.setRefreshing(false);
-        });
+		viewModel.getBorderWaits(true);
     }
 }

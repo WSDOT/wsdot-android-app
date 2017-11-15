@@ -3,13 +3,18 @@ package gov.wa.wsdot.android.wsdot.database.borderwaits;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
 
 @Entity(tableName = "border_waits")
 public class BorderWaitEntity {
 
-    @ColumnInfo(name = "id")
-    @PrimaryKey
-    public int id;
+    @ColumnInfo(name = BaseColumns._ID)
+    @PrimaryKey(autoGenerate = true)
+    public Integer id;
+
+    @ColumnInfo(name = "border_wait_id")
+    private Integer borderWaitId;
 
     @ColumnInfo(name = "title")
     private String title;
@@ -30,51 +35,71 @@ public class BorderWaitEntity {
     private Integer wait;
 
     @ColumnInfo(name = "is_starred")
-    private Integer isStarred;
+    @NonNull
+    private Integer isStarred = 0;
 
-    public Integer getId() {
-        return id;
+    public Integer getBorderWaitId() {
+        return borderWaitId;
     }
-    public void setId(Integer id) {
-        this.id = id;
+
+    public void setBorderWaitId(int borderWaitId) {
+        this.borderWaitId = borderWaitId;
     }
+
     public String getTitle() {
         return title;
     }
+
     public void setTitle(String title) {
         this.title = title;
     }
-    public Integer getRoute() {
-        return route;
-    }
-    public void setRoute(Integer route) {
-        this.route = route;
-    }
-    public Integer getWait() {
-        return wait;
-    }
-    public void setWait(Integer wait) {
-        this.wait = wait;
-    }
+
     public String getUpdated() {
         return updated;
     }
+
     public void setUpdated(String updated) {
         this.updated = updated;
     }
+
     public String getLane() {
         return lane;
     }
+
     public void setLane(String lane) {
         this.lane = lane;
     }
+
+    public Integer getRoute() {
+        return route;
+    }
+
+    public void setRoute(Integer route) {
+        this.route = route;
+    }
+
     public String getDirection() {
         return direction;
     }
+
     public void setDirection(String direction) {
         this.direction = direction;
     }
-    public Integer getIsStarred() { return isStarred; }
-    public void setIsStarred(Integer isStarred) { this.isStarred = isStarred; }
 
+    public Integer getWait() {
+        return wait;
+    }
+
+    public void setWait(Integer wait) {
+        this.wait = wait;
+    }
+
+    @NonNull
+    public Integer getIsStarred() {
+        return isStarred;
+    }
+
+    public void setIsStarred(@NonNull Integer isStarred) {
+        this.isStarred = isStarred;
+    }
 }

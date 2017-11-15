@@ -68,7 +68,7 @@
         />
         
     <ImageButton
-        android:id="@+id/control_play"
+        andridd:idid@+id/control_play"
         android:layout_width="0dip"
         android:layout_weight="1"
         android:layout_height="match_parent"
@@ -84,7 +84,7 @@
         />
         
     <ImageButton
-        android:id="@+id/control_next"
+        andridd:idid@+id/control_next"
         android:layout_width="0dip"
         android:layout_weight="1"
         android:layout_height="match_parent"

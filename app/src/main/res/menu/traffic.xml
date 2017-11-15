@@ -56,7 +56,7 @@
 
 		<menu>
 			<item android:orderInCategory="1" android:title="Bellingham" android:id="@+id/goto_bellingham" />
-			<item android:orderInCategory="2" android:title="Chehalis" android:id="@+id/goto_chehalis" />		
+			<item android:orderInCategory="2" android:title="Chehalis" android:id="@+id/goto_chehalis" />
 			<item android:orderInCategory="3" android:title="Hood Canal" android:id="@+id/goto_hoodcanal" />
 			<item android:orderInCategory="4" android:title="Monroe" android:id="@+id/goto_monroe" />
 			<item android:orderInCategory="5" android:title="Mount Vernon" android:id="@+id/goto_mtvernon" />

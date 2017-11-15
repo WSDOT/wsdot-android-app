@@ -1,6 +1,7 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
 import android.arch.lifecycle.LiveData;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -18,6 +19,8 @@ import javax.inject.Singleton;
 
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
+import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
+import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 
@@ -28,22 +31,32 @@ public class BorderWaitRepository {
 
     private final AppExecutors appExecutors;
     private final BorderWaitDao borderWaitDao;
+    private final CacheRepository cacheRepository;
 
     @Inject
-    public BorderWaitRepository(BorderWaitDao borderWaitDao, AppExecutors appExecutors) {
+    public BorderWaitRepository(BorderWaitDao borderWaitDao, AppExecutors appExecutors, CacheRepository cacheRepository) {
         this.borderWaitDao = borderWaitDao;
         this.appExecutors = appExecutors;
+        this.cacheRepository = cacheRepository;
     }
 
     public LiveData<List<BorderWaitEntity>> getBorderWaitsFor(String direction) {
-        refreshBorderWaits();
+
+        appExecutors.diskIO().execute(() -> {
+                    CacheEntity cache = cacheRepository.getCacheTimeFor("border_wait");
+                    long now = System.currentTimeMillis();
+                    Boolean shouldUpdate = (Math.abs(now - cache.getLastUpdated()) > (7 * DateUtils.DAY_IN_MILLIS));
+                    if (shouldUpdate) {
+                        refreshBorderWaits();
+                    }
+                });
+
         // return a LiveData directly from the database.
         return borderWaitDao.loadBorderWaitsFor(direction);
     }
 
-    // TODO: cache time so we aren't always refreshing
     private void refreshBorderWaits() {
-        appExecutors.diskIO().execute(() -> {
+
             try {
                 URL url = new URL(APIEndPoints.BORDER_WAITS);
                 URLConnection urlConn = url.openConnection();
@@ -69,7 +82,7 @@ public class BorderWaitRepository {
 
                     BorderWaitEntity wait = new BorderWaitEntity();
 
-                    wait.setId(item.getInt("id"));
+                    wait.setBorderWaitId(item.getInt("id"));
                     wait.setTitle(item.getString("name"));
                     wait.setDirection(item.getString("direction"));
                     wait.setLane(item.getString("lane"));
@@ -84,11 +97,11 @@ public class BorderWaitRepository {
                 BorderWaitEntity[] waitsArray = new BorderWaitEntity[waits.size()];
                 waitsArray = waits.toArray(waitsArray);
 
-                borderWaitDao.insertBorderWaits(waitsArray);
+                borderWaitDao.deleteAndInsertTransaction(waitsArray);
 
             } catch (Exception e) {
                 Log.e(TAG, "Error: " + e.getMessage());
             }
-        });
+
     }
 }

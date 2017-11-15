@@ -86,34 +86,34 @@ public class HighImpactAlertsFragment extends BaseFragment implements
 
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.		
-		getLoaderManager().initLoader(0, null, this);
+		//getLoaderManager().initLoader(0, null, this);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 		
-        IntentFilter alertsFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
-        alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
-        getActivity().registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
+        //IntentFilter alertsFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
+       // alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
+       // mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
+        //getActivity().registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
 		
-        mHandler.post(runnable);
+        //mHandler.post(runnable);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
 		
-		mHandler.removeCallbacks(runnable);
-		getActivity().unregisterReceiver(mHighwayAlertsSyncReceiver);
+		//mHandler.removeCallbacks(runnable);
+		//getActivity().unregisterReceiver(mHighwayAlertsSyncReceiver);
 	}
 	
     private Runnable runnable = new Runnable() {
         public void run() {
-        	Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-        	getActivity().startService(intent);
-        	mHandler.postDelayed(runnable, (1 * DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
+        	//Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
+        	//getActivity().startService(intent);
+        	//mHandler.postDelayed(runnable, (1 * DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
         }
     };
     

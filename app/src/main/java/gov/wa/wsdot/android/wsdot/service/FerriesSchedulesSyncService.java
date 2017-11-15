@@ -23,8 +23,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.text.format.DateUtils;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -41,8 +39,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
@@ -63,30 +59,6 @@ public class FerriesSchedulesSyncService extends IntentService {
 		String responseString = "";
 		DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
-		/** 
-		 * Check the cache table for the last time data was downloaded. If we are within
-		 * the allowed time period, don't sync, otherwise get fresh data from the server.
-		 */
-		try {
-			cursor = resolver.query(
-					Caches.CONTENT_URI,
-					new String[] {Caches.CACHE_LAST_UPDATED},
-					Caches.CACHE_TABLE_NAME + " LIKE ?",
-					new String[] {"ferries_schedules"},
-					null
-					);
-			
-			if (cursor != null && cursor.moveToFirst()) {
-				long lastUpdated = cursor.getLong(0);
-				//long deltaMinutes = (now - lastUpdated) / DateUtils.MINUTE_IN_MILLIS;
-				//Log.d(DEBUG_TAG, "Delta since last update is " + deltaMinutes + " min");
-				shouldUpdate = (Math.abs(now - lastUpdated) > (15 * DateUtils.MINUTE_IN_MILLIS));
-			}
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
 		
 		// Ability to force a refresh of camera data.
 		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
@@ -140,18 +112,10 @@ public class FerriesSchedulesSyncService extends IntentService {
 				resolver.delete(FerriesSchedules.CONTENT_URI, null, null);
 				// Bulk insert all the new travel times
 				resolver.bulkInsert(FerriesSchedules.CONTENT_URI, schedules.toArray(new ContentValues[schedules.size()]));		
-				// Update the cache table with the time we did the update
-				ContentValues values = new ContentValues();
-				values.put(Caches.CACHE_LAST_UPDATED, System.currentTimeMillis());
-				resolver.update(
-						Caches.CONTENT_URI,
-						values, Caches.CACHE_TABLE_NAME + "=?",
-						new String[] {"ferries_schedules"}
-						);
-				
+				// todo Update the cache table with the time we did the update
+
 				responseString = "OK";				
 	    	} catch (Exception e) {
-	    		Log.e(DEBUG_TAG, "Error: " + e.getMessage());
 	    		responseString = e.getMessage();
 			}
 			
@@ -196,8 +160,6 @@ public class FerriesSchedulesSyncService extends IntentService {
 				cursor.close();
 			}
 		}
-		
 		return starred;
 	}
-
 }

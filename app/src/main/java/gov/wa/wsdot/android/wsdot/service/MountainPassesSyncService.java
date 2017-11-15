@@ -49,8 +49,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Caches;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
@@ -77,30 +75,7 @@ public class MountainPassesSyncService extends IntentService {
 		boolean shouldUpdate = true;
 		String responseString = "";
 
-		/** 
-		 * Check the cache table for the last time data was downloaded. If we are within
-		 * the allowed time period, don't sync, otherwise get fresh data from the server.
-		 */
-		try {
-			cursor = resolver.query(
-					Caches.CONTENT_URI,
-					new String[] {Caches.CACHE_LAST_UPDATED},
-					Caches.CACHE_TABLE_NAME + " LIKE ?",
-					new String[] {"mountain_passes"},
-					null
-					);
-			
-			if (cursor != null && cursor.moveToFirst()) {
-				long lastUpdated = cursor.getLong(0);
-				//long deltaMinutes = (now - lastUpdated) / DateUtils.MINUTE_IN_MILLIS;
-				//Log.d(DEBUG_TAG, "Delta since last update is " + deltaMinutes + " min");
-				shouldUpdate = (Math.abs(now - lastUpdated) > (15 * DateUtils.MINUTE_IN_MILLIS));
-			}
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
+
 		
 		// Ability to force a refresh of camera data.
 		boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
@@ -224,14 +199,8 @@ public class MountainPassesSyncService extends IntentService {
 				resolver.delete(MountainPasses.CONTENT_URI, null, null);
 				// Bulk insert all the new mountain passes
 				resolver.bulkInsert(MountainPasses.CONTENT_URI, passes.toArray(new ContentValues[passes.size()]));		
-				// Update the cache table with the time we did the update
-				ContentValues values = new ContentValues();
-				values.put(Caches.CACHE_LAST_UPDATED, System.currentTimeMillis());
-				resolver.update(
-						Caches.CONTENT_URI,
-						values, Caches.CACHE_TABLE_NAME + "=?",
-						new String[] {"mountain_passes"}
-						);
+				// todo Update the cache table with the time we did the update
+
 				
 				responseString = "OK";
 	    	} catch (Exception e) {

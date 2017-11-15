@@ -84,8 +84,8 @@ public class HomeActivity extends BaseActivity {
         // Add tab titles and their corresponding fragments to the fragment list.
         tabFragments.add(mTabLayout.getTabCount(), DashboardFragment.class);
         mTabLayout.addTab(mTabLayout.newTab().setText("Home"));
-        tabFragments.add(mTabLayout.getTabCount(), FavoritesFragment.class);
-        mTabLayout.addTab(mTabLayout.newTab().setText("Favorites"));
+       // tabFragments.add(mTabLayout.getTabCount(), FavoritesFragment.class);
+       // mTabLayout.addTab(mTabLayout.newTab().setText("Favorites"));
 
         mtabsAdapter = new TabsAdapter
                 (this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount());
