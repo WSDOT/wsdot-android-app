@@ -28,7 +28,7 @@ public class APIEndPoints {
     public static final String HIGHWAY_ALERTS = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js";
     public static final String TRAVEL_TIMES = "http://data.wsdot.wa.gov/mobile/TravelTimes.js.gz";
     public static final String BORDER_WAITS = "http://data.wsdot.wa.gov/mobile/BorderCrossings.js";
-    public static final String TRAVEL_CHARTS = "http://data.wsdot.wa.gov/mobile/travelCharts.js.gz";
+    public static final String TRAVEL_CHARTS = "http://data.wsdot.wa.gov/mobile/travelChartsAndroidv1.js.gz";
     public static final String EXPRESS_LANES = "http://data.wsdot.wa.gov/mobile/ExpressLanes.js";
     public static final String EXPRESS_LANES_WEBSITE = "http://www.wsdot.wa.gov/Northwest/King/ExpressLanes";
     public static final String JBLM_IMAGE = "http://images.wsdot.wa.gov/traffic/flowmaps/jblm.png";
