@@ -442,7 +442,7 @@ public abstract class AppDatabase extends RoomDatabase {
     };
 
     @VisibleForTesting
-    static final Migration MIGRATION_7_8 = new Migration(7, 8) {
+    public static final Migration MIGRATION_7_8 = new Migration(7, 8) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             // Since we didn't alter the table, there's nothing else to do here.
@@ -454,15 +454,14 @@ public abstract class AppDatabase extends RoomDatabase {
             if (INSTANCE == null) {
                 INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                         AppDatabase.class, "wsdot.db")
-                      /*  .addMigrations(
+                        .addMigrations(
                                 MIGRATION_1_2,
                                 MIGRATION_2_3,
                                 MIGRATION_3_4,
                                 MIGRATION_4_5,
                                 MIGRATION_5_6,
                                 MIGRATION_6_7,
-                                MIGRATION_7_8)*/
-                        .fallbackToDestructiveMigration()
+                                MIGRATION_7_8)
                         .addCallback(new Callback() {
 
                             @Override

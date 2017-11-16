@@ -15,10 +15,10 @@ public abstract class BorderWaitDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void insertBorderWaits(BorderWaitEntity... borderWaits);
 
-    @Query("SELECT * FROM border_waits WHERE direction LIKE :direction")
+    @Query("SELECT * FROM border_wait WHERE direction LIKE :direction")
     public abstract LiveData<List<BorderWaitEntity>> loadBorderWaitsFor(String direction);
 
-    @Query("DELETE FROM border_waits")
+    @Query("DELETE FROM border_wait")
     public abstract void deleteAll();
 
     @Transaction

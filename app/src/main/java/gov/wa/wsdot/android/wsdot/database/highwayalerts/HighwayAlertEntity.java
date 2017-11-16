@@ -40,8 +40,7 @@ public class HighwayAlertEntity {
     private String roadName;
 
     @ColumnInfo(name = "highway_alert_last_updated")
-    private Integer lastUpdated;
-
+    private String lastUpdated;
 
     public int getAlertId() {
         return alertId;
@@ -115,11 +114,11 @@ public class HighwayAlertEntity {
         this.roadName = roadName;
     }
 
-    public Integer getLastUpdated() {
+    public String getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(Integer lastUpdated) {
+    public void setLastUpdated(String lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 }

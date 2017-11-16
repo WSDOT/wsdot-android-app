@@ -16,6 +16,9 @@ public class MountainPassEntity {
     @ColumnInfo(name = "id")
     private Integer passId;
 
+    @ColumnInfo(name = "name")
+    private String name;
+
     @ColumnInfo(name = "weather_condition")
     private String weatherCondition;
 
@@ -71,6 +74,14 @@ public class MountainPassEntity {
 
     public void setPassId(Integer passId) {
         this.passId = passId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getWeatherCondition() {

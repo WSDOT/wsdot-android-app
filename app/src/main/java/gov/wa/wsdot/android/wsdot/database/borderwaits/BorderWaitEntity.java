@@ -6,14 +6,14 @@ import android.arch.persistence.room.PrimaryKey;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 
-@Entity(tableName = "border_waits")
+@Entity(tableName = "border_wait")
 public class BorderWaitEntity {
 
     @ColumnInfo(name = BaseColumns._ID)
     @PrimaryKey(autoGenerate = true)
     public Integer id;
 
-    @ColumnInfo(name = "border_wait_id")
+    @ColumnInfo(name = "id")
     private Integer borderWaitId;
 
     @ColumnInfo(name = "title")
