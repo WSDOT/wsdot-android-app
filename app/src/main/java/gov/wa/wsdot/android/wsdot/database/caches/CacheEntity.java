@@ -16,9 +16,9 @@ public class CacheEntity {
     private String tableName;
 
     @ColumnInfo(name = "cache_last_updated")
-    private Integer lastUpdated;
+    private Long lastUpdated;
 
-    public CacheEntity(String tableName, Integer lastUpdated){
+    public CacheEntity(String tableName, Long lastUpdated){
         this.tableName = tableName;
         this.lastUpdated = lastUpdated;
     }
@@ -30,10 +30,10 @@ public class CacheEntity {
         this.tableName = tableName;
     }
 
-    public Integer getLastUpdated() {
+    public Long getLastUpdated() {
         return this.lastUpdated;
     }
-    public void setLastUpdated(Integer lastUpdated) {
+    public void setLastUpdated(Long lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 }

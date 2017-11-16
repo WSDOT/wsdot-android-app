@@ -99,6 +99,9 @@ public class BorderWaitRepository {
 
                 borderWaitDao.deleteAndInsertTransaction(waitsArray);
 
+                CacheEntity borderCache = new CacheEntity("border_wait", System.currentTimeMillis());
+                cacheRepository.setCacheTime(borderCache);
+
             } catch (Exception e) {
                 Log.e(TAG, "Error: " + e.getMessage());
             }
