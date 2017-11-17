@@ -20,6 +20,7 @@ import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
+import gov.wa.wsdot.android.wsdot.ui.home.HomeActivity;
 
 /**
  *  For Dagger 2. A list of classes passed to the Object Graph that
@@ -37,4 +38,8 @@ public abstract class ActivityModule {
 
     @ContributesAndroidInjector
     abstract BorderWaitActivity contributeBorderWaitActivity();
+
+    @ContributesAndroidInjector
+    abstract HomeActivity contributeHomeActivity();
+
 }

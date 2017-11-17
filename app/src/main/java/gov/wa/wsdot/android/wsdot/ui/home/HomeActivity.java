@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
@@ -51,7 +52,7 @@ import gov.wa.wsdot.android.wsdot.ui.widget.HomePager;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
-public class HomeActivity extends BaseActivity {
+public class HomeActivity extends BaseActivity implements Injectable {
 
     private static final String TAG = HomeActivity.class.getSimpleName();
     private TabLayout mTabLayout;
@@ -84,8 +85,8 @@ public class HomeActivity extends BaseActivity {
         // Add tab titles and their corresponding fragments to the fragment list.
         tabFragments.add(mTabLayout.getTabCount(), DashboardFragment.class);
         mTabLayout.addTab(mTabLayout.newTab().setText("Home"));
-        tabFragments.add(mTabLayout.getTabCount(), FavoritesFragment.class);
-        mTabLayout.addTab(mTabLayout.newTab().setText("Favorites"));
+        //tabFragments.add(mTabLayout.getTabCount(), FavoritesFragment.class);
+        //mTabLayout.addTab(mTabLayout.newTab().setText("Favorites"));
 
         mtabsAdapter = new TabsAdapter
                 (this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount());

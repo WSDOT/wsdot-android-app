@@ -18,20 +18,13 @@
 
 package gov.wa.wsdot.android.wsdot.ui.home;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.format.DateUtils;
@@ -44,153 +37,133 @@ import android.widget.TextView;
 import com.viewpagerindicator.LinePageIndicator;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
-import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
-import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
+import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
-import gov.wa.wsdot.android.wsdot.util.UIUtils;
+import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertViewModel;
 
 public class HighImpactAlertsFragment extends BaseFragment implements
-        LoaderCallbacks<Cursor> {
+        Injectable {
+
+    static final String TAG = HighImpactAlertsFragment.class.getSimpleName();
 
 	private ViewGroup mRootView;
     private ViewPagerAdapter mAdapter;
-    private static ViewPager mPager;
-    private static LinePageIndicator mIndicator;
-	private static View mLoadingSpinner;
-	private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
-	private ArrayList<HighwayAlertsItem> alertItems = new ArrayList<HighwayAlertsItem>();
+    private ViewPager mPager;
+    private LinePageIndicator mIndicator;
+	private View mLoadingSpinner;
+	private List<HighwayAlertEntity> alertItems = new ArrayList<>();
 	private Handler mHandler = new Handler();
-    
+
+	private static HighwayAlertViewModel viewModel;
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(HighwayAlertViewModel.class);
+
+        viewModel.init(HighwayAlertViewModel.AlertPriority.HIGHEST);
+
+        viewModel.getResourceStatus().observe(this, ResourceStatus -> {
+            Log.e(TAG, "event!");
+            if (ResourceStatus != null) {
+                Log.e(TAG, ResourceStatus.status.toString());
+                switch (ResourceStatus.status) {
+                    case LOADING:
+                        mLoadingSpinner.setVisibility(View.VISIBLE);
+                        break;
+                    case SUCCESS:
+                        mLoadingSpinner.setVisibility(View.GONE);
+                        break;
+                    case ERROR:
+                        alertItems.clear();
+                        mLoadingSpinner.setVisibility(View.GONE);
+                        HighwayAlertEntity item = new HighwayAlertEntity();
+                        item.setCategory("error");
+                        item.setHeadline(ResourceStatus.message);
+                        alertItems.add(item);
+
+                        mAdapter = new ViewPagerAdapter(alertItems);
+                        mPager.setAdapter(mAdapter);
+                        mIndicator.setViewPager(mPager);
+
+                        mPager.setVisibility(View.VISIBLE);
+                        mIndicator.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        viewModel.getHighwayAlerts().observe(this, highwayAlerts -> {
+
+            if (highwayAlerts != null) {
+                Log.e(TAG, String.valueOf(highwayAlerts.size()));
+
+                alertItems.clear();
+                alertItems = highwayAlerts;
+
+                if (alertItems.size() == 0) {
+                    HighwayAlertEntity item = new HighwayAlertEntity();
+                    item.setCategory("empty");
+                    alertItems.add(item);
+                }
+
+                mAdapter = new ViewPagerAdapter(alertItems);
+                mPager.setAdapter(mAdapter);
+                mIndicator.setViewPager(mPager);
+                mIndicator.setCurrentItem(0);
+
+                mPager.setVisibility(View.VISIBLE);
+                mIndicator.setVisibility(View.VISIBLE);
+
+            }
+        });
+    }
+
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);		
+	public void onResume() {
+		super.onResume();
+        mHandler.postDelayed(runnable, (DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		mHandler.removeCallbacks(runnable);
 	}
 
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_high_impact_alerts, container);
         mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);
-        mPager = (ViewPager)mRootView.findViewById(R.id.pager);
-        mIndicator = (LinePageIndicator)mRootView.findViewById(R.id.indicator);
-        
+        mPager = mRootView.findViewById(R.id.pager);
+        mIndicator = mRootView.findViewById(R.id.indicator);
+
+        mLoadingSpinner.setVisibility(View.VISIBLE);
+
         return mRootView;
     }
 	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		// Prepare the loader. Either re-connect with an existing one,
-		// or start a new one.		
-		//getLoaderManager().initLoader(0, null, this);
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		
-        //IntentFilter alertsFilter = new IntentFilter("gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
-       // alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
-       // mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
-        //getActivity().registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
-		
-        //mHandler.post(runnable);
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		
-		//mHandler.removeCallbacks(runnable);
-		//getActivity().unregisterReceiver(mHighwayAlertsSyncReceiver);
-	}
-	
     private Runnable runnable = new Runnable() {
         public void run() {
-        	//Intent intent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-        	//getActivity().startService(intent);
-        	//mHandler.postDelayed(runnable, (1 * DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
+        	viewModel.forceRefreshHighwayAlerts();
+			mHandler.postDelayed(runnable, (DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
         }
     };
-    
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        // This is called when a new Loader needs to be created.
-		String[] projection = {
-	            HighwayAlerts.HIGHWAY_ALERT_ID,
-				HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE,
-				HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE,
-				HighwayAlerts.HIGHWAY_ALERT_END_LATITUDE,
-				HighwayAlerts.HIGHWAY_ALERT_END_LONGITUDE,
-				HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
-				HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
-				HighwayAlerts.HIGHWAY_ALERT_PRIORITY,
-				HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED
-				};
 
-		// We are only displaying the highest impact alerts on the dashboard.
-		CursorLoader cursorLoader = new HighImpactAlertsLoader(getActivity(),
-				HighwayAlerts.CONTENT_URI,
-				projection,
-				HighwayAlerts.HIGHWAY_ALERT_PRIORITY + " LIKE ?",
-				new String[] {"Highest"},
-				null
-				);
-
-		return cursorLoader;
-	}
-
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		alertItems.clear();
-		
-		if (cursor.moveToFirst()) {
-			while (!cursor.isAfterLast()) {
-				HighwayAlertsItem item = new HighwayAlertsItem();
-                item.setAlertId(cursor.getString(0));
-                item.setStartLatitude(cursor.getDouble(1));
-                item.setStartLongitude(cursor.getDouble(2));
-				item.setEndLatitude(cursor.getDouble(3));
-				item.setEndLongitude(cursor.getDouble(4));
-                item.setEventCategory(cursor.getString(5));
-				item.setExtendedDescription(cursor.getString(6));
-				item.setLastUpdatedTime(cursor.getString(7));
-				alertItems.add(item);
-
-				cursor.moveToNext();
-			}
-
-		} else {
-			HighwayAlertsItem item = new HighwayAlertsItem();
-			item.setEventCategory("empty");
-			alertItems.add(item);
-		}
-			
-		mLoadingSpinner.setVisibility(View.GONE);
-		mPager.setVisibility(View.VISIBLE);
-		mIndicator.setVisibility(View.VISIBLE);
-		mAdapter = new ViewPagerAdapter(getActivity(), alertItems);
-		mPager.setAdapter(mAdapter);
-		mIndicator.setViewPager(mPager);
-	}
-
-	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.items = null;
-	}	
-	
 	public class ViewPagerAdapter extends PagerAdapter {
-		private ArrayList<HighwayAlertsItem> items;
+		private List<HighwayAlertEntity> items;
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
-        @SuppressWarnings("unused")
-		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");        
-
-        @SuppressWarnings("unused")
-		private final Context context;
 	 
-	    public ViewPagerAdapter(Context context, ArrayList<HighwayAlertsItem> items) {
-	        this.context = context;
+	    public ViewPagerAdapter(List<HighwayAlertEntity> items) {
 	        this.items = items;
 	    }
 	  
@@ -198,126 +171,48 @@ public class HighImpactAlertsFragment extends BaseFragment implements
 	    public int getCount() {
 	        return items.size();
 	    }
-	 
-	    @Override
-	    public Object instantiateItem(View pager, final int position) {
-	    	View view;
 
-	    	String category = items.get(position).getEventCategory();
-	    	
-	    	if (category.equalsIgnoreCase("empty")) {
-	    		view = getActivity().getLayoutInflater().inflate(R.layout.high_impact_alerts_inactive, null);
-	    		mIndicator.setVisibility(View.GONE);
-	    	} else if (category.equalsIgnoreCase("error")) {
-	    		view = getActivity().getLayoutInflater().inflate(R.layout.high_impact_alerts_inactive, null);
-	    		mIndicator.setVisibility(View.GONE);
-    			TextView title = (TextView)view.findViewById(R.id.title_alert);
-		    	title.setTypeface(tf);
-		    	title.setText(items.get(position).getExtendedDescription());
-	    	} else {
-		    	view = getActivity().getLayoutInflater().inflate(R.layout.high_impact_alerts_active, null);
-		    	view.setOnClickListener(new View.OnClickListener() {
-					public void onClick(View v) {
-						Bundle b = new Bundle();
-						Intent intent = new Intent(getActivity(), HighwayAlertDetailsActivity.class);
-						b.putString("id", items.get(position).getAlertId());
-						intent.putExtras(b);
-						startActivity(intent);				
-					}
-		    	});
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            View view;
 
-		    	TextView title = (TextView)view.findViewById(R.id.title_alert);
-		    	title.setTypeface(tf);
-		    	title.setText(items.get(position).getExtendedDescription());
+            String category = items.get(position).getCategory();
 
-		    	if (getCount() < 2) mIndicator.setVisibility(View.GONE);
-	    	}
-	    	
-	        ((ViewPager)pager).addView(view, 0);
-	        
-	        return view;
-	    }
-	 
-	    @Override
-	    public void destroyItem(View pager, int position, Object view) {
-	        ((ViewPager)pager).removeView( (TextView)view );
-	    }
+            if (category.equalsIgnoreCase("empty")) {
+                view = getActivity().getLayoutInflater().inflate(R.layout.high_impact_alerts_inactive, null);
+            } else if (category.equalsIgnoreCase("error")) {
+                view = getActivity().getLayoutInflater().inflate(R.layout.high_impact_alerts_inactive, null);
+                TextView title = view.findViewById(R.id.title_alert);
+                title.setTypeface(tf);
+                title.setText(items.get(position).getHeadline());
+            } else {
+                view = getActivity().getLayoutInflater().inflate(R.layout.high_impact_alerts_active, null);
+                view.setOnClickListener(v -> {
+                    Bundle b = new Bundle();
+                    Intent intent = new Intent(getActivity(), HighwayAlertDetailsActivity.class);
+                    b.putString("id", String.valueOf(items.get(position).getAlertId()));
+                    intent.putExtras(b);
+                    startActivity(intent);
+                });
+                TextView title = view.findViewById(R.id.title_alert);
+                title.setTypeface(tf);
+                title.setText(items.get(position).getHeadline());
+            }
+
+            if (getCount() < 2) mIndicator.setVisibility(View.GONE);
+
+            container.addView(view, 0);
+            return view;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View)object);
+        }
 	 
 	    @Override
 	    public boolean isViewFromObject(View view, Object object) {
-	        return view.equals( object );
-	    }
-	 
-	    @Override
-	    public void finishUpdate(View view) {
-	    }
-	 
-	    @Override
-	    public void restoreState(Parcelable p, ClassLoader c) {
-	    }
-	 
-	    @Override
-	    public Parcelable saveState() {
-	        return null;
-	    }
-	 
-	    @Override
-	    public void startUpdate(View view) {
+	        return view.equals(object);
 	    }
 	}
-	
-	public static class HighImpactAlertsLoader extends CursorLoader {
-		public HighImpactAlertsLoader(Context context, Uri uri,
-				String[] projection, String selection, String[] selectionArgs,
-				String sortOrder) {
-			super(context, uri, projection, selection, selectionArgs, sortOrder);
-		}
-
-		@Override
-		protected void onStartLoading() {
-			super.onStartLoading();
-
-			mLoadingSpinner.setVisibility(View.VISIBLE);
-			mPager.setVisibility(View.GONE);
-			mIndicator.setVisibility(View.GONE);
-			forceLoad();
-		}
-	}
-	
-	public class HighwayAlertsSyncReceiver extends BroadcastReceiver {
-		
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String responseString = intent.getStringExtra("responseString");
-			
-			if (responseString != null) {
-				if (responseString.equals("OK")) {
-					getLoaderManager().restartLoader(0, null, HighImpactAlertsFragment.this); // We've got alerts, now add them.
-				} else if (responseString.equals("NOP")) {
-					// Nothing to do.
-				} else {
-					Log.e("HighwayAlertsReceiver", responseString);
-					mLoadingSpinner.setVisibility(View.GONE);
-					
-					alertItems.clear();
-					HighwayAlertsItem item = new HighwayAlertsItem();
-					item.setEventCategory("error");
-					
-					if (!UIUtils.isNetworkAvailable(context)) {
-						responseString = getString(R.string.no_connection);
-					}
-					
-					item.setExtendedDescription(responseString);
-					alertItems.add(item);
-	
-					mPager.setVisibility(View.VISIBLE);
-					mIndicator.setVisibility(View.VISIBLE);
-					mAdapter = new ViewPagerAdapter(getActivity(), alertItems);
-					mPager.setAdapter(mAdapter);
-					mIndicator.setViewPager(mPager);		
-				}
-			}
-		}
-	}
-
 }

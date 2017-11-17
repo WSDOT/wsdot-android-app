@@ -73,16 +73,6 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		viewModel = ViewModelProviders.of(this, viewModelFactory).get(BorderWaitViewModel.class);
-		viewModel.init("southbound");
-
-		viewModel.getBorderWaits(false).observe(this, borderWaits -> {
-			mBorderWaits.clear();
-			mBorderWaits = borderWaits;
-			mAdapter.notifyDataSetChanged();
-			swipeRefreshLayout.setRefreshing(false);
-		});
-
 		routeImage.put(5, R.drawable.ic_list_i5);
 		routeImage.put(9, R.drawable.ic_list_sr9);
 		routeImage.put(539, R.drawable.ic_list_sr539);
@@ -122,6 +112,18 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 				R.color.holo_red_light);
 
 		swipeRefreshLayout.setRefreshing(true);
+
+
+		viewModel = ViewModelProviders.of(this, viewModelFactory).get(BorderWaitViewModel.class);
+
+		viewModel.init(BorderWaitViewModel.BorderDirection.SOUTHBOUND);
+
+		viewModel.getBorderWaits().observe(this, borderWaits -> {
+			mBorderWaits.clear();
+			mBorderWaits = borderWaits;
+			mAdapter.notifyDataSetChanged();
+			swipeRefreshLayout.setRefreshing(false);
+		});
 
 		mEmptyView = root.findViewById( R.id.empty_list_view );
 
@@ -209,6 +211,6 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 
 	public void onRefresh() {
 		swipeRefreshLayout.setRefreshing(true);
-		viewModel.getBorderWaits(true);
+		viewModel.forceRefreshBorderWaits();
 	}
 }

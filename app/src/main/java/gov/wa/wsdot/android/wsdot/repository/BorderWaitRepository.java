@@ -19,12 +19,11 @@ import javax.inject.Singleton;
 
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
-import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 
-@Singleton  // informs Dagger that this class should be constructed once
+@Singleton
 public class BorderWaitRepository {
 
     private static String TAG = BorderWaitRepository.class.getSimpleName();
@@ -45,7 +44,7 @@ public class BorderWaitRepository {
         appExecutors.diskIO().execute(() -> {
                     CacheEntity cache = cacheRepository.getCacheTimeFor("border_wait");
                     long now = System.currentTimeMillis();
-                    Boolean shouldUpdate = (Math.abs(now - cache.getLastUpdated()) > (7 * DateUtils.DAY_IN_MILLIS));
+                    Boolean shouldUpdate = (Math.abs(now - cache.getLastUpdated()) > (15 * DateUtils.MINUTE_IN_MILLIS));
                     if (shouldUpdate) {
                         refreshBorderWaits();
                     }
@@ -55,7 +54,7 @@ public class BorderWaitRepository {
         return borderWaitDao.loadBorderWaitsFor(direction);
     }
 
-    private void refreshBorderWaits() {
+    public void refreshBorderWaits() {
 
             try {
                 URL url = new URL(APIEndPoints.BORDER_WAITS);

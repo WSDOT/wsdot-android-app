@@ -42,11 +42,11 @@ public class HighwayAlertEntity {
     @ColumnInfo(name = "highway_alert_last_updated")
     private String lastUpdated;
 
-    public int getAlertId() {
+    public Integer getAlertId() {
         return alertId;
     }
 
-    public void setAlertId(int alertId) {
+    public void setAlertId(Integer alertId) {
         this.alertId = alertId;
     }
 

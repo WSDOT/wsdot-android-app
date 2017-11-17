@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
+import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.viewmodal.ViewModelFactory;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitViewModel;
 
@@ -20,6 +21,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(BorderWaitViewModel.class)
     abstract ViewModel bindBorderWaitViewModel(BorderWaitViewModel borderWaitViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(HighwayAlertViewModel.class)
+    abstract ViewModel bindHighwayAlertViewModel(HighwayAlertViewModel highwayAlertViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

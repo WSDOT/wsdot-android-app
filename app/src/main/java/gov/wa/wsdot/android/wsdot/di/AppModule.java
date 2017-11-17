@@ -61,7 +61,7 @@ class AppModule {
     }
 
     @Singleton @Provides
-    MountainPassDao provideMountianPassDao(AppDatabase db) {
+    MountainPassDao provideMountainPassDao(AppDatabase db) {
         return db.mountainPassDao();
     }
 

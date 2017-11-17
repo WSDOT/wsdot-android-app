@@ -14,8 +14,13 @@ import gov.wa.wsdot.android.wsdot.repository.BorderWaitRepository;
 public class BorderWaitViewModel extends ViewModel {
 
     private LiveData<List<BorderWaitEntity>> borderWaits;
+
     private BorderWaitRepository borderWaitRepo;
-    private String direction;
+
+    enum BorderDirection {
+        NORTHBOUND,
+        SOUTHBOUND
+    }
 
     @Inject // BorderWaitRepository parameter is provided by Dagger 2
     BorderWaitViewModel(BorderWaitRepository borderWaitRepo) {
@@ -23,15 +28,21 @@ public class BorderWaitViewModel extends ViewModel {
         this.borderWaitRepo = borderWaitRepo;
     }
 
-    public void init(String direction) {
-        this.direction = direction;
-        this.borderWaits = borderWaitRepo.getBorderWaitsFor(direction);
+    public void init(BorderDirection direction){
+        switch(direction){
+            case NORTHBOUND:
+                this.borderWaits = borderWaitRepo.getBorderWaitsFor("northbound");
+                break;
+            case SOUTHBOUND:
+                this.borderWaits = borderWaitRepo.getBorderWaitsFor("southbound");
+        }
     }
 
-    public LiveData<List<BorderWaitEntity>> getBorderWaits(Boolean refresh){
-        if (refresh){
-            this.borderWaits = borderWaitRepo.getBorderWaitsFor(this.direction);
-        }
+    public LiveData<List<BorderWaitEntity>> getBorderWaits(){
         return this.borderWaits;
+    }
+
+    public void forceRefreshBorderWaits() {
+        borderWaitRepo.refreshBorderWaits();
     }
 }

@@ -115,9 +115,10 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
         swipeRefreshLayout.setRefreshing(true);
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(BorderWaitViewModel.class);
-        viewModel.init("northbound");
 
-        viewModel.getBorderWaits(false).observe(this, borderWaits -> {
+        viewModel.init(BorderWaitViewModel.BorderDirection.NORTHBOUND);
+
+        viewModel.getBorderWaits().observe(this, borderWaits -> {
             if (borderWaits.size() > 0) {
                 mBorderWaits.clear();
                 mBorderWaits = borderWaits;
@@ -212,6 +213,6 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
 
     public void onRefresh() {
 		swipeRefreshLayout.setRefreshing(true);
-		viewModel.getBorderWaits(true);
+		viewModel.forceRefreshBorderWaits();
     }
 }

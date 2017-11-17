@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
@@ -34,7 +35,7 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 
-public class DashboardFragment extends BaseFragment {
+public class DashboardFragment extends BaseFragment implements Injectable {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
