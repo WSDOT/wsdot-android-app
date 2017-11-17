@@ -12,6 +12,15 @@ import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.repository.HighwayAlertRepository;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
+/**
+ *  ViewModel for Highway alerts Data.
+ *
+ *  Use the AlertPriority enum to set the state of
+ *  the modal and filter what kind of alerts will be
+ *  return from {@link #getHighwayAlerts getHighwayAlerts()}
+ *
+ *  always call the {@link #init init()} method to insure there is data
+ */
 public class HighwayAlertViewModel extends ViewModel {
 
     private LiveData<List<HighwayAlertEntity>> highwayAlerts;

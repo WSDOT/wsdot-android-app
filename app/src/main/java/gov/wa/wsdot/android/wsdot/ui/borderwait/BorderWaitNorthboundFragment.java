@@ -118,12 +118,29 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
 
         viewModel.init(BorderWaitViewModel.BorderDirection.NORTHBOUND);
 
+        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        TextView t = (TextView) mEmptyView;
+                        t.setText(resourceStatus.message);
+                        mEmptyView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
         viewModel.getBorderWaits().observe(this, borderWaits -> {
             if (borderWaits.size() > 0) {
                 mBorderWaits.clear();
                 mBorderWaits = borderWaits;
                 mAdapter.notifyDataSetChanged();
-                swipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -145,12 +162,10 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
 
 		private List<BorderWaitVH> mItems = new ArrayList<>();
 
-
 		public BorderWaitAdapter(Context context) {
 			super();
 			this.context = context;
 		}
-
 
 		@Override
 		public BorderWaitVH onCreateViewHolder(ViewGroup parent, int viewType) {

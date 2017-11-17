@@ -7,7 +7,16 @@ import static gov.wa.wsdot.android.wsdot.util.network.Status.ERROR;
 import static gov.wa.wsdot.android.wsdot.util.network.Status.LOADING;
 import static gov.wa.wsdot.android.wsdot.util.network.Status.SUCCESS;
 
-//a generic class that describes a data with a status
+/**
+ * A generic class that holds the state of a network Resource
+ *
+ * Typically, view models that are responsible for data fetched
+ * from the network should have one of these.
+ *
+ * Repos that inherit from {@link gov.wa.wsdot.android.wsdot.repository.NetworkResourceRepository NetworkResourceRepository}
+ * will use this call to keep the view model up to date on progress.
+ */
+
 public class ResourceStatus {
 
     @NonNull

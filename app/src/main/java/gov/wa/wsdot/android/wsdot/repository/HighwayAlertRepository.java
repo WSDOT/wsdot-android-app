@@ -2,9 +2,7 @@ package gov.wa.wsdot.android.wsdot.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.support.annotation.Nullable;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,122 +28,86 @@ import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
-
+/**
+ *  Handles access to the highway_alerts database
+ */
 @Singleton
-public class HighwayAlertRepository {
+public class HighwayAlertRepository extends NetworkResourceRepository {
 
     private static String TAG = BorderWaitRepository.class.getSimpleName();
 
-    private final AppExecutors appExecutors;
     private final HighwayAlertDao highwayAlertDao;
-    private final CacheRepository cacheRepository;
-
-    private Exception e = null;
 
     @Inject
     public HighwayAlertRepository(HighwayAlertDao highwayAlertDao, AppExecutors appExecutors, CacheRepository cacheRepository) {
+        // Supply the super class with data needed for super.refreshData()
+        super(appExecutors, cacheRepository, (5 * DateUtils.MINUTE_IN_MILLIS), "highway_alerts");
         this.highwayAlertDao = highwayAlertDao;
-        this.appExecutors = appExecutors;
-        this.cacheRepository = cacheRepository;
     }
 
     public LiveData<List<HighwayAlertEntity>> getHighwayAlerts(MutableLiveData<ResourceStatus> status) {
-        refreshData(status, false);
+        super.refreshData(status, false);
         return highwayAlertDao.loadHighwayAlerts();
     }
 
     public LiveData<List<HighwayAlertEntity>> getHighwayAlertsFor(String priority, MutableLiveData<ResourceStatus> status) {
-        refreshData(status, false);
+        super.refreshData(status, false);
         return highwayAlertDao.loadHighwayAlertsWith(priority);
     }
 
-    public void refreshData(MutableLiveData<ResourceStatus> status, Boolean forceRefresh){
+    void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
-        appExecutors.diskIO().execute(() -> {
+        URL url = new URL(APIEndPoints.HIGHWAY_ALERTS);
+        URLConnection urlConn = url.openConnection();
 
-            status.postValue(ResourceStatus.loading());
+        DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a", Locale.US);
 
-            CacheEntity cache = cacheRepository.getCacheTimeFor("highway_alerts");
-            long now = System.currentTimeMillis();
-            Log.e(TAG, String.valueOf(cache.getLastUpdated()));
-            Boolean shouldUpdate = (Math.abs(now - cache.getLastUpdated()) > (5 * DateUtils.MINUTE_IN_MILLIS));
-            if (shouldUpdate || forceRefresh) {
+        BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+        StringBuilder jsonFile = new StringBuilder();
+        String line;
 
-                fetchHighwayAlerts();
-                appExecutors.mainThread().execute(() -> {
-                    if (e != null) {
-                        status.postValue(ResourceStatus.error("network error"));
-                    } else {
-                        status.postValue(ResourceStatus.success());
-                        e = null;
-                    }
-                });
-            }else{
-                status.postValue(ResourceStatus.success());
-            }
-        });
-    }
+        while ((line = in.readLine()) != null) {
+            jsonFile.append(line);
+        }
 
-    private void fetchHighwayAlerts() {
-        appExecutors.networkIO().execute(() -> {
-            try {
-                URL url = new URL(APIEndPoints.HIGHWAY_ALERTS);
-                URLConnection urlConn = url.openConnection();
+        in.close();
 
-                DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a", Locale.US);
+        JSONObject obj = new JSONObject(jsonFile.toString());
+        JSONObject result = obj.getJSONObject("alerts");
+        JSONArray items = result.getJSONArray("items");
 
-                BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-                String jsonFile = "";
-                String line;
+        List<HighwayAlertEntity> highwayAlerts = new ArrayList<>();
 
-                while ((line = in.readLine()) != null) {
-                    jsonFile += line;
-                }
+        int numItems = items.length();
+        for (int j = 0; j < numItems; j++) {
+            JSONObject item = items.getJSONObject(j);
 
-                in.close();
+            JSONObject startRoadwayLocation = item.getJSONObject("StartRoadwayLocation");
+            JSONObject endRoadwayLocation = item.getJSONObject("EndRoadwayLocation");
 
-                JSONObject obj = new JSONObject(jsonFile);
-                JSONObject result = obj.getJSONObject("alerts");
-                JSONArray items = result.getJSONArray("items");
+            HighwayAlertEntity alert = new HighwayAlertEntity();
+            alert.setAlertId(item.getInt("AlertID"));
+            alert.setHeadline(item.getString("HeadlineDescription"));
+            alert.setCategory(item.getString("EventCategory"));
+            alert.setPriority(item.getString("Priority"));
+            alert.setStartLatitude(startRoadwayLocation.getDouble("Latitude"));
+            alert.setStartLongitude(startRoadwayLocation.getDouble("Longitude"));
+            alert.setEndLatitude(endRoadwayLocation.getDouble("Latitude"));
+            alert.setEndLongitude(endRoadwayLocation.getDouble("Longitude"));
+            alert.setRoadName(startRoadwayLocation.getString("RoadName"));
+            alert.setLastUpdated(dateFormat.format(new Date(Long.parseLong(item
+                    .getString("LastUpdatedTime").substring(6, 19)))));
 
-                List<HighwayAlertEntity> highwayAlerts = new ArrayList<>();
+            highwayAlerts.add(alert);
+        }
 
-                int numItems = items.length();
-                for (int j = 0; j < numItems; j++) {
-                    JSONObject item = items.getJSONObject(j);
+        HighwayAlertEntity[] alertsArray = new HighwayAlertEntity[highwayAlerts.size()];
+        alertsArray = highwayAlerts.toArray(alertsArray);
 
-                    JSONObject startRoadwayLocation = item.getJSONObject("StartRoadwayLocation");
-                    JSONObject endRoadwayLocation = item.getJSONObject("EndRoadwayLocation");
+        highwayAlertDao.deleteAndInsertTransaction(alertsArray);
 
-                    HighwayAlertEntity alert = new HighwayAlertEntity();
-                    alert.setAlertId(item.getInt("AlertID"));
-                    alert.setHeadline(item.getString("HeadlineDescription"));
-                    alert.setCategory(item.getString("EventCategory"));
-                    alert.setPriority(item.getString("Priority"));
-                    alert.setStartLatitude(startRoadwayLocation.getDouble("Latitude"));
-                    alert.setStartLongitude(startRoadwayLocation.getDouble("Longitude"));
-                    alert.setEndLatitude(endRoadwayLocation.getDouble("Latitude"));
-                    alert.setEndLongitude(endRoadwayLocation.getDouble("Longitude"));
-                    alert.setRoadName(startRoadwayLocation.getString("RoadName"));
-                    alert.setLastUpdated(dateFormat.format(new Date(Long.parseLong(item
-                            .getString("LastUpdatedTime").substring(6, 19)))));
+        CacheEntity cache = new CacheEntity("highway_alerts", System.currentTimeMillis());
+        getCacheRepository().setCacheTime(cache);
 
-                    highwayAlerts.add(alert);
-                }
-
-                HighwayAlertEntity[] alertsArray = new HighwayAlertEntity[highwayAlerts.size()];
-                alertsArray = highwayAlerts.toArray(alertsArray);
-
-                highwayAlertDao.deleteAndInsertTransaction(alertsArray);
-
-                CacheEntity cache = new CacheEntity("highway_alerts", System.currentTimeMillis());
-                cacheRepository.setCacheTime(cache);
-
-            } catch (Exception e) {
-                this.e = e;
-                Log.e(TAG, e.toString());
-                Log.e(TAG, "Error: " + e.getMessage());
-            }
-        });
     }
 }

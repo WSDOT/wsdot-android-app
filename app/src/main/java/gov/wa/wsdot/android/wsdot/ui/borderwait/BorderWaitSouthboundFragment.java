@@ -28,6 +28,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,7 +81,6 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 		routeImage.put(97, R.drawable.ic_list_us97);
 	}
 
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
@@ -113,16 +113,32 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 
 		swipeRefreshLayout.setRefreshing(true);
 
-
 		viewModel = ViewModelProviders.of(this, viewModelFactory).get(BorderWaitViewModel.class);
 
 		viewModel.init(BorderWaitViewModel.BorderDirection.SOUTHBOUND);
+
+		viewModel.getResourceStatus().observe(this, resourceStatus -> {
+			if (resourceStatus != null) {
+				switch (resourceStatus.status) {
+					case LOADING:
+						swipeRefreshLayout.setRefreshing(true);
+						break;
+					case SUCCESS:
+						swipeRefreshLayout.setRefreshing(false);
+						break;
+					case ERROR:
+						swipeRefreshLayout.setRefreshing(false);
+						TextView t = (TextView) mEmptyView;
+						t.setText(resourceStatus.message);
+						mEmptyView.setVisibility(View.VISIBLE);
+				}
+			}
+		});
 
 		viewModel.getBorderWaits().observe(this, borderWaits -> {
 			mBorderWaits.clear();
 			mBorderWaits = borderWaits;
 			mAdapter.notifyDataSetChanged();
-			swipeRefreshLayout.setRefreshing(false);
 		});
 
 		mEmptyView = root.findViewById( R.id.empty_list_view );

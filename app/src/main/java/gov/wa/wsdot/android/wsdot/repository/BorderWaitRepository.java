@@ -1,8 +1,8 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,88 +22,80 @@ import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
+/**
+ *  Handles access to the border_wait database
+ */
 @Singleton
-public class BorderWaitRepository {
+public class BorderWaitRepository extends NetworkResourceRepository {
 
     private static String TAG = BorderWaitRepository.class.getSimpleName();
 
-    private final AppExecutors appExecutors;
     private final BorderWaitDao borderWaitDao;
-    private final CacheRepository cacheRepository;
 
     @Inject
     public BorderWaitRepository(BorderWaitDao borderWaitDao, AppExecutors appExecutors, CacheRepository cacheRepository) {
+        // Supply the super class with data needed for super.refreshData()
+        super(appExecutors, cacheRepository, (15 * DateUtils.MINUTE_IN_MILLIS),"border_wait");
         this.borderWaitDao = borderWaitDao;
-        this.appExecutors = appExecutors;
-        this.cacheRepository = cacheRepository;
     }
 
-    public LiveData<List<BorderWaitEntity>> getBorderWaitsFor(String direction) {
-
-        appExecutors.diskIO().execute(() -> {
-                    CacheEntity cache = cacheRepository.getCacheTimeFor("border_wait");
-                    long now = System.currentTimeMillis();
-                    Boolean shouldUpdate = (Math.abs(now - cache.getLastUpdated()) > (15 * DateUtils.MINUTE_IN_MILLIS));
-                    if (shouldUpdate) {
-                        refreshBorderWaits();
-                    }
-                });
-
-        // return a LiveData directly from the database.
+    public LiveData<List<BorderWaitEntity>> getBorderWaitsFor(String direction, MutableLiveData<ResourceStatus> status) {
+        super.refreshData(status, false);
         return borderWaitDao.loadBorderWaitsFor(direction);
     }
 
-    public void refreshBorderWaits() {
+    public void refreshBorderWaits(MutableLiveData<ResourceStatus> status){
+        super.refreshData(status, true);
+    }
 
-            try {
-                URL url = new URL(APIEndPoints.BORDER_WAITS);
-                URLConnection urlConn = url.openConnection();
+    @Override
+    void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
-                BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-                String jsonFile = "";
-                String line;
+        URL url = new URL(APIEndPoints.BORDER_WAITS);
+        URLConnection urlConn = url.openConnection();
 
-                while ((line = in.readLine()) != null)
-                    jsonFile += line;
-                in.close();
+        BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+        StringBuilder jsonFile = new StringBuilder();
+        String line;
 
-                JSONObject obj = new JSONObject(jsonFile);
-                JSONObject result = obj.getJSONObject("waittimes");
-                JSONArray items = result.getJSONArray("items");
+        while ((line = in.readLine()) != null)
+            jsonFile.append(line);
+        in.close();
 
-                List<BorderWaitEntity> waits = new ArrayList<>();
+        JSONObject obj = new JSONObject(jsonFile.toString());
+        JSONObject result = obj.getJSONObject("waittimes");
+        JSONArray items = result.getJSONArray("items");
 
-                int numItems = items.length();
+        List<BorderWaitEntity> waits = new ArrayList<>();
 
-                for (int j=0; j < numItems; j++) {
-                    JSONObject item = items.getJSONObject(j);
+        int numItems = items.length();
 
-                    BorderWaitEntity wait = new BorderWaitEntity();
+        for (int j=0; j < numItems; j++) {
+            JSONObject item = items.getJSONObject(j);
 
-                    wait.setBorderWaitId(item.getInt("id"));
-                    wait.setTitle(item.getString("name"));
-                    wait.setDirection(item.getString("direction"));
-                    wait.setLane(item.getString("lane"));
-                    wait.setRoute(item.getInt("route"));
-                    wait.setWait(item.getInt("wait"));
-                    wait.setUpdated(item.getString("updated"));
-                    wait.setIsStarred(0);
+            BorderWaitEntity wait = new BorderWaitEntity();
 
-                    waits.add(wait);
-                }
+            wait.setBorderWaitId(item.getInt("id"));
+            wait.setTitle(item.getString("name"));
+            wait.setDirection(item.getString("direction"));
+            wait.setLane(item.getString("lane"));
+            wait.setRoute(item.getInt("route"));
+            wait.setWait(item.getInt("wait"));
+            wait.setUpdated(item.getString("updated"));
+            wait.setIsStarred(0);
 
-                BorderWaitEntity[] waitsArray = new BorderWaitEntity[waits.size()];
-                waitsArray = waits.toArray(waitsArray);
+            waits.add(wait);
+        }
 
-                borderWaitDao.deleteAndInsertTransaction(waitsArray);
+        BorderWaitEntity[] waitsArray = new BorderWaitEntity[waits.size()];
+        waitsArray = waits.toArray(waitsArray);
 
-                CacheEntity borderCache = new CacheEntity("border_wait", System.currentTimeMillis());
-                cacheRepository.setCacheTime(borderCache);
+        borderWaitDao.deleteAndInsertTransaction(waitsArray);
 
-            } catch (Exception e) {
-                Log.e(TAG, "Error: " + e.getMessage());
-            }
+        CacheEntity borderCache = new CacheEntity("border_wait", System.currentTimeMillis());
+        getCacheRepository().setCacheTime(borderCache);
 
     }
 }

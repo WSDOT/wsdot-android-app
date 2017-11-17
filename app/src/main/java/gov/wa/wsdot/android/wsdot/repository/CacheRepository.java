@@ -8,6 +8,10 @@ import javax.inject.Singleton;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 
+/**
+ *  Handles access to the Caches database. The Caches database holds the last
+ *  updated times for the numerous types of data we cache.
+ */
 @Singleton  // informs Dagger that this class should be constructed once
 public class CacheRepository {
 

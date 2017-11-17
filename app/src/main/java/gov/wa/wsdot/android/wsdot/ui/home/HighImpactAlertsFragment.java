@@ -73,11 +73,11 @@ public class HighImpactAlertsFragment extends BaseFragment implements
 
         viewModel.init(HighwayAlertViewModel.AlertPriority.HIGHEST);
 
-        viewModel.getResourceStatus().observe(this, ResourceStatus -> {
+        viewModel.getResourceStatus().observe(this, resourceStatus -> {
             Log.e(TAG, "event!");
-            if (ResourceStatus != null) {
-                Log.e(TAG, ResourceStatus.status.toString());
-                switch (ResourceStatus.status) {
+            if (resourceStatus != null) {
+                Log.e(TAG, resourceStatus.status.toString());
+                switch (resourceStatus.status) {
                     case LOADING:
                         mLoadingSpinner.setVisibility(View.VISIBLE);
                         break;
@@ -89,7 +89,7 @@ public class HighImpactAlertsFragment extends BaseFragment implements
                         mLoadingSpinner.setVisibility(View.GONE);
                         HighwayAlertEntity item = new HighwayAlertEntity();
                         item.setCategory("error");
-                        item.setHeadline(ResourceStatus.message);
+                        item.setHeadline(resourceStatus.message);
                         alertItems.add(item);
 
                         mAdapter = new ViewPagerAdapter(alertItems);
