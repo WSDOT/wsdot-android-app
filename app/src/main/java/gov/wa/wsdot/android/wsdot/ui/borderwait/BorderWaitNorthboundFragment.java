@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -129,9 +130,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
                         break;
                     case ERROR:
                         swipeRefreshLayout.setRefreshing(false);
-                        TextView t = (TextView) mEmptyView;
-                        t.setText(resourceStatus.message);
-                        mEmptyView.setVisibility(View.VISIBLE);
+                        Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
                 }
             }
         });
