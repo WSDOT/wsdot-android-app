@@ -68,6 +68,8 @@ public class MountainPassEntity {
     @NonNull
     private Integer isStarred = 0;
 
+    public Integer getId() { return id; }
+
     public Integer getPassId() {
         return passId;
     }

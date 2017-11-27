@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.migration;
 
 /*
  * Copyright (C) 2017 The Android Open Source Project
@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
-import gov.wa.wsdot.android.wsdot.SqliteDatabaseStringsHelper.*;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.*;
 /**
  * Helper class for creating the test database version 7 with SQLite.
  */

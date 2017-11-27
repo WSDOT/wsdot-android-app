@@ -46,10 +46,6 @@ public class BorderWaitRepository extends NetworkResourceRepository {
         return borderWaitDao.loadBorderWaitsFor(direction);
     }
 
-    public void refreshBorderWaits(MutableLiveData<ResourceStatus> status){
-        super.refreshData(status, true);
-    }
-
     @Override
     void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
@@ -66,7 +62,7 @@ public class BorderWaitRepository extends NetworkResourceRepository {
 
         JSONObject obj = new JSONObject(jsonFile.toString());
         JSONObject result = obj.getJSONObject("waittimes");
-        JSONArray items = result.getJSONArray("items");
+        JSONArray items = result.getJSONArray("itms");
 
         List<BorderWaitEntity> waits = new ArrayList<>();
 

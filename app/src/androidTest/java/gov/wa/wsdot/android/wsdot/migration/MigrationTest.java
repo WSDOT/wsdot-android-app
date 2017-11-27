@@ -1,6 +1,6 @@
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.migration;
 
-import static gov.wa.wsdot.android.wsdot.SqliteDatabaseTestHelper.insertCacheItem;
+import static gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseTestHelper.insertCacheItem;
 import static gov.wa.wsdot.android.wsdot.database.AppDatabase.MIGRATION_7_8;
 import static junit.framework.Assert.assertEquals;
 

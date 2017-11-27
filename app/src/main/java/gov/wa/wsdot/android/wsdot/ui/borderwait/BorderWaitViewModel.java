@@ -56,6 +56,6 @@ public class BorderWaitViewModel extends ViewModel {
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
     public void forceRefreshBorderWaits() {
-        borderWaitRepo.refreshBorderWaits(mStatus);
+        borderWaitRepo.refreshData(mStatus, true);
     }
 }

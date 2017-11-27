@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot;
+package gov.wa.wsdot.android.wsdot.migration;
 /*
  * Copyright (C) 2017 The Android Open Source Project
  *
@@ -19,7 +19,7 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 
-import gov.wa.wsdot.android.wsdot.SqliteDatabaseStringsHelper.*;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.*;
 
 
 public class SqliteDatabaseTestHelper {

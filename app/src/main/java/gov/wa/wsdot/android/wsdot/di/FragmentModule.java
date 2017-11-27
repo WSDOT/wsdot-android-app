@@ -8,6 +8,7 @@ import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitNorthboundFragment;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitSouthboundFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.DashboardFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.HighImpactAlertsFragment;
+import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesFragment;
 
 /**
  *  For Dagger 2. A list of classes passed to the Object Graph that
@@ -37,4 +38,7 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract HighImpactAlertsFragment contributeHighImpactAlertsFragment();
+
+    @ContributesAndroidInjector
+    abstract MountainPassesFragment contributeMountainPassesFragment();
 }

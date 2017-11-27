@@ -1,5 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
+import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 
 import javax.inject.Inject;
@@ -20,7 +21,8 @@ public class CacheRepository {
     private final CacheDao cacheDao;
 
     @Inject
-    CacheRepository(CacheDao cacheDao) {
+    @VisibleForTesting
+    public CacheRepository(CacheDao cacheDao) {
         this.cacheDao = cacheDao;
     }
 
