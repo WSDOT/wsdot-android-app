@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
+package gov.wa.wsdot.android.wsdot.ui.ferries.sailings;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;

@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries;
+package gov.wa.wsdot.android.wsdot.ui.ferries.home;
 
 import android.content.Context;
 import android.content.Intent;

@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
+package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

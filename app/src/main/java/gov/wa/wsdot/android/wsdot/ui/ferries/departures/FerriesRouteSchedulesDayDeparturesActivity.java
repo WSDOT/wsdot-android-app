@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
+package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;

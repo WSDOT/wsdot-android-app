@@ -124,15 +124,15 @@
             android:name=".ui.borderwait.BorderWaitActivity"
             android:label="@string/title_borderwait" />
         <activity
-            android:name=".ui.ferries.FerriesActivity"
+            android:name=".ui.ferries.home.FerriesActivity"
             android:label="@string/title_ferries" />
         <activity
             android:name=".ui.ferries.schedules.FerriesRouteSchedulesActivity"
             android:label="@string/title_ferriesrouteschedules" />
-        <activity android:name=".ui.ferries.schedules.FerriesRouteSchedulesDayDeparturesActivity" />
-        <activity android:name=".ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity" />
-        <activity android:name=".ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity" />
-        <activity android:name=".ui.ferries.schedules.FerriesRouteAlertsBulletinDetailsActivity" />
+        <activity android:name=".ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity" />
+        <activity android:name=".ui.ferries.sailings.FerriesRouteSchedulesDaySailingsActivity" />
+        <activity android:name=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity" />
+        <activity android:name=".ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsActivity" />
         <activity
             android:name=".ui.ferries.vesselwatch.VesselWatchMapActivity"
             android:label="@string/title_vesselwatch" />
