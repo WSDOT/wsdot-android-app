@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.home;
+package gov.wa.wsdot.android.wsdot.ui.ferries;
 
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;

@@ -74,13 +74,12 @@ public class MountainPassRepository extends NetworkResourceRepository {
     }
 
     @Override
-    @VisibleForTesting
     public void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
         DateFormat parseDateFormat = new SimpleDateFormat("yyyy,M,d,HH,m"); //e.g. [2010, 11, 2, 8, 22, 32, 883, 0, 0]
         DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
-        List<MountainPassEntity> starred = new ArrayList<>();
+        List<MountainPassEntity> starred;
 
         starred = mountainPassDao.getFavoriteMountainPasses();
 
