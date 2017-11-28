@@ -112,16 +112,13 @@ public class MountainPassesFragment extends BaseFragment implements
                 switch (resourceStatus.status) {
                     case LOADING:
                         swipeRefreshLayout.setRefreshing(true);
-
                         Log.e(TAG, "HERE1");
                         break;
                     case SUCCESS:
                         swipeRefreshLayout.setRefreshing(false);
-
                         Log.e(TAG, "HERE2");
                         break;
                     case ERROR:
-
                         Log.e(TAG, "HERE3");
                         swipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
@@ -286,7 +283,7 @@ public class MountainPassesFragment extends BaseFragment implements
             public void onClick(View v) {
                 Bundle b = new Bundle();
                 Intent intent = new Intent(getActivity(), MountainPassItemActivity.class);
-                b.putInt("id", mPasses.get(this.itemId).getId());
+                b.putInt("id", mPasses.get(this.itemId).getPassId());
                 intent.putExtras(b);
                 startActivity(intent);
             }

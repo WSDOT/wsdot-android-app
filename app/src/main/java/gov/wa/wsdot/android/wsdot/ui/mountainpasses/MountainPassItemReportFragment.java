@@ -18,6 +18,8 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -28,11 +30,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 
-public class MountainPassItemReportFragment extends BaseFragment {
+public class MountainPassItemReportFragment extends BaseFragment implements Injectable {
 
     private static final String TAG = MountainPassItemReportFragment.class.getSimpleName();	
 	private ViewGroup mRootView;
@@ -47,38 +52,52 @@ public class MountainPassItemReportFragment extends BaseFragment {
 	private String mDateUpdated;
     private int mPassId;
 
+    private static MountainPassViewModel viewModel;
 
-	String[] projection = {
-			WSDOTContract.MountainPasses._ID,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_ID,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_DATE_UPDATED,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_IS_STARRED,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_NAME,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_WEATHER_CONDITION,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_WEATHER_ICON,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_CAMERA,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_ELEVATION,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_FORECAST,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_ROAD_CONDITION,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_TEMPERATURE
-	};
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Bundle args = getActivity().getIntent().getExtras();
-
         mPassId = args.getInt("id");
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mRootView = (ViewGroup) inflater.inflate(R.layout.mountainpass_item_details, null);
-		loadReport();
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(MountainPassViewModel.class);
+
+        viewModel.getPassFor(mPassId).observe(this, pass -> {
+            if (pass != null){
+
+                mWeatherCondition = pass.getWeatherCondition();
+                mTemperatureInFahrenheit = pass.getTemperature();
+
+                if (mWeatherCondition.equals("")) mWeatherCondition = "Not available";
+                if (mTemperatureInFahrenheit.equals("null")) {
+                    mTemperatureInFahrenheit = "Not available";
+                } else {
+                    mTemperatureInFahrenheit = mTemperatureInFahrenheit + "\u00b0F";
+                }
+
+                mDateUpdated = pass.getDateUpdated();
+                mElevationInFeet = pass.getElevation();
+
+                Log.e(TAG, pass.getElevation());
+
+                mRoadCondition = pass.getRoadCondition();
+                mRestrictionOneTravelDirection = pass.getRestrictionOneDirection();
+                mRestrictionOneText = pass.getRestrictionOne();
+                mRestrictionTwoTravelDirection = pass.getRestrictionTwoDirection();
+                mRestrictionTwoText = pass.getRestrictionTwo();
+
+                setUpView();
+            }
+        });
+
         return mRootView;		
 	}
 
@@ -141,65 +160,4 @@ public class MountainPassItemReportFragment extends BaseFragment {
 		disableAds(mRootView);
 
 	}
-
-
-    public void loadReport() {
-
-        Cursor passCursor = null;
-        Uri baseUri;
-
-        baseUri = WSDOTContract.MountainPasses.CONTENT_URI;
-
-        try {
-            passCursor = getActivity().getContentResolver().query(
-                    baseUri,
-                    projection,
-                    null,
-                    null,
-                    null
-            );
-
-            if (passCursor.moveToFirst()) {
-                while (!passCursor.isAfterLast()) {
-                    if (passCursor.getInt(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_ID)) == mPassId){
-
-                        passCursor.getInt(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_ID));
-
-                        mWeatherCondition = passCursor.getString(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_WEATHER_CONDITION));
-                        mTemperatureInFahrenheit = passCursor.getString(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_TEMPERATURE));
-
-                        if (mWeatherCondition.equals("")) mWeatherCondition = "Not available";
-                        if (mTemperatureInFahrenheit.equals("null")) {
-                            mTemperatureInFahrenheit = "Not available";
-                        } else {
-                            mTemperatureInFahrenheit = mTemperatureInFahrenheit + "\u00b0F";
-                        }
-
-                        mDateUpdated = passCursor.getString(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_DATE_UPDATED));
-                        mElevationInFeet = passCursor.getString(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_ELEVATION));
-                        mRoadCondition = passCursor.getString(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_ROAD_CONDITION));
-                        mRestrictionOneTravelDirection = passCursor.getString(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION));
-                        mRestrictionOneText = passCursor.getString(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE));
-                        mRestrictionTwoTravelDirection = passCursor.getString(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION));
-                        mRestrictionTwoText = passCursor.getString(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO));
-
-                        setUpView();
-
-                        passCursor.moveToLast();
-                        passCursor.moveToNext();
-                    } else {
-                        passCursor.moveToNext();
-                    }
-
-                }
-            }
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error in network call", e);
-        } finally {
-            if (passCursor != null) {
-                passCursor.close();
-            }
-        }
-    }
 }

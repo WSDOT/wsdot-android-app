@@ -23,6 +23,9 @@ public abstract class MountainPassDao {
     @Query("SELECT * FROM mountain_passes WHERE is_starred = 1")
     public abstract List<MountainPassEntity> getFavoriteMountainPasses();
 
+    @Query("UPDATE mountain_passes SET is_starred = :isStarred WHERE id = :id")
+    public abstract void updateIsStarred(Integer id, Integer isStarred);
+
     @Query("DELETE FROM mountain_passes")
     public abstract void deleteAll();
 

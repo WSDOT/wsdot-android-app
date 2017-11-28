@@ -47,6 +47,10 @@ public class MountainPassViewModel extends ViewModel {
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
+    public void setIsStarredFor(Integer passId, Integer isStarred){
+        passRepo.setIsStarred(passId, isStarred);
+    }
+
     public void forceRefreshPasses() {
         passRepo.refreshData(mStatus, true);
     }

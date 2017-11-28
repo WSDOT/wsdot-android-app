@@ -18,6 +18,8 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,6 +28,7 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +40,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
@@ -45,23 +51,31 @@ import gov.wa.wsdot.android.wsdot.util.CameraImageAdapter;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class MountainPassItemCameraFragment extends BaseFragment implements
-        LoaderCallbacks<ArrayList<CameraItem>> {
+        LoaderCallbacks<ArrayList<CameraItem>>, Injectable {
 	
     private static final String TAG = MountainPassItemCameraFragment.class.getSimpleName();
     private static ArrayList<CameraItem> bitmapImages;
 	private View mEmptyView;
-    private static String camerasArray;
+    private static String camerasArray = "[]";
     private static CameraImageAdapter mAdapter;
 	private static View mLoadingSpinner;
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
+    private static MountainPassViewModel viewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
+    private int mPassId;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getActivity().getIntent().getExtras();
-        camerasArray = args.getString("Cameras");
+        //camerasArray = args.getString("Cameras");
+        mPassId = args.getInt("id");
     }
 
 	@Override
@@ -86,18 +100,23 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mEmptyView = root.findViewById( R.id.empty_list_view );
-        
+
+        camerasArray = "[]";
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(MountainPassViewModel.class);
+
+        viewModel.getPassFor(mPassId).observe(this, pass -> {
+            if (pass != null){
+                camerasArray = pass.getCamera();
+                // Prepare the loader. Either re-connect with an existing one,
+                // or start a new one.
+                getLoaderManager().initLoader(0, null, this);
+            }
+        });
+
 		return root;
 	}    
-    
-    @Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
 
-		// Prepare the loader. Either re-connect with an existing one,
-		// or start a new one.		
-		getLoaderManager().initLoader(0, null, this);
-	}
 
 	public Loader<ArrayList<CameraItem>> onCreateLoader(int id, Bundle args) {
         // This is called when a new Loader needs to be created. There
@@ -223,17 +242,16 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
 			final int pos = position;
 
 			viewholder.itemView.setOnClickListener(
-					new View.OnClickListener() {
-						public void onClick(View v) {
-							Bundle b = new Bundle();
-							Intent intent = new Intent(getActivity(), CameraActivity.class);
-							b.putInt("id", bitmapImages.get(pos).getCameraId());
-							b.putString("advertisingTarget", "passes");
-							intent.putExtras(b);
+					v -> {
+                        Bundle b = new Bundle();
+                        Intent intent = new Intent(getActivity(), CameraActivity.class);
+                        b.putInt("id", bitmapImages.get(pos).getCameraId());
 
-							startActivity(intent);
-						}
-					}
+                        b.putString("advertisingTarget", "passes");
+                        intent.putExtras(b);
+
+                        startActivity(intent);
+                    }
 			);
 		}
 	}

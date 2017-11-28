@@ -8,6 +8,9 @@ import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitNorthboundFragment;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitSouthboundFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.DashboardFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.HighImpactAlertsFragment;
+import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemCameraFragment;
+import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemForecastFragment;
+import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemReportFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesFragment;
 
 /**
@@ -41,4 +44,14 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract MountainPassesFragment contributeMountainPassesFragment();
+
+    @ContributesAndroidInjector
+    abstract MountainPassItemReportFragment contributeMountainPassItemReportFragment();
+
+    @ContributesAndroidInjector
+    abstract MountainPassItemCameraFragment contributeMountainPassItemCameraFragment();
+
+    @ContributesAndroidInjector
+    abstract MountainPassItemForecastFragment contributeMountainPassItemForecastFragment();
+
 }

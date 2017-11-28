@@ -18,6 +18,8 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -37,13 +39,16 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.shared.ForecastItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class MountainPassItemForecastFragment extends BaseFragment {
+public class MountainPassItemForecastFragment extends BaseFragment implements Injectable {
 	
     private static final String TAG = MountainPassItemForecastFragment.class.getSimpleName();
     private ArrayList<ForecastItem> forecastItems;
@@ -55,34 +60,17 @@ public class MountainPassItemForecastFragment extends BaseFragment {
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
-	String[] projection = {
-			WSDOTContract.MountainPasses._ID,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_ID,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_DATE_UPDATED,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_IS_STARRED,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_NAME,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_WEATHER_CONDITION,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_WEATHER_ICON,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_CAMERA,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_ELEVATION,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_FORECAST,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_ONE_DIRECTION,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_RESTRICTION_TWO_DIRECTION,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_ROAD_CONDITION,
-			WSDOTContract.MountainPasses.MOUNTAIN_PASS_TEMPERATURE
-	};
+	private static MountainPassViewModel viewModel;
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 		Bundle args = getActivity().getIntent().getExtras();
 		mPassId = args.getInt("id");
         forecastItems = new ArrayList<>();
-        loadForecast();
-
 	}
 	
 	@Override
@@ -104,72 +92,34 @@ public class MountainPassItemForecastFragment extends BaseFragment {
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        
-    	return root;
-	}
 
+		viewModel = ViewModelProviders.of(this, viewModelFactory).get(MountainPassViewModel.class);
 
-	public void loadForecast() {
-
-		Cursor passCursor = null;
-		Uri baseUri;
-
-		baseUri = WSDOTContract.MountainPasses.CONTENT_URI;
-
-		try {
-
-			passCursor = getActivity().getContentResolver().query(
-					baseUri,
-					projection,
-					null,
-					null,
-					null
-			);
-
-
-			if (passCursor.moveToFirst()) {
-				while (!passCursor.isAfterLast()) {
-
-					if (passCursor.getInt(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_ID)) == mPassId){
-
-                        forecastItems.clear();
-
-                        forecastsArray = passCursor.getString(passCursor.getColumnIndex(WSDOTContract.MountainPasses.MOUNTAIN_PASS_FORECAST));
-
-                        JSONArray forecasts;
-                        ForecastItem f = null;
-
-                        try {
-                            forecasts = new JSONArray(forecastsArray);
-                            int numForecasts = forecasts.length();
-                            for (int i=0; i < numForecasts; i++) {
-                                JSONObject forecast = forecasts.getJSONObject(i);
-                                f = new ForecastItem();
-                                f.setDay(forecast.getString("Day"));
-                                f.setForecastText(forecast.getString("ForecastText"));
-                                f.setWeatherIcon(getResources().getIdentifier(forecast.getString("weather_icon"), "drawable", getActivity().getPackageName()));
-                                forecastItems.add(f);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-						passCursor.moveToLast();
-						passCursor.moveToNext();
-					} else {
-						passCursor.moveToNext();
+		viewModel.getPassFor(mPassId).observe(this, pass -> {
+			if (pass != null){
+				forecastsArray = pass.getForecast();
+				forecastItems.clear();
+				JSONArray forecasts;
+				ForecastItem f;
+				try {
+					forecasts = new JSONArray(forecastsArray);
+					int numForecasts = forecasts.length();
+					for (int i=0; i < numForecasts; i++) {
+						JSONObject forecast = forecasts.getJSONObject(i);
+						f = new ForecastItem();
+						f.setDay(forecast.getString("Day"));
+						f.setForecastText(forecast.getString("ForecastText"));
+						f.setWeatherIcon(getResources().getIdentifier(forecast.getString("weather_icon"), "drawable", getActivity().getPackageName()));
+						forecastItems.add(f);
 					}
-
+                    mAdapter.setData(forecastItems);
+				} catch (JSONException e) {
+					e.printStackTrace();
 				}
 			}
+		});
 
-		} catch (Exception e) {
-			Log.e(TAG, "Error in network call", e);
-		} finally {
-			if (passCursor != null) {
-				passCursor.close();
-			}
-		}
+    	return root;
 	}
 
 	/**
@@ -236,9 +186,9 @@ public class MountainPassItemForecastFragment extends BaseFragment {
 
 		public ForecastViewHolder(View itemView) {
 			super(itemView);
-            title = (TextView) itemView.findViewById(R.id.title);
-            text = (TextView) itemView.findViewById(R.id.text);
-			icon = (ImageView) itemView.findViewById(R.id.icon);
+            title = itemView.findViewById(R.id.title);
+            text = itemView.findViewById(R.id.text);
+			icon = itemView.findViewById(R.id.icon);
 		}
 	}
 }
