@@ -3,6 +3,7 @@ package gov.wa.wsdot.android.wsdot.repository;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -52,6 +53,7 @@ public class BorderWaitRepository extends NetworkResourceRepository {
         URL url = new URL(APIEndPoints.BORDER_WAITS);
         URLConnection urlConn = url.openConnection();
 
+        Log.e(TAG, "checking waits 1");
         BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
         StringBuilder jsonFile = new StringBuilder();
         String line;
@@ -61,8 +63,11 @@ public class BorderWaitRepository extends NetworkResourceRepository {
         in.close();
 
         JSONObject obj = new JSONObject(jsonFile.toString());
+
+
+
         JSONObject result = obj.getJSONObject("waittimes");
-        JSONArray items = result.getJSONArray("itms");
+        JSONArray items = result.getJSONArray("items");
 
         List<BorderWaitEntity> waits = new ArrayList<>();
 
@@ -81,7 +86,7 @@ public class BorderWaitRepository extends NetworkResourceRepository {
             wait.setWait(item.getInt("wait"));
             wait.setUpdated(item.getString("updated"));
             wait.setIsStarred(0);
-
+            Log.e(TAG, "checking waits");
             waits.add(wait);
         }
 

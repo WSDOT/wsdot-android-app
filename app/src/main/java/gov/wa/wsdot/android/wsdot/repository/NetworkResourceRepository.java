@@ -1,6 +1,7 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
 import android.arch.lifecycle.MutableLiveData;
+import android.util.Log;
 
 import java.net.MalformedURLException;
 
@@ -53,6 +54,7 @@ public abstract class NetworkResourceRepository {
                     fetchData(status);
                     status.postValue(ResourceStatus.success());
                 } catch (Exception e) {
+                    Log.e(TAG, e.toString());
                     status.postValue(ResourceStatus.error("network error"));
                 }
             } else{
