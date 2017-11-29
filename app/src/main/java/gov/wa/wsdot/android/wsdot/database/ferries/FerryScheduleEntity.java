@@ -35,6 +35,10 @@ public class FerryScheduleEntity {
     @NonNull
     private Integer isStarred = 0;
 
+    public Integer getId() {
+        return id;
+    }
+
     public Integer getFerryScheduleId() {
         return ferryScheduleId;
     }

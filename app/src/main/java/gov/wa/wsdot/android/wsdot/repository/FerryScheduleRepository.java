@@ -1,5 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.text.format.DateUtils;
 
@@ -39,6 +40,22 @@ public class FerryScheduleRepository extends NetworkResourceRepository {
         super(appExecutors, cacheRepository, (15 * DateUtils.MINUTE_IN_MILLIS), "ferries_schedules");
         this.ferryScheduleDao = ferryScheduleDao;
         this.appExecutors = appExecutors;
+    }
+
+    public LiveData<List<FerryScheduleEntity>> getFerrySchedules(MutableLiveData<ResourceStatus> status) {
+        super.refreshData(status, false);
+        return ferryScheduleDao.loadFerryScheduels();
+    }
+
+    public LiveData<FerryScheduleEntity> getFerryScheduleFor(Integer id, MutableLiveData<ResourceStatus> status) {
+        super.refreshData(status, false);
+        return ferryScheduleDao.loadScheduleFor(id);
+    }
+
+    public void setIsStarred(Integer id, Integer isStarred) {
+        appExecutors.diskIO().execute(() -> {
+            ferryScheduleDao.updateIsStarred(id, isStarred);
+        });
     }
 
     @Override

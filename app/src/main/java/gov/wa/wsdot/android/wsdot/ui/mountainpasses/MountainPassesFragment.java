@@ -128,8 +128,6 @@ public class MountainPassesFragment extends BaseFragment implements
 
         viewModel.getPasses().observe(this, passes -> {
             //if (passes.size() > 0) {
-            Log.e(TAG, "HERE");
-            Log.e(TAG, passes.toString());
             mPasses = passes;
             mAdapter.notifyDataSetChanged();
             //}
@@ -139,11 +137,10 @@ public class MountainPassesFragment extends BaseFragment implements
     }
 
     /**
-     * Custom adapter for items in recycler view that need a cursor adapter.
+     * Custom adapter for items in recycler view.
      *
      * Binds the custom ViewHolder class to it's data.
      *
-     * @see CursorRecyclerAdapter
      * @see android.support.v7.widget.RecyclerView.Adapter
      */
     private class MountainPassAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -168,6 +165,7 @@ public class MountainPassesFragment extends BaseFragment implements
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+
             MtPassVH mtpassVH = (MtPassVH) viewHolder;
 
             MountainPassEntity pass = mPasses.get(position);

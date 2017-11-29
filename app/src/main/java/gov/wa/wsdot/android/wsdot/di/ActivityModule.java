@@ -20,6 +20,7 @@ import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesActivity;
 import gov.wa.wsdot.android.wsdot.ui.home.HomeActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity;
@@ -50,5 +51,8 @@ public abstract class ActivityModule {
 
     @ContributesAndroidInjector
     abstract MountainPassItemActivity contributeMountainPassItemActivity();
+
+    @ContributesAndroidInjector
+    abstract FerriesRouteSchedulesActivity contributeFerriesRouteSchedulesActivity();
 
 }
