@@ -101,7 +101,7 @@
         <activity
             android:name=".ui.mountainpasses.MountainPassesActivity"
             android:label="@string/title_mountainpasses" />
-        <activity android:name=".ui.mountainpasses.MountainPassItemActivity" />
+        <activity android:name=".ui.mountainpasses.passitem.MountainPassItemActivity" />
         <activity
             android:name=".ui.trafficmap.TrafficMapActivity"
             android:label="@string/title_trafficmap" />

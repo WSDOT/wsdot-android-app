@@ -16,13 +16,11 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
+package gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.database.Cursor;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,8 +32,8 @@ import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 
 public class MountainPassItemReportFragment extends BaseFragment implements Injectable {
 

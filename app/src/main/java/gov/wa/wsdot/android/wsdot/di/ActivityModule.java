@@ -20,11 +20,11 @@ import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.sailings.FerriesRouteSchedulesDaySailingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesActivity;
 import gov.wa.wsdot.android.wsdot.ui.home.HomeActivity;
-import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemActivity;
+import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity;
-import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesFragment;
 
 /**
  *  For Dagger 2. A list of classes passed to the Object Graph that
@@ -54,5 +54,8 @@ public abstract class ActivityModule {
 
     @ContributesAndroidInjector
     abstract FerriesRouteSchedulesActivity contributeFerriesRouteSchedulesActivity();
+
+    @ContributesAndroidInjector
+    abstract FerriesRouteSchedulesDaySailingsActivity contributeFerriesRouteSchedulesDaySailingsActivity();
 
 }

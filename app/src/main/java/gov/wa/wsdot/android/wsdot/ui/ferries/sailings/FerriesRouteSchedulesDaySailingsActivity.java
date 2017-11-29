@@ -18,21 +18,23 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.sailings;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.accessibility.AccessibilityEvent;
-import android.widget.Toast;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
 
 public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 	
@@ -44,24 +46,32 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 
 	static final private int MENU_ITEM_STAR = 0;
 
+    private static FerrySchedulesViewModel viewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		AndroidInjection.inject(this);
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_ferries_route_schedules_day_sailings);
+        setContentView(R.layout.activity_ferries_route_schedules_day_sailings);
 
 		Bundle args = getIntent().getExtras();
 		mId = args.getInt("id");
-        mTitle = args.getString("title");
 
-        if (savedInstanceState == null) {
-            mIsStarred = args.getInt("isStarred") != 0;
-        }else{
-            mIsStarred = savedInstanceState.getInt("isStarred") != 0;
-        }
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
 
-		mToolbar = (Toolbar) findViewById(R.id.toolbar);
-		mToolbar.setTitle(mTitle);
+        viewModel.getFerryScheduleFor(mId).observe(this, schedule -> {
+            if (schedule != null) {
+                mTitle = schedule.getTitle();
+                mIsStarred = schedule.getIsStarred() != 0;
+                mToolbar.setTitle(mTitle);
+            }
+        });
+
+		mToolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -132,52 +142,16 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 		if (mIsStarred) {
 			item.setIcon(R.drawable.ic_menu_star);
 			item.setTitle("Favorite checkbox, not checked");
-			try {
-				ContentValues values = new ContentValues();
-				values.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, 0);
-				resolver.update(
-                        FerriesSchedules.CONTENT_URI,
-                        values,
-                        FerriesSchedules.FERRIES_SCHEDULE_ID + "=?",
-                        new String[]{Integer.toString(mId)}
-                );
-
-				removed_snackbar.show();
-				mIsStarred = false;
-	    	} catch (Exception e) {
-	    		Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-	    		Log.e("DaySailings", "Error: " + e.getMessage());
-	    	}
+            viewModel.setIsStarredFor(mId, 0);
+            removed_snackbar.show();
+            mIsStarred = false;
 		} else {
 			item.setIcon(R.drawable.ic_menu_star_on);
 			item.setTitle("Favorite checkbox, checked");
-			try {
-				ContentValues values = new ContentValues();
-				values.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, 1);
-				resolver.update(
-                        FerriesSchedules.CONTENT_URI,
-                        values,
-                        FerriesSchedules.FERRIES_SCHEDULE_ID + "=?",
-                        new String[]{Integer.toString(mId)}
-                );
-
-				added_snackbar.show();
-				mIsStarred = true;
-			} catch (Exception e) {
-				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-	    		Log.e("DaySailings", "Error: " + e.getMessage());
-	    	}
+            viewModel.setIsStarredFor(mId, 1);
+            added_snackbar.show();
+            mIsStarred = true;
 		}
-
 	}
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        if (mIsStarred){
-            outState.putInt("isStarred", 1);
-        }else{
-            outState.putInt("isStarred", 0);
-        }
-        super.onSaveInstanceState(outState);
-    }
 }

@@ -6,12 +6,13 @@ import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitNorthboundFragment;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitSouthboundFragment;
+import gov.wa.wsdot.android.wsdot.ui.ferries.sailings.FerriesRouteSchedulesDaySailingsFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.DashboardFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.HighImpactAlertsFragment;
-import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemCameraFragment;
-import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemForecastFragment;
-import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemReportFragment;
+import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemCameraFragment;
+import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemForecastFragment;
+import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemReportFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesFragment;
 
 /**
@@ -57,5 +58,8 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract FerriesRouteSchedulesFragment contributeFerriesRouteSchedulesFragment();
+
+    @ContributesAndroidInjector
+    abstract FerriesRouteSchedulesDaySailingsFragment contributeFerriesRouteSchedulesDaySailingsFragment();
 
 }

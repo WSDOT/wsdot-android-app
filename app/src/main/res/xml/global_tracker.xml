@@ -31,7 +31,7 @@
     <screenName name="gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity">/Cameras</screenName>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity">/Mountain Passes</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassItemActivity">/Mountain Passes/Details</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity">/Mountain Passes/Details</screenName>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity">/Border Wait</screenName>
 

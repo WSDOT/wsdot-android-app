@@ -26,15 +26,19 @@ public class AppExecutors {
 
     private final Executor mainThread;
 
-    public AppExecutors(Executor diskIO, Executor networkIO, Executor mainThread) {
+    private final Executor taskIO;
+
+    public AppExecutors(Executor diskIO, Executor networkIO, Executor taskIO, Executor mainThread) {
         this.diskIO = diskIO;
         this.networkIO = networkIO;
+        this.taskIO = taskIO;
         this.mainThread = mainThread;
     }
 
     @Inject
     public AppExecutors() {
         this(Executors.newSingleThreadExecutor(), Executors.newFixedThreadPool(3),
+                Executors.newSingleThreadExecutor(),
                 new MainThreadExecutor());
     }
 
@@ -45,6 +49,8 @@ public class AppExecutors {
     public Executor networkIO() {
         return networkIO;
     }
+
+    public Executor taskIO() { return taskIO; }
 
     public Executor mainThread() {
         return mainThread;

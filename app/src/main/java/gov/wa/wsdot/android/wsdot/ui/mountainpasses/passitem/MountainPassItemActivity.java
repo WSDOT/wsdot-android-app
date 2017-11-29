@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
+package gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -51,6 +51,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
+import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class MountainPassItemActivity extends BaseActivity implements Injectable {
@@ -186,7 +187,6 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
 
                 // remove this initial observer and add a new one.
                 viewModel.getPassFor(mId).removeObservers(this);
-
                 viewModel.getPassFor(mId).observe(this, passItem -> mIsStarred = passItem.getIsStarred() != 0);
 
             }
@@ -270,25 +270,15 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
 		if (mIsStarred) {
 			item.setIcon(R.drawable.ic_menu_star);
 			item.setTitle("Favorite checkbox, not checked");
-			try {
-				viewModel.setIsStarredFor(mId, 0);
-				removed_snackbar.show();
-				mIsStarred = false;
-	    	} catch (Exception e) {
-	    		Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-	    		Log.e("MountainPasItemActivity", "Error: " + e.getMessage());
-	    	}
+            viewModel.setIsStarredFor(mId, 0);
+            removed_snackbar.show();
+            mIsStarred = false;
 		} else {
 			item.setIcon(R.drawable.ic_menu_star_on);
 			item.setTitle("Favorite checkbox, checked");
-			try {
-                viewModel.setIsStarredFor(mId, 1);
-				added_snackbar.show();
-				mIsStarred = true;
-			} catch (Exception e) {
-				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-	    		Log.e("MountainPasItemActivity", "Error: " + e.getMessage());
-	    	}
+            viewModel.setIsStarredFor(mId, 1);
+            added_snackbar.show();
+            mIsStarred = true;
 		}
 	}
 
