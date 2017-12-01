@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleDao;
@@ -29,18 +30,17 @@ import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
+@Singleton
 public class FerryScheduleRepository extends NetworkResourceRepository {
 
     private static String TAG = FerryScheduleRepository.class.getSimpleName();
 
     private final FerryScheduleDao ferryScheduleDao;
-    private final AppExecutors appExecutors;
 
     @Inject
     FerryScheduleRepository(FerryScheduleDao ferryScheduleDao, AppExecutors appExecutors, CacheRepository cacheRepository) {
         super(appExecutors, cacheRepository, (15 * DateUtils.MINUTE_IN_MILLIS), "ferries_schedules");
         this.ferryScheduleDao = ferryScheduleDao;
-        this.appExecutors = appExecutors;
     }
 
     public LiveData<List<FerryScheduleEntity>> getFerrySchedules(MutableLiveData<ResourceStatus> status) {
@@ -54,7 +54,7 @@ public class FerryScheduleRepository extends NetworkResourceRepository {
     }
 
     public void setIsStarred(Integer id, Integer isStarred) {
-        appExecutors.diskIO().execute(() -> {
+        getExecutor().diskIO().execute(() -> {
             ferryScheduleDao.updateIsStarred(id, isStarred);
         });
     }

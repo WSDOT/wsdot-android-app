@@ -19,6 +19,8 @@ package gov.wa.wsdot.android.wsdot.util;
 
 public class APIEndPoints {
 
+    public static final String WSDOT_API_KEY = "";
+
     // Google Maps
     public static final String STATIC_GOOGLE_MAPS = "http://maps.googleapis.com/maps/api/staticmap";
 

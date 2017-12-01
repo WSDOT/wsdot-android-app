@@ -32,7 +32,6 @@ public class FerrySchedulesViewModel extends ViewModel {
     private LiveData<FerryScheduleEntity> schedule;
 
     private MutableLiveData<List<FerriesScheduleDateItem>> datesWithSailings;
-
     private MutableLiveData<ResourceStatus> mStatus;
 
     private AppExecutors appExecutors;
@@ -84,6 +83,7 @@ public class FerrySchedulesViewModel extends ViewModel {
         });
     }
 
+    // post values in datesJson to satesWithSailings LiveData.
     private void processDates(String datesJson){
 
         ArrayList<FerriesScheduleDateItem> dateItems = new ArrayList<>();

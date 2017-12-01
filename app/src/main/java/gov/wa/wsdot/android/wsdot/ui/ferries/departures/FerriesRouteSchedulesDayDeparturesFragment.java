@@ -18,22 +18,16 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,10 +38,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -56,186 +47,61 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesTerminalSailingSpace;
-import gov.wa.wsdot.android.wsdot.service.FerriesTerminalSailingSpaceSyncService;
-import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
-        implements LoaderCallbacks<ArrayList<FerriesScheduleTimesItem>>,
-        AdapterView.OnItemSelectedListener, SwipeRefreshLayout.OnRefreshListener {
+        implements AdapterView.OnItemSelectedListener, SwipeRefreshLayout.OnRefreshListener, Injectable {
 
     private static final String TAG = FerriesRouteSchedulesDayDeparturesFragment.class.getSimpleName();
-	private static FerriesTerminalItem terminalItem;
-	private static ArrayList<FerriesAnnotationsItem> annotations;
-	private static ArrayList<FerriesScheduleTimesItem> times;
-	private static DepartureTimesAdapter mAdapter;
+
+    private Handler mHandler = new Handler();
+    private static DepartureTimesAdapter mAdapter;
+
 	private static Typeface tf;
 	private static Typeface tfb;
-	private static SwipeRefreshLayout swipeRefreshLayout;
-	private FerriesTerminalSyncReceiver ferriesTerminalSyncReceiver;
-    private View mEmptyView;
-	private static LoaderCallbacks<Cursor> ferriesTerminalSyncCallbacks;
-	private Spinner daySpinner;
-    private static ArrayList<FerriesScheduleDateItem> mScheduleDateItems;
-    private static ArrayList<CharSequence> mDaysOfWeek;
-	private static int mPosition;
-	
-	private static final int FERRIES_DEPARTURES_LOADER_ID = 0;
-	private static final int FERRIES_VEHICLE_SPACE_LOADER_ID = 1;
 
+	private static SwipeRefreshLayout swipeRefreshLayout;
+    private View mEmptyView;
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
-	
-	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
-		
-        DateFormat dateFormat = new SimpleDateFormat("EEEE");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
-        if (context instanceof Activity) {
-            Bundle args = ((Activity)context).getIntent().getExtras();
+    private static FerrySchedulesViewModel scheduleViewModel;
+    private static FerryTerminalViewModel terminalViewModel;
 
-            mPosition = args.getInt("position");
-            mScheduleDateItems = (ArrayList<FerriesScheduleDateItem>) args.getSerializable("scheduleDateItems");
-            terminalItem = mScheduleDateItems.get(0).getFerriesTerminalItem().get(mPosition);
-            mDaysOfWeek = new ArrayList<>();
+    private static ArrayList<FerriesScheduleDateItem> mScheduleDateItems;
+    private static FerriesTerminalItem terminalItem;
+    private static ArrayList<FerriesAnnotationsItem> annotations;
 
-            int numDates = mScheduleDateItems.size();
-            for (int i = 0; i < numDates; i++) {
-                if (!mScheduleDateItems.get(i).getFerriesTerminalItem().isEmpty()) {
-                    mDaysOfWeek.add(dateFormat.format(new Date(
-                            Long.parseLong(mScheduleDateItems.get(i).getDate()))));
-                }
-            }
-        }
-	}
+    private static int mScheduleId;
+    private static int mTerminalIndex;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-		setRetainInstance(true);
-		
-		ferriesTerminalSyncCallbacks = new LoaderCallbacks<Cursor>() {
 
-            public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                String[] projection = {
-                        FerriesTerminalSailingSpace._ID,
-                        FerriesTerminalSailingSpace.TERMINAL_ID,
-                        FerriesTerminalSailingSpace.TERMINAL_NAME,
-                        FerriesTerminalSailingSpace.TERMINAL_ABBREV,
-                        FerriesTerminalSailingSpace.TERMINAL_DEPARTING_SPACES,
-                        FerriesTerminalSailingSpace.TERMINAL_LAST_UPDATED,
-                        FerriesTerminalSailingSpace.TERMINAL_IS_STARRED
-                };
-                
-                CursorLoader cursorLoader = new FerriesTerminalLoader(getActivity(),
-                        FerriesTerminalSailingSpace.CONTENT_URI,
-                        projection,
-                        null,
-                        null,
-                        null
-                        );
-                
-                return cursorLoader;
-            }
+        DateFormat dateFormat = new SimpleDateFormat("EEEE");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
-            public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-                DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
-                dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
-                
-                if (cursor != null && cursor.moveToFirst()) {
-                    // Update existing FerriesScheduleTimesItem (times)
-                    do {
-                        int departingTerminalID = cursor.getInt(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_ID));
-                        if (departingTerminalID != terminalItem.getDepartingTerminalID()) {
-                            continue;
-                        }
-                        try {
-                            JSONArray departingSpaces = new JSONArray(cursor.getString(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_DEPARTING_SPACES)));
-                            for (int i=0; i < departingSpaces.length(); i++) {
-                                JSONObject spaces = departingSpaces.getJSONObject(i);
-                                String departure = dateFormat.format(new Date(Long.parseLong(spaces.getString("Departure").substring(6, 19))));
-                                JSONArray spaceForArrivalTerminals = spaces.getJSONArray("SpaceForArrivalTerminals");
-                                for (int j=0; j < spaceForArrivalTerminals.length(); j++) {
+        Bundle args = getActivity().getIntent().getExtras();
 
-                                    JSONObject terminals = spaceForArrivalTerminals.getJSONObject(j);
+        mScheduleId = args.getInt("scheduleId");
+        mTerminalIndex = args.getInt("terminalIndex");
 
-                                    JSONArray arrivalTerminalIDs = terminals.getJSONArray("ArrivalTerminalIDs");
-
-                                    // Check terminalID field
-                                    if (terminals.getInt("TerminalID") == terminalItem.getArrivingTerminalID()){
-                                        int driveUpSpaceCount = terminals.getInt("DriveUpSpaceCount");
-                                        int maxSpaceCount = terminals.getInt("MaxSpaceCount");
-
-                                        for (FerriesScheduleTimesItem time : times) {
-                                            if (dateFormat.format(new Date(Long.parseLong(time.getDepartingTime()))).equals(departure)) {
-                                                time.setDriveUpSpaceCount(driveUpSpaceCount);
-                                                time.setMaxSpaceCount(maxSpaceCount);
-                                                time.setLastUpdated(cursor.getString(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_LAST_UPDATED)));
-                                            }
-
-                                        }
-                                    }
-
-                                    // Check terminals in ArrivalTerminalIDs array
-                                    for (int k=0; k < arrivalTerminalIDs.length(); k++) {
-                                        if (arrivalTerminalIDs.getInt(k)!= terminalItem.getArrivingTerminalID()) {
-                                            continue;
-                                        } else {
-                                            int driveUpSpaceCount = terminals.getInt("DriveUpSpaceCount");
-                                            int maxSpaceCount = terminals.getInt("MaxSpaceCount");
-
-                                            for (FerriesScheduleTimesItem time : times) {
-                                                if (dateFormat.format(new Date(Long.parseLong(time.getDepartingTime()))).equals(departure)) {
-                                                    time.setDriveUpSpaceCount(driveUpSpaceCount);
-                                                    time.setMaxSpaceCount(maxSpaceCount);
-                                                    time.setLastUpdated(cursor.getString(cursor.getColumnIndex(FerriesTerminalSailingSpace.TERMINAL_LAST_UPDATED)));
-                                                }
-
-                                            }
-                                            k = arrivalTerminalIDs.length();
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (JSONException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    } while (cursor.moveToNext());
-                }
-
-                swipeRefreshLayout.setRefreshing(false);
-                mAdapter.setData(times);
-            }
-
-            public void onLoaderReset(Loader<Cursor> loader) {
-                swipeRefreshLayout.setRefreshing(false);                 
-            }
-		};
 	}
-
-    public static class FerriesTerminalLoader extends CursorLoader {
-
-        public FerriesTerminalLoader(Context context, Uri uri,
-                String[] projection, String selection, String[] selectionArgs,
-                String sortOrder) {
-            super(context, uri, projection, selection, selectionArgs, sortOrder);
-        }
-        
-    }
 	
     @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -246,23 +112,22 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        this.mAdapter = new DepartureTimesAdapter(getActivity(), null);
+        mAdapter = new DepartureTimesAdapter(getActivity(), null);
 
         mRecyclerView.setAdapter(mAdapter);
 
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
-
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.holo_blue_bright,
@@ -272,149 +137,122 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
+        scheduleViewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
+        terminalViewModel = ViewModelProviders.of(this, viewModelFactory).get(FerryTerminalViewModel.class);
+
+        scheduleViewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        break;
+                    case SUCCESS:
+                        break;
+                    case ERROR:
+                        TextView t = (TextView) mEmptyView;
+                        t.setText(R.string.no_day_departures);
+                }
+            }
+        });
+
+        terminalViewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(this.getContext(), "connection error, can't update spaces", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        scheduleViewModel.getFerryScheduleFor(mScheduleId).observe(this, schedule -> {
+            if (schedule != null) {
+                scheduleViewModel.loadDatesWithSailingsFromJson(schedule.getDate());
+            }
+        });
+
+        scheduleViewModel.getDatesWithSailings().observe(this, dates -> {
+            if (dates != null) {
+                mScheduleDateItems = new ArrayList<>(dates);
+
+                initDaySpinner();
+                terminalItem = mScheduleDateItems.get(0).getFerriesTerminalItem().get(mTerminalIndex);
+
+                terminalViewModel.loadDepartureTimesForTerminal(terminalItem);
+            }
+        });
+
+        terminalViewModel.getDepartureTimes().observe(this, sailingTimes -> {
+            if (sailingTimes != null ){
+                if (sailingTimes.size() != 0) {
+                    mEmptyView.setVisibility(View.GONE);
+                } else {
+                    TextView t = (TextView) mEmptyView;
+                    t.setText(R.string.no_day_departures);
+                    mEmptyView.setVisibility(View.VISIBLE);
+                }
+                mAdapter.setData(new ArrayList<>(sailingTimes));
+            }
+        });
+
+        terminalViewModel.getDepartureTimesAnnotations().observe(this, sailingAnnotations -> {
+            if (sailingAnnotations != null) {
+                annotations = new ArrayList<>(sailingAnnotations);
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+
+        return root;
+	}
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mHandler.postDelayed(runnable, (DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mHandler.removeCallbacks(runnable);
+    }
+
+    // Runnable for updating sailing spaces
+    private Runnable runnable = new Runnable() {
+        public void run() {
+            Log.e(TAG, "Runnable!");
+            terminalViewModel.forceRefreshTerminalSpaces();
+            mHandler.postDelayed(runnable, (DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
+        }
+    };
+
+	private void initDaySpinner(){
+
+        ArrayList<CharSequence> mDaysOfWeek = new ArrayList<>();
+
+        DateFormat dateFormat = new SimpleDateFormat("EEEE");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+
+        int numDates = mScheduleDateItems.size();
+        for (int i = 0; i < numDates; i++) {
+            if (!mScheduleDateItems.get(i).getFerriesTerminalItem().isEmpty()) {
+                mDaysOfWeek.add(dateFormat.format(new Date(
+                        Long.parseLong(mScheduleDateItems.get(i).getDate()))));
+            }
+        }
+
         // Set up custom spinner
-        daySpinner = (Spinner) getActivity().findViewById(R.id.spinner);
+        Spinner daySpinner = getActivity().findViewById(R.id.spinner);
 
         ArrayAdapter<CharSequence> dayOfWeekArrayAdapter = new ArrayAdapter<>(
                 getActivity(), R.layout.simple_spinner_item_white, mDaysOfWeek);;
         dayOfWeekArrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item_white);
         daySpinner.setAdapter(dayOfWeekArrayAdapter);
         daySpinner.setOnItemSelectedListener(this);
-
-        return root;
-	}
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        
-        getActivity().unregisterReceiver(ferriesTerminalSyncReceiver);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        
-        IntentFilter filter = new IntentFilter(
-                "gov.wa.wsdot.android.wsdot.intent.action.FERRIES_TERMINAL_SAILING_SPACE_RESPONSE");
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        ferriesTerminalSyncReceiver = new FerriesTerminalSyncReceiver();
-        getActivity().registerReceiver(ferriesTerminalSyncReceiver, filter);
-    }	
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		// Prepare the loaders. Either re-connect with an existing one, or start new ones.
-        getLoaderManager().initLoader(FERRIES_DEPARTURES_LOADER_ID, null, this);
-        getLoaderManager().initLoader(FERRIES_VEHICLE_SPACE_LOADER_ID, null, ferriesTerminalSyncCallbacks);
-        
-        TextView t = (TextView) mEmptyView;
-        t.setText(R.string.no_day_departures);
-	}
-
-	public Loader<ArrayList<FerriesScheduleTimesItem>> onCreateLoader(int id,
-			Bundle args) {
-		
-		// This is called when a new Loader needs to be created. There
-        // is only one Loader with no arguments, so it is simple
-		return new DepartureTimesLoader(getActivity());
-	}
-
-	public void onLoadFinished(
-			Loader<ArrayList<FerriesScheduleTimesItem>> loader,
-			ArrayList<FerriesScheduleTimesItem> data) {
-		
-        Intent intent = new Intent(getActivity(), FerriesTerminalSailingSpaceSyncService.class);
-        getActivity().startService(intent);
-
-	    swipeRefreshLayout.setRefreshing(false);
-		mAdapter.setData(data);
-
-        if (data != null){
-            mEmptyView.setVisibility(View.GONE);
-        }
-
-	}
-
-	public void onLoaderReset(Loader<ArrayList<FerriesScheduleTimesItem>> loader) {
-	    swipeRefreshLayout.setRefreshing(false);
-	}
-
-	public static class DepartureTimesLoader extends AsyncTaskLoader<ArrayList<FerriesScheduleTimesItem>> {
-
-        public DepartureTimesLoader(Context context) {
-            super(context);
-        }
-
-        @Override
-        public ArrayList<FerriesScheduleTimesItem> loadInBackground() {
-            int numAnnotations = terminalItem.getAnnotations().size();
-            int numTimes = terminalItem.getScheduleTimes().size();
-            annotations = new ArrayList<FerriesAnnotationsItem>();
-            times = new ArrayList<FerriesScheduleTimesItem>();
-
-            try {
-                for (int i = 0; i < numAnnotations; i++) {
-                    FerriesAnnotationsItem annotationItem = new FerriesAnnotationsItem();
-                    annotationItem.setAnnotation(terminalItem.getAnnotations().get(i).getAnnotation());
-                    annotations.add(annotationItem);
-                }
-
-                for (int i = 0; i < numTimes; i++) {
-                    FerriesScheduleTimesItem timesItem = new FerriesScheduleTimesItem();
-                    timesItem.setDepartingTime(terminalItem.getScheduleTimes().get(i).getDepartingTime());
-                    timesItem.setArrivingTime(terminalItem.getScheduleTimes().get(i).getArrivingTime());
-
-                    int numIndexes = terminalItem.getScheduleTimes().get(i).getAnnotationIndexes().size();
-                    for (int j = 0; j < numIndexes; j++) {
-                        FerriesAnnotationIndexesItem index = new FerriesAnnotationIndexesItem();
-                        index.setIndex(terminalItem.getScheduleTimes().get(i).getAnnotationIndexes().get(j).getIndex());
-                        timesItem.setAnnotationIndexes(index);
-                    }
-
-                    times.add(timesItem);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error adding terminal departure times", e);
-            }
-
-            return times;
-        }
-
-        @Override
-        protected void onStartLoading() {
-            super.onStartLoading();
-
-            swipeRefreshLayout.post(new Runnable() {
-                public void run() {
-                    swipeRefreshLayout.setRefreshing(true);
-                }
-            });
-            forceLoad();
-        }
-
-        @Override
-        protected void onStopLoading() {
-            super.onStopLoading();
-
-            // Attempt to cancel the current load task if possible.
-            cancelLoad();
-        }
-
-        @Override
-        public void onCanceled(ArrayList<FerriesScheduleTimesItem> data) {
-            super.onCanceled(data);
-        }
-
-        @Override
-        protected void onReset() {
-            super.onReset();
-
-            // Ensure the loader is stopped
-            onStopLoading();
-        }
     }
 
     /**
@@ -597,21 +435,21 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
         public TimesViewHolder(View itemView) {
             super(itemView);
-            departing = (TextView) itemView.findViewById(R.id.departing);
+            departing = itemView.findViewById(R.id.departing);
             departing.setTypeface(tfb);
-            arriving = (TextView) itemView.findViewById(R.id.arriving);
+            arriving = itemView.findViewById(R.id.arriving);
             arriving.setTypeface(tfb);
-            annotation = (TextView) itemView.findViewById(R.id.annotation);
+            annotation = itemView.findViewById(R.id.annotation);
             annotation.setTypeface(tf);
-            vehicleSpaceGroup = (RelativeLayout) itemView.findViewById(R.id.driveUpProgressBarGroup);
-            driveUpProgressBar = (ProgressBar) itemView.findViewById(R.id.driveUpProgressBar);
-            driveUpSpaceCount = (TextView) itemView.findViewById(R.id.driveUpSpaceCount);
+            vehicleSpaceGroup = itemView.findViewById(R.id.driveUpProgressBarGroup);
+            driveUpProgressBar = itemView.findViewById(R.id.driveUpProgressBar);
+            driveUpSpaceCount = itemView.findViewById(R.id.driveUpSpaceCount);
             driveUpSpaceCount.setTypeface(tf);
-            driveUpSpaces = (TextView) itemView.findViewById(R.id.driveUpSpaces);
+            driveUpSpaces = itemView.findViewById(R.id.driveUpSpaces);
             driveUpSpaces.setTypeface(tf);
-            driveUpSpacesDisclaimer = (TextView) itemView.findViewById(R.id.driveUpSpacesDisclaimer);
+            driveUpSpacesDisclaimer = itemView.findViewById(R.id.driveUpSpacesDisclaimer);
             driveUpSpacesDisclaimer.setTypeface(tf);
-            updated = (TextView) itemView.findViewById(R.id.updated);
+            updated = itemView.findViewById(R.id.updated);
             updated.setTypeface(tf);
         }
     }
@@ -622,52 +460,28 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
         public TitleViewHolder(View itemView) {
             super(itemView);
-            Departing = (TextView) itemView.findViewById(R.id.departing_title);
+            Departing = itemView.findViewById(R.id.departing_title);
             Departing.setTypeface(tfb);
-            Arriving = (TextView) itemView.findViewById(R.id.arriving_title);
+            Arriving = itemView.findViewById(R.id.arriving_title);
             Arriving.setTypeface(tfb);
         }
     }
 
     public void onRefresh() {
-		swipeRefreshLayout.post(new Runnable() {
-			public void run() {
-				swipeRefreshLayout.setRefreshing(true);
-			}
-		});
-        Intent intent = new Intent(getActivity(), FerriesTerminalSailingSpaceSyncService.class);
-        getActivity().startService(intent); 
-    }
-    
-    public class FerriesTerminalSyncReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String responseString = intent.getStringExtra("responseString");
-
-            if (responseString != null) {
-                if (responseString.equals("OK")) {
-                    getLoaderManager().restartLoader(
-                            FERRIES_VEHICLE_SPACE_LOADER_ID, null,
-                            ferriesTerminalSyncCallbacks);
-                } else {
-                    Log.e(TAG, responseString);
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            } else {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
+		swipeRefreshLayout.setRefreshing(true);
+        terminalViewModel.forceRefreshTerminalSpaces();
     }
 
+    /**
+     * Callback for schedule day picker. Gets the terminal item for the selected day and
+     * requests the departure times for that day from the view model.
+     */
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        terminalItem = mScheduleDateItems.get(parent.getSelectedItemPosition()).getFerriesTerminalItem().get(mPosition);
-        getLoaderManager().restartLoader(FERRIES_DEPARTURES_LOADER_ID, null, this);
-        getLoaderManager().restartLoader(FERRIES_VEHICLE_SPACE_LOADER_ID, null, ferriesTerminalSyncCallbacks);
+        terminalItem = mScheduleDateItems.get(position).getFerriesTerminalItem().get(mTerminalIndex);
+        terminalViewModel.loadDepartureTimesForTerminal(terminalItem);
     }
 
     public void onNothingSelected(AdapterView<?> parent) {
         // TODO Auto-generated method stub
     }
-
 }

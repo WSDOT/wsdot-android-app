@@ -143,7 +143,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
                         if (mAdapter.getItemCount() > 0){
                             mEmptyView.setVisibility(View.GONE);
                         }
-                        Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -10,18 +10,19 @@ import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 /**
- *  General abstract class for repos that require network data.
+ *  Abstract class for repos that require network data.
  *
  *  Holds implementation for checking the last cache time for a given
  *  resource specified by the tableName field.
  *
  *  Subclasses will need to implement fetchData - this method should download new
- *  data and update the database.
+ *  data and update the database. As well as be responsible for updating
+ *  the cache time table after success
  *
  */
 public abstract class NetworkResourceRepository {
 
-    private static String TAG = BorderWaitRepository.class.getSimpleName();
+    private static String TAG = NetworkResourceRepository.class.getSimpleName();
 
     private final AppExecutors appExecutors;
     private final CacheRepository cacheRepository;

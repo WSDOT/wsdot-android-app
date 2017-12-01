@@ -28,7 +28,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,9 +73,7 @@ public class HighImpactAlertsFragment extends BaseFragment implements
         viewModel.init(HighwayAlertViewModel.AlertPriority.HIGHEST);
 
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
-            Log.e(TAG, "event!");
             if (resourceStatus != null) {
-                Log.e(TAG, resourceStatus.status.toString());
                 switch (resourceStatus.status) {
                     case LOADING:
                         mLoadingSpinner.setVisibility(View.VISIBLE);
@@ -105,7 +102,6 @@ public class HighImpactAlertsFragment extends BaseFragment implements
         viewModel.getHighwayAlerts().observe(this, highwayAlerts -> {
 
             if (highwayAlerts != null) {
-                Log.e(TAG, String.valueOf(highwayAlerts.size()));
 
                 alertItems.clear();
                 alertItems = highwayAlerts;

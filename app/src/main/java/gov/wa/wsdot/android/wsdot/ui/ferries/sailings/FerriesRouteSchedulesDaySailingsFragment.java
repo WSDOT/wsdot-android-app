@@ -174,9 +174,10 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseFragment imple
 
                         Bundle b = new Bundle();
                         Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDayDeparturesActivity.class);
+                        b.putInt("scheduleId", mId);
                         b.putInt("terminalId", terminalId);
                         b.putString("terminalNames", terminalNames);
-                        b.putInt("position", pos);
+                        b.putInt("terminalIndex", pos);
                         b.putSerializable("scheduleDateItems", scheduleDateItems);
                         intent.putExtras(b);
                         startActivity(intent);

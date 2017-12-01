@@ -60,15 +60,12 @@ public class FerriesTerminalSailingSpaceSyncService extends IntentService {
         String responseString = "";
         DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
-
         
         // Ability to force a refresh of camera data.
         boolean forceUpdate = intent.getBooleanExtra("forceUpdate", false);
         
         if (shouldUpdate || forceUpdate) {
             List<Integer> starred = new ArrayList<Integer>();
-            
-            starred = getStarred();
             
             try {
                 String sailingSpaceUrl =  APIEndPoints.SAILING_SPACES
@@ -128,38 +125,5 @@ public class FerriesTerminalSailingSpaceSyncService extends IntentService {
         broadcastIntent.putExtra("responseString", responseString);
         sendBroadcast(broadcastIntent);
     }
-    
-    /** 
-     * Check the ferries terminal space sailing table for any starred entries.
-     * If we find some, save them to a list so we can re-star those after we
-     * flush the database.
-     */ 
-    private List<Integer> getStarred() {
-        ContentResolver resolver = getContentResolver();
-        Cursor cursor = null;
-        List<Integer> starred = new ArrayList<Integer>();
 
-        try {
-            cursor = resolver.query(
-                    FerriesTerminalSailingSpace.CONTENT_URI,
-                    new String[] {FerriesTerminalSailingSpace.TERMINAL_ID},
-                    FerriesTerminalSailingSpace.TERMINAL_IS_STARRED + "=?",
-                    new String[] {"1"},
-                    null
-                    );
-            
-            if (cursor != null && cursor.moveToFirst()) {
-                while (!cursor.isAfterLast()) {
-                    starred.add(cursor.getInt(0));
-                    cursor.moveToNext();
-                }
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-        
-        return starred;
-    }
 }

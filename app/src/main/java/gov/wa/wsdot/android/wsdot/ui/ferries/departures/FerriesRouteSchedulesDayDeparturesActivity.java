@@ -68,8 +68,10 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity{
         // Add tab titles and their corresponding fragments to the fragment list.
         tabFragments.add(mTabLayout.getTabCount(), FerriesRouteSchedulesDayDeparturesFragment.class);
         mTabLayout.addTab(mTabLayout.newTab().setText("Times"));
-        tabFragments.add(mTabLayout.getTabCount(), FerriesTerminalCameraFragment.class);
-        mTabLayout.addTab(mTabLayout.newTab().setText("Cameras"));
+
+        // TODO
+        //tabFragments.add(mTabLayout.getTabCount(), FerriesTerminalCameraFragment.class);
+        //mTabLayout.addTab(mTabLayout.newTab().setText("Cameras"));
 
         mTabsAdapter = new TabsAdapter
                 (this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount());

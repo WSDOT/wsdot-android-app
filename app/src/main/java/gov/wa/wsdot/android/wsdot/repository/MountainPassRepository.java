@@ -44,7 +44,6 @@ public class MountainPassRepository extends NetworkResourceRepository {
     private static String TAG = MountainPassRepository.class.getSimpleName();
 
     private final MountainPassDao mountainPassDao;
-    private final AppExecutors appExecutors;
 
     static HashMap<String, String[]> weatherPhrasesNight = new HashMap<>();
     static HashMap<String, String[]> weatherPhrasesDay = new HashMap<>();
@@ -53,7 +52,6 @@ public class MountainPassRepository extends NetworkResourceRepository {
     public MountainPassRepository(MountainPassDao mountainPassDao, AppExecutors appExecutors, CacheRepository cacheRepository) {
         super(appExecutors, cacheRepository, (15 * DateUtils.MINUTE_IN_MILLIS), "mountain_passes");
         this.mountainPassDao = mountainPassDao;
-        this.appExecutors = appExecutors;
         initWeatherPhrases();
     }
 
@@ -68,7 +66,7 @@ public class MountainPassRepository extends NetworkResourceRepository {
     }
 
     public void setIsStarred(Integer id, Integer isStarred) {
-        appExecutors.diskIO().execute(() -> {
+        getExecutor().diskIO().execute(() -> {
             mountainPassDao.updateIsStarred(id, isStarred);
         });
     }
