@@ -98,7 +98,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -294,15 +294,13 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
                 holder.alert_button.setTag(position);
                 holder.alert_button.setImageResource(R.drawable.btn_alert_on);
                 holder.alert_button.setContentDescription("Route has active alerts");
-                holder.alert_button.setOnClickListener(new OnClickListener() {
-                    public void onClick(View v) {
-                        Bundle b = new Bundle();
-                        Intent intent = new Intent(getActivity(), FerriesRouteAlertsBulletinsActivity.class);
-                        b.putString("title", schedule.getTitle());
-                        b.putString("alert", schedule.getAlert());
-                        intent.putExtras(b);
-                        startActivity(intent);
-                    }
+                holder.alert_button.setOnClickListener(v -> {
+                    Bundle b = new Bundle();
+                    Intent intent = new Intent(getActivity(), FerriesRouteAlertsBulletinsActivity.class);
+                    b.putInt("routeId", schedule.getFerryScheduleId());
+                    b.putString("title", schedule.getTitle());
+                    intent.putExtras(b);
+                    startActivity(intent);
                 });
             }
         }

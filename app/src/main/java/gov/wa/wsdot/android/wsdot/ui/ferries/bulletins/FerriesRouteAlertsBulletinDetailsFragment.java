@@ -19,8 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -41,9 +39,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 
-public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment {
+public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment implements Injectable {
 
     private static final String TAG = FerriesRouteAlertsBulletinDetailsFragment.class.getSimpleName();
     private WebView webview;
@@ -56,11 +55,11 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment {
 	private View mLoadingSpinner;
 	
 	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-		if (context instanceof Activity) {
-			Bundle args = ((Activity) context).getIntent().getExtras();
+		Bundle args = getActivity().getIntent().getExtras();
+		if (args != null) {
 			Date date = new Date(Long.parseLong(args.getString("AlertPublishDate")));
 			mAlertPublishDate = displayDateFormat.format(date);
 			mAlertDescription = args.getString("AlertDescription");
@@ -68,17 +67,6 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment {
 			mAlertFullTitle = args.getString("AlertFullTitle");
 			mContent = formatText(mAlertPublishDate, mAlertDescription, mAlertFullText);
 		}
-
-	}
-	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-        setRetainInstance(true);
-		setHasOptionsMenu(true); 		
 	}
 	
 	@SuppressLint("SetJavaScriptEnabled")
@@ -89,7 +77,7 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment {
 		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_webview_with_spinner, null);
 		mLoadingSpinner = root.findViewById(R.id.loading_spinner);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
-		webview = (WebView)root.findViewById(R.id.webview);
+		webview = root.findViewById(R.id.webview);
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);	
 		

@@ -71,7 +71,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 	private static Typeface tf;
 	private static Typeface tfb;
 
-	private static SwipeRefreshLayout swipeRefreshLayout;
+	private SwipeRefreshLayout swipeRefreshLayout;
     private View mEmptyView;
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;

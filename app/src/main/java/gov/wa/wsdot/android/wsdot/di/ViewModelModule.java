@@ -8,6 +8,7 @@ import dagger.Module;
 import dagger.multibindings.IntoMap;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
+import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesBulletinsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.viewmodal.ViewModelFactory;
@@ -44,6 +45,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(FerryTerminalViewModel.class)
     abstract ViewModel bindFerryTerminalSpacesViewModel(FerryTerminalViewModel ferryTerminalSpacesViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(FerriesBulletinsViewModel.class)
+    abstract ViewModel bindFerriesBulletinsViewModel(FerriesBulletinsViewModel ferriesBulletinsViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
