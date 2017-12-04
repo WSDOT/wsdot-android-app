@@ -19,12 +19,15 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,11 +39,16 @@ import android.webkit.WebViewClient;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+
+import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+
+// TODO: Dagger DI stuff for this frag
 
 public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment implements Injectable {
 
@@ -51,21 +59,25 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
 	private String mAlertFullTitle;
 	private String mAlertDescription;
 	private String mAlertFullText;
+
+	private Integer mRouteId;
+	private Integer mAlertId;
+
 	private String mContent;
 	private View mLoadingSpinner;
-	
-	@Override
+
+    private static FerriesBulletinsViewModel viewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
+    @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		Bundle args = getActivity().getIntent().getExtras();
 		if (args != null) {
-			Date date = new Date(Long.parseLong(args.getString("AlertPublishDate")));
-			mAlertPublishDate = displayDateFormat.format(date);
-			mAlertDescription = args.getString("AlertDescription");
-			mAlertFullText = args.getString("AlertFullText");
-			mAlertFullTitle = args.getString("AlertFullTitle");
-			mContent = formatText(mAlertPublishDate, mAlertDescription, mAlertFullText);
+		    mRouteId = args.getInt("routeId",0);
+		    mAlertId = args.getInt("alertId", 0);
 		}
 	}
 	
@@ -82,15 +94,41 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
 		webview.getSettings().setJavaScriptEnabled(true);	
 		
 		disableAds(root);
-		
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerriesBulletinsViewModel.class);
+
+        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        mLoadingSpinner.setVisibility(View.VISIBLE);
+                        break;
+                    case SUCCESS:
+                        mLoadingSpinner.setVisibility(View.GONE);
+                        break;
+                    case ERROR:
+                        mLoadingSpinner.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        viewModel.getAlert().observe(this, alert -> {
+
+            if (alert != null) {
+                Date date = new Date(Long.parseLong(alert.getPublishDate()));
+                mAlertPublishDate = displayDateFormat.format(date);
+                mAlertDescription = alert.getAlertDescription();
+                mAlertFullText = alert.getAlertFullText();
+                mAlertFullTitle = alert.getAlertFullTitle();
+                mContent = formatText(mAlertPublishDate, mAlertDescription, mAlertFullText);
+
+                webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
+            }
+        });
+
+        viewModel.loadAlert(mRouteId, mAlertId);
+
 		return root;
-	}
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-		webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
 	}
 
     @Override

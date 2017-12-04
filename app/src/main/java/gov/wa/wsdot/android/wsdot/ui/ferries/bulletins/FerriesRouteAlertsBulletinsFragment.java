@@ -127,10 +127,8 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
 		super.onListItemClick(l, v, position, id);
 		Bundle b = new Bundle();
 		Intent intent = new Intent(getActivity(), FerriesRouteAlertsBulletinDetailsActivity.class);
-		b.putString("AlertFullTitle", routeAlertItems.get(position).getAlertFullTitle());
-		b.putString("AlertPublishDate", routeAlertItems.get(position).getPublishDate());
-		b.putString("AlertDescription", routeAlertItems.get(position).getAlertDescription());
-		b.putString("AlertFullText", routeAlertItems.get(position).getAlertFullText());
+        b.putInt("routeId", mId);
+        b.putInt("alertId", routeAlertItems.get(position).getBulletinID());
 		intent.putExtras(b);
 		startActivity(intent);		
 	}
