@@ -33,7 +33,6 @@ import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.database.AppDatabase;
 import gov.wa.wsdot.android.wsdot.di.AppInjector;
 
 /**

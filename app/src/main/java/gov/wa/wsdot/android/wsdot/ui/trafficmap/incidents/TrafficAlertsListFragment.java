@@ -19,8 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.os.AsyncTask;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;

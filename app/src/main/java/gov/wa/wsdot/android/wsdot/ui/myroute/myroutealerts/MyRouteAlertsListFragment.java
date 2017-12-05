@@ -1,8 +1,6 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.os.AsyncTask;
 import android.widget.Toast;
 
 import org.json.JSONArray;

@@ -21,7 +21,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
-import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.*;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.BorderWaitColumns;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.CachesColumns;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.CamerasColumns;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.FerriesSchedulesColumns;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.FerriesTerminalSailingSpaceColumns;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.HighwayAlertsColumns;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.LocationColumns;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.MountainPassesColumns;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.MyRouteColumns;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.Tables;
+import gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseStringsHelper.TravelTimesColumns;
 /**
  * Helper class for creating the test database version 7 with SQLite.
  */

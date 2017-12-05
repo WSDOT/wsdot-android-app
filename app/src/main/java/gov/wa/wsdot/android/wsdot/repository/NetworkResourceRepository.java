@@ -3,7 +3,6 @@ package gov.wa.wsdot.android.wsdot.repository;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
-import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 

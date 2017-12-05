@@ -14,10 +14,10 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.sailings.FerriesRouteSchedulesDaySa
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.DashboardFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.HighImpactAlertsFragment;
+import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemCameraFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemForecastFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemReportFragment;
-import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesFragment;
 
 /**
  *  For Dagger 2. A list of classes passed to the Object Graph that

@@ -3,12 +3,11 @@ package gov.wa.wsdot.android.wsdot.di;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 
-import com.google.android.gms.common.SignInButton;
-
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertViewModel;
+import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesBulletinsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalCameraViewModel;
@@ -17,7 +16,6 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.viewmodal.MapCameraViewModel;
 import gov.wa.wsdot.android.wsdot.viewmodal.ViewModelFactory;
-import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitViewModel;
 
 /**
  *  For Dagger 2. A list of classes passed to the Object Graph that

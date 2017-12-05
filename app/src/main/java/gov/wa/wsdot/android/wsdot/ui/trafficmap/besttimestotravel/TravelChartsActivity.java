@@ -17,11 +17,12 @@
  */
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.besttimestotravel;
 
-        import android.os.Bundle;
-        import android.support.v7.widget.Toolbar;
-        import android.view.MenuItem;
-        import gov.wa.wsdot.android.wsdot.R;
-        import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
 public class TravelChartsActivity extends BaseActivity {
 

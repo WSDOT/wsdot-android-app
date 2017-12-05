@@ -1,12 +1,10 @@
 package gov.wa.wsdot.android.wsdot.migration;
 
-import static gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseTestHelper.insertCacheItem;
-import static gov.wa.wsdot.android.wsdot.database.AppDatabase.MIGRATION_7_8;
-import static junit.framework.Assert.assertEquals;
-
 import android.arch.persistence.db.framework.FrameworkSQLiteOpenHelperFactory;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.testing.MigrationTestHelper;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -21,8 +19,9 @@ import gov.wa.wsdot.android.wsdot.database.AppDatabase;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+import static gov.wa.wsdot.android.wsdot.database.AppDatabase.MIGRATION_7_8;
+import static gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseTestHelper.insertCacheItem;
+import static junit.framework.Assert.assertEquals;
 
 @RunWith(AndroidJUnit4.class)
 public class MigrationTest {

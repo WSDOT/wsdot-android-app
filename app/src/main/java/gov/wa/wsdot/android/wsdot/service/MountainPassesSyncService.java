@@ -24,7 +24,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.text.format.DateUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
