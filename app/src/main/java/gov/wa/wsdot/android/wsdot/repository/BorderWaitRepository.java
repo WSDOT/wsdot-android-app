@@ -29,7 +29,7 @@ import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
  *  Handles access to the border_wait database
  */
 @Singleton
-public class BorderWaitRepository extends NetworkResourceRepository {
+public class BorderWaitRepository extends NetworkResourceSyncRepository {
 
     private static String TAG = BorderWaitRepository.class.getSimpleName();
 

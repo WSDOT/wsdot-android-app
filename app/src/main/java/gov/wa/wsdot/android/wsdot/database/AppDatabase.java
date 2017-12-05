@@ -6,22 +6,16 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
-
-import java.util.concurrent.Executor;
-
-import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraDao;
-import gov.wa.wsdot.android.wsdot.database.cameras.CamerasEntity;
+import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleDao;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryTerminalSailingSpacesDao;
@@ -36,12 +30,11 @@ import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationDao;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimesDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimesEntity;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 
 @Database(entities = {
         BorderWaitEntity.class,
         CacheEntity.class,
-        CamerasEntity.class,
+        CameraEntity.class,
         FerryScheduleEntity.class,
         FerryTerminalSailingSpacesEntity.class,
         HighwayAlertEntity.class,

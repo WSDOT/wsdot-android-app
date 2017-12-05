@@ -32,9 +32,9 @@ import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
  *  Handles access to the highway_alerts database
  */
 @Singleton
-public class HighwayAlertRepository extends NetworkResourceRepository {
+public class HighwayAlertRepository extends NetworkResourceSyncRepository {
 
-    private static String TAG = BorderWaitRepository.class.getSimpleName();
+    private static String TAG = HighwayAlertRepository.class.getSimpleName();
 
     private final HighwayAlertDao highwayAlertDao;
 

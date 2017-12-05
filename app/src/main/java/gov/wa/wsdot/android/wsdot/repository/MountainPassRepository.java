@@ -2,7 +2,6 @@ package gov.wa.wsdot.android.wsdot.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.support.annotation.VisibleForTesting;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -39,7 +38,7 @@ import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton
-public class MountainPassRepository extends NetworkResourceRepository {
+public class MountainPassRepository extends NetworkResourceSyncRepository {
 
     private static String TAG = MountainPassRepository.class.getSimpleName();
 

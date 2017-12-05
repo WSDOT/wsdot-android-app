@@ -2,7 +2,6 @@ package gov.wa.wsdot.android.wsdot.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.text.format.DateUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,7 +27,7 @@ import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton
-public class FerryTerminalSpaceRepository extends NetworkResourceRepository {
+public class FerryTerminalSpaceRepository extends NetworkResourceSyncRepository {
 
     private static String TAG = FerryTerminalSailingSpacesEntity.class.getSimpleName();
 

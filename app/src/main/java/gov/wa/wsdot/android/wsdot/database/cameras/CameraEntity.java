@@ -7,7 +7,7 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 
 @Entity(tableName = "cameras")
-public class CamerasEntity {
+public class CameraEntity {
 
     @ColumnInfo(name = BaseColumns._ID)
     @PrimaryKey(autoGenerate = true)
@@ -39,7 +39,7 @@ public class CamerasEntity {
     @NonNull
     private Integer isStarred = 0;
 
-    public int getCameraId() {
+    public Integer getCameraId() {
         return cameraId;
     }
 

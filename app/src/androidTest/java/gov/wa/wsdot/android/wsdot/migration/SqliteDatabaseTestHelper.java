@@ -158,7 +158,7 @@ public class SqliteDatabaseTestHelper {
         SQLiteDatabase db = helper.getWritableDatabase();
 
         db.execSQL("DROP TABLE IF EXISTS caches");
-        db.execSQL("DROP TABLE IF EXISTS cameras");
+        db.execSQL("DROP TABLE IF EXISTS CameraEntity");
         db.execSQL("DROP TABLE IF EXISTS highway_alerts");
         db.execSQL("DROP TABLE IF EXISTS mountain_passes");
         db.execSQL("DROP TABLE IF EXISTS travel_times");

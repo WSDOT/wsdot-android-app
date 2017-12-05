@@ -3,6 +3,8 @@ package gov.wa.wsdot.android.wsdot.util.network;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import gov.wa.wsdot.android.wsdot.repository.NetworkResourceSyncRepository;
+
 import static gov.wa.wsdot.android.wsdot.util.network.Status.ERROR;
 import static gov.wa.wsdot.android.wsdot.util.network.Status.LOADING;
 import static gov.wa.wsdot.android.wsdot.util.network.Status.SUCCESS;
@@ -13,7 +15,7 @@ import static gov.wa.wsdot.android.wsdot.util.network.Status.SUCCESS;
  * Typically, view models that are responsible for data fetched
  * from the network should have one of these.
  *
- * Repos that inherit from {@link gov.wa.wsdot.android.wsdot.repository.NetworkResourceRepository NetworkResourceRepository}
+ * Repos that inherit from {@link NetworkResourceSyncRepository NetworkResourceSyncRepository}
  * will use this call to keep the view model up to date on progress.
  */
 

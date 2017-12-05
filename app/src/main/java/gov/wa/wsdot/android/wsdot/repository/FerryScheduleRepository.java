@@ -25,13 +25,12 @@ import javax.inject.Singleton;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleDao;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
-import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton
-public class FerryScheduleRepository extends NetworkResourceRepository {
+public class FerryScheduleRepository extends NetworkResourceSyncRepository {
 
     private static String TAG = FerryScheduleRepository.class.getSimpleName();
 
