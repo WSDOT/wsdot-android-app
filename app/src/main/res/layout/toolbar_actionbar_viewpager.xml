@@ -1,9 +1,0 @@
-<android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/pager"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:minHeight="?attr/actionBarSize"
-    android:layout_below="@+id/tab_layout"
-    android:layout_weight="1"
-    android:theme="@style/AppToolbar"
-    />

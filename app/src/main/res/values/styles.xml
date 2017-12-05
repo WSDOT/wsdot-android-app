@@ -55,39 +55,6 @@
         <item name="tabMaxWidth">0dp</item>
     </style>
 
-    <style name="Text"/>
-
-    <style name="Text.Title">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/semi_white</item>
-    </style>
-
-    <style name="Text.Description">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
-
-    <style name="Text.Title.Light">
-        <item name="android:textColor">@color/semi_black</item>
-    </style>
-
-    <style name="Text.Description.Light">
-        <item name="android:textColor">@color/black</item>
-    </style>
-
-    <style name="DetailsListView" parent="@android:style/Widget.ListView.White">
-        <item name="android:background">@color/white</item>
-        <item name="android:cacheColorHint">@color/white</item>
-    </style>
-
-    <style name="DetailsEmpty">
-        <item name="android:padding">20dip</item>
-        <item name="android:background">@color/white</item>
-        <item name="android:textColor">@color/black</item>
-    </style>
-
     <style name="DashboardButton">
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:layout_width">wrap_content</item>
@@ -156,12 +123,6 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/body_text_1</item>
         <item name="android:ellipsize">end</item>
-    </style>
-
-    <style name="TextHeaderSub">
-        <item name="android:textSize">@dimen/text_size_small</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">@color/body_text_2</item>
     </style>
 
     <style name="StarButton">
