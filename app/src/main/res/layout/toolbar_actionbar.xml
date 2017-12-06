@@ -6,4 +6,14 @@
     android:layout_alignParentTop="true"
     android:background="?attr/colorPrimary"
     android:minHeight="?attr/actionBarSize"
-    android:theme="@style/AppToolbar"/>
+    android:theme="@style/AppToolbar">
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+</android.support.v7.widget.Toolbar>

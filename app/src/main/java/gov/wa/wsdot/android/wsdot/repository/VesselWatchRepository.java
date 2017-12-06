@@ -118,11 +118,7 @@ public class VesselWatchRepository extends NetworkResourceRepository {
                             + item.getInt("VesselID") + "\">" + item.getString("VesselName") + " Web page</a>",
                     ferryIcon));
         }
-
-        Log.e(TAG, "posting new vessel data...");
-        Log.e(TAG, String.valueOf(vesselWatchItems.size()));
         vessels.postValue(vesselWatchItems);
-
     }
 
     /**

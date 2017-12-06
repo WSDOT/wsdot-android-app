@@ -40,6 +40,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -109,6 +110,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
 	private Toolbar mToolbar;
+	private ProgressBar mProgressBar;
     private boolean mPermissionDenied = false;
 
     FloatingActionButton fabLayers;
@@ -130,7 +132,9 @@ public class VesselWatchMapActivity extends BaseActivity implements
         
         enableAds(getString(R.string.ferries_ad_target));
 
-		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mProgressBar = findViewById(R.id.progress_bar);
+
+		mToolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -138,18 +142,12 @@ public class VesselWatchMapActivity extends BaseActivity implements
         }
 
         // Hide map fab
-        fabLayers = (FloatingActionButton) findViewById(R.id.fab);
+        fabLayers = findViewById(R.id.fab);
         fabLayers.setVisibility(View.INVISIBLE);
-
-        // Initialize AsyncTasks
-       // camerasOverlayTask = new CamerasOverlayTask();
 
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
-        
-        // Setup Service Intent.
-       // camerasIntent = new Intent(this, CamerasSyncService.class);
+        showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
         
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -188,13 +186,13 @@ public class VesselWatchMapActivity extends BaseActivity implements
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
-                        setSupportProgressBarIndeterminateVisibility(true);
+                        mProgressBar.setVisibility(View.VISIBLE);
                         break;
                     case SUCCESS:
-                        setSupportProgressBarIndeterminateVisibility(false);
+                        mProgressBar.setVisibility(View.GONE);
                         break;
                     case ERROR:
-                        setSupportProgressBarIndeterminateVisibility(false);
+                        mProgressBar.setVisibility(View.GONE);
                         Toast.makeText(this, "connection error, failed to load vessels", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -238,13 +236,13 @@ public class VesselWatchMapActivity extends BaseActivity implements
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
-                        setSupportProgressBarIndeterminateVisibility(true);
+                        mProgressBar.setVisibility(View.VISIBLE);
                         break;
                     case SUCCESS:
-                        setSupportProgressBarIndeterminateVisibility(false);
+                        mProgressBar.setVisibility(View.GONE);
                         break;
                     case ERROR:
-                        setSupportProgressBarIndeterminateVisibility(false);
+                        mProgressBar.setVisibility(View.GONE);
                         Toast.makeText(this, "connection error, failed to load cameras", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -285,7 +283,6 @@ public class VesselWatchMapActivity extends BaseActivity implements
     }
 
     public void onCameraChange(CameraPosition cameraPosition) {
-        setSupportProgressBarIndeterminateVisibility(true);
         if (mMap != null) {
             mapCameraViewModel.refreshDisplayedCameras(mMap.getProjection().getVisibleRegion().latLngBounds);
         }

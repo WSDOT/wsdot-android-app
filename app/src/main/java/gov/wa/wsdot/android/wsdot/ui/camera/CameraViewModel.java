@@ -34,7 +34,7 @@ public class CameraViewModel extends ViewModel {
         cameraRepo.setIsStarred(cameraId, isStarred);
     }
 
-    public void forceRefreshPasses() {
+    public void forceRefreshCameras() {
         cameraRepo.refreshData(mStatus, true);
     }
 }
