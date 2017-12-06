@@ -181,7 +181,7 @@ public class MountainPassRepository extends NetworkResourceSyncRepository {
             passData.setLongitude(pass.getDouble("Longitude"));
 
             for (MountainPassEntity starredPass : starred) {
-                if (starredPass.getPassId() == passData.getPassId()){
+                if (starredPass.getPassId().equals(passData.getPassId())){
                     passData.setIsStarred(1);
                 }
             }

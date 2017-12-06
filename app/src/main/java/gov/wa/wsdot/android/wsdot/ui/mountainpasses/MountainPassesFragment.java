@@ -127,10 +127,8 @@ public class MountainPassesFragment extends BaseFragment implements
         });
 
         viewModel.getPasses().observe(this, passes -> {
-            //if (passes.size() > 0) {
             mPasses = passes;
             mAdapter.notifyDataSetChanged();
-            //}
         });
 
         return root;
@@ -148,8 +146,6 @@ public class MountainPassesFragment extends BaseFragment implements
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private Context context;
 
-        private List<MtPassVH> mItems = new ArrayList<>();
-
         public MountainPassAdapter(Context context) {
             this.context = context;
         }
@@ -159,7 +155,6 @@ public class MountainPassesFragment extends BaseFragment implements
             View view = LayoutInflater.from(context).inflate(R.layout.list_item_details_with_icon, null);
             MtPassVH viewholder = new MtPassVH(view);
             view.setTag(viewholder);
-            mItems.add(viewholder);
             return viewholder;
         }
 
@@ -195,7 +190,7 @@ public class MountainPassesFragment extends BaseFragment implements
 
             mtpassVH.icon.setImageResource(icon);
 
-            mtpassVH.star_button.setTag(pass.getId());
+            mtpassVH.star_button.setTag(pass.getPassId());
 
             // Seems when Android recycles the views, the onCheckedChangeListener is still active
             // and the call to setChecked() causes that code within the listener to run repeatedly.
@@ -206,9 +201,7 @@ public class MountainPassesFragment extends BaseFragment implements
                     .setChecked(pass.getIsStarred() != 0);
             mtpassVH.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
-                    int rowId = (Integer) buttonView.getTag();
-                    ContentValues values = new ContentValues();
-                    values.put(MountainPasses.MOUNTAIN_PASS_IS_STARRED, isChecked ? 1 : 0);
+                    int passId = (Integer) buttonView.getTag();
 
                     Snackbar added_snackbar = Snackbar
                             .make(getView(), R.string.add_favorite, Snackbar.LENGTH_SHORT);
@@ -216,7 +209,7 @@ public class MountainPassesFragment extends BaseFragment implements
                     Snackbar removed_snackbar = Snackbar
                             .make(getView(), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
 
-                    added_snackbar.setCallback(new Snackbar.Callback() {
+                    added_snackbar.addCallback(new Snackbar.Callback() {
                         @Override
                         public void onShown(Snackbar snackbar) {
                             super.onShown(snackbar);
@@ -225,7 +218,7 @@ public class MountainPassesFragment extends BaseFragment implements
                         }
                     });
 
-                    removed_snackbar.setCallback(new Snackbar.Callback() {
+                    removed_snackbar.addCallback(new Snackbar.Callback() {
                         @Override
                         public void onShown(Snackbar snackbar) {
                             super.onShown(snackbar);
@@ -240,12 +233,7 @@ public class MountainPassesFragment extends BaseFragment implements
                         removed_snackbar.show();
                     }
 
-                    getActivity().getContentResolver().update(
-                            MountainPasses.CONTENT_URI,
-                            values,
-                            MountainPasses._ID + "=?",
-                            new String[] {Integer.toString(rowId)}
-                    );
+                    viewModel.setIsStarredFor(passId, isChecked ? 1 : 0);
                 }
             });
         }

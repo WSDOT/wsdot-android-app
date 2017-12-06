@@ -3,6 +3,7 @@ package gov.wa.wsdot.android.wsdot.repository;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -100,7 +101,7 @@ public class FerryScheduleRepository extends NetworkResourceSyncRepository {
                     .getString("CacheDate").substring(6, 19)))));
 
             for (FerryScheduleEntity starredSchedule : starred) {
-                if (starredSchedule.getFerryScheduleId() == schedule.getFerryScheduleId()){
+                if (starredSchedule.getFerryScheduleId().equals(schedule.getFerryScheduleId())) {
                     schedule.setIsStarred(1);
                 }
             }

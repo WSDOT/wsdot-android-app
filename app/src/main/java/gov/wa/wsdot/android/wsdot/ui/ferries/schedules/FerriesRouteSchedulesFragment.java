@@ -138,6 +138,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 
         viewModel.getFerrySchedules().observe(this, schedules -> {
             mSchedule = schedules;
+
             mAdapter.notifyDataSetChanged();
         });
 
@@ -155,7 +156,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 		private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
 		private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private Context context;
-        private List<FerryScheduleVH> mItems = new ArrayList<>();
 
         public RouteSchedulesAdapter(Context context) {
             this.context = context;
@@ -166,7 +166,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
             View view = LayoutInflater.from(context).inflate(R.layout.list_item_with_star, null);
             FerryScheduleVH viewholder = new FerryScheduleVH(view);
 			view.setTag(viewholder);
-            mItems.add(viewholder);
             return viewholder;
 		}
 
@@ -220,7 +219,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
             holder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
             holder.created_at.setTypeface(tf);
 
-            holder.star_button.setTag(schedule.getId());
+            holder.star_button.setTag(schedule.getFerryScheduleId());
             // Seems when Android recycles the views, the onCheckedChangeListener is still active
             // and the call to setChecked() causes that code within the listener to run repeatedly.
             // Assigning null to setOnCheckedChangeListener seems to fix it.
@@ -230,9 +229,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
                     .setChecked(schedule.getIsStarred() != 0);
             holder.star_button.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
-                    int rowId = (Integer) buttonView.getTag();
-                    ContentValues values = new ContentValues();
-                    values.put(FerriesSchedules.FERRIES_SCHEDULE_IS_STARRED, isChecked ? 1 : 0);
+                    int scheduleId = (Integer) buttonView.getTag();
 
                     Snackbar added_snackbar = Snackbar
                             .make(getView(), R.string.add_favorite, Snackbar.LENGTH_SHORT);
@@ -264,12 +261,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
                         removed_snackbar.show();
                     }
 
-                    getActivity().getContentResolver().update(
-                            FerriesSchedules.CONTENT_URI,
-                            values,
-                            FerriesSchedules._ID + "=?",
-                            new String[] {Integer.toString(rowId)}
-                    );
+                    viewModel.setIsStarredFor(scheduleId, isChecked ? 1 : 0);
                 }
             });
 

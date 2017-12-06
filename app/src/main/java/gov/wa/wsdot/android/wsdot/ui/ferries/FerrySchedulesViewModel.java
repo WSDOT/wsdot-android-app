@@ -65,8 +65,8 @@ public class FerrySchedulesViewModel extends ViewModel {
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
-    public void setIsStarredFor(Integer passId, Integer isStarred){
-        ferryScheduleRepo.setIsStarred(passId, isStarred);
+    public void setIsStarredFor(Integer routeId, Integer isStarred){
+        ferryScheduleRepo.setIsStarred(routeId, isStarred);
     }
 
     public void forceRefreshFerrySchedules() {
