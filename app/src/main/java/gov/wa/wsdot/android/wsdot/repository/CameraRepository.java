@@ -42,6 +42,11 @@ public class CameraRepository extends NetworkResourceSyncRepository {
         return cameraDao.loadCameras();
     }
 
+    public LiveData<CameraEntity> getCamera(Integer cameraId, MutableLiveData<ResourceStatus> status) {
+        super.refreshData(status, false);
+        return cameraDao.loadCamera(cameraId);
+    }
+
     public LiveData<List<CameraEntity>> getCamerasForRoad(String roadName, MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
         return cameraDao.loadCamerasForRoad(roadName);

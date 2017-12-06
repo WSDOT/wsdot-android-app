@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,8 @@ import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class FerriesTerminalCameraFragment extends BaseFragment
         implements Injectable {
+
+    final static String TAG = FerriesTerminalCameraFragment.class.getSimpleName();
 
     private static int mTerminalId;
     private View mEmptyView;
@@ -104,7 +107,7 @@ public class FerriesTerminalCameraFragment extends BaseFragment
                     case ERROR:
                         mLoadingSpinner.setVisibility(View.GONE);
                         TextView t = (TextView) mEmptyView;
-                        t.setText(R.string.no_day_departures);
+                        t.setText(R.string.no_connection);
                 }
             }
         });
@@ -112,7 +115,8 @@ public class FerriesTerminalCameraFragment extends BaseFragment
         viewModel.getTerminalCameras().observe(this, cameras -> {
             if (cameras != null) {
                 Collections.sort(cameras, CameraItem.cameraDistanceComparator);
-                mAdapter.setData(new ArrayList<>(cameras));
+                cameraItems = new ArrayList<>(cameras);
+                mAdapter.setData(cameraItems);
             }
         });
 
@@ -150,5 +154,4 @@ public class FerriesTerminalCameraFragment extends BaseFragment
             );
         }
     }
-
 }

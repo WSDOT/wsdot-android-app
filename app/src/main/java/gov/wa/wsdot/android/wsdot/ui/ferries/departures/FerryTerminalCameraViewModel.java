@@ -18,7 +18,7 @@ import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
-import gov.wa.wsdot.android.wsdot.viewmodal.MapCameraViewModel;
+import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
 
 public class FerryTerminalCameraViewModel extends ViewModel {
 
@@ -49,8 +49,10 @@ public class FerryTerminalCameraViewModel extends ViewModel {
     }
 
     public void loadTerminalCameras(Integer terminalId, String roadName){
-        terminalCameras.addSource(cameraRepo.getCamerasForRoad(roadName, mStatus), cameras -> {
-            processTerminalCameras(terminalId, cameras);
+        appExecutors.taskIO().execute(() -> {
+            terminalCameras.addSource(cameraRepo.getCamerasForRoad(roadName, mStatus), cameras -> {
+                processTerminalCameras(terminalId, cameras);
+            });
         });
     }
 

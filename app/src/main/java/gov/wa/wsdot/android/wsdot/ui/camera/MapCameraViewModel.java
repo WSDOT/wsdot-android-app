@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.viewmodal;
+package gov.wa.wsdot.android.wsdot.ui.camera;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;

@@ -18,6 +18,8 @@
 
 package gov.wa.wsdot.android.wsdot.ui.camera;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -33,87 +35,64 @@ import android.widget.Spinner;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class CameraActivity extends BaseActivity {
-	
-    private ContentResolver resolver;
+
     private TabLayout mTabLayout;
     private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
     private ViewPager mViewPager;
     private TabsAdapter mTabsAdapter;
     private Toolbar mToolbar;
-	
+
+	CameraViewModel viewModel;
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
 	    super.onCreate(savedInstanceState);
 
-	    resolver = getContentResolver();
-	    Cursor cursor = null;
-	    
-	    int cameraId = 0;
-	    String title = "";
-	    String url = "";
-	    boolean hasVideo = false;
-	    int isStarred = 0;
-
-	    String[] projection = {
-	    		Cameras.CAMERA_ID,
-	    		Cameras.CAMERA_TITLE,
-	    		Cameras.CAMERA_URL,
-	    		Cameras.CAMERA_HAS_VIDEO,
-	    		Cameras.CAMERA_IS_STARRED
-	    		};	    
-	    
 	    Bundle b = getIntent().getExtras();
 	    int id = b.getInt("id");
 
+	    viewModel = ViewModelProviders.of(this, viewModelFactory).get(CameraViewModel.class);
 
-		try {
-			cursor = resolver.query(
-					Cameras.CONTENT_URI,
-					projection,
-					Cameras.CAMERA_ID + "=?",
-					new String[] {Integer.toString(id)},
-					null
-					);
-			
-			if (cursor != null && cursor.moveToFirst()) {
-				cameraId = cursor.getInt(0);
-				title = cursor.getString(1);
-				url = cursor.getString(2);
-				hasVideo = cursor.getInt(3) != 0;
-				isStarred = cursor.getInt(4);
-			}
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}	    
-	    
+	    viewModel.getCamera(id).observe(this, camera -> {
+	        if (camera != null) {
+                mToolbar.setTitle(camera.getTitle());
+                if (camera.getHasVideo() == 1) {
+                    tabFragments.add(mTabLayout.getTabCount(), CameraVideoFragment.class);
+                    mTabLayout.addTab(mTabLayout.newTab().setText("Video"));
+                }
+            }
+        });
+
 		Bundle args = new Bundle();
-		args.putInt("id", cameraId);
-		args.putString("title", title);
-		args.putString("url", url);
-		args.putInt("isStarred", isStarred);
+		args.putInt("id", id);
 
         setContentView(R.layout.activity_with_tabs);
-        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager = findViewById(R.id.pager);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        mToolbar.setTitle(title);
+        mToolbar = findViewById(R.id.toolbar);
+
 		setSupportActionBar(mToolbar);
 		if(getSupportActionBar() != null){
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
-		Spinner mSpinner = (Spinner) findViewById(R.id.spinner);
+		Spinner mSpinner = findViewById(R.id.spinner);
 		mSpinner.setVisibility(View.GONE);
 
-        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        mTabLayout = findViewById(R.id.tab_layout);
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         // Add tab titles and their corresponding fragments to the fragment list.
@@ -121,10 +100,7 @@ public class CameraActivity extends BaseActivity {
 
 
         mTabLayout.addTab(mTabLayout.newTab().setText("Camera"));
-        if (hasVideo) {
-            tabFragments.add(mTabLayout.getTabCount(), CameraVideoFragment.class);
-            mTabLayout.addTab(mTabLayout.newTab().setText("Video"));
-        }
+
 
         mTabsAdapter = new TabsAdapter
                 (this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount(), args);
@@ -132,7 +108,7 @@ public class CameraActivity extends BaseActivity {
         mViewPager.setAdapter(mTabsAdapter);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
 
-        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());

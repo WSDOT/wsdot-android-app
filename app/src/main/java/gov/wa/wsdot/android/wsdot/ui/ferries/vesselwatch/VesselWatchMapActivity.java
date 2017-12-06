@@ -84,7 +84,7 @@ import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
-import gov.wa.wsdot.android.wsdot.viewmodal.MapCameraViewModel;
+import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
 
 public class VesselWatchMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener,
@@ -123,7 +123,6 @@ public class VesselWatchMapActivity extends BaseActivity implements
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);

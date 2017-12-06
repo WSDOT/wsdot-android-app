@@ -8,13 +8,14 @@ import dagger.Module;
 import dagger.multibindings.IntoMap;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitViewModel;
+import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesBulletinsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalCameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
-import gov.wa.wsdot.android.wsdot.viewmodal.MapCameraViewModel;
+import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
 import gov.wa.wsdot.android.wsdot.viewmodal.ViewModelFactory;
 
 /**
@@ -68,6 +69,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(FerryTerminalCameraViewModel.class)
     abstract ViewModel bindFerryTerminalCameraViewModel(FerryTerminalCameraViewModel ferryTerminalCameraViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(CameraViewModel.class)
+    abstract ViewModel bindCameraViewModel(CameraViewModel cameraViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
