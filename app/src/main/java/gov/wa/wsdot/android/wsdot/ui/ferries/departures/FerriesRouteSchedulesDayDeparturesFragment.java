@@ -101,8 +101,9 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         mScheduleId = args.getInt("scheduleId");
         mTerminalIndex = args.getInt("terminalIndex");
 
+
 	}
-	
+
     @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -137,8 +138,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
-        scheduleViewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
         terminalViewModel = ViewModelProviders.of(this, viewModelFactory).get(FerryTerminalViewModel.class);
+        scheduleViewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
 
         scheduleViewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -158,6 +159,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
                         break;
                     case SUCCESS:
                         swipeRefreshLayout.setRefreshing(false);
@@ -171,23 +173,26 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
         scheduleViewModel.getFerryScheduleFor(mScheduleId).observe(this, schedule -> {
             if (schedule != null) {
+                Log.e(TAG, "loading dates..!");
                 scheduleViewModel.loadDatesWithSailingsFromJson(schedule.getDate());
             }
         });
 
         scheduleViewModel.getDatesWithSailings().observe(this, dates -> {
             if (dates != null) {
+                Log.e(TAG, "dates not null!");
                 mScheduleDateItems = new ArrayList<>(dates);
 
-                initDaySpinner();
-                terminalItem = mScheduleDateItems.get(0).getFerriesTerminalItem().get(mTerminalIndex);
+                terminalItem = mScheduleDateItems.get(terminalViewModel.getSelectedDay()).getFerriesTerminalItem().get(mTerminalIndex);
 
+                initDaySpinner();
                 terminalViewModel.loadDepartureTimesForTerminal(terminalItem);
             }
         });
 
         terminalViewModel.getDepartureTimes().observe(this, sailingTimes -> {
             if (sailingTimes != null ){
+                Log.e(TAG, "new departure times");
                 if (sailingTimes.size() != 0) {
                     mEmptyView.setVisibility(View.GONE);
                 } else {
@@ -203,8 +208,11 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
             if (sailingAnnotations != null) {
                 annotations = new ArrayList<>(sailingAnnotations);
                 mAdapter.notifyDataSetChanged();
+            } else {
+                annotations.clear();
             }
         });
+
 
         return root;
 	}
@@ -224,7 +232,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
     // Runnable for updating sailing spaces
     private Runnable runnable = new Runnable() {
         public void run() {
-            Log.e(TAG, "Runnable!");
+            Log.e(TAG, "refreshing departureTimes");
             terminalViewModel.forceRefreshTerminalSpaces();
             mHandler.postDelayed(runnable, (DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
         }
@@ -477,8 +485,12 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
      * requests the departure times for that day from the view model.
      */
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        terminalItem = mScheduleDateItems.get(position).getFerriesTerminalItem().get(mTerminalIndex);
-        terminalViewModel.loadDepartureTimesForTerminal(terminalItem);
+        if (position != terminalViewModel.getSelectedDay()) {
+            terminalViewModel.setSelectedDay(position);
+            terminalItem = mScheduleDateItems.get(position).getFerriesTerminalItem().get(mTerminalIndex);
+            Log.e(TAG, "on item selected");
+            terminalViewModel.loadDepartureTimesForTerminal(terminalItem);
+        }
     }
 
     public void onNothingSelected(AdapterView<?> parent) {

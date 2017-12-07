@@ -45,6 +45,8 @@ public class FerrySchedulesViewModel extends ViewModel {
         this.appExecutors = appExecutors;
     }
 
+    public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
+
     public LiveData<List<FerryScheduleEntity>> getFerrySchedules(){
         if (schedules == null){
             this.schedules = ferryScheduleRepo.getFerrySchedules(mStatus);
@@ -55,15 +57,13 @@ public class FerrySchedulesViewModel extends ViewModel {
     }
 
     public LiveData<FerryScheduleEntity> getFerryScheduleFor(Integer id){
-        if (schedule == null){
+        if (schedule == null) {
             this.schedule = ferryScheduleRepo.getFerryScheduleFor(id, mStatus);
             return this.schedule;
         } else {
             return this.schedule;
         }
     }
-
-    public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
     public void setIsStarredFor(Integer routeId, Integer isStarred){
         ferryScheduleRepo.setIsStarred(routeId, isStarred);

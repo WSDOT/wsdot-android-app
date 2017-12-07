@@ -2,6 +2,7 @@ package gov.wa.wsdot.android.wsdot.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.text.format.DateUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -35,7 +36,7 @@ public class FerryTerminalSpaceRepository extends NetworkResourceSyncRepository 
 
     @Inject
     FerryTerminalSpaceRepository(FerryTerminalSailingSpacesDao terminalSailingSpacesDao, AppExecutors appExecutors, CacheRepository cacheRepository) {
-        super(appExecutors, cacheRepository, (0), "ferries_terminal_sailing_space");
+        super(appExecutors, cacheRepository, DateUtils.MINUTE_IN_MILLIS, "ferries_terminal_sailing_space");
         this.terminalSailingSpacesDao = terminalSailingSpacesDao;
     }
 

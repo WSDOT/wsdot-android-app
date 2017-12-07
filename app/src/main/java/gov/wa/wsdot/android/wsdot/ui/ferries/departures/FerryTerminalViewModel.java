@@ -20,6 +20,7 @@ import java.util.TimeZone;
 import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryTerminalSailingSpacesEntity;
+import gov.wa.wsdot.android.wsdot.repository.FerryScheduleRepository;
 import gov.wa.wsdot.android.wsdot.repository.FerryTerminalSpaceRepository;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
@@ -39,22 +40,33 @@ public class FerryTerminalViewModel extends ViewModel {
     private String TAG = FerryTerminalViewModel.class.getSimpleName();
 
     private MediatorLiveData<List<FerriesScheduleTimesItem>> departureTimes;
-
     private MutableLiveData<List<FerriesAnnotationsItem>> departureTimesAnnotations;
+
+    private int selectedDay = 0;
 
     private MutableLiveData<ResourceStatus> mStatus;
 
     private AppExecutors appExecutors;
 
     private FerryTerminalSpaceRepository terminalSpaceRepo;
+    private FerryScheduleRepository ferryScheduleRepo;
 
     @Inject
-    FerryTerminalViewModel(FerryTerminalSpaceRepository terminalSpaceRepo, AppExecutors appExecutors) {
+    FerryTerminalViewModel(FerryTerminalSpaceRepository terminalSpaceRepo, FerryScheduleRepository ferryScheduleRepo, AppExecutors appExecutors) {
         this.mStatus = new MutableLiveData<>();
         this.terminalSpaceRepo = terminalSpaceRepo;
+        this.ferryScheduleRepo = ferryScheduleRepo;
         this.appExecutors = appExecutors;
         this.departureTimes = new  MediatorLiveData<>();
         this.departureTimesAnnotations = new MutableLiveData<>();
+    }
+
+    public void setSelectedDay(int selection){
+        selectedDay = selection;
+    }
+
+    public int getSelectedDay() {
+        return this.selectedDay;
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
@@ -79,6 +91,7 @@ public class FerryTerminalViewModel extends ViewModel {
      * @param terminalItem holds sailing times data. Extracted from a FerriesScheduleDateItem
      */
     public void loadDepartureTimesForTerminal(FerriesTerminalItem terminalItem) {
+        Log.e(TAG, "Load departure times called");
         appExecutors.taskIO().execute(() -> {
 
             processDepartureTimes(terminalItem);
@@ -169,9 +182,6 @@ public class FerryTerminalViewModel extends ViewModel {
                     // Check terminalID field
                     if (terminals.getInt("TerminalID") == terminalItem.getDepartingTerminalID()){
 
-
-                        Log.e(TAG, "yo");
-
                         int driveUpSpaceCount = terminals.getInt("DriveUpSpaceCount");
                         int maxSpaceCount = terminals.getInt("MaxSpaceCount");
 
@@ -205,7 +215,7 @@ public class FerryTerminalViewModel extends ViewModel {
                     }
                 }
             }
-
+            Log.e(TAG, "posting new departure times with spaces");
             departureTimes.postValue(times);
 
         } catch (JSONException e) {
