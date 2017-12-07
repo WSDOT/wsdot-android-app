@@ -7,6 +7,7 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertViewModel;
+import gov.wa.wsdot.android.wsdot.ui.alert.MapHighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitViewModel;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
@@ -74,6 +75,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(CameraViewModel.class)
     abstract ViewModel bindCameraViewModel(CameraViewModel cameraViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MapHighwayAlertViewModel.class)
+    abstract ViewModel bindMapHighwayAlertViewModel(MapHighwayAlertViewModel mapHighwayAlertViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

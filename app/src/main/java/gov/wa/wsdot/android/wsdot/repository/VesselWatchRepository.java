@@ -90,7 +90,13 @@ public class VesselWatchRepository extends NetworkResourceRepository {
 
             int nearest = (item.getInt("Heading") + 30 / 2) / 30 * 30; // round heading to nearest 30 degrees
             ferryIcon = ferryIcons.get(nearest);
-            String route = item.getJSONArray("OpRouteAbbrev").getString(0).toUpperCase(Locale.ENGLISH);
+
+            String route = "";
+
+            if (item.getJSONArray("OpRouteAbbrev").length() != 0) {
+                route = item.getJSONArray("OpRouteAbbrev").getString(0).toUpperCase(Locale.ENGLISH);
+            }
+
             String lastDock = item.getString("DepartingTerminalName");
             String arrivingTerminal = item.getString("ArrivingTerminalName");
             String leftDock = formatTime(item, "LeftDock");

@@ -17,7 +17,7 @@ import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
  */
 public abstract class NetworkResourceRepository {
 
-    private static String TAG = NetworkResourceSyncRepository.class.getSimpleName();
+    private static String TAG = NetworkResourceRepository.class.getSimpleName();
 
     private final AppExecutors appExecutors;
 
@@ -34,7 +34,6 @@ public abstract class NetworkResourceRepository {
         appExecutors.diskIO().execute(() -> {
             status.postValue(ResourceStatus.loading());
             try {
-                Log.e(TAG, "fetching data...");
                 fetchData(status);
                 status.postValue(ResourceStatus.success());
             } catch (Exception e) {

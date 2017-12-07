@@ -48,7 +48,14 @@ public class MapCameraViewModel extends ViewModel {
         return this.displayedCameras;
     }
 
-    public void loadDisplayCameras(LatLngBounds bounds, String roadName){
+    public void loadDisplayCameras(LatLngBounds bounds){
+        displayedCameras.addSource(cameraRepo.getCameras(mStatus), cameras -> {
+            this.displayableCameras = cameras;
+            refreshDisplayedCameras(bounds);
+        });
+    }
+
+    public void loadDisplayCamerasForRoad(LatLngBounds bounds, String roadName){
         displayedCameras.addSource(cameraRepo.getCamerasForRoad(roadName, mStatus), cameras -> {
             this.displayableCameras = cameras;
             refreshDisplayedCameras(bounds);

@@ -28,6 +28,7 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchMapActivity;
 import gov.wa.wsdot.android.wsdot.ui.home.HomeActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 
 /**
  *  For Dagger 2. A list of classes passed to the Object Graph that
@@ -69,5 +70,8 @@ public abstract class ActivityModule {
 
     @ContributesAndroidInjector
     abstract CameraActivity contributeCameraActivity();
+
+    @ContributesAndroidInjector
+    abstract TrafficMapActivity contributeTrafficMapActivity();
 
 }

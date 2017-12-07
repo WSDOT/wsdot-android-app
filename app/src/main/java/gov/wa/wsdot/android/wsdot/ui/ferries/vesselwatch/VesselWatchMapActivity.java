@@ -277,7 +277,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
             }
         });
 
-        mapCameraViewModel.loadDisplayCameras(mMap.getProjection().getVisibleRegion().latLngBounds,"ferries");
+        mapCameraViewModel.loadDisplayCamerasForRoad(mMap.getProjection().getVisibleRegion().latLngBounds,"ferries");
 
         enableMyLocation();
     }

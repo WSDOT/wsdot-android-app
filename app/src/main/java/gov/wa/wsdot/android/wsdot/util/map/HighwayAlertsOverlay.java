@@ -64,7 +64,7 @@ public class HighwayAlertsOverlay {
 		String[] event_closure = {"closed", "closure"};
 		String[] event_construction = {"construction", "maintenance", "lane closure"};
 		
-		HashMap<String, String[]> eventCategories = new HashMap<String, String[]>();
+		HashMap<String, String[]> eventCategories = new HashMap<>();
 		eventCategories.put("closure", event_closure);
         eventCategories.put("construction", event_construction);
 		
