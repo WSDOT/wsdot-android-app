@@ -281,6 +281,9 @@ public class TrafficMapActivity extends BaseActivity implements
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
         mapFragment.getMapAsync(this);
 
+        mapCameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapCameraViewModel.class);
+        mapCameraViewModel.init(null);
+
         setUpFabMenu();
 
         // check for travel charts
@@ -373,8 +376,8 @@ public class TrafficMapActivity extends BaseActivity implements
         setUpClusterer();
 
         mMap.setOnCameraIdleListener(() -> {
-            mapCameraViewModel.refreshDisplayedCameras(mMap.getProjection().getVisibleRegion().latLngBounds);
-            mapHighwayAlertViewModel.refreshDisplayedAlerts(mMap.getProjection().getVisibleRegion().latLngBounds);
+            mapCameraViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
+            mapHighwayAlertViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
             mClusterManager.onCameraIdle();
         });
 
@@ -427,9 +430,8 @@ public class TrafficMapActivity extends BaseActivity implements
             }
         });
 
-        mapHighwayAlertViewModel.loadDisplayAlerts(mMap.getProjection().getVisibleRegion().latLngBounds);
+        mapHighwayAlertViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
 
-        mapCameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapCameraViewModel.class);
 
         mapCameraViewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -475,7 +477,7 @@ public class TrafficMapActivity extends BaseActivity implements
             }
         });
 
-        mapCameraViewModel.loadDisplayCameras(mMap.getProjection().getVisibleRegion().latLngBounds);
+        mapCameraViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
 
         LatLng latLng = new LatLng(latitude, longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
@@ -921,8 +923,8 @@ public class TrafficMapActivity extends BaseActivity implements
         item.setActionView(imageView);
 
         if (mMap != null) {
-            mapCameraViewModel.refreshDisplayedCameras(mMap.getProjection().getVisibleRegion().latLngBounds);
-            mapHighwayAlertViewModel.refreshDisplayedAlerts(mMap.getProjection().getVisibleRegion().latLngBounds);
+            mapCameraViewModel.refreshCameras();
+            mapHighwayAlertViewModel.refreshAlerts();
         }
     }
 

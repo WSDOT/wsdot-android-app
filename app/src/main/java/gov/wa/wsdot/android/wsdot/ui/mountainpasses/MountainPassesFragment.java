@@ -112,14 +112,11 @@ public class MountainPassesFragment extends BaseFragment implements
                 switch (resourceStatus.status) {
                     case LOADING:
                         swipeRefreshLayout.setRefreshing(true);
-                        Log.e(TAG, "HERE1");
                         break;
                     case SUCCESS:
                         swipeRefreshLayout.setRefreshing(false);
-                        Log.e(TAG, "HERE2");
                         break;
                     case ERROR:
-                        Log.e(TAG, "HERE3");
                         swipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
                 }

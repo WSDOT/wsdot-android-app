@@ -3,6 +3,7 @@ package gov.wa.wsdot.android.wsdot.ui.alert;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.repository.HighwayAlertRepository;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
@@ -32,45 +34,25 @@ public class MapHighwayAlertViewModel extends ViewModel {
 
     private MutableLiveData<ResourceStatus> mStatus;
 
-    private List<HighwayAlertEntity> displayableAlerts;
-    private MediatorLiveData<List<HighwayAlertsItem>> displayedAlerts;
+    private MutableLiveData<LatLngBounds> mapBounds;
+    private LiveData<List<HighwayAlertsItem>> displayableAlertItems;
+    private MediatorLiveData<List<HighwayAlertsItem>> displayedAlertItems;
 
-    private AppExecutors appExecutors;
-
-    private HighwayAlertRepository alertRepo;
+    private HighwayAlertRepository highwayAlertRepo;
 
     @Inject
-    MapHighwayAlertViewModel( HighwayAlertRepository alertRepo, AppExecutors appExecutors) {
+    MapHighwayAlertViewModel(HighwayAlertRepository alertRepo) {
+
         this.mStatus = new MutableLiveData<>();
-        this.displayableAlerts = new ArrayList<>();
-        this.displayedAlerts = new MediatorLiveData<>();
-        this.alertRepo = alertRepo;
-        this.appExecutors = appExecutors;
-    }
+        this.highwayAlertRepo = alertRepo;
 
-    public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
+        this.displayableAlertItems = Transformations.map(alertRepo.getHighwayAlerts(mStatus), alerts -> {
 
-    public MediatorLiveData<List<HighwayAlertsItem>> getDisplayAlerts() {
-        return this.displayedAlerts;
-    }
+            ArrayList<HighwayAlertsItem> displayableAlertItemValues = new ArrayList<>();
 
-    public void loadDisplayAlerts(LatLngBounds bounds){
-        displayedAlerts.addSource(alertRepo.getHighwayAlerts(mStatus), alerts -> {
-            this.displayableAlerts = alerts;
-            refreshDisplayedAlerts(bounds);
-        });
-    }
-
-    public void refreshDisplayedAlerts(LatLngBounds bounds) {
-        appExecutors.taskIO().execute(() -> {
-            ArrayList<HighwayAlertsItem> displayedAlertValues = new ArrayList<>();
-
-            for (HighwayAlertEntity alert : this.displayableAlerts) {
-
-                LatLng alertLocation = new LatLng(alert.getStartLatitude(), alert.getStartLongitude());
-
-                if (bounds.contains(alertLocation)) {
-                    displayedAlertValues.add(new HighwayAlertsItem(
+            if (alerts != null) {
+                for (HighwayAlertEntity alert : alerts) {
+                    displayableAlertItemValues.add(new HighwayAlertsItem(
                             String.valueOf(alert.getAlertId()),
                             alert.getStartLatitude(),
                             alert.getStartLongitude(),
@@ -85,11 +67,53 @@ public class MapHighwayAlertViewModel extends ViewModel {
                                     alert.getPriority()
                             )
                     ));
-
                 }
             }
-            displayedAlerts.postValue(displayedAlertValues);
+            return displayableAlertItemValues;
         });
+
+        mapBounds = new MutableLiveData<>();
+
+        displayedAlertItems = new MediatorLiveData<>();
+        displayedAlertItems.addSource(mapBounds, bounds -> {
+            if (displayableAlertItems.getValue() != null) {
+                displayedAlertItems.postValue(filterDisplayedAlertsFor(bounds, displayableAlertItems.getValue()));
+            }
+        });
+
+        displayedAlertItems.addSource(displayableAlertItems, alertsItems -> {
+            if (mapBounds.getValue() != null) {
+                displayedAlertItems.postValue(filterDisplayedAlertsFor(mapBounds.getValue(), alertsItems));
+            }
+        });
+
+    }
+
+    public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
+
+    public void refreshAlerts(){
+        highwayAlertRepo.refreshData(mStatus, true);
+    }
+
+    public LiveData<List<HighwayAlertsItem>> getDisplayAlerts() {
+        return displayedAlertItems;
+    }
+
+    public void setMapBounds(LatLngBounds bounds){
+        this.mapBounds.setValue(bounds);
+    }
+
+    private List<HighwayAlertsItem> filterDisplayedAlertsFor(LatLngBounds bounds, List<HighwayAlertsItem> alertItems) {
+
+        ArrayList<HighwayAlertsItem> displayedAlertItems = new ArrayList<>();
+
+        for (HighwayAlertsItem alert : alertItems) {
+            LatLng alertLocation = new LatLng(alert.getStartLatitude(), alert.getStartLongitude());
+            if (bounds.contains(alertLocation)) {
+                displayedAlertItems.add(alert);
+            }
+        }
+        return displayedAlertItems;
     }
 
     /**

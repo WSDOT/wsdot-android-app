@@ -3,7 +3,9 @@ package gov.wa.wsdot.android.wsdot.ui.camera;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -26,67 +28,89 @@ public class MapCameraViewModel extends ViewModel {
 
     private MutableLiveData<ResourceStatus> mStatus;
 
-    private List<CameraEntity> displayableCameras;
-    private MediatorLiveData<List<CameraItem>> displayedCameras;
-
-    private AppExecutors appExecutors;
+    private MutableLiveData<LatLngBounds> mapBounds;
+    private LiveData<List<CameraItem>> displayableCameraItems;
+    private MediatorLiveData<List<CameraItem>> displayedCameraItems;
 
     private CameraRepository cameraRepo;
 
     @Inject
-    MapCameraViewModel(CameraRepository cameraRepo, AppExecutors appExecutors) {
+    MapCameraViewModel(CameraRepository cameraRepo) {
         this.mStatus = new MutableLiveData<>();
-        this.displayableCameras = new ArrayList<>();
-        this.displayedCameras = new MediatorLiveData<>();
         this.cameraRepo = cameraRepo;
-        this.appExecutors = appExecutors;
+    }
+
+    public void init(@Nullable String roadName){
+
+        if (roadName != null){
+            this.displayableCameraItems = Transformations.map(cameraRepo.getCamerasForRoad(roadName, mStatus), cameras -> transformCameras(cameras));
+        } else {
+            this.displayableCameraItems = Transformations.map(cameraRepo.getCameras(mStatus), cameras -> transformCameras(cameras));
+        }
+
+        mapBounds = new MutableLiveData<>();
+
+        displayedCameraItems = new MediatorLiveData<>();
+
+        displayedCameraItems.addSource(mapBounds, bounds -> {
+            if (displayableCameraItems.getValue() != null) {
+                displayedCameraItems.postValue(filterDisplayedCamerasFor(bounds, displayableCameraItems.getValue()));
+            }
+        });
+
+        displayedCameraItems.addSource(displayableCameraItems, alertsItems -> {
+            if (mapBounds.getValue() != null) {
+                displayedCameraItems.postValue(filterDisplayedCamerasFor(mapBounds.getValue(), alertsItems));
+            }
+        });
+    }
+
+    private ArrayList<CameraItem> transformCameras(List<CameraEntity> cameras){
+        ArrayList<CameraItem> displayableAlertItemValues = new ArrayList<>();
+
+        if (cameras != null) {
+            for (CameraEntity camera : cameras) {
+
+                int video = camera.getHasVideo();
+                int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
+
+                displayableAlertItemValues.add(new CameraItem(
+                        camera.getLatitude(),
+                        camera.getLongitude(),
+                        camera.getTitle(),
+                        camera.getUrl(),
+                        camera.getCameraId(),
+                        cameraIcon
+                ));
+            }
+        }
+        return displayableAlertItemValues;
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
-    public MediatorLiveData<List<CameraItem>> getDisplayCameras() {
-        return this.displayedCameras;
+    public void refreshCameras(){
+        cameraRepo.refreshData(mStatus, true);
     }
 
-    public void loadDisplayCameras(LatLngBounds bounds){
-        displayedCameras.addSource(cameraRepo.getCameras(mStatus), cameras -> {
-            this.displayableCameras = cameras;
-            refreshDisplayedCameras(bounds);
-        });
+    public LiveData<List<CameraItem>> getDisplayCameras() {
+        return displayedCameraItems;
     }
 
-    public void loadDisplayCamerasForRoad(LatLngBounds bounds, String roadName){
-        displayedCameras.addSource(cameraRepo.getCamerasForRoad(roadName, mStatus), cameras -> {
-            this.displayableCameras = cameras;
-            refreshDisplayedCameras(bounds);
-        });
+    public void setMapBounds(LatLngBounds bounds){
+        this.mapBounds.setValue(bounds);
     }
 
-    public void refreshDisplayedCameras(LatLngBounds bounds) {
-        appExecutors.taskIO().execute(() -> {
-            ArrayList<CameraItem> displayedCameraValues = new ArrayList<>();
+    public List<CameraItem> filterDisplayedCamerasFor(LatLngBounds bounds, List<CameraItem> cameraItems) {
 
-            for (CameraEntity camera : this.displayableCameras) {
-
-                LatLng cameraLocation = new LatLng(camera.getLatitude(), camera.getLongitude());
-
-                if (bounds.contains(cameraLocation)) {
-                    int video = camera.getHasVideo();
-                    int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
-
-                    displayedCameraValues.add(new CameraItem(
-                            camera.getLatitude(),
-                            camera.getLongitude(),
-                            camera.getTitle(),
-                            camera.getUrl(),
-                            camera.getCameraId(),
-                            cameraIcon
-                    ));
-
-                }
+        ArrayList<CameraItem> displayedCameraValues = new ArrayList<>();
+        for (CameraItem camera : cameraItems) {
+            LatLng cameraLocation = new LatLng(camera.getLatitude(), camera.getLongitude());
+            if (bounds.contains(cameraLocation)) {
+                displayedCameraValues.add(camera);
             }
-            displayedCameras.postValue(displayedCameraValues);
-        });
+        }
+       return displayedCameraValues;
     }
 
 }

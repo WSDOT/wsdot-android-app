@@ -159,6 +159,9 @@ public class VesselWatchMapActivity extends BaseActivity implements
                 .setFastestInterval(5000)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
+        mapCameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapCameraViewModel.class);
+        mapCameraViewModel.init("ferries");
+
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
         mapFragment.getMapAsync(this);
 
@@ -230,8 +233,6 @@ public class VesselWatchMapActivity extends BaseActivity implements
 
         vesselViewModel.loadVessels();
 
-        mapCameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapCameraViewModel.class);
-
         mapCameraViewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
@@ -277,14 +278,12 @@ public class VesselWatchMapActivity extends BaseActivity implements
             }
         });
 
-        mapCameraViewModel.loadDisplayCamerasForRoad(mMap.getProjection().getVisibleRegion().latLngBounds,"ferries");
-
         enableMyLocation();
     }
 
     public void onCameraChange(CameraPosition cameraPosition) {
         if (mMap != null) {
-            mapCameraViewModel.refreshDisplayedCameras(mMap.getProjection().getVisibleRegion().latLngBounds);
+            mapCameraViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
         }
     }
 
