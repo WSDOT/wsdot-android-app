@@ -19,7 +19,6 @@ package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -28,7 +27,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +46,6 @@ import javax.inject.Inject;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MountainPasses;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
@@ -64,8 +61,6 @@ public class MountainPassesFragment extends BaseFragment implements
     private static MountainPassAdapter mAdapter;
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
-
-    private List<MountainPassEntity> mPasses = new ArrayList<>();
 
     private static MountainPassViewModel viewModel;
 
@@ -124,8 +119,7 @@ public class MountainPassesFragment extends BaseFragment implements
         });
 
         viewModel.getPasses().observe(this, passes -> {
-            mPasses = passes;
-            mAdapter.notifyDataSetChanged();
+            mAdapter.setData(passes);
         });
 
         return root;
@@ -142,9 +136,15 @@ public class MountainPassesFragment extends BaseFragment implements
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private Context context;
+        private List<MountainPassEntity> mData = new ArrayList<>();
 
         public MountainPassAdapter(Context context) {
             this.context = context;
+        }
+
+        public void setData(List<MountainPassEntity> data){
+            this.mData = data;
+            this.notifyDataSetChanged();
         }
 
         @Override
@@ -160,7 +160,7 @@ public class MountainPassesFragment extends BaseFragment implements
 
             MtPassVH mtpassVH = (MtPassVH) viewHolder;
 
-            MountainPassEntity pass = mPasses.get(position);
+            MountainPassEntity pass = mData.get(position);
 
             String title = pass.getName();
             mtpassVH.title.setText(title);
@@ -237,7 +237,7 @@ public class MountainPassesFragment extends BaseFragment implements
 
         @Override
         public int getItemCount() {
-            return mPasses.size();
+            return mData.size();
         }
 
         // View Holder for Mt pass list items.
@@ -266,7 +266,7 @@ public class MountainPassesFragment extends BaseFragment implements
             public void onClick(View v) {
                 Bundle b = new Bundle();
                 Intent intent = new Intent(getActivity(), MountainPassItemActivity.class);
-                b.putInt("id", mPasses.get(this.itemId).getPassId());
+                b.putInt("id", mData.get(this.itemId).getPassId());
                 intent.putExtras(b);
                 startActivity(intent);
             }
