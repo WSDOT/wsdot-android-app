@@ -370,6 +370,8 @@ public class TrafficMapActivity extends BaseActivity implements
         mMap.setOnMapClickListener(latLng -> closeFABMenu());
         mMap.setOnCameraMoveStartedListener(i -> closeFABMenu());
 
+        setUpClusterer();
+
         mMap.setOnCameraIdleListener(() -> {
             mapCameraViewModel.refreshDisplayedCameras(mMap.getProjection().getVisibleRegion().latLngBounds);
             mapHighwayAlertViewModel.refreshDisplayedAlerts(mMap.getProjection().getVisibleRegion().latLngBounds);
@@ -384,6 +386,11 @@ public class TrafficMapActivity extends BaseActivity implements
                     case LOADING:
                         break;
                     case SUCCESS:
+                        if (mToolbar.getMenu().size() > menu_item_refresh) {
+                            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
+                                mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
+                            }
+                        }
                         break;
                     case ERROR:
                         Toast.makeText(this, "connection error, failed to load alerts", Toast.LENGTH_SHORT).show();
@@ -418,10 +425,6 @@ public class TrafficMapActivity extends BaseActivity implements
                     }
                 }
             }
-            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
-                mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
-            }
-
         });
 
         mapHighwayAlertViewModel.loadDisplayAlerts(mMap.getProjection().getVisibleRegion().latLngBounds);
@@ -434,6 +437,11 @@ public class TrafficMapActivity extends BaseActivity implements
                     case LOADING:
                         break;
                     case SUCCESS:
+                        if (mToolbar.getMenu().size() > menu_item_refresh) {
+                            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
+                                mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
+                            }
+                        }
                         break;
                     case ERROR:
                         Toast.makeText(this, "connection error, failed to load cameras", Toast.LENGTH_SHORT).show();
@@ -464,17 +472,10 @@ public class TrafficMapActivity extends BaseActivity implements
                 } else {
                     addCameraMarkers(cameras);
                 }
-
-                if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
-                    mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
-                }
-
             }
         });
 
         mapCameraViewModel.loadDisplayCameras(mMap.getProjection().getVisibleRegion().latLngBounds);
-
-        setUpClusterer();
 
         LatLng latLng = new LatLng(latitude, longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
@@ -1059,7 +1060,6 @@ public class TrafficMapActivity extends BaseActivity implements
             showCalloutMarkers();
             showCallouts = true;
             label = "Show JBLM";
-
         }
 
         mTracker.send(new HitBuilders.EventBuilder()
