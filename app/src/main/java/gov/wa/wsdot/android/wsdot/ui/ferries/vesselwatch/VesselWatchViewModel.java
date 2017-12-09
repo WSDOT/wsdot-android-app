@@ -32,7 +32,7 @@ public class VesselWatchViewModel extends ViewModel {
         return vesselWatchRepo.getVessels();
     }
 
-    public void loadVessels(){
+    public void refreshVessels() {
         vesselWatchRepo.refreshData(this.mStatus);
     }
 

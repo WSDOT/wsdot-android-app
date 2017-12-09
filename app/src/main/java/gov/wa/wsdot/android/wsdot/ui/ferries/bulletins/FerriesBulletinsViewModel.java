@@ -3,7 +3,9 @@ package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.Nullable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,60 +25,57 @@ public class FerriesBulletinsViewModel extends ViewModel {
 
     private String TAG = FerriesBulletinsViewModel.class.getSimpleName();
 
-    private MediatorLiveData<List<FerriesRouteAlertItem>> alerts;
-    private MediatorLiveData<FerriesRouteAlertItem> alert;
+    private LiveData<List<FerriesRouteAlertItem>> alerts;
+    private LiveData<FerriesRouteAlertItem> alert;
 
     private MutableLiveData<ResourceStatus> mStatus;
-
-    private AppExecutors appExecutors;
 
     private FerryScheduleRepository scheduleRepo;
 
     @Inject
-    FerriesBulletinsViewModel(FerryScheduleRepository scheduleRepo, AppExecutors appExecutors) {
+    FerriesBulletinsViewModel(FerryScheduleRepository scheduleRepo) {
         this.mStatus = new MutableLiveData<>();
         this.scheduleRepo = scheduleRepo;
-        this.appExecutors = appExecutors;
-        this.alerts = new MediatorLiveData<>();
-        this.alert = new MediatorLiveData<>();
     }
 
-    public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
+    public void init(Integer routeId, @Nullable Integer alertId) {
 
-    public MediatorLiveData<List<FerriesRouteAlertItem>> getAlerts(){
-        return this.alerts;
-    }
+        if (alertId != null){
+            alert = Transformations.map(this.scheduleRepo.getFerryScheduleFor(routeId, mStatus), schedule -> {
 
-    public MediatorLiveData<FerriesRouteAlertItem> getAlert() { return this.alert; }
+                FerriesRouteAlertItem alertItem = new FerriesRouteAlertItem();
 
-    public void loadAlertsForRoute(Integer routeId){
-        appExecutors.taskIO().execute(() -> {
-            alerts.addSource(scheduleRepo.getFerryScheduleFor(routeId, mStatus), schedule -> {
                 if (schedule != null) {
-                    alerts.postValue(processAlerts(schedule.getAlert()));
-                }
-                scheduleRepo.refreshData(mStatus, false);
-            });
-        });
-    }
-
-    public void loadAlert(Integer routeId, Integer alertId){
-        appExecutors.taskIO().execute(() -> {
-            alert.addSource(scheduleRepo.getFerryScheduleFor(routeId, mStatus), schedule -> {
-                if (schedule != null) {
-                    ArrayList<FerriesRouteAlertItem> alertValues = processAlerts(schedule.getAlert());
-
-                    for (FerriesRouteAlertItem alertValue: alertValues){
+                    ArrayList<FerriesRouteAlertItem> alertItems = processAlerts(schedule.getAlert());
+                    for (FerriesRouteAlertItem alertValue: alertItems){
                         if (alertValue.getBulletinID().equals(alertId)){
-                            alert.postValue(alertValue);
+                            alertItem = alertValue;
                         }
                     }
                 }
-                scheduleRepo.refreshData(mStatus, false);
+                return alertItem;
             });
-        });
+        } else {
+            alerts = Transformations.map(this.scheduleRepo.getFerryScheduleFor(routeId, mStatus), schedule -> {
+                ArrayList<FerriesRouteAlertItem> alertItems = new ArrayList<>();
+                if (schedule != null) {
+                    alertItems = processAlerts(schedule.getAlert());
+                }
+                return alertItems;
+            });
+        }
 
     }
+
+    public void refresh(){
+        scheduleRepo.refreshData(mStatus, false);
+    }
+
+    public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
+    public LiveData<List<FerriesRouteAlertItem>> getAlerts(){
+        return this.alerts;
+    }
+    public LiveData<FerriesRouteAlertItem> getAlert() { return this.alert; }
 
     private ArrayList<FerriesRouteAlertItem> processAlerts(String alertsJson){
         ArrayList<FerriesRouteAlertItem> routeAlertItems = new ArrayList<>();

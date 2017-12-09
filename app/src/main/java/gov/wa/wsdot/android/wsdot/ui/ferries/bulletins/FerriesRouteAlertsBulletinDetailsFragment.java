@@ -94,6 +94,7 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
 		disableAds(root);
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerriesBulletinsViewModel.class);
+		viewModel.init(mRouteId, mAlertId);
 
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -111,7 +112,6 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
         });
 
         viewModel.getAlert().observe(this, alert -> {
-
             if (alert != null) {
                 Date date = new Date(Long.parseLong(alert.getPublishDate()));
                 mAlertPublishDate = displayDateFormat.format(date);
@@ -123,8 +123,6 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
                 webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
             }
         });
-
-        viewModel.loadAlert(mRouteId, mAlertId);
 
 		return root;
 	}

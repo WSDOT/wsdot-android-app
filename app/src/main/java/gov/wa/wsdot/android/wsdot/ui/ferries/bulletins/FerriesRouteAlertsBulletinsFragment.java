@@ -89,6 +89,7 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerriesBulletinsViewModel.class);
+        viewModel.init(mId, null);
 
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -114,8 +115,6 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
 
             }
         });
-
-        viewModel.loadAlertsForRoute(mId);
 
         disableAds(root);
         

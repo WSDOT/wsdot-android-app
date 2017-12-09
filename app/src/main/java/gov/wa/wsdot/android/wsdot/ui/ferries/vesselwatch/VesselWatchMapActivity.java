@@ -231,7 +231,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
             }
         });
 
-        vesselViewModel.loadVessels();
+        vesselViewModel.refreshVessels();
 
         mapCameraViewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -498,7 +498,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
     public class VesselsTimerTask extends TimerTask {
         private Runnable runnable = new Runnable() {
             public void run() {
-                vesselViewModel.loadVessels();
+                vesselViewModel.refreshVessels();
             }
         };
 
