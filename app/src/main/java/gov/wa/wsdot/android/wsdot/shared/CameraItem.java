@@ -37,7 +37,7 @@ public class CameraItem implements Serializable, ClusterItem {
 	private Integer cameraId;
 	private Integer cameraIcon;
 	private Integer distance;
-	private final LatLng  clusterPosition;
+	private final LatLng clusterPosition;
 
     public CameraItem(){
         clusterPosition = null;
