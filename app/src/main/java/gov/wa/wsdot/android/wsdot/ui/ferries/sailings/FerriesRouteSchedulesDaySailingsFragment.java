@@ -92,6 +92,7 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseFragment imple
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
+        viewModel.init(mId);
 
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -108,16 +109,11 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseFragment imple
             }
         });
 
-        viewModel.getFerryScheduleFor(mId).observe(this, schedule -> {
-            if (schedule != null) {
-                mDates = schedule.getDate();
-                viewModel.loadDatesWithSailingsFromJson(mDates);
-            }
-        });
-
         viewModel.getDatesWithSailings().observe(this, dates -> {
-            scheduleDateItems = new ArrayList<>(dates);
-            mAdapter.setData(dates.get(0).getFerriesTerminalItem());
+            if (dates != null) {
+                scheduleDateItems = new ArrayList<>(dates);
+                mAdapter.setData(dates.get(0).getFerriesTerminalItem());
+            }
         });
 
         return root;

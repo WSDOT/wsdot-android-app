@@ -62,6 +62,7 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 		mId = args.getInt("id");
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
+        viewModel.init(mId);
 
         viewModel.getFerryScheduleFor(mId).observe(this, schedule -> {
             if (schedule != null) {

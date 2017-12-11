@@ -139,7 +139,9 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
         terminalViewModel = ViewModelProviders.of(this, viewModelFactory).get(FerryTerminalViewModel.class);
+
         scheduleViewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
+        scheduleViewModel.init(mScheduleId);
 
         scheduleViewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -171,16 +173,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
             }
         });
 
-        scheduleViewModel.getFerryScheduleFor(mScheduleId).observe(this, schedule -> {
-            if (schedule != null) {
-                Log.e(TAG, "loading dates..!");
-                scheduleViewModel.loadDatesWithSailingsFromJson(schedule.getDate());
-            }
-        });
-
         scheduleViewModel.getDatesWithSailings().observe(this, dates -> {
             if (dates != null) {
-                Log.e(TAG, "dates not null!");
                 mScheduleDateItems = new ArrayList<>(dates);
 
                 terminalItem = mScheduleDateItems.get(terminalViewModel.getSelectedDay()).getFerriesTerminalItem().get(mTerminalIndex);
@@ -192,7 +186,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
         terminalViewModel.getDepartureTimes().observe(this, sailingTimes -> {
             if (sailingTimes != null ){
-                Log.e(TAG, "new departure times");
                 if (sailingTimes.size() != 0) {
                     mEmptyView.setVisibility(View.GONE);
                 } else {
@@ -212,7 +205,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                 annotations.clear();
             }
         });
-
 
         return root;
 	}

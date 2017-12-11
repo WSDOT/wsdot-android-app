@@ -2,7 +2,9 @@ package gov.wa.wsdot.android.wsdot.ui.ferries;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -31,7 +33,7 @@ public class FerrySchedulesViewModel extends ViewModel {
     private LiveData<List<FerryScheduleEntity>> schedules;
     private LiveData<FerryScheduleEntity> schedule;
 
-    private MutableLiveData<List<FerriesScheduleDateItem>> datesWithSailings;
+    private LiveData<List<FerriesScheduleDateItem>> datesWithSailings;
     private MutableLiveData<ResourceStatus> mStatus;
 
     private AppExecutors appExecutors;
@@ -45,24 +47,27 @@ public class FerrySchedulesViewModel extends ViewModel {
         this.appExecutors = appExecutors;
     }
 
-    public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
-
-    public LiveData<List<FerryScheduleEntity>> getFerrySchedules(){
-        if (schedules == null){
-            this.schedules = ferryScheduleRepo.getFerrySchedules(mStatus);
-            return this.schedules;
+    public void init(@Nullable Integer routeId){
+        if (routeId != null){
+            this.schedule = ferryScheduleRepo.getFerryScheduleFor(routeId, mStatus);
+            this.datesWithSailings = Transformations.map(this.schedule, scheduleValue -> processDates(scheduleValue.getDate()));
         } else {
-            return this.schedules;
+            this.schedules = ferryScheduleRepo.getFerrySchedules(mStatus);
         }
     }
 
-    public LiveData<FerryScheduleEntity> getFerryScheduleFor(Integer id){
-        if (schedule == null) {
-            this.schedule = ferryScheduleRepo.getFerryScheduleFor(id, mStatus);
-            return this.schedule;
-        } else {
-            return this.schedule;
-        }
+    public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
+
+    public LiveData<List<FerryScheduleEntity>> getFerrySchedules(){
+        return this.schedules;
+    }
+
+    public LiveData<FerryScheduleEntity> getFerryScheduleFor(Integer routeId){
+        return this.schedule;
+    }
+
+    public LiveData<List<FerriesScheduleDateItem>> getDatesWithSailings() {
+        return this.datesWithSailings;
     }
 
     public void setIsStarredFor(Integer routeId, Integer isStarred){
@@ -73,18 +78,8 @@ public class FerrySchedulesViewModel extends ViewModel {
         ferryScheduleRepo.refreshData(mStatus, true);
     }
 
-    public LiveData<List<FerriesScheduleDateItem>> getDatesWithSailings() {
-        return this.datesWithSailings;
-    }
-
-    public void loadDatesWithSailingsFromJson(String datesWithSailingsJson) {
-        appExecutors.taskIO().execute(() -> {
-            processDates(datesWithSailingsJson);
-        });
-    }
-
     // post values in datesJson to satesWithSailings LiveData.
-    private void processDates(String datesJson){
+    private List<FerriesScheduleDateItem> processDates(String datesJson){
 
         ArrayList<FerriesScheduleDateItem> dateItems = new ArrayList<>();
         FerriesScheduleDateItem scheduleDate;
@@ -152,12 +147,12 @@ public class FerrySchedulesViewModel extends ViewModel {
                     }
                     scheduleDate.setFerriesTerminalItem(terminal);
                 }
-
                 dateItems.add(scheduleDate);
             }
         } catch (Exception e) {
             Log.e(TAG, "Error adding schedule date items", e);
         }
-        datesWithSailings.postValue(dateItems);
+
+        return dateItems;
     }
 }

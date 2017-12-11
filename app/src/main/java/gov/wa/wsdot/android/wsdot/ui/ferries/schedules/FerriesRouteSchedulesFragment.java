@@ -20,7 +20,6 @@ package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -51,7 +50,6 @@ import javax.inject.Inject;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.FerriesSchedules;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
@@ -113,6 +111,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
+        viewModel.init(null);
 
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -138,7 +137,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 
         viewModel.getFerrySchedules().observe(this, schedules -> {
             mSchedule = schedules;
-
             mAdapter.notifyDataSetChanged();
         });
 
