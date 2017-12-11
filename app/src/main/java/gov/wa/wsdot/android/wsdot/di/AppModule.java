@@ -16,7 +16,7 @@ import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertDao;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassDao;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationDao;
-import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimesDao;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeDao;
 
 /**
  *  For Dagger 2. A list of classes passed to the Object Graph that
@@ -76,7 +76,7 @@ class AppModule {
     }
 
     @Singleton @Provides
-    TravelTimesDao provideTravelTimesDao(AppDatabase db) {
+    TravelTimeDao provideTravelTimesDao(AppDatabase db) {
         return db.travelTimesDao();
     }
 }

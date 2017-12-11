@@ -30,19 +30,15 @@ public class MountainPassViewModel extends ViewModel {
     public LiveData<List<MountainPassEntity>> getPasses(){
         if (passes == null){
             this.passes = passRepo.getMountainPasses(mStatus);
-            return this.passes;
-        } else {
-            return this.passes;
         }
-    }
+        return this.passes;
+}
 
     public LiveData<MountainPassEntity> getPassFor(Integer id){
         if (pass == null){
             this.pass = passRepo.getMountainPassFor(id, mStatus);
-            return this.pass;
-        } else {
-            return this.pass;
         }
+        return this.pass;
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }

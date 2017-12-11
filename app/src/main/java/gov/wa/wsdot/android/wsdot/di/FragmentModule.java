@@ -20,6 +20,7 @@ import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemCameraFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemForecastFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemReportFragment;
+import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesFragment;
 
 /**
  *  For Dagger 2. A list of classes passed to the Object Graph that
@@ -84,6 +85,9 @@ public abstract class FragmentModule {
     abstract CameraImageFragment contributeCameraImageFragment();
 
     @ContributesAndroidInjector
-    abstract AlertsListFragment vcontributeAlertsListFragment();
+    abstract AlertsListFragment contributeAlertsListFragment();
+
+    @ContributesAndroidInjector
+    abstract TravelTimesFragment contributeTravelTimesFragment();
 
 }

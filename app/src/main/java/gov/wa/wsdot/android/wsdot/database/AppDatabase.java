@@ -28,8 +28,8 @@ import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationDao;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
-import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimesDao;
-import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimesEntity;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeDao;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 
 @Database(entities = {
         BorderWaitEntity.class,
@@ -41,7 +41,7 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimesEntity;
         MountainPassEntity.class,
         MyRouteEntity.class,
         MapLocationEntity.class,
-        TravelTimesEntity.class
+        TravelTimeEntity.class
     }, version = 8)
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -54,7 +54,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract CameraDao cameraDao();
     public abstract HighwayAlertDao highwayAlertDao();
     public abstract MountainPassDao mountainPassDao();
-    public abstract TravelTimesDao travelTimesDao();
+    public abstract TravelTimeDao travelTimesDao();
     public abstract FerryScheduleDao ferryScheduleDao();
     public abstract FerryTerminalSailingSpacesDao ferryTerminalSailingSpacesDao();
     public abstract MapLocationDao mapLocationDao();

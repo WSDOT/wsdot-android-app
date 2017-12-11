@@ -7,14 +7,14 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 
 @Entity(tableName = "travel_times")
-public class TravelTimesEntity {
+public class TravelTimeEntity {
 
     @ColumnInfo(name = BaseColumns._ID)
     @PrimaryKey(autoGenerate = true)
     public Integer id;
 
     @ColumnInfo(name = "id")
-    private Integer travleTimeId;
+    private Integer travelTimeId;
 
     @ColumnInfo(name = "title")
     private String title;
@@ -47,12 +47,12 @@ public class TravelTimesEntity {
     @NonNull
     private Integer isStarred = 0;
 
-    public Integer getTravleTimeId() {
-        return travleTimeId;
+    public Integer getTravelTimeId() {
+        return travelTimeId;
     }
 
-    public void setTravleTimeId(Integer travleTimeId) {
-        this.travleTimeId = travleTimeId;
+    public void setTravelTimeId(Integer travelTimeId) {
+        this.travelTimeId = travelTimeId;
     }
 
     public String getTitle() {
