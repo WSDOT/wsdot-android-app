@@ -106,10 +106,10 @@
             android:name=".ui.trafficmap.TrafficMapActivity"
             android:label="@string/title_trafficmap" />
         <activity
-            android:name=".ui.trafficmap.incidents.TrafficAlertsActivity"
+            android:name=".ui.alert.AlertsListActivity"
             android:label="@string/title_alerts" />
         <activity
-            android:name=".ui.trafficmap.traveltimes.TravelTimesActivity"
+            android:name=".ui.traveltimes.TravelTimesActivity"
             android:label="@string/title_traveltimes" />
         <activity
             android:name=".ui.trafficmap.socialmedia.SocialMediaTabActivity"

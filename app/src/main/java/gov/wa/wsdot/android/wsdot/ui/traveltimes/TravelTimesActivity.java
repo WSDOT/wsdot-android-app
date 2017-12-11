@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes;
+package gov.wa.wsdot.android.wsdot.ui.traveltimes;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;

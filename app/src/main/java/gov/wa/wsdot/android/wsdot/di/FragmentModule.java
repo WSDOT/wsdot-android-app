@@ -4,6 +4,7 @@ import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.alert.AlertsListFragment;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitNorthboundFragment;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitSouthboundFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraImageFragment;
@@ -81,5 +82,8 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract CameraImageFragment contributeCameraImageFragment();
+
+    @ContributesAndroidInjector
+    abstract AlertsListFragment vcontributeAlertsListFragment();
 
 }

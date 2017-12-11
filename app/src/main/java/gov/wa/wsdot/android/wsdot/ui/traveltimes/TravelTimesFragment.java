@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes;
+package gov.wa.wsdot.android.wsdot.ui.traveltimes;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;

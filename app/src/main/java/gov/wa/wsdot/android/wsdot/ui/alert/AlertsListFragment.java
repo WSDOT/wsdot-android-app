@@ -1,5 +1,7 @@
 package gov.wa.wsdot.android.wsdot.ui.alert;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +25,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,34 +38,29 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsListFragment;
+import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 /**
  * Fragment for displaying a list of alerts.
- *
- *  getAlerts() left Abstract for custom implementations
  */
 
-public abstract class AlertsListFragment extends BaseFragment
-        implements
-        LoaderManager.LoaderCallbacks<Cursor>,
-        SwipeRefreshLayout.OnRefreshListener {
+public class AlertsListFragment extends BaseFragment
+        implements SwipeRefreshLayout.OnRefreshListener, Injectable {
 
-    private static final String TAG = TrafficAlertsListFragment.class.getSimpleName();
+    private static final String TAG = AlertsListFragment.class.getSimpleName();
     private static ArrayList<HighwayAlertsItem> trafficAlertItems = new ArrayList<>();
     private static AlertsListFragment.Adapter mAdapter;
     private static SwipeRefreshLayout swipeRefreshLayout;
-
-    private GetAlertsTask alertsTask = null;
-
-    private AlertsListFragment.HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
-    private Intent alertsIntent;
 
     private Typeface tf;
     private Typeface tfb;
@@ -74,20 +74,10 @@ public abstract class AlertsListFragment extends BaseFragment
     private final int SPECIAL_EVENTS = 3;
     private final int AMBER = 24;
 
-    /**
-     *
-     * @param alerts
-     * @return
-     */
-    protected abstract ArrayList<HighwayAlertsItem> getAlerts(ArrayList<HighwayAlertsItem> alerts);
+    private static HighwayAlertsInBoundsViewModel viewModel;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-        setRetainInstance(true);
-    }
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -98,7 +88,7 @@ public abstract class AlertsListFragment extends BaseFragment
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -112,7 +102,7 @@ public abstract class AlertsListFragment extends BaseFragment
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.holo_blue_bright,
@@ -120,151 +110,47 @@ public abstract class AlertsListFragment extends BaseFragment
                 R.color.holo_orange_light,
                 R.color.holo_red_light);
 
-        return root;
-    }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        alertsIntent = new Intent(getActivity(), HighwayAlertsSyncService.class);
-        alertsIntent.putExtra("forceUpdate", true);
-    }
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(HighwayAlertsInBoundsViewModel.class);
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        IntentFilter alertsFilter = new IntentFilter(
-                "gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
-        alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mHighwayAlertsSyncReceiver = new AlertsListFragment.HighwayAlertsSyncReceiver();
-        getActivity().registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
-        getActivity().startService(alertsIntent);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        getActivity().unregisterReceiver(mHighwayAlertsSyncReceiver);
-        if (alertsTask != null) {
-            alertsTask.cancel(true);
-        }
-    }
-
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] projection = {
-                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_ID,
-                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
-                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
-                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED,
-                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE,
-                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE,
-                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_END_LATITUDE,
-                WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_END_LONGITUDE,
-        };
-
-        Uri baseUri = Uri.withAppendedPath(WSDOTContract.HighwayAlerts.CONTENT_URI, Uri.encode(""));
-
-        CursorLoader cursorLoader = new TrafficAlertsListFragment.HighwayLoader(getActivity(),
-                baseUri,
-                projection,
-                null,
-                null,
-                null
-        );
-
-        return cursorLoader;
-    }
-
-    public static class HighwayLoader extends CursorLoader {
-
-        public HighwayLoader(Context context, Uri uri,
-                             String[] projection, String selection, String[] selectionArgs,
-                             String sortOrder) {
-            super(context, uri, projection, selection, selectionArgs, sortOrder);
-        }
-
-        @Override
-        protected void onStartLoading() {
-            super.onStartLoading();
-            swipeRefreshLayout.setRefreshing(true);
-            forceLoad();
-        }
-
-        @Override
-        public Cursor loadInBackground() {
-            return super.loadInBackground();
-        }
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        alertsTask = new GetAlertsTask();
-        // We can ignore this warning because we know the varargs param
-        // will for sure be an ArrayList of HighwayAlertItems.
-        alertsTask.execute(getAllAlerts(cursor));
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        alertsTask.cancel(true);
-    }
-
-    private class GetAlertsTask extends AsyncTask<ArrayList<HighwayAlertsItem>, Void, ArrayList<HighwayAlertsItem>> {
-
-        @Override
-        protected ArrayList<HighwayAlertsItem> doInBackground(ArrayList<HighwayAlertsItem>[] params) {
-            return getAlerts(params[0]);
-        }
-
-        protected void onPostExecute(ArrayList<HighwayAlertsItem> result) {
-            trafficAlertItems = result;
-            mAdapter.clear();
-            mAdapter.setData(trafficAlertItems);
-            swipeRefreshLayout.setRefreshing(false);
-        }
-    }
-
-
-    private ArrayList<HighwayAlertsItem> getAllAlerts(Cursor cursor){
-        ArrayList<HighwayAlertsItem> allAlerts = new ArrayList<>();
-
-        if (cursor.moveToFirst()) {
-            while (!cursor.isAfterLast()) {
-                HighwayAlertsItem item = new HighwayAlertsItem();
-                item.setHeadlineDescription(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_HEADLINE)));
-                item.setEventCategory(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_CATEGORY)).toLowerCase());
-                item.setLastUpdatedTime(cursor.getString(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED)));
-                item.setAlertId(Integer.toString(cursor.getInt(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_ID))));
-                item.setStartLatitude(cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE)));
-                item.setStartLongitude(cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE)));
-                item.setEndLatitude(cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_END_LATITUDE)));
-                item.setEndLongitude(cursor.getDouble(cursor.getColumnIndex(WSDOTContract.HighwayAlerts.HIGHWAY_ALERT_END_LONGITUDE)));
-
-                allAlerts.add(item);
-                cursor.moveToNext();
-            }
-        }
-        return allAlerts;
-    }
-
-    public class HighwayAlertsSyncReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String responseString = intent.getStringExtra("responseString");
-
-            if (responseString != null) {
-                if (responseString.equals("OK") || responseString.equals("NOP")) {
-                    // We've got cameras, now add them.
-                    getLoaderManager().destroyLoader(0);
-                    getLoaderManager().initLoader(0, null, AlertsListFragment.this);
-                } else {
-                    Toast.makeText(AlertsListFragment.this.getContext(), "Failed to load. Check your connection.", Toast.LENGTH_SHORT).show();
-                    Log.e("HighwaySyncReceiver", responseString);
-                    swipeRefreshLayout.setRefreshing(false);
+        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
                 }
             }
-        }
+        });
+
+        //Retrieve the bounds from the intent. Defaults to 0
+        Intent intent = getActivity().getIntent();
+
+        Double nelat = intent.getDoubleExtra("nelat", 0.0);
+        Double nelong = intent.getDoubleExtra("nelong", 0.0);
+        Double swlat = intent.getDoubleExtra("swlat", 0.0);
+        Double swlong = intent.getDoubleExtra("swlong", 0.0);
+
+        LatLng northEast = new LatLng(nelat, nelong);
+        LatLng southWest = new LatLng(swlat, swlong);
+
+        LatLngBounds mBounds = new LatLngBounds(southWest, northEast);
+
+        viewModel.getHighwayAlerts(mBounds).observe(this, alerts -> {
+            if (alerts != null) {
+                trafficAlertItems = new ArrayList<>(alerts);
+                mAdapter.clear();
+                mAdapter.setData(trafficAlertItems);
+            }
+        });
+
+        return root;
     }
 
     /**
@@ -290,7 +176,7 @@ public abstract class AlertsListFragment extends BaseFragment
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-            View itemView = null;
+            View itemView;
 
             switch (viewType) {
                 case TYPE_ITEM:
@@ -310,18 +196,18 @@ public abstract class AlertsListFragment extends BaseFragment
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder viewholder, int position) {
 
-            TrafficAlertsListFragment.ItemViewHolder itemholder;
-            TrafficAlertsListFragment.TitleViewHolder titleholder;
+            AlertsListFragment.ItemViewHolder itemholder;
+            AlertsListFragment.TitleViewHolder titleholder;
 
             if (getItemViewType(position) == TYPE_ITEM) {
-                itemholder = (TrafficAlertsListFragment.ItemViewHolder) viewholder;
+                itemholder = (AlertsListFragment.ItemViewHolder) viewholder;
                 itemholder.textView.setText(mData.get(position).getHeadlineDescription());
                 itemholder.updated.setText(ParserUtils.relativeTime(
                         mData.get(position).getLastUpdatedTime(),
                         "MMMM d, yyyy h:mm a", false));
                 itemholder.id = mData.get(position).getAlertId();
             } else {
-                titleholder = (TrafficAlertsListFragment.TitleViewHolder) viewholder;
+                titleholder = (AlertsListFragment.TitleViewHolder) viewholder;
                 titleholder.textView.setText(mData.get(position).getHeadlineDescription());
                 if (position == 0) {
                     titleholder.divider.setVisibility(View.GONE);
@@ -479,8 +365,7 @@ public abstract class AlertsListFragment extends BaseFragment
     }
 
     public void onRefresh() {
-
-        getActivity().startService(alertsIntent);
+        viewModel.forceRefreshHighwayAlerts();
     }
 
     private int getCategoryID(String category) {

@@ -9,7 +9,7 @@
     <include layout="@layout/toolbar_scrolling"/>
 
     <fragment
-        android:name="gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes.TravelTimesFragment"
+        android:name="gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesFragment"
         android:id="@+id/fragment_travel_times"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
