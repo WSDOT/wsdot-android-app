@@ -11,13 +11,13 @@ import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertsInBoundsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.alert.MapHighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitViewModel;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewModel;
+import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesBulletinsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalCameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
-import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
 import gov.wa.wsdot.android.wsdot.viewmodal.ViewModelFactory;
 
 /**

@@ -20,7 +20,6 @@ import java.util.TimeZone;
 import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryTerminalSailingSpacesEntity;
-import gov.wa.wsdot.android.wsdot.repository.FerryScheduleRepository;
 import gov.wa.wsdot.android.wsdot.repository.FerryTerminalSpaceRepository;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;

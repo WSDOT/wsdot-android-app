@@ -1,7 +1,6 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
@@ -18,7 +17,6 @@ import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.repository.FerryScheduleRepository;
 import gov.wa.wsdot.android.wsdot.shared.FerriesRouteAlertItem;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 public class FerriesBulletinsViewModel extends ViewModel {

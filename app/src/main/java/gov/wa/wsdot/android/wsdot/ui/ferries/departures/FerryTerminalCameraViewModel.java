@@ -16,9 +16,9 @@ import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.repository.CameraRepository;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
+import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
-import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
 
 public class FerryTerminalCameraViewModel extends ViewModel {
 

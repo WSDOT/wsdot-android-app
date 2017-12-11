@@ -20,8 +20,6 @@ package gov.wa.wsdot.android.wsdot.ui.camera;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.ContentResolver;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
@@ -39,7 +37,6 @@ import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 

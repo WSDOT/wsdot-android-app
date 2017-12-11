@@ -21,7 +21,6 @@ package gov.wa.wsdot.android.wsdot.ui.camera;
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -48,7 +47,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -61,8 +59,6 @@ import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
-import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalCameraViewModel;
 
 public class CameraImageFragment extends Fragment implements
         LoaderCallbacks<Drawable>,
