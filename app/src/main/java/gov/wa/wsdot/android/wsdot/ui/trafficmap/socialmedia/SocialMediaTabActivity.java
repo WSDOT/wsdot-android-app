@@ -36,6 +36,10 @@ import java.util.List;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.blog.BlogFragment;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.facebook.FacebookFragment;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.twitter.TwitterFragment;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.youtube.YouTubeFragment;
 
 public class SocialMediaTabActivity extends BaseActivity {
 

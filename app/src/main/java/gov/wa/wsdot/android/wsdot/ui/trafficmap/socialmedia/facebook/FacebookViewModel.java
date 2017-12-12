@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia;
+package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.facebook;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;

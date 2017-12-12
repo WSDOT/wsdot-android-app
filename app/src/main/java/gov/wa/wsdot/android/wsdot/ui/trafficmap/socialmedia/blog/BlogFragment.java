@@ -16,8 +16,10 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia;
+package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.blog;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -35,6 +37,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -49,16 +52,20 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.BlogItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.facebook.FacebookViewModel;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class BlogFragment extends BaseFragment implements
-        LoaderCallbacks<ArrayList<BlogItem>>,
-        SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener,
+        Injectable {
 
 	private static final String TAG = BlogFragment.class.getSimpleName();
 	private static BlogItemAdapter mAdapter;
@@ -67,6 +74,11 @@ public class BlogFragment extends BaseFragment implements
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
+
+    BlogViewModel viewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -79,7 +91,7 @@ public class BlogFragment extends BaseFragment implements
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -88,13 +100,12 @@ public class BlogFragment extends BaseFragment implements
 
         mRecyclerView.setAdapter(mAdapter);
 
-
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.holo_blue_bright,
@@ -103,170 +114,46 @@ public class BlogFragment extends BaseFragment implements
                 R.color.holo_red_light);
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
-        
+
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(BlogViewModel.class);
+
+        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        TextView t = (TextView) mEmptyView;
+                        t.setText(R.string.no_connection);
+                        mEmptyView.setVisibility(View.VISIBLE);
+                        Toast.makeText(getContext(), "connection error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        viewModel.getBlogPosts().observe(this, blogItems -> {
+            if (blogItems != null) {
+                mEmptyView.setVisibility(View.GONE);
+                if (!blogItems.isEmpty()) {
+                    mAdapter.setData(blogItems);
+                } else {
+                    TextView t = (TextView) mEmptyView;
+                    t.setText("blog unavailable.");
+                    mEmptyView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        viewModel.refresh();
+
         return root;
     }
-    
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-		// Prepare the loader. Either re-connect with an existing one,
-		// or start a new one.        
-        getLoaderManager().initLoader(0, null, this);
-	}
-	
-	public Loader<ArrayList<BlogItem>> onCreateLoader(int id, Bundle args) {
-		// This is called when a new Loader needs to be created. There
-        // is only one Loader with no arguments, so it is simple
-		return new BlogItemsLoader(getActivity());
-	}
-
-	public void onLoadFinished(Loader<ArrayList<BlogItem>> loader, ArrayList<BlogItem> data) {
-
-        mEmptyView.setVisibility(View.GONE);
-
-		if (!data.isEmpty()) {
-			mAdapter.setData(data);
-		} else {
-		    TextView t = (TextView) mEmptyView;
-			t.setText(R.string.no_connection);
-            mEmptyView.setVisibility(View.VISIBLE);
-		}
-		
-		swipeRefreshLayout.setRefreshing(false);
-	}
-
-	public void onLoaderReset(Loader<ArrayList<BlogItem>> loader) {
-	    swipeRefreshLayout.setRefreshing(false);
-	    mAdapter.setData(null);
-	}
-	
-	/**
-	 * A custom Loader that loads all of the posts from the WSDOT blog.
-	 */	
-	public static class BlogItemsLoader extends AsyncTaskLoader<ArrayList<BlogItem>> {
-
-		private ArrayList<BlogItem> mItems = null;
-		
-		public BlogItemsLoader(Context context) {
-			super(context);
-		}
-
-		@Override
-		public ArrayList<BlogItem> loadInBackground() {
-			mItems = new ArrayList<BlogItem>();
-			BlogItem i = null;
-			
-			try {
-				URL url = new URL(APIEndPoints.WSDOT_BLOG + "?alt=json&max-results=10");
-				URLConnection urlConn = url.openConnection();
-				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-				String jsonFile = "";
-				String line;
-				
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
-				in.close();
-				
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject data = obj.getJSONObject("feed");			
-				JSONArray entries = data.getJSONArray("entry");
-				
-				int numEntries = entries.length();
-				for (int j=0; j < numEntries; j++) {
-					JSONObject entry = entries.getJSONObject(j);
-					i = new BlogItem();
-					i.setTitle(entry.getJSONObject("title").getString("$t"));
-
-	            	try {
-	            		i.setPublished(ParserUtils.relativeTime(entry.getJSONObject("published").getString("$t"), "yyyy-MM-dd'T'HH:mm:ss.SSSz", true));
-	            	} catch (Exception e) {
-	            		i.setPublished("Unavailable");
-	            		Log.e(TAG, "Error parsing date", e);
-	            	}
-					
-	            	String content = entry.getJSONObject("content").getString("$t");
-					i.setContent(content);
-					
-					Document doc = Jsoup.parse(content);
-					Element imgTable = doc.select("table img").first();
-					Element imgDiv = doc.select("div:not(.blogger-post-footer) img").first();
-					Element table = doc.select("table").first();
-					if (imgTable != null) {
-						String imgSrc = imgTable.attr("src");
-						i.setImageUrl(imgSrc);
-						if (table != null) {
-							try {
-								String caption = table.text();
-								i.setImageCaption(caption);
-							} catch (NullPointerException e) {
-								// TODO Auto-generated catch block
-							}
-						}
-					} else if (imgDiv != null) {
-						String imgSrc = imgDiv.attr("src");
-						i.setImageUrl(imgSrc);
-					}
-					
-					String temp = content.replaceFirst("<i>(.*)</i><br /><br />", "");
-					temp = temp.replaceFirst("<table(.*?)>.*?</table>", "");
-					String tempDoc = Jsoup.parse(temp).text();
-					try {
-						String description = tempDoc.split("\\.", 2)[0] + ".";
-						i.setDescription(description);
-					} catch (ArrayIndexOutOfBoundsException e) {
-						i.setDescription("");
-					}
-
-					i.setLink(entry.getJSONArray("link").getJSONObject(4).getString("href"));
-					
-					mItems.add(i);
-				}
-
-			} catch (Exception e) {
-				Log.e(TAG, "Error in network call", e);
-			}
-
-			return mItems;
-		}
-
-		@Override
-		protected void onStartLoading() {
-			super.onStartLoading();
-			swipeRefreshLayout.post(new Runnable() {
-				public void run() {
-					swipeRefreshLayout.setRefreshing(true);
-				}
-			});
-			forceLoad();
-		}
-
-		@Override
-		protected void onStopLoading() {
-			super.onStopLoading();
-			
-	        // Attempt to cancel the current load task if possible.
-	        cancelLoad();
-		}
-		
-		@Override
-		public void onCanceled(ArrayList<BlogItem> data) {
-			super.onCanceled(data);
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-			
-	        // Ensure the loader is stopped
-	        onStopLoading();
-	        
-	        if (mItems != null) {
-	        	mItems = null;
-	        }
-		}
-	}
 
 	/**
 	 * Custom adapter for items in recycler view.
@@ -329,11 +216,9 @@ public class BlogFragment extends BaseFragment implements
 
             // Set onClickListener for holder's view
             holder.itemView.setOnClickListener(
-                    new View.OnClickListener() {
-                        public void onClick(View v) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(postLink));
-                            startActivity(intent);
-                        }
+                    v -> {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(postLink));
+                        startActivity(intent);
                     }
             );
         }
@@ -369,21 +254,17 @@ public class BlogFragment extends BaseFragment implements
 
         public BlogViewHolder(View itemView) {
             super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.image);
-            caption = (TextView) itemView.findViewById(R.id.caption);
-            title = (TextView) itemView.findViewById(R.id.title);
-            description =	(TextView) itemView.findViewById(R.id.description);
-            createdAt =	(TextView) itemView.findViewById(R.id.created_at);
+            image = itemView.findViewById(R.id.image);
+            caption = itemView.findViewById(R.id.caption);
+            title = itemView.findViewById(R.id.title);
+            description = itemView.findViewById(R.id.description);
+            createdAt =	itemView.findViewById(R.id.created_at);
         }
     }
 
     public void onRefresh() {
-		swipeRefreshLayout.post(new Runnable() {
-			public void run() {
-				swipeRefreshLayout.setRefreshing(true);
-			}
-		});
-        getLoaderManager().restartLoader(0, null, this);        
+		swipeRefreshLayout.setRefreshing(true);
+		viewModel.refresh();
     }
 	
 }

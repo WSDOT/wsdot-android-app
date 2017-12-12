@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia;
+package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.facebook;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -120,13 +120,14 @@ public class FacebookFragment extends BaseFragment implements
                     mAdapter.setData(facebookItems);
                 } else {
                     TextView t = (TextView) mEmptyView;
-                    t.setText("tweets unavailable.");
+                    t.setText("posts unavailable.");
                     mEmptyView.setVisibility(View.VISIBLE);
                 }
             }
         });
 
         viewModel.refresh();
+
         return root;
     }
 
