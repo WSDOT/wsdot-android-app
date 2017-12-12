@@ -338,5 +338,4 @@ public class TravelTimesFragment extends BaseFragment implements
 		swipeRefreshLayout.setRefreshing(true);
 		viewModel.forceRefreshTravelTimes();
     }
-
 }

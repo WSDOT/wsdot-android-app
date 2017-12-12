@@ -19,6 +19,8 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -36,6 +38,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -50,7 +53,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.ExpressLaneItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
@@ -58,8 +64,7 @@ import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.DividerNoBottom;
 
 public class SeattleExpressLanesFragment extends BaseFragment implements
-		LoaderCallbacks<ArrayList<ExpressLaneItem>>,
-		SwipeRefreshLayout.OnRefreshListener {
+		SwipeRefreshLayout.OnRefreshListener, Injectable {
 
 	private static final String TAG = SeattleExpressLanesFragment.class.getSimpleName();
 	private static ItemAdapter mAdapter;
@@ -72,14 +77,10 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 	protected RecyclerView mRecyclerView;
 	protected LinearLayoutManager mLayoutManager;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	ExpressLanesViewModel viewModel;
 
-		// Tell the framework to try to keep this fragment around
-		// during a configuration change.
-		setRetainInstance(true);
-	}
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -87,7 +88,7 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 
 		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
-		mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+		mRecyclerView = root.findViewById(R.id.my_recycler_view);
 		mRecyclerView.setHasFixedSize(true);
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -103,7 +104,7 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 		root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.MATCH_PARENT));
 
-		swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+		swipeRefreshLayout = root.findViewById(R.id.swipe_container);
 		swipeRefreshLayout.setOnRefreshListener(this);
 		swipeRefreshLayout.setColorSchemeResources(
 				R.color.holo_blue_bright,
@@ -113,155 +114,40 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 
 		mEmptyView = root.findViewById( R.id.empty_list_view );
 
-		return root;
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
 		routeImage.put(5, R.drawable.ic_list_i5);
 		routeImage.put(90, R.drawable.ic_list_i90);
 
-		// Prepare the loader. Either re-connect with an existing one,
-		// or start a new one.        
-		getLoaderManager().initLoader(0, null, this);
-	}
+		viewModel = ViewModelProviders.of(this, viewModelFactory).get(ExpressLanesViewModel.class);
 
-	public Loader<ArrayList<ExpressLaneItem>> onCreateLoader(int id, Bundle args) {
-		// This is called when a new Loader needs to be created. There
-		// is only one Loader with no arguments, so it is simple
-		return new ExpressLaneStatusLoader(getActivity());
-	}
-
-	public void onLoadFinished(Loader<ArrayList<ExpressLaneItem>> loader, ArrayList<ExpressLaneItem> data) {
-
-		mEmptyView.setVisibility(View.GONE);
-
-		if (!data.isEmpty()) {
-			mAdapter.setData(data);
-		} else {
-			TextView t = (TextView) mEmptyView;
-			t.setText(R.string.no_connection);
-			mEmptyView.setVisibility(View.VISIBLE);
-		}
-
-		swipeRefreshLayout.setRefreshing(false);
-	}
-
-	public void onLoaderReset(Loader<ArrayList<ExpressLaneItem>> loader) {
-		mAdapter.setData(null);
-	}
-
-	/**
-	 * A custom Loader that loads the express lane status from the data server.
-	 */
-	public static class ExpressLaneStatusLoader extends AsyncTaskLoader<ArrayList<ExpressLaneItem>> {
-
-		public ExpressLaneStatusLoader(Context context) {
-			super(context);
-		}
-
-		@Override
-		public ArrayList<ExpressLaneItem> loadInBackground() {
-			ArrayList<ExpressLaneItem> expressLaneItems = new ArrayList<ExpressLaneItem>();
-			ExpressLaneItem i = null;
-
-			try {
-				URL url = new URL(APIEndPoints.EXPRESS_LANES);
-				URLConnection urlConn = url.openConnection();
-				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-				String jsonFile = "";
-				String line;
-
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
-				in.close();
-
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject result = obj.getJSONObject("express_lanes");
-				JSONArray items = result.getJSONArray("routes");
-
-				int numItems = items.length();
-				for (int j=0; j < numItems; j++) {
-					JSONObject item = items.getJSONObject(j);
-					i = new ExpressLaneItem();
-					i.setTitle(item.getString("title"));
-					i.setRoute(item.getInt("route"));
-					i.setStatus(item.getString("status"));
-					i.setUpdated(ParserUtils.relativeTime(item.getString("updated"), "yyyy-MM-dd h:mm a", false));
-					expressLaneItems.add(i);
+		viewModel.getResourceStatus().observe(this, resourceStatus -> {
+			if (resourceStatus != null) {
+				switch (resourceStatus.status) {
+					case LOADING:
+						swipeRefreshLayout.setRefreshing(true);
+						break;
+					case SUCCESS:
+						swipeRefreshLayout.setRefreshing(false);
+						break;
+					case ERROR:
+						swipeRefreshLayout.setRefreshing(false);
+						TextView t = (TextView) mEmptyView;
+						t.setText(R.string.no_connection);
+						mEmptyView.setVisibility(View.VISIBLE);
+						Toast.makeText(getContext(), "connection error", Toast.LENGTH_SHORT).show();
 				}
-
-				Collections.sort(expressLaneItems, new RouteComparator());
-
-			} catch (Exception e) {
-				Log.e("SeattleExpressLanes", "Error in network call", e);
 			}
+		});
 
-			return expressLaneItems;
-
-		}
-
-		@Override
-		public void deliverResult(ArrayList<ExpressLaneItem> data) {
-			/**
-			 * Called when there is new data to deliver to the client. The
-			 * super class will take care of delivering it; the implementation
-			 * here just adds a little more logic.
-			 */
-			super.deliverResult(data);
-		}
-
-		@Override
-		protected void onStartLoading() {
-			super.onStartLoading();
-
-			swipeRefreshLayout.post(new Runnable() {
-				public void run() {
-					swipeRefreshLayout.setRefreshing(true);
-				}
-			});
-			forceLoad();
-		}
-
-		@Override
-		protected void onStopLoading() {
-			super.onStopLoading();
-
-			// Attempt to cancel the current load task if possible.
-			cancelLoad();
-		}
-
-		@Override
-		public void onCanceled(ArrayList<ExpressLaneItem> data) {
-			super.onCanceled(data);
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-
-			// Ensure the loader is stopped
-			onStopLoading();
-		}
-
-	}
-
-	private static class RouteComparator implements Comparator<ExpressLaneItem> {
-
-		public int compare(ExpressLaneItem object1, ExpressLaneItem object2) {
-			int route1 = object1.getRoute();
-			int route2 = object2.getRoute();
-
-			if (route1 > route2) {
-				return 1;
-			} else if (route1 < route2) {
-				return -1;
-			} else {
-				return 0;
+		viewModel.getExpressLanesStatus().observe(this, expressLaneItems -> {
+			if (expressLaneItems != null) {
+				mEmptyView.setVisibility(View.GONE);
+				mAdapter.setData(expressLaneItems);
 			}
-		}
+		});
+
+		viewModel.refresh();
+
+		return root;
 	}
 
 	/**
@@ -315,13 +201,11 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 		public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
 			int viewType = getItemViewType(position);
-
 			switch (viewType){
 				case 0:
 					laneItem = (LaneViewHolder) holder;
 					ExpressLaneItem item = itemList.get(position);
-
-					laneItem.title.setText(item.getTitle() +" "+ item.getStatus());
+					laneItem.title.setText(item.getTitle() + " " + item.getStatus());
 					laneItem.text.setText(item.getUpdated());
 					laneItem.icon.setImageResource(routeImage.get(item.getRoute()));
 					break;
@@ -329,14 +213,12 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 					linkItem = (LinkViewHolder) holder;
 					linkItem.title.setText(R.string.expresslanes_link_title);
 					linkItem.itemView.setOnClickListener(
-							new View.OnClickListener() {
-								public void onClick(View v) {
-									Intent intent = new Intent();
-									intent.setAction(Intent.ACTION_VIEW);
-									intent.setData(Uri.parse(APIEndPoints.EXPRESS_LANES_WEBSITE));
-									startActivity(intent);
-								}
-							}
+							v -> {
+                                Intent intent = new Intent();
+                                intent.setAction(Intent.ACTION_VIEW);
+                                intent.setData(Uri.parse(APIEndPoints.EXPRESS_LANES_WEBSITE));
+                                startActivity(intent);
+                            }
 					);
 					break;
 				case 2:
@@ -388,9 +270,9 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 
 		public LaneViewHolder(View itemView){
 			super(itemView);
-			title = (TextView) itemView.findViewById(R.id.title);
-			text = (TextView) itemView.findViewById(R.id.text);
-			icon = (ImageView) itemView.findViewById(R.id.icon);
+			title = itemView.findViewById(R.id.title);
+			text = itemView.findViewById(R.id.text);
+			icon = itemView.findViewById(R.id.icon);
 
 		}
 	}
@@ -400,7 +282,7 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 
 		public LinkViewHolder(View itemView){
 			super(itemView);
-			title = (TextView) itemView.findViewById(R.id.title);
+			title = itemView.findViewById(R.id.title);
 		}
 	}
 
@@ -409,11 +291,11 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 
 		public InfoViewHolder(View itemView){
 			super(itemView);
-			info = (TextView) itemView.findViewById(R.id.description);
+			info = itemView.findViewById(R.id.description);
 		}
 	}
 
 	public void onRefresh() {
-		getLoaderManager().restartLoader(0, null, this);
+		viewModel.refresh();
 	}
 }

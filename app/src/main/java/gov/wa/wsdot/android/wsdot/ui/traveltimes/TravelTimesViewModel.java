@@ -34,6 +34,8 @@ public class TravelTimesViewModel extends ViewModel{
 
     public LiveData<List<TravelTimeEntity>> getQueryTravelTimes() {
         if (filteredTravelTimes == null){
+            // Observe changes to queryTerm, request new travelTimes with each new query term.
+            // filteredTravelTimes becomes backed by the LiveData result of of queryTravelTimes()
             this.filteredTravelTimes = Transformations.switchMap(queryTerm, queryString -> travelTimeRepo.queryTravelTimes(queryString, mStatus));
         }
         return filteredTravelTimes;

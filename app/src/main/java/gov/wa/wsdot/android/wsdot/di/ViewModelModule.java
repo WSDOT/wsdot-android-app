@@ -18,6 +18,7 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalCameraViewM
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.ExpressLanesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesViewModel;
 import gov.wa.wsdot.android.wsdot.viewmodal.ViewModelFactory;
 
@@ -92,6 +93,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(TravelTimesViewModel.class)
     abstract ViewModel bindTravelTimesViewModel(TravelTimesViewModel travelTimesViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ExpressLanesViewModel.class)
+    abstract ViewModel bindExpressLanesViewModel(ExpressLanesViewModel expressLanesViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

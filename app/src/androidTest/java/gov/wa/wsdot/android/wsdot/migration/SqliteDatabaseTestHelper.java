@@ -171,7 +171,7 @@ public class SqliteDatabaseTestHelper {
         db.execSQL("DROP TABLE IF EXISTS CameraEntity");
         db.execSQL("DROP TABLE IF EXISTS highway_alerts");
         db.execSQL("DROP TABLE IF EXISTS mountain_passes");
-        db.execSQL("DROP TABLE IF EXISTS TravelTimeEntity");
+        db.execSQL("DROP TABLE IF EXISTS travel_times");
         db.execSQL("DROP TABLE IF EXISTS ferries_schedules");
         db.execSQL("DROP TABLE IF EXISTS ferries_terminal_sailing_space");
         db.execSQL("DROP TABLE IF EXISTS border_wait");
