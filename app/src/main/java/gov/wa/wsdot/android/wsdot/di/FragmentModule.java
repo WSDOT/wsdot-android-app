@@ -21,6 +21,7 @@ import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemCam
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemForecastFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemReportFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesFragment;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsFragment;
 import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesFragment;
 
 /**
@@ -93,5 +94,8 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract SeattleExpressLanesFragment contributeSeattleExpressLanesFragment();
+
+    @ContributesAndroidInjector
+    abstract NewsFragment contributeNewsFragment();
 
 }

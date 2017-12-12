@@ -18,6 +18,8 @@
 
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.news;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -34,6 +36,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -49,18 +52,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.NewsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.ExpressLanesViewModel;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class NewsFragment extends BaseFragment implements
-        LoaderCallbacks<ArrayList<NewsItem>>,
-        SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener, Injectable {
 
 	private static final String TAG = NewsFragment.class.getSimpleName();
-	private static ArrayList<NewsItem> newsItems = null;	
 	private static NewsItemAdapter mAdapter;
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
@@ -68,14 +73,10 @@ public class NewsFragment extends BaseFragment implements
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-        setRetainInstance(true);
-	}
+	NewsViewModel viewModel;
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -83,7 +84,7 @@ public class NewsFragment extends BaseFragment implements
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -99,7 +100,7 @@ public class NewsFragment extends BaseFragment implements
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.holo_blue_bright,
@@ -108,146 +109,39 @@ public class NewsFragment extends BaseFragment implements
                 R.color.holo_red_light);
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
-        
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(NewsViewModel.class);
+
+        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        TextView t = (TextView) mEmptyView;
+                        t.setText(R.string.no_connection);
+                        mEmptyView.setVisibility(View.VISIBLE);
+                        Toast.makeText(getContext(), "connection error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        viewModel.getNewsItems().observe(this, newsItemValues -> {
+            if (newsItemValues != null) {
+                mEmptyView.setVisibility(View.GONE);
+                mAdapter.setData(newsItemValues);
+            }
+        });
+
+        viewModel.refresh();
+
         return root;
     }
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-		// Prepare the loader. Either re-connect with an existing one,
-		// or start a new one.        
-        getLoaderManager().initLoader(0, null, this);
-	}
-	
-	public Loader<ArrayList<NewsItem>> onCreateLoader(int id, Bundle args) {
-		// This is called when a new Loader needs to be created. There
-        // is only one Loader with no arguments, so it is simple
-		return new NewsItemsLoader(getActivity());
-	}
-
-	public void onLoadFinished(Loader<ArrayList<NewsItem>> loader, ArrayList<NewsItem> data) {
-
-        mEmptyView.setVisibility(View.GONE);
-
-		if (!data.isEmpty()) {
-			mAdapter.setData(data);
-		} else {
-		    TextView t = (TextView) mEmptyView;
-			t.setText(R.string.no_connection);
-            mEmptyView.setVisibility(View.VISIBLE);
-		}
-		
-		swipeRefreshLayout.setRefreshing(false);
-	}
-
-	public void onLoaderReset(Loader<ArrayList<NewsItem>> loader) {
-	    mAdapter.setData(null);
-	    swipeRefreshLayout.setRefreshing(false);
-	}	
-
-	/**
-	 * A custom Loader that loads all of the news items from the data server.
-	 */	
-	public static class NewsItemsLoader extends AsyncTaskLoader<ArrayList<NewsItem>> {
-
-		public NewsItemsLoader(Context context) {
-			super(context);
-		}
-
-		@Override
-		public ArrayList<NewsItem> loadInBackground() {
-			DateFormat parseDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z", Locale.US);
-			DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a", Locale.US);
-	    	newsItems = new ArrayList<NewsItem>();
-			NewsItem i = null;
-			
-			try {
-				URL url = new URL(APIEndPoints.WSDOT_NEWS);
-				URLConnection urlConn = url.openConnection();
-				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-				String jsonFile = "";
-				String line;
-				
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
-				in.close();
-				
-				JSONObject obj = new JSONObject(jsonFile);
-				JSONObject result = obj.getJSONObject("news");
-				JSONArray items = result.getJSONArray("items");
-				newsItems = new ArrayList<NewsItem>();
-				
-				int numItems = items.length();
-				for (int j=0; j < numItems; j++) {
-					JSONObject item = items.getJSONObject(j);
-					i = new NewsItem();
-					i.setTitle(item.getString("title"));
-					i.setDescription(item.getString("description"));
-					i.setLink(item.getString("link"));
-					
-	            	try {
-	            		Date date = parseDateFormat.parse(item.getString("pubdate"));
-	            		i.setPubDate(displayDateFormat.format(date));
-	            	} catch (Exception e) {
-	            		i.setPubDate("");
-	            		Log.e(TAG, "Error parsing date", e);
-	            	}				
-					
-					newsItems.add(i);
-				}			
-
-			} catch (Exception e) {
-				Log.e(TAG, "Error in network call", e);
-			}
-			return newsItems;
-		}
-
-		@Override
-		public void deliverResult(ArrayList<NewsItem> data) {
-		    /**
-		     * Called when there is new data to deliver to the client. The
-		     * super class will take care of delivering it; the implementation
-		     * here just adds a little more logic.
-		     */	
-			super.deliverResult(data);
-		}
-
-		@Override
-		protected void onStartLoading() {
-			super.onStartLoading();
-			swipeRefreshLayout.post(
-					new Runnable() {
-				public void run() {
-					swipeRefreshLayout.setRefreshing(true);
-				}
-			});
-			forceLoad();
-		}
-
-		@Override
-		protected void onStopLoading() {
-			super.onStopLoading();
-			
-	        // Attempt to cancel the current load task if possible.
-	        cancelLoad();
-		}
-		
-		@Override
-		public void onCanceled(ArrayList<NewsItem> data) {
-			super.onCanceled(data);
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-			
-	        // Ensure the loader is stopped
-	        onStopLoading();
-		}
-		
-	}
 
 	/**
 	 * Custom adapter for items in recycler view.
@@ -291,11 +185,9 @@ public class NewsFragment extends BaseFragment implements
 
             // Set onClickListener for holder's view
             holder.itemView.setOnClickListener(
-                    new View.OnClickListener() {
-                        public void onClick(View v) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(postLink));
-                            startActivity(intent);
-                        }
+                    v -> {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(postLink));
+                        startActivity(intent);
                     }
             );
         }
@@ -328,13 +220,13 @@ public class NewsFragment extends BaseFragment implements
 
         public NewsViewHolder(View itemView) {
             super(itemView);
-            title = (TextView) itemView.findViewById(R.id.title);
-            createdAt = (TextView) itemView.findViewById(R.id.description);
+            title = itemView.findViewById(R.id.title);
+            createdAt = itemView.findViewById(R.id.description);
         }
     }
 
     public void onRefresh() {
-        getLoaderManager().restartLoader(0, null, this);
+        viewModel.refresh();
     }
 	
 }

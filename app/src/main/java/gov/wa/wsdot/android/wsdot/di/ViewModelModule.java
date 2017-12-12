@@ -2,6 +2,7 @@ package gov.wa.wsdot.android.wsdot.di;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
+import android.view.View;
 
 import dagger.Binds;
 import dagger.Module;
@@ -19,6 +20,7 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.ExpressLanesViewModel;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesViewModel;
 import gov.wa.wsdot.android.wsdot.viewmodal.ViewModelFactory;
 
@@ -98,6 +100,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(ExpressLanesViewModel.class)
     abstract ViewModel bindExpressLanesViewModel(ExpressLanesViewModel expressLanesViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(NewsViewModel.class)
+    abstract ViewModel bindNewsViewModel(NewsViewModel newsViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
