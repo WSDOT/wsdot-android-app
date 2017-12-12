@@ -18,6 +18,8 @@
 
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -44,6 +46,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,21 +60,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.TwitterItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.ExpressLanesViewModel;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.ImageManager;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class TwitterFragment extends BaseFragment implements
-        LoaderCallbacks<ArrayList<TwitterItem>>,
         AdapterView.OnItemSelectedListener,
-        SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener,
+		Injectable {
 	
 	private static final String TAG = TwitterFragment.class.getSimpleName();
 	private static TwitterItemAdapter mAdapter;
-	private static String mScreenName;
 
     private String[] accounts = {"all", "wsferries", "SnoqualmiePass", "wsdot", "WSDOT_East", "wsdot_north", "wsdot_sw", "wsdot_tacoma", "wsdot_traffic"};
 
@@ -86,16 +92,10 @@ public class TwitterFragment extends BaseFragment implements
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
-	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
-        mScreenName = "all";
-	}
-	
-    @Override
-	public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+	TwitterViewModel viewModel;
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
 
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -103,7 +103,7 @@ public class TwitterFragment extends BaseFragment implements
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner_swipe_refresh, null);
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -117,7 +117,7 @@ public class TwitterFragment extends BaseFragment implements
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.holo_blue_bright,
@@ -127,12 +127,48 @@ public class TwitterFragment extends BaseFragment implements
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
-        Spinner spinner = (Spinner) root.findViewById(R.id.spinner);
+        Spinner spinner = root.findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.twitter_accounts, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
+
+		viewModel = ViewModelProviders.of(this, viewModelFactory).get(TwitterViewModel.class);
+
+		viewModel.getResourceStatus().observe(this, resourceStatus -> {
+			if (resourceStatus != null) {
+				switch (resourceStatus.status) {
+					case LOADING:
+						swipeRefreshLayout.setRefreshing(true);
+						break;
+					case SUCCESS:
+						swipeRefreshLayout.setRefreshing(false);
+						break;
+					case ERROR:
+						swipeRefreshLayout.setRefreshing(false);
+						TextView t = (TextView) mEmptyView;
+						t.setText(R.string.no_connection);
+						mEmptyView.setVisibility(View.VISIBLE);
+						Toast.makeText(getContext(), "connection error", Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+
+		viewModel.getTwitterPosts().observe(this, twitterItems -> {
+			if (twitterItems != null) {
+				mEmptyView.setVisibility(View.GONE);
+				if (!twitterItems.isEmpty()) {
+					mAdapter.setData(twitterItems);
+				} else {
+					TextView t = (TextView) mEmptyView;
+					t.setText("tweets unavailable.");
+					mEmptyView.setVisibility(View.VISIBLE);
+				}
+			}
+		});
+
+		viewModel.refresh();
 
         return root;
     }    
@@ -149,15 +185,12 @@ public class TwitterFragment extends BaseFragment implements
 		mTwitterProfileImages.put("wsdot_tacoma", R.drawable.ic_list_wsdot_tacoma);
 		mTwitterProfileImages.put("wsdot_traffic", R.drawable.ic_list_wsdot_traffic);
 		mTwitterProfileImages.put("wsdot_north", R.drawable.ic_list_wsdot_north);
-		
-		// Prepare the loader. Either re-connect with an existing one,
-		// or start a new one.        
-        getLoaderManager().initLoader(0, null, this);		
+
 	}
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        mScreenName = accounts[position];
+        viewModel.setAccount(accounts[position]);
         this.onRefresh();
     }
 
@@ -207,169 +240,6 @@ public class TwitterFragment extends BaseFragment implements
         
         return shareIntent;
 	}	
-
-	public Loader<ArrayList<TwitterItem>> onCreateLoader(int id, Bundle args) {
-		// This is called when a new Loader needs to be created. There
-        // is only one Loader with no arguments, so it is simple
-		return new TwitterItemsLoader(getActivity());
-	}
-
-	public void onLoadFinished(Loader<ArrayList<TwitterItem>> loader, ArrayList<TwitterItem> data) {
-
-        mEmptyView.setVisibility(View.GONE);
-
-		if (!data.isEmpty()) {
-			mAdapter.setData(data);
-		} else {
-		    TextView t = (TextView) mEmptyView;
-			t.setText(R.string.no_connection);
-            mEmptyView.setVisibility(View.VISIBLE);
-		}
-		
-		swipeRefreshLayout.setRefreshing(false);
-	}
-
-	public void onLoaderReset(Loader<ArrayList<TwitterItem>> loader) {
-	    swipeRefreshLayout.setRefreshing(false);
-	    mAdapter.setData(null);
-	}	
-	
-	/**
-	 * A custom Loader that loads all of the Twitter feeds from the data server.
-	 */	
-	public static class TwitterItemsLoader extends AsyncTaskLoader<ArrayList<TwitterItem>> {
-
-		private ArrayList<TwitterItem> mItems = null;
-		
-		public TwitterItemsLoader(Context context) {
-			super(context);
-		}
-
-		@Override
-		public ArrayList<TwitterItem> loadInBackground() {
-			String urlPattern = "(https?:\\/\\/[-a-zA-Z0-9._~:\\/?#@!$&\'()*+,;=%]+)";
-			String atPattern = "@+([_a-zA-Z0-9-]+)";
-			String hashPattern = "#+([_a-zA-Z0-9-]+)";
-			String ampPattern = "(&amp;)";
-			String text;
-			String htmlText;
-
-	    	mItems = new ArrayList<>();
-			TwitterItem i;
-			URL url;
-			
-			try {
-				if (mScreenName == null || mScreenName.equals("all")) {
-					url = new URL(APIEndPoints.WSDOT_TWITTER);
-				} else {
-					url = new URL(APIEndPoints.WSDOT_TWITTER + mScreenName);
-				}
-				
-				URLConnection urlConn = url.openConnection();
-				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-				String jsonFile = "";
-				String line;
-				
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
-				in.close();
-				
-				JSONArray items = new JSONArray(jsonFile);
-				
-				int numItems = items.length();
-				for (int j=0; j < numItems; j++) {
-					JSONObject item = items.getJSONObject(j);
-					i = new TwitterItem();
-					text = item.getString("text");
-					text = text.replaceAll(ampPattern, "&");
-					htmlText = text.replaceAll(urlPattern, "<a href=\"$1\">$1</a>");
-					htmlText = htmlText.replaceAll(atPattern, "<a href=\"http://twitter.com/#!/$1\">@$1</a>");
-					htmlText = htmlText.replaceAll(hashPattern, "<a href=\"http://twitter.com/#!/search?q=%23$1\">#$1</a>");
-
-					i.setId(item.getString("id"));
-					
-					JSONObject entities = item.getJSONObject("entities");
-					
-					try {
-						JSONArray media = entities.getJSONArray("media");
-						JSONObject mediaItem = media.getJSONObject(0);
-						i.setMediaUrl(mediaItem.getString("media_url"));
-					} catch (JSONException e) {
-						// TODO Nothing.
-					}
-					
-					if (i.getMediaUrl() == null) {
-						try {
-							JSONArray urls = entities.getJSONArray("urls");
-							JSONObject urlItem = urls.getJSONObject(0);
-							String expanded_url = urlItem.getString("expanded_url");
-							if (expanded_url.matches("(.*)twitpic.com(.*)")) {
-								i.setMediaUrl(urlItem.getString("expanded_url"));
-							}
-						} catch (Exception e1) {
-							// TODO Nothing.
-						}
-					}
-					
-					i.setText(text);
-					i.setFormatedHtmlText(htmlText);
-
-	            	JSONObject user = item.getJSONObject("user");
-	            	i.setUserName(user.getString("name"));
-	            	i.setScreenName(user.getString("screen_name"));
-					
-	            	try {
-	            		i.setCreatedAt(ParserUtils.relativeTimeFromUTC(item.getString("created_at"), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
-	            	} catch (Exception e) {
-	            		i.setCreatedAt("");
-	            		Log.e(TAG, "Error parsing date", e);
-	            	}
-	            	
-					mItems.add(i);
-				}				
-			} catch (Exception e) {
-				Log.e(TAG, "Error in network call", e);
-			}
-			
-			return mItems;
-		}
-
-		@Override
-		protected void onStartLoading() {
-			super.onStartLoading();
-			swipeRefreshLayout.post(new Runnable() {
-				public void run() {
-					swipeRefreshLayout.setRefreshing(true);
-				}
-			});
-			forceLoad();
-		}
-
-		@Override
-		protected void onStopLoading() {
-			super.onStopLoading();
-			
-	        // Attempt to cancel the current load task if possible.
-	        cancelLoad();
-		}
-		
-		@Override
-		public void onCanceled(ArrayList<TwitterItem> data) {
-			super.onCanceled(data);
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-			
-	        // Ensure the loader is stopped
-	        onStopLoading();
-	        
-	        if (mItems != null) {
-	        	mItems = null;
-	        }
-		}
-	}
 
 	/**
 	 * Custom adapter for items in recycler view.
@@ -435,15 +305,12 @@ public class TwitterFragment extends BaseFragment implements
 
 			// Set onClickListener for holder's view
 			holder.itemView.setOnClickListener(
-					new View.OnClickListener() {
-						public void onClick(View v) {
-                            String url = "https://twitter.com/" + screenName
-                                    + "/status/" + postID;
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                            startActivity(intent);
-						}
-					}
-			);
+                    v -> {
+                        String url = "https://twitter.com/" + screenName + "/status/" + postID;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        startActivity(intent);
+                    }
+            );
 		}
 
 		@Override
@@ -478,16 +345,15 @@ public class TwitterFragment extends BaseFragment implements
 
 		public TwitterViewHolder(View itemView) {
 			super(itemView);
-			image = (ImageView) itemView.findViewById(R.id.image);
-			icon = (ImageView) itemView.findViewById(R.id.icon);
-			userName = (TextView) itemView.findViewById(R.id.user_name);
-			createdAt =	(TextView) itemView.findViewById(R.id.created_at);
-			text =	(TextView) itemView.findViewById(R.id.text);
+			image = itemView.findViewById(R.id.image);
+			icon = itemView.findViewById(R.id.icon);
+			userName = itemView.findViewById(R.id.user_name);
+			createdAt =	itemView.findViewById(R.id.created_at);
+			text = itemView.findViewById(R.id.text);
 		}
 	}
 
-
     public void onRefresh() {
-        getLoaderManager().restartLoader(0, null, this);        
+		viewModel.refresh();
     }
 }

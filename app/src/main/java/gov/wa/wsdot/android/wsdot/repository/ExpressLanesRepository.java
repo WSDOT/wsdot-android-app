@@ -26,6 +26,8 @@ import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 @Singleton
 public class ExpressLanesRepository extends NetworkResourceRepository {
 
+    private final static String TAG = ExpressLanesRepository.class.getSimpleName();
+
     private MutableLiveData<List<ExpressLaneItem>> expressLanesStatus;
 
     @Inject

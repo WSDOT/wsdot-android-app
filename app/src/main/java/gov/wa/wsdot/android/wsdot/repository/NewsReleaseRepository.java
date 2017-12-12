@@ -18,12 +18,14 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import gov.wa.wsdot.android.wsdot.shared.NewsItem;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
+@Singleton
 public class NewsReleaseRepository extends NetworkResourceRepository {
 
     private static String TAG = NewsReleaseRepository.class.getSimpleName();
