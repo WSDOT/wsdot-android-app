@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.util;
 public class APIEndPoints {
 
     public static final String WSDOT_API_KEY = "";
+    public static final String GOOGLE_API_KEY = "";
 
     // Google Maps
     public static final String STATIC_GOOGLE_MAPS = "http://maps.googleapis.com/maps/api/staticmap";
@@ -50,7 +51,6 @@ public class APIEndPoints {
     // Social Media
     public static final String WSDOT_NEWS = "http://data.wsdot.wa.gov/mobile/News.js";
     public static final String WSDOT_BLOG = "http://wsdotblog.blogspot.com/feeds/posts/default";
-    public static final String WSDOT_FLICKR = "http://data.wsdot.wa.gov/mobile/FlickrPhotos.js.gz";
     public static final String WSDOT_FACEBOOK = "http://www.wsdot.wa.gov/news/socialroom/posts/facebook";
     public static final String WSDOT_TWITTER = "http://www.wsdot.wa.gov/news/socialroom/posts/twitter/";
     public static final String YOUTUBE = "https://www.googleapis.com/youtube/v3/playlistItems";

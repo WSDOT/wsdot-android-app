@@ -24,6 +24,7 @@ import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.blog.BlogFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.blog.BlogViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.facebook.FacebookViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.twitter.TwitterViewModel;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.youtube.YouTubeViewModel;
 import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesViewModel;
 import gov.wa.wsdot.android.wsdot.viewmodal.ViewModelFactory;
 
@@ -123,6 +124,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(BlogViewModel.class)
     abstract ViewModel bindBlogViewModel(BlogViewModel blogViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(YouTubeViewModel.class)
+    abstract ViewModel bindYouTubeViewModel(YouTubeViewModel youTubeViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

@@ -25,7 +25,7 @@ import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 @Singleton
 public class FacebookRepository extends NetworkResourceRepository {
 
-    private final static String TAG = TwitterRepository.class.getSimpleName();
+    private final static String TAG = FacebookRepository.class.getSimpleName();
 
     private MutableLiveData<List<FacebookItem>> facebookPosts;
 

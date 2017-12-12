@@ -263,7 +263,6 @@ public class BlogFragment extends BaseFragment implements
     }
 
     public void onRefresh() {
-		swipeRefreshLayout.setRefreshing(true);
 		viewModel.refresh();
     }
 	

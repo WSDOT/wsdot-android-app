@@ -28,7 +28,7 @@ import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 @Singleton
 public class BlogRepository extends NetworkResourceRepository {
 
-    private final static String TAG = TwitterRepository.class.getSimpleName();
+    private final static String TAG = BlogRepository.class.getSimpleName();
 
     private MutableLiveData<List<BlogItem>> blogPosts;
 

@@ -216,7 +216,6 @@ public class FacebookFragment extends BaseFragment implements
     }
 
     public void onRefresh() {
-		swipeRefreshLayout.setRefreshing(true);
 		viewModel.refresh();
     }
 }

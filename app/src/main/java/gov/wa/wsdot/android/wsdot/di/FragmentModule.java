@@ -25,6 +25,7 @@ import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.blog.BlogFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.facebook.FacebookFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.twitter.TwitterFragment;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.youtube.YouTubeFragment;
 import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesFragment;
 
 /**
@@ -109,5 +110,8 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract BlogFragment contributeBlogFragment();
+
+    @ContributesAndroidInjector
+    abstract YouTubeFragment contributeYouTubeFragment();
 
 }
