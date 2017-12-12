@@ -21,6 +21,7 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.ExpressLanesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsViewModel;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.FacebookViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.TwitterViewModel;
 import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesViewModel;
 import gov.wa.wsdot.android.wsdot.viewmodal.ViewModelFactory;
@@ -111,6 +112,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(TwitterViewModel.class)
     abstract ViewModel bindTwitterViewModel(TwitterViewModel twitterViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(FacebookViewModel.class)
+    abstract ViewModel bindFacebookViewModel(FacebookViewModel facebookViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

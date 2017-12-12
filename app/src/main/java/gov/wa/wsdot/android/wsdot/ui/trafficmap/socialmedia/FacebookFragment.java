@@ -18,43 +18,34 @@
 
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia;
 
-import android.content.Context;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.FacebookItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class FacebookFragment extends BaseFragment implements
-        LoaderCallbacks<ArrayList<FacebookItem>>,
-        SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener,
+		Injectable {
 	
 	private static final String TAG = FacebookFragment.class.getSimpleName();
 	private static FacebookItemAdapter mAdapter;
@@ -63,15 +54,11 @@ public class FacebookFragment extends BaseFragment implements
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
-	
-    @Override
-	public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-        setRetainInstance(true);     
-    }
+
+    FacebookViewModel viewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,7 +66,7 @@ public class FacebookFragment extends BaseFragment implements
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -95,7 +82,7 @@ public class FacebookFragment extends BaseFragment implements
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
 				R.color.holo_blue_bright,
@@ -104,137 +91,44 @@ public class FacebookFragment extends BaseFragment implements
 				R.color.holo_red_light);
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
-        
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(FacebookViewModel.class);
+
+        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        TextView t = (TextView) mEmptyView;
+                        t.setText(R.string.no_connection);
+                        mEmptyView.setVisibility(View.VISIBLE);
+                        Toast.makeText(getContext(), "connection error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        viewModel.getFacebookPosts().observe(this, facebookItems -> {
+            if (facebookItems != null) {
+                mEmptyView.setVisibility(View.GONE);
+                if (!facebookItems.isEmpty()) {
+                    mAdapter.setData(facebookItems);
+                } else {
+                    TextView t = (TextView) mEmptyView;
+                    t.setText("tweets unavailable.");
+                    mEmptyView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        viewModel.refresh();
         return root;
-    }    
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		// Prepare the loader. Either re-connect with an existing one,
-		// or start a new one.        
-        getLoaderManager().initLoader(0, null, this);		
-	}    
-
-	public Loader<ArrayList<FacebookItem>> onCreateLoader(int id, Bundle args) {
-		// This is called when a new Loader needs to be created. There
-        // is only one Loader with no arguments, so it is simple
-		return new FacebookItemsLoader(getActivity());
-	}
-
-	public void onLoadFinished(Loader<ArrayList<FacebookItem>> loader, ArrayList<FacebookItem> data) {
-
-        mEmptyView.setVisibility(View.GONE);
-
-		if (!data.isEmpty()) {
-			mAdapter.setData(data);
-		} else {
-		    TextView t = (TextView) mEmptyView;
-			t.setText(R.string.no_connection);
-            mEmptyView.setVisibility(View.VISIBLE);
-		}
-		
-		swipeRefreshLayout.setRefreshing(false);
-	}
-
-	public void onLoaderReset(Loader<ArrayList<FacebookItem>> loader) {
-	    swipeRefreshLayout.setRefreshing(false);
-	    mAdapter.setData(null);
-	}	
-	
-	/**
-	 * A custom Loader that loads Facebook posts from the data server.
-	 */	
-	public static class FacebookItemsLoader extends AsyncTaskLoader<ArrayList<FacebookItem>> {
-
-		public FacebookItemsLoader(Context context) {
-			super(context);
-		}
-        private ArrayList<FacebookItem> mFacebookItems;
-
-		@Override
-		public ArrayList<FacebookItem> loadInBackground() {
-			String urlPattern = "(https?:\\/\\/[-a-zA-Z0-9._~:\\/?#@!$&\'()*+,;=%]+)";
-			String text;
-			String htmlText;
-
-            mFacebookItems = new ArrayList<>();
-			FacebookItem i = null;
-			URL url;
-			
-			try {
-				url = new URL(APIEndPoints.WSDOT_FACEBOOK);
-				URLConnection urlConn = url.openConnection();
-				BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-				String jsonFile = "";
-				String line;
-				
-				while ((line = in.readLine()) != null)
-					jsonFile += line;
-				in.close();
-				
-				JSONArray items = new JSONArray(jsonFile);
-				
-				int numItems = items.length();
-				for (int j=0; j < numItems; j++) {
-						JSONObject item = items.getJSONObject(j);
-						i = new FacebookItem();
-						htmlText = "";
-						text = item.getString("message");
-						htmlText = text.replaceAll(urlPattern, "<a href=\"$1\">$1</a>");
-
-						i.setMessage(text);
-						i.setmHtmlFormattedMessage(htmlText);
-						i.setId(item.getString("id"));
-						
-		            	try {
-                        	i.setCreatedAt(ParserUtils.relativeTimeFromUTC(
-                                item.getString("created_at"),
-                                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
-		            	} catch (Exception e) {
-		            		i.setCreatedAt("");
-		            		Log.e(TAG, "Error parsing date", e);
-		            	}
-		            	
-						mFacebookItems.add(i);
-				}				
-			} catch (Exception e) {
-				Log.e(TAG, "Error in network call", e);
-			}
-			return mFacebookItems;
-		}
-
-		@Override
-		protected void onStartLoading() {
-			super.onStartLoading();
-			swipeRefreshLayout.post(new Runnable() {
-				public void run() {
-					swipeRefreshLayout.setRefreshing(true);
-				}
-			});
-			forceLoad();
-		}
-
-		@Override
-		protected void onStopLoading() {
-			super.onStopLoading();
-	        // Attempt to cancel the current load task if possible.
-	        cancelLoad();
-		}
-		
-		@Override
-		public void onCanceled(ArrayList<FacebookItem> data) {
-			super.onCanceled(data);
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-	        // Ensure the loader is stopped
-	        onStopLoading();
-		}
-		
-	}
+    }
 
     /**
      * Custom adapter for items in recycler view.
@@ -315,17 +209,13 @@ public class FacebookFragment extends BaseFragment implements
 
         public FacebookViewHolder(View itemView) {
             super(itemView);
-            text = (TextView) itemView.findViewById(R.id.title);
-            createdAt = (TextView) itemView.findViewById(R.id.description);
+            text = itemView.findViewById(R.id.title);
+            createdAt = itemView.findViewById(R.id.description);
         }
     }
 
     public void onRefresh() {
-		swipeRefreshLayout.post(new Runnable() {
-			public void run() {
-				swipeRefreshLayout.setRefreshing(true);
-			}
-		});
-        getLoaderManager().restartLoader(0, null, this);        
+		swipeRefreshLayout.setRefreshing(true);
+		viewModel.refresh();
     }
 }
