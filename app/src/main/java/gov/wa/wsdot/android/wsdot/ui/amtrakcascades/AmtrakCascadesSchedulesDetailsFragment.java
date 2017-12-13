@@ -18,50 +18,40 @@
 
 package gov.wa.wsdot.android.wsdot.ui.amtrakcascades;
 
-import android.app.Activity;
-import android.content.Context;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesScheduleFeed;
-import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesScheduleItem;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesServiceItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
-        implements LoaderCallbacks<ArrayList<AmtrakCascadesServiceItem>>,
+        implements Injectable,
         SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = AmtrakCascadesSchedulesDetailsFragment.class.getSimpleName();
@@ -70,38 +60,30 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
     private static Typeface tfb;
     private static SwipeRefreshLayout swipeRefreshLayout;
     private View mEmptyView;
-    
-    private static Map<Integer, String> trainNumberMap = new HashMap<Integer, String>();
+
     private static Map<String, String> amtrakStations = new HashMap<String, String>();
     private static String statusDate;
     private static String fromLocation;
     private static String toLocation;
     private static ScheduleAdapter mAdapter;
-    private static String WSDOT_API_ACCESS_CODE;
-    private static TextView schedule_title;
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
-    
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
 
-        if (context instanceof Activity) {
-            Bundle args = ((Activity)context).getIntent().getExtras();
-            statusDate = args.getString("dayId");
-            fromLocation = args.getString("originId");
-            toLocation = args.getString("destinationId");
-        }
-    }
+    AmtrakCascadesSchedulesDetailsViewModel viewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        WSDOT_API_ACCESS_CODE = getString(R.string.wsdot_api_access_code);
+        Bundle args = getActivity().getIntent().getExtras();
+        statusDate = args.getString("dayId");
+        fromLocation = args.getString("originId");
+        toLocation = args.getString("destinationId");
 
-        getTrainNumbers();
         getAmtrakStations();
     }
 
@@ -111,7 +93,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
         tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_textview_swipe_refresh, null);
-        schedule_title = (TextView) root.findViewById(R.id.title);
+        TextView schedule_title = root.findViewById(R.id.title);
         schedule_title.setTypeface(tfb);
 
         if ((fromLocation.equalsIgnoreCase(toLocation))) {
@@ -123,11 +105,11 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                     + amtrakStations.get(toLocation));
         }
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        this.mAdapter = new ScheduleAdapter(getActivity(), null);
+        mAdapter = new ScheduleAdapter(null);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -138,7 +120,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.holo_blue_bright,
@@ -148,35 +130,44 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
-        return root;
-    }
 
-    private void getTrainNumbers() {
-        trainNumberMap.put(7, "Empire Builder Train");
-        trainNumberMap.put(8, "Empire Builder Train");
-        trainNumberMap.put(11, "Coast Starlight Train");
-        trainNumberMap.put(14, "Coast Starlight Train");
-        trainNumberMap.put(27, "Empire Builder Train");
-        trainNumberMap.put(28, "Empire Builder Train");
-        trainNumberMap.put(500, "Amtrak Cascades Train");
-        trainNumberMap.put(501, "Amtrak Cascades Train");
-        trainNumberMap.put(502, "Amtrak Cascades Train");
-        trainNumberMap.put(503, "Amtrak Cascades Train");
-        trainNumberMap.put(504, "Amtrak Cascades Train");
-        trainNumberMap.put(505, "Amtrak Cascades Train");
-        trainNumberMap.put(506, "Amtrak Cascades Train");
-        trainNumberMap.put(507, "Amtrak Cascades Train");
-        trainNumberMap.put(508, "Amtrak Cascades Train");
-        trainNumberMap.put(509, "Amtrak Cascades Train");
-        trainNumberMap.put(510, "Amtrak Cascades Train");
-        trainNumberMap.put(511, "Amtrak Cascades Train");
-        trainNumberMap.put(513, "Amtrak Cascades Train");
-        trainNumberMap.put(514, "Amtrak Cascades Train");
-        trainNumberMap.put(515, "Amtrak Cascades Train");
-        trainNumberMap.put(516, "Amtrak Cascades Train");
-        trainNumberMap.put(517, "Amtrak Cascades Train");
-        trainNumberMap.put(518, "Amtrak Cascades Train");
-        trainNumberMap.put(519, "Amtrak Cascades Train");
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(AmtrakCascadesSchedulesDetailsViewModel.class);
+
+        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        TextView t = (TextView) mEmptyView;
+                        t.setText(R.string.no_connection);
+                        mEmptyView.setVisibility(View.VISIBLE);
+                        Toast.makeText(getContext(), "connection error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        viewModel.getSchedule(statusDate, fromLocation, toLocation).observe(this, serviceItems -> {
+            if (serviceItems != null) {
+                mEmptyView.setVisibility(View.GONE);
+                if (!serviceItems.isEmpty()) {
+                    mAdapter.setData(new ArrayList<>(serviceItems));
+                } else {
+                    TextView t = (TextView) mEmptyView;
+                    t.setText("schedule unavailable.");
+                    mEmptyView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        viewModel.refresh();
+
+        return root;
     }
 
     private void getAmtrakStations() {
@@ -200,437 +191,6 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
         amtrakStations.put("EUG", "Eugene, OR");
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        // Prepare the loaders. Either re-connect with an existing one, or start new ones.
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    public void onRefresh() {
-        getLoaderManager().restartLoader(0, null, this);
-    }
-
-    public Loader<ArrayList<AmtrakCascadesServiceItem>> onCreateLoader(int id, Bundle args) {
-        // This is called when a new Loader needs to be created. There
-        // is only one Loader with no arguments, so it is simple
-        if ((fromLocation.equalsIgnoreCase(toLocation))) {
-            return new DepartingTrainsLoader(getActivity());
-        } else {
-            return new DepartingArrivingTrainsLoader(getActivity());
-        }
-    }
-
-    public void onLoadFinished(Loader<ArrayList<AmtrakCascadesServiceItem>> loader,
-            ArrayList<AmtrakCascadesServiceItem> data) {
-
-        mEmptyView.setVisibility(View.GONE);
-
-        if (!data.isEmpty()) {
-            mAdapter.setData(data);
-        } else {
-            TextView t = (TextView) mEmptyView;
-            t.setText(R.string.no_connection);
-            mEmptyView.setVisibility(View.VISIBLE);
-        }
-
-        swipeRefreshLayout.setRefreshing(false);
-    }
-
-    public void onLoaderReset(Loader<ArrayList<AmtrakCascadesServiceItem>> loader) {
-        swipeRefreshLayout.setRefreshing(false);
-        mAdapter.setData(null);
-    }
-
-    /**
-     * Get train schedules for those with a departing and arriving station.
-     *
-     */
-    public static class DepartingArrivingTrainsLoader extends AsyncTaskLoader<ArrayList<AmtrakCascadesServiceItem>> {
-
-        private ArrayList<AmtrakCascadesServiceItem> mServiceItems = null;
-
-        public DepartingArrivingTrainsLoader(Context context) {
-            super(context);
-        }
-
-        @Override
-        public ArrayList<AmtrakCascadesServiceItem> loadInBackground() {
-
-            mServiceItems = new ArrayList<AmtrakCascadesServiceItem>();
-            AmtrakCascadesScheduleItem scheduleItem = null;
-            URL url;
-
-            try {
-                url = new URL(
-                        APIEndPoints.AMTRAK_SCHEDULE
-                                + "?AccessCode=" + WSDOT_API_ACCESS_CODE
-                                + "&StatusDate=" + statusDate
-                                + "&TrainNumber=-1"
-                                + "&FromLocation=" + fromLocation
-                                + "&ToLocation=" + toLocation
-                        );
-
-                URLConnection urlConn = url.openConnection();
-                BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-                String jsonFile = "";
-                String line;
-
-                while ((line = in.readLine()) != null) {
-                    jsonFile += line;
-                }
-                in.close();
-
-                Gson gson = new GsonBuilder().serializeNulls().create();
-                AmtrakCascadesScheduleFeed[] scheduleFeed = gson.fromJson(jsonFile, AmtrakCascadesScheduleFeed[].class);
-                int numItems = scheduleFeed.length;
-
-                int i = 0;
-                int startingTripNumber = 0;
-                int currentTripNumber = 0;
-
-                while (i < numItems) { // Loop through all trains
-                    Date scheduledDepartureTime = null;
-                    Map<String, AmtrakCascadesScheduleItem> stationItems;
-                    List<Map<String, AmtrakCascadesScheduleItem>> locationItems;
-                    locationItems = new ArrayList<Map<String, AmtrakCascadesScheduleItem>>();
-                    stationItems = new HashMap<String, AmtrakCascadesScheduleItem>();
-
-                    startingTripNumber = scheduleFeed[i].getTripNumber();
-                    currentTripNumber = startingTripNumber;
-                    List<String> trainNameList = new ArrayList<String>();
-                    int tripCounter = 0;
-                    while (currentTripNumber == startingTripNumber && i < numItems) { // Trains are grouped by two or more
-                        scheduleItem = new AmtrakCascadesScheduleItem();
-
-                        if (scheduleFeed[i].getArrivalComment() != null) {
-                            scheduleItem.setArrivalComment(scheduleFeed[i].getArrivalComment());
-                        }
-
-                        if (scheduleFeed[i].getArrivalScheduleType() != null) {
-                            scheduleItem.setArrivalScheduleType(scheduleFeed[i].getArrivalScheduleType());
-                        }
-
-                        if (scheduleFeed[i].getArrivalTime() != null) {
-                            scheduleItem.setArrivalTime(scheduleFeed[i].getArrivalTime().substring(6, 19));
-                        }
-
-                        if (scheduleFeed[i].getDepartureComment() != null) {
-                            scheduleItem.setDepartureComment(scheduleFeed[i].getDepartureComment());
-                        }
-
-                        if (scheduleFeed[i].getDepartureScheduleType() != null) {
-                            scheduleItem.setDepartureScheduleType(scheduleFeed[i].getDepartureScheduleType());
-                        }
-
-                        if (scheduleFeed[i].getDepartureTime() != null) {
-                            scheduleItem.setDepartureTime(scheduleFeed[i].getDepartureTime().substring(6, 19));
-                        }
-
-                        if (scheduleFeed[i].getScheduledArrivalTime() != null) {
-                            scheduleItem.setScheduledArrivalTime(scheduleFeed[i].getScheduledArrivalTime().substring(6, 19));
-                        }
-
-                        scheduleItem.setStationName(scheduleFeed[i].getStationName());
-
-                        if (scheduleFeed[i].getTrainMessage() != "") {
-                            scheduleItem.setTrainMessage(scheduleFeed[i].getTrainMessage());
-                        }
-
-                        if (scheduleFeed[i].getScheduledDepartureTime() != null) {
-                            scheduleItem.setScheduledDepartureTime(
-                                    scheduleFeed[i].getScheduledDepartureTime().substring(6, 19));
-
-                            // We sort by scheduled departure time of the From station.
-                            if (fromLocation.equalsIgnoreCase(scheduleItem.getStationName())) {
-                                scheduledDepartureTime = new Date(
-                                        Long.parseLong((scheduleItem
-                                                .getScheduledDepartureTime())));
-                            }
-                        }
-
-                        int trainNumber = scheduleFeed[i].getTrainNumber();
-                        scheduleItem.setTrainNumber(trainNumber);
-                        String serviceName = trainNumberMap.get(trainNumber);
-
-                        if (serviceName == null) {
-                            serviceName = "Bus Service";
-                        }
-
-                        scheduleItem.setSortOrder(scheduleFeed[i].getSortOrder());
-                        String trainName = trainNumber + " " + serviceName;
-
-                        // Add the train name for ever other record. When there is one origin and destination point
-                        // the train name will be the same. If the tripNumber is the same over more than two records
-                        // then we have multiple origin and destination points and likely different train names.
-                        // e.g. 515 Amtrak Cascades Train, 8911 Bus Service
-                        if (tripCounter % 2 == 0) {
-                            trainNameList.add(trainName);
-                        }
-                        scheduleItem.setTrainName(trainName);
-                        scheduleItem.setTripNumber(scheduleFeed[i].getTripNumber());
-                        scheduleItem.setUpdateTime(scheduleFeed[i].getUpdateTime().substring(6, 19));
-
-                        stationItems.put(scheduleItem.getStationName(), scheduleItem);
-
-                        i++;
-                        if (i < numItems) {
-                            currentTripNumber = scheduleFeed[i].getTripNumber();
-                        }
-
-                        tripCounter++;
-                    }
-
-                    if (trainNameList.size() > 1) {
-                        StringBuilder sb = new StringBuilder();
-                        for (String s: trainNameList) {
-                            if (sb.length() > 0) sb.append(", ");
-                            sb.append(s);
-                        }
-                        stationItems.get(fromLocation).setTrainName(sb.toString());
-                    }
-
-                    locationItems.add(stationItems);
-                    mServiceItems.add(new AmtrakCascadesServiceItem(scheduledDepartureTime, locationItems));
-                }
-
-                Collections.sort(mServiceItems, AmtrakCascadesServiceItem.scheduledDepartureTimeComparator);
-
-            } catch (Exception e) {
-                Log.e(TAG, "Error in network call", e);
-            }
-
-            return mServiceItems;
-        }
-
-        @Override
-        public void deliverResult(ArrayList<AmtrakCascadesServiceItem> data) {
-            /**
-             * Called when there is new data to deliver to the client. The
-             * super class will take care of delivering it; the implementation
-             * here just adds a little more logic.
-             */
-            super.deliverResult(data);
-        }
-
-        @Override
-        protected void onStartLoading() {
-            super.onStartLoading();
-
-            swipeRefreshLayout.post(new Runnable() {
-                public void run() {
-                    swipeRefreshLayout.setRefreshing(true);
-                }
-            });
-            forceLoad();
-        }
-
-        @Override
-        protected void onStopLoading() {
-            super.onStopLoading();
-
-            // Attempt to cancel the current load task if possible.
-            cancelLoad();
-        }
-
-        @Override
-        public void onCanceled(ArrayList<AmtrakCascadesServiceItem> data) {
-            super.onCanceled(data);
-        }
-
-        @Override
-        protected void onReset() {
-            super.onReset();
-
-            // Ensure the loader is stopped
-            onStopLoading();
-
-            if (mServiceItems != null) {
-                mServiceItems = null;
-            }
-        }
-    }
-
-    /**
-     * Get train schedules for those with just a departing station.
-     *
-     */
-    public static class DepartingTrainsLoader extends AsyncTaskLoader<ArrayList<AmtrakCascadesServiceItem>> {
-
-        private ArrayList<AmtrakCascadesServiceItem> mServiceItems = null;
-
-        public DepartingTrainsLoader(Context context) {
-            super(context);
-        }
-
-        @Override
-        public ArrayList<AmtrakCascadesServiceItem> loadInBackground() {
-
-            mServiceItems = new ArrayList<AmtrakCascadesServiceItem>();
-            AmtrakCascadesScheduleItem scheduleItem;
-            URL url;
-
-            try {
-                url = new URL(
-                        APIEndPoints.AMTRAK_SCHEDULE
-                                + "?AccessCode=" + WSDOT_API_ACCESS_CODE
-                                + "&StatusDate=" + statusDate
-                                + "&TrainNumber=-1"
-                                + "&FromLocation=" + fromLocation
-                                + "&ToLocation=N/A"
-                        );
-
-                URLConnection urlConn = url.openConnection();
-                BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-                String jsonFile = "";
-                String line;
-                
-                while ((line = in.readLine()) != null) {
-                    jsonFile += line;
-                }
-                in.close();            
-            
-                Gson gson = new GsonBuilder().serializeNulls().create();
-                AmtrakCascadesScheduleFeed[] scheduleFeed = gson.fromJson(jsonFile, AmtrakCascadesScheduleFeed[].class);
-                int numItems = scheduleFeed.length;
-
-                for (int i = 0; i < numItems; i++) { // Loop through all trains
-                    Date scheduledTime = null;
-                    Map<String, AmtrakCascadesScheduleItem> stationItems;
-                    List<Map<String, AmtrakCascadesScheduleItem>> locationItems;
-
-                    locationItems = new ArrayList<Map<String, AmtrakCascadesScheduleItem>>();
-                    stationItems = new HashMap<String, AmtrakCascadesScheduleItem>();
-                    scheduleItem = new AmtrakCascadesScheduleItem();
-
-                    if (scheduleFeed[i].getArrivalComment() != null) {
-                        scheduleItem.setArrivalComment(scheduleFeed[i].getArrivalComment());
-                    }
-
-                    if (scheduleFeed[i].getArrivalScheduleType() != null) {
-                        scheduleItem.setArrivalScheduleType(scheduleFeed[i].getArrivalScheduleType());
-                    }
-
-                    if (scheduleFeed[i].getArrivalTime() != null) {
-                        scheduleItem.setArrivalTime(scheduleFeed[i].getArrivalTime().substring(6, 19));
-                    }
-
-                    if (scheduleFeed[i].getDepartureComment() != null) {
-                        scheduleItem.setDepartureComment(scheduleFeed[i].getDepartureComment());
-                    }
-
-                    if (scheduleFeed[i].getDepartureScheduleType() != null) {
-                        scheduleItem.setDepartureScheduleType(scheduleFeed[i].getDepartureScheduleType());
-                    }
-
-                    if (scheduleFeed[i].getDepartureTime() != null) {
-                        scheduleItem.setDepartureTime(scheduleFeed[i].getDepartureTime().substring(6, 19));
-                    }
-
-                    scheduleItem.setStationName(scheduleFeed[i].getStationName());
-                    
-                    if (scheduleFeed[i].getTrainMessage() != "") {
-                        scheduleItem.setTrainMessage(scheduleFeed[i].getTrainMessage());
-                    }
-
-                    if (scheduleFeed[i].getScheduledArrivalTime() != null) {
-                        scheduleItem.setScheduledArrivalTime(
-                                scheduleFeed[i].getScheduledArrivalTime().substring(6, 19));
-                        
-                        if (fromLocation.equalsIgnoreCase(scheduleItem.getStationName())) {
-                            scheduledTime = new Date(
-                                    Long.parseLong((scheduleItem
-                                            .getScheduledArrivalTime())));
-                        }
-                    }
-
-                    if (scheduleFeed[i].getScheduledDepartureTime() != null) {
-                        scheduleItem.setScheduledDepartureTime(
-                                scheduleFeed[i].getScheduledDepartureTime().substring(6, 19));
-                        
-                        // We sort by scheduled departure time of the From station.
-                        if (fromLocation.equalsIgnoreCase(scheduleItem.getStationName())) {
-                            scheduledTime = new Date(
-                                    Long.parseLong((scheduleItem
-                                            .getScheduledDepartureTime())));
-                        }
-                    }
-
-                    int trainNumber = scheduleFeed[i].getTrainNumber();
-                    scheduleItem.setTrainNumber(trainNumber);
-                    String serviceName = trainNumberMap.get(trainNumber);
-                    if (serviceName == null) {
-                        serviceName = "Bus Service";
-                    }
-                    scheduleItem.setTrainName(trainNumber + " " + serviceName);
-                    scheduleItem.setTripNumber(scheduleFeed[i].getTripNumber());
-                    scheduleItem.setUpdateTime(scheduleFeed[i].getUpdateTime().substring(6, 19));
-
-                    stationItems.put(scheduleItem.getStationName(), scheduleItem);
-                    locationItems.add(stationItems);
-                    
-                    mServiceItems.add(new AmtrakCascadesServiceItem(scheduledTime, locationItems));
-                }
-
-                Collections.sort(mServiceItems, AmtrakCascadesServiceItem.scheduledDepartureTimeComparator);
-                toLocation = fromLocation;
-                
-            } catch (Exception e) {
-                Log.e(TAG, "Error in network call", e);
-            }
-
-            return mServiceItems;
-        }
-
-        @Override
-        public void deliverResult(ArrayList<AmtrakCascadesServiceItem> data) {
-            /**
-             * Called when there is new data to deliver to the client. The
-             * super class will take care of delivering it; the implementation
-             * here just adds a little more logic.
-             */ 
-            super.deliverResult(data);
-        }
-
-        @Override
-        protected void onStartLoading() {
-            super.onStartLoading();
-
-            swipeRefreshLayout.post(new Runnable() {
-                public void run() {
-                    swipeRefreshLayout.setRefreshing(true);
-                }
-            });
-            forceLoad();
-        }
-
-        @Override
-        protected void onStopLoading() {
-            super.onStopLoading();
-            
-            // Attempt to cancel the current load task if possible.
-            cancelLoad();
-        }
-
-        @Override
-        public void onCanceled(ArrayList<AmtrakCascadesServiceItem> data) {
-            super.onCanceled(data);
-        }
-        
-        @Override
-        protected void onReset() {
-            super.onReset();
-            
-            // Ensure the loader is stopped
-            onStopLoading();
-            
-            if (mServiceItems != null) {
-                mServiceItems = null;
-            }
-        }
-    }
-
     /**
      * Custom adapter for items in recycler view.
      *
@@ -645,7 +205,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
         private static final int TYPE_ITEM = 1;
         private List<AmtrakCascadesServiceItem> items;
 
-        public ScheduleAdapter(Context context, List<AmtrakCascadesServiceItem> data) {
+        public ScheduleAdapter(List<AmtrakCascadesServiceItem> data) {
             this.items = data;
         }
 
@@ -753,11 +313,11 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                     Date scheduledDepartureTime = new Date(Long.parseLong(item.getLocation().get(0).get(fromLocation).getScheduledDepartureTime()));
                     int minutesDiff = (int) (((departureTime.getTime() - scheduledDepartureTime.getTime()) / 1000) / 60);
                     String scheduleType = item.getLocation().get(0).get(fromLocation).getDepartureScheduleType();
-                    String timelyType = "on time";
+                    String timelyType = "on time ";
                     if (minutesDiff < 0) {
-                        timelyType = " early ";
+                        timelyType = "early ";
                     } else if (minutesDiff > 0) {
-                        timelyType = " late ";
+                        timelyType = "late ";
                     }
 
                     if (scheduleType.equalsIgnoreCase("Estimated")) {
@@ -767,7 +327,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                             itemHolder.departureComment.setText("Estimated "
                                     + getHoursMinutes(Math.abs(minutesDiff))
                                     + timelyType
-                                    + " at "
+                                    + "at "
                                     + dateFormat.format(departureTime));
                         }
                     } else {
@@ -776,7 +336,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                         } else {
                             itemHolder.departureComment.setText("Departed "
                                     + getHoursMinutes(Math.abs(minutesDiff))
-                                    + timelyType + " at "
+                                    + timelyType + "at "
                                     + dateFormat.format(departureTime));
                         }
                     }
@@ -835,11 +395,11 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                         if (scheduledArrivalTime != null) {
                             int minutesDiff = (int) (((arrivalTime.getTime() - scheduledArrivalTime.getTime()) / 1000) / 60);
                             String scheduleType = item.getLocation().get(0).get(toLocation).getArrivalScheduleType();
-                            String timelyType = "on time";
+                            String timelyType = "on time ";
                             if (minutesDiff < 0) {
-                                timelyType = " early ";
+                                timelyType = "early ";
                             } else if (minutesDiff > 0) {
-                                timelyType = " late ";
+                                timelyType = "late ";
                             }
 
                             if (scheduleType.equalsIgnoreCase("Estimated")) {
@@ -849,7 +409,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                                     itemHolder.arrivalComment.setText("Estimated "
                                             + getHoursMinutes(Math.abs(minutesDiff))
                                             + timelyType
-                                            + " at "
+                                            + "at "
                                             + dateFormat.format(arrivalTime));
                                 }
                             } else {
@@ -859,7 +419,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                                     itemHolder.arrivalComment.setText("Arrived "
                                             + getHoursMinutes(Math.abs(minutesDiff))
                                             + timelyType
-                                            + " at "
+                                            + "at "
                                             + dateFormat.format(arrivalTime));
                                 }
                             }
@@ -896,19 +456,22 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                 // Updated Time
                 String updatedTime = null;
                 try {
+
                     updatedTime = updateDateFormat
                             .format(new Date(Long.parseLong(item.getLocation().get(0)
                                     .get(fromLocation).getUpdateTime())));
+
                 } catch (NullPointerException e) {
+
                 }
 
                 if (updatedTime != null) {
+
                     itemHolder.lastUpdated.setText(ParserUtils.relativeTime(updatedTime,
                             "MMMM d, yyyy h:mm a", false));
                     contentDescriptionBuilder.append("updated ");
                     contentDescriptionBuilder.append(itemHolder.lastUpdated.getText());
                 } else {
-                    itemHolder.lastUpdated.setText("");
                 }
                 itemHolder.itemView.setContentDescription(contentDescriptionBuilder.toString());
             }
@@ -959,46 +522,41 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
     }
 
     public static class AmtrakViewHolder extends RecyclerView.ViewHolder {
-        protected TextView scheduledDeparture;
-        protected TextView scheduledArrival;
-        protected TextView departureComment;
-        protected TextView arrivalComment;
-        protected TextView trainName;
-        protected TextView lastUpdated;
+        TextView scheduledDeparture;
+        TextView scheduledArrival;
+        TextView departureComment;
+        TextView arrivalComment;
+        TextView trainName;
+        TextView lastUpdated;
 
-        public AmtrakViewHolder(View itemView) {
+        AmtrakViewHolder(View itemView) {
             super(itemView);
-            scheduledDeparture = (TextView) itemView.findViewById(R.id.scheduledDeparture);
+            scheduledDeparture = itemView.findViewById(R.id.scheduledDeparture);
             scheduledDeparture.setTypeface(tfb);
-            scheduledArrival = (TextView) itemView.findViewById(R.id.scheduledArrival);
+            scheduledArrival = itemView.findViewById(R.id.scheduledArrival);
             scheduledArrival.setTypeface(tfb);
-            departureComment = (TextView) itemView.findViewById(R.id.departureComment);
+            departureComment = itemView.findViewById(R.id.departureComment);
             departureComment.setTypeface(tfb);
-            arrivalComment = (TextView) itemView.findViewById(R.id.arrivalComment);
+            arrivalComment = itemView.findViewById(R.id.arrivalComment);
             arrivalComment.setTypeface(tfb);
-            trainName = (TextView) itemView.findViewById(R.id.trainName);
+            trainName = itemView.findViewById(R.id.trainName);
             trainName.setTypeface(tf);
-            lastUpdated = (TextView) itemView.findViewById(R.id.lastUpdated);
+            lastUpdated = itemView.findViewById(R.id.lastUpdated);
             lastUpdated.setTypeface(tf);
         }
     }
 
     public static class TitleViewHolder extends RecyclerView.ViewHolder {
-        protected TextView Departing;
-        protected TextView Arriving;
+        TextView Departing;
+        TextView Arriving;
 
-        public TitleViewHolder(View itemView) {
+        TitleViewHolder(View itemView) {
             super(itemView);
-            Departing = (TextView) itemView.findViewById(R.id.departing_title);
-            Arriving = (TextView) itemView.findViewById(R.id.arriving_title);
+            Departing = itemView.findViewById(R.id.departing_title);
+            Arriving = itemView.findViewById(R.id.arriving_title);
         }
     }
 
-    /**
-    *
-    * @param minutesDiff
-    * @return
-    */
    private String getHoursMinutes(int minutesDiff) {
        int hours = (int) Math.floor(minutesDiff / 60);
        int minutes = (minutesDiff % 60);
@@ -1021,5 +579,9 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
                                " minute ", " minutes ");
            }
        }
+   }
+
+   public void onRefresh() {
+       viewModel.refresh();
    }
 }

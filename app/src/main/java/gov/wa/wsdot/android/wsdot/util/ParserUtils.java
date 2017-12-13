@@ -56,12 +56,12 @@ public class ParserUtils {
 	}
 	
 	@SuppressLint("SimpleDateFormat")
-	public static String relativeTime(String createdAt, String datePattern, boolean shouldConvertTimeZome) {
+	public static String relativeTime(String createdAt, String datePattern, boolean shouldConvertTimeZone) {
 		DateFormat parseDateFormat = new SimpleDateFormat(datePattern);
 		Date parseDate;
 
 		// createdAt is in America/Los_Angeles time zone
-		if (shouldConvertTimeZome){
+		if (shouldConvertTimeZone){
 
 			DateFormat dateFormat = new SimpleDateFormat(datePattern);
 			dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));

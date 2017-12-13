@@ -66,9 +66,9 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
 	
     private static final String TAG = AmtrakCascadesSchedulesActivity.class.getSimpleName();
     
-    private List<AmtrakCascadesStationItem> amtrakStationItems = new ArrayList<AmtrakCascadesStationItem>();
-    private Map<String, String> stationsMap = new HashMap<String, String>();
-    private Map<String, String> daysOfWeekMap = new HashMap<String, String>();
+    private List<AmtrakCascadesStationItem> amtrakStationItems = new ArrayList<>();
+    private Map<String, String> stationsMap = new HashMap<>();
+    private Map<String, String> daysOfWeekMap = new HashMap<>();
     private Spinner daySpinner;
     private Spinner originSpinner;
     private Spinner destinationSpinner;
@@ -97,7 +97,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.amtrakcascades_schedules);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -155,7 +155,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
         DateFormat statusDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         dayOfWeekFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
         statusDateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
-        daySpinner = (Spinner) findViewById(R.id.day_spinner);
+        daySpinner = findViewById(R.id.day_spinner);
         List<String> daysOfWeek = new ArrayList<String>();
         
         Date startDate = new Date();
@@ -251,7 +251,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
     }
     
     private void getFromLocation() {
-        originSpinner = (Spinner) findViewById(R.id.origin_spinner);
+        originSpinner = findViewById(R.id.origin_spinner);
         int stationIndex = 0;
         Collections.sort(amtrakStationItems, AmtrakCascadesStationItem.stationDistanceComparator);
         String closestStation = amtrakStationItems.get(0).getStationName();
@@ -264,7 +264,6 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
         
         stationIndex = stations.indexOf(closestStation);
         
-        
         ArrayAdapter<String> stationsArrayAdapter = new ArrayAdapter<String>(
                 this, android.R.layout.simple_spinner_item, stations);
         
@@ -274,7 +273,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
     }
     
     private void getFromLocationNoGPS() {
-        originSpinner = (Spinner) findViewById(R.id.origin_spinner);
+        originSpinner = findViewById(R.id.origin_spinner);
 
         List<String> stations = new ArrayList<String>();
 
@@ -290,7 +289,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
     }
 
     private void getToLocation() {
-        destinationSpinner = (Spinner) findViewById(R.id.destination_spinner);
+        destinationSpinner = findViewById(R.id.destination_spinner);
         
         List<String> stations = new ArrayList<String>();
         

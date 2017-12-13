@@ -9,6 +9,7 @@ import dagger.multibindings.IntoMap;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertsInBoundsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.alert.MapHighwayAlertViewModel;
+import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesSchedulesDetailsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitViewModel;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
@@ -20,7 +21,6 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.ExpressLanesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsViewModel;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.blog.BlogFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.blog.BlogViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.facebook.FacebookViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.twitter.TwitterViewModel;
@@ -129,6 +129,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(YouTubeViewModel.class)
     abstract ViewModel bindYouTubeViewModel(YouTubeViewModel youTubeViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(AmtrakCascadesSchedulesDetailsViewModel.class)
+    abstract ViewModel bindAmtrakCascadesSchedulesViewModel(AmtrakCascadesSchedulesDetailsViewModel amtrakCascadesSchedulesViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
