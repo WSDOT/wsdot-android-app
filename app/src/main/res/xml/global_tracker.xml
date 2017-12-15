@@ -7,11 +7,11 @@
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.home.HomeActivity">/Home</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.about.AboutActivity">/About</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity">/Highway Alert</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity">/Highway Alert</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.settings.SettingsActivity">/Settings</screenName>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity">/My Route</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsActivity">/My Route/My Route Alerts</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity">/My Route/My Route Alerts</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteActivity">/My Route/New Route</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteMapActivity">/My Route/Map of Route</screenName>
 
@@ -19,7 +19,7 @@
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity">/Traffic Map</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesActivity">/Traffic Map/Seattle/Express Lanes</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.alert.AlertsListActivity">/Traffic Map/Alerts In This Area</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListActivity">/Traffic Map/Alerts In This Area</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesActivity">/Traffic Map/Travel Times</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.besttimestotravel.TravelChartsActivity">/Traffic Map/Travel Charts</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsActivity">/Traffic Map/News</screenName>

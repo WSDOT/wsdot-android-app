@@ -438,7 +438,24 @@ public abstract class AppDatabase extends RoomDatabase {
     public static final Migration MIGRATION_7_8 = new Migration(7, 8) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
-            // Since we didn't alter the table, there's nothing else to do here.
+
+            database.execSQL("CREATE TABLE IF NOT EXISTS my_route_temp ("
+                    + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + MyRouteColumns.MY_ROUTE_ID + " INTEGER,"
+                    + MyRouteColumns.MY_ROUTE_TITLE + " TEXT,"
+                    + MyRouteColumns.MY_ROUTE_LOCATIONS + " TEXT,"
+                    + MyRouteColumns.MY_ROUTE_DISPLAY_LAT + " REAL,"
+                    + MyRouteColumns.MY_ROUTE_DISPLAY_LONG + " REAL,"
+                    + MyRouteColumns.MY_ROUTE_DISPLAY_ZOOM + " INTEGER,"
+                    + MyRouteColumns.MY_ROUTE_FOUND_FAVORITES + " INTEGER NOT NULL default 0,"
+                    + MyRouteColumns.MY_ROUTE_IS_STARRED + " INTEGER NOT NULL default 0);");
+
+            database.execSQL("INSERT INTO my_route_temp SELECT * FROM " + Tables.MY_ROUTE + "; ");
+
+            database.execSQL("DROP TABLE " + Tables.MY_ROUTE + "; ");
+
+            database.execSQL("ALTER TABLE my_route_temp RENAME TO " + Tables.MY_ROUTE+ "; ");
+
         }
     };
 

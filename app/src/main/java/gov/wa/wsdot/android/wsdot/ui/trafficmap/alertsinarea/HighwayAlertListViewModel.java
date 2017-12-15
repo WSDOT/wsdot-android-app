@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.alert;
+package gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
@@ -18,21 +18,21 @@ import gov.wa.wsdot.android.wsdot.repository.HighwayAlertRepository;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
-public class HighwayAlertsInBoundsViewModel extends ViewModel {
+public class HighwayAlertListViewModel extends ViewModel {
 
     private LiveData<List<HighwayAlertsItem>> highwayAlerts;
     private MutableLiveData<ResourceStatus> mStatus;
     private HighwayAlertRepository highwayAlertRepo;
 
     @Inject
-    HighwayAlertsInBoundsViewModel(HighwayAlertRepository highwayAlertRepo) {
+    HighwayAlertListViewModel(HighwayAlertRepository highwayAlertRepo) {
         this.highwayAlertRepo = highwayAlertRepo;
         this.mStatus = new MutableLiveData<>();
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
-    public LiveData<List<HighwayAlertsItem>> getHighwayAlerts(LatLngBounds bounds){
+    public LiveData<List<HighwayAlertsItem>> getHighwayAlertsInBounds(LatLngBounds bounds){
         if (highwayAlerts == null) {
             this.highwayAlerts = Transformations.map(highwayAlertRepo.getHighwayAlerts(mStatus), alerts -> {
 
@@ -60,13 +60,9 @@ public class HighwayAlertsInBoundsViewModel extends ViewModel {
                     }
                 }
                 return alertsInArea;
-
             });
-
         }
-
         return this.highwayAlerts;
-
     }
 
     public void forceRefreshHighwayAlerts(){

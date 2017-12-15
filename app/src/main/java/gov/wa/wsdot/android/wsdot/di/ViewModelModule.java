@@ -2,13 +2,19 @@ package gov.wa.wsdot.android.wsdot.di;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
+import android.support.v4.view.ViewCompat;
+import android.view.ViewDebug;
+
+import javax.inject.Inject;
 
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
-import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertViewModel;
-import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertsInBoundsViewModel;
-import gov.wa.wsdot.android.wsdot.ui.alert.MapHighwayAlertViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertListViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteViewModel;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListViewModel;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertViewModel;
+import gov.wa.wsdot.android.wsdot.ui.alert.map.MapHighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesSchedulesDetailsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitViewModel;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewModel;
@@ -92,8 +98,8 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(HighwayAlertsInBoundsViewModel.class)
-    abstract ViewModel bindHighwayAlertsInBoundsViewModel(HighwayAlertsInBoundsViewModel highwayAlertsInBoundsViewModel);
+    @ViewModelKey(HighwayAlertListViewModel.class)
+    abstract ViewModel bindHighwayAlertsInBoundsViewModel(HighwayAlertListViewModel highwayAlertsInBoundsViewModel);
 
     @Binds
     @IntoMap
@@ -134,6 +140,16 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(AmtrakCascadesSchedulesDetailsViewModel.class)
     abstract ViewModel bindAmtrakCascadesSchedulesViewModel(AmtrakCascadesSchedulesDetailsViewModel amtrakCascadesSchedulesViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(NewRouteViewModel.class)
+    abstract ViewModel bindNewRouteViewModel(NewRouteViewModel newRouteViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MyRouteAlertListViewModel.class)
+    abstract ViewModel bindMyRouteAlertListViewModel(MyRouteAlertListViewModel myRouteAlertListViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

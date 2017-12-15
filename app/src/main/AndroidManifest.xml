@@ -106,7 +106,7 @@
             android:name=".ui.trafficmap.TrafficMapActivity"
             android:label="@string/title_trafficmap" />
         <activity
-            android:name=".ui.alert.AlertsListActivity"
+            android:name=".ui.trafficmap.alertsinarea.HighwayAlertListActivity"
             android:label="@string/title_alerts" />
         <activity
             android:name=".ui.traveltimes.TravelTimesActivity"
@@ -145,7 +145,7 @@
             android:label="@string/title_youtube" />
         <activity android:name=".ui.camera.CameraActivity" />
         <activity android:name=".ui.camera.CameraListActivity" />
-        <activity android:name=".ui.alert.HighwayAlertDetailsActivity" />
+        <activity android:name=".ui.alert.detail.HighwayAlertDetailsActivity" />
         <activity android:name=".ui.trafficmap.restareas.RestAreaActivity" />
         <activity
             android:name=".ui.amtrakcascades.AmtrakCascadesActivity"
@@ -166,7 +166,7 @@
             android:label="@string/title_activity_new_route"
             android:theme="@style/WSDOT" />
         <activity
-            android:name=".ui.myroute.myroutealerts.MyRouteAlertsActivity"
+            android:name=".ui.myroute.myroutealerts.MyRouteAlertsListActivity"
             android:theme="@style/WSDOT" />
         <activity android:name=".ui.myroute.MyRouteMapActivity" />
         <activity

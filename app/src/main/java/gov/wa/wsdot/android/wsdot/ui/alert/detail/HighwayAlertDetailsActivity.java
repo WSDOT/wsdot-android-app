@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.alert;
+package gov.wa.wsdot.android.wsdot.ui.alert.detail;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;

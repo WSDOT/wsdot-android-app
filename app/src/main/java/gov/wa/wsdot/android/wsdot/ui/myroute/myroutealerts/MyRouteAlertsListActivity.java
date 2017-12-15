@@ -11,7 +11,7 @@ import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
  * Displays a list of alerts on the users selected custom route
  */
 
-public class MyRouteAlertsActivity extends BaseActivity {
+public class MyRouteAlertsListActivity extends BaseActivity {
 
     private Toolbar mToolbar;
 

@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.alert;
+package gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
@@ -17,7 +17,7 @@ import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
  *
  *  Use the AlertPriority enum to set the state of
  *  the modal and filter what kind of alerts will be
- *  return from {@link #getHighwayAlerts getHighwayAlerts()}
+ *  return from {@link #getHighwayAlerts getHighwayAlertsInBounds()}
  *
  *  always call the {@link #init init()} method to insure there is data
  */

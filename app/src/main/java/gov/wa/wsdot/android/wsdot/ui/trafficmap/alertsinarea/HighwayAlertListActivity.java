@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.alert;
+package gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -25,7 +25,7 @@ import android.view.MenuItem;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
-public class AlertsListActivity extends BaseActivity {
+public class HighwayAlertListActivity extends BaseActivity {
 
 	private Toolbar mToolbar;
 

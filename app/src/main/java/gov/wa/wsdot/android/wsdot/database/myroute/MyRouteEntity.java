@@ -14,19 +14,19 @@ public class MyRouteEntity {
     public Integer id;
 
     @ColumnInfo(name = "id")
-    private Integer myRouteId;
+    private Long myRouteId;
 
     @ColumnInfo(name = "title")
     private String title;
 
     @ColumnInfo(name = "route_locations")
-    private String route_locations;
+    private String routeLocations;
 
     @ColumnInfo(name = "latitude")
-    private Integer latitude;
+    private Double latitude;
 
     @ColumnInfo(name = "longitude")
-    private Integer longitude;
+    private Double longitude;
 
     @ColumnInfo(name = "zoom")
     private Integer zoom;
@@ -39,11 +39,11 @@ public class MyRouteEntity {
     @NonNull
     private Integer isStarred = 0;
 
-    public Integer getMyRouteId() {
+    public Long getMyRouteId() {
         return myRouteId;
     }
 
-    public void setMyRouteId(Integer myRouteId) {
+    public void setMyRouteId(Long myRouteId) {
         this.myRouteId = myRouteId;
     }
 
@@ -55,27 +55,27 @@ public class MyRouteEntity {
         this.title = title;
     }
 
-    public String getRoute_locations() {
-        return route_locations;
+    public String getRouteLocations() {
+        return routeLocations;
     }
 
-    public void setRoute_locations(String route_locations) {
-        this.route_locations = route_locations;
+    public void setRouteLocations(String route_locations) {
+        this.routeLocations = route_locations;
     }
 
-    public Integer getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Integer latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public Integer getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Integer longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 

@@ -74,7 +74,7 @@ import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.sailings.FerriesRouteSchedulesDaySailingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
-import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsActivity;
+import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
@@ -868,7 +868,7 @@ public class FavoritesFragment extends BaseFragment implements
                         Cursor c = (Cursor) mFavoritesAdapter.getItem(pos);
                         Bundle b = new Bundle();
 
-                        Intent intent = new Intent(getActivity(), MyRouteAlertsActivity.class);
+                        Intent intent = new Intent(getActivity(), MyRouteAlertsListActivity.class);
 
                         b.putString("title", "Alerts on Route: " + c.getString(c.getColumnIndex(MyRoute.MY_ROUTE_TITLE)));
                         b.putString("route", c.getString(c.getColumnIndexOrThrow(MyRoute.MY_ROUTE_LOCATIONS)));

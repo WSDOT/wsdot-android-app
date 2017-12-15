@@ -44,8 +44,8 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
-import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertViewModel;
+import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertViewModel;
 
 public class HighImpactAlertsFragment extends BaseFragment implements
         Injectable {

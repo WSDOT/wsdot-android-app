@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.alert;
+package gov.wa.wsdot.android.wsdot.ui.alert.map;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;

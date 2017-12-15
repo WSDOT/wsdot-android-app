@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.alert;
+package gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -34,18 +34,19 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 /**
  * Fragment for displaying a list of alerts.
  */
 
-public class AlertsListFragment extends BaseFragment
+public class HighwayAlertListFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener, Injectable {
 
-    private static final String TAG = AlertsListFragment.class.getSimpleName();
+    private static final String TAG = HighwayAlertListFragment.class.getSimpleName();
     private static ArrayList<HighwayAlertsItem> trafficAlertItems = new ArrayList<>();
-    private static AlertsListFragment.Adapter mAdapter;
+    private static HighwayAlertListFragment.Adapter mAdapter;
     private static SwipeRefreshLayout swipeRefreshLayout;
 
     private Typeface tf;
@@ -60,7 +61,7 @@ public class AlertsListFragment extends BaseFragment
     private final int SPECIAL_EVENTS = 3;
     private final int AMBER = 24;
 
-    private static HighwayAlertsInBoundsViewModel viewModel;
+    private static HighwayAlertListViewModel viewModel;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -79,7 +80,7 @@ public class AlertsListFragment extends BaseFragment
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new AlertsListFragment.Adapter();
+        mAdapter = new HighwayAlertListFragment.Adapter();
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -97,7 +98,7 @@ public class AlertsListFragment extends BaseFragment
                 R.color.holo_red_light);
 
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(HighwayAlertsInBoundsViewModel.class);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(HighwayAlertListViewModel.class);
 
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -118,23 +119,33 @@ public class AlertsListFragment extends BaseFragment
         //Retrieve the bounds from the intent. Defaults to 0
         Intent intent = getActivity().getIntent();
 
-        Double nelat = intent.getDoubleExtra("nelat", 0.0);
-        Double nelong = intent.getDoubleExtra("nelong", 0.0);
-        Double swlat = intent.getDoubleExtra("swlat", 0.0);
-        Double swlong = intent.getDoubleExtra("swlong", 0.0);
+        String routeString = intent.getStringExtra("route");
 
-        LatLng northEast = new LatLng(nelat, nelong);
-        LatLng southWest = new LatLng(swlat, swlong);
+        if (routeString == null) {
 
-        LatLngBounds mBounds = new LatLngBounds(southWest, northEast);
+            Double nelat = intent.getDoubleExtra("nelat", 0.0);
+            Double nelong = intent.getDoubleExtra("nelong", 0.0);
+            Double swlat = intent.getDoubleExtra("swlat", 0.0);
+            Double swlong = intent.getDoubleExtra("swlong", 0.0);
 
-        viewModel.getHighwayAlerts(mBounds).observe(this, alerts -> {
-            if (alerts != null) {
-                trafficAlertItems = new ArrayList<>(alerts);
-                mAdapter.clear();
-                mAdapter.setData(trafficAlertItems);
-            }
-        });
+            LatLng northEast = new LatLng(nelat, nelong);
+            LatLng southWest = new LatLng(swlat, swlong);
+
+            LatLngBounds mBounds = new LatLngBounds(southWest, northEast);
+
+            viewModel.getHighwayAlertsInBounds(mBounds).observe(this, alerts -> {
+                if (alerts != null) {
+                    trafficAlertItems = new ArrayList<>(alerts);
+                    mAdapter.clear();
+                    mAdapter.setData(trafficAlertItems);
+                }
+            });
+
+        } else {
+
+
+
+        }
 
         return root;
     }
@@ -169,12 +180,12 @@ public class AlertsListFragment extends BaseFragment
                     itemView = LayoutInflater.
                             from(parent.getContext()).
                             inflate(R.layout.incident_item, parent, false);
-                    return new AlertsListFragment.ItemViewHolder(itemView);
+                    return new HighwayAlertListFragment.ItemViewHolder(itemView);
                 case TYPE_SEPARATOR:
                     itemView = LayoutInflater.
                             from(parent.getContext()).
                             inflate(R.layout.list_header, parent, false);
-                    return new AlertsListFragment.TitleViewHolder(itemView);
+                    return new HighwayAlertListFragment.TitleViewHolder(itemView);
             }
             return null;
         }
@@ -182,18 +193,18 @@ public class AlertsListFragment extends BaseFragment
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder viewholder, int position) {
 
-            AlertsListFragment.ItemViewHolder itemholder;
-            AlertsListFragment.TitleViewHolder titleholder;
+            HighwayAlertListFragment.ItemViewHolder itemholder;
+            HighwayAlertListFragment.TitleViewHolder titleholder;
 
             if (getItemViewType(position) == TYPE_ITEM) {
-                itemholder = (AlertsListFragment.ItemViewHolder) viewholder;
+                itemholder = (HighwayAlertListFragment.ItemViewHolder) viewholder;
                 itemholder.textView.setText(mData.get(position).getHeadlineDescription());
                 itemholder.updated.setText(ParserUtils.relativeTime(
                         mData.get(position).getLastUpdatedTime(),
                         "MMMM d, yyyy h:mm a", false));
                 itemholder.id = mData.get(position).getAlertId();
             } else {
-                titleholder = (AlertsListFragment.TitleViewHolder) viewholder;
+                titleholder = (HighwayAlertListFragment.TitleViewHolder) viewholder;
                 titleholder.textView.setText(mData.get(position).getHeadlineDescription());
                 if (position == 0) {
                     titleholder.divider.setVisibility(View.GONE);
@@ -319,8 +330,8 @@ public class AlertsListFragment extends BaseFragment
 
         public ItemViewHolder(View itemView) {
             super(itemView);
-            textView = (TextView) itemView.findViewById(R.id.description);
-            updated = (TextView) itemView.findViewById(R.id.last_updated);
+            textView = itemView.findViewById(R.id.description);
+            updated = itemView.findViewById(R.id.last_updated);
             textView.setTypeface(tf);
             updated.setTypeface(tf);
             itemView.setOnClickListener(this);

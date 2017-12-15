@@ -1,8 +1,9 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute.newroute;
 
 import android.Manifest;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -53,8 +54,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
+import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
 import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
 import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
@@ -97,10 +101,14 @@ public class NewRouteActivity extends FindFavoritesOnRouteActivity implements
 
     private final String TRACKING_DIALOG_FRAGMENT_TAG = "tracking_dialog";
 
-
     private List<LatLng> myRouteLocations = new ArrayList<>();
 
     private Boolean rebinding = false;
+
+    private NewRouteViewModel viewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -153,9 +161,10 @@ public class NewRouteActivity extends FindFavoritesOnRouteActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_route);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -168,6 +177,8 @@ public class NewRouteActivity extends FindFavoritesOnRouteActivity implements
         initDiscardButton();
 
         initSaveButton();
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(NewRouteViewModel.class);
 
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -293,35 +304,31 @@ public class NewRouteActivity extends FindFavoritesOnRouteActivity implements
 
 
     private void initStartButton(){
-        Button startButton = (Button) findViewById(R.id.start_button);
+        Button startButton = findViewById(R.id.start_button);
 
-        startButton.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(NewRouteActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ){
-                    myRouteLocations.clear();
+        startButton.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(NewRouteActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ){
+                myRouteLocations.clear();
 
-                    startService(new Intent(NewRouteActivity.this, MyRouteTrackingService.class));
-                    doBindService();
+                startService(new Intent(NewRouteActivity.this, MyRouteTrackingService.class));
+                doBindService();
 
-                    showTrackingDialog();
+                showTrackingDialog();
 
+            } else {
+                if(!ActivityCompat.shouldShowRequestPermissionRationale(NewRouteActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)){
+
+                    new AlertDialog.Builder(NewRouteActivity.this, R.style.AppCompatAlertDialogStyle)
+                            .setTitle("No Location Permission")
+                            .setMessage("You must grant WSDOT permission to use this feature.")
+                            .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+
+                            })
+                            .setIcon(R.drawable.ic_menu_mylocation)
+                            .setIconAttribute(android.R.attr.alertDialogIcon)
+                            .show();
                 } else {
-                    if(!ActivityCompat.shouldShowRequestPermissionRationale(NewRouteActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)){
-
-                        new AlertDialog.Builder(NewRouteActivity.this, R.style.AppCompatAlertDialogStyle)
-                                .setTitle("No Location Permission")
-                                .setMessage("You must grant WSDOT permission to use this feature.")
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                    }
-                                })
-                                .setIcon(R.drawable.ic_menu_mylocation)
-                                .setIconAttribute(android.R.attr.alertDialogIcon)
-                                .show();
-                    } else {
-                        requestLocationPermission();
-                    }
+                    requestLocationPermission();
                 }
             }
         });
@@ -330,77 +337,74 @@ public class NewRouteActivity extends FindFavoritesOnRouteActivity implements
     private void initDiscardButton(){
         Button discardButton = (Button) findViewById(R.id.discard_button);
 
-        discardButton.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                showStartView();
-                mMap.clear();
-                myRouteLocations.clear();
-                moveToCurrentLocation();
-            }
+        discardButton.setOnClickListener(v -> {
+            showStartView();
+            mMap.clear();
+            myRouteLocations.clear();
+            moveToCurrentLocation();
         });
     }
 
     private void initSaveButton(){
-        Button saveButton = (Button) findViewById(R.id.save_button);
+        Button saveButton = findViewById(R.id.save_button);
 
-        saveButton.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(final View v) {
+        saveButton.setOnClickListener(v -> {
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(NewRouteActivity.this, R.style.AppCompatAlertDialogStyle);
-                builder.setTitle("Save Route");
+            AlertDialog.Builder builder = new AlertDialog.Builder(NewRouteActivity.this, R.style.AppCompatAlertDialogStyle);
+            builder.setTitle("Save Route");
 
-                // Set up the input
-                final EditText input = new EditText(NewRouteActivity.this);
+            // Set up the input
+            final EditText input = new EditText(NewRouteActivity.this);
 
-                Drawable drawable = input.getBackground(); // get current EditText drawable
-                drawable.setColorFilter(ContextCompat.getColor(NewRouteActivity.this, R.color.primary), PorterDuff.Mode.SRC_ATOP); // change the drawable color
+            Drawable drawable = input.getBackground(); // get current EditText drawable
+            drawable.setColorFilter(ContextCompat.getColor(NewRouteActivity.this, R.color.primary), PorterDuff.Mode.SRC_ATOP); // change the drawable color
 
-                if(Build.VERSION.SDK_INT > 16) {
-                    input.setBackground(drawable); // set the new drawable to EditText
-                }else{
-                    input.setBackgroundDrawable(drawable); // use setBackground Drawable because setBackground required API 16
-                }
-
-                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                builder.setView(input);
-                builder.setCancelable(false);
-                // Set up the buttons
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        String routeName = DEFAULT_ROUTE_NAME;
-
-                        if (!input.getText().toString().trim().equals("")) {
-                            routeName = input.getText().toString();
-                        }
-
-                        dialog.dismiss();
-
-                        ContentValues values = new ContentValues();
-
-                        JSONArray json = convertLocationsToJson(myRouteLocations);
-
-                        String id = String.valueOf(new Date().getTime()/1000);
-
-                        values.put(WSDOTContract.MyRoute.MY_ROUTE_ID, id);
-                        values.put(WSDOTContract.MyRoute.MY_ROUTE_TITLE, routeName);
-                        values.put(WSDOTContract.MyRoute.MY_ROUTE_DISPLAY_LAT, String.valueOf(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().latitude));
-                        values.put(WSDOTContract.MyRoute.MY_ROUTE_DISPLAY_LONG, String.valueOf(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().longitude));
-                        values.put(WSDOTContract.MyRoute.MY_ROUTE_DISPLAY_ZOOM, (int) mMap.getCameraPosition().zoom);
-                        values.put(WSDOTContract.MyRoute.MY_ROUTE_LOCATIONS, json.toString());
-                        values.put(WSDOTContract.MyRoute.MY_ROUTE_FOUND_FAVORITES, 0);
-                        values.put(WSDOTContract.MyRoute.MY_ROUTE_IS_STARRED, 1);
-
-                        getContentResolver().insert(WSDOTContract.MyRoute.CONTENT_URI, values);
-
-                        showAddFavoritesDialog();
-
-                    }
-                });
-                builder.show();
+            if(Build.VERSION.SDK_INT > 16) {
+                input.setBackground(drawable); // set the new drawable to EditText
+            }else{
+                input.setBackgroundDrawable(drawable); // use setBackground Drawable because setBackground required API 16
             }
+
+            // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            builder.setView(input);
+            builder.setCancelable(false);
+            // Set up the buttons
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    String routeName = DEFAULT_ROUTE_NAME;
+
+                    if (!input.getText().toString().trim().equals("")) {
+                        routeName = input.getText().toString();
+                    }
+
+                    dialog.dismiss();
+
+                    JSONArray json = convertLocationsToJson(myRouteLocations);
+
+                    Long id = (new Date().getTime()/1000);
+
+                    MyRouteEntity myRoute = new MyRouteEntity();
+
+                    myRoute.setMyRouteId(id);
+                    myRoute.setTitle(routeName);
+
+                    myRoute.setLatitude(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().latitude);
+                    myRoute.setLongitude(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().longitude);
+
+                    myRoute.setZoom((int) mMap.getCameraPosition().zoom);
+                    myRoute.setRouteLocations(json.toString());
+                    myRoute.setIsStarred(1);
+
+                    viewModel.addMyRoute(myRoute);
+
+                    showAddFavoritesDialog();
+
+                }
+            });
+            builder.show();
         });
     }
 

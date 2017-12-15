@@ -125,9 +125,9 @@ import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
 import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
-import gov.wa.wsdot.android.wsdot.ui.alert.AlertsListActivity;
-import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
-import gov.wa.wsdot.android.wsdot.ui.alert.MapHighwayAlertViewModel;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListActivity;
+import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
+import gov.wa.wsdot.android.wsdot.ui.alert.map.MapHighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraListActivity;
@@ -755,7 +755,7 @@ public class TrafficMapActivity extends BaseActivity implements
                 return true;
             case R.id.alerts_in_area:
                 LatLngBounds mBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
-                Intent alertsIntent = new Intent(this, AlertsListActivity.class);
+                Intent alertsIntent = new Intent(this, HighwayAlertListActivity.class);
                 alertsIntent.putExtra("nelat", mBounds.northeast.latitude);
                 alertsIntent.putExtra("nelong", mBounds.northeast.longitude);
                 alertsIntent.putExtra("swlat", mBounds.southwest.latitude);
