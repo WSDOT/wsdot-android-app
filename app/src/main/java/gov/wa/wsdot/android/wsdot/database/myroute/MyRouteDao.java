@@ -20,10 +20,16 @@ public interface MyRouteDao {
     @Query("SELECT * FROM my_route WHERE is_starred = 1")
     public abstract LiveData<List<MyRouteEntity>> loadFavoriteMyRoutes();
 
+    @Query("SELECT * FROM my_route WHERE id = :id LIMIT 1")
+    public abstract MyRouteEntity getMyRouteForId(Long id);
+
+    @Query("UPDATE my_route SET title = :title WHERE id = :id")
+    public abstract void updateTitle(Long id, String title);
+
     @Query("UPDATE my_route SET is_starred = :isStarred WHERE id = :id")
-    public abstract void updateIsStarred(Integer id, Integer isStarred);
+    public abstract void updateIsStarred(Long id, Integer isStarred);
 
     @Query("DELETE FROM my_route WHERE id = :id")
-    public abstract void deleteCacheTimeFor(Integer id);
+    public abstract void deleteMyRoute(Long id);
 
 }

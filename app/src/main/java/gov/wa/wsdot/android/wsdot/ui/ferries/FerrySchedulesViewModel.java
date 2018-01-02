@@ -52,7 +52,7 @@ public class FerrySchedulesViewModel extends ViewModel {
             this.schedule = ferryScheduleRepo.getFerryScheduleFor(routeId, mStatus);
             this.datesWithSailings = Transformations.map(this.schedule, scheduleValue -> processDates(scheduleValue.getDate()));
         } else {
-            this.schedules = ferryScheduleRepo.getFerrySchedules(mStatus);
+            this.schedules = ferryScheduleRepo.loadFerrySchedules(mStatus);
         }
     }
 

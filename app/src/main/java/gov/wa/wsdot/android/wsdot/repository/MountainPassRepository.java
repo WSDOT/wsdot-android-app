@@ -54,9 +54,14 @@ public class MountainPassRepository extends NetworkResourceSyncRepository {
         initWeatherPhrases();
     }
 
-    public LiveData<List<MountainPassEntity>> getMountainPasses(MutableLiveData<ResourceStatus> status) {
+    public LiveData<List<MountainPassEntity>> loadMountainPasses(MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
         return mountainPassDao.loadMountainPasses();
+    }
+
+    public List<MountainPassEntity> getMountainPasses(MutableLiveData<ResourceStatus> status) {
+        super.refreshDataOnSameThread(status, false);
+        return mountainPassDao.getMountainPasses();
     }
 
     public LiveData<MountainPassEntity> getMountainPassFor(Integer id, MutableLiveData<ResourceStatus> status) {

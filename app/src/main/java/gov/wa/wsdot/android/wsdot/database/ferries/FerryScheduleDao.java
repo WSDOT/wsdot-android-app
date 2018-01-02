@@ -16,7 +16,10 @@ public abstract class FerryScheduleDao {
     public abstract void insertFerrySchedules(FerryScheduleEntity... schedules);
 
     @Query("SELECT * FROM ferries_schedules")
-    public abstract LiveData<List<FerryScheduleEntity>> loadFerryScheduels();
+    public abstract LiveData<List<FerryScheduleEntity>> loadFerrySchedules();
+
+    @Query("SELECT * FROM ferries_schedules")
+    public abstract List<FerryScheduleEntity> getFerrySchedules();
 
     @Query("SELECT * FROM ferries_schedules WHERE id LIKE :routeId")
     public abstract LiveData<FerryScheduleEntity> loadScheduleFor(Integer routeId);

@@ -44,7 +44,7 @@ public class MapCameraViewModel extends ViewModel {
         if (roadName != null){
             this.displayableCameraItems = Transformations.map(cameraRepo.getCamerasForRoad(roadName, mStatus), cameras -> transformCameras(cameras));
         } else {
-            this.displayableCameraItems = Transformations.map(cameraRepo.getCameras(mStatus), cameras -> transformCameras(cameras));
+            this.displayableCameraItems = Transformations.map(cameraRepo.loadCameras(mStatus), cameras -> transformCameras(cameras));
         }
 
         mapBounds = new MutableLiveData<>();

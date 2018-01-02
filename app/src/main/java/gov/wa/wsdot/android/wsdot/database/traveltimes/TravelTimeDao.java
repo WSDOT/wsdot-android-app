@@ -18,6 +18,9 @@ public abstract class TravelTimeDao {
     @Query("SELECT * FROM travel_times")
     public abstract LiveData<List<TravelTimeEntity>> loadTravelTimes();
 
+    @Query("SELECT * FROM travel_times")
+    public abstract List<TravelTimeEntity> getTravelTimes();
+
     @Query("SELECT * FROM travel_times WHERE id LIKE :timeId")
     public abstract LiveData<TravelTimeEntity> loadTravelTimeFor(Integer timeId);
 

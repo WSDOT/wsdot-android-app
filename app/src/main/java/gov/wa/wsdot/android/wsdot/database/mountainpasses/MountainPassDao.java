@@ -17,6 +17,9 @@ public abstract class MountainPassDao {
     @Query("SELECT * FROM mountain_passes")
     public abstract LiveData<List<MountainPassEntity>> loadMountainPasses();
 
+    @Query("SELECT * FROM mountain_passes")
+    public abstract List<MountainPassEntity> getMountainPasses();
+
     @Query("SELECT * FROM mountain_passes WHERE id LIKE :passId")
     public abstract LiveData<MountainPassEntity> loadMountainPassFor(Integer passId);
 

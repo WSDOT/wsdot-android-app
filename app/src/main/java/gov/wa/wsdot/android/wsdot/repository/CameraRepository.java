@@ -37,9 +37,14 @@ public class CameraRepository extends NetworkResourceSyncRepository {
         this.cameraDao = cameraDao;
     }
 
-    public LiveData<List<CameraEntity>> getCameras(MutableLiveData<ResourceStatus> status) {
+    public LiveData<List<CameraEntity>> loadCameras(MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
         return cameraDao.loadCameras();
+    }
+
+    public List<CameraEntity> getCameras(MutableLiveData<ResourceStatus> status) {
+        super.refreshDataOnSameThread(status, false);
+        return cameraDao.getCameras();
     }
 
     public LiveData<CameraEntity> getCamera(Integer cameraId, MutableLiveData<ResourceStatus> status) {

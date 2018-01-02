@@ -4,6 +4,7 @@ import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.BaseListFragment;
+import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListFragment;
 import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesSchedulesDetailsFragment;
@@ -121,5 +122,8 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract MyRouteAlertsListFragment contributeMyRouteAlertsListFragment();
+
+    @ContributesAndroidInjector
+    abstract MyRouteFragment contributeMyRouteFragment();
 
 }

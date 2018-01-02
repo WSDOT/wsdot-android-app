@@ -255,12 +255,12 @@ public class TrafficMapActivity extends BaseActivity implements
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
         zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
 
-        // Check if we came from favorites
+        // Check if we came from favorites/MyRoutes
         Bundle b = getIntent().getExtras();
         if (getIntent().hasExtra("lat"))
-            latitude = b.getFloat("lat");
+            latitude = b.getDouble("lat");
         if (getIntent().hasExtra("long"))
-            longitude = b.getFloat("long");
+            longitude = b.getDouble("long");
         if (getIntent().hasExtra("zoom"))
             zoom = b.getInt("zoom");
 

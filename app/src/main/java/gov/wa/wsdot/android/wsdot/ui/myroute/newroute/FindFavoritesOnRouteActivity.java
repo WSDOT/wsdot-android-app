@@ -1,5 +1,6 @@
-package gov.wa.wsdot.android.wsdot.ui.myroute;
+package gov.wa.wsdot.android.wsdot.ui.myroute.newroute;
 
+import android.arch.lifecycle.ViewModelProvider;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,8 +18,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
+import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.util.Utils;
 
 /**
@@ -38,6 +43,10 @@ public abstract class FindFavoritesOnRouteActivity extends AppCompatActivity {
     private static final Double MAX_ITEM_DISTANCE = 0.248548;
 
     protected final int MAX_NUM_TASKS = 4;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
 
     private static final String[] cameras_projection = {
             WSDOTContract.Cameras._ID,

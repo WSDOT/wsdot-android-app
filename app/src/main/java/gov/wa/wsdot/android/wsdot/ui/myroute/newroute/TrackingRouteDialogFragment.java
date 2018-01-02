@@ -75,14 +75,13 @@ public class TrackingRouteDialogFragment extends DialogFragment implements View.
     }
 
     private void addOnClickListeners() {
-
-        Button finishButton = (Button) getView().findViewById(R.id.finish_button);
+        Button finishButton = getView().findViewById(R.id.finish_button);
         finishButton.setOnClickListener(this);
 
-        Button confirmFinishButton = (Button) getView().findViewById(R.id.confirm_finish_button);
+        Button confirmFinishButton = getView().findViewById(R.id.confirm_finish_button);
         confirmFinishButton.setOnClickListener(this);
 
-        Button cancelButton = (Button) getView().findViewById(R.id.cancel_button);
+        Button cancelButton = getView().findViewById(R.id.cancel_button);
         cancelButton.setOnClickListener(this);
     }
 }

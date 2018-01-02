@@ -1,25 +1,22 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,82 +25,79 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.google.android.gms.maps.model.LatLng;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.MyRoute;
-import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
-import gov.wa.wsdot.android.wsdot.service.FerriesSchedulesSyncService;
-import gov.wa.wsdot.android.wsdot.service.MountainPassesSyncService;
-import gov.wa.wsdot.android.wsdot.service.TravelTimesSyncService;
+import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.ProgressDialogFragment;
 
-/**
- * A placeholder fragment containing a simple view.
- */
-public class MyRouteFragment extends BaseFragment
-    implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MyRouteFragment extends BaseFragment implements Injectable {
 
     final String TAG = MyRouteFragment.class.getSimpleName();
 
-    final int MY_CURSOR_ID = 1;
     private Tracker mTracker;
     private ProgressDialogFragment progressDialog;
-    private int runningTasks = 0;
+    private View mEmptyView;
 
-    List<LatLng> myRoute = new ArrayList<>();
+    protected RecyclerView mRecyclerView;
+    protected LinearLayoutManager mLayoutManager;
 
-    final private String[] projection = {
-            MyRoute._ID,
-            MyRoute.MY_ROUTE_TITLE,
-            MyRoute.MY_ROUTE_DISPLAY_LAT,
-            MyRoute.MY_ROUTE_DISPLAY_LONG,
-            MyRoute.MY_ROUTE_DISPLAY_ZOOM,
-            MyRoute.MY_ROUTE_LOCATIONS,
-            MyRoute.MY_ROUTE_IS_STARRED,
-    };
+    private MyRouteViewModel viewModel;
 
-    MyRouteAdapter myRouteAdapter;
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
-    public MyRouteFragment() {}
+    MyRouteAdapter mAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_my_route, container, false);
+
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list, null);
+
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new MyRouteAdapter(getActivity());
+        mRecyclerView.setAdapter(mAdapter);
+
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
+
+        viewModel.getMyRoutes().observe(this, myRoutes -> {
+            if (myRoutes != null){
+                Log.e(TAG, String.valueOf(myRoutes.size()));
+                mAdapter.setData(myRoutes);
+            }
+        });
+
+        return root;
     }
 
-    @Override
-    public void onStart(){
-        super.onStart();
-        this.getLoaderManager().initLoader(MY_CURSOR_ID, null, this);
-    }
-
-    public void onOptionSelected(final long routeID, int position){
+    public void onOptionSelected(final long routeID, String routeName, int position){
 
         // GA tracker
         mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
 
-        String routeName = getRouteName(routeID);
         switch (position){
             case 0: // Delete Route
                 mTracker.send(new HitBuilders.EventBuilder()
@@ -147,29 +141,6 @@ public class MyRouteFragment extends BaseFragment
         }
     }
 
-
-    public String getRouteName(long routeID) {
-        ContentResolver resolver = getActivity().getContentResolver();
-        String routeName = "";
-        Cursor cursor = null;
-        try {
-            cursor = resolver.query(MyRoute.CONTENT_URI,
-                    projection,
-                    MyRoute._ID + " = ?",
-                    new String[] {String.valueOf(routeID)},
-                    null
-            );
-            if (cursor != null && cursor.moveToFirst()) {
-                routeName = cursor.getString(cursor.getColumnIndex(WSDOTContract.MyRoute.MY_ROUTE_TITLE));
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-        return routeName;
-    }
-
     public void deleteRouteAction(final String routeName, final long routeID){
         AlertDialog.Builder builder =
                 new AlertDialog.Builder(getContext(), R.style.AppCompatAlertDialogStyle);
@@ -178,12 +149,10 @@ public class MyRouteFragment extends BaseFragment
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                getActivity().getContentResolver().delete(
-                        MyRoute.CONTENT_URI,
-                        MyRoute._ID + "=?",
-                        new String[]{String.valueOf(routeID)}
-                );
-                myRouteAdapter.notifyDataSetChanged();
+
+                viewModel.deleteRoute(routeID);
+
+                mAdapter.notifyDataSetChanged();
                 dialog.dismiss();
                 Snackbar.make(getView().findViewById(R.id.my_route_fragment), "Route Deleted", Snackbar.LENGTH_LONG).show();
             }
@@ -220,172 +189,102 @@ public class MyRouteFragment extends BaseFragment
         builder.setView(input);
 
         // Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String newName = routeName;
-                if (!input.getText().toString().trim().equals("")) {
-                    newName = input.getText().toString();
-                }
-                dialog.dismiss();
-                ContentValues values = new ContentValues();
-                values.put(WSDOTContract.MyRoute.MY_ROUTE_TITLE, newName);
-                getActivity().getContentResolver().update(MyRoute.CONTENT_URI,
-                        values,
-                        MyRoute._ID + "=?",
-                        new String[]{String.valueOf(routeID)}
-                );
-                myRouteAdapter.notifyDataSetChanged();
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String newName = routeName;
+            if (!input.getText().toString().trim().equals("")) {
+                newName = input.getText().toString();
             }
+            dialog.dismiss();
+
+            viewModel.updateRouteTitle(routeID, newName);
+
+            mAdapter.notifyDataSetChanged();
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
         builder.show();
     }
 
     public void findFavoritesOnRoute(final long routeID){
 
-        Cursor data = getActivity().getContentResolver().query(
-                MyRoute.CONTENT_URI,
-                projection,
-                MyRoute._ID + "=?",
-                new String[] {String.valueOf(routeID)},
-                null
-        );
+        new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setTitle("Add Favorites?")
+                .setMessage("Traffic cameras, travel times, pass reports, and other content will " +
+                            "be added to your favorites if they are on this route. ")
 
-        if (data != null){
-            data.moveToFirst();
-            try {
-                myRoute = ParserUtils.getRouteArrayList(new JSONArray(data.getString(data.getColumnIndex(MyRoute.MY_ROUTE_LOCATIONS))));
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
 
-                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setTitle("Add Favorites?")
-                        .setMessage("Traffic cameras, travel times, pass reports, and other content will " +
-                                "be added to your favorites if they are on this route. ")
+                    progressDialog = new ProgressDialogFragment();
+                    Bundle args = new Bundle();
+                    args.putString("message", "Finding Favorites...");
+                    progressDialog.setArguments(args);
+                    progressDialog.show(getActivity().getSupportFragmentManager(), "progress_dialog");
 
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                progressDialog = new ProgressDialogFragment();
-                                Bundle args = new Bundle();
-                                args.putString("message", "Finding Favorites...");
-                                progressDialog.setArguments(args);
-                                progressDialog.show(getActivity().getSupportFragmentManager(), "progress_dialog");
-
-                                runningTasks = ((FindFavoritesOnRouteActivity) getActivity()).MAX_NUM_TASKS;
-
-                                Intent mCamerasIntent = new Intent(getActivity(), CamerasSyncService.class);
-                                getActivity().startService(mCamerasIntent);
-
-                                Intent mTravelTimesIntent = new Intent(getActivity(), TravelTimesSyncService.class);
-                                getActivity().startService(mTravelTimesIntent);
-
-                                Intent mFerriesSchedulesIntent = new Intent(getActivity(), FerriesSchedulesSyncService.class);
-                                getActivity().startService(mFerriesSchedulesIntent);
-
-                                Intent mMountainPassesIntent = new Intent(getActivity(), MountainPassesSyncService.class);
-                                getActivity().startService(mMountainPassesIntent);
+                    viewModel.getFoundFavorites().observe(this, foundFav -> {
+                        if (foundFav != null){
+                            if (foundFav){
+                                progressDialog.dismiss();
+                                viewModel.getFoundFavorites().removeObservers(this);
+                                viewModel.resetFindFavorites(); // reset the value back to false for reuse
                             }
-                        })
+                        }
+                    });
 
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
+                    viewModel.findFavoritesOnRoute(routeID);
 
-                            }
-                        })
-                        .show();
-
-            } catch (JSONException e){
-                Toast.makeText(getActivity(), "Error reading saved route.", Toast.LENGTH_LONG).show();
-            }
-        } else {
-            Toast.makeText(getActivity(), "Error finding saved route.", Toast.LENGTH_LONG).show();
-        }
-
-    }
-
-    public List<LatLng> myGetRoute() {
-        return myRoute;
-    }
-
-    public void myTaskComplete(){
-        runningTasks--;
-        if (runningTasks == 0){
-            progressDialog.dismiss();
-        }
-    }
-
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(),
-                Uri.withAppendedPath(MyRoute.CONTENT_URI, Uri.encode("")),
-                projection,
-                null,
-                null,
-                null
-        );
-    }
-
-    public void onLoadFinished(Loader<Cursor> arg0, final Cursor arg1) {
-        myRouteAdapter = new MyRouteAdapter(getContext(), arg1);
-        ListView list = (ListView) getActivity().findViewById(R.id.list_view);
-        list.setEmptyView(getActivity().findViewById(R.id.empty_list_view));
-        list.setAdapter(myRouteAdapter);
-    }
-
-    public void onLoaderReset(Loader<Cursor> arg0) {
-        myRouteAdapter.changeCursor(null);
+                }).setNegativeButton(android.R.string.no, (dialog, which) -> {})
+                .show();
     }
 
     /**
-     * Custom adapter for items in recycler view that need a cursor adapter.
+     * Custom adapter for items in recycler view.
      *
      * Binds the custom ViewHolder class to it's data.
      *
-     * @see CursorRecyclerAdapter
      * @see android.support.v7.widget.RecyclerView.Adapter
      */
-    private class MyRouteAdapter extends CursorAdapter {
+    private class MyRouteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
-        public MyRouteAdapter(Context context, Cursor cursor) {
-            super(context, cursor, 0);
+        private Context context;
+        private List<MyRouteEntity> mData = new ArrayList<>();
+
+        public MyRouteAdapter(Context context) {
+            this.context = context;
         }
-        @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return LayoutInflater.from(context).inflate(R.layout.list_item_my_route, parent, false);
+
+        public void setData(List<MyRouteEntity> data){
+            this.mData = data;
+            Log.e(TAG, String.valueOf(data.size()));
+            this.notifyDataSetChanged();
         }
 
-        // The bindView method is used to bind all data to a given view
-        // such as setting the text on a TextView.
         @Override
-        public void bindView(View view, Context context, Cursor cursor) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+            View itemView = LayoutInflater.from(context).inflate(R.layout.list_item_my_route, null);
+            return new MyRouteVH(itemView);
+        }
 
-            TextView title = (TextView) view.findViewById(R.id.title);
-            title.setText(cursor.getString(cursor.getColumnIndex(WSDOTContract.MyRoute.MY_ROUTE_TITLE)));
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
 
-            title.setTypeface(tfb);
+            MyRouteEntity myRoute = mData.get(i);
 
-            CheckBox star_button = (CheckBox) view.findViewById(R.id.star_button);
+            MyRouteVH itemViewHolder = (MyRouteVH) viewHolder;
 
-            star_button.setTag(cursor.getInt(cursor.getColumnIndex("_id")));
+            itemViewHolder.title.setText(myRoute.getTitle());
+
+            itemViewHolder.star_button.setTag(myRoute.getMyRouteId());
 
             // Seems when Android recycles the views, the onCheckedChangeListener is still active
             // and the call to setChecked() causes that code within the listener to run repeatedly.
             // Assigning null to setOnCheckedChangeListener seems to fix it.
-            star_button.setOnCheckedChangeListener(null);
-            star_button.setContentDescription("favorite");
-            star_button.setChecked(cursor.getInt(cursor
-                            .getColumnIndex(WSDOTContract.MyRoute.MY_ROUTE_IS_STARRED)) != 0);
-            star_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            itemViewHolder.star_button.setOnCheckedChangeListener(null);
+            itemViewHolder.star_button.setContentDescription("favorite");
+            itemViewHolder.star_button.setChecked(myRoute.getIsStarred() != 0);
+            itemViewHolder.star_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
-                    int rowId = (Integer) buttonView.getTag();
-                    ContentValues values = new ContentValues();
-                    values.put(WSDOTContract.MyRoute.MY_ROUTE_IS_STARRED, isChecked ? 1 : 0);
+                    long rowId = (Long) buttonView.getTag();
 
                     Snackbar added_snackbar = Snackbar
                             .make(MyRouteFragment.this.getView(), R.string.add_favorite, Snackbar.LENGTH_SHORT);
@@ -401,6 +300,7 @@ public class MyRouteFragment extends BaseFragment
                             snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
                         }
                     });
+
                     removed_snackbar.addCallback(new Snackbar.Callback() {
                         @Override
                         public void onShown(Snackbar snackbar) {
@@ -416,85 +316,91 @@ public class MyRouteFragment extends BaseFragment
                         removed_snackbar.show();
                     }
 
-                    getActivity().getContentResolver().update(
-                            MyRoute.CONTENT_URI,
-                            values,
-                            MyRoute._ID + "=?",
-                            new String[] {Integer.toString(rowId)}
-                    );
+                    viewModel.setIsStarred(rowId, (isChecked ? 1 : 0));
+
                 }
             });
 
-            final int position = cursor.getPosition();
+            itemViewHolder.alert_button.setTag(i);
+            itemViewHolder.alert_button.setContentDescription("Check alerts on route");
+            itemViewHolder.alert_button.setOnClickListener(v -> {
+                mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Button Tap")
+                        .setAction("Check Alerts")
+                        .setLabel("My Routes")
+                        .build());
 
-            ImageButton alert_button = (ImageButton) view.findViewById(R.id.alert_button);
-            alert_button.setTag(cursor.getPosition());
-            alert_button.setContentDescription("Check alerts on route");
-            alert_button.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-                    mTracker.send(new HitBuilders.EventBuilder()
-                            .setCategory("Button Tap")
-                            .setAction("Check Alerts")
-                            .setLabel("My Routes")
-                            .build());
+                Bundle b = new Bundle();
 
-                    Cursor c = myRouteAdapter.getCursor();
-                    c.moveToPosition(position);
-                    Bundle b = new Bundle();
+                Intent intent = new Intent(getActivity(), MyRouteAlertsListActivity.class);
 
-                    Intent intent = new Intent(getActivity(), MyRouteAlertsListActivity.class);
+                b.putString("title", "Alerts on Route: " + myRoute.getTitle());
+                b.putString("route", myRoute.getRouteLocations());
 
-                    b.putString("title", "Alerts on Route: " + c.getString(c.getColumnIndex(MyRoute.MY_ROUTE_TITLE)));
-                    b.putString("route", c.getString(c.getColumnIndexOrThrow(MyRoute.MY_ROUTE_LOCATIONS)));
-
-                    intent.putExtras(b);
-                    startActivity(intent);
-                }
+                intent.putExtras(b);
+                startActivity(intent);
             });
 
-            ImageButton map_button = (ImageButton) view.findViewById(R.id.map_button);
-            map_button.setTag(cursor.getPosition());
-            map_button.setContentDescription("Check map for route");
-            map_button.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-                    mTracker.send(new HitBuilders.EventBuilder()
-                            .setCategory("Button Tap")
-                            .setAction("Check Map for Route")
-                            .setLabel("My Routes")
-                            .build());
+            itemViewHolder.map_button.setTag(i);
+            itemViewHolder.map_button.setContentDescription("Check map for route");
+            itemViewHolder.map_button.setOnClickListener(v -> {
+                mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Button Tap")
+                        .setAction("Check Map for Route")
+                        .setLabel("My Routes")
+                        .build());
 
-                    Cursor c = myRouteAdapter.getCursor();
-                    c.moveToPosition(position);
-                    Bundle b = new Bundle();
+                Bundle b = new Bundle();
 
-                    Intent intent = new Intent(getActivity(), TrafficMapActivity.class);
+                Intent intent = new Intent(getActivity(), TrafficMapActivity.class);
 
-                    b.putFloat("lat", c.getFloat(c.getColumnIndex(MyRoute.MY_ROUTE_DISPLAY_LAT)));
-                    b.putFloat("long", c.getFloat(c.getColumnIndex(MyRoute.MY_ROUTE_DISPLAY_LONG)));
-                    b.putInt("zoom", c.getInt(c.getColumnIndex(MyRoute.MY_ROUTE_DISPLAY_ZOOM)));
+                b.putDouble("lat", myRoute.getLatitude());
+                b.putDouble("long", myRoute.getLongitude());
+                b.putInt("zoom", myRoute.getZoom());
 
-                    intent.putExtras(b);
-                    startActivity(intent);
-                }
+                intent.putExtras(b);
+                startActivity(intent);
             });
 
-            ImageButton settings_button = (ImageButton) view.findViewById(R.id.settings_button);
-            settings_button.setTag(cursor.getPosition());
-            settings_button.setContentDescription("Route Settings");
-            settings_button.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    Cursor c = myRouteAdapter.getCursor();
-                    c.moveToPosition(position);
+            itemViewHolder.settings_button.setTag(i);
+            itemViewHolder.settings_button.setContentDescription("Route Settings");
+            itemViewHolder.settings_button.setOnClickListener(v -> {
 
-                    int[] menu_icons = {R.drawable.ic_action_delete_forever, R.drawable.ic_action_edit, R.drawable.ic_action_route, R.drawable.ic_action_favorite};
-                    long routeID = c.getLong(c.getColumnIndex(MyRoute._ID));
+                int[] menu_icons = {R.drawable.ic_action_delete_forever, R.drawable.ic_action_edit, R.drawable.ic_action_route, R.drawable.ic_action_favorite};
+                long routeID = myRoute.getMyRouteId();
+                String routeName = myRoute.getTitle();
 
-                    RouteOptionsDialogFragment.newInstance(routeID, getResources().getStringArray(R.array.my_route_options), menu_icons).show(getActivity().getSupportFragmentManager(), "dialog");
-                }
+                Log.e(TAG, String.valueOf(myRoute.getMyRouteId()));
+
+                RouteOptionsDialogFragment.newInstance(routeID, routeName, getResources().getStringArray(R.array.my_route_options), menu_icons).show(getActivity().getSupportFragmentManager(), "dialog");
             });
         }
 
+        @Override
+        public int getItemCount() {
+            return mData.size();
+        }
+    }
+
+    public class MyRouteVH extends RecyclerView.ViewHolder {
+
+        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+
+        protected TextView title;
+        protected CheckBox star_button;
+        protected ImageButton alert_button;
+        protected ImageButton map_button;
+        protected ImageButton settings_button;
+
+        public MyRouteVH(View itemView) {
+            super(itemView);
+            title = itemView.findViewById(R.id.title);
+            star_button = itemView.findViewById(R.id.star_button);
+            alert_button = itemView.findViewById(R.id.alert_button);
+            map_button = itemView.findViewById(R.id.map_button);
+            settings_button = itemView.findViewById(R.id.settings_button);
+        }
     }
 }

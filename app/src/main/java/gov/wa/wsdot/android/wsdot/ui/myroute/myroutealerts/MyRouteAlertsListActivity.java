@@ -20,7 +20,7 @@ public class MyRouteAlertsListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_route_alerts);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
 
         Bundle args = getIntent().getExtras();
         String title = args.getString("title");

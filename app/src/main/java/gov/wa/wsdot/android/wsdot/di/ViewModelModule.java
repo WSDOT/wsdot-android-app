@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
+import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListViewModel;
@@ -150,6 +151,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(MyRouteAlertListViewModel.class)
     abstract ViewModel bindMyRouteAlertListViewModel(MyRouteAlertListViewModel myRouteAlertListViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MyRouteViewModel.class)
+    abstract ViewModel bindMyRouteViewModel(MyRouteViewModel myRouteViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
