@@ -57,12 +57,6 @@
             android:name="com.google.android.gms.analytics.AnalyticsService"
             android:enabled="true"
             android:exported="false" />
-        <service android:name=".service.CamerasSyncService" />
-        <service android:name=".service.HighwayAlertsSyncService" />
-        <service android:name=".service.MountainPassesSyncService" />
-        <service android:name=".service.TravelTimesSyncService" />
-        <service android:name=".service.FerriesSchedulesSyncService" />
-        <service android:name=".service.FerriesTerminalSailingSpaceSyncService" />
         <service android:name=".service.MyRouteTrackingService" />
 
         <activity
