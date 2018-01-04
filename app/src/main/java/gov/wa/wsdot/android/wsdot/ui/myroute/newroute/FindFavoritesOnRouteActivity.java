@@ -22,8 +22,6 @@ import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
-import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewModel;
-import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.util.Utils;
 
 /**

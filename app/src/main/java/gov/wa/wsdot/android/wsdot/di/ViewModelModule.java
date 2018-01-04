@@ -2,19 +2,10 @@ package gov.wa.wsdot.android.wsdot.di;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
-import android.support.v4.view.ViewCompat;
-import android.view.ViewDebug;
-
-import javax.inject.Inject;
 
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
-import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
-import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertListViewModel;
-import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteViewModel;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListViewModel;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.ui.alert.map.MapHighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesSchedulesDetailsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitViewModel;
@@ -26,6 +17,11 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalCameraViewM
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertListViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteViewModel;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListViewModel;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.ExpressLanesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.blog.BlogViewModel;
