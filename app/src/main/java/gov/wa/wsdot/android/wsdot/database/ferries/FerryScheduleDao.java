@@ -25,6 +25,9 @@ public abstract class FerryScheduleDao {
     public abstract LiveData<FerryScheduleEntity> loadScheduleFor(Integer routeId);
 
     @Query("SELECT * FROM ferries_schedules WHERE is_starred = 1")
+    public abstract LiveData<List<FerryScheduleEntity>> loadFavoriteFerrySchedules();
+
+    @Query("SELECT * FROM ferries_schedules WHERE is_starred = 1")
     public abstract List<FerryScheduleEntity> getFavoriteFerrySchedules();
 
     @Query("UPDATE ferries_schedules SET is_starred = :isStarred WHERE id = :id")

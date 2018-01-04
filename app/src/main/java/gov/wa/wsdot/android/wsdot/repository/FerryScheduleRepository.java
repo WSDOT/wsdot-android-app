@@ -52,9 +52,14 @@ public class FerryScheduleRepository extends NetworkResourceSyncRepository {
         return ferryScheduleDao.getFerrySchedules();
     }
 
-    public LiveData<FerryScheduleEntity> getFerryScheduleFor(Integer id, MutableLiveData<ResourceStatus> status) {
+    public LiveData<FerryScheduleEntity> loadFerryScheduleFor(Integer id, MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
         return ferryScheduleDao.loadScheduleFor(id);
+    }
+
+    public LiveData<List<FerryScheduleEntity>> loadFavoriteSchedules(MutableLiveData<ResourceStatus> status) {
+        super.refreshData(status, false);
+        return ferryScheduleDao.loadFavoriteFerrySchedules();
     }
 
     public void setIsStarred(Integer id, Integer isStarred) {

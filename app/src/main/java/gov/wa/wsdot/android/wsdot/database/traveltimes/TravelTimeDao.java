@@ -28,6 +28,9 @@ public abstract class TravelTimeDao {
     public abstract LiveData<List<TravelTimeEntity>> queryTravelTimes(String query);
 
     @Query("SELECT * FROM travel_times WHERE is_starred = 1")
+    public abstract LiveData<List<TravelTimeEntity>> loadFavoriteTravelTimes();
+
+    @Query("SELECT * FROM travel_times WHERE is_starred = 1")
     public abstract List<TravelTimeEntity> getFavoriteTravelTimes();
 
     @Query("UPDATE travel_times SET is_starred = :isStarred WHERE id = :id")

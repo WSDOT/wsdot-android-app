@@ -47,9 +47,10 @@ public class FerrySchedulesViewModel extends ViewModel {
         this.appExecutors = appExecutors;
     }
 
+    // if an id was passed, just load details for that schedule, other wise load all schedules TODO: should this be two view models?
     public void init(@Nullable Integer routeId){
         if (routeId != null){
-            this.schedule = ferryScheduleRepo.getFerryScheduleFor(routeId, mStatus);
+            this.schedule = ferryScheduleRepo.loadFerryScheduleFor(routeId, mStatus);
             this.datesWithSailings = Transformations.map(this.schedule, scheduleValue -> processDates(scheduleValue.getDate()));
         } else {
             this.schedules = ferryScheduleRepo.loadFerrySchedules(mStatus);

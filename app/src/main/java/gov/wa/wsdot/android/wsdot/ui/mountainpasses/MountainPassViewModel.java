@@ -36,7 +36,7 @@ public class MountainPassViewModel extends ViewModel {
 
     public LiveData<MountainPassEntity> getPassFor(Integer id){
         if (pass == null){
-            this.pass = passRepo.getMountainPassFor(id, mStatus);
+            this.pass = passRepo.loadMountainPassFor(id, mStatus);
         }
         return this.pass;
     }

@@ -16,10 +16,12 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesBulletinsViewModel
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalCameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchViewModel;
+import gov.wa.wsdot.android.wsdot.ui.home.FavoritesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteViewModel;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.FavoriteMapLocationViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.ExpressLanesViewModel;
@@ -152,6 +154,16 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(MyRouteViewModel.class)
     abstract ViewModel bindMyRouteViewModel(MyRouteViewModel myRouteViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(FavoritesViewModel.class)
+    abstract ViewModel bindFavoritesViewModel(FavoritesViewModel favoritesViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(FavoriteMapLocationViewModel.class)
+    abstract ViewModel bindFavoriteMapLocationViewModel(FavoriteMapLocationViewModel favoriteMapLocationViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

@@ -49,15 +49,21 @@ public class TravelTimeRepository  extends NetworkResourceSyncRepository {
         return travelTimeDao.getTravelTimes();
     }
 
-    public LiveData<TravelTimeEntity> getTravelTimesFor(Integer id, MutableLiveData<ResourceStatus> status) {
-        super.refreshData(status, false);
-        return travelTimeDao.loadTravelTimeFor(id);
-    }
-
     public LiveData<List<TravelTimeEntity>> queryTravelTimes(String query, MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
         return travelTimeDao.queryTravelTimes(query);
     }
+
+    public LiveData<TravelTimeEntity> getTravelTimeFor(Integer id, MutableLiveData<ResourceStatus> status) {
+        super.refreshData(status, false);
+        return travelTimeDao.loadTravelTimeFor(id);
+    }
+
+    public LiveData<List<TravelTimeEntity>> loadFavoriteTravelTimes(MutableLiveData<ResourceStatus> status) {
+        super.refreshData(status, false);
+        return travelTimeDao.loadFavoriteTravelTimes();
+    }
+
 
     public void setIsStarred(Integer id, Integer isStarred) {
         getExecutor().diskIO().execute(() -> {

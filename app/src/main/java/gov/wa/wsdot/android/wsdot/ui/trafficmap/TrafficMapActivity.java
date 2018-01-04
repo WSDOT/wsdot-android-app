@@ -117,6 +117,7 @@ import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
@@ -208,6 +209,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
     private static MapHighwayAlertViewModel mapHighwayAlertViewModel;
     private static MapCameraViewModel mapCameraViewModel;
+    private static FavoriteMapLocationViewModel favoriteMapLocationViewModel;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -276,6 +278,8 @@ public class TrafficMapActivity extends BaseActivity implements
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
         mapFragment.getMapAsync(this);
+
+        favoriteMapLocationViewModel = ViewModelProviders.of(this, viewModelFactory).get(FavoriteMapLocationViewModel.class);
 
         mapCameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapCameraViewModel.class);
         mapCameraViewModel.init(null);
@@ -738,14 +742,17 @@ public class TrafficMapActivity extends BaseActivity implements
                 builder.setPositiveButton(R.string.submit, (dialog, whichButton) -> {
                     String value = textEntryView.getText().toString();
                     dialog.dismiss();
-                    ContentValues values = new ContentValues();
 
-                    values.put(WSDOTContract.MapLocation.LOCATION_TITLE, value);
-                    values.put(WSDOTContract.MapLocation.LOCATION_LAT, String.valueOf(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().latitude));
-                    values.put(WSDOTContract.MapLocation.LOCATION_LONG, String.valueOf(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().longitude));
-                    values.put(WSDOTContract.MapLocation.LOCATION_ZOOM, (int) mMap.getCameraPosition().zoom);
+                    MapLocationEntity location = new MapLocationEntity();
 
-                    getContentResolver().insert(WSDOTContract.MapLocation.CONTENT_URI, values);
+                    location.setTitle(value);
+
+                    location.setLatitude(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().latitude);
+                    location.setLongitude(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().longitude);
+                    location.setZoom((int) mMap.getCameraPosition().zoom);
+
+                    favoriteMapLocationViewModel.addMapLocation(location);
+
                 });
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();

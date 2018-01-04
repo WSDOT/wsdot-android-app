@@ -12,27 +12,20 @@ public class MapLocationEntity {
     @PrimaryKey(autoGenerate = true)
     public Integer id;
 
-    @ColumnInfo(name = "id")
-    private Integer locationId;
-
     @ColumnInfo(name = "title")
     private String title;
 
     @ColumnInfo(name = "latitude")
-    private Integer latitude;
+    private Double latitude;
 
     @ColumnInfo(name = "longitude")
-    private Integer  longitude;
+    private Double longitude;
 
     @ColumnInfo(name = "zoom")
     private Integer  zoom;
 
     public Integer getLocationId() {
-        return locationId;
-    }
-
-    public void setLocationId(Integer locationId) {
-        this.locationId = locationId;
+        return id;
     }
 
     public String getTitle() {
@@ -43,19 +36,19 @@ public class MapLocationEntity {
         this.title = title;
     }
 
-    public Integer getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Integer latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public Integer getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Integer longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 

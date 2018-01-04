@@ -439,6 +439,7 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
 
+            // Updates lat/long in my routes
             database.execSQL("CREATE TABLE IF NOT EXISTS my_route_temp ("
                     + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + MyRouteColumns.MY_ROUTE_ID + " INTEGER,"
@@ -455,6 +456,30 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("DROP TABLE " + Tables.MY_ROUTE + "; ");
 
             database.execSQL("ALTER TABLE my_route_temp RENAME TO " + Tables.MY_ROUTE+ "; ");
+
+            // updates lat/longs in map locations
+            database.execSQL("CREATE TABLE IF NOT EXISTS map_location_temp ("
+                    + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + LocationColumns.LOCATION_TITLE + " TEXT,"
+                    + LocationColumns.LOCATION_LAT + " REAL,"
+                    + LocationColumns.LOCATION_LONG + " REAL,"
+                    + LocationColumns.LOCATION_ZOOM + " INTEGER);");
+
+            database.execSQL("INSERT INTO map_location_temp ("
+                    + LocationColumns.LOCATION_TITLE + ","
+                    + LocationColumns.LOCATION_LAT + ","
+                    + LocationColumns.LOCATION_LONG + ","
+                    + LocationColumns.LOCATION_ZOOM + ")"
+                    +" SELECT "
+                    + LocationColumns.LOCATION_TITLE + ","
+                    + LocationColumns.LOCATION_LAT + ","
+                    + LocationColumns.LOCATION_LONG + ","
+                    + LocationColumns.LOCATION_ZOOM + ""
+                    + " FROM " + Tables.MAP_LOCATION + "; ");
+
+            database.execSQL("DROP TABLE " + Tables.MAP_LOCATION + "; ");
+
+            database.execSQL("ALTER TABLE map_location_temp RENAME TO " + Tables.MAP_LOCATION + "; ");
 
         }
     };

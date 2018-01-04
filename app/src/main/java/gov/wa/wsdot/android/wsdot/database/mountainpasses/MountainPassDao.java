@@ -24,6 +24,9 @@ public abstract class MountainPassDao {
     public abstract LiveData<MountainPassEntity> loadMountainPassFor(Integer passId);
 
     @Query("SELECT * FROM mountain_passes WHERE is_starred = 1")
+    public abstract LiveData<List<MountainPassEntity>> loadFavoriteMountainPasses();
+
+    @Query("SELECT * FROM mountain_passes WHERE is_starred = 1")
     public abstract List<MountainPassEntity> getFavoriteMountainPasses();
 
     @Query("UPDATE mountain_passes SET is_starred = :isStarred WHERE id = :id")

@@ -63,21 +63,21 @@ public class HomeActivity extends BaseActivity implements Injectable {
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         setContentView(R.layout.activity_home);
-        mViewPager = (HomePager) findViewById(R.id.pager);
+        mViewPager = findViewById(R.id.pager);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
-        mAppBar = (android.support.design.widget.AppBarLayout) findViewById(R.id.appbar);
+        mAppBar = findViewById(R.id.appbar);
 
-        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        mTabLayout = findViewById(R.id.tab_layout);
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         // Add tab titles and their corresponding fragments to the fragment list.
         tabFragments.add(mTabLayout.getTabCount(), DashboardFragment.class);
         mTabLayout.addTab(mTabLayout.newTab().setText("Home"));
-        //tabFragments.add(mTabLayout.getTabCount(), FavoritesFragment.class);
-        //mTabLayout.addTab(mTabLayout.newTab().setText("Favorites"));
+        tabFragments.add(mTabLayout.getTabCount(), FavoritesFragment.class);
+        mTabLayout.addTab(mTabLayout.newTab().setText("Favorites"));
 
         mtabsAdapter = new TabsAdapter
                 (this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount());

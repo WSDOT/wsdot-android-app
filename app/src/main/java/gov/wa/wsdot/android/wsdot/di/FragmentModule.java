@@ -15,6 +15,7 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesTerminalCameraFra
 import gov.wa.wsdot.android.wsdot.ui.ferries.sailings.FerriesRouteSchedulesDaySailingsFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.DashboardFragment;
+import gov.wa.wsdot.android.wsdot.ui.home.FavoritesFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.HighImpactAlertsFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemCameraFragment;
@@ -125,5 +126,8 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract MyRouteFragment contributeMyRouteFragment();
+
+    @ContributesAndroidInjector
+    abstract FavoritesFragment contributeFavoritesFragment();
 
 }

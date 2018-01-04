@@ -64,9 +64,14 @@ public class MountainPassRepository extends NetworkResourceSyncRepository {
         return mountainPassDao.getMountainPasses();
     }
 
-    public LiveData<MountainPassEntity> getMountainPassFor(Integer id, MutableLiveData<ResourceStatus> status) {
+    public LiveData<MountainPassEntity> loadMountainPassFor(Integer id, MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
         return mountainPassDao.loadMountainPassFor(id);
+    }
+
+    public LiveData<List<MountainPassEntity>> loadFavoriteMountainPasses(MutableLiveData<ResourceStatus> status) {
+        super.refreshData(status, false);
+        return mountainPassDao.loadFavoriteMountainPasses();
     }
 
     public void setIsStarred(Integer id, Integer isStarred) {

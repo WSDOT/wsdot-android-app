@@ -27,6 +27,9 @@ public abstract class CameraDao {
     public abstract LiveData<List<CameraEntity>> loadCamerasForRoad(String roadName);
 
     @Query("SELECT * FROM cameras WHERE is_starred = 1")
+    public abstract LiveData<List<CameraEntity>> loadFavoriteCameras();
+
+    @Query("SELECT * FROM cameras WHERE is_starred = 1")
     public abstract List<CameraEntity> getFavoriteCameras();
 
     @Query("UPDATE cameras SET is_starred = :isStarred WHERE id = :id")
@@ -40,6 +43,4 @@ public abstract class CameraDao {
         deleteAll();
         insertCameras(cameras);
     }
-
-
 }

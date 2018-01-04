@@ -39,7 +39,7 @@ public class FerriesBulletinsViewModel extends ViewModel {
     public void init(Integer routeId, @Nullable Integer alertId) {
 
         if (alertId != null){
-            alert = Transformations.map(this.scheduleRepo.getFerryScheduleFor(routeId, mStatus), schedule -> {
+            alert = Transformations.map(this.scheduleRepo.loadFerryScheduleFor(routeId, mStatus), schedule -> {
 
                 FerriesRouteAlertItem alertItem = new FerriesRouteAlertItem();
 
@@ -54,7 +54,7 @@ public class FerriesBulletinsViewModel extends ViewModel {
                 return alertItem;
             });
         } else {
-            alerts = Transformations.map(this.scheduleRepo.getFerryScheduleFor(routeId, mStatus), schedule -> {
+            alerts = Transformations.map(this.scheduleRepo.loadFerryScheduleFor(routeId, mStatus), schedule -> {
                 ArrayList<FerriesRouteAlertItem> alertItems = new ArrayList<>();
                 if (schedule != null) {
                     alertItems = processAlerts(schedule.getAlert());

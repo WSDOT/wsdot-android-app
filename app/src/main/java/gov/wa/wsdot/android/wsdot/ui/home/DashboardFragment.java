@@ -41,49 +41,13 @@ public class DashboardFragment extends BaseFragment implements Injectable {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_dashboard, null);
-
-        root.findViewById(R.id.home_btn_traffic).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-            	startActivity(new Intent(getActivity(), TrafficMapActivity.class));
-            }            
-        });
-
-        root.findViewById(R.id.home_btn_ferries).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-            	startActivity(new Intent(getActivity(), FerriesActivity.class));
-            }
-        });
-
-        root.findViewById(R.id.home_btn_passes).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-            	startActivity(new Intent(getActivity(), MountainPassesActivity.class));
-            }
-        });
-        
-        root.findViewById(R.id.home_btn_tolling).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-            	startActivity(new Intent(getActivity(), TollRatesActivity.class));
-            }
-        });        
-        
-        root.findViewById(R.id.home_btn_border).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                startActivity(new Intent(getActivity(), BorderWaitActivity.class));                
-            }
-        });
-
-        root.findViewById(R.id.home_btn_amtrak).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                startActivity(new Intent(getActivity(), AmtrakCascadesActivity.class));                
-            }
-        });
-
-        root.findViewById(R.id.home_btn_my_routes).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getActivity(), MyRouteActivity.class));
-            }
-        });
+        root.findViewById(R.id.home_btn_traffic).setOnClickListener(view -> startActivity(new Intent(getActivity(), TrafficMapActivity.class)));
+        root.findViewById(R.id.home_btn_ferries).setOnClickListener(view -> startActivity(new Intent(getActivity(), FerriesActivity.class)));
+        root.findViewById(R.id.home_btn_passes).setOnClickListener(view -> startActivity(new Intent(getActivity(), MountainPassesActivity.class)));
+        root.findViewById(R.id.home_btn_tolling).setOnClickListener(view -> startActivity(new Intent(getActivity(), TollRatesActivity.class)));
+        root.findViewById(R.id.home_btn_border).setOnClickListener(view -> startActivity(new Intent(getActivity(), BorderWaitActivity.class)));
+        root.findViewById(R.id.home_btn_amtrak).setOnClickListener(view -> startActivity(new Intent(getActivity(), AmtrakCascadesActivity.class)));
+        root.findViewById(R.id.home_btn_my_routes).setOnClickListener(view -> startActivity(new Intent(getActivity(), MyRouteActivity.class)));
         return root;
     }
 }
