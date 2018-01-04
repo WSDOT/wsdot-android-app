@@ -230,7 +230,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
         mProgressBar = findViewById(R.id.progress_bar);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
