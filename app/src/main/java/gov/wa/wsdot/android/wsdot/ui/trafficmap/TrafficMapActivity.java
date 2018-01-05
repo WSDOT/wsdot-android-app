@@ -432,7 +432,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         mapHighwayAlertViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
 
-
         mapCameraViewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {

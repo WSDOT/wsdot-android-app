@@ -2,6 +2,7 @@ package gov.wa.wsdot.android.wsdot.ui.borderwait;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.repository.BorderWaitRepository;
+import gov.wa.wsdot.android.wsdot.util.AbsentLiveData;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 /**
@@ -25,6 +27,8 @@ public class BorderWaitViewModel extends ViewModel {
     private LiveData<List<BorderWaitEntity>> borderWaits;
     private MutableLiveData<ResourceStatus> mStatus;
 
+    private MutableLiveData<BorderDirection> direction = null;
+
     private BorderWaitRepository borderWaitRepo;
 
     enum BorderDirection {
@@ -34,28 +38,43 @@ public class BorderWaitViewModel extends ViewModel {
 
     @Inject // BorderWaitRepository parameter is provided by Dagger 2
     BorderWaitViewModel(BorderWaitRepository borderWaitRepo) {
-        this.borderWaits = new MutableLiveData<>();
         this.mStatus = new MutableLiveData<>();
+        this.direction = new MutableLiveData<>();
         this.borderWaitRepo = borderWaitRepo;
+
+        this.borderWaits = Transformations.switchMap(direction, directionValue -> {
+            if (directionValue != null) {
+                switch (directionValue){
+                    case NORTHBOUND:
+                        return borderWaitRepo.getBorderWaitsFor("northbound", mStatus);
+                    case SOUTHBOUND:
+                        return borderWaitRepo.getBorderWaitsFor("southbound", mStatus);
+                }
+            }
+            return AbsentLiveData.create();
+        });
+
     }
 
     public void init(BorderDirection direction){
-        switch(direction){
-            case NORTHBOUND:
-                this.borderWaits = borderWaitRepo.getBorderWaitsFor("northbound", mStatus);
-                break;
-            case SOUTHBOUND:
-                this.borderWaits = borderWaitRepo.getBorderWaitsFor("southbound", mStatus);
-        }
+        this.direction.setValue(direction);
     }
 
-    public LiveData<List<BorderWaitEntity>> getBorderWaits(){
-        return this.borderWaits;
+    public LiveData<BorderDirection> getDirection() {
+        return direction;
     }
 
-    public MutableLiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
+    public LiveData<List<BorderWaitEntity>> getBorderWaits() {
+        return borderWaits;
+    }
+
+    public MutableLiveData<ResourceStatus> getResourceStatus() {
+        return this.mStatus;
+    }
 
     public void forceRefreshBorderWaits() {
-        borderWaitRepo.refreshData(mStatus, true);
+        if (direction != null) {
+            borderWaitRepo.refreshData(mStatus, true);
+        }
     }
 }
