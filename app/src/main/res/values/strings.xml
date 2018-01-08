@@ -2,31 +2,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_name">WSDOT</string>
-    <string name="no_list_data">Data could not be displayed</string>
-    <string name="detail_empty">No details found</string>
     <string name="menu_refresh">Refresh</string>
-    <string name="menu_search">Search</string>
-    <string name="menu_share">Share</string>
-    <string name="share_using">Share using</string>
     <string name="action_bar_share_with">Share with#8230;</string>
 
     <string name="btn_traffic">Traffic Map</string>
     <string name="btn_passes">Mountain Passes</string>
     <string name="btn_ferries">Ferries</string>
-    <string name="btn_social">Social Media</string>
     <string name="btn_tolling">Toll Rates</string>
     <string name="btn_border">Border Wait</string>
     <string name="btn_amtrakcascades">Amtrak Cascades</string>
 
     <string name="title_borderwait">Border Wait</string>
     <string name="title_about">About</string>
-    <string name="title_socialmedia">Social Media</string>
     <string name="title_flickr">Flickr</string>
     <string name="title_twitter">Twitter</string>
     <string name="title_facebook">Facebook</string>
     <string name="title_blog">Blogger</string>
     <string name="title_youtube">YouTube</string>
-    <string name="title_cameravideo">Camera Video</string>
     <string name="title_ferries">Ferries</string>
     <string name="title_ferriesroutealerts">Route Alerts</string>
     <string name="title_ferriesrouteschedules">Route Schedules</string>
@@ -36,10 +28,7 @@
     <string name="title_expresslanes">Express Lanes</string>
     <string name="title_trafficmap">Traffic Map</string>
     <string name="title_tollrates">Toll Rates</string>
-    <string name="title_routealerts">Route Alerts</string>
     <string name="title_mountainpasses">Mountain Passes</string>
-    <string name="title_mountainpassdetails">Mountain Pass Details</string>
-    <string name="title_preferences">Preferences</string>
     <string name="title_news">News</string>
     <string name="title_departing">Departing</string>
     <string name="title_arriving">Arriving</string>
@@ -49,22 +38,14 @@
     <string name="button_check_schedules">Check Schedules</string>
 
     <string name="description_refresh">Refresh</string>
-    <string name="description_share">Share</string>
     <string name="description_about">About</string>
     <string name="description_settings">Settings</string>
-    <string name="description_preferences">Preferences</string>
 
-    <string name="description_mylocation">My Location</string>
     <string name="description_cameras">Cameras</string>
-    <string name="description_toggle_clusters">Cluster Cameras</string>
-    <string name="description_alerts_toggle">Show Alerts</string>
-    <string name="description_rest_areas">Show Rest Areas</string>
     <string name="description_gotolocation">GoTo Location</string>
     <string name="description_travel_times">Travel Times</string>z
     <string name="description_star">Star</string>
     <string name="description_alert">Alert</string>
-    <string name="description_favorites">Favorites</string>
-    <string name="description_report_image">Report Image</string>
     <string name="description_map">check traffic map</string>
 
     <string name="add_favorite">Added to favorites.</string>
@@ -77,12 +58,10 @@
     <string name="no_day_departures">No departures available.</string>
 
     <string name="search_title">Search</string>
-    <string name="search_hint">Search Travel Times</string>
 
     <string name="drive_up_spaces">Drive-up spaces</string>
     <string name="drive_up_spaces_disclaimer">Vehicles in line for tollbooth are not included in this estimate</string>
 
-    <string name="banner">banner image</string>
     <string name="adBannerDescription">advertisement banner</string>
     <string name="description_favorite">Favorite this location</string>
 
@@ -95,18 +74,12 @@
                         for major events.</string>
 
     <string name="add_location_dialog">New favorite location</string>
-    <string name="favorite_location_hint">Location name</string>
     <string name="submit">OK</string>
     <string name="cancel">Cancel</string>
     <string name="description_alerts_in_area">Alerts in This Area</string>
     <string name="description_map_legend">Map Legend</string>
 
-    <string name="description_callouts_toggle">Hide JBLM</string>
-
-    <string name="description_my_route">My Routes</string>
     <string name="title_activity_my_route">My Routes</string>
-    <string name="title_activity_my_route2">MyRouteActivity2</string>
-    <string name="action_settings">Settings</string>
     <string name="title_activity_new_route">New Route</string>
     <string name="title_activity_settings">Settings</string>
     <string name="drag_and_drop_description">drag and drop to rearrange</string>

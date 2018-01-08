@@ -140,7 +140,7 @@ public class VesselsOverlay {
     /**
      * Giving vessel heading returns a string for the
      * cardinal direction.
-     * 
+     *
      * @param heading
      * @return direction string
      */
@@ -150,18 +150,18 @@ public class VesselsOverlay {
     }
     /**
      * Formats the time field in JSON object
-     * 
+     *
      * @param item JSONObject for ferry data
      * @param time field name for time in item
      * @return Formatted time string.
-     * @throws JSONException 
-     * @throws NumberFormatException 
+     * @throws JSONException
+     * @throws NumberFormatException
      */
     private static String formatTime(JSONObject item, String time) throws NumberFormatException, JSONException{
 		DateFormat dateFormat = new SimpleDateFormat("h:mm a");
 		if (item.isNull(time)) {
 			return "--:--";
-		} else { 
+		} else {
 			return dateFormat.format(new Date(Long.parseLong(item.getString(time).substring(6, 19))));
 		}
     }

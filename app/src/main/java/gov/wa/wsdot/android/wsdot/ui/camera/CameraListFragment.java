@@ -199,15 +199,13 @@ public class CameraListFragment extends BaseFragment implements
             final int pos = position;
 
             viewholder.itemView.setOnClickListener(
-                    new View.OnClickListener() {
-                        public void onClick(View v) {
-                            Bundle b = new Bundle();
-                            Intent intent = new Intent(getActivity(), CameraActivity.class);
-                            b.putInt("id", bitmapImages.get(pos).getCameraId());
-                            intent.putExtras(b);
+                    v -> {
+                        Bundle b = new Bundle();
+                        Intent intent = new Intent(getActivity(), CameraActivity.class);
+                        b.putInt("id", bitmapImages.get(pos).getCameraId());
+                        intent.putExtras(b);
 
-                            startActivity(intent);
-                        }
+                        startActivity(intent);
                     }
             );
         }

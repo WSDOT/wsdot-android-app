@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -58,7 +59,9 @@ public class MyRouteMapActivity extends BaseActivity implements OnMapReadyCallba
         route_name = args.getString("route_name");
         route_id = args.getLong("route_id");
 
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Log.e("test", String.valueOf(route_id));
+
+        Toolbar mToolbar = findViewById(R.id.toolbar);
 
         mToolbar.setTitle(route_name);
 
@@ -101,7 +104,7 @@ public class MyRouteMapActivity extends BaseActivity implements OnMapReadyCallba
         try {
             cursor = resolver.query(WSDOTContract.MyRoute.CONTENT_URI,
                     projection,
-                    WSDOTContract.MyRoute._ID + " = ?",
+                    WSDOTContract.MyRoute.MY_ROUTE_ID + " = ?",
                     new String[]{String.valueOf(route_id)},
                     null
             );

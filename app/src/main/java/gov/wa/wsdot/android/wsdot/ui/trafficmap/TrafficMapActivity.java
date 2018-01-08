@@ -20,12 +20,12 @@ package gov.wa.wsdot.android.wsdot.ui.trafficmap;
 
 import android.Manifest;
 import android.animation.Animator;
-import android.content.BroadcastReceiver;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -34,7 +34,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -63,7 +62,9 @@ import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
@@ -79,7 +80,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.MapFragment;
@@ -99,7 +99,6 @@ import com.google.maps.android.ui.IconGenerator;
 import com.google.maps.android.ui.SquareTextView;
 
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -114,10 +113,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
-import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
-import gov.wa.wsdot.android.wsdot.service.HighwayAlertsSyncService;
 import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
@@ -125,23 +126,22 @@ import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
 import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
-import gov.wa.wsdot.android.wsdot.ui.alert.HighwayAlertDetailsActivity;
+import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
+import gov.wa.wsdot.android.wsdot.ui.alert.map.MapHighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraListActivity;
+import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.besttimestotravel.TravelChartsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesActivity;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsActivity;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.restareas.RestAreaActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.SocialMediaTabActivity;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.traveltimes.TravelTimesActivity;
+import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesActivity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.map.CalloutsOverlay;
-import gov.wa.wsdot.android.wsdot.util.map.CamerasOverlay;
-import gov.wa.wsdot.android.wsdot.util.map.HighwayAlertsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
 
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
@@ -156,8 +156,6 @@ public class TrafficMapActivity extends BaseActivity implements
     private static final String TAG = TrafficMapActivity.class.getSimpleName();
 
     private GoogleMap mMap;
-    private HighwayAlertsOverlay alertsOverlay = null;
-    private CamerasOverlay camerasOverlay = null;
     private RestAreasOverlay restAreasOverlay = null;
     private CalloutsOverlay calloutsOverlay = null;
     private List<CameraItem> cameras = new ArrayList<>();
@@ -188,6 +186,8 @@ public class TrafficMapActivity extends BaseActivity implements
     LinearLayout fabLayoutAlerts;
     LinearLayout fabLayoutRestareas;
 
+    private ProgressBar mProgressBar;
+
     boolean isFABOpen = false;
 
     boolean bestTimesAvailable = false;
@@ -197,12 +197,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
     static private int menu_item_refresh = 1;
 
-    private CamerasSyncReceiver mCamerasReceiver;
-    private HighwayAlertsSyncReceiver mHighwayAlertsSyncReceiver;
-    private Intent camerasIntent;
-    private Intent alertsIntent;
-    private static AsyncTask<Void, Void, Void> mCamerasOverlayTask = null;
-    private static AsyncTask<Void, Void, Void> mHighwayAlertsOverlayTask = null;
     private static AsyncTask<Void, Void, Void> mRestAreasOverlayTask = null;
     private LatLngBounds bounds;
     private double latitude;
@@ -213,7 +207,13 @@ public class TrafficMapActivity extends BaseActivity implements
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
 
-    // Declare a variable for the cluster manager.
+    private static MapHighwayAlertViewModel mapHighwayAlertViewModel;
+    private static MapCameraViewModel mapCameraViewModel;
+    private static FavoriteMapLocationViewModel favoriteMapLocationViewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
     private ClusterManager<CameraItem> mClusterManager;
 
     private Toolbar mToolbar;
@@ -221,13 +221,16 @@ public class TrafficMapActivity extends BaseActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.map);
 
         enableAds(getString(R.string.traffic_ad_target));
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mProgressBar = findViewById(R.id.progress_bar);
+
+        mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -241,8 +244,6 @@ public class TrafficMapActivity extends BaseActivity implements
         seattleArea.add(new LatLonItem(47.28109, -122.45911));
 
         // Initialize AsyncTasks
-        mCamerasOverlayTask = new CamerasOverlayTask();
-        mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask();
         mRestAreasOverlayTask = new RestAreasOverlayTask();
 
         // Check preferences and set defaults if none set
@@ -256,18 +257,14 @@ public class TrafficMapActivity extends BaseActivity implements
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
         zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
 
-        // Check if we came from favorites
+        // Check if we came from favorites/MyRoutes
         Bundle b = getIntent().getExtras();
         if (getIntent().hasExtra("lat"))
-            latitude = b.getFloat("lat");
+            latitude = b.getDouble("lat");
         if (getIntent().hasExtra("long"))
-            longitude = b.getFloat("long");
+            longitude = b.getDouble("long");
         if (getIntent().hasExtra("zoom"))
             zoom = b.getInt("zoom");
-
-        // Set up Service Intents.
-        camerasIntent = new Intent(this, CamerasSyncService.class);
-        alertsIntent = new Intent(this, HighwayAlertsSyncService.class);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -281,6 +278,11 @@ public class TrafficMapActivity extends BaseActivity implements
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
         mapFragment.getMapAsync(this);
+
+        favoriteMapLocationViewModel = ViewModelProviders.of(this, viewModelFactory).get(FavoriteMapLocationViewModel.class);
+
+        mapCameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapCameraViewModel.class);
+        mapCameraViewModel.init(null);
 
         setUpFabMenu();
 
@@ -328,17 +330,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
         settings.edit().putBoolean("KEY_SEEN_TRAFFIC_LAYERS_TIP", true).apply();
 
-        IntentFilter camerasFilter = new IntentFilter(
-                "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
-        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mCamerasReceiver = new CamerasSyncReceiver();
-        registerReceiver(mCamerasReceiver, camerasFilter);
-
-        IntentFilter alertsFilter = new IntentFilter(
-                "gov.wa.wsdot.android.wsdot.intent.action.HIGHWAY_ALERTS_RESPONSE");
-        alertsFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mHighwayAlertsSyncReceiver = new HighwayAlertsSyncReceiver();
-        registerReceiver(mHighwayAlertsSyncReceiver, alertsFilter);
     }
 
     @Override
@@ -351,9 +342,6 @@ public class TrafficMapActivity extends BaseActivity implements
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
         }
-
-        this.unregisterReceiver(mCamerasReceiver);
-        this.unregisterReceiver(mHighwayAlertsSyncReceiver);
 
         // Save last map location and zoom level.
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -382,30 +370,113 @@ public class TrafficMapActivity extends BaseActivity implements
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMarkerClickListener(this);
 
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                closeFABMenu();
-            }
-        });
-
-        mMap.setOnCameraIdleListener(new OnCameraIdleListener() {
-            @Override
-            public void onCameraIdle() {
-                startService(camerasIntent);
-                startService(alertsIntent);
-                mClusterManager.onCameraIdle();
-            }
-        });
-
-        mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
-            @Override
-            public void onCameraMoveStarted(int i) {
-                closeFABMenu();
-            }
-        });
+        mMap.setOnMapClickListener(latLng -> closeFABMenu());
+        mMap.setOnCameraMoveStartedListener(i -> closeFABMenu());
 
         setUpClusterer();
+
+        mMap.setOnCameraIdleListener(() -> {
+            mapCameraViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
+            mapHighwayAlertViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
+            mClusterManager.onCameraIdle();
+        });
+
+        mapHighwayAlertViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapHighwayAlertViewModel.class);
+
+        mapHighwayAlertViewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        break;
+                    case SUCCESS:
+                        if (mToolbar.getMenu().size() > menu_item_refresh) {
+                            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
+                                mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
+                            }
+                        }
+                        break;
+                    case ERROR:
+                        Toast.makeText(this, "connection error, failed to load alerts", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        mapHighwayAlertViewModel.getDisplayAlerts().observe(this, alertItems -> {
+            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry<Marker, String> entry = iter.next();
+                if (entry.getValue().equalsIgnoreCase("alert")) {
+                    entry.getKey().remove();
+                    iter.remove();
+                }
+            }
+            alerts.clear();
+            alerts = alertItems;
+
+            if (alerts != null) {
+                if (alerts.size() != 0) {
+                    for (int i = 0; i < alerts.size(); i++) {
+                        LatLng latLng = new LatLng(alerts.get(i).getStartLatitude(), alerts.get(i).getStartLongitude());
+                        Marker marker = mMap.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title(alerts.get(i).getEventCategory())
+                                .snippet(alerts.get(i).getAlertId())
+                                .icon(BitmapDescriptorFactory.fromResource(alerts.get(i).getCategoryIcon()))
+                                .visible(showAlerts));
+
+                        markers.put(marker, "alert");
+                    }
+                }
+            }
+        });
+
+        mapHighwayAlertViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
+
+        mapCameraViewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        break;
+                    case SUCCESS:
+                        if (mToolbar.getMenu().size() > menu_item_refresh) {
+                            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
+                                mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
+                            }
+                        }
+                        break;
+                    case ERROR:
+                        Toast.makeText(this, "connection error, failed to load cameras", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        mapCameraViewModel.getDisplayCameras().observe(this, cameraItems -> {
+            if (cameraItems != null) {
+
+                Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<Marker, String> entry = iter.next();
+                    if (entry.getValue().equalsIgnoreCase("camera")) {
+                        entry.getKey().remove();
+                        iter.remove();
+                    }
+                }
+                cameras.clear();
+                cameras = cameraItems;
+
+                if (clusterCameras) {
+                    mClusterManager.clearItems();
+                    if (showCameras) {
+                        mClusterManager.addItems(cameras);
+                    }
+                    mClusterManager.cluster();
+                } else {
+                    addCameraMarkers(cameras);
+                }
+            }
+        });
+
+        mapCameraViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
 
         LatLng latLng = new LatLng(latitude, longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
@@ -422,22 +493,22 @@ public class TrafficMapActivity extends BaseActivity implements
     private void setUpFabMenu() {
 
         // set up layers FAB menu
-        fabLayers = (FloatingActionButton) findViewById(R.id.fab);
+        fabLayers = findViewById(R.id.fab);
 
-        fabLayoutCameras = (LinearLayout) findViewById(R.id.fabLayoutCameras);
-        fabLayoutClusters = (LinearLayout) findViewById(R.id.fabLayoutClusters);
-        fabLayoutAlerts = (LinearLayout) findViewById(R.id.fabLayoutAlerts);
-        fabLayoutRestareas = (LinearLayout) findViewById(R.id.fabLayoutRestareas);
+        fabLayoutCameras = findViewById(R.id.fabLayoutCameras);
+        fabLayoutClusters = findViewById(R.id.fabLayoutClusters);
+        fabLayoutAlerts = findViewById(R.id.fabLayoutAlerts);
+        fabLayoutRestareas = findViewById(R.id.fabLayoutRestareas);
 
-        fabLabelCameras = (TextView) findViewById(R.id.fabLabelCameras);
-        fabLabelClusters = (TextView) findViewById(R.id.fabLabelClusters);
-        fabLabelAlerts = (TextView) findViewById(R.id.fabLabelAlerts);
-        fabLabelRestareas = (TextView) findViewById(R.id.fabLabelRestareas);
+        fabLabelCameras = findViewById(R.id.fabLabelCameras);
+        fabLabelClusters = findViewById(R.id.fabLabelClusters);
+        fabLabelAlerts = findViewById(R.id.fabLabelAlerts);
+        fabLabelRestareas = findViewById(R.id.fabLabelRestareas);
 
-        fabCameras = (FloatingActionButton) findViewById(R.id.fabCameras);
-        fabClusters = (FloatingActionButton) findViewById(R.id.fabClusters);
-        fabAlerts = (FloatingActionButton) findViewById(R.id.fabAlerts);
-        fabRestareas = (FloatingActionButton) findViewById(R.id.fabRestareas);
+        fabCameras = findViewById(R.id.fabCameras);
+        fabClusters = findViewById(R.id.fabClusters);
+        fabAlerts = findViewById(R.id.fabAlerts);
+        fabRestareas = findViewById(R.id.fabRestareas);
 
         if (!showCameras){
             toggleFabOff(fabCameras);
@@ -455,47 +526,32 @@ public class TrafficMapActivity extends BaseActivity implements
             toggleFabOff(fabRestareas);
         }
 
-        fabLayers.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!isFABOpen){
-                    showFABMenu();
-                }else{
-                    closeFABMenu();
-                }
-            }
-        });
-
-        fabCameras.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleCameras(fabCameras);
+        fabLayers.setOnClickListener(view -> {
+            if(!isFABOpen){
+                showFABMenu();
+            }else{
                 closeFABMenu();
             }
         });
 
-        fabClusters.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleCluster(fabClusters);
-                closeFABMenu();
-            }
+        fabCameras.setOnClickListener(v -> {
+            toggleCameras(fabCameras);
+            closeFABMenu();
         });
 
-        fabAlerts.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleAlerts(fabAlerts);
-                closeFABMenu();
-            }
+        fabClusters.setOnClickListener(v -> {
+            toggleCluster(fabClusters);
+            closeFABMenu();
         });
 
-        fabRestareas.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleRestAreas(fabRestareas);
-                closeFABMenu();
-            }
+        fabAlerts.setOnClickListener(v -> {
+            toggleAlerts(fabAlerts);
+            closeFABMenu();
+        });
+
+        fabRestareas.setOnClickListener(v -> {
+            toggleRestAreas(fabRestareas);
+            closeFABMenu();
         });
 
     }
@@ -609,50 +665,6 @@ public class TrafficMapActivity extends BaseActivity implements
         return true;
     }
 
-    public class CamerasSyncReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String responseString = intent.getStringExtra("responseString");
-
-            if (responseString != null) {
-                if (responseString.equals("OK") || responseString.equals("NOP")) {
-                    // We've got cameras, now add them.
-                    if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-
-                        mCamerasOverlayTask = new CamerasOverlayTask().execute();
-                    } else if (mCamerasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-
-                        mCamerasOverlayTask.execute();
-                    }
-                } else {
-                    Log.e("CameraDownloadReceiver", responseString);
-                }
-            }
-        }
-    }
-
-    public class HighwayAlertsSyncReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String responseString = intent.getStringExtra("responseString");
-
-            if (responseString != null) {
-                if (responseString.equals("OK") || responseString.equals("NOP")) {
-                    // We've got alerts, now add them.
-                    if (mHighwayAlertsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-                        mHighwayAlertsOverlayTask = new HighwayAlertsOverlayTask().execute();
-                    } else if (mHighwayAlertsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-                        mHighwayAlertsOverlayTask.execute();
-                    }
-                } else {
-                    Log.e("HighwayAlertsSyncRecvr", responseString);
-                }
-            }
-        }
-    }
-
     /**
      * Set up the App bar menu
      *
@@ -677,12 +689,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
             final MenuItem chartMenuItem = menu.findItem(R.id.best_times_to_travel);
             // Since we added an action view, need to hook up the onclick ourselves.
-            chartMenuItem.getActionView().setOnClickListener(new View.OnClickListener() {
-                                                                 @Override
-                                                                 public void onClick(View v) {
-                                                                     TrafficMapActivity.this.onMenuItemSelected(0, chartMenuItem);
-                                                                 }
-                                                             });
+            chartMenuItem.getActionView().setOnClickListener(v -> TrafficMapActivity.this.onMenuItemSelected(0, chartMenuItem));
             menu_item_refresh = 2;
         } else {
             menu_item_refresh = 1;
@@ -730,24 +737,21 @@ public class TrafficMapActivity extends BaseActivity implements
                 textEntryView.setInputType(InputType.TYPE_CLASS_TEXT);
                 builder.setView(textEntryView);
                 builder.setMessage(R.string.add_location_dialog);
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        dialog.dismiss();
-                    }
-                });
-                builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        String value = textEntryView.getText().toString();
-                        dialog.dismiss();
-                        ContentValues values = new ContentValues();
+                builder.setNegativeButton(R.string.cancel, (dialog, whichButton) -> dialog.dismiss());
+                builder.setPositiveButton(R.string.submit, (dialog, whichButton) -> {
+                    String value = textEntryView.getText().toString();
+                    dialog.dismiss();
 
-                        values.put(WSDOTContract.MapLocation.LOCATION_TITLE, value);
-                        values.put(WSDOTContract.MapLocation.LOCATION_LAT, String.valueOf(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().latitude));
-                        values.put(WSDOTContract.MapLocation.LOCATION_LONG, String.valueOf(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().longitude));
-                        values.put(WSDOTContract.MapLocation.LOCATION_ZOOM, (int) mMap.getCameraPosition().zoom);
+                    MapLocationEntity location = new MapLocationEntity();
 
-                        getContentResolver().insert(WSDOTContract.MapLocation.CONTENT_URI, values);
-                    }
+                    location.setTitle(value);
+
+                    location.setLatitude(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().latitude);
+                    location.setLongitude(mMap.getProjection().getVisibleRegion().latLngBounds.getCenter().longitude);
+                    location.setZoom((int) mMap.getCameraPosition().zoom);
+
+                    favoriteMapLocationViewModel.addMapLocation(location);
+
                 });
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
@@ -757,7 +761,7 @@ public class TrafficMapActivity extends BaseActivity implements
                 return true;
             case R.id.alerts_in_area:
                 LatLngBounds mBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
-                Intent alertsIntent = new Intent(this, TrafficAlertsActivity.class);
+                Intent alertsIntent = new Intent(this, HighwayAlertListActivity.class);
                 alertsIntent.putExtra("nelat", mBounds.northeast.latitude);
                 alertsIntent.putExtra("nelong", mBounds.northeast.longitude);
                 alertsIntent.putExtra("swlat", mBounds.southwest.latitude);
@@ -885,11 +889,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
                 View layout = inflater.inflate(R.layout.map_legend_layout, null);
                 imageDialog.setView(layout);
-                imageDialog.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    dialog.dismiss();
-                    }
-                });
+                imageDialog.setPositiveButton(R.string.submit, (dialog, whichButton) -> dialog.dismiss());
                 imageDialog.create();
                 imageDialog.show();
                 return true;
@@ -899,11 +899,6 @@ public class TrafficMapActivity extends BaseActivity implements
 
 
     private void refreshOverlays(final MenuItem item){
-
-        // Force service intents to refresh data
-        // Set extra back to false so force wont happen on idle.
-        camerasIntent.putExtra("forceUpdate", true);
-        alertsIntent.putExtra("forceUpdate", true);
 
         // define the animation for rotation
         Animation animation = new RotateAnimation(360.0f, 0.0f,
@@ -920,7 +915,6 @@ public class TrafficMapActivity extends BaseActivity implements
                 mToolbar.getMenu().getItem(menu_item_refresh).setActionView(null);
                 mToolbar.getMenu().getItem(menu_item_refresh).setIcon(R.drawable.ic_menu_refresh);
             }
-
             @Override
             public void onAnimationRepeat(Animation animation) {}
         });
@@ -929,10 +923,11 @@ public class TrafficMapActivity extends BaseActivity implements
         imageView.setPadding(31, imageView.getPaddingTop(), 32, imageView.getPaddingBottom());
         imageView.startAnimation(animation);
         item.setActionView(imageView);
-        startService(camerasIntent);
-        startService(alertsIntent);
-        camerasIntent.putExtra("forceUpdate", false);
-        alertsIntent.putExtra("forceUpdate", false);
+
+        if (mMap != null) {
+            mapCameraViewModel.refreshCameras();
+            mapHighwayAlertViewModel.refreshAlerts();
+        }
     }
 
     /*
@@ -947,7 +942,6 @@ public class TrafficMapActivity extends BaseActivity implements
         if (clusterCameras) {
 
             clusterCameras = false;
-
             toggleFabOff(fab);
 
             if (cameras != null) {
@@ -1070,7 +1064,6 @@ public class TrafficMapActivity extends BaseActivity implements
             showCalloutMarkers();
             showCallouts = true;
             label = "Show JBLM";
-
         }
 
         mTracker.send(new HitBuilders.EventBuilder()
@@ -1348,112 +1341,6 @@ public class TrafficMapActivity extends BaseActivity implements
     }
 
     /**
-     * Loads Cameras.
-     * Checks clusterCameras boolean and will either add camera items to the
-     * cluster manager or simply plot them normally.
-     */
-    class CamerasOverlayTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        public void onPreExecute() {
-            camerasOverlay = null;
-            if (mMap != null) {
-                bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
-            }
-        }
-
-        @Override
-        public Void doInBackground(Void... unused) {
-            camerasOverlay = new CamerasOverlay(
-                    TrafficMapActivity.this,
-                    bounds,
-                    null);
-            return null;
-        }
-
-        @Override
-        public void onPostExecute(Void unused) {
-            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
-            while (iter.hasNext()) {
-                Map.Entry<Marker, String> entry = iter.next();
-                if (entry.getValue().equalsIgnoreCase("camera")) {
-                    entry.getKey().remove();
-                    iter.remove();
-                }
-            }
-            cameras.clear();
-            cameras = camerasOverlay.getCameraMarkers();
-
-            if (cameras != null) {
-
-
-                if (clusterCameras) {
-                    mClusterManager.clearItems();
-                    if (showCameras) {
-                        mClusterManager.addItems(cameras);
-                    }
-                    mClusterManager.cluster();
-                } else {
-                    addCameraMarkers(cameras);
-                }
-            }
-            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
-                mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
-            }
-        }
-    }
-
-    class HighwayAlertsOverlayTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        public void onPreExecute() {
-            alertsOverlay = null;
-            if (mMap != null) {
-                bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
-            }
-        }
-
-        @Override
-        public Void doInBackground(Void... unused) {
-            alertsOverlay = new HighwayAlertsOverlay(TrafficMapActivity.this, bounds);
-            return null;
-        }
-
-        @Override
-        public void onPostExecute(Void unused) {
-            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
-            while (iter.hasNext()) {
-                Map.Entry<Marker, String> entry = iter.next();
-                if (entry.getValue().equalsIgnoreCase("alert")) {
-                    entry.getKey().remove();
-                    iter.remove();
-                }
-            }
-            alerts.clear();
-            alerts = alertsOverlay.getAlertMarkers();
-
-            if (alerts != null) {
-                if (alerts.size() != 0) {
-                    for (int i = 0; i < alerts.size(); i++) {
-                        LatLng latLng = new LatLng(alerts.get(i).getStartLatitude(), alerts.get(i).getStartLongitude());
-                        Marker marker = mMap.addMarker(new MarkerOptions()
-                                .position(latLng)
-                                .title(alerts.get(i).getEventCategory())
-                                .snippet(alerts.get(i).getAlertId())
-                                .icon(BitmapDescriptorFactory.fromResource(alerts.get(i).getCategoryIcon()))
-                                .visible(showAlerts));
-
-                        markers.put(marker, "alert");
-                    }
-                }
-            }
-            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
-                mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
-            }
-        }
-    }
-
-    /**
      * Build and draw rest areas on the map
      */
     class RestAreasOverlayTask extends AsyncTask<Void, Void, Void> {
@@ -1722,7 +1609,7 @@ public class TrafficMapActivity extends BaseActivity implements
     }
 
     /**
-     * Based on custom renderer demo here:
+     * Based on custom renderer demo:
      * https://github.com/googlemaps/android-maps-utils/blob/master/library/src/com/google/maps/android/clustering/view/DefaultClusterRenderer.java
      */
     private class CameraRenderer extends DefaultClusterRenderer<CameraItem> {
@@ -1811,7 +1698,6 @@ public class TrafficMapActivity extends BaseActivity implements
     }
 
     // Camera marker and clustering Helper functions
-
     /**
      * Checks if this cluster can be opened to a list of cameras
      * Arbitrarily assumes cameras in same space will have no more than 20 images. This also helps performance.

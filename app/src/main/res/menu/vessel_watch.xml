@@ -17,7 +17,7 @@
 		wsdot:showAsAction="ifRoom|withText" >
 		<menu>
 			<item android:orderInCategory="1" android:title="Anacortes / San Juan Islands / Sidney BC" android:id="@+id/goto_anacortes" />
-			<item android:orderInCategory="2" android:title="Edmonds / Kingston" android:id="@+id/goto_edmonds" />		
+			<item android:orderInCategory="2" android:title="Edmonds / Kingston" android:id="@+id/goto_edmonds" />
 			<item android:orderInCategory="3" android:title="Fauntleroy / Vashon / Southworth" android:id="@+id/goto_fauntleroy" />
 			<item android:orderInCategory="4" android:title="Mukilteo / Clinton" android:id="@+id/goto_mukilteo" />
 			<item android:orderInCategory="5" android:title="Point Defiance / Tahlequah" android:id="@+id/goto_pointdefiance" />

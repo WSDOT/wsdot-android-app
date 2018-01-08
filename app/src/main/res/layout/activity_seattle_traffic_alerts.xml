@@ -17,7 +17,7 @@
     <include layout="@layout/toolbar_scrolling"/>
 
     <fragment
-        android:name="gov.wa.wsdot.android.wsdot.ui.trafficmap.incidents.TrafficAlertsListFragment"
+        android:name="gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListFragment"
         android:id="@+id/fragment_seattle_traffic_alerts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -35,7 +35,6 @@
         android:contentDescription="@string/adBannerDescription"
         android:layout_gravity="center|bottom"
         android:layout_alignParentBottom="true"/>
-
 
 </RelativeLayout>
 

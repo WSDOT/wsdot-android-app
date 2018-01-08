@@ -28,13 +28,15 @@ public class RouteOptionsDialogFragment extends BottomSheetDialogFragment {
     private static final String ARG_OPTIONS = "option_strings";
     private static final String ARG_OPTION_ICONS = "optino_icons";
     private static final String ARG_ROUTE_ID = "route_id";
+    private static final String ARG_ROUTE_NAME = "route_name";
 
     private Listener mListener;
 
-    public static RouteOptionsDialogFragment newInstance(long routeID, String[] menuOptions, int[] menuIconIds) {
+    public static RouteOptionsDialogFragment newInstance(long routeID, String routeName, String[] menuOptions, int[] menuIconIds) {
         final RouteOptionsDialogFragment fragment = new RouteOptionsDialogFragment();
         final Bundle args = new Bundle();
         args.putLong(ARG_ROUTE_ID, routeID);
+        args.putString(ARG_ROUTE_NAME, routeName);
         args.putStringArray(ARG_OPTIONS, menuOptions);
         args.putIntArray(ARG_OPTION_ICONS, menuIconIds);
         fragment.setArguments(args);
@@ -77,7 +79,7 @@ public class RouteOptionsDialogFragment extends BottomSheetDialogFragment {
     }
 
     public interface Listener {
-        void onOptionClicked(long routeID, int position);
+        void onOptionClicked(long routeID, String routeName, int position);
     }
 
     private class ViewHolder extends RecyclerView.ViewHolder {
@@ -87,20 +89,15 @@ public class RouteOptionsDialogFragment extends BottomSheetDialogFragment {
 
         ViewHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.fragment_option_list_dialog_item, parent, false));
-            text = (TextView) itemView.findViewById(R.id.text);
-            text.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mListener != null) {
-                        mListener.onOptionClicked(getArguments().getLong(ARG_ROUTE_ID), getAdapterPosition());
-                        dismiss();
-                    }
+            text = itemView.findViewById(R.id.text);
+            text.setOnClickListener(v -> {
+                if (mListener != null) {
+                    mListener.onOptionClicked(getArguments().getLong(ARG_ROUTE_ID), getArguments().getString(ARG_ROUTE_NAME), getAdapterPosition());
+                    dismiss();
                 }
             });
-
-            icon = (ImageView) itemView.findViewById(R.id.icon);
+            icon = itemView.findViewById(R.id.icon);
         }
-
     }
 
     private class OptionAdapter extends RecyclerView.Adapter<ViewHolder> {
@@ -130,7 +127,5 @@ public class RouteOptionsDialogFragment extends BottomSheetDialogFragment {
         public int getItemCount() {
             return mItemCount;
         }
-
     }
-
 }

@@ -2,7 +2,6 @@ package gov.wa.wsdot.android.wsdot.service;
 
 import android.app.Activity;
 import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;

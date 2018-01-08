@@ -19,16 +19,14 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch;
 
 import android.Manifest;
-import android.content.BroadcastReceiver;
-import android.content.Context;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -42,6 +40,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -63,7 +63,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -76,59 +75,66 @@ import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.service.CamerasSyncService;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
-import gov.wa.wsdot.android.wsdot.util.map.CamerasOverlay;
-import gov.wa.wsdot.android.wsdot.util.map.VesselsOverlay;
+import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
 
 public class VesselWatchMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener,
         OnConnectionFailedListener, ConnectionCallbacks,
         OnCameraChangeListener, LocationListener,
-		ActivityCompat.OnRequestPermissionsResultCallback, OnMapReadyCallback {
+		ActivityCompat.OnRequestPermissionsResultCallback, OnMapReadyCallback, Injectable {
 
 	private static final String TAG = VesselWatchMapActivity.class.getSimpleName();
+
     private GoogleMap mMap;
 	private Handler handler = new Handler();
 	private Timer timer;
-	private VesselsOverlay vesselsOverlay = null;
-	private CamerasOverlay camerasOverlay = null;
+
 	private List<CameraItem> cameras = new ArrayList<CameraItem>();
 	private List<VesselWatchItem> vessels = new ArrayList<VesselWatchItem>();
+
 	private HashMap<Marker, String> markers = new HashMap<Marker, String>();
 	boolean showCameras;
-	
-	private CamerasSyncReceiver mCamerasReceiver;
-	private Intent camerasIntent;
-	private static AsyncTask<Void, Void, Void> camerasOverlayTask = null;
-	private static AsyncTask<Void, Void, Void> vesselsOverlayTask = null;
-	private LatLngBounds bounds;
+
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
 	private Toolbar mToolbar;
+	private ProgressBar mProgressBar;
     private boolean mPermissionDenied = false;
 
     FloatingActionButton fabLayers;
+
+    private static VesselWatchViewModel vesselViewModel;
+    private static MapCameraViewModel mapCameraViewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
     private Tracker mTracker;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-        
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.map);
         
         enableAds(getString(R.string.ferries_ad_target));
 
-		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mProgressBar = findViewById(R.id.progress_bar);
+
+		mToolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -136,19 +142,12 @@ public class VesselWatchMapActivity extends BaseActivity implements
         }
 
         // Hide map fab
-        fabLayers = (FloatingActionButton) findViewById(R.id.fab);
+        fabLayers = findViewById(R.id.fab);
         fabLayers.setVisibility(View.INVISIBLE);
-
-        // Initialize AsyncTasks
-        camerasOverlayTask = new CamerasOverlayTask();
-        vesselsOverlayTask = new VesselsOverlayTask();
 
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true); 
-        
-        // Setup Service Intent.
-        camerasIntent = new Intent(this, CamerasSyncService.class);
+        showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
         
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -160,8 +159,12 @@ public class VesselWatchMapActivity extends BaseActivity implements
                 .setFastestInterval(5000)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
+        mapCameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapCameraViewModel.class);
+        mapCameraViewModel.init("ferries");
+
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
         mapFragment.getMapAsync(this);
+
     }
 
     @Override
@@ -176,10 +179,112 @@ public class VesselWatchMapActivity extends BaseActivity implements
         mMap.setOnMarkerClickListener(this);
         mMap.setOnCameraChangeListener(this);
 
-        LatLng latLng = new LatLng(47.565125, -122.480508);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
+        LatLng defaultLatLng = new LatLng(47.565125, -122.480508);
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLatLng, 11));
+
+        vesselViewModel = ViewModelProviders.of(this, viewModelFactory).get(VesselWatchViewModel.class);
+
+        vesselViewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        mProgressBar.setVisibility(View.VISIBLE);
+                        break;
+                    case SUCCESS:
+                        mProgressBar.setVisibility(View.GONE);
+                        break;
+                    case ERROR:
+                        mProgressBar.setVisibility(View.GONE);
+                        Toast.makeText(this, "connection error, failed to load vessels", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        vesselViewModel.getVessels().observe(this, vesselItems -> {
+            if (vesselItems != null){
+
+                Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<Marker, String> entry = iter.next();
+                    if (entry.getValue().equalsIgnoreCase("vessel")) {
+                        entry.getKey().remove();
+                        iter.remove();
+                    }
+                }
+                vessels.clear();
+                vessels = vesselItems;
+
+                if (vessels.size() != 0) {
+                    for (int i = 0; i < vessels.size(); i++) {
+                        LatLng latLng = new LatLng(vessels.get(i).getLat(), vessels.get(i).getLon());
+                        Marker marker = mMap.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title(vessels.get(i).getName())
+                                .snippet(vessels.get(i).getDescription())
+                                .icon(BitmapDescriptorFactory.fromResource(vessels.get(i).getIcon()))
+                                .visible(true));
+
+                        markers.put(marker, "vessel");
+                    }
+                }
+            }
+        });
+
+        vesselViewModel.refreshVessels();
+
+        mapCameraViewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        mProgressBar.setVisibility(View.VISIBLE);
+                        break;
+                    case SUCCESS:
+                        mProgressBar.setVisibility(View.GONE);
+                        break;
+                    case ERROR:
+                        mProgressBar.setVisibility(View.GONE);
+                        Toast.makeText(this, "connection error, failed to load cameras", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        mapCameraViewModel.getDisplayCameras().observe(this, cameraItems -> {
+            if (cameraItems != null) {
+                Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<Marker, String> entry = iter.next();
+                    if (entry.getValue().equalsIgnoreCase("camera")) {
+                        entry.getKey().remove();
+                        iter.remove();
+                    }
+                }
+                cameras.clear();
+                cameras = cameraItems;
+
+                if (cameras.size() != 0) {
+                    for (int i = 0; i < cameras.size(); i++) {
+                        LatLng latLng = new LatLng(cameras.get(i).getLatitude(), cameras.get(i).getLongitude());
+                        Marker marker = mMap.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title(cameras.get(i).getTitle())
+                                .snippet(cameras.get(i).getCameraId().toString())
+                                .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
+                                .visible(showCameras));
+
+                        markers.put(marker, "camera");
+                    }
+                }
+            }
+        });
 
         enableMyLocation();
+    }
+
+    public void onCameraChange(CameraPosition cameraPosition) {
+        if (mMap != null) {
+            mapCameraViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
+        }
     }
 
     /**
@@ -208,12 +313,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
         
         timer = new Timer();
         timer.schedule(new VesselsTimerTask(), 0, 30000); // Schedule vessels to update every 30 seconds
-        
-        IntentFilter camerasFilter = new IntentFilter(
-                "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
-        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mCamerasReceiver = new CamerasSyncReceiver();
-        registerReceiver(mCamerasReceiver, camerasFilter); 
+
     }
     
     @Override
@@ -226,13 +326,8 @@ public class VesselWatchMapActivity extends BaseActivity implements
         }
         
         timer.cancel();
-        this.unregisterReceiver(mCamerasReceiver);
     }
 
-    public void onCameraChange(CameraPosition cameraPosition) {
-        setSupportProgressBarIndeterminateVisibility(true);
-        startService(camerasIntent);  
-    }
 
     public boolean onMarkerClick(Marker marker) {
         Bundle b = new Bundle();
@@ -260,27 +355,6 @@ public class VesselWatchMapActivity extends BaseActivity implements
         return true;
     }
 
-	public class CamerasSyncReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String responseString = intent.getStringExtra("responseString");
-			
-			if (responseString != null) {
-				if (responseString.equals("OK") || responseString.equals("NOP")) {
-					// We've got cameras, now add them.
-					if (camerasOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-						camerasOverlayTask = new CamerasOverlayTask().execute();
-					} else if (camerasOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-						camerasOverlayTask.execute();
-					}
-				} else {
-					Log.e("CameraSyncReceiver", "Received an error. Not executing OverlayTask.");
-				}
-			}
-		}
-	}
-	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
@@ -424,11 +498,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
     public class VesselsTimerTask extends TimerTask {
         private Runnable runnable = new Runnable() {
             public void run() {
-                if (vesselsOverlayTask.getStatus() == AsyncTask.Status.FINISHED) {
-                    vesselsOverlayTask = new VesselsOverlayTask().execute();
-                } else if (vesselsOverlayTask.getStatus() == AsyncTask.Status.PENDING) {
-                    vesselsOverlayTask.execute();
-                }
+                vesselViewModel.refreshVessels();
             }
         };
 
@@ -436,110 +506,6 @@ public class VesselWatchMapActivity extends BaseActivity implements
             handler.post(runnable);
         }
     }
-	
-	class CamerasOverlayTask extends AsyncTask<Void, Void, Void> {
-		
-		@Override
-		public void onPreExecute() {
-			setSupportProgressBarIndeterminateVisibility(true);
-            
-			camerasOverlay = null;
-            if (mMap != null) {
-                bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
-            }
-
-		 }
-		
-		 @Override
-		 public Void doInBackground(Void... unused) {
-			 camerasOverlay = new CamerasOverlay(
-					 VesselWatchMapActivity.this,
-					 bounds,
-					 "ferries");		 
-			 
-			 return null;
-		 }
-
-		 @Override
-		 public void onPostExecute(Void unused) {
-            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
-            while (iter.hasNext()) {
-                Map.Entry<Marker, String> entry = iter.next();
-                if (entry.getValue().equalsIgnoreCase("camera")) {
-                    entry.getKey().remove();
-                    iter.remove();
-                }
-            }
-            cameras.clear();
-            cameras = camerasOverlay.getCameraMarkers();
-             
-             if (cameras != null) {
-                 if (cameras.size() != 0) {
-                     for (int i = 0; i < cameras.size(); i++) {
-                         LatLng latLng = new LatLng(cameras.get(i).getLatitude(), cameras.get(i).getLongitude());
-                         Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(latLng)
-                            .title(cameras.get(i).getTitle())
-                            .snippet(cameras.get(i).getCameraId().toString())
-                            .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
-                            .visible(showCameras));
-                         
-                         markers.put(marker, "camera");
-                     }
-                 }
-             }
-            
-            setSupportProgressBarIndeterminateVisibility(false);
-		 }
-	}
-	
-	class VesselsOverlayTask extends AsyncTask<Void, Void, Void> {
-		
-		@Override
-		public void onPreExecute() {
-			setSupportProgressBarIndeterminateVisibility(true);
-
-			vesselsOverlay = null;
-		 }
-		
-		 @Override
-		 public Void doInBackground(Void... unused) {
-		     vesselsOverlay = new VesselsOverlay(getString(R.string.wsdot_api_access_code));
-			 return null;
-		 }
-
-		 @Override
-		 public void onPostExecute(Void unused) {
-            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
-            while (iter.hasNext()) {
-                Map.Entry<Marker, String> entry = iter.next();
-                if (entry.getValue().equalsIgnoreCase("vessel")) {
-                    entry.getKey().remove();
-                    iter.remove();
-                }
-            }
-		     vessels.clear();
-		     vessels = vesselsOverlay.getVesselWatchItems();
-		     
-		     if (vessels != null) {
-				if (vessels.size() != 0) {
-				    for (int i = 0; i < vessels.size(); i++) {
-				        LatLng latLng = new LatLng(vessels.get(i).getLat(), vessels.get(i).getLon());
-				        Marker marker = mMap.addMarker(new MarkerOptions()
-				            .position(latLng)
-				            .title(vessels.get(i).getName())
-				            .snippet(vessels.get(i).getDescription())
-				            .icon(BitmapDescriptorFactory.fromResource(vessels.get(i).getIcon()))
-				            .visible(true));
-				        
-				        markers.put(marker, "vessel");
-				    }
-				}
-			}
-			
-			setSupportProgressBarIndeterminateVisibility(false);
-		 }
-	}
 
     public boolean onMyLocationButtonClick() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)

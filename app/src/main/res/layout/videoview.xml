@@ -6,7 +6,7 @@
     android:padding="10dp">   
     
     <VideoView 
-    	android:id="@+id/surface_view" 
+    	android:id="@+id/surface_view"
     	android:layout_centerInParent="true"
     	android:layout_width="320dp"
     	android:layout_height="240dp"

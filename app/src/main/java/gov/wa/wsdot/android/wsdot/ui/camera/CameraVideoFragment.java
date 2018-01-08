@@ -18,7 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.camera;
 
-import android.app.Activity;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;

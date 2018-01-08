@@ -19,7 +19,6 @@
 package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;

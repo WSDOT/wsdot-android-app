@@ -90,15 +90,15 @@ public class TravelChartsFragment extends Fragment implements
         View view = inflater.inflate(R.layout.fragment_recycler_with_spinner_swipe_refresh, container, false);
 
         Context context = view.getContext();
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
+        RecyclerView recyclerView = view.findViewById(R.id.my_recycler_view);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-        mAdapter = new MyTravelChartRecyclerViewAdapter(new ArrayList<TravelChartItem>());
+        mAdapter = new MyTravelChartRecyclerViewAdapter(new ArrayList<>());
 
         recyclerView.setAdapter(mAdapter);
 
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
+        swipeRefreshLayout = view.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.holo_blue_bright,
                 R.color.holo_green_light,
@@ -136,7 +136,7 @@ public class TravelChartsFragment extends Fragment implements
 
             travelChartData = data;
 
-            routeSpinner = (Spinner) getActivity().findViewById(R.id.spinner);
+            routeSpinner = getActivity().findViewById(R.id.spinner);
 
             ArrayAdapter<CharSequence> routeArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.support_simple_spinner_dropdown_item, spinnerOptions);;
             routeArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);

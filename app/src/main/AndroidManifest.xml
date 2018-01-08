@@ -57,13 +57,6 @@
             android:name="com.google.android.gms.analytics.AnalyticsService"
             android:enabled="true"
             android:exported="false" />
-        <service android:name=".service.CamerasSyncService" />
-        <service android:name=".service.HighwayAlertsSyncService" />
-        <service android:name=".service.MountainPassesSyncService" />
-        <service android:name=".service.TravelTimesSyncService" />
-        <service android:name=".service.FerriesSchedulesSyncService" />
-        <service android:name=".service.FerriesTerminalSailingSpaceSyncService" />
-        <service android:name=".service.BorderWaitSyncService" />
         <service android:name=".service.MyRouteTrackingService" />
 
         <activity
@@ -102,15 +95,15 @@
         <activity
             android:name=".ui.mountainpasses.MountainPassesActivity"
             android:label="@string/title_mountainpasses" />
-        <activity android:name=".ui.mountainpasses.MountainPassItemActivity" />
+        <activity android:name=".ui.mountainpasses.passitem.MountainPassItemActivity" />
         <activity
             android:name=".ui.trafficmap.TrafficMapActivity"
             android:label="@string/title_trafficmap" />
         <activity
-            android:name=".ui.trafficmap.incidents.TrafficAlertsActivity"
+            android:name=".ui.trafficmap.alertsinarea.HighwayAlertListActivity"
             android:label="@string/title_alerts" />
         <activity
-            android:name=".ui.trafficmap.traveltimes.TravelTimesActivity"
+            android:name=".ui.traveltimes.TravelTimesActivity"
             android:label="@string/title_traveltimes" />
         <activity
             android:name=".ui.trafficmap.socialmedia.SocialMediaTabActivity"
@@ -130,10 +123,10 @@
         <activity
             android:name=".ui.ferries.schedules.FerriesRouteSchedulesActivity"
             android:label="@string/title_ferriesrouteschedules" />
-        <activity android:name=".ui.ferries.schedules.FerriesRouteSchedulesDayDeparturesActivity" />
-        <activity android:name=".ui.ferries.schedules.FerriesRouteSchedulesDaySailingsActivity" />
-        <activity android:name=".ui.ferries.schedules.FerriesRouteAlertsBulletinsActivity" />
-        <activity android:name=".ui.ferries.schedules.FerriesRouteAlertsBulletinDetailsActivity" />
+        <activity android:name=".ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity" />
+        <activity android:name=".ui.ferries.sailings.FerriesRouteSchedulesDaySailingsActivity" />
+        <activity android:name=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity" />
+        <activity android:name=".ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsActivity" />
         <activity
             android:name=".ui.ferries.vesselwatch.VesselWatchMapActivity"
             android:label="@string/title_vesselwatch" />
@@ -146,7 +139,7 @@
             android:label="@string/title_youtube" />
         <activity android:name=".ui.camera.CameraActivity" />
         <activity android:name=".ui.camera.CameraListActivity" />
-        <activity android:name=".ui.alert.HighwayAlertDetailsActivity" />
+        <activity android:name=".ui.alert.detail.HighwayAlertDetailsActivity" />
         <activity android:name=".ui.trafficmap.restareas.RestAreaActivity" />
         <activity
             android:name=".ui.amtrakcascades.AmtrakCascadesActivity"
@@ -167,7 +160,7 @@
             android:label="@string/title_activity_new_route"
             android:theme="@style/WSDOT" />
         <activity
-            android:name=".ui.myroute.myroutealerts.MyRouteAlertsActivity"
+            android:name=".ui.myroute.myroutealerts.MyRouteAlertsListActivity"
             android:theme="@style/WSDOT" />
         <activity android:name=".ui.myroute.MyRouteMapActivity" />
         <activity

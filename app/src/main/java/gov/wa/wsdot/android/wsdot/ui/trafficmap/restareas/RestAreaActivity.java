@@ -43,7 +43,7 @@ public class RestAreaActivity extends BaseActivity {
             restAreaItem = new Gson().fromJson(jsonMyObject, RestAreaItem.class);
         }
 
-        webview = (WebView)findViewById(R.id.webview);
+        webview = findViewById(R.id.webview);
         webview.setVisibility(View.GONE);
         webview.setWebViewClient(new myWebViewClient());
         webview.getSettings().setJavaScriptEnabled(true);
@@ -55,7 +55,7 @@ public class RestAreaActivity extends BaseActivity {
             title = "Rest Area";
             webview.loadDataWithBaseURL(null, "Error loading rest area information.", "text/html", "utf-8", null);
         }
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(title);
         setSupportActionBar(mToolbar);
 

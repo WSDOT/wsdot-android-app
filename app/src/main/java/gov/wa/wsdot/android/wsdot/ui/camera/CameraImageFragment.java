@@ -19,7 +19,8 @@
 package gov.wa.wsdot.android.wsdot.ui.camera;
 
 import android.annotation.SuppressLint;
-import android.content.ContentResolver;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -54,57 +55,51 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.Cameras;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 
 public class CameraImageFragment extends Fragment implements
         LoaderCallbacks<Drawable>,
-        SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener,
+		Injectable {
 
 	private static final String TAG = CameraImageFragment.class.getSimpleName();
     private static String mUrl;
-	private ViewGroup mRootView;
-	private ImageView mImage;
+    private ImageView mImage;
 	private String mTitle;
 	private int mId;
 	private static String mCameraName = "cameraImage.jpg";
 	private ShareActionProvider shareAction;
 	private boolean mIsStarred = false;
-	private ContentResolver resolver;
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
 	static final private int MENU_ITEM_STAR = Menu.FIRST;
 
+    CameraViewModel viewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-        // Tell the framework to try to keep this fragment around
-        // during a configuration change.
-        setRetainInstance(true);
-		setHasOptionsMenu(true);
-
+        setHasOptionsMenu(true);
         Bundle args = getArguments();
         mId = args.getInt("id");
-        mTitle = args.getString("title");
-        mUrl = args.getString("url");
-        mIsStarred = args.getInt("isStarred") != 0;
-
-        if (savedInstanceState != null) {
-            mIsStarred = savedInstanceState.getInt("isStarred") != 0;
-        }
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mRootView = (ViewGroup) inflater.inflate(R.layout.camera_dialog, null);
+        ViewGroup mRootView = (ViewGroup) inflater.inflate(R.layout.camera_dialog, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        swipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swipe_container);
+        swipeRefreshLayout = mRootView.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
 				R.color.holo_blue_bright,
@@ -112,18 +107,36 @@ public class CameraImageFragment extends Fragment implements
 				R.color.holo_orange_light,
 				R.color.holo_red_light);
 
-        mImage = (ImageView) mRootView.findViewById(R.id.image);
+        mImage = mRootView.findViewById(R.id.image);
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(CameraViewModel.class);
+
+        viewModel.getResourceStatus().observe(this, resourceStatus ->{
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        viewModel.getCamera(mId).observe(this, camera -> {
+            if (camera != null) {
+                mTitle = camera.getTitle();
+                mUrl = camera.getUrl();
+                mIsStarred = camera.getIsStarred() != 0;
+                getLoaderManager().initLoader(0, null, this);
+            }
+        });
 
 		return mRootView;
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		// Prepare the loader. Either re-connect with an existing one,
-		// or start a new one.
-        getLoaderManager().initLoader(0, null, this);
 	}
 
 	@Override
@@ -158,7 +171,6 @@ public class CameraImageFragment extends Fragment implements
 	}
 
 	private void toggleStar(MenuItem item) {
-		resolver = getActivity().getContentResolver();
 		Snackbar added_snackbar = Snackbar
 				.make(getView(), R.string.add_favorite, Snackbar.LENGTH_SHORT);
 
@@ -166,40 +178,17 @@ public class CameraImageFragment extends Fragment implements
 				.make(getView(), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
 
 		if (mIsStarred) {
-			item.setIcon(R.drawable.ic_menu_star);
-			try {
-				ContentValues values = new ContentValues();
-				values.put(Cameras.CAMERA_IS_STARRED, 0);
-				resolver.update(
-						Cameras.CONTENT_URI,
-						values,
-						Cameras.CAMERA_ID + "=?",
-						new String[] {Integer.toString(mId)}
-						);
-				removed_snackbar.show();
-				mIsStarred = false;
-	    	} catch (Exception e) {
-                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-	    		Log.e("CameraImageFragment", "Error: " + e.getMessage());
-	    	}
-		} else {
-			item.setIcon(R.drawable.ic_menu_star_on);
-			try {
-				ContentValues values = new ContentValues();
-				values.put(Cameras.CAMERA_IS_STARRED, 1);
-				resolver.update(
-						Cameras.CONTENT_URI,
-						values,
-						Cameras.CAMERA_ID + "=?",
-						new String[] {Integer.toString(mId)}
-						);
-
-				added_snackbar.show();
-				mIsStarred = true;
-			} catch (Exception e) {
-				Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-	    		Log.e("CameraImageFragment", "Error: " + e.getMessage());
-	    	}
+            item.setIcon(R.drawable.ic_menu_star);
+            item.setTitle("Favorite checkbox, not checked");
+            viewModel.setIsStarredFor(mId, 0);
+            removed_snackbar.show();
+            mIsStarred = false;
+        } else {
+            item.setIcon(R.drawable.ic_menu_star_on);
+            item.setTitle("Favorite checkbox, checked");
+            viewModel.setIsStarredFor(mId, 1);
+            added_snackbar.show();
+            mIsStarred = true;
 		}
 	}
 
@@ -222,11 +211,9 @@ public class CameraImageFragment extends Fragment implements
         return shareIntent;
 	}
 
-
 	public Loader<Drawable> onCreateLoader(int id, Bundle args) {
 		return new CameraImageLoader(getActivity());
 	}
-
 
 	public void onLoadFinished(Loader<Drawable> loader, Drawable data) {
 	    swipeRefreshLayout.setRefreshing(false);
@@ -331,13 +318,4 @@ public class CameraImageFragment extends Fragment implements
         getLoaderManager().restartLoader(0, null, this);
     }
 
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		if (mIsStarred){
-            outState.putInt("isStarred",  1);
-		}else{
-            outState.putInt("isStarred",  0);
-		}
-		super.onSaveInstanceState(outState);
-	}
 }

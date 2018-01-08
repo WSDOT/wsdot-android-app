@@ -1,7 +1,6 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute;
 
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -10,37 +9,29 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.accessibility.AccessibilityManager;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.google.android.gms.maps.model.LatLng;
-
-import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteActivity;
 
-public class MyRouteActivity extends FindFavoritesOnRouteActivity
-        implements RouteOptionsDialogFragment.Listener {
+public class MyRouteActivity extends BaseActivity implements RouteOptionsDialogFragment.Listener {
 
     final String TAG = MyRouteActivity.class.getSimpleName();
 
-    private MountainPassesSyncReceiver mMountainPassesSyncReceiver;
-    private FerriesSchedulesSyncReceiver mFerriesSchedulesSyncReceiver;
-    private TravelTimesSyncReceiver mTravelTimesSyncReceiver;
-    private CamerasSyncReceiver mCamerasSyncReceiver;
     private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_route);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if(getSupportActionBar() != null){
@@ -48,19 +39,16 @@ public class MyRouteActivity extends FindFavoritesOnRouteActivity
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // GA tracker
-                mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-                mTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory("Button Tap")
-                        .setAction("Create New Route")
-                        .setLabel("My Routes")
-                        .build());
-                startActivity(new Intent(MyRouteActivity.this, NewRouteActivity.class));
-            }
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> {
+            // GA tracker
+            mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Button Tap")
+                    .setAction("Create New Route")
+                    .setLabel("My Routes")
+                    .build());
+            startActivity(new Intent(MyRouteActivity.this, NewRouteActivity.class));
         });
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -100,47 +88,6 @@ public class MyRouteActivity extends FindFavoritesOnRouteActivity
     }
 
     @Override
-    public void onResume(){
-        super.onResume();
-        // Ferries Route Schedules
-        IntentFilter ferriesSchedulesFilter = new IntentFilter(
-                "gov.wa.wsdot.android.wsdot.intent.action.FERRIES_SCHEDULES_RESPONSE");
-        ferriesSchedulesFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mFerriesSchedulesSyncReceiver = new FerriesSchedulesSyncReceiver();
-        registerReceiver(mFerriesSchedulesSyncReceiver, ferriesSchedulesFilter);
-
-        // Mountain Passes
-        IntentFilter mountainPassesFilter = new IntentFilter(
-                "gov.wa.wsdot.android.wsdot.intent.action.MOUNTAIN_PASSES_RESPONSE");
-        mountainPassesFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mMountainPassesSyncReceiver = new MountainPassesSyncReceiver();
-        registerReceiver(mMountainPassesSyncReceiver, mountainPassesFilter);
-
-        // Travel Times
-        IntentFilter travelTimesFilter = new IntentFilter(
-                "gov.wa.wsdot.android.wsdot.intent.action.TRAVEL_TIMES_RESPONSE");
-        travelTimesFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mTravelTimesSyncReceiver = new TravelTimesSyncReceiver();
-        registerReceiver(mTravelTimesSyncReceiver, travelTimesFilter);
-
-        // Cameras
-        IntentFilter camerasFilter = new IntentFilter(
-                "gov.wa.wsdot.android.wsdot.intent.action.CAMERAS_RESPONSE");
-        camerasFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        mCamerasSyncReceiver = new CamerasSyncReceiver();
-        registerReceiver(mCamerasSyncReceiver, camerasFilter);
-    }
-
-    @Override
-    public void onPause(){
-        super.onPause();
-        unregisterReceiver(mFerriesSchedulesSyncReceiver);
-        unregisterReceiver(mMountainPassesSyncReceiver);
-        unregisterReceiver(mTravelTimesSyncReceiver);
-        unregisterReceiver(mCamerasSyncReceiver);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case android.R.id.home:
@@ -150,20 +97,8 @@ public class MyRouteActivity extends FindFavoritesOnRouteActivity
         return super.onOptionsItemSelected(item);
     }
 
-    public void onOptionClicked(long routeID, int position) {
+    public void onOptionClicked(long routeID, String routeName, int position) {
         MyRouteFragment fragment = (MyRouteFragment) getSupportFragmentManager().findFragmentById(R.id.my_route_fragment);
-        fragment.onOptionSelected(routeID, position);
-    }
-
-    @Override
-    protected void taskComplete() {
-        MyRouteFragment fragment = (MyRouteFragment) getSupportFragmentManager().findFragmentById(R.id.my_route_fragment);
-        fragment.myTaskComplete();
-    }
-
-    @Override
-    protected List<LatLng> getRoute() {
-        MyRouteFragment fragment = (MyRouteFragment) getSupportFragmentManager().findFragmentById(R.id.my_route_fragment);
-        return fragment.myGetRoute();
+        fragment.onOptionSelected(routeID, routeName, position);
     }
 }
