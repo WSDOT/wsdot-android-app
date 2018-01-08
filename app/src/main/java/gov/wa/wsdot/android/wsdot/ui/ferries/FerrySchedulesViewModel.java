@@ -23,6 +23,7 @@ import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
+import gov.wa.wsdot.android.wsdot.util.AbsentLiveData;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
@@ -60,10 +61,16 @@ public class FerrySchedulesViewModel extends ViewModel {
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
     public LiveData<List<FerryScheduleEntity>> getFerrySchedules(){
+        if (this.schedules == null){
+            return AbsentLiveData.create();
+        }
         return this.schedules;
     }
 
-    public LiveData<FerryScheduleEntity> getFerryScheduleFor(Integer routeId){
+    public LiveData<FerryScheduleEntity> getFerrySchedule(){
+        if (this.schedules == null){
+            return AbsentLiveData.create();
+        }
         return this.schedule;
     }
 
@@ -153,7 +160,6 @@ public class FerrySchedulesViewModel extends ViewModel {
         } catch (Exception e) {
             Log.e(TAG, "Error adding schedule date items", e);
         }
-
         return dateItems;
     }
 }

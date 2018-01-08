@@ -53,7 +53,6 @@ public class BorderWaitRepository extends NetworkResourceSyncRepository {
         URL url = new URL(APIEndPoints.BORDER_WAITS);
         URLConnection urlConn = url.openConnection();
 
-        Log.e(TAG, "checking waits 1");
         BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
         StringBuilder jsonFile = new StringBuilder();
         String line;
@@ -63,8 +62,6 @@ public class BorderWaitRepository extends NetworkResourceSyncRepository {
         in.close();
 
         JSONObject obj = new JSONObject(jsonFile.toString());
-
-
 
         JSONObject result = obj.getJSONObject("waittimes");
         JSONArray items = result.getJSONArray("items");
