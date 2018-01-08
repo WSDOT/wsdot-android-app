@@ -4,6 +4,33 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0] - 2018-01
+
+## Added
+- MVVM pattern. (Model, View, View Model)
+- Room persistence library.
+- Border wait and ferries view model test.
+
+## [4.11.3] - 2017-09-19
+
+## Fixed
+- Crash caused by referencing id not in travel charts fragment view.
+- Updated US 97 camera url.
+
+## [4.11.2] - 2017-10-18
+
+## Added
+- New Amtrak train numbers.
+
+## Changed
+- Moved My Routes button to home screen.
+- Updated to Gradle 3.0.0
+
+## [4.11.1] - 2017-09-19
+
+## Fixed
+- Happening now section Google Analytics
+
 ## [4.11.0] - 2017-09-19
 
 ## Changed
