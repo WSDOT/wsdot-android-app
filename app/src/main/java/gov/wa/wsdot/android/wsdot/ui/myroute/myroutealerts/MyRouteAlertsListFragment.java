@@ -321,7 +321,7 @@ public class MyRouteAlertsListFragment extends BaseFragment
             if (id != null) {
                 Bundle b = new Bundle();
                 Intent intent = new Intent(getActivity(), HighwayAlertDetailsActivity.class);
-                b.putString("id", id);
+                b.putInt("id", Integer.valueOf(id));
                 intent.putExtras(b);
                 startActivity(intent);
             }

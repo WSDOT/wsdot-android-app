@@ -55,6 +55,10 @@ public class HighwayAlertRepository extends NetworkResourceSyncRepository {
         return highwayAlertDao.loadHighwayAlertsWith(priority);
     }
 
+    public LiveData<HighwayAlertEntity> getHighwayAlert(Integer alertId) {
+        return highwayAlertDao.loadHighwayAlert(alertId);
+    }
+
     void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
         URL url = new URL(APIEndPoints.HIGHWAY_ALERTS);

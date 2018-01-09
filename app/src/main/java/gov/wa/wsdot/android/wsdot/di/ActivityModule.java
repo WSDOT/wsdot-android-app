@@ -19,6 +19,7 @@ package gov.wa.wsdot.android.wsdot.di;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
@@ -77,5 +78,8 @@ public abstract class ActivityModule {
 
     @ContributesAndroidInjector
     abstract NewRouteActivity contributeNewRouteActivity();
+
+    @ContributesAndroidInjector
+    abstract HighwayAlertDetailsActivity contributeHighwayAlertDetailsActivity();
 
 }

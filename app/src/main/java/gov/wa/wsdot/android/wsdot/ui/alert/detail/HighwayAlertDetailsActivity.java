@@ -19,6 +19,8 @@
 package gov.wa.wsdot.android.wsdot.ui.alert.detail;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
@@ -33,12 +35,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -48,91 +55,63 @@ import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 public class HighwayAlertDetailsActivity extends BaseActivity {
     
     private static final String TAG = HighwayAlertDetailsActivity.class.getSimpleName();
-    private ContentResolver resolver;
+
 	private WebView webview;
 	private View mLoadingSpinner;
 	private String title;
 	private String description;
     private Toolbar mToolbar;
-	
-	@SuppressLint("SimpleDateFormat")
-    private DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+
+    HighwayAlertDetailsViewModel viewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
 		super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_webview_with_spinner);
 
-        resolver = getContentResolver();
-        Cursor cursor = null;
-        HighwayAlertsItem alertItem = null;
         title = "";
         description = "";
-        
-        String[] projection = {
-                HighwayAlerts.HIGHWAY_ALERT_ID,
-                HighwayAlerts.HIGHWAY_ALERT_START_LATITUDE,
-                HighwayAlerts.HIGHWAY_ALERT_START_LONGITUDE,
-                HighwayAlerts.HIGHWAY_ALERT_END_LATITUDE,
-                HighwayAlerts.HIGHWAY_ALERT_END_LONGITUDE,
-                HighwayAlerts.HIGHWAY_ALERT_CATEGORY,
-                HighwayAlerts.HIGHWAY_ALERT_HEADLINE,
-                HighwayAlerts.HIGHWAY_ALERT_PRIORITY,
-                HighwayAlerts.HIGHWAY_ALERT_LAST_UPDATED
-                };
 		
 		Bundle b = getIntent().getExtras();
-		String id = b.getString("id");
-		
-        try {
-            cursor = resolver.query(
-                    HighwayAlerts.CONTENT_URI,
-                    projection,
-                    HighwayAlerts.HIGHWAY_ALERT_ID + "=?",
-                    new String[] {id},
-                    null);
-            if (cursor != null && cursor.moveToFirst()) {
-                alertItem = new HighwayAlertsItem(cursor.getDouble(1),
-                        cursor.getDouble(2), cursor.getDouble(3),
-                        cursor.getDouble(4), cursor.getString(5),
-                        cursor.getString(6), cursor.getString(8));
+		Integer id = b.getInt("id");
+
+		viewModel = ViewModelProviders.of(this, viewModelFactory).get(HighwayAlertDetailsViewModel.class);
+
+		viewModel.getHighwayAlertfor(id).observe(this, alertItem -> {
+
+		    if (alertItem != null){
+
+                title = "Highway Alert - " + alertItem.getCategory();
+                description = alertItem.getHeadline();
+
+                mToolbar = findViewById(R.id.toolbar);
+                mToolbar.setTitle(title);
+                setSupportActionBar(mToolbar);
+                if(getSupportActionBar() != null){
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    getSupportActionBar().setDisplayShowHomeEnabled(true);
+                }
+                disableAds();
+
+                mLoadingSpinner = findViewById(R.id.loading_spinner);
+                mLoadingSpinner.setVisibility(View.VISIBLE);
+
+                webview = findViewById(R.id.webview);
+                webview.setVisibility(View.GONE);
+                webview.setWebViewClient(new myWebViewClient());
+                webview.getSettings().setJavaScriptEnabled(true);
+                webview.loadDataWithBaseURL(null, buildContent(alertItem), "text/html", "utf-8", null);
+
             } else {
-                alertItem = new HighwayAlertsItem();
-                alertItem.setEventCategory("ERROR");
-                alertItem.setHeadlineDescription(
-                        "Whoops. Something happened trying to access the highway alert.");
-                alertItem.setLastUpdatedTime(dateFormat.format(new Date()));
+                Toast.makeText(this, "Error reading alert", Toast.LENGTH_LONG);
             }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-        
-        title = "Highway Alert - " + alertItem.getEventCategory();
-        description = alertItem.getHeadlineDescription();
-
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        mToolbar.setTitle(title);
-        setSupportActionBar(mToolbar);
-        if(getSupportActionBar() != null){
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-		disableAds();
-		
-		mLoadingSpinner = findViewById(R.id.loading_spinner);
-		mLoadingSpinner.setVisibility(View.VISIBLE);
-
-		webview = (WebView)findViewById(R.id.webview);
-        webview.setVisibility(View.GONE);
-		webview.setWebViewClient(new myWebViewClient());
-		webview.getSettings().setJavaScriptEnabled(true);
-		webview.loadDataWithBaseURL(null, buildContent(alertItem), "text/html", "utf-8", null);
-
-
+        });
 	}
 
     @Override
@@ -196,22 +175,22 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 		}
 	}
 	
-    private String buildContent(HighwayAlertsItem item) {
+    private String buildContent(HighwayAlertEntity item) {
         StringBuilder sb = new StringBuilder();
         
-        sb.append("<p>" + item.getHeadlineDescription() + "</p>");
+        sb.append("<p>" + item.getHeadline() + "</p>");
         sb.append("<p style='color:#7d7d7d;'>"
-                + ParserUtils.relativeTime(item.getLastUpdatedTime(),
+                + ParserUtils.relativeTime(item.getLastUpdated(),
                         "MMMM d, yyyy h:mm a", false) + "</p>");
         
-        if (!item.getEventCategory().equalsIgnoreCase("error")) {
+        if (!item.getCategory().equalsIgnoreCase("error")) {
             sb.append("<img src='");
             sb.append(APIEndPoints.STATIC_GOOGLE_MAPS);
             sb.append("?center=");
             sb.append(item.getStartLatitude() + "," + item.getStartLongitude());
             sb.append("&zoom=15&size=320x320&maptype=roadmap&markers=");
             sb.append(item.getStartLatitude() + "," + item.getStartLongitude());
-            sb.append("&key=" + getString(R.string.google_static_map_key) + "'>");
+            sb.append("&key=" + APIEndPoints.GOOGLE_API_KEY + "'>");
         }
         
         return sb.toString();

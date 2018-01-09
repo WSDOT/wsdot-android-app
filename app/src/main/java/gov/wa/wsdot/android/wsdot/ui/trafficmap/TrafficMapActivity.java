@@ -118,7 +118,6 @@ import javax.inject.Inject;
 import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
@@ -587,7 +586,7 @@ public class TrafficMapActivity extends BaseActivity implements
             TrafficMapActivity.this.startActivity(intent);
         } else if (markers.get(marker).equalsIgnoreCase("alert")) {
             intent = new Intent(this, HighwayAlertDetailsActivity.class);
-            b.putString("id", marker.getSnippet());
+            b.putInt("id", Integer.valueOf(marker.getSnippet()));
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);
         } else if (markers.get(marker).equalsIgnoreCase("restarea")) {

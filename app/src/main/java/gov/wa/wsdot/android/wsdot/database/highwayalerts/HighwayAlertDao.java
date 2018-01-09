@@ -21,6 +21,9 @@ public abstract class HighwayAlertDao {
     @Query("SELECT * FROM highway_alerts WHERE highway_alert_priority LIKE :priority")
     public abstract LiveData<List<HighwayAlertEntity>> loadHighwayAlertsWith(String priority);
 
+    @Query("SELECT * FROM highway_alerts WHERE highway_alert_id = :alertId")
+    public abstract LiveData<HighwayAlertEntity> loadHighwayAlert(Integer alertId);
+
     @Query("DELETE FROM highway_alerts")
     public abstract void deleteAll();
 

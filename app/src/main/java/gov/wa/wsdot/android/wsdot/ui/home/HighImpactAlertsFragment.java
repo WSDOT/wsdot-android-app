@@ -186,7 +186,7 @@ public class HighImpactAlertsFragment extends BaseFragment implements
                 view.setOnClickListener(v -> {
                     Bundle b = new Bundle();
                     Intent intent = new Intent(getActivity(), HighwayAlertDetailsActivity.class);
-                    b.putString("id", String.valueOf(items.get(position).getAlertId()));
+                    b.putInt("id", items.get(position).getAlertId());
                     intent.putExtras(b);
                     startActivity(intent);
                 });
