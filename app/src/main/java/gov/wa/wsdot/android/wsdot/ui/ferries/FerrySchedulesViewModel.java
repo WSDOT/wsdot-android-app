@@ -68,7 +68,7 @@ public class FerrySchedulesViewModel extends ViewModel {
     }
 
     public LiveData<FerryScheduleEntity> getFerrySchedule(){
-        if (this.schedules == null){
+        if (this.schedule == null){
             return AbsentLiveData.create();
         }
         return this.schedule;
