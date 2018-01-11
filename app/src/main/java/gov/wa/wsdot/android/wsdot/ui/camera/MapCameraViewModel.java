@@ -39,7 +39,7 @@ public class MapCameraViewModel extends ViewModel {
         this.cameraRepo = cameraRepo;
     }
 
-    public void init(@Nullable String roadName){
+    public void init(@Nullable String roadName) {
 
         if (roadName != null){
             this.displayableCameraItems = Transformations.map(cameraRepo.getCamerasForRoad(roadName, mStatus), cameras -> transformCameras(cameras));
@@ -48,7 +48,6 @@ public class MapCameraViewModel extends ViewModel {
         }
 
         mapBounds = new MutableLiveData<>();
-
         displayedCameraItems = new MediatorLiveData<>();
 
         displayedCameraItems.addSource(mapBounds, bounds -> {
@@ -66,7 +65,6 @@ public class MapCameraViewModel extends ViewModel {
 
     private ArrayList<CameraItem> transformCameras(List<CameraEntity> cameras){
         ArrayList<CameraItem> displayableAlertItemValues = new ArrayList<>();
-
         if (cameras != null) {
             for (CameraEntity camera : cameras) {
 
@@ -101,7 +99,6 @@ public class MapCameraViewModel extends ViewModel {
     }
 
     public List<CameraItem> filterDisplayedCamerasFor(LatLngBounds bounds, List<CameraItem> cameraItems) {
-
         ArrayList<CameraItem> displayedCameraValues = new ArrayList<>();
         for (CameraItem camera : cameraItems) {
             LatLng cameraLocation = new LatLng(camera.getLatitude(), camera.getLongitude());
@@ -111,5 +108,4 @@ public class MapCameraViewModel extends ViewModel {
         }
        return displayedCameraValues;
     }
-
 }

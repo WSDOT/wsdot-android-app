@@ -40,11 +40,8 @@ public abstract class NetworkResourceSyncRepository {
 
     // Checks the caches database to see if the last cache time is older than the updateInterval
     public void refreshData(MutableLiveData<ResourceStatus> status, Boolean forceRefresh){
-
+        status.setValue(ResourceStatus.loading());
         appExecutors.diskIO().execute(() -> {
-
-            status.postValue(ResourceStatus.loading());
-
             CacheEntity cache = cacheRepository.getCacheTimeFor(this.tableName);
             long now = System.currentTimeMillis();
             Boolean shouldUpdate = (Math.abs(now - cache.getLastUpdated()) > updateInterval);

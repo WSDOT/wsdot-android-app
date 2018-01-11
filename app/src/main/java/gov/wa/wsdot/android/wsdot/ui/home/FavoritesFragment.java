@@ -69,6 +69,7 @@ import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemAct
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.network.Status;
 
 public class FavoritesFragment extends BaseFragment implements
         SwipeRefreshLayout.OnRefreshListener,
@@ -273,6 +274,19 @@ public class FavoritesFragment extends BaseFragment implements
             }
         });
 
+        viewModel.getFavoritesLoadingTasksCount().observe(this, numTasks -> {
+            if (numTasks != null) {
+
+                if (numTasks == 0){
+                    swipeRefreshLayout.setRefreshing(false);
+                } else if (numTasks < 0) {
+                    Log.e(TAG, "numTasks in invalid state");
+                } else {
+                    swipeRefreshLayout.setRefreshing(true);
+                }
+            }
+        });
+
         return root;
     }
 
@@ -300,12 +314,6 @@ public class FavoritesFragment extends BaseFragment implements
     /**
      * Custom adapter for favorites items in recycler view.
      *
-     * This class stores a LinkedHashMap of cursors for each type of
-     * favorite-able item.
-     *
-     * It should be possible to add items that do not have cursors to this adapter
-     * as long as they have their own ViewHolders. There would need to be a new
-     * viewType and a way to identify it.
      *
      * Extending RecyclerView adapter this adapter binds the custom ViewHolders
      * class to it's data.
@@ -764,7 +772,7 @@ public class FavoritesFragment extends BaseFragment implements
         }
 
         /**
-         * Returns the item at a given position. This could either be a Cursor
+         * Returns the item at a given position. This could either be an Entity
          * or a section header (a String).
          * @param position
          * @return
@@ -828,7 +836,7 @@ public class FavoritesFragment extends BaseFragment implements
         }
 
         @Override
-        public int getItemCount(){
+        public int getItemCount() {
             int count = 0;
 
             count += mCameras.size() + (mCameras.size() > 0 ? 1 : 0); // + 1 for header

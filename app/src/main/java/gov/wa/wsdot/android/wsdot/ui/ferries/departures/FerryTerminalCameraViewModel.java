@@ -49,10 +49,8 @@ public class FerryTerminalCameraViewModel extends ViewModel {
     }
 
     public void loadTerminalCameras(Integer terminalId, String roadName){
-        appExecutors.taskIO().execute(() -> {
-            terminalCameras.addSource(cameraRepo.getCamerasForRoad(roadName, mStatus), cameras -> {
-                processTerminalCameras(terminalId, cameras);
-            });
+        terminalCameras.addSource(cameraRepo.getCamerasForRoad(roadName, mStatus), cameras -> {
+            processTerminalCameras(terminalId, cameras);
         });
     }
 

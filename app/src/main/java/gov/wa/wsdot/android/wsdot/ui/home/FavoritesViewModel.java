@@ -1,8 +1,13 @@
 package gov.wa.wsdot.android.wsdot.ui.home;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.util.List;
 
@@ -21,8 +26,11 @@ import gov.wa.wsdot.android.wsdot.repository.MountainPassRepository;
 import gov.wa.wsdot.android.wsdot.repository.MyRoutesRepository;
 import gov.wa.wsdot.android.wsdot.repository.TravelTimeRepository;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
+import gov.wa.wsdot.android.wsdot.util.network.Status;
 
 public class FavoritesViewModel extends ViewModel {
+
+    private final String TAG = FavoritesViewModel.class.getSimpleName();
 
     private CameraRepository cameraRepo;
     private MutableLiveData<ResourceStatus> mCameraStatus;
@@ -37,9 +45,10 @@ public class FavoritesViewModel extends ViewModel {
     private MutableLiveData<ResourceStatus> mPassStatus;
 
     private MyRoutesRepository myRoutesRepo;
-    private MutableLiveData<ResourceStatus> mMyRouteStatus;
 
     private MapLocationRepository mapLocationRepo;
+
+    private MediatorLiveData<Integer> mFavoritesLoadingTasks;
 
     @Inject
     FavoritesViewModel(CameraRepository cameraRepo,
@@ -53,7 +62,45 @@ public class FavoritesViewModel extends ViewModel {
         this.mFerryStatus = new MutableLiveData<>();
         this.mTravelTimeStatus = new MutableLiveData<>();
         this.mPassStatus = new MutableLiveData<>();
-        this.mMyRouteStatus = new MutableLiveData<>();
+
+        this.mFavoritesLoadingTasks = new MediatorLiveData<>();
+        this.mFavoritesLoadingTasks.setValue(0);
+
+        this.mFavoritesLoadingTasks.addSource(mFerryStatus, status -> {
+            if (status != null && mFavoritesLoadingTasks.getValue() != null) {
+                if (status.status.equals(Status.LOADING)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() + 1);
+                } else if (status.status.equals(Status.ERROR)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() - 1);
+                } else if (status.status.equals(Status.SUCCESS)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() - 1);
+                }
+            }
+        });
+
+        this.mFavoritesLoadingTasks.addSource(mTravelTimeStatus, status -> {
+            if (status != null && mFavoritesLoadingTasks.getValue() != null) {
+                if (status.status.equals(Status.LOADING)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() + 1);
+                } else if (status.status.equals(Status.ERROR)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() - 1);
+                } else if (status.status.equals(Status.SUCCESS)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() - 1);
+                }
+            }
+        });
+
+        this.mFavoritesLoadingTasks.addSource(mPassStatus, status -> {
+            if (status != null && mFavoritesLoadingTasks.getValue() != null) {
+                if (status.status.equals(Status.LOADING)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() + 1);
+                } else if (status.status.equals(Status.ERROR)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() - 1);
+                } else if (status.status.equals(Status.SUCCESS)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() - 1);
+                }
+            }
+        });
 
         this.cameraRepo = cameraRepo;
         this.ferryScheduleRepo = ferryScheduleRepo;
@@ -61,6 +108,10 @@ public class FavoritesViewModel extends ViewModel {
         this.mountainPassRepo = mountainPassRepo;
         this.myRoutesRepo = myRoutesRepo;
         this.mapLocationRepo = mapLocationRepo;
+    }
+
+    LiveData<Integer> getFavoritesLoadingTasksCount() {
+        return this.mFavoritesLoadingTasks;
     }
 
     public LiveData<List<CameraEntity>> getFavoriteCameras() {

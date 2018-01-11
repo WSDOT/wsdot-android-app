@@ -88,18 +88,16 @@ public class FerryTerminalViewModel extends ViewModel {
      * @param terminalItem holds sailing times data. Extracted from a FerriesScheduleDateItem
      */
     public void loadDepartureTimesForTerminal(FerriesTerminalItem terminalItem) {
-        appExecutors.taskIO().execute(() -> {
-            processDepartureTimes(terminalItem);
+        processDepartureTimes(terminalItem);
 
-            departureTimes.addSource(
-                    terminalSpaceRepo.getTerminalSpacesFor(terminalItem.getDepartingTerminalID(), mStatus),
-                    spaces -> {
-                        if (spaces != null) {
-                            addSailingSpaces(terminalItem, spaces);
-                        }
+        departureTimes.addSource(
+                terminalSpaceRepo.getTerminalSpacesFor(terminalItem.getDepartingTerminalID(), mStatus),
+                spaces -> {
+                    if (spaces != null) {
+                        addSailingSpaces(terminalItem, spaces);
                     }
-            );
-        });
+                }
+        );
     }
 
     /**
@@ -141,8 +139,8 @@ public class FerryTerminalViewModel extends ViewModel {
             Log.e(TAG, "Error adding terminal departure times", e);
         }
 
-        departureTimesAnnotations.postValue(annotations);
-        departureTimes.postValue(times);
+        departureTimesAnnotations.setValue(annotations);
+        departureTimes.setValue(times);
 
     }
 

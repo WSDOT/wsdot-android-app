@@ -84,8 +84,6 @@ public class MountainPassItemReportFragment extends BaseFragment implements Inje
                 mDateUpdated = pass.getDateUpdated();
                 mElevationInFeet = pass.getElevation();
 
-                Log.e(TAG, pass.getElevation());
-
                 mRoadCondition = pass.getRoadCondition();
                 mRestrictionOneTravelDirection = pass.getRestrictionOneDirection();
                 mRestrictionOneText = pass.getRestrictionOne();
