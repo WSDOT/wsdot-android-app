@@ -25,6 +25,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -50,7 +51,7 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
 
     private Tracker mTracker;
     private ProgressDialogFragment progressDialog;
-    private View mEmptyView;
+    private LinearLayout mEmptyView;
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
@@ -80,11 +81,17 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
+        mEmptyView = root.findViewById(R.id.empty_list_view);
+
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
 
         viewModel.getMyRoutes().observe(this, myRoutes -> {
             if (myRoutes != null){
-                Log.e(TAG, String.valueOf(myRoutes.size()));
+                if (myRoutes.size() == 0) {
+                    mEmptyView.setVisibility(View.VISIBLE);
+                } else {
+                    mEmptyView.setVisibility(View.GONE);
+                }
                 mAdapter.setData(myRoutes);
             }
         });
