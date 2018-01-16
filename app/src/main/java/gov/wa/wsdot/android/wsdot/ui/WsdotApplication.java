@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui;
 import android.app.Activity;
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 
@@ -34,6 +35,7 @@ import dagger.android.HasActivityInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.AppInjector;
+import gov.wa.wsdot.android.wsdot.util.MyNotificationManager;
 
 /**
  * This is a subclass of {@link Application} used to provide shared objects for this app, such as
@@ -54,6 +56,11 @@ public class WsdotApplication extends Application implements HasActivityInjector
     super.onCreate();
 
     AppInjector.init(this);
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());
+      myNotificationManager.createMainNotificationChannel();
+    }
 
     //reset driver alert message on app startup.
     SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);

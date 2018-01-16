@@ -3,16 +3,18 @@ package gov.wa.wsdot.android.wsdot.service;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -25,6 +27,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.util.MyNotificationManager;
 
 /**
  *  Service for tracking users route.
@@ -198,10 +201,10 @@ public class MyRouteTrackingService extends Service implements
     }
 
     private Notification buildForegroundNotification() {
-        NotificationCompat.Builder b = new NotificationCompat.Builder(this);
+        NotificationCompat.Builder b = new NotificationCompat.Builder(this, new MyNotificationManager(this).getMainNotificationId());
 
         b.setOngoing(true)
-                .setContentTitle("Creating a Route.")
+                .setContentTitle("Creating a route")
                 .setContentText("WSDOT is recording your location.")
                 .setSmallIcon(R.drawable.ic_list_wsdot)
                 .setTicker("Creating a Route.");
