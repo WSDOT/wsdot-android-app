@@ -4,12 +4,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [5.0.0] - 2018-01
+## [5.0.5] - 2018-01-17
 
 ## Added
 - MVVM pattern. (Model, View, View Model)
 - Room persistence library.
 - Border wait and ferries view model test.
+- Better My Routes instructions.
+
+## [5.0.0-4] - unreleased builds
 
 ## [4.11.3] - 2017-09-19
 
