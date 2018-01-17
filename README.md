@@ -1,11 +1,9 @@
 # WSDOT Android App #
 
-
-
 Washington State Traveler information provide by The Washington State Department of Transportation.
 
 * Written in Java
-* Developed with Android Studio IDE 2.1.2
+* Developed with Android Studio IDE
 
 Features - [View on Google Play](https://play.google.com/store/apps/details?id=gov.wa.wsdot.android.wsdot&hl=en)
 --------------------------------
@@ -30,6 +28,11 @@ Dependencies
   * [Recyclerview](https://developer.android.com/topic/libraries/support-library/features.html#v7-recyclerview)
   * [v4 Support Libraries](https://developer.android.com/topic/libraries/support-library/features.html#v4)
   * [v7 appcompat library](https://developer.android.com/topic/libraries/support-library/features.html#v7-appcompat)
+* [Firebase (Core and Crash Analytics)](https://firebase.google.com/docs/reference/android/packages)
+* [Android lifecycle - Architecture Components](https://developer.android.com/topic/libraries/architecture/index.html)
+* [Dagger 2](https://google.github.io/dagger/)
+* [Constraint Layout](https://developer.android.com/training/constraint-layout/index.html)
+* [Tap Target View](https://github.com/KeepSafe/TapTargetView)
 * [jsoup](https://github.com/jhy/jsoup)
 * [gson](https://github.com/google/gson)
 * [viewpagerindicator](http://viewpagerindicator.com/)
