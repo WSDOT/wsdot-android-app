@@ -29,6 +29,7 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchMapActivity;
 import gov.wa.wsdot.android.wsdot.ui.home.HomeActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
+import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteMapActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 
@@ -81,5 +82,8 @@ public abstract class ActivityModule {
 
     @ContributesAndroidInjector
     abstract HighwayAlertDetailsActivity contributeHighwayAlertDetailsActivity();
+
+    @ContributesAndroidInjector
+    abstract MyRouteMapActivity contributeMyRouteMapActivity();
 
 }

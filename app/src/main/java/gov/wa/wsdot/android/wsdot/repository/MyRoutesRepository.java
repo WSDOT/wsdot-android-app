@@ -75,12 +75,16 @@ public class MyRoutesRepository {
         this.ferryScheduleRepo = ferryScheduleRepo;
     }
 
-    public LiveData<List<MyRouteEntity>> getMyRoutes() {
+    public LiveData<List<MyRouteEntity>> loadMyRoutes() {
         return myRouteDao.loadMyRoutes();
     }
 
-    public LiveData<List<MyRouteEntity>> getFavoriteMyRoutes() {
+    public LiveData<List<MyRouteEntity>> loadFavoriteMyRoutes() {
         return myRouteDao.loadFavoriteMyRoutes();
+    }
+
+    public LiveData<MyRouteEntity> loadMyRoute(long routeId) {
+        return myRouteDao.loadMyRouteForId(routeId);
     }
 
     public MyRouteEntity getMyRoute(long routeId){

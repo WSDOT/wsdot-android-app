@@ -103,7 +103,6 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
                 mLoadingSpinner.setVisibility(View.VISIBLE);
 
                 webview = findViewById(R.id.webview);
-                webview.setVisibility(View.GONE);
                 webview.setWebViewClient(new myWebViewClient());
                 webview.getSettings().setJavaScriptEnabled(true);
                 webview.loadDataWithBaseURL(null, buildContent(alertItem), "text/html", "utf-8", null);
@@ -170,7 +169,6 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 		@Override
 		public void onPageFinished(WebView view, String url) {
 			super.onPageFinished(view, url);
-            webview.setVisibility(View.VISIBLE);
 			mLoadingSpinner.setVisibility(View.GONE);
 		}
 	}

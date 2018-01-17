@@ -85,7 +85,7 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
 
-        viewModel.getMyRoutes().observe(this, myRoutes -> {
+        viewModel.loadMyRoutes().observe(this, myRoutes -> {
             if (myRoutes != null){
                 if (myRoutes.size() == 0) {
                     mEmptyView.setVisibility(View.VISIBLE);

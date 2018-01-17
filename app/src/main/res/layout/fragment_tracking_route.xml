@@ -34,7 +34,7 @@
             android:textAlignment="center"
             android:layout_below="@id/progress_bar"
             android:layout_centerHorizontal="true"
-            android:text="Please do not use the WSDOT app while driving."/>
+            android:text="@string/tracking_route_info_message"/>
 
         <Button android:theme="@style/AppTheme.Button"
             android:layout_margin="20dp"

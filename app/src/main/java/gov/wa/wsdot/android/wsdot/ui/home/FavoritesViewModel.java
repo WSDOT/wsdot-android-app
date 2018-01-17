@@ -3,11 +3,7 @@ package gov.wa.wsdot.android.wsdot.ui.home;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
-import android.support.annotation.Nullable;
-import android.util.Log;
 
 import java.util.List;
 
@@ -143,7 +139,7 @@ public class FavoritesViewModel extends ViewModel {
     }
 
     public LiveData<List<MyRouteEntity>> getFavoriteMyRoutes(){
-        return this.myRoutesRepo.getFavoriteMyRoutes();
+        return this.myRoutesRepo.loadFavoriteMyRoutes();
     }
     public void setMyRouteIsStarred(int routeId, int isStarred){
         this.myRoutesRepo.setIsStarred(routeId, isStarred);

@@ -20,23 +20,27 @@ public class MyRouteViewModel extends ViewModel {
     private LiveData<List<MyRouteEntity>> myRoutes;
 
     @Inject
-    MyRouteViewModel(MyRoutesRepository myRoutesRepo){
+    MyRouteViewModel(MyRoutesRepository myRoutesRepo) {
         this.myRoutesRepo = myRoutesRepo;
         foundFavorites = new MutableLiveData<>();
     }
 
-    LiveData<List<MyRouteEntity>> getMyRoutes(){
+    LiveData<List<MyRouteEntity>> loadMyRoutes() {
         if (myRoutes == null){
-            this.myRoutes = myRoutesRepo.getMyRoutes();
+            this.myRoutes = myRoutesRepo.loadMyRoutes();
         }
         return this.myRoutes;
     }
 
-    MyRouteEntity getMyRoute(long routeId){
+    LiveData<MyRouteEntity> loadMyRoute(long routeId){
+        return myRoutesRepo.loadMyRoute(routeId);
+    }
+
+    MyRouteEntity getMyRoute(long routeId) {
         return myRoutesRepo.getMyRoute(routeId);
     }
 
-    LiveData<Boolean> getFoundFavorites(){
+    LiveData<Boolean> getFoundFavorites() {
         return this.foundFavorites;
     }
 

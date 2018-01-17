@@ -1,5 +1,7 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -7,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,6 +24,9 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -28,15 +34,7 @@ import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class MyRouteMapActivity extends BaseActivity implements OnMapReadyCallback {
 
-    final private String[] projection = {
-            WSDOTContract.MyRoute.MY_ROUTE_DISPLAY_LAT,
-            WSDOTContract.MyRoute.MY_ROUTE_DISPLAY_LONG,
-            WSDOTContract.MyRoute.MY_ROUTE_DISPLAY_ZOOM,
-            WSDOTContract.MyRoute.MY_ROUTE_LOCATIONS,
-    };
-
     private GoogleMap mMap;
-    private String route_name;
     private Long route_id;
 
     private JSONArray routeJSON = new JSONArray();
@@ -44,8 +42,14 @@ public class MyRouteMapActivity extends BaseActivity implements OnMapReadyCallba
     private Double displayLong = 0.0;
     private int displayZoom = 0;
 
+    private MyRouteViewModel viewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_my_route_map);
@@ -56,7 +60,7 @@ public class MyRouteMapActivity extends BaseActivity implements OnMapReadyCallba
 
         Bundle args = getIntent().getExtras();
 
-        route_name = args.getString("route_name");
+        String route_name = args.getString("route_name");
         route_id = args.getLong("route_id");
 
         Log.e("test", String.valueOf(route_id));
@@ -76,10 +80,26 @@ public class MyRouteMapActivity extends BaseActivity implements OnMapReadyCallba
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        fetchRouteData(route_id);
-        drawRouteOnMap(ParserUtils.getRouteArrayList(routeJSON));
-        LatLng latLng = new LatLng(displayLat, displayLong);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, displayZoom));
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
+
+        viewModel.loadMyRoute(route_id).observe(this, myRoute -> {
+            if (myRoute != null){
+
+                try {
+                    routeJSON = new JSONArray(myRoute.getRouteLocations());
+                } catch (JSONException e){
+                    routeJSON = new JSONArray();
+                }
+                displayLat = myRoute.getLatitude();
+                displayLong = myRoute.getLongitude();
+                displayZoom = myRoute.getZoom();
+
+                drawRouteOnMap(ParserUtils.getRouteArrayList(routeJSON));
+                LatLng latLng = new LatLng(displayLat, displayLong);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, displayZoom));
+            }
+        });
     }
 
     @Override
@@ -92,39 +112,6 @@ public class MyRouteMapActivity extends BaseActivity implements OnMapReadyCallba
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Sets global vars used for displaying users route on map.
-     * vars set: routeJSON, displayLat, displayLong, displayZoom.
-     * @param route_id
-     */
-    private void fetchRouteData(long route_id) {
-        ContentResolver resolver = getContentResolver();
-        Cursor cursor = null;
-
-        try {
-            cursor = resolver.query(WSDOTContract.MyRoute.CONTENT_URI,
-                    projection,
-                    WSDOTContract.MyRoute.MY_ROUTE_ID + " = ?",
-                    new String[]{String.valueOf(route_id)},
-                    null
-            );
-            if (cursor != null && cursor.moveToFirst()) {
-
-                try {
-                    routeJSON = new JSONArray(cursor.getString(cursor.getColumnIndex(WSDOTContract.MyRoute.MY_ROUTE_LOCATIONS)));
-                } catch (JSONException e){
-                    routeJSON = new JSONArray();
-                }
-                displayLat = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.MyRoute.MY_ROUTE_DISPLAY_LAT));
-                displayLong = cursor.getDouble(cursor.getColumnIndex(WSDOTContract.MyRoute.MY_ROUTE_DISPLAY_LONG));
-                displayZoom = cursor.getInt(cursor.getColumnIndex(WSDOTContract.MyRoute.MY_ROUTE_DISPLAY_ZOOM));
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
 
     /**
      * Draws a polyline of the users route on the map

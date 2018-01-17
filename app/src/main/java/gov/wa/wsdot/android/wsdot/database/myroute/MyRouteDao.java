@@ -21,6 +21,9 @@ public interface MyRouteDao {
     public abstract LiveData<List<MyRouteEntity>> loadFavoriteMyRoutes();
 
     @Query("SELECT * FROM my_route WHERE id = :id LIMIT 1")
+    public abstract LiveData<MyRouteEntity> loadMyRouteForId(Long id);
+
+    @Query("SELECT * FROM my_route WHERE id = :id LIMIT 1")
     public abstract MyRouteEntity getMyRouteForId(Long id);
 
     @Query("UPDATE my_route SET title = :title WHERE id = :id")
