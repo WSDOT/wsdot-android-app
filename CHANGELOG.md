@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.6] - 2018-01-18
+
+## Added
+- Firebase Crashlytics
+
 ## [5.0.5] - 2018-01-17
 
 ## Added
