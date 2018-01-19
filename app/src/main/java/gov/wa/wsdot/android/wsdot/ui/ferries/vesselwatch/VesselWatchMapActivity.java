@@ -278,6 +278,9 @@ public class VesselWatchMapActivity extends BaseActivity implements
             }
         });
 
+        timer = new Timer();
+        timer.schedule(new VesselsTimerTask(), 0, 30000); // Schedule vessels to update every 30 seconds
+
         enableMyLocation();
     }
 
@@ -308,12 +311,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        
         mGoogleApiClient.connect();
-        
-        timer = new Timer();
-        timer.schedule(new VesselsTimerTask(), 0, 30000); // Schedule vessels to update every 30 seconds
-
     }
     
     @Override
@@ -324,8 +322,9 @@ public class VesselWatchMapActivity extends BaseActivity implements
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
         }
-        
-        timer.cancel();
+        if (timer != null) {
+            timer.cancel();
+        }
     }
 
 
