@@ -83,18 +83,6 @@
             android:name=".ui.about.AboutActivity"
             android:label="@string/title_about" />
         <activity
-            android:name=".ui.socialmedia.blogger.BlogActivity"
-            android:label="@string/title_blog" />
-        <activity
-            android:name=".ui.socialmedia.twitter.TwitterActivity"
-            android:label="@string/title_twitter" />
-        <activity
-            android:name=".ui.socialmedia.facebook.FacebookActivity"
-            android:label="@string/title_facebook" />
-        <activity
-            android:name=".ui.socialmedia.flickr.FlickrActivity"
-            android:label="@string/title_flickr" />
-        <activity
             android:name=".ui.mountainpasses.MountainPassesActivity"
             android:label="@string/title_mountainpasses" />
         <activity android:name=".ui.mountainpasses.passitem.MountainPassItemActivity" />
@@ -136,9 +124,6 @@
         <activity
             android:name=".ui.tollrates.TollRatesActivity"
             android:label="@string/title_tollrates" />
-        <activity
-            android:name=".ui.socialmedia.youtube.YouTubeActivity"
-            android:label="@string/title_youtube" />
         <activity android:name=".ui.camera.CameraActivity" />
         <activity android:name=".ui.camera.CameraListActivity" />
         <activity android:name=".ui.alert.detail.HighwayAlertDetailsActivity" />
@@ -168,6 +153,6 @@
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:theme="@style/WSDOT" />8
+            android:theme="@style/WSDOT" />
     </application>
 </manifest>
