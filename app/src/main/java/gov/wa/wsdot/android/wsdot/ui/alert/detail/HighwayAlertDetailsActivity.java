@@ -79,11 +79,11 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
         description = "";
 		
 		Bundle b = getIntent().getExtras();
-		String id = b.getString("id");
+		Integer id = b.getInt("id");
 
 		viewModel = ViewModelProviders.of(this, viewModelFactory).get(HighwayAlertDetailsViewModel.class);
 
-		viewModel.getHighwayAlertfor(Integer.valueOf(id)).observe(this, alertItem -> {
+		viewModel.getHighwayAlertfor(id).observe(this, alertItem -> {
 
 		    if (alertItem != null){
 
