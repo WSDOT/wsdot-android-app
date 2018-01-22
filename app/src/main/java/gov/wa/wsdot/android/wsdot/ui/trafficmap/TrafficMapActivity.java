@@ -40,6 +40,7 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -111,6 +112,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
 
 import javax.inject.Inject;
@@ -155,6 +158,9 @@ public class TrafficMapActivity extends BaseActivity implements
     private static final String TAG = TrafficMapActivity.class.getSimpleName();
 
     private GoogleMap mMap;
+    private Handler handler = new Handler();
+    private Timer timer;
+
     private RestAreasOverlay restAreasOverlay = null;
     private CalloutsOverlay calloutsOverlay = null;
     private List<CameraItem> cameras = new ArrayList<>();
@@ -162,6 +168,7 @@ public class TrafficMapActivity extends BaseActivity implements
     private List<RestAreaItem> restAreas = new ArrayList<>();
     private List<CalloutItem> callouts = new ArrayList<>();
     private HashMap<Marker, String> markers = new HashMap<>();
+
 
     boolean clusterCameras;
     boolean showCameras;
@@ -342,6 +349,10 @@ public class TrafficMapActivity extends BaseActivity implements
             mGoogleApiClient.disconnect();
         }
 
+        if (timer != null) {
+            timer.cancel();
+        }
+
         // Save last map location and zoom level.
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
@@ -479,6 +490,9 @@ public class TrafficMapActivity extends BaseActivity implements
 
         LatLng latLng = new LatLng(latitude, longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+
+        timer = new Timer();
+        timer.schedule(new AlertsTimerTask(), 0, 300000); // Schedule alerts to update every 5 minutes
 
         enableMyLocation();
 
@@ -896,6 +910,17 @@ public class TrafficMapActivity extends BaseActivity implements
         return super.onOptionsItemSelected(item);
     }
 
+    public class AlertsTimerTask extends TimerTask {
+        private Runnable runnable = new Runnable() {
+            public void run() {
+                mapHighwayAlertViewModel.refreshAlerts();
+            }
+        };
+
+        public void run() {
+            handler.post(runnable);
+        }
+    }
 
     private void refreshOverlays(final MenuItem item){
 
