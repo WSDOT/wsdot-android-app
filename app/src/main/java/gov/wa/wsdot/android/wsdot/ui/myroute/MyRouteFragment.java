@@ -67,7 +67,7 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_my_routes_recycler_list, null);
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
