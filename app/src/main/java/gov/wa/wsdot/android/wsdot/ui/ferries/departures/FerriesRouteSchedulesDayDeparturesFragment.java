@@ -224,7 +224,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
     // Runnable for updating sailing spaces
     private Runnable runnable = new Runnable() {
         public void run() {
-            Log.e(TAG, "refreshing departureTimes");
             terminalViewModel.forceRefreshTerminalSpaces();
             mHandler.postDelayed(runnable, (DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
         }
@@ -323,8 +322,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
                 String annotation = "";
 
-                int numIndexes = item.getAnnotationIndexes().size();
-
                 itemHolder.departing.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
                 contentDescriptionBuilder.append("departing at ");
                 contentDescriptionBuilder.append(itemHolder.departing.getText());
@@ -337,9 +334,13 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                     contentDescriptionBuilder.append(". ");
                 }
 
+                int numIndexes = item.getAnnotationIndexes().size();
+
                 for (int i = 0; i < numIndexes; i++) {
-                    FerriesAnnotationsItem p = annotations.get(item.getAnnotationIndexes().get(i).getIndex());
-                    annotation += p.getAnnotation();
+                    if (annotations.size() > item.getAnnotationIndexes().get(i).getIndex()) {
+                        FerriesAnnotationsItem p = annotations.get(item.getAnnotationIndexes().get(i).getIndex());
+                        annotation += p.getAnnotation();
+                    }
                 }
 
                 if (annotation.equals("")) {
