@@ -48,7 +48,7 @@ public class AmtrakCascadesRepository extends NetworkResourceRepository {
 
     public MutableLiveData<List<AmtrakCascadesServiceItem>> getServiceItems(
             String statusDate, String fromLocation, String toLocation) {
-        serviceItems.setValue(new ArrayList<>());
+        serviceItems.setValue(null);
         getTrainNumbers();
         this.statusDate = statusDate;
         this.fromLocation = fromLocation;
