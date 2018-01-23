@@ -68,6 +68,7 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.sailings.FerriesRouteSchedulesDaySa
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.network.Status;
 
@@ -441,6 +442,7 @@ public class FavoritesFragment extends BaseFragment implements
                 // Set onClickListener for holder's view
                 viewholder.itemView.setOnClickListener(
                         v -> {
+                            MyLogger.crashlyticsLog("Home", "Tap", "Favorite Camera " + String.valueOf(camera.getCameraId()), 1);
                             Bundle b = new Bundle();
                             Intent intent = new Intent(getActivity(), CameraActivity.class);
                             b.putInt("id", camera.getCameraId());
@@ -484,6 +486,7 @@ public class FavoritesFragment extends BaseFragment implements
                 // Set onClickListener for holder's view
                 viewHolder.itemView.setOnClickListener(
                         v -> {
+                            MyLogger.crashlyticsLog("Home", "Tap", "Favorite Pass " + String.valueOf(pass.getPassId()), 1);
                             Bundle b = new Bundle();
                             Intent intent = new Intent(getActivity(), MountainPassItemActivity.class);
                             b.putInt("id", pass.getPassId());
@@ -548,6 +551,8 @@ public class FavoritesFragment extends BaseFragment implements
                 // Set onClickListener for holder's view
                 viewHolder.itemView.setOnClickListener(
                         v -> {
+
+                            MyLogger.crashlyticsLog("Home", "Tap", "Favorite Ferry Schedule " + schedule.getTitle(), 1);
                             Bundle b = new Bundle();
                             Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDaySailingsActivity.class);
                             b.putInt("id", schedule.getFerryScheduleId());
@@ -626,6 +631,9 @@ public class FavoritesFragment extends BaseFragment implements
                 // Set onClickListener for holder's view
                 viewholder.itemView.setOnClickListener(
                         v -> {
+
+                            MyLogger.crashlyticsLog("Home", "Tap", "Favorite Location", 1);
+
                             Bundle b = new Bundle();
                             Intent intent = new Intent(getActivity(), TrafficMapActivity.class);
 
@@ -679,6 +687,9 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.alerts_button.setTag(position);
                 viewholder.alerts_button.setContentDescription("Check alerts on route");
                 viewholder.alerts_button.setOnClickListener(v -> {
+
+                    MyLogger.crashlyticsLog("Home", "Tap", "Check MyRoute Alerts", 1);
+
                     mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
                     mTracker.send(new HitBuilders.EventBuilder()
                             .setCategory("Button Tap")

@@ -59,6 +59,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesStationItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class AmtrakCascadesSchedulesActivity extends BaseActivity
         implements ConnectionCallbacks, OnConnectionFailedListener,
@@ -119,6 +120,8 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
                 .setInterval(60000 * 15)
                 .setFastestInterval(60000 * 5)
                 .setPriority(LocationRequest.PRIORITY_LOW_POWER);
+
+        MyLogger.crashlyticsLog("Amtrak Cascades", "Screen View", "AmtrakCascadesSchedulesActivity", 1);
 	}
 	
     @Override
@@ -335,7 +338,8 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
     		    .setAction("Schedules")
     		    .setLabel(trackerLabel)
     		    .build());
-        
+
+        MyLogger.crashlyticsLog("Amtrak Cascades", "Tap", "AmtrakCascadesActivity: " +dayId+"/"+originId+"/"+destinationId , 1);
         
         startActivity(intent);
     }

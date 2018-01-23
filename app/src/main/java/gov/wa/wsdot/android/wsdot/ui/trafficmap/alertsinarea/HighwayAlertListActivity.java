@@ -24,6 +24,7 @@ import android.view.MenuItem;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class HighwayAlertListActivity extends BaseActivity {
 
@@ -40,6 +41,8 @@ public class HighwayAlertListActivity extends BaseActivity {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
+
+		MyLogger.crashlyticsLog("Highway Alerts", "Screen View", "HighwayAlertListActivity", 1);
 
 		enableAds(getString(R.string.default_ad_target));
 	}

@@ -24,6 +24,7 @@ import android.view.MenuItem;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class TravelTimesActivity extends BaseActivity {
 
@@ -40,6 +41,8 @@ public class TravelTimesActivity extends BaseActivity {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
+
+		MyLogger.crashlyticsLog("Travel Times", "Screen View", "TravelTimesActivity", 1);
 	}
 	
 	@Override

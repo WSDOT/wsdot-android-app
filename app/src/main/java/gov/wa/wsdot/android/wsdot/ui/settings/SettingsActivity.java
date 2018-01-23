@@ -26,6 +26,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.home.FavoritesFragment;
 import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.OnStartDragListener;
 
 public class SettingsActivity extends BaseActivity implements OnStartDragListener {
@@ -94,6 +95,8 @@ public class SettingsActivity extends BaseActivity implements OnStartDragListene
 
         mSettingsAdapter = new SettingsAdapter(this);
         mRecyclerView.setAdapter(mSettingsAdapter);
+
+
 
     }
 

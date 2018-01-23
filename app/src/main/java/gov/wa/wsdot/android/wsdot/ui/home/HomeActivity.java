@@ -87,7 +87,7 @@ public class HomeActivity extends BaseActivity implements Injectable {
 
         mViewPager.setOffscreenPageLimit(0);
 
-        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
 

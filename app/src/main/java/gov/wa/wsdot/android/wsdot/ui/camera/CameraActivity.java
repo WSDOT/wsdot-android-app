@@ -38,6 +38,7 @@ import javax.inject.Inject;
 import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class CameraActivity extends BaseActivity {
@@ -131,6 +132,8 @@ public class CameraActivity extends BaseActivity {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
             tab.select();
         }
+
+        MyLogger.crashlyticsLog("Cameras", "Screen View", "CameraActivity", 1);
 
         String adTarget = b.getString("advertisingTarget");
         enableAds(adTarget);

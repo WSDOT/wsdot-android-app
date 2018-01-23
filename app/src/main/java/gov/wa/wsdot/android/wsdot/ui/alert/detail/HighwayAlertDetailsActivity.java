@@ -50,6 +50,7 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
 public class HighwayAlertDetailsActivity extends BaseActivity {
@@ -111,6 +112,8 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
                 Toast.makeText(this, "Error reading alert", Toast.LENGTH_LONG);
             }
         });
+
+        MyLogger.crashlyticsLog("Highway Alerts", "Screen View", "HighwayAlertDetailsActivity", 1);
 	}
 
     @Override

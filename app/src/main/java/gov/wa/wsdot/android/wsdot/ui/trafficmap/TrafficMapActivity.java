@@ -142,6 +142,7 @@ import gov.wa.wsdot.android.wsdot.ui.trafficmap.restareas.RestAreaActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.SocialMediaTabActivity;
 import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesActivity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.map.CalloutsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
@@ -291,6 +292,8 @@ public class TrafficMapActivity extends BaseActivity implements
         mapCameraViewModel.init(null);
 
         setUpFabMenu();
+
+        MyLogger.crashlyticsLog("Traffic", "Screen View", "TrafficMapActivity", 1);
 
         // check for travel charts
         new TravelChartsAvailableTask().execute();

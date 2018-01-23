@@ -23,7 +23,9 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 
@@ -33,9 +35,11 @@ import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
 import dagger.android.support.HasSupportFragmentInjector;
+import gov.wa.wsdot.android.wsdot.BuildConfig;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.AppInjector;
 import gov.wa.wsdot.android.wsdot.util.MyNotificationManager;
+import io.fabric.sdk.android.Fabric;
 
 /**
  * This is a subclass of {@link Application} used to provide shared objects for this app, such as
@@ -56,6 +60,15 @@ public class WsdotApplication extends Application implements HasActivityInjector
     super.onCreate();
 
     AppInjector.init(this);
+
+    if (BuildConfig.DEBUG) {
+        Log.d(WsdotApplication.class.getSimpleName(), "init crashlytics in debug mode");
+        final Fabric fabric = new Fabric.Builder(this)
+                .kits(new Crashlytics())
+                .debuggable(true) // Enables Crashlytics debugger
+                .build();
+        Fabric.with(fabric);
+    }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());

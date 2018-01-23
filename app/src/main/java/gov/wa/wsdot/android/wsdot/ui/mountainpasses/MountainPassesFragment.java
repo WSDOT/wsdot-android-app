@@ -48,6 +48,7 @@ import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
@@ -264,6 +265,7 @@ public class MountainPassesFragment extends BaseFragment implements
             }
 
             public void onClick(View v) {
+                MyLogger.crashlyticsLog("Mountain Passes", "Tap", "MountainPassesFragment " + mData.get(this.itemId).getPassId(), 1);
                 Bundle b = new Bundle();
                 Intent intent = new Intent(getActivity(), MountainPassItemActivity.class);
                 b.putInt("id", mData.get(this.itemId).getPassId());

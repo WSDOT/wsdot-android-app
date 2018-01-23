@@ -46,6 +46,7 @@ import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertViewModel;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class HighImpactAlertsFragment extends BaseFragment implements
         Injectable {
@@ -184,6 +185,7 @@ public class HighImpactAlertsFragment extends BaseFragment implements
             } else {
                 view = getActivity().getLayoutInflater().inflate(R.layout.high_impact_alerts_active, null);
                 view.setOnClickListener(v -> {
+                    MyLogger.crashlyticsLog("Home", "Tap", "Highway Alert Details", 1);
                     Bundle b = new Bundle();
                     Intent intent = new Intent(getActivity(), HighwayAlertDetailsActivity.class);
                     b.putInt("id", items.get(position).getAlertId());

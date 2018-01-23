@@ -52,6 +52,7 @@ import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class MountainPassItemActivity extends BaseActivity implements Injectable {
@@ -172,6 +173,7 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
                     public void onTabSelected(TabLayout.Tab tab) {
                         mViewPager.setCurrentItem(tab.getPosition());
                         // GA tracker
+                        MyLogger.crashlyticsLog("Mountain Passes", "Tap", "MountainPassesActivity " + tab.getText(), 1);
                         mTracker.setScreenName("/Mountain Passes/Details/" + tab.getText());
                         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                     }
@@ -196,6 +198,8 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
         mViewPager = findViewById(R.id.pager);
 
         findViewById(R.id.spinner).setVisibility(View.GONE);
+
+        MyLogger.crashlyticsLog("Mountain Passes", "Screen View", "MountainPassItemActivity " + mId, 1);
 
         enableAds(getString(R.string.passes_ad_target));
 
@@ -232,9 +236,11 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
 				finish();
 	    		return true;
 			case MENU_ITEM_STAR:
+                MyLogger.crashlyticsLog("Mountain Passes", "Tap", "MountainPassesActivity star", 1);
 				toggleStar(item);
 				return true;
 			case MENU_ITEM_REFRESH:
+                MyLogger.crashlyticsLog("Mountain Passes", "Tap", "MountainPassesActivity refresh", 1);
                 mRefreshState = true;
                 refresh();
 				return true;

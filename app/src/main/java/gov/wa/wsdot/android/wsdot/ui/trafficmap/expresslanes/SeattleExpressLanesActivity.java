@@ -24,6 +24,7 @@ import android.view.MenuItem;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class SeattleExpressLanesActivity extends BaseActivity {
 
@@ -40,6 +41,8 @@ public class SeattleExpressLanesActivity extends BaseActivity {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
+
+		MyLogger.crashlyticsLog("Traffic", "Screen View", "SeattleExpressLanesActivity", 1);
 	}
 	
 	@Override

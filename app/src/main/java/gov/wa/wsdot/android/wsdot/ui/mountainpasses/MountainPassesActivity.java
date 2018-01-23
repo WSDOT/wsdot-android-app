@@ -27,6 +27,7 @@ import com.crashlytics.android.Crashlytics;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class MountainPassesActivity extends BaseActivity {
 
@@ -48,7 +49,7 @@ public class MountainPassesActivity extends BaseActivity {
 		banner.setImageResource(R.drawable.pass_banner);
 		banner.setContentDescription("banner image of a mountain pass.");
 
-		Crashlytics.log("Mountain Passes");
+		MyLogger.crashlyticsLog("Mountain Passes", "Screen View", "MountainPassesActivity", 1);
 
 		enableAds(getString(R.string.passes_ad_target));
 

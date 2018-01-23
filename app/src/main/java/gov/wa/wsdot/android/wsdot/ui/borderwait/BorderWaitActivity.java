@@ -32,6 +32,7 @@ import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class BorderWaitActivity extends BaseActivity {
@@ -90,6 +91,8 @@ public class BorderWaitActivity extends BaseActivity {
         });
 
         enableAds(getString(R.string.border_ad_target));
+
+        MyLogger.crashlyticsLog("Border Waits", "Screen View", "BorderWaitActivity", 1);
 
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));

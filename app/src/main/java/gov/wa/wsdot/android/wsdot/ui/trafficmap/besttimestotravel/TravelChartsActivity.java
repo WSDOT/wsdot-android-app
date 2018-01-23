@@ -23,6 +23,7 @@ import android.view.MenuItem;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class TravelChartsActivity extends BaseActivity {
 
@@ -42,6 +43,8 @@ public class TravelChartsActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
+        MyLogger.crashlyticsLog("Traffic", "Screen View", "TravelChartsActivity", 1);
     }
 
     @Override

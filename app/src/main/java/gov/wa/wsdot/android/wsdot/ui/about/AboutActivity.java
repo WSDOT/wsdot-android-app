@@ -35,6 +35,7 @@ import android.webkit.WebViewClient;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class AboutActivity extends BaseActivity {
 	
@@ -75,7 +76,9 @@ public class AboutActivity extends BaseActivity {
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);
-	
+
+		MyLogger.crashlyticsLog("Home", "Screen View", "AboutActivity", 1);
+
 	}
 	
 	@Override

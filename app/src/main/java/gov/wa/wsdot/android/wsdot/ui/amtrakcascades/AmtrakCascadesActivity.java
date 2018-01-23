@@ -27,6 +27,7 @@ import android.widget.ImageView;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class AmtrakCascadesActivity extends BaseActivity {
 
@@ -52,6 +53,8 @@ public class AmtrakCascadesActivity extends BaseActivity {
         CollapsingToolbarLayout mCollapse = (android.support.design.widget.CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mCollapse.getLayoutParams();
         params.setScrollFlags(0);
+
+        MyLogger.crashlyticsLog("Amtrak Cascades", "Screen View", "AmtrakCascadesActivity", 1);
 
     }
     

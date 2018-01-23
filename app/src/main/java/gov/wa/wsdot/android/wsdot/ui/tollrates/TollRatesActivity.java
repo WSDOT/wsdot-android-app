@@ -39,6 +39,7 @@ import java.util.List;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class TollRatesActivity extends BaseActivity {
@@ -108,6 +109,8 @@ public class TollRatesActivity extends BaseActivity {
         });
 
         disableAds();
+
+        MyLogger.crashlyticsLog("Toll Rates", "Screen View", "TollRatesActivity", 1);
 
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));

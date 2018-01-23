@@ -40,6 +40,7 @@ import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.blog.BlogFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.facebook.FacebookFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.twitter.TwitterFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.youtube.YouTubeFragment;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class SocialMediaTabActivity extends BaseActivity {
 
@@ -109,6 +110,8 @@ public class SocialMediaTabActivity extends BaseActivity {
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
         });
+
+        MyLogger.crashlyticsLog("Traffic", "Screen View", "SocialMediaTabActivity", 1);
 
         enableAds(getString(R.string.traffic_ad_target));
     }

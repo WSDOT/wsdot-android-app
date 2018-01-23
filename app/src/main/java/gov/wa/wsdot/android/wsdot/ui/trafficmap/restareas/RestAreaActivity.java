@@ -17,6 +17,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class RestAreaActivity extends BaseActivity {
 
@@ -64,6 +65,7 @@ public class RestAreaActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        MyLogger.crashlyticsLog("Traffic", "Screen View", "RestAreaActivity", 1);
         disableAds();
 
         mLoadingSpinner = findViewById(R.id.loading_spinner);
