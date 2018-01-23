@@ -34,6 +34,7 @@ import java.util.List;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity{
@@ -78,7 +79,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity{
         mViewPager.setAdapter(mTabsAdapter);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
 
-        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
@@ -86,20 +87,18 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity{
                     mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
                     mTracker.setScreenName("/Ferries/Schedules/Day Sailings/" + tab.getText());
                     mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+                    MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteSchedulesDayDeparturesActivity " + tab.getText(), 1);
                 }
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabUnselected(TabLayout.Tab tab) {}
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
 
+        MyLogger.crashlyticsLog("Ferries", "Screen View", "FerriesRouteSchedulesDayDeparturesActivity " + title, 1);
         enableAds(getString(R.string.ferries_ad_target));
 
         if (savedInstanceState != null) {

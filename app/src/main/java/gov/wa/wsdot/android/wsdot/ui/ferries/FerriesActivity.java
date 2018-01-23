@@ -27,6 +27,7 @@ import android.widget.ImageView;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class FerriesActivity extends BaseActivity {
 
@@ -53,6 +54,7 @@ public class FerriesActivity extends BaseActivity {
         AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mCollapse.getLayoutParams();
         params.setScrollFlags(0);
 
+        MyLogger.crashlyticsLog("Ferries", "Screen View", "FerriesActivity", 1);
         enableAds(getString(R.string.ferries_ad_target));
 
     }

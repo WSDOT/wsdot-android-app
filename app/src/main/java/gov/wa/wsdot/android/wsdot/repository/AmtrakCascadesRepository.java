@@ -1,6 +1,7 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
 import android.arch.lifecycle.MutableLiveData;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesScheduleFeed;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesScheduleItem;
@@ -25,6 +27,7 @@ import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
+@Singleton
 public class AmtrakCascadesRepository extends NetworkResourceRepository {
 
     private final static String TAG = AmtrakCascadesRepository.class.getSimpleName();
@@ -307,6 +310,7 @@ public class AmtrakCascadesRepository extends NetworkResourceRepository {
 
             scheduleItem.setTrainName(trainNumber + " " + serviceName);
             scheduleItem.setTripNumber(scheduleFeed[i].getTripNumber());
+
 
             scheduleItem.setUpdateTime(scheduleFeed[i].getUpdateTime().substring(6, 19));
 

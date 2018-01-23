@@ -24,6 +24,7 @@ import android.view.MenuItem;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
 
@@ -46,6 +47,8 @@ public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
+		MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteAlertsBulletinDetailsActivity " + mAlertFullTitle, 1);
 	}
 
 	@Override

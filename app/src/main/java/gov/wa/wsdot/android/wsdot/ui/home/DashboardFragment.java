@@ -34,12 +34,16 @@ import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class DashboardFragment extends BaseFragment implements Injectable {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+
+        MyLogger.crashlyticsLog("Home", "Screen View", "DashboardFragment", 1);
+
         View root = inflater.inflate(R.layout.fragment_dashboard, null);
         root.findViewById(R.id.home_btn_traffic).setOnClickListener(view -> startActivity(new Intent(getActivity(), TrafficMapActivity.class)));
         root.findViewById(R.id.home_btn_ferries).setOnClickListener(view -> startActivity(new Intent(getActivity(), FerriesActivity.class)));

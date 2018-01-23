@@ -24,6 +24,7 @@ import android.view.MenuItem;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class FerriesRouteSchedulesActivity extends BaseActivity {
 
@@ -42,6 +43,7 @@ public class FerriesRouteSchedulesActivity extends BaseActivity {
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
 
+		MyLogger.crashlyticsLog("Ferries", "Screen View", "FerriesRouteSchedulesActivity", 1);
 		enableAds(getString(R.string.ferries_ad_target));
 
 	}

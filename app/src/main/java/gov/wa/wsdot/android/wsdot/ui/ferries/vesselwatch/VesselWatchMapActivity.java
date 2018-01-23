@@ -86,6 +86,7 @@ import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class VesselWatchMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener,
@@ -164,6 +165,8 @@ public class VesselWatchMapActivity extends BaseActivity implements
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
         mapFragment.getMapAsync(this);
+
+        MyLogger.crashlyticsLog("Ferries", "Screen View", "VesselWatchMapActivity", 1);
 
     }
 
@@ -333,13 +336,14 @@ public class VesselWatchMapActivity extends BaseActivity implements
         Intent intent = new Intent();        
         
         if (markers.get(marker).equalsIgnoreCase("vessel")) {
+            MyLogger.crashlyticsLog("Ferries", "Tap", "Vessel " + marker.getTitle(), 1);
             intent.setClass(this, VesselWatchDetailsActivity.class);
             b.putString("title", marker.getTitle());
             b.putString("description", marker.getSnippet());
             intent.putExtras(b);
             this.startActivity(intent);
         } else if (markers.get(marker).equalsIgnoreCase("camera")) {
-        	
+            MyLogger.crashlyticsLog("Ferries", "Tap", "Camera " + marker.getSnippet(), 1);
         	// GA tracker
         	mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
             mTracker.setScreenName("/Ferries/Vessel Watch/Cameras");

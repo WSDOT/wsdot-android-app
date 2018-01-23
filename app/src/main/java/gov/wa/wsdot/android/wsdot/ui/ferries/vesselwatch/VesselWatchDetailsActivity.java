@@ -31,6 +31,7 @@ import android.webkit.WebViewClient;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class VesselWatchDetailsActivity extends BaseActivity {
 
@@ -53,7 +54,7 @@ public class VesselWatchDetailsActivity extends BaseActivity {
 
         setContentView(R.layout.activity_webview_with_spinner);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
 		mToolbar.setTitle(mTitle);
 		setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
@@ -68,6 +69,8 @@ public class VesselWatchDetailsActivity extends BaseActivity {
 		
 		mContent = "<p>" + mDescription + "</p>";
 		webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
+
+		MyLogger.crashlyticsLog("Ferries", "Screen View", "VesselWatchDetailsActivity", 1);
 
 	}
 	

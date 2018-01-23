@@ -35,6 +35,7 @@ import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 	
@@ -78,7 +79,7 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-
+		MyLogger.crashlyticsLog("Ferries", "Screen View", "FerriesRouteSchedulesDaySailingsActivity: Route " + String.valueOf(mId), 1);
         enableAds(getString(R.string.ferries_ad_target));
 	}
 

@@ -24,6 +24,7 @@ import android.view.MenuItem;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class FerriesRouteAlertsBulletinsActivity extends BaseActivity {
 	
@@ -38,13 +39,16 @@ public class FerriesRouteAlertsBulletinsActivity extends BaseActivity {
 		Bundle args = getIntent().getExtras();
         String title = getString(R.string.title_ferriesroutealerts) + " - " + args.getString("title");
 
-		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		mToolbar = findViewById(R.id.toolbar);
 		mToolbar.setTitle(title);
 		setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
+		MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteAlertsBulletinsActivity " + title, 1);
+
 	}
 	
 	@Override
