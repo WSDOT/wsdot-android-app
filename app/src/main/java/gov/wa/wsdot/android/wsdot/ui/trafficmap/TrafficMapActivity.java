@@ -67,6 +67,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.gms.analytics.HitBuilders;
@@ -121,7 +122,6 @@ import javax.inject.Inject;
 import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
-import gov.wa.wsdot.android.wsdot.shared.CalloutItem;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.shared.LatLonItem;
@@ -130,7 +130,6 @@ import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.alert.map.MapHighwayAlertViewModel;
-import gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraListActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
@@ -144,7 +143,6 @@ import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesActivity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
-import gov.wa.wsdot.android.wsdot.util.map.CalloutsOverlay;
 import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
 
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
@@ -163,11 +161,9 @@ public class TrafficMapActivity extends BaseActivity implements
     private Timer timer;
 
     private RestAreasOverlay restAreasOverlay = null;
-    private CalloutsOverlay calloutsOverlay = null;
     private List<CameraItem> cameras = new ArrayList<>();
     private List<HighwayAlertsItem> alerts = new ArrayList<>();
     private List<RestAreaItem> restAreas = new ArrayList<>();
-    private List<CalloutItem> callouts = new ArrayList<>();
     private HashMap<Marker, String> markers = new HashMap<>();
 
 
@@ -592,6 +588,7 @@ public class TrafficMapActivity extends BaseActivity implements
         if (markers.get(marker) == null) { // Not in our markers, must be cluster icon
             mClusterManager.onMarkerClick(marker);
         } else  if (markers.get(marker).equalsIgnoreCase("camera")) {
+            MyLogger.crashlyticsLog("Traffic", "Tap", "Camera", 1);
             // GA tracker
             mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
             mTracker.setScreenName("/Traffic Map/Cameras");
@@ -602,18 +599,15 @@ public class TrafficMapActivity extends BaseActivity implements
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);
         } else if (markers.get(marker).equalsIgnoreCase("alert")) {
+            MyLogger.crashlyticsLog("Traffic", "Tap", "Alert", 1);
             intent = new Intent(this, HighwayAlertDetailsActivity.class);
             b.putInt("id", Integer.valueOf(marker.getSnippet()));
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);
         } else if (markers.get(marker).equalsIgnoreCase("restarea")) {
+            MyLogger.crashlyticsLog("Traffic", "Tap", "Rest Area", 1);
             intent = new Intent(this, RestAreaActivity.class);
             intent.putExtra("restarea_json", marker.getSnippet());
-            TrafficMapActivity.this.startActivity(intent);
-        } else if (markers.get(marker).equalsIgnoreCase("callout")) {
-            intent = new Intent(this, CalloutActivity.class);
-            b.putString("url", marker.getSnippet());
-            intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);
         }
         return true;
@@ -1067,44 +1061,6 @@ public class TrafficMapActivity extends BaseActivity implements
         editor.apply();
     }
 
-    /**
-     * Toggles callout markers
-     */
-    private void toggleCallouts(FloatingActionButton fab) {
-        // GA tracker
-        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-
-        String label;
-
-        if (showCallouts) {
-
-            toggleFabOff(fab);
-
-            hideCalloutMarkers();
-            showCallouts = false;
-            label = "Hide JBLM";
-
-        } else {
-
-            toggleFabOn(fab);
-
-            showCalloutMarkers();
-            showCallouts = true;
-            label = "Show JBLM";
-        }
-
-        mTracker.send(new HitBuilders.EventBuilder()
-                .setCategory("Traffic")
-                .setAction("Toggle JBLM")
-                .setLabel(label)
-                .build());
-
-        // Save rest areas display preference
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean("KEY_SHOW_CALLOUTS", showCallouts);
-        editor.apply();
-    }
 
     /**
      * Toggles rest area markers on/off
@@ -1336,37 +1292,6 @@ public class TrafficMapActivity extends BaseActivity implements
         fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_off));
     }
 
-
-    /**
-     * Determine whether a point is inside a complex polygon.
-     * <p>
-     * Iterate through collection of LatLon objects in an arrayList and see
-     * if the passed latitude and longitude point is within the collection.
-     *
-     * @param points  List of latitude and longitude coordinates
-     * @param latitude  latitude to test
-     * @param longitude  longitude to test
-     * @return if point is inside the polygon
-     * @see <a href="http://alienryderflex.com/polygon/">http://alienryderflex.com/polygon/</a>
-     */
-    public boolean inPolygon(ArrayList<LatLonItem> points, double latitude, double longitude) {
-        int j = points.size() - 1;
-        boolean inPoly = false;
-
-        for (int i = 0; i < points.size(); i++) {
-            if ((points.get(i).getLongitude() <longitude && points.get(j).getLongitude() >= longitude) ||
-                    (points.get(j).getLongitude() < longitude && points.get(i).getLongitude() >= longitude)) {
-                if (points.get(i).getLatitude() + (longitude - points.get(i).getLongitude()) /
-                        (points.get(j).getLongitude() - points.get(i).getLongitude()) *
-                        (points.get(j).getLatitude() - points.get(i).getLatitude()) < latitude) {
-                    inPoly = !inPoly;
-                }
-            }
-            j = i;
-        }
-        return inPoly;
-    }
-
     /**
      * Build and draw rest areas on the map
      */
@@ -1410,62 +1335,7 @@ public class TrafficMapActivity extends BaseActivity implements
                     markers.put(marker, "restArea");
                 }
             } catch (NullPointerException e) {
-                // Ignore for now. Simply don't draw the marker.
-            }
-        }
-    }
-
-    /**
-     * Build and draw any callouts on the map
-     */
-    private class CalloutsOverlayTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            calloutsOverlay = null;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            calloutsOverlay = new CalloutsOverlay();
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-
-            Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
-            while (iter.hasNext()) {
-                Map.Entry<Marker, String> entry = iter.next();
-                if (entry.getValue().equalsIgnoreCase("callout")) {
-                    entry.getKey().remove();
-                    iter.remove();
-                }
-            }
-
-            callouts.clear();
-            callouts = calloutsOverlay.getCalloutItems();
-
-            try {
-                if (callouts != null) {
-                    if (callouts.size() != 0) {
-                        for (int i = 0; i < callouts.size(); i++) {
-                            LatLng latLng = new LatLng(callouts.get(i).getLatitude(), callouts.get(i).getLongitude());
-                            Marker marker = mMap.addMarker(new MarkerOptions()
-                                    .position(latLng)
-                                    .title(callouts.get(i).getTitle())
-                                    .snippet(callouts.get(i).getImageUrl())
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.jblm))
-                                    .visible(showCallouts));
-
-                            markers.put(marker, "callout");
-                        }
-                    }
-                }
-            } catch (NullPointerException e) {
+                Crashlytics.logException(e);
                 // Ignore for now. Simply don't draw the marker.
             }
         }
@@ -1500,6 +1370,7 @@ public class TrafficMapActivity extends BaseActivity implements
                 return obj.getBoolean("available");
 
             } catch (Exception e) {
+                Crashlytics.logException(e);
                 Log.e(TAG, "Error parsing travel chart JSON feed", e);
                 return false;
             }
@@ -1743,26 +1614,6 @@ public class TrafficMapActivity extends BaseActivity implements
             return true;
         }else {
             return false;
-        }
-    }
-
-    private void hideCalloutMarkers() {
-        for (Entry<Marker, String> entry : markers.entrySet()) {
-            Marker key = entry.getKey();
-            String value = entry.getValue();
-            if (value.equalsIgnoreCase("callout")) {
-                key.setVisible(false);
-            }
-        }
-    }
-
-    private void showCalloutMarkers() {
-        for (Entry<Marker, String> entry : markers.entrySet()) {
-            Marker key = entry.getKey();
-            String value = entry.getValue();
-            if (value.equalsIgnoreCase("callout")) {
-                key.setVisible(true);
-            }
         }
     }
 
