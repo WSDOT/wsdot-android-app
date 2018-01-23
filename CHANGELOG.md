@@ -4,6 +4,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.9] - 2018-01-23
+
+## Added
+- Custom logs for Crashlytics
+- Alerts refresh timer on traffic map
+
+## Fixes
+- Amtrak Cascades schedule crash
+- Vessel Watch - view model access in timer crash
+- Error in "Alerts in this area"
+- xml error causing My Routes guide to show in settings menu.
+
 ## [5.0.6] - 2018-01-18
 
 ## Added
