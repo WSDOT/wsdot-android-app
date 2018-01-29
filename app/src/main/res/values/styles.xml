@@ -4,16 +4,58 @@
     <!-- Base application theme. -->
     <style name="WSDOT" parent="Theme.AppCompat.Light.NoActionBar">
         <!--   your app branding color for the app bar -->
-        <item name="colorPrimary">#008065</item>
+        <item name="colorPrimary">@color/primary_default</item>
         <!--   darker variant for the status bar and contextual app bars -->
-        <item name="colorPrimaryDark">#004D40</item>
+        <!-- <item name="colorPrimaryDark">#004D40</item> -->
+        <item name="colorPrimaryDark">@color/primary_default</item>
+
         <!--   theme UI controls like checkboxes and text fields -->
-        <item name="colorAccent">#FFEA00</item>
+        <item name="colorAccent">@color/accent_default</item>
+
+        <item name="fabButtonColor">@color/primary_default</item>
+
         <item name="actionButtonStyle">@style/AppTheme.Widget.ActionButton</item>
+        <item name="toolbarTheme">@style/AppToolbarDefault</item>
+
     </style>
 
+    <style name="WSDOTWorkerOrange" parent="Theme.AppCompat.Light.NoActionBar">
+        <!--   your app branding color for the app bar -->
+        <item name="colorPrimary">@color/primary_worker</item>
+        <!--   darker variant for the status bar and contextual app bars -->
+        <!-- <item name="colorPrimaryDark">#004D40</item> -->
+        <item name="colorPrimaryDark">@color/primary_dark_worker</item>
+
+        <!--   theme UI controls like checkboxes and text fields -->
+        <item name="colorAccent">@color/accent_worker</item>
+
+        <item name="fabButtonColor">@color/primary_worker</item>
+
+        <item name="actionButtonStyle">@style/AppTheme.Widget.ActionButton</item>
+        <item name="toolbarTheme">@style/AppToolbarOrange</item>
+
+    </style>
+
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/primary_default</item>
+    </style>
+
+    <!-- Start default color styles -->
+
+    <style name="AppToolbarDefault" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:colorBackground">@color/primary_dark_default</item>
+    </style>
+
+    <!-- Start orange theme color styles -->
+
+    <style name="AppToolbarOrange" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:colorBackground">@color/primary_dark_worker</item>
+    </style>
+
+    <!-- end orange theme color styles -->
+
     <style name="AppTheme.Button" parent="Widget.AppCompat.Button.Colored">
-        <item name="colorButtonNormal">#008065</item>
+        <item name="colorButtonNormal">?attr/colorPrimary</item>
         <item name="android:textColor">#FFFFFF</item>
     </style>
 
@@ -22,17 +64,8 @@
         <item name="android:textColor">#FFFFFF</item>
     </style>
 
-    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="colorAccent">#008065</item>
-    </style>
 
-    <style name="WSDOT_popup" parent="Theme.AppCompat.Light.NoActionBar">
-        <!--   your app branding color for the app bar -->
-        <item name="colorPrimary">#008065</item>
-        <!--   darker variant for the status bar and contextual app bars -->
-        <item name="colorPrimaryDark">#004D40</item>
-        <!--   theme UI controls like checkboxes and text fields -->
-        <item name="colorAccent">#008065</item>
+    <style name="WSDOT.popup" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@color/cardview_light_background</item>
@@ -42,10 +75,6 @@
         <item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
     </style>
 
-    <style name="AppToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="android:colorBackground">#004D40</item>
-    </style>
-
     <style name="AppTheme.Widget.ActionButton" parent="@style/Widget.AppCompat.ActionButton">
         <item name="textAllCaps">false</item>
     </style>
@@ -53,6 +82,9 @@
     <style name="FullTabLayout" parent="Widget.Design.TabLayout">
         <item name="tabGravity">fill</item>
         <item name="tabMaxWidth">0dp</item>
+
+        <item name="android:color">?attr/colorPrimary</item>
+
     </style>
 
     <style name="DashboardButton">
@@ -63,8 +95,8 @@
         <item name="android:drawablePadding">2dp</item>
         <item name="android:textSize">@dimen/text_size_micro</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/accent_1</item>
         <item name="android:background">@null</item>
+        <item name="android:textColor">?attr/colorPrimaryDark</item>
     </style>
 
     <style name="CollapsedAppBar" parent="@android:style/TextAppearance.Medium">
@@ -111,7 +143,7 @@
     </style>
 
     <style name="HighImpactAlertsButtonItem" parent="style/HighImpactAlertsStaticItem">
-        <item name="android:textColor">@color/accent_1</item>
+        <item name="android:textColor">?attr/colorPrimaryDark</item>
         <item name="android:background">@drawable/high_impact_alerts_button</item>
         <item name="android:paddingRight">@dimen/high_impact_alerts_button_right_padding</item>
         <item name="android:focusable">true</item>

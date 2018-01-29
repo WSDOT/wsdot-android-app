@@ -27,7 +27,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/WSDOT">
+        android:theme="@style/WSDOTWorkerOrange">
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -35,7 +35,7 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyBfeBLDQdt0QV7qwHZrZQBuBMzNmm_LsP0" />
 
-        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="${crashlytics_enabled}" />
+        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
 
 
         <!-- TODO: No need for provider at the moment. Will need to update it to work with DAOs at some point.
@@ -143,19 +143,15 @@
         <activity android:name=".ui.callout.CalloutActivity" />
         <activity
             android:name=".ui.myroute.MyRouteActivity"
-            android:label="@string/title_activity_my_route"
-            android:theme="@style/WSDOT" />
+            android:label="@string/title_activity_my_route" />
         <activity
             android:name=".ui.myroute.newroute.NewRouteActivity"
-            android:label="@string/title_activity_new_route"
-            android:theme="@style/WSDOT" />
+            android:label="@string/title_activity_new_route"/>
         <activity
-            android:name=".ui.myroute.myroutealerts.MyRouteAlertsListActivity"
-            android:theme="@style/WSDOT" />
+            android:name=".ui.myroute.myroutealerts.MyRouteAlertsListActivity" />
         <activity android:name=".ui.myroute.MyRouteMapActivity" />
         <activity
             android:name=".ui.settings.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:theme="@style/WSDOT" />
+            android:label="@string/title_activity_settings" />
     </application>
 </manifest>

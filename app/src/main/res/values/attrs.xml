@@ -3,4 +3,10 @@
     <declare-styleable name="Gallery1">
         <attr name="android:galleryItemBackground" />
     </declare-styleable>
+
+    <attr name="toolbarTheme" format="reference"/>
+
+    <declare-styleable name="ThemeStyles">
+        <attr name="fabButtonColor" format="color" />
+    </declare-styleable>
 </resources>

@@ -4,8 +4,7 @@
     <color name="white">#ffff</color>
     <color name="semi_white">#f888</color>
     <color name="semi_black">#ff7d7d7d</color>
-   
-    <color name="accent_1">#ff006f80</color>
+
     <color name="body_text_1">#ff000000</color>
 
     <color name="holo_blue_bright">#ff00ddff</color>
@@ -15,7 +14,17 @@
 
     <color name="alerts">#E0E0E0</color>
 
-    <color name="primary">#008065</color>
+    <color name="accent_1">#ff006f80</color>
+    <color name="dark_orange">#c43b00</color>
 
-    <color name="accent">#FFEA00</color>
+
+    <color name="primary_default">#008065</color>
+    <color name="primary_dark_default">#004D40</color>
+    <color name="accent_default">#FFEA00</color>
+
+    <color name="primary_worker">#FF6C0C</color>
+    <color name="primary_dark_worker">#c43b00</color>
+    <color name="accent_worker">#FFEA00</color>
+
+
 </resources>

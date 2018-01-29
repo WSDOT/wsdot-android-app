@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <TextView
+        android:id="@+id/event_banner"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:background="@color/alerts"
+        android:textColor="@color/dark_orange"
+        android:gravity="center"
+        android:text="Work Zone Safety Awareness Week. Tap for details."/>
+
 <gov.wa.wsdot.android.wsdot.ui.widget.DashboardLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -40,3 +55,8 @@
         android:visibility="invisible" />
 
 </gov.wa.wsdot.android.wsdot.ui.widget.DashboardLayout>
+
+
+
+
+</RelativeLayout>

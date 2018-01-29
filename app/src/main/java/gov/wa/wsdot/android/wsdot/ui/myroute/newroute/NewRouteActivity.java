@@ -1,6 +1,7 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute.newroute;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.ComponentName;
@@ -11,6 +12,8 @@ import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -30,6 +33,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -218,7 +222,6 @@ public class NewRouteActivity extends AppCompatActivity implements
                 .setMessage("Traffic cameras, travel times, pass reports, and other content will " +
                         "be added to your favorites if they are on this route. " +
                         "\n\n You can do this later by tapping the settings button next to your route.")
-
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
 
                     progressDialog = new ProgressDialogFragment();
@@ -254,7 +257,6 @@ public class NewRouteActivity extends AppCompatActivity implements
                 .show();
     }
 
-
     private void initStartButton(){
         Button startButton = findViewById(R.id.start_button);
 
@@ -287,7 +289,7 @@ public class NewRouteActivity extends AppCompatActivity implements
     }
 
     private void initDiscardButton(){
-        Button discardButton = (Button) findViewById(R.id.discard_button);
+        Button discardButton = findViewById(R.id.discard_button);
 
         discardButton.setOnClickListener(v -> {
             showStartView();
@@ -308,8 +310,11 @@ public class NewRouteActivity extends AppCompatActivity implements
             // Set up the input
             final EditText input = new EditText(NewRouteActivity.this);
 
+            TypedArray ta = this.getTheme().obtainStyledAttributes(R.styleable.ThemeStyles);
+
             Drawable drawable = input.getBackground(); // get current EditText drawable
-            drawable.setColorFilter(ContextCompat.getColor(NewRouteActivity.this, R.color.primary), PorterDuff.Mode.SRC_ATOP); // change the drawable color
+
+            drawable.setColorFilter(ta.getColor(R.styleable.ThemeStyles_fabButtonColor, getResources().getColor(R.color.primary_default)), PorterDuff.Mode.SRC_ATOP); // change the drawable color
 
             if(Build.VERSION.SDK_INT > 16) {
                 input.setBackground(drawable); // set the new drawable to EditText
@@ -351,9 +356,7 @@ public class NewRouteActivity extends AppCompatActivity implements
                 viewModel.addMyRoute(myRoute);
 
                 showAddFavoritesDialog(myRoute.getMyRouteId());
-
             });
-
             builder.show();
         });
     }
@@ -463,15 +466,11 @@ public class NewRouteActivity extends AppCompatActivity implements
                 AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
                 builder.setMessage("To create a route you must allow WSDOT access to your location.");
                 builder.setTitle("Location Services");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        ActivityCompat.requestPermissions(
-                                NewRouteActivity.this,
-                                new String[] {
-                                        Manifest.permission.ACCESS_FINE_LOCATION },
-                                REQUEST_ACCESS_FINE_LOCATION);
-                    }
-                });
+                builder.setPositiveButton("OK", (dialog, which) -> ActivityCompat.requestPermissions(
+                        NewRouteActivity.this,
+                        new String[] {
+                                Manifest.permission.ACCESS_FINE_LOCATION },
+                        REQUEST_ACCESS_FINE_LOCATION));
                 builder.setNegativeButton("Cancel", null);
                 builder.setCancelable(false);
                 builder.show();
@@ -490,7 +489,7 @@ public class NewRouteActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @Nullable String[] permissions, @NonNull int[] grantResults) {
 
         switch (requestCode) {
             case REQUEST_ACCESS_FINE_LOCATION: {

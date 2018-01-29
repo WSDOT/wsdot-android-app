@@ -2,12 +2,15 @@ package gov.wa.wsdot.android.wsdot.ui.myroute;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.ColorInt;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.accessibility.AccessibilityManager;
 
@@ -55,12 +58,13 @@ public class MyRouteActivity extends BaseActivity implements RouteOptionsDialogF
         boolean seenTip = settings.getBoolean("KEY_SEEN_NEW_MY_ROUTE_TIP", false);
 
         AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+
         if (!seenTip && !am.isEnabled()) {
             try {
             TapTargetView.showFor(this, // `this` is an Activity
                     TapTarget.forView(fab, "Create your first route", "Track your commute using your phone's GPS to get a personal list of highway alerts on your route.")
                             // All options below are optional
-                            .outerCircleColor(R.color.primary)      // Specify a color for the outer circle
+                            .outerCircleColor(R.color.primary_default)      // Specify a color for the outer circle
                             .titleTextSize(20)                  // Specify the size (in sp) of the title text
                             .titleTextColor(R.color.white)      // Specify the color of the title text
                             .descriptionTextSize(15)            // Specify the size (in sp) of the description text

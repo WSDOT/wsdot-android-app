@@ -5,13 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="?attr/actionBarSize"
-    android:theme="@style/WSDOT"
+    android:theme="?attr/toolbarTheme"
+    android:background="?attr/colorPrimary"
     android:fitsSystemWindows="true" >
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             app:layout_collapseMode="pin"
-            android:theme="@style/AppToolbar"
+            android:theme="?attr/toolbarTheme"
+            android:background="?attr/colorPrimary"
             android:layout_width="match_parent"
             app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
             android:layout_height="?attr/actionBarSize"/>

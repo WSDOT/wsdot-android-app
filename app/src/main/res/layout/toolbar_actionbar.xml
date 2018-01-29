@@ -6,7 +6,7 @@
     android:layout_alignParentTop="true"
     android:background="?attr/colorPrimary"
     android:minHeight="?attr/actionBarSize"
-    android:theme="@style/AppToolbar">
+    android:theme="?attr/toolbarTheme">
 
     <ProgressBar
         android:id="@+id/progress_bar"

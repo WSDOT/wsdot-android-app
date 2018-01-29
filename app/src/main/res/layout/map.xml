@@ -50,7 +50,7 @@
                 android:layout_marginStart="5dp"
                 android:scaleType="center"
                 android:tint="@color/white"
-                app:backgroundTint="@color/primary"
+                app:backgroundTint="?attr/colorPrimary"
                 app:srcCompat="@drawable/ic_on" />
         </LinearLayout>
 
@@ -84,7 +84,7 @@
                 android:layout_marginStart="5dp"
                 android:scaleType="center"
                 android:tint="@color/white"
-                app:backgroundTint="@color/primary"
+                app:backgroundTint="?attr/colorPrimary"
                 app:srcCompat="@drawable/ic_on" />
         </LinearLayout>
 
@@ -116,7 +116,7 @@
                 android:layout_marginStart="5dp"
                 android:scaleType="center"
                 android:tint="@color/white"
-                app:backgroundTint="@color/primary"
+                app:backgroundTint="?attr/colorPrimary"
                 app:srcCompat="@drawable/ic_on" />
         </LinearLayout>
 
@@ -148,7 +148,7 @@
                 android:layout_marginStart="5dp"
                 android:scaleType="center"
                 android:tint="@color/white"
-                app:backgroundTint="@color/primary"
+                app:backgroundTint="?attr/colorPrimary"
                 app:srcCompat="@drawable/ic_on" />
         </LinearLayout>
 
@@ -160,7 +160,7 @@
             android:layout_margin="@dimen/fab_margin"
             android:scaleType="center"
             android:tint="@color/black"
-            app:backgroundTint="@color/accent"
+            app:backgroundTint="?attr/colorAccent"
             app:srcCompat="@drawable/ic_layers" />
 
     </FrameLayout>

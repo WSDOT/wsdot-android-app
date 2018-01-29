@@ -22,7 +22,6 @@ import android.Manifest;
 import android.animation.Animator;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,6 +29,7 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -42,6 +42,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -309,7 +310,7 @@ public class TrafficMapActivity extends BaseActivity implements
                 TapTargetView.showFor(this, // `this` is an Activity
                         TapTarget.forView(fabLayers, "Map Layers", "Tap to edit what information displays on the Traffic Map.")
                                 // All options below are optional
-                                .outerCircleColor(R.color.primary)
+                                .outerCircleColor(R.color.primary_default)
                                 .titleTextSize(20)
                                 .titleTextColor(R.color.white)
                                 .descriptionTextSize(15)
@@ -1283,7 +1284,8 @@ public class TrafficMapActivity extends BaseActivity implements
     }
 
     private void toggleFabOn(FloatingActionButton fab){
-        fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary)));
+        TypedArray ta = this.getTheme().obtainStyledAttributes(R.styleable.ThemeStyles);
+        fab.setBackgroundTintList(ColorStateList.valueOf(ta.getColor(R.styleable.ThemeStyles_fabButtonColor, getResources().getColor(R.color.primary_default))));
         fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_on));
     }
 
