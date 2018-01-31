@@ -19,13 +19,17 @@
 package gov.wa.wsdot.android.wsdot.ui.home;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
+import gov.wa.wsdot.android.wsdot.service.EventService;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
@@ -52,6 +56,18 @@ public class DashboardFragment extends BaseFragment implements Injectable {
         root.findViewById(R.id.home_btn_border).setOnClickListener(view -> startActivity(new Intent(getActivity(), BorderWaitActivity.class)));
         root.findViewById(R.id.home_btn_amtrak).setOnClickListener(view -> startActivity(new Intent(getActivity(), AmtrakCascadesActivity.class)));
         root.findViewById(R.id.home_btn_my_routes).setOnClickListener(view -> startActivity(new Intent(getActivity(), MyRouteActivity.class)));
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        int theme_key = prefs.getInt(getString(R.string.set_theme_key), 0);
+        TextView banner_view = root.findViewById(R.id.event_banner);
+        if (theme_key == 1) {
+            banner_view.setVisibility(View.VISIBLE);
+            banner_view.setText(prefs.getString(getString(R.string.event_banner_text_key), "error"));
+            banner_view.setOnClickListener(view -> startActivity(new Intent(getActivity(), EventActivity.class)));
+        } else {
+            banner_view.setVisibility(View.GONE);
+        }
+
         return root;
     }
 }

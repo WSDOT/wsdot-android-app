@@ -11,8 +11,8 @@
         android:layout_height="36dp"
         android:background="@color/alerts"
         android:textColor="@color/dark_orange"
-        android:gravity="center"
-        android:text="Work Zone Safety Awareness Week. Tap for details."/>
+        android:visibility="gone"
+        android:gravity="center"/>
 
 <gov.wa.wsdot.android.wsdot.ui.widget.DashboardLayout
     xmlns:android="http://schemas.android.com/apk/res/android"

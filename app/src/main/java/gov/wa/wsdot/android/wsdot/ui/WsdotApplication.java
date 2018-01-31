@@ -39,6 +39,7 @@ import gov.wa.wsdot.android.wsdot.BuildConfig;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.AppInjector;
 import gov.wa.wsdot.android.wsdot.util.MyNotificationManager;
+import gov.wa.wsdot.android.wsdot.util.Utils;
 import io.fabric.sdk.android.Fabric;
 
 /**
@@ -47,62 +48,84 @@ import io.fabric.sdk.android.Fabric;
  */
 public class WsdotApplication extends Application implements HasActivityInjector, HasSupportFragmentInjector {
 
-  @Inject
-  DispatchingAndroidInjector<Activity> dispatchingAndroidActivityInjector;
+    @Inject
+    DispatchingAndroidInjector<Activity> dispatchingAndroidActivityInjector;
 
-  @Inject
-  DispatchingAndroidInjector<Fragment> dispatchingAndroidFragmentInjector;
+    @Inject
+    DispatchingAndroidInjector<Fragment> dispatchingAndroidFragmentInjector;
 
-  private Tracker mTracker;
+    private Tracker mTracker;
 
-  @Override
-  public void onCreate() {
-    super.onCreate();
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        AppInjector.init(this);
 
-    AppInjector.init(this);
+        checkForEvent();
 
-    if (BuildConfig.DEBUG) {
-        Log.d(WsdotApplication.class.getSimpleName(), "init crashlytics in debug mode");
-        final Fabric fabric = new Fabric.Builder(this)
+        if (BuildConfig.DEBUG) {
+            Log.d(WsdotApplication.class.getSimpleName(), "init crashlytics in debug mode");
+            final Fabric fabric = new Fabric.Builder(this)
                 .kits(new Crashlytics())
                 .debuggable(true) // Enables Crashlytics debugger
                 .build();
-        Fabric.with(fabric);
+            Fabric.with(fabric);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());
+            myNotificationManager.createMainNotificationChannel();
+        }
+
+        //reset driver alert message on app startup.
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("KEY_SEEN_DRIVER_ALERT", false);
+        editor.apply();
     }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());
-      myNotificationManager.createMainNotificationChannel();
+    /**
+     * Gets the default {@link Tracker} for this {@link Application}.
+     * @return tracker
+     */
+    synchronized public Tracker getDefaultTracker() {
+        if (mTracker == null) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
+            mTracker = analytics.newTracker(R.xml.global_tracker);
+        }
+        return mTracker;
     }
 
-    //reset driver alert message on app startup.
-    SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-    SharedPreferences.Editor editor = settings.edit();
-    editor.putBoolean("KEY_SEEN_DRIVER_ALERT", false);
-    editor.apply();
-  }
-
-
-  /**
-   * Gets the default {@link Tracker} for this {@link Application}.
-   * @return tracker
-   */
-  synchronized public Tracker getDefaultTracker() {
-    if (mTracker == null) {
-      GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-      // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
-      mTracker = analytics.newTracker(R.xml.global_tracker);
+    @Override
+    public DispatchingAndroidInjector<Activity> activityInjector() {
+        return dispatchingAndroidActivityInjector;
     }
-    return mTracker;
-  }
 
-  @Override
-  public DispatchingAndroidInjector<Activity> activityInjector() {
-      return dispatchingAndroidActivityInjector;
-  }
+    @Override
+    public AndroidInjector<android.support.v4.app.Fragment> supportFragmentInjector() {
+        return dispatchingAndroidFragmentInjector;
+    }
 
-  @Override
-  public AndroidInjector<android.support.v4.app.Fragment> supportFragmentInjector() {
-      return dispatchingAndroidFragmentInjector;
-  }
+    // checks if we have an active event.
+    // gets values from shared pref and updates theme if necessary.
+    private void checkForEvent(){
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String startDateString = sharedPref.getString(getString(R.string.event_start_date), "1997-01-01");
+        String endDateString = sharedPref.getString(getString(R.string.event_end_date), "1997-01-01");
+        String dateFormat = "yyyy-MM-dd";
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        if (Utils.currentDateInRange(startDateString, endDateString, dateFormat)) {
+          int event_theme_id = sharedPref.getInt(getString(R.string.event_theme_key), 0);
+          editor.putInt(getString(R.string.event_theme_key), event_theme_id);
+          editor.putBoolean(getString(R.string.event_is_active), true);
+          editor.commit();
+        } else {
+          editor.putBoolean(getString(R.string.event_is_active), false);
+          editor.commit();
+        }
+    }
 }

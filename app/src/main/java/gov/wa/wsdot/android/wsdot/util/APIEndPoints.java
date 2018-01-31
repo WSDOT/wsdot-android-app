@@ -56,4 +56,7 @@ public class APIEndPoints {
     public static final String YOUTUBE = "https://www.googleapis.com/youtube/v3/playlistItems";
     public static final String YOUTUBE_WATCH = "http://www.youtube.com/watch";
 
+    // Other
+    public static final String EVENT = "http://data.wsdot.wa.gov/mobile/EventStatus.js";
+
 }

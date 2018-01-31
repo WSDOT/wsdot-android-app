@@ -1,18 +1,23 @@
 package gov.wa.wsdot.android.wsdot.util;
 
+import android.util.Log;
 import android.util.SparseArray;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 
-/**
- * Created by simsl on 3/24/17.
- */
-
 public class Utils {
+
+    final static String TAG = Utils.class.getSimpleName();
 
     /**
      * Haversine formula
@@ -65,6 +70,29 @@ public class Utils {
         return ferriesTerminalMap;
     }
 
+    public static Boolean currentDateInRange(String startDateString, String endDateString, String dateFormat){
+        DateFormat df = new SimpleDateFormat(dateFormat, Locale.US);
+
+        Date startDate;
+        Date endDate;
+
+        try {
+            startDate = df.parse(startDateString);
+            endDate = df.parse(endDateString);
+        } catch (ParseException e) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(0);
+            cal.set(1997, 1, 1, 0, 0, 0);
+            startDate = cal.getTime();
+            endDate = cal.getTime();
+            e.printStackTrace();
+        }
+
+        Date today = new Date();
+
+        return !(today.before(startDate) || today.after(endDate));
+
+    }
 
     /**
      * Copy the content of the input stream into the output stream, using a

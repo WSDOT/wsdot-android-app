@@ -35,6 +35,7 @@ import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
+import gov.wa.wsdot.android.wsdot.service.EventService;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
@@ -115,6 +116,9 @@ public class HomeActivity extends BaseActivity implements Injectable {
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
+
+        startService(new Intent(this, EventService.class));
+
     }
 
     @Override
