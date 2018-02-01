@@ -58,9 +58,9 @@ public class DashboardFragment extends BaseFragment implements Injectable {
         root.findViewById(R.id.home_btn_my_routes).setOnClickListener(view -> startActivity(new Intent(getActivity(), MyRouteActivity.class)));
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        int theme_key = prefs.getInt(getString(R.string.set_theme_key), 0);
+        Boolean eventActive = prefs.getBoolean(getString(R.string.event_is_active), false);
         TextView banner_view = root.findViewById(R.id.event_banner);
-        if (theme_key == 1) {
+        if (eventActive) {
             banner_view.setVisibility(View.VISIBLE);
             banner_view.setText(prefs.getString(getString(R.string.event_banner_text_key), "error"));
             banner_view.setOnClickListener(view -> startActivity(new Intent(getActivity(), EventActivity.class)));

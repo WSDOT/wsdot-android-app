@@ -37,16 +37,6 @@
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
-
-        <!--
-        TODO: No need for provider at the moment. Will need to update it to work with DAOs at some point.
-        <provider
-            android:name=".provider.WSDOTProvider"
-            android:authorities="gov.wa.wsdot.android.wsdot.provider.WSDOTProvider"
-            android:exported="false" />
-        -->
-
-
         <!--
              Optionally, register AnalyticsReceiver and AnalyticsService to support background
           	 dispatching on non-Google Play devices

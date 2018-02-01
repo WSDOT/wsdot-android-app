@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -14,7 +13,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.zip.GZIPInputStream;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
@@ -56,11 +54,9 @@ public class EventService extends IntentService {
             editor.putString(getString(R.string.event_banner_text_key), obj.getString("bannerText"));
             editor.putString(getString(R.string.event_title_key), obj.getString("title"));
             editor.putString(getString(R.string.event_details_key), obj.getString("details"));
-
-            editor.putInt(getString(R.string.event_theme_key), 1);
+            editor.putInt(getString(R.string.event_theme_key), obj.getInt("themeId"));
 
             editor.commit();
-
 
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "Error: " + e.getMessage());
