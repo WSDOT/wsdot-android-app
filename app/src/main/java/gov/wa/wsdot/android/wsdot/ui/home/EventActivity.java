@@ -12,10 +12,6 @@ import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 
 public class EventActivity extends BaseActivity {
 
-    private Toolbar mToolbar;
-
-    private TextView detailsTextView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +21,7 @@ public class EventActivity extends BaseActivity {
 
         String title = sharedPref.getString(getString(R.string.event_title_key), "Event");
 
-        mToolbar = findViewById(R.id.toolbar);
+        Toolbar mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(title);
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
@@ -34,7 +30,7 @@ public class EventActivity extends BaseActivity {
         }
 
         String details = sharedPref.getString(getString(R.string.event_details_key), "Error loading details");
-        detailsTextView = findViewById(R.id.event_details);
+        TextView detailsTextView = findViewById(R.id.event_details);
         detailsTextView.setText(details);
 
     }

@@ -17,6 +17,26 @@ import java.net.URLConnection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
+/**
+ *  A one off service that checks the event status URL for information about current/upcoming
+ *  events. Data is saved to Shared Preferences.
+ *
+ *  *IMPORTANT* The data pulled from this service will not effect the apps display until
+ *  the app restarts. WSDOTApplication checks shared preferences and sets the event active
+ *  flag to true if there's event data and the date is within the start and end date.
+ *  It was done this way to avoid tying up app start up with a network call.
+ *
+ *  Server must respond with a json object of the format:
+ *  {
+ *      "startDate": "yyyy-MM-dd",
+ *      "endDate" : "yyyy-MM-dd",
+ *      "themeId": number, - Id of the theme to use when event is active.
+ *      "bannerText": string - text for the banner
+ *      "title": string - title for Toolbar in EventActivity
+ *      "details": string - information about event to display in EventActivity
+ *  }
+ *
+ */
 public class EventService extends IntentService {
 
     private static final String DEBUG_TAG = "EventService";
@@ -43,8 +63,6 @@ public class EventService extends IntentService {
             in.close();
 
             JSONObject obj = new JSONObject(jsonFile);
-
-            Log.e(DEBUG_TAG, obj.toString());
 
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor editor = sharedPref.edit();

@@ -107,8 +107,10 @@ public class WsdotApplication extends Application implements HasActivityInjector
         return dispatchingAndroidFragmentInjector;
     }
 
-    // checks if we have an active event.
-    // gets values from shared pref and updates theme if necessary.
+    /**
+     * checks if we have an active event. If we are in the event date range set event_is_active
+     * to true and update theme if necessary.
+     */
     private void checkForEvent(){
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
