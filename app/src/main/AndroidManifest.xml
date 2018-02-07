@@ -34,17 +34,9 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyBfeBLDQdt0QV7qwHZrZQBuBMzNmm_LsP0" />
-
-        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="${crashlytics_enabled}" />
-
-
-        <!-- TODO: No need for provider at the moment. Will need to update it to work with DAOs at some point.
-        <provider
-            android:name=".provider.WSDOTProvider"
-            android:authorities="gov.wa.wsdot.android.wsdot.provider.WSDOTProvider"
-            android:exported="false" />
-        -->
-
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="true" />
         <!--
              Optionally, register AnalyticsReceiver and AnalyticsService to support background
           	 dispatching on non-Google Play devices
@@ -62,7 +54,10 @@
             android:name="com.google.android.gms.analytics.AnalyticsService"
             android:enabled="true"
             android:exported="false" />
+
         <service android:name=".service.MyRouteTrackingService" />
+        <service android:name=".service.EventService" />
+
 
         <activity
             android:name=".ui.home.HomeActivity"
@@ -143,19 +138,17 @@
         <activity android:name=".ui.callout.CalloutActivity" />
         <activity
             android:name=".ui.myroute.MyRouteActivity"
-            android:label="@string/title_activity_my_route"
-            android:theme="@style/WSDOT" />
+            android:label="@string/title_activity_my_route" />
         <activity
             android:name=".ui.myroute.newroute.NewRouteActivity"
-            android:label="@string/title_activity_new_route"
-            android:theme="@style/WSDOT" />
-        <activity
-            android:name=".ui.myroute.myroutealerts.MyRouteAlertsListActivity"
-            android:theme="@style/WSDOT" />
+            android:label="@string/title_activity_new_route" />
+        <activity android:name=".ui.myroute.myroutealerts.MyRouteAlertsListActivity" />
         <activity android:name=".ui.myroute.MyRouteMapActivity" />
         <activity
             android:name=".ui.settings.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:theme="@style/WSDOT" />
+            android:label="@string/title_activity_settings" />
+        <activity
+            android:name=".ui.home.EventActivity"/>
     </application>
+
 </manifest>

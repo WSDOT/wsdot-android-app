@@ -15,10 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-
 package gov.wa.wsdot.android.wsdot.ui;
 
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -31,6 +33,35 @@ import gov.wa.wsdot.android.wsdot.R;
 public abstract class BaseActivity extends AppCompatActivity {
 
     private PublisherAdView mAdView;
+
+    /**
+     * Override getTheme to check shardPref for an active event that might
+     * change the theme
+     */
+    @Override
+    public Resources.Theme getTheme() {
+        Resources.Theme theme = super.getTheme();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        int themeNumber = prefs.getInt(getString(R.string.set_theme_key), 0);
+
+        // Check if a current event is changing the theme
+        Boolean eventIsActive = prefs.getBoolean(getString(R.string.event_is_active), false);
+        if (eventIsActive) {
+            themeNumber = prefs.getInt(getString(R.string.event_theme_key), 0);
+        }
+
+        switch (themeNumber) {
+            case 1: // worker safety
+                theme.applyStyle(R.style.WSDOTWorkerOrange, true);
+                break;
+            default:
+                theme.applyStyle(R.style.WSDOT, true);
+        }
+
+        return theme;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +96,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * Initialize and display ads.
      */
     protected void enableAds(String target) {
-        mAdView = (PublisherAdView) findViewById(R.id.publisherAdView);
+        mAdView = findViewById(R.id.publisherAdView);
 
         PublisherAdRequest adRequest = new PublisherAdRequest.Builder()
                 .addTestDevice(PublisherAdRequest.DEVICE_ID_EMULATOR) // All emulators

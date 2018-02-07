@@ -74,7 +74,7 @@
         android:layout_marginRight="16dp"
         android:text="@string/button_check_schedules"
         android:onClick="checkSchedules"
-        android:background="@color/primary"
+        android:background="?attr/colorPrimary"
         android:textColor="@color/white"
         android:layout_marginBottom="25dp"/>
 

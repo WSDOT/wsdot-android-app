@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_with_tabs"
-    android:theme="@style/WSDOT"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 <android.support.design.widget.CoordinatorLayout
@@ -21,7 +20,7 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             app:layout_collapseMode="pin"
-            android:theme="@style/AppToolbar"
+            android:theme="?attr/toolbarTheme"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed">

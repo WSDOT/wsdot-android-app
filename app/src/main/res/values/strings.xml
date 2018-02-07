@@ -103,5 +103,18 @@
     <string name="new_route_get_started">Tap the plus button to get started</string>
     <string name="tracking_route_info_message">Set your device down and make your way along your route. Tap Finish when you\'ve arrived at your destination.</string>
 
+    <!-- Shared pref strings -->
+
+    <string name="event_start_date">event_start_date</string>
+    <string name="event_end_date">event_end_date</string>
+    <string name="event_banner_text_key">event_banner_text_key</string>
+    <string name="event_title_key">event_title_key</string>
+    <string name="event_details_key">event_details_key</string>
+    <string name="event_theme_key">event_theme_key</string>
+
+    <string name="event_is_active">event_is_active</string>
+
+    <string name="set_theme_key">set_theme_key</string>
+
 
 </resources>

@@ -19,13 +19,19 @@
 package gov.wa.wsdot.android.wsdot.ui.home;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
+import gov.wa.wsdot.android.wsdot.service.EventService;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
@@ -52,6 +58,22 @@ public class DashboardFragment extends BaseFragment implements Injectable {
         root.findViewById(R.id.home_btn_border).setOnClickListener(view -> startActivity(new Intent(getActivity(), BorderWaitActivity.class)));
         root.findViewById(R.id.home_btn_amtrak).setOnClickListener(view -> startActivity(new Intent(getActivity(), AmtrakCascadesActivity.class)));
         root.findViewById(R.id.home_btn_my_routes).setOnClickListener(view -> startActivity(new Intent(getActivity(), MyRouteActivity.class)));
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        Boolean eventActive = prefs.getBoolean(getString(R.string.event_is_active), false);
+        LinearLayout banner_view = root.findViewById(R.id.event_banner);
+        TextView banner_text = root.findViewById(R.id.event_banner_text);
+
+        if (eventActive) {
+            banner_view.setVisibility(View.VISIBLE);
+            banner_view.setOnClickListener(view -> startActivity(new Intent(getActivity(), EventActivity.class)));
+
+            banner_text.setText(prefs.getString(getString(R.string.event_banner_text_key), "error"));
+
+        } else {
+            banner_view.setVisibility(View.GONE);
+        }
+
         return root;
     }
 }

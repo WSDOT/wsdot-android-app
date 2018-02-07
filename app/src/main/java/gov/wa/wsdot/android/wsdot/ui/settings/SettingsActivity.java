@@ -159,16 +159,13 @@ public class SettingsActivity extends BaseActivity implements OnStartDragListene
                 holder.title.setText((String) FavoritesFragment.headers.get(orderedViewTypes[position - 1]));
                 holder.title.setTypeface(tfb);
 
-                holder.handle.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        if (MotionEventCompat.getActionMasked(event) ==
-                                MotionEvent.ACTION_DOWN || MotionEventCompat.getActionMasked(event) ==
-                                MotionEvent.ACTION_UP) {
-                            mDragStartListener.onStartDrag(holder);
-                        }
-                        return false;
+                holder.handle.setOnTouchListener((v, event) -> {
+                    if (MotionEventCompat.getActionMasked(event) ==
+                            MotionEvent.ACTION_DOWN || MotionEventCompat.getActionMasked(event) ==
+                            MotionEvent.ACTION_UP) {
+                        mDragStartListener.onStartDrag(holder);
                     }
+                    return false;
                 });
             }
         }

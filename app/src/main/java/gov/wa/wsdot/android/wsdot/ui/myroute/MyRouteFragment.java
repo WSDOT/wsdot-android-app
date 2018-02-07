@@ -17,6 +17,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -181,8 +182,12 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
         final EditText input = new EditText(MyRouteFragment.this.getContext());
         input.setHint(routeName);
 
+        TypedValue typedValue = new TypedValue();
+        getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
+        int primary_color = typedValue.data;
+
         Drawable drawable = input.getBackground(); // get current EditText drawable
-        drawable.setColorFilter(ContextCompat.getColor(MyRouteFragment.this.getContext(), R.color.primary), PorterDuff.Mode.SRC_ATOP); // change the drawable color
+        drawable.setColorFilter(ContextCompat.getColor(MyRouteFragment.this.getContext(), primary_color), PorterDuff.Mode.SRC_ATOP); // change the drawable color
 
         if(Build.VERSION.SDK_INT > 16) {
             input.setBackground(drawable); // set the new drawable to EditText

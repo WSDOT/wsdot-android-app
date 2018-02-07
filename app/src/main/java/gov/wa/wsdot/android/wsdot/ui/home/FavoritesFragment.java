@@ -24,6 +24,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -43,6 +44,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
@@ -302,6 +304,7 @@ public class FavoritesFragment extends BaseFragment implements
 	public void onResume() {
 		super.onResume();
         // Check preferences and set defaults if none set
+
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
         orderedViewTypes[0] = settings.getInt("KEY_FIRST_FAVORITES_SECTION", MY_ROUTE_VIEWTYPE);
         orderedViewTypes[1] = settings.getInt("KEY_SECOND_FAVORITES_SECTION", CAMERAS_VIEWTYPE);
@@ -309,6 +312,10 @@ public class FavoritesFragment extends BaseFragment implements
         orderedViewTypes[3] = settings.getInt("KEY_FOURTH_FAVORITES_SECTION", MOUNTAIN_PASSES_VIEWTYPE);
         orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", TRAVEL_TIMES_VIEWTYPE);
         orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", LOCATION_VIEWTYPE);
+
+
+
+
         mFavoritesAdapter.notifyDataSetChanged();
 	}
 
@@ -376,7 +383,6 @@ public class FavoritesFragment extends BaseFragment implements
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
             View itemView;
-
             switch (viewType){
                 case CAMERAS_VIEWTYPE:
                     itemView = LayoutInflater.
@@ -407,6 +413,7 @@ public class FavoritesFragment extends BaseFragment implements
                             from(parent.getContext()).inflate(R.layout.list_header, parent, false);
                     return new HeaderViewHolder(itemView);
                 default:
+                    MyLogger.crashlyticsLog("Home", "Error", "FavoritesFragment: No matching view type for type: " + viewType, 1);
                     Log.e(TAG, "No matching view type for type: " + viewType);
             }
             return null;
@@ -729,8 +736,8 @@ public class FavoritesFragment extends BaseFragment implements
                     intent.putExtras(b);
                     startActivity(intent);
                 });
-
             } else {
+                MyLogger.crashlyticsLog("Home", "Error", "FavoritesFragment: No view holder for type: " + holder.getClass().getName(), 1);
                 Log.i(TAG, "No view holder for type: " + holder.getClass().getName()); //TODO
             }
         }
@@ -779,6 +786,15 @@ public class FavoritesFragment extends BaseFragment implements
 
                 position -= size;
             }
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("-");
+            for (int viewType : orderedViewTypes) {
+                sb.append(String.valueOf(viewType));
+                sb.append("-");
+            }
+            MyLogger.crashlyticsLog("Home", "error", "FavoritesFragment: orderViewTypes = " + sb.toString(), 1);
+
             return -1;
         }
 
