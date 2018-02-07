@@ -179,7 +179,9 @@ public class FerryTerminalViewModel extends ViewModel {
                         int maxSpaceCount = terminals.getInt("MaxSpaceCount");
 
                         for (FerriesScheduleTimesItem time : times) {
-                            if (dateFormat.format(new Date(Long.parseLong(time.getDepartingTime()))).equals(departure)) {
+                            Date departingTime = new Date(Long.parseLong(time.getDepartingTime()));
+                            if (dateFormat.format(departingTime).equals(departure)
+                                    && (new Date().before(departingTime))) {
                                 Log.e(TAG, "found a time");
                                 time.setDriveUpSpaceCount(driveUpSpaceCount);
                                 time.setMaxSpaceCount(maxSpaceCount);
@@ -197,7 +199,9 @@ public class FerryTerminalViewModel extends ViewModel {
                             int maxSpaceCount = terminals.getInt("MaxSpaceCount");
 
                             for (FerriesScheduleTimesItem time : times) {
-                                if (dateFormat.format(new Date(Long.parseLong(time.getDepartingTime()))).equals(departure)) {
+                                Date departingTime = new Date(Long.parseLong(time.getDepartingTime()));
+                                if (dateFormat.format(departingTime).equals(departure)
+                                        && new Date().before(departingTime)) {
                                     time.setDriveUpSpaceCount(driveUpSpaceCount);
                                     time.setMaxSpaceCount(maxSpaceCount);
                                     time.setLastUpdated(lastUpdated);

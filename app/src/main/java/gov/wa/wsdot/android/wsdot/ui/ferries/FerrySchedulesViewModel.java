@@ -95,7 +95,6 @@ public class FerrySchedulesViewModel extends ViewModel {
         FerriesAnnotationsItem notes;
         FerriesScheduleTimesItem timesItem;
         FerriesAnnotationIndexesItem indexesItem;
-        Date now = new Date();
 
         try {
             JSONArray dates = new JSONArray(datesJson);
@@ -127,13 +126,6 @@ public class FerrySchedulesViewModel extends ViewModel {
                     int numTimes = times.length();
                     for (int m = 0; m < numTimes; m++) {
                         JSONObject time = times.getJSONObject(m);
-
-                        // Don't display past sailing times. Doesn't make sense.
-                        if (now.after(new Date(Long.parseLong(time
-                                .getString("DepartingTime")
-                                .substring(6, 19))))) {
-                            continue;
-                        }
 
                         timesItem = new FerriesScheduleTimesItem();
                         timesItem.setDepartingTime(time.getString("DepartingTime").substring(6, 19));

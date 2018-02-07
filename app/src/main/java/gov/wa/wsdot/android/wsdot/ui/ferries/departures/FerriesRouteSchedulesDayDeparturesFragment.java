@@ -28,7 +28,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +56,7 @@ import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
@@ -101,7 +101,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         mScheduleId = args.getInt("scheduleId");
         mTerminalIndex = args.getInt("terminalIndex");
 
-
 	}
 
     @Override
@@ -111,7 +110,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_route_schedules_day_departures, null);
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -193,7 +192,22 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                     t.setText(R.string.no_day_departures);
                     mEmptyView.setVisibility(View.VISIBLE);
                 }
+
                 mAdapter.setData(new ArrayList<>(sailingTimes));
+
+                // Scroll to the first sailing time that hasn't already passed.
+                try {
+                    Date now = new Date();
+                    for (int i = 0; i < sailingTimes.size(); i++){
+                        if (now.before(new Date(Long.parseLong(sailingTimes.get(i).getDepartingTime())))) {
+                            mRecyclerView.stopScroll();
+                            ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(i+1, 0);
+                            i = sailingTimes.size();
+                        }
+                    }
+                } catch (Exception e){
+                    MyLogger.crashlyticsLog("", "", "", 1);
+                }
             }
         });
 
@@ -264,7 +278,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
      */
     private class DepartureTimesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        private static final int TYPE_HEADER = 0;
         private static final int TYPE_ITEM = 1;
         private List<FerriesScheduleTimesItem> items;
 
@@ -274,17 +287,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
             View itemView;
-
-            if (viewType == TYPE_HEADER) {
-                itemView = LayoutInflater.
-                        from(parent.getContext()).
-                        inflate(R.layout.list_item_departure_times_header, parent, false);
-
-                return new TitleViewHolder(itemView);
-
-            }else if (viewType == TYPE_ITEM){
+            if (viewType == TYPE_ITEM){
                 itemView = LayoutInflater.
                         from(parent.getContext()).
                         inflate(R.layout.list_item_departure_times, parent, false);
@@ -301,91 +305,87 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
             dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
             TimesViewHolder itemHolder;
-            TitleViewHolder titleHolder;
 
-            if(holder instanceof TitleViewHolder){
+            FerriesScheduleTimesItem item = getItem(position);
 
-                titleHolder = (TitleViewHolder) holder;
+            itemHolder = (TimesViewHolder) holder;
 
-                titleHolder.Arriving.setTypeface(tfb);
-                titleHolder.Departing.setTypeface(tfb);
+            Date now = new Date();
+            if (now.after(new Date(Long.parseLong(item.getDepartingTime())))) {
+                itemHolder.departing.setTextColor(getResources().getColor(R.color.semi_white));
+                itemHolder.arriving.setTextColor(getResources().getColor(R.color.semi_white));
+                itemHolder.annotation.setTextColor(getResources().getColor(R.color.semi_white));
+            } else {
+                itemHolder.departing.setTextColor(getResources().getColor(R.color.body_text_1));
+                itemHolder.arriving.setTextColor(getResources().getColor(R.color.body_text_1));
+                itemHolder.annotation.setTextColor(getResources().getColor(R.color.body_text_1));
+            }
 
-                // Accessibility
-                titleHolder.itemView.setContentDescription("departures and arrivals heading");
-            }else {
+            StringBuilder contentDescriptionBuilder = new StringBuilder();
 
-                FerriesScheduleTimesItem item = getItem(position);
+            String annotation = "";
 
-                itemHolder = (TimesViewHolder) holder;
+            itemHolder.departing.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
+            contentDescriptionBuilder.append("departing at ");
+            contentDescriptionBuilder.append(itemHolder.departing.getText());
+            contentDescriptionBuilder.append(". ");
 
-                StringBuilder contentDescriptionBuilder = new StringBuilder();
-
-                String annotation = "";
-
-                itemHolder.departing.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
-                contentDescriptionBuilder.append("departing at ");
+            if (!item.getArrivingTime().equals("N/A")) {
+                itemHolder.arriving.setText(dateFormat.format(new Date(Long.parseLong(item.getArrivingTime()))));
+                contentDescriptionBuilder.append("arriving at");
                 contentDescriptionBuilder.append(itemHolder.departing.getText());
                 contentDescriptionBuilder.append(". ");
-
-                if (!item.getArrivingTime().equals("N/A")) {
-                    itemHolder.arriving.setText(dateFormat.format(new Date(Long.parseLong(item.getArrivingTime()))));
-                    contentDescriptionBuilder.append("arriving at");
-                    contentDescriptionBuilder.append(itemHolder.departing.getText());
-                    contentDescriptionBuilder.append(". ");
-                }
-
-                int numIndexes = item.getAnnotationIndexes().size();
-
-                for (int i = 0; i < numIndexes; i++) {
-                    if (annotations.size() > item.getAnnotationIndexes().get(i).getIndex()) {
-                        FerriesAnnotationsItem p = annotations.get(item.getAnnotationIndexes().get(i).getIndex());
-                        annotation += p.getAnnotation();
-                    }
-                }
-
-                if (annotation.equals("")) {
-                    itemHolder.annotation.setVisibility(View.GONE);
-                } else {
-                    itemHolder.annotation.setVisibility(View.VISIBLE);
-                    contentDescriptionBuilder.append(annotation);
-                    contentDescriptionBuilder.append(". ");
-                }
-
-                itemHolder.annotation.setText(android.text.Html.fromHtml(annotation));
-
-                if (item.getDriveUpSpaceCount() != -1) {
-                    itemHolder.vehicleSpaceGroup.setVisibility(View.VISIBLE);
-                    itemHolder.driveUpProgressBar.setMax(item.getMaxSpaceCount());
-                    itemHolder.driveUpProgressBar.setProgress(item.getMaxSpaceCount() - item.getDriveUpSpaceCount());
-                    itemHolder.driveUpProgressBar.setSecondaryProgress(item.getMaxSpaceCount());
-                    itemHolder.driveUpSpaceCount.setVisibility(View.VISIBLE);
-                    itemHolder.driveUpSpaceCount.setText(Integer.toString(item.getDriveUpSpaceCount()));
-                    itemHolder.driveUpSpaces.setVisibility(View.VISIBLE);
-                    itemHolder.driveUpSpacesDisclaimer.setVisibility(View.VISIBLE);
-                    itemHolder.updated.setVisibility(View.VISIBLE);
-                    itemHolder.updated.setText(ParserUtils.relativeTime(item.getLastUpdated(), "MMMM d, yyyy h:mm a", false));
-                    contentDescriptionBuilder.append(itemHolder.driveUpSpaceCount.getText());
-                    contentDescriptionBuilder.append(" drive-up spaces. ");
-                    contentDescriptionBuilder.append(itemHolder.driveUpSpacesDisclaimer.getText());
-                    contentDescriptionBuilder.append(". Drive-up spaces updated ");
-                    contentDescriptionBuilder.append(itemHolder.updated.getText());
-                } else {
-                    itemHolder.vehicleSpaceGroup.setVisibility(View.GONE);
-                    itemHolder.driveUpSpaceCount.setVisibility(View.GONE);
-                    itemHolder.driveUpSpaces.setVisibility(View.GONE);
-                    itemHolder.driveUpSpacesDisclaimer.setVisibility(View.GONE);
-                    itemHolder.updated.setVisibility(View.GONE);
-                }
-
-                itemHolder.itemView.setContentDescription(contentDescriptionBuilder.toString());
-
             }
+
+            int numIndexes = item.getAnnotationIndexes().size();
+
+            for (int i = 0; i < numIndexes; i++) {
+                if (annotations.size() > item.getAnnotationIndexes().get(i).getIndex()) {
+                    FerriesAnnotationsItem p = annotations.get(item.getAnnotationIndexes().get(i).getIndex());
+                    annotation += p.getAnnotation();
+                }
+            }
+
+            if (annotation.equals("")) {
+                itemHolder.annotation.setVisibility(View.GONE);
+            } else {
+                itemHolder.annotation.setVisibility(View.VISIBLE);
+                contentDescriptionBuilder.append(annotation);
+                contentDescriptionBuilder.append(". ");
+            }
+
+            itemHolder.annotation.setText(android.text.Html.fromHtml(annotation));
+
+            if (item.getDriveUpSpaceCount() != -1) {
+                itemHolder.vehicleSpaceGroup.setVisibility(View.VISIBLE);
+                itemHolder.driveUpProgressBar.setMax(item.getMaxSpaceCount());
+                itemHolder.driveUpProgressBar.setProgress(item.getMaxSpaceCount() - item.getDriveUpSpaceCount());
+                itemHolder.driveUpProgressBar.setSecondaryProgress(item.getMaxSpaceCount());
+                itemHolder.driveUpSpaceCount.setVisibility(View.VISIBLE);
+                itemHolder.driveUpSpaceCount.setText(Integer.toString(item.getDriveUpSpaceCount()));
+                itemHolder.driveUpSpaces.setVisibility(View.VISIBLE);
+                itemHolder.driveUpSpacesDisclaimer.setVisibility(View.VISIBLE);
+                itemHolder.updated.setVisibility(View.VISIBLE);
+                itemHolder.updated.setText(ParserUtils.relativeTime(item.getLastUpdated(), "MMMM d, yyyy h:mm a", false));
+                contentDescriptionBuilder.append(itemHolder.driveUpSpaceCount.getText());
+                contentDescriptionBuilder.append(" drive-up spaces. ");
+                contentDescriptionBuilder.append(itemHolder.driveUpSpacesDisclaimer.getText());
+                contentDescriptionBuilder.append(". Drive-up spaces updated ");
+                contentDescriptionBuilder.append(itemHolder.updated.getText());
+            } else {
+                itemHolder.vehicleSpaceGroup.setVisibility(View.GONE);
+                itemHolder.driveUpSpaceCount.setVisibility(View.GONE);
+                itemHolder.driveUpSpaces.setVisibility(View.GONE);
+                itemHolder.driveUpSpacesDisclaimer.setVisibility(View.GONE);
+                itemHolder.updated.setVisibility(View.GONE);
+            }
+            itemHolder.itemView.setContentDescription(contentDescriptionBuilder.toString());
         }
 
         @Override
         public int getItemCount() {
             if (items != null) {
-                return items.size() + 1;
+                return items.size();
             }
             return 0;
         }
@@ -407,20 +407,14 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         }
 
         private FerriesScheduleTimesItem getItem(int position){
-            return items.get(position - 1);
+            return items.get(position);
         }
 
         @Override
         public int getItemViewType(int position) {
-            if (isPositionHeader(position))
-                return TYPE_HEADER;
-
             return TYPE_ITEM;
         }
 
-        private boolean isPositionHeader(int position) {
-            return position == 0;
-        }
     }
 
     public static class TimesViewHolder extends RecyclerView.ViewHolder {
@@ -455,19 +449,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         }
     }
 
-    public static class TitleViewHolder extends RecyclerView.ViewHolder {
-        protected TextView Departing;
-        protected TextView Arriving;
-
-        public TitleViewHolder(View itemView) {
-            super(itemView);
-            Departing = itemView.findViewById(R.id.departing_title);
-            Departing.setTypeface(tfb);
-            Arriving = itemView.findViewById(R.id.arriving_title);
-            Arriving.setTypeface(tfb);
-        }
-    }
-
     public void onRefresh() {
 		swipeRefreshLayout.setRefreshing(true);
         terminalViewModel.forceRefreshTerminalSpaces();
@@ -481,7 +462,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         if (position != terminalViewModel.getSelectedDay()) {
             terminalViewModel.setSelectedDay(position);
             terminalItem = mScheduleDateItems.get(position).getFerriesTerminalItem().get(mTerminalIndex);
-            Log.e(TAG, "on item selected");
             terminalViewModel.loadDepartureTimesForTerminal(terminalItem);
         }
     }
