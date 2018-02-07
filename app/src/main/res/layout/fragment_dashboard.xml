@@ -5,14 +5,36 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <TextView
+    <LinearLayout
         android:id="@+id/event_banner"
         android:layout_width="match_parent"
-        android:layout_height="36dp"
         android:background="@color/alerts"
-        android:textColor="@color/dark_orange"
-        android:visibility="gone"
-        android:gravity="center"/>
+        android:layout_height="36dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/event_banner_text"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:textColor="@color/dark_orange"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_marginStart="40dp"
+            android:layout_marginLeft="40dp"/>
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_accessory_arrow"
+            android:layout_gravity="end|center_vertical"
+            android:paddingRight="8dp"
+            android:paddingEnd="8dp"
+            android:paddingLeft="0dp"
+            android:paddingStart="0dp" />
+
+    </LinearLayout>
 
 <gov.wa.wsdot.android.wsdot.ui.widget.DashboardLayout
     xmlns:android="http://schemas.android.com/apk/res/android"

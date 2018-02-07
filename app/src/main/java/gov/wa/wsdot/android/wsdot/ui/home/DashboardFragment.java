@@ -25,6 +25,8 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import gov.wa.wsdot.android.wsdot.R;
@@ -59,11 +61,15 @@ public class DashboardFragment extends BaseFragment implements Injectable {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         Boolean eventActive = prefs.getBoolean(getString(R.string.event_is_active), false);
-        TextView banner_view = root.findViewById(R.id.event_banner);
+        LinearLayout banner_view = root.findViewById(R.id.event_banner);
+        TextView banner_text = root.findViewById(R.id.event_banner_text);
+
         if (eventActive) {
             banner_view.setVisibility(View.VISIBLE);
-            banner_view.setText(prefs.getString(getString(R.string.event_banner_text_key), "error"));
             banner_view.setOnClickListener(view -> startActivity(new Intent(getActivity(), EventActivity.class)));
+
+            banner_text.setText(prefs.getString(getString(R.string.event_banner_text_key), "error"));
+
         } else {
             banner_view.setVisibility(View.GONE);
         }
