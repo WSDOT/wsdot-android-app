@@ -201,7 +201,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                     for (int i = 0; i < sailingTimes.size(); i++){
                         if (now.before(new Date(Long.parseLong(sailingTimes.get(i).getDepartingTime())))) {
                             mRecyclerView.stopScroll();
-                            ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(i+1, 0);
+                            ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(i, 0);
                             i = sailingTimes.size();
                         }
                     }
