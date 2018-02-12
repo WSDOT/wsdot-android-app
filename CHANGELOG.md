@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.1.0] - 2018-02-12
+
+## Added
+- Past sailings for the current day now display.
+- Events section.
+
 ## [5.0.9] - 2018-01-23
 
 ## Added
