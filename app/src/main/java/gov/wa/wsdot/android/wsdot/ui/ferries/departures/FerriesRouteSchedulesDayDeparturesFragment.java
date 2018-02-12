@@ -196,17 +196,20 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                 mAdapter.setData(new ArrayList<>(sailingTimes));
 
                 // Scroll to the first sailing time that hasn't already passed.
-                try {
-                    Date now = new Date();
-                    for (int i = 0; i < sailingTimes.size(); i++){
-                        if (now.before(new Date(Long.parseLong(sailingTimes.get(i).getDepartingTime())))) {
-                            mRecyclerView.stopScroll();
-                            ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(i, 0);
-                            i = sailingTimes.size();
+                if (terminalViewModel.isFirstLoad()) {
+                    terminalViewModel.firstLoadComplete();
+                    try {
+                        Date now = new Date();
+                        for (int i = 0; i < sailingTimes.size(); i++) {
+                            if (now.before(new Date(Long.parseLong(sailingTimes.get(i).getDepartingTime())))) {
+                                mRecyclerView.stopScroll();
+                                ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(i, 0);
+                                i = sailingTimes.size();
+                            }
                         }
+                    } catch (Exception e) {
+                        MyLogger.crashlyticsLog("Ferries", "Error", "Auto scroll failed", 1);
                     }
-                } catch (Exception e){
-                    MyLogger.crashlyticsLog("", "", "", 1);
                 }
             }
         });

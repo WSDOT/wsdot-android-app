@@ -45,24 +45,32 @@ public class FerryTerminalViewModel extends ViewModel {
 
     private MutableLiveData<ResourceStatus> mStatus;
 
-    private AppExecutors appExecutors;
+    // var used to ensure we only jump to the next sailing on the first load
+    private boolean firstLoad = true;
 
     private FerryTerminalSpaceRepository terminalSpaceRepo;
 
     @Inject
-    FerryTerminalViewModel(FerryTerminalSpaceRepository terminalSpaceRepo, AppExecutors appExecutors) {
+    FerryTerminalViewModel(FerryTerminalSpaceRepository terminalSpaceRepo) {
         this.mStatus = new MutableLiveData<>();
         this.terminalSpaceRepo = terminalSpaceRepo;
-        this.appExecutors = appExecutors;
         this.departureTimes = new  MediatorLiveData<>();
         this.departureTimesAnnotations = new MutableLiveData<>();
     }
 
-    public void setSelectedDay(int selection){
+    Boolean isFirstLoad() {
+        return this.firstLoad;
+    }
+
+    void firstLoadComplete() {
+        this.firstLoad = false;
+    }
+
+    void setSelectedDay(int selection){
         selectedDay = selection;
     }
 
-    public int getSelectedDay() {
+    int getSelectedDay() {
         return this.selectedDay;
     }
 
@@ -72,11 +80,11 @@ public class FerryTerminalViewModel extends ViewModel {
         return this.departureTimes;
     }
 
-    public LiveData<List<FerriesAnnotationsItem>> getDepartureTimesAnnotations() {
+    LiveData<List<FerriesAnnotationsItem>> getDepartureTimesAnnotations() {
         return this.departureTimesAnnotations;
     }
 
-    public void forceRefreshTerminalSpaces() {
+    void forceRefreshTerminalSpaces() {
         terminalSpaceRepo.refreshData(mStatus, true);
     }
 
@@ -87,7 +95,7 @@ public class FerryTerminalViewModel extends ViewModel {
      *
      * @param terminalItem holds sailing times data. Extracted from a FerriesScheduleDateItem
      */
-    public void loadDepartureTimesForTerminal(FerriesTerminalItem terminalItem) {
+    void loadDepartureTimesForTerminal(FerriesTerminalItem terminalItem) {
         processDepartureTimes(terminalItem);
 
         departureTimes.addSource(
