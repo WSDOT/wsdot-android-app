@@ -6,6 +6,7 @@
     <bool name="ga_autoActivityTracking">true</bool>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.home.HomeActivity">/Home</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.home.EventActivity">/Home/Event</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.about.AboutActivity">/About</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity">/Highway Alert</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.settings.SettingsActivity">/Settings</screenName>
