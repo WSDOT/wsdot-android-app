@@ -130,6 +130,16 @@ public class FavoritesFragment extends BaseFragment implements
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_favorites, null);
 
+
+        // Check preferences and set defaults if none set
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
+        orderedViewTypes[0] = settings.getInt("KEY_FIRST_FAVORITES_SECTION", MY_ROUTE_VIEWTYPE);
+        orderedViewTypes[1] = settings.getInt("KEY_SECOND_FAVORITES_SECTION", CAMERAS_VIEWTYPE);
+        orderedViewTypes[2] = settings.getInt("KEY_THIRD_FAVORITES_SECTION", FERRIES_SCHEDULES_VIEWTYPE);
+        orderedViewTypes[3] = settings.getInt("KEY_FOURTH_FAVORITES_SECTION", MOUNTAIN_PASSES_VIEWTYPE);
+        orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", TRAVEL_TIMES_VIEWTYPE);
+        orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", LOCATION_VIEWTYPE);
+
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -303,19 +313,6 @@ public class FavoritesFragment extends BaseFragment implements
 	@Override
 	public void onResume() {
 		super.onResume();
-        // Check preferences and set defaults if none set
-
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
-        orderedViewTypes[0] = settings.getInt("KEY_FIRST_FAVORITES_SECTION", MY_ROUTE_VIEWTYPE);
-        orderedViewTypes[1] = settings.getInt("KEY_SECOND_FAVORITES_SECTION", CAMERAS_VIEWTYPE);
-        orderedViewTypes[2] = settings.getInt("KEY_THIRD_FAVORITES_SECTION", FERRIES_SCHEDULES_VIEWTYPE);
-        orderedViewTypes[3] = settings.getInt("KEY_FOURTH_FAVORITES_SECTION", MOUNTAIN_PASSES_VIEWTYPE);
-        orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", TRAVEL_TIMES_VIEWTYPE);
-        orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", LOCATION_VIEWTYPE);
-
-
-
-
         mFavoritesAdapter.notifyDataSetChanged();
 	}
 
