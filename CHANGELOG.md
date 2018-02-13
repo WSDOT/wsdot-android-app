@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.1.1] - 2018-02-12
+
+## Fixes
+- Crash in favorites caused by a variable not being setup in time. 
+
 ## [5.1.0] - 2018-02-12
 
 ## Added
