@@ -5,6 +5,8 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -44,6 +46,7 @@ import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
+import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ProgressDialogFragment;
 
 public class MyRouteFragment extends BaseFragment implements Injectable {
@@ -182,17 +185,22 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
         final EditText input = new EditText(MyRouteFragment.this.getContext());
         input.setHint(routeName);
 
-        TypedValue typedValue = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
-        int primary_color = typedValue.data;
+        try {
 
-        Drawable drawable = input.getBackground(); // get current EditText drawable
-        drawable.setColorFilter(ContextCompat.getColor(MyRouteFragment.this.getContext(), primary_color), PorterDuff.Mode.SRC_ATOP); // change the drawable color
+            TypedArray ta = getActivity().getTheme().obtainStyledAttributes(R.styleable.ThemeStyles);
 
-        if(Build.VERSION.SDK_INT > 16) {
-            input.setBackground(drawable); // set the new drawable to EditText
-        }else{
-            input.setBackgroundDrawable(drawable); // use setBackgroundDrawable because setBackground required API 16
+            Drawable drawable = input.getBackground(); // get current EditText drawable
+
+            drawable.setColorFilter(ta.getColor(R.styleable.ThemeStyles_fabButtonColor, getResources().getColor(R.color.primary_default)), PorterDuff.Mode.SRC_ATOP); // change the drawable color
+
+            if (Build.VERSION.SDK_INT > 16) {
+                input.setBackground(drawable); // set the new drawable to EditText
+            } else {
+                input.setBackgroundDrawable(drawable); // use setBackground Drawable because setBackground required API 16
+            }
+
+        } catch (NullPointerException e) {
+            MyLogger.crashlyticsLog("My Routes","get theme", "nonfatal error", 1);
         }
 
         // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
