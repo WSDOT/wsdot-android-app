@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.1.2] - 2018-02-14
+
+## Fixes
+- Crash when renaming saved routes.
+
 ## [5.1.1] - 2018-02-12
 
 ## Fixes
