@@ -15,6 +15,7 @@ import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.repository.CameraRepository;
 import gov.wa.wsdot.android.wsdot.repository.FerryScheduleRepository;
 import gov.wa.wsdot.android.wsdot.repository.MapLocationRepository;
@@ -124,11 +125,11 @@ public class FavoritesViewModel extends ViewModel {
         this.ferryScheduleRepo.setIsStarred(routeId, isStarred);
     }
 
-    public LiveData<List<TravelTimeEntity>> getFavoriteTravelTimes(){
+    public LiveData<List<TravelTimeGroup>> getFavoriteTravelTimes(){
         return this.travelTimeRepo.loadFavoriteTravelTimes(mTravelTimeStatus);
     }
-    public void setTravelTimeIsStarred(int timeId, int isStarred){
-        this.travelTimeRepo.setIsStarred(timeId, isStarred);
+    public void setTravelTimeIsStarred(String title, int isStarred){
+        this.travelTimeRepo.setIsStarred(title, isStarred);
     }
 
     public LiveData<List<MountainPassEntity>> getFavoritePasses(){

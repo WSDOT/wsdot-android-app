@@ -10,6 +10,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.repository.TravelTimeRepository;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
@@ -17,7 +18,7 @@ public class TravelTimesViewModel extends ViewModel{
 
     final static String TAG = TravelTimesViewModel.class.getSimpleName();
 
-    private LiveData<List<TravelTimeEntity>> filteredTravelTimes;
+    private LiveData<List<TravelTimeGroup>> filteredTravelTimes;
 
     private MutableLiveData<String> queryTerm;
     private MutableLiveData<ResourceStatus> mStatus;
@@ -32,11 +33,11 @@ public class TravelTimesViewModel extends ViewModel{
         this.queryTerm.setValue("%");
     }
 
-    public LiveData<List<TravelTimeEntity>> getQueryTravelTimes() {
+    public LiveData<List<TravelTimeGroup>> getQueryTravelTimes() {
         if (filteredTravelTimes == null){
             // Observe changes to queryTerm, request new travelTimes with each new query term.
             // filteredTravelTimes becomes backed by the LiveData result of of queryTravelTimes()
-            this.filteredTravelTimes = Transformations.switchMap(queryTerm, queryString -> travelTimeRepo.queryTravelTimes(queryString, mStatus));
+            this.filteredTravelTimes = Transformations.switchMap(queryTerm, queryString -> travelTimeRepo.queryTravelTimeGroups(queryString, mStatus));
         }
         return filteredTravelTimes;
     }
@@ -51,8 +52,8 @@ public class TravelTimesViewModel extends ViewModel{
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
-    public void setIsStarredFor(Integer passId, Integer isStarred){
-        travelTimeRepo.setIsStarred(passId, isStarred);
+    public void setIsStarredFor(String title, Integer isStarred){
+        travelTimeRepo.setIsStarred(title, isStarred);
     }
 
     public void forceRefreshTravelTimes() {

@@ -30,6 +30,9 @@ import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationDao;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroupDao;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripDao;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
 
 @Database(entities = {
         BorderWaitEntity.class,
@@ -41,6 +44,7 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
         MountainPassEntity.class,
         MyRouteEntity.class,
         MapLocationEntity.class,
+        TravelTimeTripEntity.class,
         TravelTimeEntity.class
     }, version = 8)
 public abstract class AppDatabase extends RoomDatabase {
@@ -55,6 +59,8 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract HighwayAlertDao highwayAlertDao();
     public abstract MountainPassDao mountainPassDao();
     public abstract TravelTimeDao travelTimesDao();
+    public abstract TravelTimeTripDao travelTimeTripDao();
+    public abstract TravelTimeGroupDao travelTimeGroupDao();
     public abstract FerryScheduleDao ferryScheduleDao();
     public abstract FerryTerminalSailingSpacesDao ferryTerminalSailingSpacesDao();
     public abstract MapLocationDao mapLocationDao();
@@ -481,6 +487,14 @@ public abstract class AppDatabase extends RoomDatabase {
 
             database.execSQL("ALTER TABLE map_location_temp RENAME TO " + Tables.MAP_LOCATION + "; ");
 
+        }
+    };
+
+    @VisibleForTesting
+    public static final Migration MIGRATION_8_9 = new Migration(8, 9) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // TODO: migration
         }
     };
 

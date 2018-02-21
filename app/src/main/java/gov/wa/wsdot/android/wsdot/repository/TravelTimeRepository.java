@@ -3,6 +3,7 @@ package gov.wa.wsdot.android.wsdot.repository;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,6 +23,10 @@ import javax.inject.Singleton;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroupDao;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripDao;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
@@ -32,71 +37,73 @@ public class TravelTimeRepository  extends NetworkResourceSyncRepository {
     private static String TAG = TravelTimeRepository.class.getSimpleName();
 
     private final TravelTimeDao travelTimeDao;
+    private final TravelTimeTripDao travelTimeTripDao;
+    private final TravelTimeGroupDao travelTimeGroupDao;
 
     @Inject
-    public TravelTimeRepository(TravelTimeDao travelTimeDao, AppExecutors appExecutors, CacheRepository cacheRepository) {
+    public TravelTimeRepository(TravelTimeDao travelTimeDao,
+                                TravelTimeTripDao travelTimeTripDao,
+                                TravelTimeGroupDao travelTimeGroupDao,
+                                AppExecutors appExecutors, CacheRepository cacheRepository) {
+
         super(appExecutors, cacheRepository, (15 * DateUtils.MINUTE_IN_MILLIS), "travel_times");
         this.travelTimeDao = travelTimeDao;
+        this.travelTimeTripDao = travelTimeTripDao;
+        this.travelTimeGroupDao = travelTimeGroupDao;
     }
 
-    public LiveData<List<TravelTimeEntity>> loadTravelTimes(MutableLiveData<ResourceStatus> status) {
+    public LiveData<List<TravelTimeGroup>> loadTravelTimeGroups(MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
-        return travelTimeDao.loadTravelTimes();
+        return travelTimeGroupDao.loadTravelTimeGroups();
     }
 
-    public List<TravelTimeEntity> getTravelTimes(MutableLiveData<ResourceStatus> status) {
+    public List<TravelTimeGroup> getTravelTimeGroups(MutableLiveData<ResourceStatus> status) {
         super.refreshDataOnSameThread(status, false);
-        return travelTimeDao.getTravelTimes();
+        return travelTimeGroupDao.getTravelTimeGroups();
     }
 
-    public LiveData<List<TravelTimeEntity>> queryTravelTimes(String query, MutableLiveData<ResourceStatus> status) {
+    public LiveData<List<TravelTimeGroup>> queryTravelTimeGroups(String query, MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
-        return travelTimeDao.queryTravelTimes(query);
+        return travelTimeGroupDao.queryTravelTimeGroups(query);
     }
 
+    /*
     public LiveData<TravelTimeEntity> getTravelTimeFor(Integer id, MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
         return travelTimeDao.loadTravelTimeFor(id);
     }
+    */
 
-    public LiveData<List<TravelTimeEntity>> loadFavoriteTravelTimes(MutableLiveData<ResourceStatus> status) {
+    public LiveData<List<TravelTimeGroup>> loadFavoriteTravelTimes(MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
-        return travelTimeDao.loadFavoriteTravelTimes();
+        return travelTimeGroupDao.loadFavoriteTravelTimeGroups();
     }
 
-
-    public void setIsStarred(Integer id, Integer isStarred) {
+    public void setIsStarred(String title, Integer isStarred) {
         getExecutor().diskIO().execute(() -> {
-            travelTimeDao.updateIsStarred(id, isStarred);
+            travelTimeTripDao.updateIsStarred(title, isStarred);
         });
     }
 
     @Override
     public void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
-        List<TravelTimeEntity> starred;
-
-        starred = travelTimeDao.getFavoriteTravelTimes();
+        List<TravelTimeTripEntity> trips = new ArrayList<>();
+        List<TravelTimeEntity> times = new ArrayList<>();
 
         URL url = new URL(APIEndPoints.TRAVEL_TIMES);
         URLConnection urlConn = url.openConnection();
 
-        BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
-        GZIPInputStream gzin = new GZIPInputStream(bis);
-        InputStreamReader is = new InputStreamReader(gzin);
-        BufferedReader in = new BufferedReader(is);
-
-        String jsonFile = "";
+        BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+        StringBuilder jsonFile = new StringBuilder();
         String line;
 
-        while ((line = in.readLine()) != null)
-            jsonFile += line;
+        while ((line = in.readLine()) != null) {
+            jsonFile.append(line);
+        }
         in.close();
 
-        JSONObject obj = new JSONObject(jsonFile);
-        JSONObject result = obj.getJSONObject("traveltimes");
-        JSONArray items = result.getJSONArray("items");
-        List<TravelTimeEntity> times = new ArrayList<>();
+        JSONArray items = new JSONArray(jsonFile.toString());
 
         int numItems = items.length();
         for (int j=0; j < numItems; j++) {
@@ -104,25 +111,35 @@ public class TravelTimeRepository  extends NetworkResourceSyncRepository {
 
             TravelTimeEntity timeData = new TravelTimeEntity();
 
-            timeData.setTitle(item.getString("title"));
-            timeData.setCurrent(item.getInt("current"));
-            timeData.setAverage(item.getInt("average"));
-            timeData.setDistance(item.getString("distance") + " miles");
-            timeData.setTravelTimeId(Integer.parseInt(item.getString("routeid")));
+            timeData.setTripTitle(item.getString("title"));
+            timeData.setVia(item.getString("via"));
+            timeData.setCurrent(item.getInt("current_time"));
+            timeData.setStatus(item.getString("status"));
+            timeData.setAverage(item.getInt("avg_time"));
+            timeData.setDistance(item.getString("miles") + " miles");
+            timeData.setTravelTimeId(Integer.parseInt(item.getString("travel_time_id")));
             timeData.setUpdated(item.getString("updated"));
-            timeData.setStartLatitude(item.getDouble("startLatitude"));
-            timeData.setStartLongitude(item.getDouble("startLongitude"));
-            timeData.setEndLatitude(item.getDouble("endLatitude"));
-            timeData.setEndLongitude(item.getDouble("endLongitude"));
-
-            for (TravelTimeEntity starredTime : starred) {
-                if (starredTime.getTravelTimeId().equals(timeData.getTravelTimeId())){
-                    timeData.setIsStarred(1);
-                }
-            }
+            timeData.setStartLatitude(item.getDouble("startLocationLatitude"));
+            timeData.setStartLongitude(item.getDouble("startLocationLongitude"));
+            timeData.setEndLatitude(item.getDouble("endLocationLatitude"));
+            timeData.setEndLongitude(item.getDouble("endLocationLongitude"));
 
             times.add(timeData);
+
+            TravelTimeTripEntity trip = travelTimeTripDao.getTravelTimeTrip(timeData.getTripTitle());
+
+            if (trip == null){
+                trip = new TravelTimeTripEntity();
+                trip.setTitle(timeData.getTripTitle());
+            }
+
+            trips.add(trip);
         }
+
+        TravelTimeTripEntity[] tripsArray = new TravelTimeTripEntity[trips.size()];
+        tripsArray = trips.toArray(tripsArray);
+
+        travelTimeTripDao.deleteAndInsertTransaction(tripsArray);
 
         TravelTimeEntity[] timesArray = new TravelTimeEntity[times.size()];
         timesArray = times.toArray(timesArray);

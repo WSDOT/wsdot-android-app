@@ -113,12 +113,12 @@ public class MyRoutesRepository {
             MyRouteEntity route = myRouteDao.getMyRouteForId(myRouteId);
 
             List<CameraEntity> cameras = cameraRepo.getCameras(mCameraStatus);
-            List<TravelTimeEntity> travelTimes = travelTimeRepo.getTravelTimes(mTravelTimeStatus);
+            //List<TravelTimeEntity> travelTimes = travelTimeRepo.getTravelTimes(mTravelTimeStatus);
             List<FerryScheduleEntity> ferrySchedules = ferryScheduleRepo.getFerrySchedules(mFerryStatus);
             List<MountainPassEntity> mountainPasses = mountainPassRepo.getMountainPasses(mPassStatus);
 
             findCamerasOnRoute(route, cameras);
-            findTravelTimesOnRoute(route, travelTimes);
+           // findTravelTimesOnRoute(route, travelTimes);
             findFerriesOnRoute(route, ferrySchedules);
             findPassesOnRoute(route, mountainPasses);
 
@@ -154,7 +154,7 @@ public class MyRoutesRepository {
                             time.getEndLatitude(), time.getEndLongitude()) <= MAX_ITEM_DISTANCE)) {
 
                         Log.e(TAG, "found travel time!");
-                        travelTimeRepo.setIsStarred(time.getTravelTimeId(), 1);
+                        //travelTimeRepo.setIsStarred(time.getTravelTimeId(), 1);
                     }
                 }
             }

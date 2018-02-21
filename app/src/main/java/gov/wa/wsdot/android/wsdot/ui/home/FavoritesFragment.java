@@ -24,7 +24,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -44,7 +43,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
@@ -61,6 +59,7 @@ import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
@@ -72,7 +71,6 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActi
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
-import gov.wa.wsdot.android.wsdot.util.network.Status;
 
 public class FavoritesFragment extends BaseFragment implements
         SwipeRefreshLayout.OnRefreshListener,
@@ -183,8 +181,8 @@ public class FavoritesFragment extends BaseFragment implements
                         item_id = String.valueOf(schedule.getFerryScheduleId());
                         break;
                     case TRAVEL_TIMES_VIEWTYPE:
-                        TravelTimeEntity time = (TravelTimeEntity) mFavoritesAdapter.getItem(holder.getAdapterPosition());
-                        item_id = String.valueOf(time.getTravelTimeId());
+                        TravelTimeGroup group = (TravelTimeGroup) mFavoritesAdapter.getItem(holder.getAdapterPosition());
+                        item_id = String.valueOf(group.trip.getTitle());
                         break;
                     case MOUNTAIN_PASSES_VIEWTYPE:
                         MountainPassEntity pass = (MountainPassEntity) mFavoritesAdapter.getItem(holder.getAdapterPosition());
@@ -251,12 +249,12 @@ public class FavoritesFragment extends BaseFragment implements
             }
         });
 
-        viewModel.getFavoriteTravelTimes().observe(this, travelTimes -> {
-            if (travelTimes != null){
-                if (travelTimes.size() > 0) {
+        viewModel.getFavoriteTravelTimes().observe(this, travelTimeGroups -> {
+            if (travelTimeGroups != null){
+                if (travelTimeGroups.size() > 0) {
                     mEmptyView.setVisibility(View.GONE);
                 }
-                mFavoritesAdapter.setTravelTimes(travelTimes);
+                mFavoritesAdapter.setTravelTimeGroups(travelTimeGroups);
             }
         });
 
@@ -332,7 +330,7 @@ public class FavoritesFragment extends BaseFragment implements
 
         private List<CameraEntity> mCameras;
         private List<FerryScheduleEntity> mFerrySchedules;
-        private List<TravelTimeEntity> mTravelTimes;
+        private List<TravelTimeGroup> mTravelTimeGroups;
         private List<MountainPassEntity> mPasses;
         private List<MyRouteEntity> mMyRoutes;
         private List<MapLocationEntity> mMapLocations;
@@ -340,7 +338,7 @@ public class FavoritesFragment extends BaseFragment implements
         FavItemAdapter() {
             this.mCameras = new ArrayList<>();
             this.mFerrySchedules = new ArrayList<>();
-            this.mTravelTimes = new ArrayList<>();
+            this.mTravelTimeGroups = new ArrayList<>();
             this.mPasses = new ArrayList<>();
             this.mMyRoutes = new ArrayList<>();
             this.mMapLocations = new ArrayList<>();
@@ -356,8 +354,8 @@ public class FavoritesFragment extends BaseFragment implements
             this.notifyDataSetChanged();
         }
 
-        void setTravelTimes(List<TravelTimeEntity> travelTimes){
-            this.mTravelTimes = travelTimes;
+        void setTravelTimeGroups(List<TravelTimeGroup> travelTimeGroups){
+            this.mTravelTimeGroups = travelTimeGroups;
             this.notifyDataSetChanged();
         }
 
@@ -391,7 +389,7 @@ public class FavoritesFragment extends BaseFragment implements
                     return new PassViewHolder(itemView);
                 case TRAVEL_TIMES_VIEWTYPE:
                     itemView = LayoutInflater.
-                            from(parent.getContext()).inflate(R.layout.list_item_travel_times, null);
+                            from(parent.getContext()).inflate(R.layout.list_item_travel_time_group, null);
                     return new TimesViewHolder(itemView);
                 case FERRIES_SCHEDULES_VIEWTYPE:
                     itemView = LayoutInflater.
@@ -505,7 +503,7 @@ public class FavoritesFragment extends BaseFragment implements
 
                 String average_time;
 
-                String title = travelTime.getTitle();
+                String title = travelTime.getTripTitle();
                 viewholder.title.setText(title);
                 viewholder.title.setTypeface(tfb);
 
@@ -762,7 +760,7 @@ public class FavoritesFragment extends BaseFragment implements
                         size = mFerrySchedules.size() + (mFerrySchedules.size() > 0 ? 1 : 0);
                         break;
                     case TRAVEL_TIMES_VIEWTYPE:
-                        size = mTravelTimes.size() + (mTravelTimes.size() > 0 ? 1 : 0);
+                        size = mTravelTimeGroups.size() + (mTravelTimeGroups.size() > 0 ? 1 : 0);
                         break;
                     case MOUNTAIN_PASSES_VIEWTYPE:
                         size = mPasses.size() + (mPasses.size() > 0 ? 1 : 0);
@@ -815,7 +813,7 @@ public class FavoritesFragment extends BaseFragment implements
                         size = mFerrySchedules.size() + (mFerrySchedules.size() > 0 ? 1 : 0);
                         break;
                     case TRAVEL_TIMES_VIEWTYPE:
-                        size = mTravelTimes.size() + (mTravelTimes.size() > 0 ? 1 : 0);
+                        size = mTravelTimeGroups.size() + (mTravelTimeGroups.size() > 0 ? 1 : 0);
                         break;
                     case MOUNTAIN_PASSES_VIEWTYPE:
                         size = mPasses.size() + (mPasses.size() > 0 ? 1 : 0);
@@ -840,7 +838,7 @@ public class FavoritesFragment extends BaseFragment implements
                         case FERRIES_SCHEDULES_VIEWTYPE:
                             return mFerrySchedules.get(position - 1);
                         case TRAVEL_TIMES_VIEWTYPE:
-                            return mTravelTimes.get(position - 1);
+                            return mTravelTimeGroups.get(position - 1);
                         case MOUNTAIN_PASSES_VIEWTYPE:
                             return mPasses.get(position - 1);
                         case LOCATION_VIEWTYPE:
@@ -865,7 +863,7 @@ public class FavoritesFragment extends BaseFragment implements
 
             count += mCameras.size() + (mCameras.size() > 0 ? 1 : 0); // + 1 for header
             count += mFerrySchedules.size() + (mFerrySchedules.size() > 0 ? 1 : 0);
-            count += mTravelTimes.size() + (mTravelTimes.size() > 0 ? 1 : 0);
+            count += mTravelTimeGroups.size() + (mTravelTimeGroups.size() > 0 ? 1 : 0);
             count += mPasses.size() + (mPasses.size() > 0 ? 1 : 0);
             count += mMapLocations.size() + (mMapLocations.size() > 0 ? 1 : 0);
             count += mMyRoutes.size() + (mMyRoutes.size() > 0 ? 1 : 0);
@@ -912,7 +910,7 @@ public class FavoritesFragment extends BaseFragment implements
                     viewModel.setPassIsStarred(Integer.valueOf(item_id), 0);
                     break;
                 case TRAVEL_TIMES_VIEWTYPE:
-                    viewModel.setTravelTimeIsStarred(Integer.valueOf(item_id), 0);
+                    viewModel.setTravelTimeIsStarred(item_id, 0);
                     break;
                 case FERRIES_SCHEDULES_VIEWTYPE:
                     viewModel.setFerryScheduleIsStarred(Integer.valueOf(item_id), 0);
@@ -943,7 +941,7 @@ public class FavoritesFragment extends BaseFragment implements
                     viewModel.setPassIsStarred(Integer.valueOf(item_id), 1);
                     break;
                 case TRAVEL_TIMES_VIEWTYPE:
-                    viewModel.setTravelTimeIsStarred(Integer.valueOf(item_id), 1);
+                    viewModel.setTravelTimeIsStarred(item_id, 1);
                     break;
                 case FERRIES_SCHEDULES_VIEWTYPE:
                     viewModel.setFerryScheduleIsStarred(Integer.valueOf(item_id), 1);
@@ -1009,8 +1007,6 @@ public class FavoritesFragment extends BaseFragment implements
         public TimesViewHolder(View view) {
             super(view);
             title = view.findViewById(R.id.title);
-            current_time = view.findViewById(R.id.current_time);
-            distance_average_time = view.findViewById(R.id.distance_average_time);
             updated = view.findViewById(R.id.updated);
             star_button = view.findViewById(R.id.star_button);
         }

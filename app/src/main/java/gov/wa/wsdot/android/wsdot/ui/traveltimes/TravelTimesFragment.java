@@ -32,6 +32,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,6 +40,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,11 +52,13 @@ import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
+
 
 public class TravelTimesFragment extends BaseFragment implements
         OnQueryTextListener,
@@ -109,7 +114,7 @@ public class TravelTimesFragment extends BaseFragment implements
 				R.color.holo_green_light,
 				R.color.holo_orange_light,
 				R.color.holo_red_light);
-        
+
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(TravelTimesViewModel.class);
@@ -204,7 +209,7 @@ public class TravelTimesFragment extends BaseFragment implements
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private Context context;
 
-        private ArrayList<TravelTimeEntity> mData = new ArrayList<>();
+        private ArrayList<TravelTimeGroup> mData = new ArrayList<>();
 
         private List<RecyclerView.ViewHolder> mItems = new ArrayList<>();
 
@@ -212,14 +217,14 @@ public class TravelTimesFragment extends BaseFragment implements
             this.context = context;
         }
 
-        public void setData(ArrayList<TravelTimeEntity> data){
+        public void setData(ArrayList<TravelTimeGroup> data){
             mData = data;
             this.notifyDataSetChanged();
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(context).inflate(R.layout.list_item_travel_times, null);
+            View view = LayoutInflater.from(context).inflate(R.layout.list_item_travel_time_group, null);
             ViewHolder viewholder = new ViewHolder(view);
             view.setTag(viewholder);
             mItems.add(viewholder);
@@ -231,53 +236,33 @@ public class TravelTimesFragment extends BaseFragment implements
 
             ViewHolder holder = (ViewHolder) viewHolder;
 
-            String average_time;
+            TravelTimeGroup travelTimeGroup = mData.get(position);
 
-            TravelTimeEntity travelTime = mData.get(position);
-
-            String title = travelTime.getTitle();
+            final String title = travelTimeGroup.trip.getTitle();
             holder.title.setText(title);
             holder.title.setTypeface(tfb);
 
-            String distance = travelTime.getDistance();
-            int average = travelTime.getAverage();
+            holder.travel_times_layout.removeAllViews();
 
-            if (average == 0) {
-                average_time = "Not Available";
-            } else {
-                average_time = average + " min";
+            for (TravelTimeEntity time: travelTimeGroup.travelTimes) {
+
+                View travelTimeView = makeTravelTimeView(time);
+
+                if (travelTimeGroup.travelTimes.indexOf(time) == travelTimeGroup.travelTimes.size() - 1){
+                    travelTimeView.findViewById(R.id.line).setVisibility(View.GONE);
+                }
+
+                holder.travel_times_layout.addView(travelTimeView);
             }
 
-            holder.distance_average_time.setText(distance + " / " + average_time);
-            holder.distance_average_time.setTypeface(tf);
-
-            int current = travelTime.getCurrent();
-
-            if (current < average) {
-                holder.current_time.setTextColor(0xFF008060);
-            } else if ((current > average) && (average != 0)) {
-                holder.current_time.setTextColor(Color.RED);
-            } else {
-                holder.current_time.setTextColor(Color.BLACK);
-            }
-
-            holder.current_time.setText(current + " min");
-            holder.current_time.setTypeface(tfb);
-
-            String created_at = travelTime.getUpdated();
-            holder.updated.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", true));
-            holder.updated.setTypeface(tf);
-
-            holder.star_button.setTag(travelTime.getTravelTimeId());
             // Seems when Android recycles the views, the onCheckedChangeListener is still active
             // and the call to setChecked() causes that code within the listener to run repeatedly.
             // Assigning null to setOnCheckedChangeListener seems to fix it.
             holder.star_button.setOnCheckedChangeListener(null);
             holder.star_button
-                    .setChecked(travelTime.getIsStarred() != 0);
-            holder.star_button.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    .setChecked(travelTimeGroup.trip.getIsStarred() != 0);
 
-                int timeId = (Integer) buttonView.getTag();
+            holder.star_button.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
                 Snackbar added_snackbar = Snackbar
                         .make(getView(), R.string.add_favorite, Snackbar.LENGTH_SHORT);
@@ -291,7 +276,7 @@ public class TravelTimesFragment extends BaseFragment implements
                     removed_snackbar.show();
                 }
 
-                viewModel.setIsStarredFor(timeId, isChecked ? 1 : 0);
+                viewModel.setIsStarredFor(title, isChecked ? 1 : 0);
             });
         }
 
@@ -301,20 +286,67 @@ public class TravelTimesFragment extends BaseFragment implements
         }
 
         private class ViewHolder extends RecyclerView.ViewHolder {
+            public LinearLayout travel_times_layout;
             public TextView title;
-            public TextView current_time;
-            public TextView distance_average_time;
-            public TextView updated;
             public CheckBox star_button;
 
             public ViewHolder(View view) {
                 super(view);
+                travel_times_layout = view.findViewById(R.id.travel_times_linear_layout);
                 title = view.findViewById(R.id.title);
-                current_time = view.findViewById(R.id.current_time);
-                distance_average_time = view.findViewById(R.id.distance_average_time);
-                updated = view.findViewById(R.id.updated);
                 star_button = view.findViewById(R.id.star_button);
             }
+        }
+
+        private View makeTravelTimeView(TravelTimeEntity time) {
+
+            LayoutInflater li = LayoutInflater.from(getContext());
+            View cv = li.inflate(R.layout.travel_time, null);
+
+            // set via label
+            ((TextView) cv.findViewById(R.id.via)).setText("Via " + time.getVia());
+
+            TextView currentTimeTextView = cv.findViewById(R.id.current_time);
+            currentTimeTextView.setTypeface(tfb);
+
+            // set updated
+            ((TextView) cv.findViewById(R.id.updated)).setText(ParserUtils.relativeTime(time.getUpdated(), "yyyy-MM-dd h:mm a", false));
+
+            if (time.getStatus().toLowerCase().equals("closed")) {
+                currentTimeTextView.setText("Closed");
+                currentTimeTextView.setTextColor(Color.RED);
+                cv.findViewById(R.id.distance_average_time).setVisibility(View.GONE);
+            } else {
+
+                // set distance and avg time text view
+                String average_time;
+                String distance = time.getDistance();
+                int average = time.getAverage();
+
+                if (average == 0) {
+                    average_time = "Not Available";
+                } else {
+                    average_time = average + " min";
+                }
+
+                ((TextView) cv.findViewById(R.id.distance_average_time)).setText(distance + " / " + average_time);
+
+                // set current travel time. Set to closed if status is closed.
+                int current = time.getCurrent();
+
+                if (current < average) {
+                    currentTimeTextView.setTextColor(0xFF008060);
+                } else if ((current > average) && (average != 0)) {
+                    currentTimeTextView.setTextColor(Color.RED);
+                } else {
+                    currentTimeTextView.setTextColor(Color.BLACK);
+                }
+
+                currentTimeTextView.setText(current + " min");
+
+            }
+            return cv;
+
         }
     }
 
