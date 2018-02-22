@@ -9,10 +9,10 @@ import android.arch.persistence.room.Transaction;
 @Dao
 public abstract class TravelTimeTripDao {
 
-    @Query("SELECT * FROM travel_time_trip WHERE title = :title")
+    @Query("SELECT * FROM travel_time_trips WHERE title = :title")
     public abstract TravelTimeTripEntity getTravelTimeTrip(String title);
 
-    @Query("UPDATE travel_time_trip SET is_starred = :isStarred WHERE title = :title")
+    @Query("UPDATE travel_time_trips SET is_starred = :isStarred WHERE title = :title")
     public abstract void updateIsStarred(String title, Integer isStarred);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

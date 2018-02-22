@@ -5,7 +5,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
-@Entity(tableName = "travel_time_trip")
+@Entity(tableName = "travel_time_trips")
 public class TravelTimeTripEntity {
 
     @PrimaryKey()

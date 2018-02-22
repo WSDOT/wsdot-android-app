@@ -46,7 +46,7 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
         MapLocationEntity.class,
         TravelTimeTripEntity.class,
         TravelTimeEntity.class
-    }, version = 8)
+    }, version = 9)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String TAG = AppDatabase.class.getSimpleName();
@@ -74,6 +74,7 @@ public abstract class AppDatabase extends RoomDatabase {
         String HIGHWAY_ALERTS = "highway_alerts";
         String MOUNTAIN_PASSES = "mountain_passes";
         String TRAVEL_TIMES = "travel_times";
+        String TRAVEL_TIME_TRIPS = "travel_time_trips";
         String FERRIES_SCHEDULES = "ferries_schedules";
         String FERRIES_TERMINAL_SAILING_SPACE = "ferries_terminal_sailing_space";
         String BORDER_WAIT  = "border_wait";
@@ -133,7 +134,9 @@ public abstract class AppDatabase extends RoomDatabase {
 
     interface TravelTimesColumns {
         String TRAVEL_TIMES_ID = "id";
-        String TRAVEL_TIMES_TITLE = "title";
+        String TRAVEL_TIMES_TITLE = "trip_title";
+        String TRAVEL_TIMES_VIA = "via";
+        String TRAVEL_TIMES_STATUS = "status";
         String TRAVEL_TIMES_UPDATED = "updated";
         String TRAVEL_TIMES_DISTANCE = "distance";
         String TRAVEL_TIMES_AVERAGE = "average";
@@ -142,6 +145,11 @@ public abstract class AppDatabase extends RoomDatabase {
         String TRAVEL_TIMES_START_LONGITUDE = "start_longitude";
         String TRAVEL_TIMES_END_LATITUDE = "end_latitude";
         String TRAVEL_TIMES_END_LONGITUDE = "end_longitude";
+        String TRAVEL_TIMES_IS_STARRED = "is_starred";
+    }
+
+    interface TravelTimeTripsColumns {
+        String TRAVEL_TIMES_TITLE = "title";
         String TRAVEL_TIMES_IS_STARRED = "is_starred";
     }
 
@@ -494,7 +502,31 @@ public abstract class AppDatabase extends RoomDatabase {
     public static final Migration MIGRATION_8_9 = new Migration(8, 9) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
-            // TODO: migration
+            // drop Travel times table since data has now changed.
+            database.execSQL("DROP TABLE " + Tables.TRAVEL_TIMES + "; ");
+
+            database.execSQL("CREATE TABLE " + Tables.TRAVEL_TIME_TRIPS + " ("
+                    + TravelTimeTripsColumns.TRAVEL_TIMES_TITLE + " TEXT PRIMARY KEY NOT NULL,"
+                    + TravelTimeTripsColumns.TRAVEL_TIMES_IS_STARRED + " INTEGER NOT NULL);");
+
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.TRAVEL_TIMES + " ("
+                    + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + TravelTimesColumns.TRAVEL_TIMES_ID + " INTEGER,"
+                    + TravelTimesColumns.TRAVEL_TIMES_TITLE + " TEXT,"
+                    + TravelTimesColumns.TRAVEL_TIMES_VIA + " TEXT,"
+                    + TravelTimesColumns.TRAVEL_TIMES_STATUS + " TEXT,"
+                    + TravelTimesColumns.TRAVEL_TIMES_UPDATED + " TEXT,"
+                    + TravelTimesColumns.TRAVEL_TIMES_DISTANCE + " TEXT,"
+                    + TravelTimesColumns.TRAVEL_TIMES_AVERAGE + " INTEGER,"
+                    + TravelTimesColumns.TRAVEL_TIMES_CURRENT + " INTEGER,"
+                    + TravelTimesColumns.TRAVEL_TIMES_START_LATITUDE + " REAL,"
+                    + TravelTimesColumns.TRAVEL_TIMES_START_LONGITUDE + " REAL,"
+                    + TravelTimesColumns.TRAVEL_TIMES_END_LATITUDE + " REAL,"
+                    + TravelTimesColumns.TRAVEL_TIMES_END_LONGITUDE + " REAL,"
+                    + "FOREIGN KEY(`trip_title`) REFERENCES `travel_time_trips`(`title`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+
+            database.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " = 0 WHERE "
+                    + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.TRAVEL_TIMES + "' ");
         }
     };
 
@@ -510,7 +542,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                 MIGRATION_4_5,
                                 MIGRATION_5_6,
                                 MIGRATION_6_7,
-                                MIGRATION_7_8)
+                                MIGRATION_7_8,
+                                MIGRATION_8_9)
                         .addCallback(new Callback() {
 
                             @Override
