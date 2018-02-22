@@ -234,35 +234,35 @@ public class TravelTimesFragment extends BaseFragment implements
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
 
-            ViewHolder holder = (ViewHolder) viewHolder;
+            ViewHolder viewholder = (ViewHolder) viewHolder;
 
             TravelTimeGroup travelTimeGroup = mData.get(position);
 
             final String title = travelTimeGroup.trip.getTitle();
-            holder.title.setText(title);
-            holder.title.setTypeface(tfb);
+            viewholder.title.setText(title);
+            viewholder.title.setTypeface(tfb);
 
-            holder.travel_times_layout.removeAllViews();
+            viewholder.travel_times_layout.removeAllViews();
 
             for (TravelTimeEntity time: travelTimeGroup.travelTimes) {
 
-                View travelTimeView = makeTravelTimeView(time);
+                View travelTimeView = makeTravelTimeView(time, getContext());
 
                 if (travelTimeGroup.travelTimes.indexOf(time) == travelTimeGroup.travelTimes.size() - 1){
                     travelTimeView.findViewById(R.id.line).setVisibility(View.GONE);
                 }
 
-                holder.travel_times_layout.addView(travelTimeView);
+                viewholder.travel_times_layout.addView(travelTimeView);
             }
 
             // Seems when Android recycles the views, the onCheckedChangeListener is still active
             // and the call to setChecked() causes that code within the listener to run repeatedly.
             // Assigning null to setOnCheckedChangeListener seems to fix it.
-            holder.star_button.setOnCheckedChangeListener(null);
-            holder.star_button
+            viewholder.star_button.setOnCheckedChangeListener(null);
+            viewholder.star_button
                     .setChecked(travelTimeGroup.trip.getIsStarred() != 0);
 
-            holder.star_button.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            viewholder.star_button.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
                 Snackbar added_snackbar = Snackbar
                         .make(getView(), R.string.add_favorite, Snackbar.LENGTH_SHORT);
@@ -297,57 +297,58 @@ public class TravelTimesFragment extends BaseFragment implements
                 star_button = view.findViewById(R.id.star_button);
             }
         }
+    }
 
-        private View makeTravelTimeView(TravelTimeEntity time) {
+    public static View makeTravelTimeView(TravelTimeEntity time, Context context) {
 
-            LayoutInflater li = LayoutInflater.from(getContext());
-            View cv = li.inflate(R.layout.travel_time, null);
+        Typeface tfb = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Bold.ttf");
+        LayoutInflater li = LayoutInflater.from(context);
+        View cv = li.inflate(R.layout.travel_time, null);
 
-            // set via label
-            ((TextView) cv.findViewById(R.id.via)).setText("Via " + time.getVia());
+        // set via label
+        ((TextView) cv.findViewById(R.id.via)).setText("Via " + time.getVia());
 
-            TextView currentTimeTextView = cv.findViewById(R.id.current_time);
-            currentTimeTextView.setTypeface(tfb);
+        TextView currentTimeTextView = cv.findViewById(R.id.current_time);
+        currentTimeTextView.setTypeface(tfb);
 
-            // set updated
-            ((TextView) cv.findViewById(R.id.updated)).setText(ParserUtils.relativeTime(time.getUpdated(), "yyyy-MM-dd h:mm a", false));
+        // set updated
+        ((TextView) cv.findViewById(R.id.updated)).setText(ParserUtils.relativeTime(time.getUpdated(), "yyyy-MM-dd h:mm a", false));
 
-            if (time.getStatus().toLowerCase().equals("closed")) {
-                currentTimeTextView.setText("Closed");
-                currentTimeTextView.setTextColor(Color.RED);
-                cv.findViewById(R.id.distance_average_time).setVisibility(View.GONE);
+        if (time.getStatus().toLowerCase().equals("closed")) {
+            currentTimeTextView.setText("Closed");
+            currentTimeTextView.setTextColor(Color.RED);
+            cv.findViewById(R.id.distance_average_time).setVisibility(View.GONE);
+        } else {
+
+            // set distance and avg time text view
+            String average_time;
+            String distance = time.getDistance();
+            int average = time.getAverage();
+
+            if (average == 0) {
+                average_time = "Not Available";
             } else {
-
-                // set distance and avg time text view
-                String average_time;
-                String distance = time.getDistance();
-                int average = time.getAverage();
-
-                if (average == 0) {
-                    average_time = "Not Available";
-                } else {
-                    average_time = average + " min";
-                }
-
-                ((TextView) cv.findViewById(R.id.distance_average_time)).setText(distance + " / " + average_time);
-
-                // set current travel time. Set to closed if status is closed.
-                int current = time.getCurrent();
-
-                if (current < average) {
-                    currentTimeTextView.setTextColor(0xFF008060);
-                } else if ((current > average) && (average != 0)) {
-                    currentTimeTextView.setTextColor(Color.RED);
-                } else {
-                    currentTimeTextView.setTextColor(Color.BLACK);
-                }
-
-                currentTimeTextView.setText(current + " min");
-
+                average_time = average + " min";
             }
-            return cv;
+
+            ((TextView) cv.findViewById(R.id.distance_average_time)).setText(distance + " / " + average_time);
+
+            // set current travel time. Set to closed if status is closed.
+            int current = time.getCurrent();
+
+            if (current < average) {
+                currentTimeTextView.setTextColor(0xFF008060);
+            } else if ((current > average) && (average != 0)) {
+                currentTimeTextView.setTextColor(Color.RED);
+            } else {
+                currentTimeTextView.setTextColor(Color.BLACK);
+            }
+
+            currentTimeTextView.setText(current + " min");
 
         }
+        return cv;
+
     }
 
     public void onRefresh() {

@@ -69,6 +69,7 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.sailings.FerriesRouteSchedulesDaySa
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
+import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesFragment;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
@@ -498,46 +499,28 @@ public class FavoritesFragment extends BaseFragment implements
                 );
             } else if (holder instanceof TimesViewHolder){
 
-                TravelTimeEntity travelTime = (TravelTimeEntity) mFavoritesAdapter.getItem(position);
                 TimesViewHolder viewholder = (TimesViewHolder) holder;
 
-                String average_time;
+                TravelTimeGroup travelTimeGroup = (TravelTimeGroup) mFavoritesAdapter.getItem(position);
 
-                String title = travelTime.getTripTitle();
+                final String title = travelTimeGroup.trip.getTitle();
                 viewholder.title.setText(title);
                 viewholder.title.setTypeface(tfb);
 
-                String distance = travelTime.getDistance();
-                int average = travelTime.getAverage();
+                viewholder.travel_times_layout.removeAllViews();
 
-                if (average == 0) {
-                    average_time = "Not Available";
-                } else {
-                    average_time = average + " min";
+                for (TravelTimeEntity time: travelTimeGroup.travelTimes) {
+
+                    View travelTimeView = TravelTimesFragment.makeTravelTimeView(time, getContext());
+
+                    if (travelTimeGroup.travelTimes.indexOf(time) == travelTimeGroup.travelTimes.size() - 1){
+                        travelTimeView.findViewById(R.id.line).setVisibility(View.GONE);
+                    }
+
+                    viewholder.travel_times_layout.addView(travelTimeView);
                 }
-
-                viewholder.distance_average_time.setText(distance + " / " + average_time);
-                viewholder.distance_average_time.setTypeface(tf);
-
-                int current = travelTime.getCurrent();
-
-                if (current < average) {
-                    viewholder.current_time.setTextColor(0xFF008060);
-                } else if ((current > average) && (average != 0)) {
-                    viewholder.current_time.setTextColor(Color.RED);
-                } else {
-                    viewholder.current_time.setTextColor(Color.BLACK);
-                }
-
-                viewholder.current_time.setText(current + " min");
-                viewholder.current_time.setTypeface(tfb);
-
-                String created_at = travelTime.getUpdated();
-                viewholder.updated.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
-                viewholder.updated.setTypeface(tf);
 
                 viewholder.star_button.setVisibility(View.GONE);
-                viewholder.star_button.setTag(travelTime.getTravelTimeId());
 
             } else if (holder instanceof FerryViewHolder){
 
@@ -998,16 +981,14 @@ public class FavoritesFragment extends BaseFragment implements
     }
 
     private class TimesViewHolder extends RecyclerView.ViewHolder {
-        TextView title;
-        TextView current_time;
-        TextView distance_average_time;
-        TextView updated;
-        CheckBox star_button;
+        public LinearLayout travel_times_layout;
+        public TextView title;
+        public CheckBox star_button;
 
         public TimesViewHolder(View view) {
             super(view);
+            travel_times_layout = view.findViewById(R.id.travel_times_linear_layout);
             title = view.findViewById(R.id.title);
-            updated = view.findViewById(R.id.updated);
             star_button = view.findViewById(R.id.star_button);
         }
     }

@@ -135,7 +135,6 @@ public class MyRoutesRepository {
                     if (Utils.getDistanceFromPoints(location.latitude, location.longitude,
                         camera.getLatitude(), camera.getLongitude()) <= MAX_ITEM_DISTANCE) {
                         cameraRepo.setIsStarred(camera.getCameraId(), 1);
-                        Log.e(TAG, "found a camera!");
                     }
                 }
             }
@@ -151,10 +150,9 @@ public class MyRoutesRepository {
                     for (LatLng location : ParserUtils.getRouteArrayList(new JSONArray(route.getRouteLocations()))) {
                         if ((Utils.getDistanceFromPoints(location.latitude, location.longitude,
                                 time.getStartLatitude(), time.getStartLongitude()) <= MAX_ITEM_DISTANCE)
-                                || (Utils.getDistanceFromPoints(location.latitude, location.longitude,
+                                && (Utils.getDistanceFromPoints(location.latitude, location.longitude,
                                 time.getEndLatitude(), time.getEndLongitude()) <= MAX_ITEM_DISTANCE)) {
 
-                            Log.e(TAG, "found travel time!");
                             travelTimeRepo.setIsStarred(group.trip.getTitle(), 1);
                         }
                     }
@@ -193,7 +191,6 @@ public class MyRoutesRepository {
 
                         if (nearStartTerminal && nearEndTerminal){
                             ferryScheduleRepo.setIsStarred(ferrySchedule.getFerryScheduleId(), 1);
-                            Log.e(TAG, "found a ferry schedule!");
                             break;
                         }
                     }
@@ -211,8 +208,6 @@ public class MyRoutesRepository {
                     if (Utils.getDistanceFromPoints(location.latitude, location.longitude,
                             pass.getLatitude(), pass.getLongitude()) <= MAX_ITEM_DISTANCE) {
                         mountainPassRepo.setIsStarred(pass.getPassId(), 1);
-                        Log.e(TAG, "found a pass!");
-                        Log.e(TAG, pass.getName());
                     }
                 }
             }
