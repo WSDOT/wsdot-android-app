@@ -121,7 +121,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
                         break;
                     case SUCCESS:
                         swipeRefreshLayout.setRefreshing(false);
-                        if (mAdapter.getItemCount() > 0){
+                        if (mAdapter.getItemCount() > 0) {
                             mEmptyView.setVisibility(View.GONE);
                         }
                         break;

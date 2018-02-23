@@ -31,7 +31,7 @@
         android:layout_marginEnd="7dp"
         android:layout_toStartOf="@id/star_button"
 	    android:layout_toLeftOf="@id/star_button"
-	    android:textSize="@dimen/text_size_medium"
+	    android:textSize="@dimen/text_size_large"
         android:textColor="@color/black" />
 
     <LinearLayout
