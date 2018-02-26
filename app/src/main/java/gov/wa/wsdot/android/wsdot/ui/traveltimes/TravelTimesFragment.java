@@ -312,7 +312,7 @@ public class TravelTimesFragment extends BaseFragment implements
         currentTimeTextView.setTypeface(tfb);
 
         // set updated
-        ((TextView) cv.findViewById(R.id.updated)).setText(ParserUtils.relativeTime(time.getUpdated(), "yyyy-MM-dd h:mm a", false));
+        ((TextView) cv.findViewById(R.id.updated)).setText(ParserUtils.relativeTime(time.getUpdated(), "yyyy-MM-dd HH:mm a", false));
 
         if (time.getStatus().toLowerCase().equals("closed")) {
             currentTimeTextView.setText("Closed");

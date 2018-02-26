@@ -30,9 +30,7 @@ public class APIEndPoints {
     public static final String CAMERA_VIDEOS = "http://images.wsdot.wa.gov/nwvideo/";
     public static final String HIGHWAY_ALERTS = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js";
 
-
-
-    public static final String TRAVEL_TIMES = "http://data.wsdot.wa.gov/mobile/TravelTimesv2TEST.js";
+    public static final String TRAVEL_TIMES = "http://data.wsdot.wa.gov/mobile/TravelTimesv2.js";
 
 
     public static final String BORDER_WAITS = "http://data.wsdot.wa.gov/mobile/BorderCrossings.js";
