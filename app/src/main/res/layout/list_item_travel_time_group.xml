@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="14dp"
+    android:paddingTop="14dp"
+    android:paddingStart="14dp"
+    android:paddingRight="14dp"
+    android:paddingEnd="14dp">
+
+	<CheckBox
+    	android:id="@+id/star_button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="7dp"
+        android:layout_marginStart="7dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/description_star"
+        style="@style/StarButton" />
+    
+	<TextView
+	    android:id="@+id/title"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+	    android:layout_alignParentTop="true"
+	    android:layout_marginRight="7dp"
+        android:layout_marginEnd="7dp"
+        android:layout_toStartOf="@id/star_button"
+	    android:layout_toLeftOf="@id/star_button"
+	    android:textSize="@dimen/text_size_large"
+        android:textColor="@color/black" />
+
+    <LinearLayout
+        android:id="@+id/travel_times_linear_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/title"/>
+    	
+</RelativeLayout>

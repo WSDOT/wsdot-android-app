@@ -35,8 +35,9 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
 	private static final int VER_6 = 6;
     private static final int VER_7 = 7;
     private static final int VER_8 = 8;
+    private static final int VER_9 = 9;
 
-	private static final int DATABASE_VERSION = VER_8;
+	private static final int DATABASE_VERSION = VER_9;
 
     interface Tables {
         String CACHES = "caches";
@@ -44,6 +45,7 @@ public class WSDOTDatabase extends SQLiteOpenHelper {
         String HIGHWAY_ALERTS = "highway_alerts";
         String MOUNTAIN_PASSES = "mountain_passes";
         String TRAVEL_TIMES = "travel_times";
+        String TRAVEL_TIME_TRIPS = "travel_time_trips";
         String FERRIES_SCHEDULES = "ferries_schedules";
         String FERRIES_TERMINAL_SAILING_SPACE = "ferries_terminal_sailing_space";
         String BORDER_WAIT  = "border_wait";

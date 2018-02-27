@@ -2,11 +2,15 @@ package gov.wa.wsdot.android.wsdot.database.traveltimes;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
 import android.provider.BaseColumns;
-import android.support.annotation.NonNull;
 
-@Entity(tableName = "travel_times")
+@Entity(tableName = "travel_times",
+        foreignKeys = @ForeignKey(entity = TravelTimeTripEntity.class,
+                parentColumns = "title",
+                childColumns = "trip_title",
+                onDelete = ForeignKey.CASCADE))
 public class TravelTimeEntity {
 
     @ColumnInfo(name = BaseColumns._ID)
@@ -16,8 +20,14 @@ public class TravelTimeEntity {
     @ColumnInfo(name = "id")
     private Integer travelTimeId;
 
-    @ColumnInfo(name = "title")
-    private String title;
+    @ColumnInfo(name = "trip_title")
+    private String tripTitle;
+
+    @ColumnInfo(name = "via")
+    private String via;
+
+    @ColumnInfo(name = "status")
+    private String status;
 
     @ColumnInfo(name = "updated")
     private String updated;
@@ -43,10 +53,6 @@ public class TravelTimeEntity {
     @ColumnInfo(name = "end_longitude")
     private Double endLongitude;
 
-    @ColumnInfo(name = "is_starred")
-    @NonNull
-    private Integer isStarred = 0;
-
     public Integer getTravelTimeId() {
         return travelTimeId;
     }
@@ -55,12 +61,26 @@ public class TravelTimeEntity {
         this.travelTimeId = travelTimeId;
     }
 
-    public String getTitle() {
-        return title;
+    public String getTripTitle() {
+        return tripTitle;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTripTitle(String tripTitle) {
+        this.tripTitle = tripTitle;
+    }
+
+    public String getVia() {
+        return via;
+    }
+
+    public void setVia(String via) {
+        this.via = via;
+    }
+
+    public String getStatus() { return status; }
+
+    public void setStatus(String status){
+        this.status = status;
     }
 
     public String getUpdated() {
@@ -127,12 +147,4 @@ public class TravelTimeEntity {
         this.endLongitude = endLongitude;
     }
 
-    @NonNull
-    public Integer getIsStarred() {
-        return isStarred;
-    }
-
-    public void setIsStarred(@NonNull Integer isStarred) {
-        this.isStarred = isStarred;
-    }
 }

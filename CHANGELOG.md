@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.2.1] - 2018-02-27
+
+## Added
+- New travel times layout. Travel times are no grouped by start and end location, with different routes included in the group.
+
 ## [5.1.2] - 2018-02-14
 
 ## Fixes

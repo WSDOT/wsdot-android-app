@@ -24,6 +24,7 @@ import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
@@ -113,12 +114,12 @@ public class MyRoutesRepository {
             MyRouteEntity route = myRouteDao.getMyRouteForId(myRouteId);
 
             List<CameraEntity> cameras = cameraRepo.getCameras(mCameraStatus);
-            List<TravelTimeEntity> travelTimes = travelTimeRepo.getTravelTimes(mTravelTimeStatus);
+            List<TravelTimeGroup> travelTimeGroups = travelTimeRepo.getTravelTimeGroups(mTravelTimeStatus);
             List<FerryScheduleEntity> ferrySchedules = ferryScheduleRepo.getFerrySchedules(mFerryStatus);
             List<MountainPassEntity> mountainPasses = mountainPassRepo.getMountainPasses(mPassStatus);
 
             findCamerasOnRoute(route, cameras);
-            findTravelTimesOnRoute(route, travelTimes);
+            findTravelTimesOnRoute(route, travelTimeGroups);
             findFerriesOnRoute(route, ferrySchedules);
             findPassesOnRoute(route, mountainPasses);
 
@@ -134,7 +135,6 @@ public class MyRoutesRepository {
                     if (Utils.getDistanceFromPoints(location.latitude, location.longitude,
                         camera.getLatitude(), camera.getLongitude()) <= MAX_ITEM_DISTANCE) {
                         cameraRepo.setIsStarred(camera.getCameraId(), 1);
-                        Log.e(TAG, "found a camera!");
                     }
                 }
             }
@@ -143,22 +143,21 @@ public class MyRoutesRepository {
         }
     }
 
-    private void findTravelTimesOnRoute(MyRouteEntity route, List<TravelTimeEntity> times){
+    private void findTravelTimesOnRoute(MyRouteEntity route, List<TravelTimeGroup> groups){
         try {
-            for (TravelTimeEntity time: times){
-                for (LatLng location : ParserUtils.getRouteArrayList(new JSONArray(route.getRouteLocations()))) {
+            for (TravelTimeGroup group: groups) {
+                for (TravelTimeEntity time : group.travelTimes) {
+                    for (LatLng location : ParserUtils.getRouteArrayList(new JSONArray(route.getRouteLocations()))) {
+                        if ((Utils.getDistanceFromPoints(location.latitude, location.longitude,
+                                time.getStartLatitude(), time.getStartLongitude()) <= MAX_ITEM_DISTANCE)
+                                && (Utils.getDistanceFromPoints(location.latitude, location.longitude,
+                                time.getEndLatitude(), time.getEndLongitude()) <= MAX_ITEM_DISTANCE)) {
 
-                    if ((Utils.getDistanceFromPoints(location.latitude, location.longitude,
-                            time.getStartLatitude(), time.getStartLongitude()) <= MAX_ITEM_DISTANCE)
-                            || (Utils.getDistanceFromPoints(location.latitude, location.longitude,
-                            time.getEndLatitude(), time.getEndLongitude()) <= MAX_ITEM_DISTANCE)) {
-
-                        Log.e(TAG, "found travel time!");
-                        travelTimeRepo.setIsStarred(time.getTravelTimeId(), 1);
+                            travelTimeRepo.setIsStarred(group.trip.getTitle(), 1);
+                        }
                     }
                 }
             }
-
         } catch (JSONException e) {
             Log.e(TAG, "failed to read route json");
         }
@@ -192,7 +191,6 @@ public class MyRoutesRepository {
 
                         if (nearStartTerminal && nearEndTerminal){
                             ferryScheduleRepo.setIsStarred(ferrySchedule.getFerryScheduleId(), 1);
-                            Log.e(TAG, "found a ferry schedule!");
                             break;
                         }
                     }
@@ -210,8 +208,6 @@ public class MyRoutesRepository {
                     if (Utils.getDistanceFromPoints(location.latitude, location.longitude,
                             pass.getLatitude(), pass.getLongitude()) <= MAX_ITEM_DISTANCE) {
                         mountainPassRepo.setIsStarred(pass.getPassId(), 1);
-                        Log.e(TAG, "found a pass!");
-                        Log.e(TAG, pass.getName());
                     }
                 }
             }
