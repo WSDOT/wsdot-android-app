@@ -87,6 +87,7 @@ public class CameraActivity extends BaseActivity {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
+
 		Spinner mSpinner = findViewById(R.id.spinner);
 		mSpinner.setVisibility(View.GONE);
 

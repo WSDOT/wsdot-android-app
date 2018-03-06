@@ -4,9 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## Added
+- Users can now swipe between cameras in their favorites list.
+
 ## [5.2.2] - 2018-03-06
 
-## Fixes
+## Fixed
 - Crash in DB migration 6 to 7 introduced in last update. 
 
 ## [5.2.1] - 2018-02-27
@@ -16,12 +19,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [5.1.2] - 2018-02-14
 
-## Fixes
+## Fixed
 - Crash when renaming saved routes.
 
 ## [5.1.1] - 2018-02-12
 
-## Fixes
+## Fixed
 - Crash in favorites caused by a variable not being setup in time. 
 
 ## [5.1.0] - 2018-02-12
@@ -36,7 +39,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Custom logs for Crashlytics
 - Alerts refresh timer on traffic map
 
-## Fixes
+## Fixed
 - Amtrak Cascades schedule crash
 - Vessel Watch - view model access in timer crash
 - Error in "Alerts in this area"
