@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.2.2] - 2018-03-06
+
+## Fixes
+- Crash in DB migration 6 to 7 introduced in last update. 
+
 ## [5.2.1] - 2018-02-27
 
 ## Added
