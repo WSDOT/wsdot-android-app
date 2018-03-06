@@ -33,6 +33,7 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroupDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 
 @Database(entities = {
         BorderWaitEntity.class,
@@ -341,7 +342,7 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("CREATE TABLE new_times_table ("
                     + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + TravelTimesColumns.TRAVEL_TIMES_ID + " INTEGER,"
-                    + TravelTimesColumns.TRAVEL_TIMES_TITLE + " TEXT,"
+                    + "title " + " TEXT,"
                     + TravelTimesColumns.TRAVEL_TIMES_UPDATED + " TEXT,"
                     + TravelTimesColumns.TRAVEL_TIMES_DISTANCE + " TEXT,"
                     + TravelTimesColumns.TRAVEL_TIMES_AVERAGE + " INTEGER,"
@@ -355,7 +356,7 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("INSERT INTO new_times_table ("
                     + BaseColumns._ID + ", "
                     + TravelTimesColumns.TRAVEL_TIMES_ID + ", "
-                    + TravelTimesColumns.TRAVEL_TIMES_TITLE + ", "
+                    + "title, "
                     + TravelTimesColumns.TRAVEL_TIMES_UPDATED + ", "
                     + TravelTimesColumns.TRAVEL_TIMES_DISTANCE + ", "
                     + TravelTimesColumns.TRAVEL_TIMES_AVERAGE + ", "
@@ -364,7 +365,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     + " SELECT "
                     + BaseColumns._ID + ", "
                     + TravelTimesColumns.TRAVEL_TIMES_ID + ", "
-                    + TravelTimesColumns.TRAVEL_TIMES_TITLE + ", "
+                    + "title, "
                     + TravelTimesColumns.TRAVEL_TIMES_UPDATED + ", "
                     + TravelTimesColumns.TRAVEL_TIMES_DISTANCE + ", "
                     + TravelTimesColumns.TRAVEL_TIMES_AVERAGE + ", "
