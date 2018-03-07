@@ -11,6 +11,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import java.util.List;
 
 import javax.inject.Inject;
@@ -19,6 +23,7 @@ import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.home.FavoritesViewModel;
 
 public class CameraViewPagerActivity extends BaseActivity {
@@ -32,6 +37,8 @@ public class CameraViewPagerActivity extends BaseActivity {
     static Snackbar tipSnackbar;
 
     private int selectedPage = -1;
+
+    private Tracker mTracker;
 
     FavoritesViewModel viewModel;
 
@@ -52,7 +59,7 @@ public class CameraViewPagerActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        tipSnackbar = Snackbar.make(findViewById(R.id.placeSnackBar), "Swipe over to check your other favorite cameras", Snackbar.LENGTH_INDEFINITE);
+        tipSnackbar = Snackbar.make(findViewById(R.id.placeSnackBar), "Swipe left or right to check your other favorite cameras", Snackbar.LENGTH_INDEFINITE);
 
         Bundle b = getIntent().getExtras();
         int selectedCameraId = b.getInt("id", 0);
@@ -61,19 +68,27 @@ public class CameraViewPagerActivity extends BaseActivity {
             selectedPage =  savedInstanceState.getInt("selected_page", 0);
         }
 
+        mTracker = ((WsdotApplication) this.getApplication()).getDefaultTracker();
+
         mViewPager = findViewById(R.id.pager);
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
 
             @Override
             public void onPageSelected(int position) {
-
                 if (position != selectedPage) {
                     tipSnackbar.dismiss();
-                }
 
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Swipe")
+                            .setAction("Change Camera")
+                            .setLabel("Cameras")
+                            .build());
+
+                }
                 selectedPage = position;
                 mToolbar.setTitle(mCameraCollectionPagerAdapter.getPageTitle(position));
             }
@@ -111,7 +126,6 @@ public class CameraViewPagerActivity extends BaseActivity {
 
         String adTarget = b.getString("advertisingTarget");
         enableAds(adTarget);
-
     }
 
     @Override

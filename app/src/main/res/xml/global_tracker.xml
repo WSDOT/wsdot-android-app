@@ -30,6 +30,7 @@
     <screenName name="gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity">/Traffic Map/Callout</screenName>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity">/Cameras</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.camera.CameraViewPagerActivity">/Favorites/Cameras</screenName>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity">/Mountain Passes</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity">/Mountain Passes/Details</screenName>
