@@ -35,6 +35,7 @@ import gov.wa.wsdot.android.wsdot.service.EventService;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
+import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewPagerActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerriesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;

@@ -64,6 +64,8 @@ import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
+import gov.wa.wsdot.android.wsdot.ui.camera.CameraCollectionPagerAdapter;
+import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewPagerActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.sailings.FerriesRouteSchedulesDaySailingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
@@ -447,7 +449,7 @@ public class FavoritesFragment extends BaseFragment implements
                         v -> {
                             MyLogger.crashlyticsLog("Home", "Tap", "Favorite Camera " + String.valueOf(camera.getCameraId()), 1);
                             Bundle b = new Bundle();
-                            Intent intent = new Intent(getActivity(), CameraActivity.class);
+                            Intent intent = new Intent(getActivity(), CameraViewPagerActivity.class);
                             b.putInt("id", camera.getCameraId());
                             b.putString("advertisingTarget", "other");
                             intent.putExtras(b);

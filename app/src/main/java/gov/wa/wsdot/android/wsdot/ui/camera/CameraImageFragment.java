@@ -66,14 +66,15 @@ public class CameraImageFragment extends Fragment implements
 		Injectable {
 
 	private static final String TAG = CameraImageFragment.class.getSimpleName();
-    private static String mUrl;
+    private String mUrl;
     private ImageView mImage;
 	private String mTitle;
 	private int mId;
-	private static String mCameraName = "cameraImage.jpg";
+	private boolean showStar = true;
+	private String mCameraName;
 	private ShareActionProvider shareAction;
 	private boolean mIsStarred = false;
-	private static SwipeRefreshLayout swipeRefreshLayout;
+	private SwipeRefreshLayout mSwipeRefreshLayout;
 
 	static final private int MENU_ITEM_STAR = Menu.FIRST;
 
@@ -87,7 +88,9 @@ public class CameraImageFragment extends Fragment implements
 		super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Bundle args = getArguments();
+        showStar = args.getBoolean("show_star", true);
         mId = args.getInt("id");
+        mCameraName = "cameraImage" + mId + ".jpg";
 	}
 
 	@Override
@@ -99,9 +102,9 @@ public class CameraImageFragment extends Fragment implements
         mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        swipeRefreshLayout = mRootView.findViewById(R.id.swipe_container);
-        swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setColorSchemeResources(
+        mSwipeRefreshLayout = mRootView.findViewById(R.id.swipe_container);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(
 				R.color.holo_blue_bright,
 				R.color.holo_green_light,
 				R.color.holo_orange_light,
@@ -115,13 +118,13 @@ public class CameraImageFragment extends Fragment implements
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
-                        swipeRefreshLayout.setRefreshing(true);
-                        break;
+                        mSwipeRefreshLayout.setRefreshing(true);
+						break;
                     case SUCCESS:
-                        swipeRefreshLayout.setRefreshing(false);
+                        mSwipeRefreshLayout.setRefreshing(false);
                         break;
                     case ERROR:
-                        swipeRefreshLayout.setRefreshing(false);
+                        mSwipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
                 }
             }
@@ -148,14 +151,16 @@ public class CameraImageFragment extends Fragment implements
         shareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem_Share);
         shareAction.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
 
-		MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
-		MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+        if (showStar) {
+            MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
+            MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
 
-		if (mIsStarred) {
-			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
-		} else {
-			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
-		}
+            if (mIsStarred) {
+                menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
+            } else {
+                menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
+            }
+        }
     }
 
 	@Override
@@ -193,6 +198,7 @@ public class CameraImageFragment extends Fragment implements
 	}
 
 	private Intent createShareIntent() {
+
 		File f = new File(getActivity().getFilesDir(), mCameraName);
 	    ContentValues values = new ContentValues(2);
 	    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
@@ -212,27 +218,33 @@ public class CameraImageFragment extends Fragment implements
 	}
 
 	public Loader<Drawable> onCreateLoader(int id, Bundle args) {
-		return new CameraImageLoader(getActivity());
+        mSwipeRefreshLayout.setRefreshing(true);
+		return new CameraImageLoader(getActivity(), mCameraName, mUrl);
 	}
 
 	public void onLoadFinished(Loader<Drawable> loader, Drawable data) {
-	    swipeRefreshLayout.setRefreshing(false);
+        mSwipeRefreshLayout.setRefreshing(false);
 		mImage.setImageDrawable(data);
 		try {
-		    shareAction.setShareIntent(createShareIntent());
+		    //shareAction.setShareIntent(createShareIntent());
 		} catch (NullPointerException e) {
 		    Log.e(TAG, "createShareIntent() returned NULL: " + e.getStackTrace());
 		}
 	}
 
 	public void onLoaderReset(Loader<Drawable> loader) {
-	    swipeRefreshLayout.setRefreshing(false);
+        mSwipeRefreshLayout.setRefreshing(false);
 	}
 
 	public static class CameraImageLoader extends AsyncTaskLoader<Drawable> {
 
-		public CameraImageLoader(Context context) {
+	    String cameraName;
+	    String url;
+
+		public CameraImageLoader(Context context, String cameraName, String url) {
 			super(context);
+			this.cameraName = cameraName;
+			this.url = url;
 		}
 
 		@SuppressLint("WorldReadableFiles")
@@ -243,7 +255,7 @@ public class CameraImageFragment extends Fragment implements
 	    	Bitmap image = null;
 
 	        try {
-	        	HttpURLConnection connection = (HttpURLConnection) new URL(mUrl).openConnection();
+	        	HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 	        	connection.setRequestProperty("User-agent","Mozilla/4.0");
 	        	connection.connect();
 	            InputStream input = connection.getInputStream();
@@ -254,7 +266,7 @@ public class CameraImageFragment extends Fragment implements
                             .getResources(), R.drawable.camera_offline);
                 }
 
-	            fos = getContext().openFileOutput(mCameraName, Context.MODE_PRIVATE);
+	            fos = getContext().openFileOutput(cameraName, Context.MODE_PRIVATE);
 	            image.compress(Bitmap.CompressFormat.JPEG, 75, fos);
 				fos.flush();
 				fos.close();
@@ -272,30 +284,18 @@ public class CameraImageFragment extends Fragment implements
 
 		@Override
 		public void deliverResult(Drawable data) {
-		    /**
-		     * Called when there is new data to deliver to the client. The
-		     * super class will take care of delivering it; the implementation
-		     * here just adds a little more logic.
-		     */
 			super.deliverResult(data);
 		}
 
 		@Override
 		protected void onStartLoading() {
 			super.onStartLoading();
-
-			swipeRefreshLayout.post(new Runnable() {
-				public void run() {
-					swipeRefreshLayout.setRefreshing(true);
-				}
-			});
 			forceLoad();
 		}
 
 		@Override
 		protected void onStopLoading() {
 			super.onStopLoading();
-
 	        // Attempt to cancel the current load task if possible.
 	        cancelLoad();
 		}
@@ -308,14 +308,11 @@ public class CameraImageFragment extends Fragment implements
 		@Override
 		protected void onReset() {
 			super.onReset();
-
 	        // Ensure the loader is stopped
 	        onStopLoading();
 		}
 	}
-
     public void onRefresh() {
         getLoaderManager().restartLoader(0, null, this);
     }
-
 }
