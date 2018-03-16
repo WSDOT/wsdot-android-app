@@ -22,6 +22,7 @@ import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteViewModel;
+import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.FavoriteMapLocationViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertViewModel;
@@ -170,6 +171,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(HighwayAlertDetailsViewModel.class)
     abstract ViewModel bindHighwayAlertDetailsViewModel(HighwayAlertDetailsViewModel highwayAlertDetailsViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(NotificationsViewModel.class)
+    abstract ViewModel bindNotificationsViewModel(NotificationsViewModel notificationsViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

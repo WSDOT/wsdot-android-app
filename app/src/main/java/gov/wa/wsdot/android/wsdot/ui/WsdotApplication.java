@@ -28,6 +28,8 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import javax.inject.Inject;
 
@@ -47,6 +49,8 @@ import io.fabric.sdk.android.Fabric;
  * the {@link Tracker}.
  */
 public class WsdotApplication extends Application implements HasActivityInjector, HasSupportFragmentInjector {
+
+    final String TAG = WsdotApplication.class.getSimpleName();
 
     @Inject
     DispatchingAndroidInjector<Activity> dispatchingAndroidActivityInjector;
@@ -82,6 +86,12 @@ public class WsdotApplication extends Application implements HasActivityInjector
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean("KEY_SEEN_DRIVER_ALERT", false);
         editor.apply();
+
+        FirebaseMessaging.getInstance().subscribeToTopic("test");
+
+        Log.e(TAG, "Token: " + FirebaseInstanceId.getInstance().getToken());
+
+
     }
 
     /**

@@ -61,5 +61,6 @@ public class APIEndPoints {
 
     // Other
     public static final String EVENT = "http://data.wsdot.wa.gov/mobile/EventStatus.js";
+    public static final String FIREBASE_TOPICS = "http://10.0.2.2:3003/fcm/user/topics/";
 
 }

@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot.ui.home;
 
+import android.app.Notification;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -39,6 +40,7 @@ import gov.wa.wsdot.android.wsdot.service.EventService;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
+import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsActivity;
 import gov.wa.wsdot.android.wsdot.ui.settings.SettingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.HomePager;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
@@ -132,6 +134,9 @@ public class HomeActivity extends BaseActivity implements Injectable {
         switch (item.getItemId()) {
             case R.id.menu_about:
             	startActivity(new Intent(this, AboutActivity.class));
+                break;
+            case R.id.menu_notifications:
+                startActivity(new Intent(this, NotificationsActivity.class));
                 break;
             case R.id.menu_settings:
                 startActivity(new Intent(this, SettingsActivity.class));

@@ -115,6 +115,8 @@
     <string name="event_is_active">event_is_active</string>
 
     <string name="set_theme_key">set_theme_key</string>
+    <string name="description_notifications">Notifications</string>
+    <string name="title_activity_notifications">Notifications</string>
 
 
 </resources>
