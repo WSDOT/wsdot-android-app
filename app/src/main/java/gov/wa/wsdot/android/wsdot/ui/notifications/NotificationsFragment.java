@@ -29,8 +29,8 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.Notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
-import gov.wa.wsdot.android.wsdot.shared.TopicItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
@@ -87,6 +87,8 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(NotificationsViewModel.class);
 
+        viewModel.init(FirebaseInstanceId.getInstance().getToken());
+
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
@@ -103,7 +105,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
             }
         });
 
-        viewModel.getTopics(FirebaseInstanceId.getInstance().getToken()).observe(this, topics -> {
+        viewModel.getTopics().observe(this, topics -> {
             if (topics != null) {
                 mAdapter.setData(topics);
 
@@ -123,13 +125,13 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
     private class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private Context context;
-        private HashMap<String, List<TopicItem>> mData = new HashMap<>();
+        private HashMap<String, List<NotificationTopicEntity>> mData = new HashMap<>();
 
         public TopicAdapter(Context context) {
             this.context = context;
         }
 
-        public void setData(HashMap<String, List<TopicItem>> data){
+        public void setData(HashMap<String, List<NotificationTopicEntity>> data){
             this.mData = data;
             this.notifyDataSetChanged();
         }
@@ -172,7 +174,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
 
                 TopicViewHolder topicViewHolder = (TopicViewHolder) viewHolder;
 
-                TopicItem topic = (TopicItem) mAdapter.getItem(position);
+                NotificationTopicEntity topic = (NotificationTopicEntity) mAdapter.getItem(position);
 
                 String title = topic.getTopic();
                 topicViewHolder.title.setText(title);
@@ -183,7 +185,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                 // Assigning null to setOnCheckedChangeListener seems to fix it.
                 topicViewHolder.subscribed_button.setOnCheckedChangeListener(null);
                 topicViewHolder.subscribed_button.setContentDescription("subscribe");
-                topicViewHolder.subscribed_button.setChecked(topic.isSubscribed());
+                topicViewHolder.subscribed_button.setChecked(topic.getSubscribed());
                 topicViewHolder.subscribed_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
@@ -225,7 +227,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
 
         public Object getItem(int position){
 
-            for (Map.Entry<String, List<TopicItem>> entry : mData.entrySet()) {
+            for (Map.Entry<String, List<NotificationTopicEntity>> entry : mData.entrySet()) {
 
                 int size = entry.getValue().size() + 1;
 
@@ -245,7 +247,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
             int count = 0;
 
             // Iterating over values only
-            for (List<TopicItem> value : mData.values()) {
+            for (List<NotificationTopicEntity> value : mData.values()) {
                 count += value.size() + 1; // +1 for header
             }
 
@@ -256,7 +258,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
         @Override
         public int getItemViewType(int position) {
 
-            for (Map.Entry<String, List<TopicItem>> entry : mData.entrySet()) {
+            for (Map.Entry<String, List<NotificationTopicEntity>> entry : mData.entrySet()) {
 
                 int size = entry.getValue().size() + 1;
 

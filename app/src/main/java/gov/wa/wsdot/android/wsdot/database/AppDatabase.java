@@ -10,6 +10,8 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
+import gov.wa.wsdot.android.wsdot.database.Notifications.NotificationTopicDao;
+import gov.wa.wsdot.android.wsdot.database.Notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
@@ -46,8 +48,9 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
         MyRouteEntity.class,
         MapLocationEntity.class,
         TravelTimeTripEntity.class,
-        TravelTimeEntity.class
-    }, version = 9)
+        TravelTimeEntity.class,
+        NotificationTopicEntity.class
+    }, version = 10)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String TAG = AppDatabase.class.getSimpleName();
@@ -66,6 +69,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract FerryTerminalSailingSpacesDao ferryTerminalSailingSpacesDao();
     public abstract MapLocationDao mapLocationDao();
     public abstract MyRouteDao myRouteDao();
+    public abstract NotificationTopicDao notificationTopicDao();
 
     private static final Object sLock = new Object();
 
@@ -531,6 +535,12 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    @VisibleForTesting
+    public static final Migration MIGRATION_9_10 = new Migration(9, 10) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {}
+    };
+
     public static AppDatabase getInstance(Context context) {
         synchronized (sLock) {
             if (INSTANCE == null) {
@@ -544,7 +554,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                 MIGRATION_5_6,
                                 MIGRATION_6_7,
                                 MIGRATION_7_8,
-                                MIGRATION_8_9)
+                                MIGRATION_8_9,
+                                MIGRATION_9_10)
                         .addCallback(new Callback() {
 
                             @Override
@@ -557,6 +568,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_schedules', 0);");
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_terminal_sailing_space', 0);");
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('border_wait', 0);");
+                                db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('notification_topic', 0);");
 
                                 // Front load the mountain pass cameras
 

@@ -7,6 +7,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import gov.wa.wsdot.android.wsdot.database.AppDatabase;
+import gov.wa.wsdot.android.wsdot.database.Notifications.NotificationTopicDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraDao;
@@ -71,6 +72,11 @@ class AppModule {
     @Singleton @Provides
     MyRouteDao provideMyRouteDao(AppDatabase db) {
         return db.myRouteDao();
+    }
+
+    @Singleton @Provides
+    NotificationTopicDao provideNotificationTopicDao(AppDatabase db){
+        return db.notificationTopicDao();
     }
 
     @Singleton @Provides

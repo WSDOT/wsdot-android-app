@@ -1,7 +1,8 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.util.Log;
+import android.text.format.DateUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -11,47 +12,47 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import gov.wa.wsdot.android.wsdot.shared.TopicItem;
+import gov.wa.wsdot.android.wsdot.database.Notifications.NotificationTopicDao;
+import gov.wa.wsdot.android.wsdot.database.Notifications.NotificationTopicEntity;
+import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton
-public class FirebaseTopicsRepository extends NetworkResourceRepository {
+public class FirebaseTopicsRepository extends NetworkResourceSyncRepository {
 
     private final static String TAG = FirebaseTopicsRepository.class.getSimpleName();
 
-    private MutableLiveData<HashMap<String, List<TopicItem>>> topics;
+    private final NotificationTopicDao notificationTopicDao;
 
     private String iid;
 
     @Inject
-    public FirebaseTopicsRepository(AppExecutors appExecutors) {
-        super(appExecutors);
-        topics = new MutableLiveData<>();
+    public FirebaseTopicsRepository(AppExecutors appExecutors, NotificationTopicDao notificationTopicDao, CacheRepository cacheRepository) {
+        super(appExecutors, cacheRepository, (5 * DateUtils.MINUTE_IN_MILLIS), "notification_topic");
+        this.notificationTopicDao = notificationTopicDao;
     }
 
-    public MutableLiveData<HashMap<String, List<TopicItem>>> getTopics(String idd, MutableLiveData<ResourceStatus> status) {
+    public LiveData<List<NotificationTopicEntity>> getTopics(String idd, MutableLiveData<ResourceStatus> status) {
+
         this.iid = idd;
-        this.topics.setValue(null);
-        this.refreshData(status);
-        return this.topics;
+        this.refreshData(status, false);
+        return notificationTopicDao.loadNotificationTopics();
     }
 
-    @Override
+    public void updateSubscription(String topic, Boolean subscription){
+        getExecutor().taskIO().execute(() -> this.notificationTopicDao.updateSubscription(topic, subscription));
+    }
+
     void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
-        fetchTopics();
-    }
 
-    private void fetchTopics() throws Exception {
-
-        HashMap<String, List<TopicItem>> mTopics = new HashMap<>();
+        List<NotificationTopicEntity> topicEntities = new ArrayList<>();
 
         URL url = new URL(APIEndPoints.FIREBASE_TOPICS + iid);
 
@@ -71,23 +72,22 @@ public class FirebaseTopicsRepository extends NetworkResourceRepository {
 
         for (int j = 0; j < numItems; j++) {
 
-            TopicItem topic = new TopicItem();
             JSONObject topicJSON = items.getJSONObject(j);
+            NotificationTopicEntity topic = new NotificationTopicEntity(
+                    topicJSON.getString("topic"),
+                    topicJSON.getString("category"),
+                    topicJSON.getBoolean("subscribed"));
 
-            topic.setTopic(topicJSON.getString("topic"));
-            topic.setSubscribed(topicJSON.getBoolean("subscribed"));
-
-            String category = topicJSON.getString("category");
-
-            if (mTopics.get(category) == null) {
-                List<TopicItem> topics = new ArrayList<>();
-                topics.add(topic);
-                mTopics.put(category, topics);
-            } else {
-                mTopics.get(category).add(topic);
-            }
+            topicEntities.add(topic);
         }
 
-        topics.postValue(mTopics);
+        NotificationTopicEntity[] topicsArray = new NotificationTopicEntity[topicEntities.size()];
+        topicsArray = topicEntities.toArray(topicsArray);
+
+        notificationTopicDao.deleteAndInsertTransaction(topicsArray);
+
+        CacheEntity cache = new CacheEntity("notification_topic", System.currentTimeMillis());
+        getCacheRepository().setCacheTime(cache);
+
     }
 }
