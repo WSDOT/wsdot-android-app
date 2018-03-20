@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.database.Notifications;
+package gov.wa.wsdot.android.wsdot.database.notifications;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
@@ -13,17 +13,24 @@ public class NotificationTopicEntity {
     @NonNull
     public String topic;
 
+    @ColumnInfo(name = "title")
+    public String title;
+
     @ColumnInfo(name = "category")
     public String category;
 
     @ColumnInfo(name = "subscribed")
     public Boolean subscribed;
 
+    @ColumnInfo(name = "remove")
+    public Boolean remove;
 
-    public NotificationTopicEntity(String topic, String category, Boolean subscribed){
+    public NotificationTopicEntity(@NonNull String topic, String title, String category, Boolean subscribed){
         this.topic = topic;
+        this.title = title;
         this.category = category;
         this.subscribed = subscribed;
+        this.remove = false;
     }
 
     public String getTopic() {
@@ -31,6 +38,13 @@ public class NotificationTopicEntity {
     }
     public void setTopic(String topic) {
         this.topic = topic;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getCategory() {

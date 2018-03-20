@@ -32,7 +32,6 @@ public class APIEndPoints {
 
     public static final String TRAVEL_TIMES = "http://data.wsdot.wa.gov/mobile/TravelTimesv2.js";
 
-
     public static final String BORDER_WAITS = "http://data.wsdot.wa.gov/mobile/BorderCrossings.js";
     public static final String TRAVEL_CHARTS = "http://data.wsdot.wa.gov/mobile/travelChartsAndroidv1.js.gz";
     public static final String EXPRESS_LANES = "http://data.wsdot.wa.gov/mobile/ExpressLanes.js";
@@ -61,6 +60,7 @@ public class APIEndPoints {
 
     // Other
     public static final String EVENT = "http://data.wsdot.wa.gov/mobile/EventStatus.js";
-    public static final String FIREBASE_TOPICS = "http://10.0.2.2:3003/fcm/user/topics/";
 
+    //public static final String FIREBASE_TOPICS = "http://164.110.144.168:3003/fcm/user/topics/";
+    public static final String FIREBASE_TOPICS =  "http://data.wsdot.wa.gov/mobile/notification_topics_TEST.js";
 }

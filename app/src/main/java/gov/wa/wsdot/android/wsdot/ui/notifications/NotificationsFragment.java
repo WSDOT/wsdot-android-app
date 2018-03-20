@@ -6,7 +6,6 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.database.Notifications.NotificationTopicEntity;
+import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
@@ -39,11 +39,12 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
 
     private static final String TAG = NotificationsFragment.class.getSimpleName();
     private View mEmptyView;
-    private static SwipeRefreshLayout swipeRefreshLayout;
+
 
     private static TopicAdapter mAdapter;
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
+    private View mLoadingSpinner;
 
     public static final int HEADER_VIEWTYPE = 0;
     public static final int TOPIC_VIEWTYPE = 1;
@@ -57,7 +58,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner, null);
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -75,12 +76,8 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
-        swipeRefreshLayout.setColorSchemeResources(
-                R.color.holo_blue_bright,
-                R.color.holo_green_light,
-                R.color.holo_orange_light,
-                R.color.holo_red_light);
+        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mLoadingSpinner.setVisibility(View.VISIBLE);
 
         mEmptyView = root.findViewById( R.id.empty_list_view );
         mEmptyView.setVisibility(View.GONE);
@@ -93,13 +90,10 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
-                        swipeRefreshLayout.setRefreshing(true);
                         break;
                     case SUCCESS:
-                        swipeRefreshLayout.setRefreshing(false);
                         break;
                     case ERROR:
-                        swipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
                 }
             }
@@ -108,10 +102,9 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
         viewModel.getTopics().observe(this, topics -> {
             if (topics != null) {
                 mAdapter.setData(topics);
-
+                mLoadingSpinner.setVisibility(View.GONE);
             }
         });
-
         return root;
     }
 
@@ -176,7 +169,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
 
                 NotificationTopicEntity topic = (NotificationTopicEntity) mAdapter.getItem(position);
 
-                String title = topic.getTopic();
+                String title = topic.getTitle();
                 topicViewHolder.title.setText(title);
                 topicViewHolder.title.setTypeface(tfb);
 
@@ -190,16 +183,16 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                         Snackbar added_snackbar = Snackbar
-                                .make(getView(), "subscribed to " + topic.getTopic(), Snackbar.LENGTH_SHORT);
+                                .make(getView(), "subscribed to " + topic.getTitle(), Snackbar.LENGTH_SHORT);
 
                         Snackbar removed_snackbar = Snackbar
-                                .make(getView(), "unsubscribed from " + topic.getTopic(), Snackbar.LENGTH_SHORT);
+                                .make(getView(), "unsubscribed from " + topic.getTitle(), Snackbar.LENGTH_SHORT);
 
                         added_snackbar.addCallback(new Snackbar.Callback() {
                             @Override
                             public void onShown(Snackbar snackbar) {
                                 super.onShown(snackbar);
-                                snackbar.getView().setContentDescription("subscribed to " + topic.getTopic());
+                                snackbar.getView().setContentDescription("subscribed to " + topic.getTitle());
                                 snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
                             }
                         });
@@ -208,7 +201,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                             @Override
                             public void onShown(Snackbar snackbar) {
                                 super.onShown(snackbar);
-                                snackbar.getView().setContentDescription("unsubscribed from " + topic.getTopic());
+                                snackbar.getView().setContentDescription("unsubscribed from " + topic.getTitle());
                                 snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
                             }
                         });

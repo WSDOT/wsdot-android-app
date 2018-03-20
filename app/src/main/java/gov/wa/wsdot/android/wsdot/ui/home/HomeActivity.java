@@ -144,5 +144,4 @@ public class HomeActivity extends BaseActivity implements Injectable {
         }
         return super.onOptionsItemSelected(item);
     }
-
 }

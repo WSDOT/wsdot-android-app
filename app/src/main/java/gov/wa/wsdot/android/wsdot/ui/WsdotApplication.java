@@ -16,7 +16,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-
 import android.app.Activity;
 import android.app.Application;
 import android.content.SharedPreferences;
@@ -29,7 +28,6 @@ import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import javax.inject.Inject;
 
@@ -78,7 +76,7 @@ public class WsdotApplication extends Application implements HasActivityInjector
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());
-            myNotificationManager.createMainNotificationChannel();
+            myNotificationManager.createMainNotificationChannels();
         }
 
         //reset driver alert message on app startup.
@@ -87,10 +85,7 @@ public class WsdotApplication extends Application implements HasActivityInjector
         editor.putBoolean("KEY_SEEN_DRIVER_ALERT", false);
         editor.apply();
 
-        FirebaseMessaging.getInstance().subscribeToTopic("test");
-
         Log.e(TAG, "Token: " + FirebaseInstanceId.getInstance().getToken());
-
 
     }
 

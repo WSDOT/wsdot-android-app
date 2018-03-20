@@ -45,6 +45,9 @@ public abstract class NetworkResourceSyncRepository {
             CacheEntity cache = cacheRepository.getCacheTimeFor(this.tableName);
             long now = System.currentTimeMillis();
             Boolean shouldUpdate = (Math.abs(now - cache.getLastUpdated()) > updateInterval);
+
+            shouldUpdate = true;
+
             if (shouldUpdate || forceRefresh) {
                 try {
                     fetchData(status);
@@ -62,23 +65,24 @@ public abstract class NetworkResourceSyncRepository {
     // Checks the caches database to see if the last cache time is older than the updateInterval
     public void refreshDataOnSameThread(MutableLiveData<ResourceStatus> status, Boolean forceRefresh){
 
-            status.postValue(ResourceStatus.loading());
+        status.postValue(ResourceStatus.loading());
 
-            CacheEntity cache = cacheRepository.getCacheTimeFor(this.tableName);
-            long now = System.currentTimeMillis();
-            Boolean shouldUpdate = (Math.abs(now - cache.getLastUpdated()) > updateInterval);
-            if (shouldUpdate || forceRefresh) {
-                try {
-                    fetchData(status);
-                    status.postValue(ResourceStatus.success());
-                } catch (Exception e) {
-                    Log.e(TAG, e.toString());
-                    status.postValue(ResourceStatus.error("network error"));
-                }
-            } else{
+        CacheEntity cache = cacheRepository.getCacheTimeFor(this.tableName);
+        long now = System.currentTimeMillis();
+        Boolean shouldUpdate = (Math.abs(now - cache.getLastUpdated()) > updateInterval);
+
+        if (true) {
+        //if (shouldUpdate || forceRefresh) {
+            try {
+                fetchData(status);
                 status.postValue(ResourceStatus.success());
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+                status.postValue(ResourceStatus.error("network error"));
             }
-
+        } else {
+            status.postValue(ResourceStatus.success());
+        }
     }
 
     // Getters for subclasses

@@ -13,8 +13,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import gov.wa.wsdot.android.wsdot.database.Notifications.NotificationTopicEntity;
-import gov.wa.wsdot.android.wsdot.repository.FirebaseTopicsRepository;
+import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
+import gov.wa.wsdot.android.wsdot.repository.NotificationTopicsRepository;
 import gov.wa.wsdot.android.wsdot.util.AbsentLiveData;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
@@ -24,13 +24,13 @@ public class NotificationsViewModel extends ViewModel {
 
     private MutableLiveData<ResourceStatus> mStatus;
 
-    private FirebaseTopicsRepository topicsRepo;
+    private NotificationTopicsRepository topicsRepo;
 
     private LiveData<List<NotificationTopicEntity>> topics;
     private LiveData<HashMap<String, List<NotificationTopicEntity>>> topicsMap;
 
     @Inject
-    NotificationsViewModel(FirebaseTopicsRepository topicsRepo) {
+    NotificationsViewModel(NotificationTopicsRepository topicsRepo) {
         this.mStatus = new MutableLiveData<>();
         this.topicsRepo = topicsRepo;
     }

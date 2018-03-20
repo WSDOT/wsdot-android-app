@@ -10,8 +10,8 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
-import gov.wa.wsdot.android.wsdot.database.Notifications.NotificationTopicDao;
-import gov.wa.wsdot.android.wsdot.database.Notifications.NotificationTopicEntity;
+import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicDao;
+import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
@@ -35,7 +35,6 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroupDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 
 @Database(entities = {
         BorderWaitEntity.class,

@@ -23,6 +23,8 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.util.Log;
+import android.util.TimeUtils;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -31,10 +33,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.home.HomeActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
+import gov.wa.wsdot.android.wsdot.util.Utils;
+
+import static gov.wa.wsdot.android.wsdot.util.MyNotificationManager.ALERT_CHANNEL_ID;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -48,66 +54,51 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     // [START receive_message]
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        String from = remoteMessage.getFrom();
+
         Map data = remoteMessage.getData();
 
-        String title = remoteMessage.getNotification().getTitle();
-        String message = remoteMessage.getNotification().getBody();
+        String title = "no title";
+        String message = "no text";
 
-        String latitude = (String) data.get("latitude");
-        String longitude = (String) data.get("longitude");
-        int id = Integer.valueOf((String)data.get("id"));
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        // retrieve the ids of last messages received (Stores up to the number of topics)
-        JSONArray default_ids = new JSONArray();
-        String ids_str = preferences.getString("fcm_ids", default_ids.toString());
-
-        JSONArray ids = null;
-        try {
-            ids = new JSONArray(ids_str);
-
-            if (!ids.toString().contains("\"" + String.valueOf(id) + "\"") ) {
-
-                // message received from some topic.
-                if (from.startsWith("/topics/")) {
-
-                    // set up intent
-                    Intent notificationIntent = new Intent(this, TrafficMapActivity.class);
-                    notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                    notificationIntent.putExtra("lat", Float.valueOf(latitude));
-                    notificationIntent.putExtra("long", Float.valueOf(longitude));
-                    notificationIntent.putExtra("zoom", 13);
-                    notificationIntent.putExtra("forceUpdate", true);
-                    notificationIntent.setAction("dummy_action" + id);
-
-                    Intent upIntent = new Intent(this, HomeActivity.class);
-
-                    // Use TaskStackBuilder to build the back stack and get the PendingIntent
-                    PendingIntent pIntent =
-                            TaskStackBuilder.create(this)
-                                    // add all of DetailsActivity's parents to the stack,
-                                    // followed by DetailsActivity itself
-                                    .addNextIntentWithParentStack(upIntent)
-                                    .addNextIntent(notificationIntent)
-                                    .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-                    createNotification(title, message, pIntent, id);
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (remoteMessage.getNotification() != null) {
+            title = remoteMessage.getNotification().getTitle();
+            message = remoteMessage.getNotification().getBody();
         }
-    }
 
+        int id = Integer.valueOf(data.get("id").toString());
+
+        Log.e(TAG, "onMessageReceived");
+        Log.e(TAG, String.valueOf(id));
+        Log.e(TAG, title);
+        Log.e(TAG, message);
+
+        // set up intent
+        Intent notificationIntent = new Intent(this, TrafficMapActivity.class);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        notificationIntent.setAction("dummy_action" + id);
+
+        Intent upIntent = new Intent(this, HomeActivity.class);
+
+        // Use TaskStackBuilder to build the back stack and get the PendingIntent
+        PendingIntent pIntent =
+                TaskStackBuilder.create(this)
+                        // add all of DetailsActivity's parents to the stack,
+                        // followed by DetailsActivity itself
+                        .addNextIntentWithParentStack(upIntent)
+                        .addNextIntent(notificationIntent)
+                        .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        createNotification(title, message, pIntent, id);
+
+    }
     // [END receive_message]
 
     // Creates notification
     private void createNotification(String title, String body, PendingIntent intent, int id) {
         Context context = getApplicationContext();
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_list_wsdot).setContentTitle(title)
                 .setContentText(body)
                 .setStyle(new NotificationCompat.BigTextStyle()
@@ -119,6 +110,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationManager mNotificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
 
-        mNotificationManager.notify(id, mBuilder.build());
+        mNotificationManager.notify(String.valueOf(id), id, mBuilder.build());
     }
 }
