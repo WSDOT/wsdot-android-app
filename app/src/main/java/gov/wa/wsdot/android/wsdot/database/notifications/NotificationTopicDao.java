@@ -19,6 +19,9 @@ public abstract class NotificationTopicDao {
     @Query("SELECT * FROM notification_topic")
     public abstract LiveData<List<NotificationTopicEntity>> loadNotificationTopics();
 
+    @Query("SELECT * FROM notification_topic")
+    public abstract List<NotificationTopicEntity> getNotificationTopics();
+
     @Query("UPDATE notification_topic SET subscribed = :subscribed WHERE topic = :topic")
     public abstract void updateSubscription(String topic, Boolean subscribed);
 

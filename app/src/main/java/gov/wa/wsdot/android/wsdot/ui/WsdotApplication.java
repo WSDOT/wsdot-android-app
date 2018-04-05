@@ -18,6 +18,7 @@ package gov.wa.wsdot.android.wsdot.ui;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.Service;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -34,6 +35,7 @@ import javax.inject.Inject;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
+import dagger.android.HasServiceInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import gov.wa.wsdot.android.wsdot.BuildConfig;
 import gov.wa.wsdot.android.wsdot.R;
@@ -46,7 +48,7 @@ import io.fabric.sdk.android.Fabric;
  * This is a subclass of {@link Application} used to provide shared objects for this app, such as
  * the {@link Tracker}.
  */
-public class WsdotApplication extends Application implements HasActivityInjector, HasSupportFragmentInjector {
+public class WsdotApplication extends Application implements HasActivityInjector, HasSupportFragmentInjector, HasServiceInjector {
 
     final String TAG = WsdotApplication.class.getSimpleName();
 
@@ -55,6 +57,9 @@ public class WsdotApplication extends Application implements HasActivityInjector
 
     @Inject
     DispatchingAndroidInjector<Fragment> dispatchingAndroidFragmentInjector;
+
+    @Inject
+    DispatchingAndroidInjector<Service> dispatchingServiceInjector;
 
     private Tracker mTracker;
 
@@ -110,6 +115,11 @@ public class WsdotApplication extends Application implements HasActivityInjector
     @Override
     public AndroidInjector<android.support.v4.app.Fragment> supportFragmentInjector() {
         return dispatchingAndroidFragmentInjector;
+    }
+
+    @Override
+    public AndroidInjector<Service> serviceInjector() {
+        return dispatchingServiceInjector;
     }
 
     /**

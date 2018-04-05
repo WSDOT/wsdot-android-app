@@ -30,19 +30,19 @@ public class NotificationsViewModel extends ViewModel {
     private LiveData<HashMap<String, List<NotificationTopicEntity>>> topicsMap;
 
     @Inject
-    NotificationsViewModel(NotificationTopicsRepository topicsRepo) {
+    public NotificationsViewModel(NotificationTopicsRepository topicsRepo) {
         this.mStatus = new MutableLiveData<>();
         this.topicsRepo = topicsRepo;
     }
 
     public void init(String iid) {
-        this.topics = topicsRepo.getTopics(iid, mStatus);
+        this.topics = topicsRepo.loadTopics(iid, mStatus);
         this.topicsMap = Transformations.map(this.topics, this::mapTopics);
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
-    LiveData<HashMap<String, List<NotificationTopicEntity>>> getTopics() {
+    public LiveData<HashMap<String, List<NotificationTopicEntity>>> getTopics() {
         if (this.topicsMap == null){
             return AbsentLiveData.create();
         }
@@ -51,7 +51,7 @@ public class NotificationsViewModel extends ViewModel {
 
     void updateSubscription(String topic, Boolean subscribe) {
 
-        if (subscribe){
+        if (subscribe) {
             FirebaseMessaging.getInstance().subscribeToTopic(topic);
         } else {
             FirebaseMessaging.getInstance().unsubscribeFromTopic(topic);

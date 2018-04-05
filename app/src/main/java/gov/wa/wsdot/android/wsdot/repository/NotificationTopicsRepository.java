@@ -5,6 +5,8 @@ import android.arch.lifecycle.MutableLiveData;
 import android.text.format.DateUtils;
 import android.util.Log;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -40,15 +42,16 @@ public class NotificationTopicsRepository extends NetworkResourceSyncRepository 
         this.notificationTopicDao = notificationTopicDao;
     }
 
-    public LiveData<List<NotificationTopicEntity>> getTopics(String idd, MutableLiveData<ResourceStatus> status) {
-
+    public LiveData<List<NotificationTopicEntity>> loadTopics(String idd, MutableLiveData<ResourceStatus> status) {
         this.iid = idd;
         this.refreshData(status, false);
         return notificationTopicDao.loadNotificationTopics();
     }
 
     public void updateSubscription(String topic, Boolean subscription){
-        getExecutor().diskIO().execute(() -> this.notificationTopicDao.updateSubscription(topic, subscription));
+        getExecutor().diskIO().execute(() -> {
+            this.notificationTopicDao.updateSubscription(topic, subscription);
+        });
     }
 
     void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {

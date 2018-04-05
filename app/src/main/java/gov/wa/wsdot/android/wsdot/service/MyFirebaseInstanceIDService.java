@@ -1,5 +1,6 @@
 package gov.wa.wsdot.android.wsdot.service;
 
+import android.content.Intent;
 import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -15,9 +16,8 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         Log.d(TAG, "Refreshed token: " + refreshedToken);
 
-        // TODO: subscribe to topics in local database
-        
+        Intent service = new Intent(this, TopicSyncService.class);
+        startService(service);
 
     }
-
 }

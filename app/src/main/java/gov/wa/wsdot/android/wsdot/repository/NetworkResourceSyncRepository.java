@@ -88,4 +88,5 @@ public abstract class NetworkResourceSyncRepository {
     // Getters for subclasses
     AppExecutors getExecutor(){ return this.appExecutors; }
     CacheRepository getCacheRepository(){ return this.cacheRepository; }
+
 }
