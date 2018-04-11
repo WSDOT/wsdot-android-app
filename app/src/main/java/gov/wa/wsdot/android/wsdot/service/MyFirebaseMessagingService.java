@@ -14,14 +14,17 @@ package gov.wa.wsdot.android.wsdot.service;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.util.TimeUtils;
@@ -36,6 +39,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.home.HomeActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.util.Utils;
@@ -55,61 +59,67 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
+        Log.e(TAG, "onMessageReceived");
+
         Map data = remoteMessage.getData();
 
         String title = "no title";
         String message = "no text";
 
-        if (remoteMessage.getNotification() != null) {
-            title = remoteMessage.getNotification().getTitle();
-            message = remoteMessage.getNotification().getBody();
+        if (data.get("title") != null) {
+            title = data.get("title").toString();
+        }
+
+        if (data.get("message") != null) {
+            message = data.get("message").toString();
         }
 
         int id = Integer.valueOf(data.get("id").toString());
 
-        Log.e(TAG, "onMessageReceived");
-        Log.e(TAG, String.valueOf(id));
-        Log.e(TAG, title);
-        Log.e(TAG, message);
-
-        // set up intent
-        Intent notificationIntent = new Intent(this, TrafficMapActivity.class);
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        notificationIntent.setAction("dummy_action" + id);
-
-        Intent upIntent = new Intent(this, HomeActivity.class);
-
-        // Use TaskStackBuilder to build the back stack and get the PendingIntent
-        PendingIntent pIntent =
-                TaskStackBuilder.create(this)
-                        // add all of DetailsActivity's parents to the stack,
-                        // followed by DetailsActivity itself
-                        .addNextIntentWithParentStack(upIntent)
-                        .addNextIntent(notificationIntent)
-                        .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        createNotification(title, message, pIntent, id);
+        if (data.get("topic").toString().startsWith("ferry_route")) {
+            startFerriesBulletinActivity(id, title, message, data);
+        }
 
     }
-    // [END receive_message]
 
-    // Creates notification
-    private void createNotification(String title, String body, PendingIntent intent, int id) {
-        Context context = getApplicationContext();
+    private void startFerriesBulletinActivity(int id, String title, String message, Map data) {
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
+        // Create an Intent for the activity you want to start
+        Intent resultIntent = new Intent(this, FerriesRouteAlertsBulletinDetailsActivity.class);
+        // Create the TaskStackBuilder and add the intent, which inflates the back stack
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+
+        Bundle b1 = new Bundle();
+        b1.putInt("routeId", Integer.valueOf(data.get("route_id").toString()));
+        b1.putInt("alertId", Integer.valueOf(data.get("alert_id").toString()));
+        b1.putString("AlertFullTitle", title);
+
+        resultIntent.putExtras(b1);
+        resultIntent.setAction("actionstring" + System.currentTimeMillis());
+        stackBuilder.addNextIntentWithParentStack(resultIntent);
+
+        Bundle b2 = new Bundle();
+        b2.putString("title", data.get("route_title").toString());
+        b2.putInt("routeId", Integer.valueOf(data.get("route_id").toString()));
+        for (int i = 0; i < stackBuilder.getIntentCount() - 1; i++){
+            stackBuilder.editIntentAt(i).putExtras(b2);
+        }
+
+        // Get the PendingIntent containing the entire back stack
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_list_wsdot).setContentTitle(title)
-                .setContentText(body)
+                .setContentText(message)
                 .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(body))
-                .setContentIntent(intent)
+                        .bigText(message))
+                .setContentIntent(resultPendingIntent)
                 .setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_LIGHTS);
 
-        NotificationManager mNotificationManager = (NotificationManager) context
-                .getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(id, builder.build());
 
-        mNotificationManager.notify(String.valueOf(id), id, mBuilder.build());
     }
 }

@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -113,6 +114,9 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
 
         viewModel.getAlert().observe(this, alert -> {
             if (alert != null) {
+
+            	Log.e(TAG, alert.getAlertDescription());
+
                 Date date = new Date(Long.parseLong(alert.getPublishDate()));
                 mAlertPublishDate = displayDateFormat.format(date);
                 mAlertDescription = alert.getAlertDescription();

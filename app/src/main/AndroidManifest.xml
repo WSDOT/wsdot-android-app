@@ -132,16 +132,66 @@
         <activity
             android:name=".ui.borderwait.BorderWaitActivity"
             android:label="@string/title_borderwait" />
+
         <activity
             android:name=".ui.ferries.FerriesActivity"
-            android:label="@string/title_ferries" />
+            android:label="@string/title_ferries"
+            android:parentActivityName=".ui.home.HomeActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name=".ui.home.HomeActivity"
+                android:value=".ui.ferries.FerriesActivity" />
+
+        </activity>
+
+
         <activity
             android:name=".ui.ferries.schedules.FerriesRouteSchedulesActivity"
-            android:label="@string/title_ferriesrouteschedules" />
-        <activity android:name=".ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity" />
-        <activity android:name=".ui.ferries.sailings.FerriesRouteSchedulesDaySailingsActivity" />
-        <activity android:name=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity" />
-        <activity android:name=".ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsActivity" />
+            android:label="@string/title_ferriesrouteschedules"
+            android:parentActivityName=".ui.ferries.FerriesActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ferries.FerriesActivity" />
+
+        </activity>
+
+        <activity android:name=".ui.ferries.sailings.FerriesRouteSchedulesDaySailingsActivity"
+            android:parentActivityName=".ui.ferries.schedules.FerriesRouteSchedulesActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ferries.schedules.FerriesRouteSchedulesActivity" />
+        </activity>
+
+        <activity
+            android:name=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity"
+            android:parentActivityName=".ui.ferries.schedules.FerriesRouteSchedulesActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ferries.schedules.FerriesRouteSchedulesActivity" />
+        </activity>
+
+        <activity
+            android:name=".ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity"
+            android:parentActivityName=".ui.ferries.sailings.FerriesRouteSchedulesDaySailingsActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ferries.sailings.FerriesRouteSchedulesDaySailingsActivity" />
+        </activity>
+
+        <activity
+            android:name=".ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsActivity"
+            android:parentActivityName=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity" />
+        </activity>
+
+
         <activity
             android:name=".ui.ferries.vesselwatch.VesselWatchMapActivity"
             android:label="@string/title_vesselwatch" />
