@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
+package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
@@ -36,7 +36,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

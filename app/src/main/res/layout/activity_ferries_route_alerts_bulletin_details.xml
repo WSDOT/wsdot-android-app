@@ -7,7 +7,7 @@
     <include layout="@layout/toolbar_actionbar"/>
 
     <fragment
-        android:name="gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsFragment"
+        android:name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinDetailsFragment"
         android:id="@+id/fragment_ferries_route_alerts_bulletin_details"
         android:layout_width="match_parent"
         android:layout_height="0dp"

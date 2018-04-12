@@ -156,7 +156,7 @@
 
         </activity>
 
-        <activity android:name=".ui.ferries.sailings.FerriesRouteSchedulesDaySailingsActivity"
+        <activity android:name=".ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsActivity"
             android:parentActivityName=".ui.ferries.schedules.FerriesRouteSchedulesActivity">
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data
@@ -165,7 +165,7 @@
         </activity>
 
         <activity
-            android:name=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity"
+            android:name=".ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinsActivity"
             android:parentActivityName=".ui.ferries.schedules.FerriesRouteSchedulesActivity">
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data
@@ -174,21 +174,21 @@
         </activity>
 
         <activity
-            android:name=".ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity"
-            android:parentActivityName=".ui.ferries.sailings.FerriesRouteSchedulesDaySailingsActivity">
+            android:name=".ui.ferries.schedules.sailings.departures.FerriesRouteSchedulesDayDeparturesActivity"
+            android:parentActivityName=".ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsActivity">
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.ferries.sailings.FerriesRouteSchedulesDaySailingsActivity" />
+                android:value=".ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsActivity" />
         </activity>
 
         <activity
-            android:name=".ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsActivity"
-            android:parentActivityName=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity">
+            android:name=".ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinDetailsActivity"
+            android:parentActivityName=".ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinsActivity">
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity" />
+                android:value=".ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinsActivity" />
         </activity>
 
 

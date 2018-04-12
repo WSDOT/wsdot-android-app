@@ -16,33 +16,21 @@ package gov.wa.wsdot.android.wsdot.service;
  */
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
-import android.util.TimeUtils;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsActivity;
-import gov.wa.wsdot.android.wsdot.ui.home.HomeActivity;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
-import gov.wa.wsdot.android.wsdot.util.Utils;
+import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinDetailsActivity;
 
 import static gov.wa.wsdot.android.wsdot.util.MyNotificationManager.ALERT_CHANNEL_ID;
 
