@@ -28,6 +28,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -180,6 +181,11 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
                 initDaySpinner();
                 terminalViewModel.loadDepartureTimesForTerminal(terminalItem);
+            } else {
+                mEmptyView.setVisibility(View.VISIBLE);
+                TextView t = (TextView) mEmptyView;
+                t.setText(R.string.no_schedule);
+                mEmptyView.setVisibility(View.VISIBLE);
             }
         });
 

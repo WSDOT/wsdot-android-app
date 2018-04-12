@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -46,8 +47,6 @@ import javax.inject.Inject;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-
-// TODO: Dagger DI stuff for this frag
 
 public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment implements Injectable {
 
@@ -125,7 +124,10 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
                 mContent = formatText(mAlertPublishDate, mAlertDescription, mAlertFullText);
 
                 webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
-            }
+            } else {
+                mContent = "<p> Alert no longer available. </p>";
+                webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
+			}
         });
 
 		return root;

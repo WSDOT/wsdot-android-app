@@ -82,6 +82,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     }
 
+    /*
+      Sets up a deep link to the Ferry bulletin details fragment with
+      a back stack set in the Manifest file.
+     */
     private void startFerriesBulletinActivity(int id, String title, String message, Map data) {
 
         // Create an Intent for the activity you want to start
@@ -101,9 +105,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Bundle b2 = new Bundle();
         b2.putString("title", data.get("route_title").toString());
         b2.putInt("routeId", Integer.valueOf(data.get("route_id").toString()));
-        for (int i = 0; i < stackBuilder.getIntentCount() - 1; i++){
-            stackBuilder.editIntentAt(i).putExtras(b2);
-        }
+
+        // set extras for the FerriesRouteAlertsBulletinsFragment
+        stackBuilder.editIntentAt(stackBuilder.getIntentCount() - 2).putExtras(b2);
 
         // Get the PendingIntent containing the entire back stack
         PendingIntent resultPendingIntent =

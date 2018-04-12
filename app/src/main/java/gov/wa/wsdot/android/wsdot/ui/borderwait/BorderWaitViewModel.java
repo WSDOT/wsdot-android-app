@@ -27,7 +27,7 @@ public class BorderWaitViewModel extends ViewModel {
     private LiveData<List<BorderWaitEntity>> borderWaits;
     private MutableLiveData<ResourceStatus> mStatus;
 
-    private MutableLiveData<BorderDirection> direction = null;
+    private MutableLiveData<BorderDirection> direction;
 
     private BorderWaitRepository borderWaitRepo;
 
