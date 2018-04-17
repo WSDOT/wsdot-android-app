@@ -134,6 +134,7 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
 		Intent intent = new Intent(getActivity(), FerriesRouteAlertsBulletinDetailsActivity.class);
         b.putInt("routeId", mId);
         b.putInt("alertId", routeAlertItems.get(position).getBulletinID());
+        b.putString("AlertFullTitle", routeAlertItems.get(position).getAlertFullTitle());
 		intent.putExtras(b);
 		startActivity(intent);		
 	}

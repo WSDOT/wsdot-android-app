@@ -30,11 +30,10 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinDetailsActivity;
 import gov.wa.wsdot.android.wsdot.util.Utils;
 
@@ -68,49 +67,97 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             message = data.get("message").toString();
         }
 
-        int id = Integer.valueOf(data.get("id").toString());
+        if (data.get("push_alert_id") != null) {
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+            int id = Integer.valueOf(data.get("push_alert_id").toString());
 
-        ArrayList<Integer> receivedAlerts = Utils.loadOrderedIntList("KEY_RECEIVED_ALERTS", settings);
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if (receivedAlerts != null) {
-            if (!receivedAlerts.contains(id)) {
+            ArrayList<Integer> receivedAlerts = Utils.loadOrderedIntList("KEY_RECEIVED_ALERTS", settings);
+
+            if (receivedAlerts != null) {
+                if (!receivedAlerts.contains(id)) {
+                    createAlert(id, title, message, data);
+                }  // if we've already seen this alert, do nothing
+            } else {
                 createAlert(id, title, message, data);
-            }  // if we've already seen this alert, do nothing
-        } else {
-            createAlert(id, title, message, data);
-            receivedAlerts = new ArrayList<>();
+                receivedAlerts = new ArrayList<>();
+            }
+
+            if (!receivedAlerts.contains(id)) {
+                receivedAlerts.add(id);
+            }
+
+            // only save the ID's of the last 20 notifications
+            if (receivedAlerts.size() > 20) {
+                receivedAlerts.remove(0);
+            }
+
+            Utils.saveOrderedList(receivedAlerts, "KEY_RECEIVED_ALERTS", settings);
+
         }
-
-        if (!receivedAlerts.contains(id)) {
-            receivedAlerts.add(id);
-        }
-
-        // only save the ID's of the last 20 notifications
-        if (receivedAlerts.size() > 20) {
-            receivedAlerts.remove(0);
-        }
-
-        Utils.saveOrderedList(receivedAlerts, "KEY_RECEIVED_ALERTS", settings);
-
     }
 
+    // Calls the appropriate alert constructor function based on the alert type.
     private void createAlert(int id, String title, String message, Map data){
 
         String alertType = data.get("type").toString();
 
         if (alertType.equals("ferry_alert")) {
-            Log.e(TAG, "got a ferry alert");
             startFerriesBulletinActivity(id, title, message, data);
         } else if (alertType.equals("highway_alert")) {
-            Log.e(TAG, "got a highway alert");
+            startHighwayAlertDetailsActivity(id, title, message, data);
         }
-
-
     }
 
+    private void startHighwayAlertDetailsActivity(int id, String title, String message, Map data) {
 
+        // Create an Intent for the activity you want to start
+        Intent resultIntent = new Intent(this, HighwayAlertDetailsActivity.class);
+        // Create the TaskStackBuilder and add the intent, which inflates the back stack
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+
+        Bundle b1 = new Bundle();
+        b1.putInt("id", Integer.valueOf(data.get("alert_id").toString()));
+        b1.putBoolean("refresh", true);
+        resultIntent.putExtras(b1);
+        resultIntent.setAction("actionstring" + System.currentTimeMillis());
+        stackBuilder.addNextIntentWithParentStack(resultIntent);
+
+        Bundle b2 = new Bundle();
+
+        if ((data.get("lat") != null && data.get("long") != null)) {
+
+            b2.putDouble("lat", Double.valueOf(data.get("lat").toString()));
+            b2.putDouble("long", Double.valueOf(data.get("long").toString()));
+            b2.putInt("zoom", 15);
+
+            Log.e(TAG, data.get("lat").toString());
+            Log.e(TAG, data.get("long").toString());
+
+        } else {
+            Log.e(TAG, "no data for bundle");
+        }
+
+        // set extras for the FerriesRouteAlertsBulletinsFragment
+        stackBuilder.editIntentAt(stackBuilder.getIntentCount() - 2).putExtras(b2);
+
+        // Get the PendingIntent containing the entire back stack
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_list_wsdot).setContentTitle(title)
+                .setContentText(message)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(message))
+                .setContentIntent(resultPendingIntent)
+                .setAutoCancel(true)
+                .setDefaults(Notification.DEFAULT_LIGHTS);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(id, builder.build());
+    }
 
     /*
       Sets up a deep link to the Ferry bulletin details fragment with

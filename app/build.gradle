@@ -9,7 +9,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 27
         versionCode 14145026
-        versionName "5.2.6"
+        versionName "5.2.6-beta"
 
         javaCompileOptions {
             annotationProcessorOptions {

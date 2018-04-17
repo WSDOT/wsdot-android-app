@@ -113,7 +113,15 @@
         <activity android:name=".ui.mountainpasses.passitem.MountainPassItemActivity" />
         <activity
             android:name=".ui.trafficmap.TrafficMapActivity"
-            android:label="@string/title_trafficmap" />
+            android:label="@string/title_trafficmap"
+            android:parentActivityName=".ui.home.HomeActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.home.HomeActivity" />
+        </activity>
+
+
         <activity
             android:name=".ui.trafficmap.alertsinarea.HighwayAlertListActivity"
             android:label="@string/title_alerts" />
@@ -139,7 +147,7 @@
             android:parentActivityName=".ui.home.HomeActivity">
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data
-                android:name=".ui.home.HomeActivity"
+                android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.ferries.FerriesActivity" />
 
         </activity>
@@ -191,7 +199,6 @@
                 android:value=".ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinsActivity" />
         </activity>
 
-
         <activity
             android:name=".ui.ferries.vesselwatch.VesselWatchMapActivity"
             android:label="@string/title_vesselwatch" />
@@ -201,7 +208,15 @@
             android:label="@string/title_tollrates" />
         <activity android:name=".ui.camera.CameraActivity" />
         <activity android:name=".ui.camera.CameraListActivity" />
-        <activity android:name=".ui.alert.detail.HighwayAlertDetailsActivity" />
+
+        <activity android:name=".ui.alert.detail.HighwayAlertDetailsActivity"
+            android:parentActivityName=".ui.trafficmap.TrafficMapActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.trafficmap.TrafficMapActivity" />
+        </activity>
+
         <activity android:name=".ui.trafficmap.restareas.RestAreaActivity" />
         <activity
             android:name=".ui.amtrakcascades.AmtrakCascadesActivity"

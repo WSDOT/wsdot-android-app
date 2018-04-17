@@ -101,8 +101,11 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
                     case LOADING:
                         mLoadingSpinner.setVisibility(View.VISIBLE);
                         break;
-                    case SUCCESS:
-                        mLoadingSpinner.setVisibility(View.GONE);
+					case SUCCESS:
+					    if (mAlertFullText == null){
+                            mContent = "<p> Alert unavailable. </p>";
+                            webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
+                        }
                         break;
                     case ERROR:
                         mLoadingSpinner.setVisibility(View.GONE);
@@ -113,9 +116,10 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
         viewModel.getAlert().observe(this, alert -> {
             if (alert != null) {
 
-            	Log.e(TAG, alert.getAlertDescription());
-
                 Date date = new Date(Long.parseLong(alert.getPublishDate()));
+
+
+
                 mAlertPublishDate = displayDateFormat.format(date);
                 mAlertDescription = alert.getAlertDescription();
                 mAlertFullText = alert.getAlertFullText();
@@ -123,10 +127,7 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
                 mContent = formatText(mAlertPublishDate, mAlertDescription, mAlertFullText);
 
                 webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
-            } else {
-                mContent = "<p> Alert no longer available. </p>";
-                webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
-			}
+            }
         });
 
 		return root;
@@ -187,7 +188,7 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
 		@Override
 		public void onPageFinished(WebView view, String url) {
 			super.onPageFinished(view, url);
-			
+
 			mLoadingSpinner.setVisibility(View.GONE);
 		}
 	}

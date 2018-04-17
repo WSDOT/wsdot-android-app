@@ -21,9 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui.alert.detail;
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,17 +35,11 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract.HighwayAlerts;
-import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
@@ -76,18 +68,48 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 
         setContentView(R.layout.activity_webview_with_spinner);
 
-        title = "";
+        title = "Highway Alert";
         description = "";
 		
 		Bundle b = getIntent().getExtras();
 		Integer id = b.getInt("id");
+		Boolean force = b.getBoolean("refresh", false);
+
+        mToolbar = findViewById(R.id.toolbar);
+        mToolbar.setTitle(title);
+        setSupportActionBar(mToolbar);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
 		viewModel = ViewModelProviders.of(this, viewModelFactory).get(HighwayAlertDetailsViewModel.class);
 
-		viewModel.getHighwayAlertfor(id).observe(this, alertItem -> {
+        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        mLoadingSpinner = findViewById(R.id.loading_spinner);
+                        mLoadingSpinner.setVisibility(View.VISIBLE);
+                        break;
+                    case SUCCESS:
+                        if (mToolbar.getTitle().toString().equals("Highway Alert")) {
+                            webview = findViewById(R.id.webview);
+                            webview.setWebViewClient(new myWebViewClient());
+                            webview.getSettings().setJavaScriptEnabled(true);
+                            webview.loadDataWithBaseURL(null, "Alert unavailable", "text/html", "utf-8", null);
+                        }
+                        break;
+                    case ERROR:
+                        mLoadingSpinner.setVisibility(View.GONE);
+                        Toast.makeText(this, "connection error, failed to load alert", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
-		    if (alertItem != null){
+		viewModel.getHighwayAlertFor(id, force).observe(this, alertItem -> {
 
+		    if (alertItem != null) {
                 title = "Highway Alert - " + alertItem.getCategory();
                 description = alertItem.getHeadline();
 
@@ -98,21 +120,15 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
                     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                     getSupportActionBar().setDisplayShowHomeEnabled(true);
                 }
-                disableAds();
-
-                mLoadingSpinner = findViewById(R.id.loading_spinner);
-                mLoadingSpinner.setVisibility(View.VISIBLE);
 
                 webview = findViewById(R.id.webview);
                 webview.setWebViewClient(new myWebViewClient());
                 webview.getSettings().setJavaScriptEnabled(true);
                 webview.loadDataWithBaseURL(null, buildContent(alertItem), "text/html", "utf-8", null);
-
-            } else {
-                Toast.makeText(this, "Error reading alert", Toast.LENGTH_LONG);
             }
         });
 
+        disableAds();
         MyLogger.crashlyticsLog("Highway Alerts", "Screen View", "HighwayAlertDetailsActivity", 1);
 	}
 

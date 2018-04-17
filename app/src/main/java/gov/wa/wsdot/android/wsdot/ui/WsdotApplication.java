@@ -90,6 +90,8 @@ public class WsdotApplication extends Application implements HasActivityInjector
         editor.putBoolean("KEY_SEEN_DRIVER_ALERT", false);
         editor.apply();
 
+
+
         Log.e(TAG, "Token: " + FirebaseInstanceId.getInstance().getToken());
 
     }
