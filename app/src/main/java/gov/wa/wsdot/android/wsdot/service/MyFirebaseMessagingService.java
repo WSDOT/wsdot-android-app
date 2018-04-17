@@ -18,7 +18,9 @@ package gov.wa.wsdot.android.wsdot.service;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -27,10 +29,14 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinDetailsActivity;
+import gov.wa.wsdot.android.wsdot.util.Utils;
 
 import static gov.wa.wsdot.android.wsdot.util.MyNotificationManager.ALERT_CHANNEL_ID;
 
@@ -64,11 +70,47 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         int id = Integer.valueOf(data.get("id").toString());
 
-        if (data.get("topic").toString().startsWith("ferry_route")) {
-            startFerriesBulletinActivity(id, title, message, data);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        ArrayList<Integer> receivedAlerts = Utils.loadOrderedIntList("KEY_RECEIVED_ALERTS", settings);
+
+        if (receivedAlerts != null) {
+            if (!receivedAlerts.contains(id)) {
+                createAlert(id, title, message, data);
+            }  // if we've already seen this alert, do nothing
+        } else {
+            createAlert(id, title, message, data);
+            receivedAlerts = new ArrayList<>();
         }
 
+        if (!receivedAlerts.contains(id)) {
+            receivedAlerts.add(id);
+        }
+
+        // only save the ID's of the last 20 notifications
+        if (receivedAlerts.size() > 20) {
+            receivedAlerts.remove(0);
+        }
+
+        Utils.saveOrderedList(receivedAlerts, "KEY_RECEIVED_ALERTS", settings);
+
     }
+
+    private void createAlert(int id, String title, String message, Map data){
+
+        String alertType = data.get("type").toString();
+
+        if (alertType.equals("ferry_alert")) {
+            Log.e(TAG, "got a ferry alert");
+            startFerriesBulletinActivity(id, title, message, data);
+        } else if (alertType.equals("highway_alert")) {
+            Log.e(TAG, "got a highway alert");
+        }
+
+
+    }
+
+
 
     /*
       Sets up a deep link to the Ferry bulletin details fragment with
@@ -114,4 +156,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationManager.notify(id, builder.build());
 
     }
+
+
 }

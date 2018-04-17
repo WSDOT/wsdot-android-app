@@ -1,7 +1,11 @@
 package gov.wa.wsdot.android.wsdot.util;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.util.SparseArray;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +13,9 @@ import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
@@ -107,6 +113,26 @@ public class Utils {
         int read;
         while ((read = in.read(b)) != -1) {
             out.write(b, 0, read);
+        }
+    }
+
+    public static void saveOrderedList(Collection collection, String key, SharedPreferences sharedPreferences){
+        JSONArray jsonArray = new JSONArray(collection);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(key, jsonArray.toString());
+        editor.apply();
+    }
+
+    public static ArrayList<Integer> loadOrderedIntList(String key, SharedPreferences sharedPreferences){
+        ArrayList<Integer> arrayList = new ArrayList<>();
+        try {
+            JSONArray jsonArray = new JSONArray(sharedPreferences.getString(key, "[]"));
+            for (int i = 0; i < jsonArray.length(); i++) {
+                arrayList.add(jsonArray.getInt(i));
+            }
+            return arrayList;
+        } catch (JSONException e){
+            return arrayList;
         }
     }
 
