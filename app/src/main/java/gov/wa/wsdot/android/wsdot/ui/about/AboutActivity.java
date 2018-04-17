@@ -107,9 +107,12 @@ public class AboutActivity extends BaseActivity {
 		sb.append("<p>To report HOV, HOT lane or ferry line violators please call <a href=\"tel:+1-877-764-4376\">1-877-764-4376</a> ");
 		sb.append("or use our <a href=\"http://www.wsdot.wa.gov/HOV/reporting\">online reporting form</a>.</p>");
 
-		sb.append("<p>Questions, comments or suggestions about this app can be e-mailed to the ");
-		sb.append("<a href=\"mailto:webfeedback@wsdot.wa.gov\">WSDOT ");
-		sb.append("Communications Office</a>.</p>");
+		sb.append("<p>If you have questions or comments about the WSDOT ferry system, please e-mail a ");
+		sb.append("<a href=\"mailto:wsfinfo@wsdot.wa.gov\"> WSF Information Agent</a>.</p>");
+
+        sb.append("<p>Questions, comments or suggestions about this app can be e-mailed to the ");
+        sb.append("<a href=\"mailto:webfeedback@wsdot.wa.gov\">WSDOT ");
+        sb.append("Communications Office</a>.</p>");
 
 		sb.append("<br/> <p style=\"color:#959595;\">App Version: ");
 		sb.append(versionName);
@@ -140,8 +143,14 @@ public class AboutActivity extends BaseActivity {
 				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 				startActivity(browserIntent);
 			} else if (url.startsWith("mailto:")) {
+
+			    // trim mailto:
+			    String email = url.substring(7);
+
+			    Log.e(TAG, email);
+
                 Intent emailIntent = new Intent(Intent.ACTION_SEND);
-                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"webfeedback@wsdot.wa.gov"});
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
                 if (versionName.equalsIgnoreCase("Not available")) {
                     emailIntent.putExtra(Intent.EXTRA_SUBJECT, "WSDOT Android App");
                 } else {
