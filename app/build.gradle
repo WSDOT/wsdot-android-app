@@ -8,8 +8,8 @@ android {
         applicationId "gov.wa.wsdot.android.wsdot"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 14145025
-        versionName "5.2.5"
+        versionCode 14145026
+        versionName "5.2.6"
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = ["room.schemaLocation":
