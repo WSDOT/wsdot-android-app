@@ -11,6 +11,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,15 +20,20 @@ import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.MyNotificationManager;
+
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 /**
  *  Service for tracking users route.
@@ -36,20 +42,22 @@ import gov.wa.wsdot.android.wsdot.util.MyNotificationManager;
 
 public class MyRouteTrackingService extends Service implements
         GoogleApiClient.OnConnectionFailedListener,
-        GoogleApiClient.ConnectionCallbacks,
-        LocationListener {
+        GoogleApiClient.ConnectionCallbacks {
 
     private static final String TAG = MyRouteTrackingService.class.getSimpleName();
 
     public static final String API_CONNECTION_ERROR_KEY = "KEY_TRACKING_ROUTE_GOOGLE_CONNECTION_ERROR";
     public static final String PERMISSION_ERROR_KEY = "KEY_TRACKING_ROUTE_LOCATION_PERMISSION_ERROR";
 
-    private static final int LOCATION_INTERVAL = 3000; // in milliseconds
+    private static final int LOCATION_INTERVAL = 3000; // in milliseconds (3 sec)
+    private static final int LOCATION_FASTEST_INTERVAL = 1000; // in milliseconds (1 sec)
+
     private static final float LOCATION_DISTANCE = 200f; // in meters
     private static final float LOCATION_ACCURACY = 100f; // in meters
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    private LocationCallback mLocationCallback;
 
     private final IBinder mBinder = new LocalBinder();
 
@@ -86,6 +94,22 @@ public class MyRouteTrackingService extends Service implements
 
     @Override
     public void onCreate() {
+        mLocationCallback = new LocationCallback() {
+
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null){
+                    return;
+                }
+                for (Location location: locationResult.getLocations()) {
+                    if (location.getAccuracy() < LOCATION_ACCURACY) {
+                        Log.e(TAG, "got a location");
+                        mRouteLocations.add(new LatLng(location.getLatitude(), location.getLongitude()));
+                    }
+                }
+            }
+        };
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -100,8 +124,7 @@ public class MyRouteTrackingService extends Service implements
         // only stop if it's connected, otherwise we crash
         if (mGoogleApiClient != null) {
             if (mGoogleApiClient.isConnected()) {
-                // Disconnecting the client invalidates it.
-                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+                getFusedLocationProviderClient(this).removeLocationUpdates(mLocationCallback);
                 mGoogleApiClient.disconnect();
             }
         }
@@ -139,12 +162,17 @@ public class MyRouteTrackingService extends Service implements
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(LOCATION_INTERVAL)
-                .setFastestInterval(0)
+                .setFastestInterval(LOCATION_FASTEST_INTERVAL)
+                .setMaxWaitTime(10000)
                 .setSmallestDisplacement(LOCATION_DISTANCE);
         // Request location updates
         try {
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
-                    mLocationRequest, this);
+
+            getFusedLocationProviderClient(this).requestLocationUpdates(mLocationRequest,
+                    mLocationCallback,
+                    Looper.myLooper());
+
+
         } catch (SecurityException e){
             Log.e(TAG, "Missing location permission");
 
@@ -154,13 +182,6 @@ public class MyRouteTrackingService extends Service implements
                 setLocationPermissionError();
             }
             stopSelf();
-        }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location.getAccuracy() < LOCATION_ACCURACY) {
-            mRouteLocations.add(new LatLng(location.getLatitude(), location.getLongitude()));
         }
     }
 

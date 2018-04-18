@@ -163,7 +163,7 @@ import static com.google.android.gms.location.LocationServices.getFusedLocationP
 
 public class TrafficMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener, ConnectionCallbacks,
-        OnConnectionFailedListener, LocationListener,
+        OnConnectionFailedListener,
         OnRequestPermissionsResultCallback, OnMapReadyCallback,
         ClusterManager.OnClusterItemClickListener<CameraItem>,
         ClusterManager.OnClusterClickListener<CameraItem> {
@@ -295,11 +295,11 @@ public class TrafficMapActivity extends BaseActivity implements
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                Log.e(TAG, "mLocationCallback!");
+
                 if (locationResult == null){
                     return;
                 }
-                onLocationChanged(locationResult.getLastLocation());
+                onNewLocation(locationResult.getLastLocation());
             }
         };
 
@@ -1439,7 +1439,7 @@ public class TrafficMapActivity extends BaseActivity implements
             if (mGoogleApiClient.isConnected()) {
                 getFusedLocationProviderClient(this).requestLocationUpdates(createLocationRequest(),
                         mLocationCallback,
-                        null);
+                        Looper.myLooper());
             }
         }
     }
@@ -1523,7 +1523,7 @@ public class TrafficMapActivity extends BaseActivity implements
         }
     }
 
-    public void onLocationChanged(Location location) {
+    public void onNewLocation(Location location) {
         // check users speed
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 
