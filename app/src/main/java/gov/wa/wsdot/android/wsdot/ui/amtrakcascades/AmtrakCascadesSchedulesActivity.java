@@ -44,6 +44,7 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -346,25 +347,13 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
 
     public void onConnectionFailed(ConnectionResult arg0) {
         // TODO Auto-generated method stub
-        
     }
 
     /**
      * Runs when a GoogleApiClient object successfully connects.
      */
     public void onConnected(Bundle connectionHint) {
-        // Provides a simple way of getting a device's location and is well suited for
-        // applications that do not require a fine-grained location and that do not need location
-        // updates. Gets the best and most recent location currently available, which may be null
-        // in rare cases when a location is not available.
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (mLastLocation != null) {
-            mLatitude = mLastLocation.getLatitude();
-            mLongitude = mLastLocation.getLongitude();
-            getDistanceFromStation(mLatitude, mLongitude);
-        } else {
-            requestLocationUpdates();
-        }
+        requestLocation();
     }
 
     public void onConnectionSuspended(int arg0) {
@@ -374,7 +363,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
     /**
      * Request location updates after checking permissions first.
      */
-    private void requestLocationUpdates() {
+    private void requestLocation() {
         if (ContextCompat.checkSelfPermission(AmtrakCascadesSchedulesActivity.this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
@@ -386,15 +375,11 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage("To receive relevant location based notifications you must allow us access to your location.");
                 builder.setTitle("Location Services");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                                ActivityCompat.requestPermissions(
-                                        AmtrakCascadesSchedulesActivity.this,
-                                        new String[] {
-                                                Manifest.permission.ACCESS_FINE_LOCATION },
-                                        REQUEST_ACCESS_FINE_LOCATION);
-                    }
-                });
+                builder.setPositiveButton("OK", (dialog, which) -> ActivityCompat.requestPermissions(
+                        AmtrakCascadesSchedulesActivity.this,
+                        new String[] {
+                                Manifest.permission.ACCESS_FINE_LOCATION },
+                        REQUEST_ACCESS_FINE_LOCATION));
                 builder.setNegativeButton("Cancel", null);
                 builder.show();
 
@@ -406,8 +391,17 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
                         REQUEST_ACCESS_FINE_LOCATION);
             }
         } else {
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    mGoogleApiClient, mLocationRequest, this);
+            LocationServices.getFusedLocationProviderClient(this).getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    mLastLocation = location;
+                    if (mLastLocation != null) {
+                        mLatitude = mLastLocation.getLatitude();
+                        mLongitude = mLastLocation.getLongitude();
+                        getDistanceFromStation(mLatitude, mLongitude);
+                    }
+                }
+            });
         }
     }
     
@@ -419,6 +413,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         // Permission granted
                         Log.i(TAG, "Request permissions granted!!!");
+                        requestLocation();
                     } else {
                         // Permission was denied or request was cancelled
                         Log.i(TAG, "Request permissions denied...");

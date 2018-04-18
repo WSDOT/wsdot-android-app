@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui.trafficmap;
 
 import android.Manifest;
 import android.animation.Animator;
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -41,6 +42,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
@@ -77,9 +79,16 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -93,6 +102,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
@@ -147,6 +159,7 @@ import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
 
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 public class TrafficMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener, ConnectionCallbacks,
@@ -156,6 +169,8 @@ public class TrafficMapActivity extends BaseActivity implements
         ClusterManager.OnClusterClickListener<CameraItem> {
 
     private static final String TAG = TrafficMapActivity.class.getSimpleName();
+
+    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     private GoogleMap mMap;
     private Handler handler = new Handler();
@@ -207,7 +222,7 @@ public class TrafficMapActivity extends BaseActivity implements
     private double longitude;
     private int zoom;
     private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocationRequest;
+
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
 
@@ -223,6 +238,8 @@ public class TrafficMapActivity extends BaseActivity implements
     private Toolbar mToolbar;
     private Tracker mTracker;
 
+    private LocationCallback mLocationCallback;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
@@ -236,7 +253,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        if(getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
@@ -275,10 +292,16 @@ public class TrafficMapActivity extends BaseActivity implements
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
 
-        mLocationRequest = LocationRequest.create()
-                .setInterval(10000)
-                .setFastestInterval(5000)
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                Log.e(TAG, "mLocationCallback!");
+                if (locationResult == null){
+                    return;
+                }
+                onLocationChanged(locationResult.getLastLocation());
+            }
+        };
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
         mapFragment.getMapAsync(this);
@@ -329,7 +352,7 @@ public class TrafficMapActivity extends BaseActivity implements
                                 showFABMenu();
                             }
                         });
-            } catch (NullPointerException e){
+            } catch (NullPointerException e) {
                 Log.e(TAG, "Null pointer exception while trying to show tip view");
             }
         }
@@ -345,7 +368,7 @@ public class TrafficMapActivity extends BaseActivity implements
         closeFABMenu();
 
         if (mGoogleApiClient.isConnected()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            getFusedLocationProviderClient(this).removeLocationUpdates(mLocationCallback);
             mGoogleApiClient.disconnect();
         }
 
@@ -523,7 +546,7 @@ public class TrafficMapActivity extends BaseActivity implements
         fabAlerts = findViewById(R.id.fabAlerts);
         fabRestareas = findViewById(R.id.fabRestareas);
 
-        if (!showCameras){
+        if (!showCameras) {
             toggleFabOff(fabCameras);
         }
 
@@ -531,7 +554,7 @@ public class TrafficMapActivity extends BaseActivity implements
             toggleFabOff(fabClusters);
         }
 
-        if (!showAlerts){
+        if (!showAlerts) {
             toggleFabOff(fabAlerts);
         }
 
@@ -540,9 +563,9 @@ public class TrafficMapActivity extends BaseActivity implements
         }
 
         fabLayers.setOnClickListener(view -> {
-            if(!isFABOpen){
+            if (!isFABOpen) {
                 showFABMenu();
-            }else{
+            } else {
                 closeFABMenu();
             }
         });
@@ -588,7 +611,7 @@ public class TrafficMapActivity extends BaseActivity implements
         Intent intent;
         if (markers.get(marker) == null) { // Not in our markers, must be cluster icon
             mClusterManager.onMarkerClick(marker);
-        } else  if (markers.get(marker).equalsIgnoreCase("camera")) {
+        } else if (markers.get(marker).equalsIgnoreCase("camera")) {
             MyLogger.crashlyticsLog("Traffic", "Tap", "Camera", 1);
             // GA tracker
             mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
@@ -632,7 +655,7 @@ public class TrafficMapActivity extends BaseActivity implements
     @Override
     public boolean onClusterClick(Cluster<CameraItem> cluster) {
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-        if (isCameraGroup(cluster)){
+        if (isCameraGroup(cluster)) {
             mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
             mTracker.setScreenName("/Traffic Map/Camera Group");
             mTracker.send(new HitBuilders.ScreenViewBuilder().build());
@@ -645,7 +668,7 @@ public class TrafficMapActivity extends BaseActivity implements
             String cameraUrls[] = new String[cluster.getSize()];
 
             int index = 0;
-            for (CameraItem camera: cluster.getItems()) {
+            for (CameraItem camera : cluster.getItems()) {
                 cameraIds[index] = camera.getCameraId();
                 cameraUrls[index] = camera.getImageUrl();
                 index++;
@@ -656,7 +679,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);
-        }else {
+        } else {
             mTracker.setScreenName("/Traffic Map/Camera Cluster");
             mTracker.send(new HitBuilders.ScreenViewBuilder().build());
             LatLngBounds.Builder builder = LatLngBounds.builder();
@@ -706,8 +729,8 @@ public class TrafficMapActivity extends BaseActivity implements
             menu_item_refresh = 1;
         }
 
-        for (int i = 0; i < menu.size(); i++){
-            switch (menu.getItem(i).getItemId()){
+        for (int i = 0; i < menu.size(); i++) {
+            switch (menu.getItem(i).getItemId()) {
                 case R.id.toggle_cameras:
                     if (showCameras) {
                         menu.getItem(i).setTitle("Hide Cameras");
@@ -920,7 +943,7 @@ public class TrafficMapActivity extends BaseActivity implements
         }
     }
 
-    private void refreshOverlays(final MenuItem item){
+    private void refreshOverlays(final MenuItem item) {
 
         // define the animation for rotation
         Animation animation = new RotateAnimation(360.0f, 0.0f,
@@ -931,14 +954,18 @@ public class TrafficMapActivity extends BaseActivity implements
 
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void onAnimationStart(Animation animation) { }
+            public void onAnimationStart(Animation animation) {
+            }
+
             @Override
             public void onAnimationEnd(Animation animation) {
                 mToolbar.getMenu().getItem(menu_item_refresh).setActionView(null);
                 mToolbar.getMenu().getItem(menu_item_refresh).setIcon(R.drawable.ic_menu_refresh);
             }
+
             @Override
-            public void onAnimationRepeat(Animation animation) {}
+            public void onAnimationRepeat(Animation animation) {
+            }
         });
         ImageView imageView = new ImageView(this, null, android.R.style.Widget_Material_ActionButton);
         imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_menu_refresh));
@@ -957,7 +984,7 @@ public class TrafficMapActivity extends BaseActivity implements
      *  When clustering is turned off all items are removed from the cluster manager and
      *  markers are plotted normally.
      */
-    private void toggleCluster(FloatingActionButton fab){
+    private void toggleCluster(FloatingActionButton fab) {
         // GA tracker
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
@@ -1020,7 +1047,7 @@ public class TrafficMapActivity extends BaseActivity implements
             if (clusterCameras) {
                 mClusterManager.clearItems();
                 mClusterManager.cluster();
-            }else {
+            } else {
                 hideCameraMarkers();
             }
 
@@ -1174,7 +1201,7 @@ public class TrafficMapActivity extends BaseActivity implements
     /**
      * Layers FAB menu logic
      */
-    private void showFABMenu(){
+    private void showFABMenu() {
         isFABOpen = true;
 
         fabLayoutCameras.setVisibility(View.VISIBLE);
@@ -1200,10 +1227,10 @@ public class TrafficMapActivity extends BaseActivity implements
             fabLabelRestareas.setPivotY(fabLabelRestareas.getHeight());
             fabLabelRestareas.setRotation(40);
 
-            fabLabelCameras.animate().translationY(-fabCameras.getHeight()/2).setDuration(0);
-            fabLabelClusters.animate().translationY(-fabClusters.getHeight()/2).setDuration(0);
-            fabLabelAlerts.animate().translationY(-fabAlerts.getHeight()/2).setDuration(0);
-            fabLabelRestareas.animate().translationY(-fabRestareas.getHeight()/2).setDuration(0);
+            fabLabelCameras.animate().translationY(-fabCameras.getHeight() / 2).setDuration(0);
+            fabLabelClusters.animate().translationY(-fabClusters.getHeight() / 2).setDuration(0);
+            fabLabelAlerts.animate().translationY(-fabAlerts.getHeight() / 2).setDuration(0);
+            fabLabelRestareas.animate().translationY(-fabRestareas.getHeight() / 2).setDuration(0);
 
             fabLayoutCameras.animate().translationX(-getResources().getDimension(R.dimen.fab_1)).setDuration(270);
             fabLayoutClusters.animate().translationX(-getResources().getDimension(R.dimen.fab_2)).setDuration(270);
@@ -1218,7 +1245,7 @@ public class TrafficMapActivity extends BaseActivity implements
         }
     }
 
-    private void closeFABMenu(){
+    private void closeFABMenu() {
 
         if (isFABOpen) {
 
@@ -1283,13 +1310,13 @@ public class TrafficMapActivity extends BaseActivity implements
         }
     }
 
-    private void toggleFabOn(FloatingActionButton fab){
+    private void toggleFabOn(FloatingActionButton fab) {
         TypedArray ta = this.getTheme().obtainStyledAttributes(R.styleable.ThemeStyles);
         fab.setBackgroundTintList(ColorStateList.valueOf(ta.getColor(R.styleable.ThemeStyles_fabButtonColor, getResources().getColor(R.color.primary_default))));
         fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_on));
     }
 
-    private void toggleFabOff(FloatingActionButton fab){
+    private void toggleFabOff(FloatingActionButton fab) {
         fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.semi_white)));
         fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_off));
     }
@@ -1324,7 +1351,7 @@ public class TrafficMapActivity extends BaseActivity implements
             restAreas.clear();
             restAreas = restAreasOverlay.getRestAreaItems();
 
-            try{
+            try {
                 for (int i = 0; i < restAreas.size(); i++) {
                     LatLng latLng = new LatLng(restAreas.get(i).getLatitude(), restAreas.get(i).getLongitude());
                     Marker marker = mMap.addMarker(new MarkerOptions()
@@ -1386,18 +1413,146 @@ public class TrafficMapActivity extends BaseActivity implements
         }
     }
 
-    public boolean onMyLocationButtonClick() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            Location location = LocationServices.FusedLocationApi
-                    .getLastLocation(mGoogleApiClient);
-            requestLocationUpdates();
 
-            if (location != null) {
-                moveToNewLocation(location);
+    private LocationRequest createLocationRequest() {
+        LocationRequest mLocationRequest = LocationRequest.create();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(8000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        return mLocationRequest;
+    }
+
+    private void enableMyLocation() {
+        if (checkPermission(true)) {
+            if (mMap != null) {
+                mMap.setMyLocationEnabled(true);
             }
         }
+    }
+
+    /**
+     * Request location updates after checking permissions first.
+     */
+    private void requestLocationUpdates() {
+        Log.e(TAG, "requesting location updates");
+        if (checkPermission(false)) {
+            if (mGoogleApiClient.isConnected()) {
+                getFusedLocationProviderClient(this).requestLocationUpdates(createLocationRequest(),
+                        mLocationCallback,
+                        null);
+            }
+        }
+    }
+
+    public boolean onMyLocationButtonClick() {
+        if (checkPermission(true)){
+            // Get last known recent location using new Google Play Services SDK (v11+)
+            FusedLocationProviderClient locationClient = getFusedLocationProviderClient(this);
+
+            locationClient.getLastLocation()
+                    .addOnSuccessListener(location -> {
+                        requestLocationUpdates();
+                        if (location != null) {
+                            moveToNewLocation(location);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.d(TAG, "Error trying to get last GPS location");
+                        e.printStackTrace();
+                    });
+        }
         return true;
+    }
+
+    private boolean checkPermission(Boolean requestIfNeeded){
+        if (ContextCompat.checkSelfPermission(TrafficMapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if(requestIfNeeded) {
+                requestPermissions();
+            }
+        } else {
+            return true;
+        }
+        return false;
+    }
+
+    private void requestPermissions() {
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(createLocationRequest());
+
+        SettingsClient client = LocationServices.getSettingsClient(this);
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+        task.addOnSuccessListener(this, locationSettingsResponse -> {
+            ActivityCompat.requestPermissions(TrafficMapActivity.this,
+                    new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_ACCESS_FINE_LOCATION);
+        });
+
+        task.addOnFailureListener(this, e -> {
+            if (e instanceof ResolvableApiException) {
+                // Location settings are not satisfied, but this can be fixed
+                // by showing the user a dialog.
+
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    try {
+                        // Show the dialog by calling startResolutionForResult(),
+                        // and check the result in onActivityResult().
+                        ResolvableApiException resolvable = (ResolvableApiException) e;
+                        resolvable.startResolutionForResult(TrafficMapActivity.this,
+                                REQUEST_CHECK_SETTINGS);
+                    } catch (IntentSender.SendIntentException sendEx) {
+                        // Ignore the error.
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    enableMyLocation();
+                    requestLocationUpdates();
+                }
+            }
+        }
+    }
+
+    public void onLocationChanged(Location location) {
+        // check users speed
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (location.getSpeed() > 9 && !settings.getBoolean("KEY_SEEN_DRIVER_ALERT", false)) {
+
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("KEY_SEEN_DRIVER_ALERT", true);
+            editor.apply();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.WSDOT_popup);
+            builder.setCancelable(false);
+            builder.setTitle("You're moving fast.");
+            builder.setMessage("Please do not use the app while driving.");
+            builder.setPositiveButton("I'm a Passenger", (dialog, id) -> {});
+            builder.create().show();
+        }
+    }
+
+    /**
+     *
+     * @param location - The new location returned from location updates
+     */
+    private void moveToNewLocation(Location location) {
+        Log.d(TAG, location.toString());
+        double currentLatitude = location.getLatitude();
+        double currentLongitude = location.getLongitude();
+        LatLng latLng = new LatLng(currentLatitude, currentLongitude);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12);
+        mMap.animateCamera(cameraUpdate);
     }
 
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -1417,98 +1572,10 @@ public class TrafficMapActivity extends BaseActivity implements
         Log.i(TAG, "Location services connected.");
     }
 
-    public void onLocationChanged(Location location) {
-        // check users speed
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if (location.getSpeed() > 9 && !settings.getBoolean("KEY_SEEN_DRIVER_ALERT", false)) {
-
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putBoolean("KEY_SEEN_DRIVER_ALERT", true);
-            editor.apply();
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.WSDOT_popup);
-            builder.setCancelable(false);
-            builder.setTitle("You're moving fast.");
-            builder.setMessage("Please do not use the app while driving.");
-            builder.setPositiveButton("I'm a Passenger", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {}
-            });
-            builder.create().show();
-        }
-    }
-
     public void onConnectionSuspended(int i) {
         Log.i(TAG, "Location services suspended. Please reconnect.");
     }
 
-    /**
-     *
-     * @param location - The new location returned from location updates
-     */
-    private void moveToNewLocation(Location location) {
-        Log.d(TAG, location.toString());
-        double currentLatitude = location.getLatitude();
-        double currentLongitude = location.getLongitude();
-        LatLng latLng = new LatLng(currentLatitude, currentLongitude);
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12);
-        mMap.animateCamera(cameraUpdate);
-    }
-
-    /**
-     * Request location updates after checking permissions first.
-     */
-    private void requestLocationUpdates() {
-        if (ContextCompat.checkSelfPermission(TrafficMapActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(TrafficMapActivity.this,
-                    new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_ACCESS_FINE_LOCATION);
-        } else {
-            if (mGoogleApiClient.isConnected()) {
-                LocationServices.FusedLocationApi.requestLocationUpdates(
-                        mGoogleApiClient, mLocationRequest, this);
-            }
-        }
-    }
-
-    /**
-     * Enables the My Location layer if the fine location permission has been granted.
-     */
-    private void enableMyLocation() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission to access the location is missing.
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_ACCESS_FINE_LOCATION);
-        } else if (mMap != null) {
-            // Access to the location has been granted to the app.
-            mMap.setMyLocationEnabled(true);
-        }
-    }
-
-    @Override
-    @SuppressWarnings({"MissingPermission"})
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_ACCESS_FINE_LOCATION) {
-            if (grantResults.length > 0 || permissions.length > 0) { // Check if request was canceled.
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
-                    Log.i(TAG, "Request permissions granted!!!");
-                    mMap.setMyLocationEnabled(true);
-                    LocationServices.FusedLocationApi.requestLocationUpdates(
-                            mGoogleApiClient, mLocationRequest, this);
-                } else {
-                    // Permission was denied or request was cancelled
-                    Log.i(TAG, "Request permissions denied...");
-                }
-            }
-        }
-    }
 
     /**
      * Based on custom renderer demo:
@@ -1683,4 +1750,6 @@ public class TrafficMapActivity extends BaseActivity implements
             }
         }
     }
+
+
 }

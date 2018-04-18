@@ -29,6 +29,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -49,22 +50,28 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,15 +93,18 @@ import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
+import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
+
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 public class VesselWatchMapActivity extends BaseActivity implements
         OnMarkerClickListener, OnMyLocationButtonClickListener,
-        OnConnectionFailedListener, ConnectionCallbacks,
-        OnCameraChangeListener, LocationListener,
+        OnConnectionFailedListener, ConnectionCallbacks, LocationListener,
 		ActivityCompat.OnRequestPermissionsResultCallback, OnMapReadyCallback, Injectable {
 
 	private static final String TAG = VesselWatchMapActivity.class.getSimpleName();
+    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     private GoogleMap mMap;
 	private Handler handler = new Handler();
@@ -112,7 +122,9 @@ public class VesselWatchMapActivity extends BaseActivity implements
     private final int REQUEST_ACCESS_FINE_LOCATION = 100;
 	private Toolbar mToolbar;
 	private ProgressBar mProgressBar;
+
     private boolean mPermissionDenied = false;
+    private LocationCallback mLocationCallback;
 
     FloatingActionButton fabLayers;
 
@@ -155,6 +167,17 @@ public class VesselWatchMapActivity extends BaseActivity implements
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
 
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                Log.e(TAG, "mLocationCallback!");
+                if (locationResult == null){
+                    return;
+                }
+                onLocationChanged(locationResult.getLastLocation());
+            }
+        };
+
         mLocationRequest = LocationRequest.create()
                 .setInterval(10000)
                 .setFastestInterval(5000)
@@ -180,11 +203,16 @@ public class VesselWatchMapActivity extends BaseActivity implements
         mMap.setTrafficEnabled(true);
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMarkerClickListener(this);
-        mMap.setOnCameraChangeListener(this);
 
         LatLng defaultLatLng = new LatLng(47.565125, -122.480508);
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLatLng, 11));
+
+        mMap.setOnCameraMoveListener(() -> {
+            if (mMap != null) {
+                mapCameraViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
+            }
+        });
 
         vesselViewModel = ViewModelProviders.of(this, viewModelFactory).get(VesselWatchViewModel.class);
 
@@ -287,30 +315,6 @@ public class VesselWatchMapActivity extends BaseActivity implements
         enableMyLocation();
     }
 
-    public void onCameraChange(CameraPosition cameraPosition) {
-        if (mMap != null) {
-            mapCameraViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
-        }
-    }
-
-    /**
-     * Enables the My Location layer if the fine location permission has been granted.
-     */
-    private void enableMyLocation() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission to access the location is missing.
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_ACCESS_FINE_LOCATION);
-        } else if (mMap != null) {
-            // Access to the location has been granted to the app.
-            mMap.setMyLocationEnabled(true);
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -322,7 +326,7 @@ public class VesselWatchMapActivity extends BaseActivity implements
         super.onPause();
         
         if (mGoogleApiClient.isConnected()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            getFusedLocationProviderClient(this).removeLocationUpdates(mLocationCallback);
             mGoogleApiClient.disconnect();
         }
         if (timer != null) {
@@ -510,22 +514,6 @@ public class VesselWatchMapActivity extends BaseActivity implements
         }
     }
 
-    public boolean onMyLocationButtonClick() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-
-            Location location = LocationServices.FusedLocationApi
-                    .getLastLocation(mGoogleApiClient);
-
-            if (location == null) {
-                requestLocationUpdates();
-            } else {
-                handleNewLocation(location);
-            }
-        }
-
-        return true;
-    }
 
     /*
      * Called by Location Services if the attempt to
@@ -551,17 +539,6 @@ public class VesselWatchMapActivity extends BaseActivity implements
      */
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "Location services connected.");
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-
-            Location location = LocationServices.FusedLocationApi
-                    .getLastLocation(mGoogleApiClient);
-
-            if (location == null) {
-                requestLocationUpdates();
-            }
-        }
     }
 
     public void onLocationChanged(Location arg0) {
@@ -585,63 +562,117 @@ public class VesselWatchMapActivity extends BaseActivity implements
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12);
         mMap.animateCamera(cameraUpdate);
     }
-    
+
+
+    private LocationRequest createLocationRequest() {
+        LocationRequest mLocationRequest = LocationRequest.create();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(8000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        return mLocationRequest;
+    }
+
+    private void enableMyLocation() {
+        if (checkPermission(true)) {
+            if (mMap != null) {
+                mMap.setMyLocationEnabled(true);
+            }
+        }
+    }
+
     /**
      * Request location updates after checking permissions first.
      */
     private void requestLocationUpdates() {
-        if (ContextCompat.checkSelfPermission(VesselWatchMapActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    VesselWatchMapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show explanation to user explaining why we need the permission
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage("To receive relevant location based notifications you must allow us access to your location.");
-                builder.setTitle("Location Services");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                                ActivityCompat.requestPermissions(
-                                        VesselWatchMapActivity.this,
-                                        new String[] {
-                                                Manifest.permission.ACCESS_FINE_LOCATION },
-                                        REQUEST_ACCESS_FINE_LOCATION);
-                    }
-                });
-                builder.setNegativeButton("Cancel", null);
-                builder.show();
-
-            } else {
-                // No explanation needed, we can request the permission
-                ActivityCompat.requestPermissions(VesselWatchMapActivity.this,
-                        new String[] {
-                                Manifest.permission.ACCESS_FINE_LOCATION },
-                        REQUEST_ACCESS_FINE_LOCATION);
+        Log.e(TAG, "requesting location updates");
+        if (checkPermission(true)) {
+            if (mGoogleApiClient.isConnected()) {
+                getFusedLocationProviderClient(this).requestLocationUpdates(createLocationRequest(),
+                        mLocationCallback,
+                        Looper.myLooper());
             }
-        } else {
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    mGoogleApiClient, mLocationRequest, this);
         }
     }
-    
+
+
+    public boolean onMyLocationButtonClick() {
+        if (checkPermission(true)){
+            // Get last known recent location using new Google Play Services SDK (v11+)
+            FusedLocationProviderClient locationClient = getFusedLocationProviderClient(this);
+
+            locationClient.getLastLocation()
+                    .addOnSuccessListener(location -> {
+                        requestLocationUpdates();
+                        if (location != null) {
+                            handleNewLocation(location);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.d(TAG, "Error trying to get last GPS location");
+                        e.printStackTrace();
+                    });
+        }
+        return true;
+    }
+
+    private boolean checkPermission(Boolean requestIfNeeded){
+        if (ContextCompat.checkSelfPermission(VesselWatchMapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (requestIfNeeded){
+                requestPermissions();
+            }
+        } else {
+            return true;
+        }
+        return false;
+    }
+
+    private void requestPermissions() {
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(createLocationRequest());
+
+        SettingsClient client = LocationServices.getSettingsClient(this);
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+        task.addOnSuccessListener(this, locationSettingsResponse -> {
+            ActivityCompat.requestPermissions(VesselWatchMapActivity.this,
+                    new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_ACCESS_FINE_LOCATION);
+        });
+
+        task.addOnFailureListener(this, e -> {
+            if (e instanceof ResolvableApiException) {
+                // Location settings are not satisfied, but this can be fixed
+                // by showing the user a dialog.
+
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    try {
+                        // Show the dialog by calling startResolutionForResult(),
+                        // and check the result in onActivityResult().
+                        ResolvableApiException resolvable = (ResolvableApiException) e;
+                        resolvable.startResolutionForResult(VesselWatchMapActivity.this,
+                                REQUEST_CHECK_SETTINGS);
+                    } catch (IntentSender.SendIntentException sendEx) {
+                        // Ignore the error.
+                    }
+                }
+            }
+        });
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == REQUEST_ACCESS_FINE_LOCATION) {
-            if (grantResults.length > 0 || permissions.length > 0) { // Check if request was canceled.
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
-                    Log.i(TAG, "Request permissions granted!!!");
-                    mMap.setMyLocationEnabled(true);
-                    LocationServices.FusedLocationApi.requestLocationUpdates(
-                            mGoogleApiClient, mLocationRequest, this);
-                } else {
-                    // Permission was denied or request was cancelled
-                    Log.i(TAG, "Request permissions denied...");
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+
+        switch (requestCode) {
+            case REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    enableMyLocation();
+                    requestLocationUpdates();
+
                 }
             }
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
