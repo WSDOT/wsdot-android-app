@@ -24,6 +24,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -153,6 +154,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .bigText(message))
                 .setContentIntent(resultPendingIntent)
                 .setAutoCancel(true)
+                .setColor(ContextCompat.getColor(this, R.color.primary_default))
+                .setGroup("traffic")
                 .setDefaults(Notification.DEFAULT_LIGHTS);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
@@ -196,6 +199,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(message))
                 .setContentIntent(resultPendingIntent)
+                .setColor(ContextCompat.getColor(this, R.color.primary_default))
+                .setGroup("ferries")
                 .setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_LIGHTS);
 

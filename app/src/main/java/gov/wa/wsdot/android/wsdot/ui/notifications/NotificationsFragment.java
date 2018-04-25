@@ -77,7 +77,6 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
-        mLoadingSpinner.setVisibility(View.VISIBLE);
 
         mEmptyView = root.findViewById( R.id.empty_list_view );
         mEmptyView.setVisibility(View.GONE);
@@ -90,11 +89,15 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
+                        mLoadingSpinner.setVisibility(View.VISIBLE);
                         break;
                     case SUCCESS:
+                        mLoadingSpinner.setVisibility(View.INVISIBLE);
                         break;
                     case ERROR:
                         Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
+
+                        mLoadingSpinner.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -102,7 +105,6 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
         viewModel.getTopics().observe(this, topics -> {
             if (topics != null) {
                 mAdapter.setData(topics);
-                mLoadingSpinner.setVisibility(View.GONE);
             }
         });
         return root;
