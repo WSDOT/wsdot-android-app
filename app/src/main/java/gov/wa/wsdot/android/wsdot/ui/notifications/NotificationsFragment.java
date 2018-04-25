@@ -8,23 +8,22 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -32,7 +31,6 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class NotificationsFragment extends BaseFragment implements Injectable {
@@ -40,10 +38,8 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
     private static final String TAG = NotificationsFragment.class.getSimpleName();
     private View mEmptyView;
 
-
     private static TopicAdapter mAdapter;
-    protected RecyclerView mRecyclerView;
-    protected LinearLayoutManager mLayoutManager;
+    protected ExpandableListView mExpandableView;
     private View mLoadingSpinner;
 
     public static final int HEADER_VIEWTYPE = 0;
@@ -58,18 +54,12 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_expandable, null);
 
-        mRecyclerView = root.findViewById(R.id.my_recycler_view);
-        mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        mExpandableView = root.findViewById(R.id.my_expandable_view);
 
         mAdapter = new TopicAdapter(getActivity());
-        mRecyclerView.setAdapter(mAdapter);
-
-        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
+        mExpandableView.setAdapter(mAdapter);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -110,16 +100,11 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
         return root;
     }
 
-    /**
-     * Custom adapter for items in recycler view.
-     *
-     * Binds the custom ViewHolder class to it's data.
-     *
-     * @see android.support.v7.widget.RecyclerView.Adapter
-     */
-    private class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private class TopicAdapter extends BaseExpandableListAdapter {
+
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private Context context;
+
         private HashMap<String, List<NotificationTopicEntity>> mData = new HashMap<>();
 
         public TopicAdapter(Context context) {
@@ -132,139 +117,129 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
         }
 
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-            View itemView;
-            switch (viewType) {
-                case TOPIC_VIEWTYPE:
-                    View view = LayoutInflater.from(context).inflate(R.layout.list_item_with_checkbox, null);
-                    TopicViewHolder viewholder = new TopicViewHolder(view);
-                    view.setTag(viewholder);
-                    return viewholder;
-                case HEADER_VIEWTYPE:
-                    itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_header, parent, false);
-                    return new HeaderViewHolder(itemView);
-                default:
-                    MyLogger.crashlyticsLog("Notifications", "Error", "FavoritesFragment: No matching view type for type: " + viewType, 1);
-                    Log.e(TAG, "No matching view type for type: " + viewType);
-                }
-            return null;
+        public Object getChild(int groupPosition, int childPosition) {
+            String key = (String) mData.keySet().toArray()[groupPosition];
+            return mData.get(key).get(childPosition);
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        public long getChildId(int groupPosition, int childPosition) {
+            return childPosition;
+        }
 
-            if (viewHolder instanceof HeaderViewHolder){
+        @Override
+        public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
+                                 View view, ViewGroup parent) {
 
-                HeaderViewHolder viewholder = (HeaderViewHolder) viewHolder;
+            NotificationTopicEntity topic = (NotificationTopicEntity) mAdapter.getChild(groupPosition, childPosition);
 
-                String title = (String) mAdapter.getItem(position);
+            if (view == null) {
+                LayoutInflater infalInflater = (LayoutInflater)
+                        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = infalInflater.inflate(R.layout.list_item_with_checkbox, null);
+            }
 
-                viewholder.title.setText(title);
-                viewholder.title.setTypeface(tfb);
+            TopicViewHolder topicViewHolder = new TopicViewHolder(view);
 
-                viewholder.divider.setVisibility(View.GONE);
+            String title = topic.getTitle();
+            topicViewHolder.title.setText(title);
+            topicViewHolder.title.setTypeface(tfb);
 
-            } else {
+            // Seems when Android recycles the views, the onCheckedChangeListener is still active
+            // and the call to setChecked() causes that code within the listener to run repeatedly.
+            // Assigning null to setOnCheckedChangeListener seems to fix it.
+            topicViewHolder.subscribed_button.setOnCheckedChangeListener(null);
+            topicViewHolder.subscribed_button.setContentDescription("subscribe");
+            topicViewHolder.subscribed_button.setChecked(topic.getSubscribed());
+            topicViewHolder.subscribed_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                TopicViewHolder topicViewHolder = (TopicViewHolder) viewHolder;
+                    Snackbar added_snackbar = Snackbar
+                            .make(getView(), "subscribed to " + topic.getTitle(), Snackbar.LENGTH_SHORT);
 
-                NotificationTopicEntity topic = (NotificationTopicEntity) mAdapter.getItem(position);
+                    Snackbar removed_snackbar = Snackbar
+                            .make(getView(), "unsubscribed from " + topic.getTitle(), Snackbar.LENGTH_SHORT);
 
-                String title = topic.getTitle();
-                topicViewHolder.title.setText(title);
-                topicViewHolder.title.setTypeface(tfb);
-
-                // Seems when Android recycles the views, the onCheckedChangeListener is still active
-                // and the call to setChecked() causes that code within the listener to run repeatedly.
-                // Assigning null to setOnCheckedChangeListener seems to fix it.
-                topicViewHolder.subscribed_button.setOnCheckedChangeListener(null);
-                topicViewHolder.subscribed_button.setContentDescription("subscribe");
-                topicViewHolder.subscribed_button.setChecked(topic.getSubscribed());
-                topicViewHolder.subscribed_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                        Snackbar added_snackbar = Snackbar
-                                .make(getView(), "subscribed to " + topic.getTitle(), Snackbar.LENGTH_SHORT);
-
-                        Snackbar removed_snackbar = Snackbar
-                                .make(getView(), "unsubscribed from " + topic.getTitle(), Snackbar.LENGTH_SHORT);
-
-                        added_snackbar.addCallback(new Snackbar.Callback() {
-                            @Override
-                            public void onShown(Snackbar snackbar) {
-                                super.onShown(snackbar);
-                                snackbar.getView().setContentDescription("subscribed to " + topic.getTitle());
-                                snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
-                            }
-                        });
-
-                        removed_snackbar.addCallback(new Snackbar.Callback() {
-                            @Override
-                            public void onShown(Snackbar snackbar) {
-                                super.onShown(snackbar);
-                                snackbar.getView().setContentDescription("unsubscribed from " + topic.getTitle());
-                                snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
-                            }
-                        });
-
-                        if (isChecked) {
-                            added_snackbar.show();
-                        } else {
-                            removed_snackbar.show();
+                    added_snackbar.addCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onShown(Snackbar snackbar) {
+                            super.onShown(snackbar);
+                            snackbar.getView().setContentDescription("subscribed to " + topic.getTitle());
+                            snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
                         }
+                    });
 
-                        viewModel.updateSubscription(topic.getTopic(), isChecked);
+                    removed_snackbar.addCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onShown(Snackbar snackbar) {
+                            super.onShown(snackbar);
+                            snackbar.getView().setContentDescription("unsubscribed from " + topic.getTitle());
+                            snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+                        }
+                    });
+
+                    if (isChecked) {
+                        added_snackbar.show();
+                    } else {
+                        removed_snackbar.show();
                     }
-                });
-            }
-        }
 
-        public Object getItem(int position){
+                    viewModel.updateSubscription(topic.getTopic(), isChecked);
+                }
+            });
 
-            for (Map.Entry<String, List<NotificationTopicEntity>> entry : mData.entrySet()) {
-
-                int size = entry.getValue().size() + 1;
-
-                // check if position inside this section
-                if (position == 0 && size > 0) return entry.getKey();
-                if (position < size) return entry.getValue().get(position - 1);
-
-                position -= size;
-            }
-
-            return -1;
+            return view;
         }
 
         @Override
-        public int getItemCount() {
-
-            int count = 0;
-
-            // Iterating over values only
-            for (List<NotificationTopicEntity> value : mData.values()) {
-                count += value.size() + 1; // +1 for header
-            }
-
-            return count;
+        public int getChildrenCount(int groupPosition) {
+            String key = (String) mData.keySet().toArray()[groupPosition];
+            return mData.get(key).size();
         }
 
+        @Override
+        public Object getGroup(int groupPosition) {
+            String key = (String) mData.keySet().toArray()[groupPosition];
+            return key;
+        }
 
         @Override
-        public int getItemViewType(int position) {
+        public int getGroupCount() {
+            return mData.keySet().size();
+        }
 
-            for (Map.Entry<String, List<NotificationTopicEntity>> entry : mData.entrySet()) {
+        @Override
+        public long getGroupId(int groupPosition) {
+            return groupPosition;
+        }
 
-                int size = entry.getValue().size() + 1;
+        @Override
+        public View getGroupView(int groupPosition, boolean isLastChild, View view,
+                                 ViewGroup parent) {
 
-                // check if position inside this section
-                if (position == 0 && size > 0) return HEADER_VIEWTYPE;
-                if (position < size) return TOPIC_VIEWTYPE;
+            String header = (String) getGroup(groupPosition);
 
-                position -= size;
+            if (view == null) {
+                LayoutInflater inf = (LayoutInflater)
+                        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inf.inflate(R.layout.expandable_list_header_title, parent, false);
             }
 
-            return -1;
+            HeaderViewHolder headerViewHolder = new HeaderViewHolder(view);
+
+            headerViewHolder.title.setText(header);
+
+            return view;
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return true;
+        }
+
+        @Override
+        public boolean isChildSelectable(int groupPosition, int childPosition) {
+            return false;
         }
 
         private class TopicViewHolder extends RecyclerView.ViewHolder {
@@ -282,13 +257,13 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
 
         private class HeaderViewHolder extends RecyclerView.ViewHolder {
             TextView title;
-            LinearLayout divider;
 
             public HeaderViewHolder(View view) {
                 super(view);
                 title = view.findViewById(R.id.list_header_title);
-                divider = view.findViewById(R.id.divider);
             }
         }
+
     }
+
 }

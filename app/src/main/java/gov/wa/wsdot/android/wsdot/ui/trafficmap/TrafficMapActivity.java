@@ -230,6 +230,8 @@ public class TrafficMapActivity extends BaseActivity implements
     private static MapCameraViewModel mapCameraViewModel;
     private static FavoriteMapLocationViewModel favoriteMapLocationViewModel;
 
+    private boolean extrasRead = false;
+
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
@@ -279,13 +281,23 @@ public class TrafficMapActivity extends BaseActivity implements
         zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
 
         // Check if we came from favorites/MyRoutes/alert
-        Bundle b = getIntent().getExtras();
-        if (getIntent().hasExtra("lat"))
-            latitude = b.getDouble("lat");
-        if (getIntent().hasExtra("long"))
-            longitude = b.getDouble("long");
-        if (getIntent().hasExtra("zoom"))
-            zoom = b.getInt("zoom");
+        if (savedInstanceState != null ) {
+            extrasRead = savedInstanceState.getBoolean("read_extras", false);
+        }
+
+        if (!extrasRead) {
+            Bundle b = getIntent().getExtras();
+            if (b != null) {
+                if (getIntent().hasExtra("lat"))
+                    latitude = b.getDouble("lat", latitude);
+                if (getIntent().hasExtra("long"))
+                    longitude = b.getDouble("long", longitude);
+                if (getIntent().hasExtra("zoom"))
+                    zoom = b.getInt("zoom", zoom);
+                getIntent().getExtras().clear();
+            }
+            extrasRead = true;
+        }
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -1751,5 +1763,8 @@ public class TrafficMapActivity extends BaseActivity implements
         }
     }
 
-
+    protected void onSaveInstanceState (Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("read_extras", extrasRead);
+    }
 }
