@@ -58,7 +58,7 @@ public class NotificationTopicsRepository extends NetworkResourceSyncRepository 
 
         List<NotificationTopicEntity> topicEntities = new ArrayList<>();
 
-        URL url = new URL(APIEndPoints.FIREBASE_TOPICS); //+ iid);
+        URL url = new URL(APIEndPoints.FIREBASE_TOPICS);
 
         URLConnection urlConn = url.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
@@ -82,7 +82,6 @@ public class NotificationTopicsRepository extends NetworkResourceSyncRepository 
                     topicJSON.getString("topic"),
                     topicJSON.getString("title"),
                     topicJSON.getString("category"),
-                    // topicJSON.getBoolean("subscribed")
                     false
             );
 

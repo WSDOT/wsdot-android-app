@@ -97,12 +97,19 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
                             webview = findViewById(R.id.webview);
                             webview.setWebViewClient(new myWebViewClient());
                             webview.getSettings().setJavaScriptEnabled(true);
-                            webview.loadDataWithBaseURL(null, "Alert unavailable", "text/html", "utf-8", null);
+                            webview.loadDataWithBaseURL(null, "<p>Sorry, this alert has expired.</p>", "text/html", "utf-8", null);
                         }
                         break;
                     case ERROR:
-                        mLoadingSpinner.setVisibility(View.GONE);
-                        Toast.makeText(this, "connection error, failed to load alert", Toast.LENGTH_SHORT).show();
+                        if (mToolbar.getTitle().toString().equals("Highway Alert")) {
+                            mLoadingSpinner.setVisibility(View.GONE);
+                            webview = findViewById(R.id.webview);
+                            webview.setWebViewClient(new myWebViewClient());
+                            webview.getSettings().setJavaScriptEnabled(true);
+                            webview.loadDataWithBaseURL(null, "Connection error, failed to load alert.", "text/html", "utf-8", null);
+                        } else {
+                            Toast.makeText(this, "Connection error", Toast.LENGTH_LONG).show();
+                        }
                 }
             }
         });

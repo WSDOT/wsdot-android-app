@@ -71,6 +71,9 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
         mEmptyView = root.findViewById( R.id.empty_list_view );
         mEmptyView.setVisibility(View.GONE);
 
+        TextView emptyText = (TextView) mEmptyView;
+        emptyText.setText("Notifications unavailable.");
+
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(NotificationsViewModel.class);
 
         viewModel.init(FirebaseInstanceId.getInstance().getToken());
@@ -83,10 +86,9 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                         break;
                     case SUCCESS:
                         mLoadingSpinner.setVisibility(View.INVISIBLE);
-                        break;
+                         break;
                     case ERROR:
                         Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
-
                         mLoadingSpinner.setVisibility(View.INVISIBLE);
                 }
             }
@@ -95,6 +97,13 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
         viewModel.getTopics().observe(this, topics -> {
             if (topics != null) {
                 mAdapter.setData(topics);
+                if (topics.size() == 0){
+                    if (mLoadingSpinner.getVisibility() == View.INVISIBLE) {
+                        mEmptyView.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    mEmptyView.setVisibility(View.GONE);
+                }
             }
         });
         return root;

@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -103,12 +104,18 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
                         break;
 					case SUCCESS:
 					    if (mAlertFullText == null){
-                            mContent = "<p> Alert unavailable. </p>";
+                            mContent = "<p>Sorry, this bulletin has expired.</p>";
                             webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
                         }
                         break;
                     case ERROR:
-                        mLoadingSpinner.setVisibility(View.GONE);
+                        if (mAlertFullText == null) {
+                            mLoadingSpinner.setVisibility(View.GONE);
+                            mContent = "<p>Connection error, failed to load bulletin.</p>";
+                            webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
+                        } else {
+                            Toast.makeText(getContext(), "Connection error", Toast.LENGTH_LONG).show();
+                        }
                 }
             }
         });

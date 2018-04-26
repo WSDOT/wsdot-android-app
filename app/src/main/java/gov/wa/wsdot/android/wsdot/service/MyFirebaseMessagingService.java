@@ -19,6 +19,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -146,20 +147,34 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Get the PendingIntent containing the entire back stack
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_list_wsdot).setContentTitle(title)
-                .setContentText(message)
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(message))
-                .setContentIntent(resultPendingIntent)
-                .setAutoCancel(true)
-                .setColor(ContextCompat.getColor(this, R.color.primary_default))
-                .setGroup("traffic")
-                .setDefaults(Notification.DEFAULT_LIGHTS);
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(id, builder.build());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_list_wsdot)
+                    .setContentTitle(title)
+                    .setContentText(message)
+                    .setChannelId(ALERT_CHANNEL_ID)
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(message))
+                    .setContentIntent(resultPendingIntent)
+                    .setColor(ContextCompat.getColor(this, R.color.primary_default))
+                    .setAutoCancel(true)
+                    .setGroup(String.valueOf(System.currentTimeMillis()))
+                    .setDefaults(Notification.DEFAULT_LIGHTS);
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            notificationManager.notify(id, builder.build());
+        }else {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.ic_list_wsdot)
+                    .setContentTitle(title)
+                    .setContentText(message)
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(message))
+                    .setContentIntent(resultPendingIntent)
+                    .setWhen(0)
+                    .setDefaults(Notification.DEFAULT_LIGHTS);
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            notificationManager.notify(id, builder.build());
+        }
     }
 
     /*
@@ -193,21 +208,36 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_list_wsdot).setContentTitle(title)
-                .setContentText(message)
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(message))
-                .setContentIntent(resultPendingIntent)
-                .setColor(ContextCompat.getColor(this, R.color.primary_default))
-                .setGroup("ferries")
-                .setAutoCancel(true)
-                .setDefaults(Notification.DEFAULT_LIGHTS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_list_wsdot)
+                    .setContentTitle(title)
+                    .setContentText(message)
+                    .setChannelId(ALERT_CHANNEL_ID)
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(message))
+                    .setContentIntent(resultPendingIntent)
+                    .setColor(ContextCompat.getColor(this, R.color.primary_default))
+                    .setAutoCancel(true)
+                    .setGroup(String.valueOf(System.currentTimeMillis()))
+                    .setDefaults(Notification.DEFAULT_LIGHTS);
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            notificationManager.notify(id, builder.build());
+        } else {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.ic_list_wsdot)
+                    .setContentTitle(title)
+                    .setContentText(message)
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(message))
+                    .setContentIntent(resultPendingIntent)
+                    .setWhen(0)
+                    .setDefaults(Notification.DEFAULT_LIGHTS);
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            notificationManager.notify(id, builder.build());
+        }
 
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(id, builder.build());
+
 
     }
-
-
 }
