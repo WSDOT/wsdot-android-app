@@ -47,6 +47,8 @@ public class EventService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+
+        // Check if we have an active event for the event banner
         try {
             URL url = new URL(APIEndPoints.EVENT);
 
@@ -79,5 +81,35 @@ public class EventService extends IntentService {
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "Error: " + e.getMessage());
         }
+
+        // Check if there is a new list of notification topics.
+        try {
+            URL url = new URL(APIEndPoints.FIREBASE_TOPICS_VERSION);
+
+            URLConnection urlConn = url.openConnection();
+
+            BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
+            InputStreamReader is = new InputStreamReader(bis);
+            BufferedReader in = new BufferedReader(is);
+
+            String jsonFile = "";
+            String line;
+            while ((line = in.readLine()) != null)
+                jsonFile += line;
+            in.close();
+
+            JSONObject obj = new JSONObject(jsonFile);
+
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = sharedPref.edit();
+
+            editor.putInt(getString(R.string.new_firebase_notification_topics_version), obj.getInt("version"));
+
+            editor.commit();
+
+        } catch (Exception e) {
+            Log.e(DEBUG_TAG, "Error: " + e.getMessage());
+        }
+
     }
 }

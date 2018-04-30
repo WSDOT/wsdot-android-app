@@ -58,9 +58,10 @@ public class APIEndPoints {
     public static final String YOUTUBE = "https://www.googleapis.com/youtube/v3/playlistItems";
     public static final String YOUTUBE_WATCH = "http://www.youtube.com/watch";
 
-    // Other
+    // Banner Events
     public static final String EVENT = "http://data.wsdot.wa.gov/mobile/EventStatus.js";
 
-    //public static final String FIREBASE_TOPICS = "http://164.110.144.168:3003/fcm/user/topics/";
-    public static final String FIREBASE_TOPICS =  "http://data.wsdot.wa.gov/mobile/notification_topics_TEST.js";
+    // Notification Topics
+    public static final String FIREBASE_TOPICS =  "http://data.wsdot.wa.gov/mobile/NotificationTopics.js";
+    public static final String FIREBASE_TOPICS_VERSION = "http://data.wsdot.wa.gov/mobile/NotificationTopicsVersion.js";
 }

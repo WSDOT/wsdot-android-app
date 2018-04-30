@@ -164,10 +164,10 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                     Snackbar added_snackbar = Snackbar
-                            .make(getView(), "subscribed to " + topic.getTitle(), Snackbar.LENGTH_SHORT);
+                            .make(getView(), "Subscribed to " + topic.getTitle(), Snackbar.LENGTH_SHORT);
 
                     Snackbar removed_snackbar = Snackbar
-                            .make(getView(), "unsubscribed from " + topic.getTitle(), Snackbar.LENGTH_SHORT);
+                            .make(getView(), "Unsubscribed from " + topic.getTitle(), Snackbar.LENGTH_SHORT);
 
                     added_snackbar.addCallback(new Snackbar.Callback() {
                         @Override
@@ -272,7 +272,5 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                 title = view.findViewById(R.id.list_header_title);
             }
         }
-
     }
-
 }

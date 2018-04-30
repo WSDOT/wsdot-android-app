@@ -54,8 +54,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
-        Log.e(TAG, "onMessageReceived");
-
         Map data = remoteMessage.getData();
 
         String title = "no title";
@@ -134,11 +132,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             b2.putDouble("long", Double.valueOf(data.get("long").toString()));
             b2.putInt("zoom", 15);
 
-            Log.e(TAG, data.get("lat").toString());
-            Log.e(TAG, data.get("long").toString());
-
         } else {
-            Log.e(TAG, "no data for bundle");
+            Log.i(TAG, "no data for bundle");
         }
 
         // set extras for the FerriesRouteAlertsBulletinsFragment
