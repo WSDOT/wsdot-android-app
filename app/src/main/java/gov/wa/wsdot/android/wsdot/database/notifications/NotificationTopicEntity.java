@@ -19,9 +19,11 @@ public class NotificationTopicEntity {
     @ColumnInfo(name = "category")
     public String category;
 
+    @NonNull
     @ColumnInfo(name = "subscribed")
     public Boolean subscribed;
 
+    @NonNull
     @ColumnInfo(name = "remove")
     public Boolean remove;
 
