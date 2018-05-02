@@ -128,14 +128,10 @@ public class HomeActivity extends BaseActivity implements Injectable {
         startService(new Intent(this, EventService.class));
 
         final Handler handler = new Handler();
-        handler.postDelayed(this::displayNotificationTipView, 2000);
+        handler.postDelayed(this::displayNotificationTipView, 1500);
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
