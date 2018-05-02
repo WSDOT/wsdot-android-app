@@ -104,6 +104,8 @@ public class EventService extends IntentService {
             SharedPreferences.Editor editor = sharedPref.edit();
 
             editor.putInt(getString(R.string.new_firebase_notification_topics_version), obj.getInt("version"));
+            editor.putString(getString(R.string.firebase_notification_title), obj.getString("title"));
+            editor.putString(getString(R.string.firebase_notification_description), obj.getString("description"));
 
             editor.commit();
 

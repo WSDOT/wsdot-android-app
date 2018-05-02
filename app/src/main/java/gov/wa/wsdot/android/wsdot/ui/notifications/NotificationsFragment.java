@@ -20,6 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.HashMap;
@@ -31,11 +33,15 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class NotificationsFragment extends BaseFragment implements Injectable {
 
     private static final String TAG = NotificationsFragment.class.getSimpleName();
+
+    private Tracker mTracker;
+
     private View mEmptyView;
 
     private static TopicAdapter mAdapter;
@@ -173,7 +179,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                         @Override
                         public void onShown(Snackbar snackbar) {
                             super.onShown(snackbar);
-                            snackbar.getView().setContentDescription("subscribed to " + topic.getTitle());
+                            snackbar.getView().setContentDescription("Subscribed to " + topic.getTitle());
                             snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
                         }
                     });
@@ -182,15 +188,27 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                         @Override
                         public void onShown(Snackbar snackbar) {
                             super.onShown(snackbar);
-                            snackbar.getView().setContentDescription("unsubscribed from " + topic.getTitle());
+                            snackbar.getView().setContentDescription("Unsubscribed from " + topic.getTitle());
                             snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
                         }
                     });
 
                     if (isChecked) {
                         added_snackbar.show();
+                        mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Button Tap")
+                                .setAction("Subscribed")
+                                .setLabel("Notifications")
+                                .build());
                     } else {
                         removed_snackbar.show();
+                        mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Button Tap")
+                                .setAction("Unsubscribed")
+                                .setLabel("Notifications")
+                                .build());
                     }
 
                     viewModel.updateSubscription(topic.getTopic(), isChecked);

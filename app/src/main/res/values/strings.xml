@@ -121,6 +121,8 @@
     <string name="no_schedule">Schedule currently unavailable</string>
     <string name="firebase_notification_topics_version">firebase_notification_topics_version</string>
     <string name="new_firebase_notification_topics_version">new_firebase_notification_topics_version</string>
+    <string name="firebase_notification_description">firebase_notification_description</string>
+    <string name="firebase_notification_title">firebase_notification_title</string>
 
 
 </resources>

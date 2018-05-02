@@ -83,7 +83,6 @@
 
         <service android:name=".service.MyRouteTrackingService" />
         <service android:name=".service.EventService" />
-        <service android:name=".service.TopicSyncService" />
 
 
         <activity

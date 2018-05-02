@@ -37,6 +37,7 @@ import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,12 +166,21 @@ public class HomeActivity extends BaseActivity implements Injectable {
         int topicVersion = settings.getInt(getString(R.string.firebase_notification_topics_version), 0);
         int newTopicVersion = settings.getInt(getString(R.string.new_firebase_notification_topics_version), 0);
 
+        String title = settings.getString(getString(R.string.firebase_notification_title), "New Notifications Available");
+        String description = settings.getString(getString(R.string.firebase_notification_description), "");
+
         AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
 
-        if ((topicVersion < newTopicVersion) && !am.isEnabled()) {
+        Boolean accessibilityEnabled = false;
+        if (am != null){
+            accessibilityEnabled = am.isEnabled();
+        }
+
+        if ((topicVersion < newTopicVersion) && !accessibilityEnabled) {
+
             try {
                 TapTargetView.showFor(this,
-                        TapTarget.forToolbarMenuItem(mToolbar, R.id.menu_notifications, "New topics available", "")
+                        TapTarget.forToolbarMenuItem(mToolbar, R.id.menu_notifications, title, description)
                                 // All options below are optional
                                 .outerCircleColor(R.color.primary_default)      // Specify a color for the outer circle
                                 .titleTextSize(20)                  // Specify the size (in sp) of the title text

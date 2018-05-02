@@ -165,6 +165,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .setStyle(new NotificationCompat.BigTextStyle()
                             .bigText(message))
                     .setContentIntent(resultPendingIntent)
+                    .setAutoCancel(true)
                     .setWhen(0)
                     .setDefaults(Notification.DEFAULT_LIGHTS);
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
@@ -223,6 +224,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .setSmallIcon(R.drawable.ic_list_wsdot)
                     .setContentTitle(title)
                     .setContentText(message)
+                    .setAutoCancel(true)
                     .setStyle(new NotificationCompat.BigTextStyle()
                             .bigText(message))
                     .setContentIntent(resultPendingIntent)
@@ -231,8 +233,5 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
             notificationManager.notify(id, builder.build());
         }
-
-
-
     }
 }
