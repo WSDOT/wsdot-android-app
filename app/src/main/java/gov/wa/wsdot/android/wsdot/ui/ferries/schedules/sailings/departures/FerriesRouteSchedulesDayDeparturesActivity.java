@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
+package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -54,16 +54,16 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity{
         String title = args.getString("terminalNames");
 
         setContentView(R.layout.activity_with_tabs);
-        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager = findViewById(R.id.pager);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(title);
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        mTabLayout = findViewById(R.id.tab_layout);
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         // Add tab titles and their corresponding fragments to the fragment list.

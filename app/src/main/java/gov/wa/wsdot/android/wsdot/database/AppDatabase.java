@@ -10,6 +10,10 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
+import com.google.firebase.messaging.RemoteMessage;
+
+import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicDao;
+import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
@@ -33,7 +37,6 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroupDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 
 @Database(entities = {
         BorderWaitEntity.class,
@@ -46,8 +49,9 @@ import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
         MyRouteEntity.class,
         MapLocationEntity.class,
         TravelTimeTripEntity.class,
-        TravelTimeEntity.class
-    }, version = 9)
+        TravelTimeEntity.class,
+        NotificationTopicEntity.class
+    }, version = 10)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String TAG = AppDatabase.class.getSimpleName();
@@ -66,6 +70,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract FerryTerminalSailingSpacesDao ferryTerminalSailingSpacesDao();
     public abstract MapLocationDao mapLocationDao();
     public abstract MyRouteDao myRouteDao();
+    public abstract NotificationTopicDao notificationTopicDao();
 
     private static final Object sLock = new Object();
 
@@ -81,6 +86,7 @@ public abstract class AppDatabase extends RoomDatabase {
         String BORDER_WAIT  = "border_wait";
         String MAP_LOCATION = "map_location";
         String MY_ROUTE = "my_route";
+        String NOTIFICATION_TOPIC = "notification_topic";
     }
 
     interface CachesColumns {
@@ -201,6 +207,14 @@ public abstract class AppDatabase extends RoomDatabase {
         String MY_ROUTE_DISPLAY_ZOOM = "zoom";
         String MY_ROUTE_FOUND_FAVORITES = "found_favorites";
         String MY_ROUTE_IS_STARRED = "is_starred";
+    }
+
+    interface NotificationColumns {
+        String NOTIFICATION_TOPIC = "topic";
+        String NOTIFICATION_TITLE = "title";
+        String NOTIFICATION_CATEGORY = "category";
+        String NOTIFICATION_SUBSCRIBED = "subscribed";
+        String NOTIFICATION_REMOVE = "remove";
     }
 
     @VisibleForTesting
@@ -506,7 +520,7 @@ public abstract class AppDatabase extends RoomDatabase {
             // drop Travel times table since data has now changed.
             database.execSQL("DROP TABLE " + Tables.TRAVEL_TIMES + "; ");
 
-            database.execSQL("CREATE TABLE " + Tables.TRAVEL_TIME_TRIPS + " ("
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.TRAVEL_TIME_TRIPS + " ("
                     + TravelTimeTripsColumns.TRAVEL_TIMES_TITLE + " TEXT PRIMARY KEY NOT NULL,"
                     + TravelTimeTripsColumns.TRAVEL_TIMES_IS_STARRED + " INTEGER NOT NULL);");
 
@@ -531,6 +545,23 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    @VisibleForTesting
+    public static final Migration MIGRATION_9_10 = new Migration(9, 10) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+
+            database.execSQL("CREATE TABLE " + Tables.NOTIFICATION_TOPIC + " ("
+                    + NotificationColumns.NOTIFICATION_TOPIC + " TEXT PRIMARY KEY NOT NULL,"
+                    + NotificationColumns.NOTIFICATION_TITLE + " TEXT,"
+                    + NotificationColumns.NOTIFICATION_CATEGORY + " TEXT,"
+                    + NotificationColumns.NOTIFICATION_REMOVE + " INTEGER NOT NULL default 0,"
+                    + NotificationColumns.NOTIFICATION_SUBSCRIBED + " INTEGER NOT NULL default 0);");
+
+            database.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('notification_topic', 0);");
+
+        }
+    };
+
     public static AppDatabase getInstance(Context context) {
         synchronized (sLock) {
             if (INSTANCE == null) {
@@ -544,7 +575,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                 MIGRATION_5_6,
                                 MIGRATION_6_7,
                                 MIGRATION_7_8,
-                                MIGRATION_8_9)
+                                MIGRATION_8_9,
+                                MIGRATION_9_10)
                         .addCallback(new Callback() {
 
                             @Override
@@ -557,6 +589,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_schedules', 0);");
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_terminal_sailing_space', 0);");
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('border_wait', 0);");
+                                db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('notification_topic', 0);");
 
                                 // Front load the mountain pass cameras
 

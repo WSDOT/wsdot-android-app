@@ -21,6 +21,7 @@ import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 
 import static gov.wa.wsdot.android.wsdot.database.AppDatabase.MIGRATION_7_8;
 import static gov.wa.wsdot.android.wsdot.database.AppDatabase.MIGRATION_8_9;
+import static gov.wa.wsdot.android.wsdot.database.AppDatabase.MIGRATION_9_10;
 import static gov.wa.wsdot.android.wsdot.migration.SqliteDatabaseTestHelper.insertCacheItem;
 import static junit.framework.Assert.assertEquals;
 
@@ -66,7 +67,8 @@ public class MigrationTest {
         mMigrationTestHelper.runMigrationsAndValidate(TEST_DB_NAME, 9
                 , true,
                 MIGRATION_7_8,
-                MIGRATION_8_9);
+                MIGRATION_8_9,
+                MIGRATION_9_10);
 
         // Get the latest, migrated, version of the database
         // Check that the correct data is in the database
@@ -78,7 +80,7 @@ public class MigrationTest {
     private AppDatabase getMigratedRoomDatabase() {
         AppDatabase database = Room.databaseBuilder(InstrumentationRegistry.getTargetContext(),
                 AppDatabase.class, TEST_DB_NAME)
-                .addMigrations(MIGRATION_7_8, MIGRATION_8_9)
+                .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
                 .build();
         // close the database and release any stream resources when the test finishes
         mMigrationTestHelper.closeWhenFinished(database);

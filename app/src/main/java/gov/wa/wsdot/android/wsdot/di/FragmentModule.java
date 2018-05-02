@@ -8,11 +8,11 @@ import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesSchedulesDetai
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitNorthboundFragment;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitSouthboundFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraImageFragment;
-import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsFragment;
-import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinsFragment;
-import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesFragment;
-import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesTerminalCameraFragment;
-import gov.wa.wsdot.android.wsdot.ui.ferries.sailings.FerriesRouteSchedulesDaySailingsFragment;
+import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinDetailsFragment;
+import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinsFragment;
+import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures.FerriesRouteSchedulesDayDeparturesFragment;
+import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures.FerriesTerminalCameraFragment;
+import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.DashboardFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.FavoritesFragment;
@@ -23,6 +23,7 @@ import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemFor
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemReportFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListFragment;
+import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsFragment;
@@ -129,5 +130,8 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract FavoritesFragment contributeFavoritesFragment();
+
+    @ContributesAndroidInjector
+    abstract NotificationsFragment contributeNotificationsFragment();
 
 }

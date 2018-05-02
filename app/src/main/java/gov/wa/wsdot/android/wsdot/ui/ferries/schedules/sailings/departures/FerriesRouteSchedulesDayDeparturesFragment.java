@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
+package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -180,6 +180,11 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
                 initDaySpinner();
                 terminalViewModel.loadDepartureTimesForTerminal(terminalItem);
+            } else {
+                mEmptyView.setVisibility(View.VISIBLE);
+                TextView t = (TextView) mEmptyView;
+                t.setText(R.string.no_schedule);
+                mEmptyView.setVisibility(View.VISIBLE);
             }
         });
 

@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
+package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;

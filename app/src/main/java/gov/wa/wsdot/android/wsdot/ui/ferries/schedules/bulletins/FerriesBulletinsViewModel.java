@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
+package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
@@ -17,6 +17,7 @@ import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.repository.FerryScheduleRepository;
 import gov.wa.wsdot.android.wsdot.shared.FerriesRouteAlertItem;
+import gov.wa.wsdot.android.wsdot.util.AbsentLiveData;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 public class FerriesBulletinsViewModel extends ViewModel {
@@ -41,25 +42,22 @@ public class FerriesBulletinsViewModel extends ViewModel {
         if (alertId != null){
             alert = Transformations.map(this.scheduleRepo.loadFerryScheduleFor(routeId, mStatus), schedule -> {
 
-                FerriesRouteAlertItem alertItem = new FerriesRouteAlertItem();
-
                 if (schedule != null) {
                     ArrayList<FerriesRouteAlertItem> alertItems = processAlerts(schedule.getAlert());
                     for (FerriesRouteAlertItem alertValue: alertItems){
                         if (alertValue.getBulletinID().equals(alertId)){
-                            alertItem = alertValue;
+                            return alertValue;
                         }
                     }
                 }
-                return alertItem;
+                return null;
             });
         } else {
             alerts = Transformations.map(this.scheduleRepo.loadFerryScheduleFor(routeId, mStatus), schedule -> {
-                ArrayList<FerriesRouteAlertItem> alertItems = new ArrayList<>();
                 if (schedule != null) {
-                    alertItems = processAlerts(schedule.getAlert());
+                    return processAlerts(schedule.getAlert());
                 }
-                return alertItems;
+                return null;
             });
         }
 
@@ -73,7 +71,13 @@ public class FerriesBulletinsViewModel extends ViewModel {
     public LiveData<List<FerriesRouteAlertItem>> getAlerts(){
         return this.alerts;
     }
-    public LiveData<FerriesRouteAlertItem> getAlert() { return this.alert; }
+
+    public LiveData<FerriesRouteAlertItem> getAlert() {
+        if (this.alert == null){
+            return AbsentLiveData.create();
+        }
+        return this.alert;
+    }
 
     private ArrayList<FerriesRouteAlertItem> processAlerts(String alertsJson){
         ArrayList<FerriesRouteAlertItem> routeAlertItems = new ArrayList<>();

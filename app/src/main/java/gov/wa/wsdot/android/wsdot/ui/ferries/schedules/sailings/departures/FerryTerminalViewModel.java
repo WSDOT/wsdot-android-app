@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
+package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
@@ -25,7 +25,6 @@ import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 /**

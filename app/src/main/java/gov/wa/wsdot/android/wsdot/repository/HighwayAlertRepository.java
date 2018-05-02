@@ -55,7 +55,8 @@ public class HighwayAlertRepository extends NetworkResourceSyncRepository {
         return highwayAlertDao.loadHighwayAlertsWith(priority);
     }
 
-    public LiveData<HighwayAlertEntity> getHighwayAlert(Integer alertId) {
+    public LiveData<HighwayAlertEntity> getHighwayAlert(Integer alertId, MutableLiveData<ResourceStatus> status, Boolean forceRefresh) {
+        super.refreshData(status, forceRefresh);
         return highwayAlertDao.loadHighwayAlert(alertId);
     }
 

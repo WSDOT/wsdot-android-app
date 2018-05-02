@@ -16,9 +16,9 @@
 
 package gov.wa.wsdot.android.wsdot.ui;
 
-
 import android.app.Activity;
 import android.app.Application;
+import android.app.Service;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -28,12 +28,14 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
+import dagger.android.HasServiceInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import gov.wa.wsdot.android.wsdot.BuildConfig;
 import gov.wa.wsdot.android.wsdot.R;
@@ -46,13 +48,18 @@ import io.fabric.sdk.android.Fabric;
  * This is a subclass of {@link Application} used to provide shared objects for this app, such as
  * the {@link Tracker}.
  */
-public class WsdotApplication extends Application implements HasActivityInjector, HasSupportFragmentInjector {
+public class WsdotApplication extends Application implements HasActivityInjector, HasSupportFragmentInjector, HasServiceInjector {
+
+    final String TAG = WsdotApplication.class.getSimpleName();
 
     @Inject
     DispatchingAndroidInjector<Activity> dispatchingAndroidActivityInjector;
 
     @Inject
     DispatchingAndroidInjector<Fragment> dispatchingAndroidFragmentInjector;
+
+    @Inject
+    DispatchingAndroidInjector<Service> dispatchingServiceInjector;
 
     private Tracker mTracker;
 
@@ -74,7 +81,7 @@ public class WsdotApplication extends Application implements HasActivityInjector
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());
-            myNotificationManager.createMainNotificationChannel();
+            myNotificationManager.createMainNotificationChannels();
         }
 
         //reset driver alert message on app startup.
@@ -82,6 +89,9 @@ public class WsdotApplication extends Application implements HasActivityInjector
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean("KEY_SEEN_DRIVER_ALERT", false);
         editor.apply();
+
+        Log.i(TAG, "Token: " + FirebaseInstanceId.getInstance().getToken());
+
     }
 
     /**
@@ -105,6 +115,11 @@ public class WsdotApplication extends Application implements HasActivityInjector
     @Override
     public AndroidInjector<android.support.v4.app.Fragment> supportFragmentInjector() {
         return dispatchingAndroidFragmentInjector;
+    }
+
+    @Override
+    public AndroidInjector<Service> serviceInjector() {
+        return dispatchingServiceInjector;
     }
 
     /**

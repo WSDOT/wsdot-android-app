@@ -18,7 +18,8 @@ import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
         AndroidInjectionModule.class,
         AppModule.class,
         ActivityModule.class,
-        FragmentModule.class
+        FragmentModule.class,
+        ServiceModule.class
 })
 
 public interface AppComponent {

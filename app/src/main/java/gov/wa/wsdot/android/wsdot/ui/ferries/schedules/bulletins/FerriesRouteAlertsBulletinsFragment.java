@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
+package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -50,7 +50,9 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
 	private static final String TAG = FerriesRouteAlertsBulletinsFragment.class.getName();
 	private static ArrayList<FerriesRouteAlertItem> routeAlertItems;
 	private static RouteAlertItemAdapter adapter;
+
 	private static View mLoadingSpinner;
+    private View mEmptyView;
 
 	private static Integer mId;
 
@@ -87,6 +89,7 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mEmptyView = root.findViewById( R.id.empty_list_view );
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerriesBulletinsViewModel.class);
         viewModel.init(mId, null);
@@ -108,11 +111,14 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
 
         viewModel.getAlerts().observe(this, alerts -> {
             if (alerts != null) {
+                mEmptyView.setVisibility(View.GONE);
                 adapter.setData(new ArrayList<>(alerts));
                 routeAlertItems = new ArrayList<>(alerts);
             } else {
                 adapter.setData(null);
-
+                TextView t = (TextView) mEmptyView;
+                t.setText(R.string.no_alerts);
+                mEmptyView.setVisibility(View.VISIBLE);
             }
         });
 
@@ -128,6 +134,7 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
 		Intent intent = new Intent(getActivity(), FerriesRouteAlertsBulletinDetailsActivity.class);
         b.putInt("routeId", mId);
         b.putInt("alertId", routeAlertItems.get(position).getBulletinID());
+        b.putString("AlertFullTitle", routeAlertItems.get(position).getAlertFullTitle());
 		intent.putExtras(b);
 		startActivity(intent);		
 	}

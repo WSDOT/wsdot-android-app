@@ -19,16 +19,25 @@
 package gov.wa.wsdot.android.wsdot.ui.home;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.accessibility.AccessibilityManager;
 
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +48,7 @@ import gov.wa.wsdot.android.wsdot.service.EventService;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
+import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsActivity;
 import gov.wa.wsdot.android.wsdot.ui.settings.SettingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.HomePager;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
@@ -109,17 +119,19 @@ public class HomeActivity extends BaseActivity implements Injectable {
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-            }
+            public void onTabUnselected(TabLayout.Tab tab) {}
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
 
         startService(new Intent(this, EventService.class));
 
+        final Handler handler = new Handler();
+        handler.postDelayed(this::displayNotificationTipView, 1500);
+
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -133,6 +145,9 @@ public class HomeActivity extends BaseActivity implements Injectable {
             case R.id.menu_about:
             	startActivity(new Intent(this, AboutActivity.class));
                 break;
+            case R.id.menu_notifications:
+                startActivity(new Intent(this, NotificationsActivity.class));
+                break;
             case R.id.menu_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
@@ -140,4 +155,54 @@ public class HomeActivity extends BaseActivity implements Injectable {
         return super.onOptionsItemSelected(item);
     }
 
+    private void displayNotificationTipView(){
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        int topicVersion = settings.getInt(getString(R.string.firebase_notification_topics_version), 0);
+        int newTopicVersion = settings.getInt(getString(R.string.new_firebase_notification_topics_version), 0);
+
+        String title = settings.getString(getString(R.string.firebase_notification_title), "New Notifications Available");
+        String description = settings.getString(getString(R.string.firebase_notification_description), "");
+
+        AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+
+        Boolean accessibilityEnabled = false;
+        if (am != null){
+            accessibilityEnabled = am.isEnabled();
+        }
+
+        if ((topicVersion < newTopicVersion) && !accessibilityEnabled) {
+
+            try {
+                TapTargetView.showFor(this,
+                        TapTarget.forToolbarMenuItem(mToolbar, R.id.menu_notifications, title, description)
+                                // All options below are optional
+                                .outerCircleColor(R.color.primary_default)      // Specify a color for the outer circle
+                                .titleTextSize(20)                  // Specify the size (in sp) of the title text
+                                .titleTextColor(R.color.white)      // Specify the color of the title text
+                                .descriptionTextSize(15)            // Specify the size (in sp) of the description text
+                                .textColor(R.color.white)            // Specify a color for both the title and description text
+                                .textTypeface(Typeface.SANS_SERIF)  // Specify a typeface for the text
+                                .dimColor(R.color.black)            // If set, will dim behind the view with 30% opacity of the given color
+                                .drawShadow(true)                   // Whether to draw a drop shadow or not
+                                .cancelable(true)                  // Whether tapping outside the outer circle dismisses the view
+                                .tintTarget(true)                   // Whether to tint the target view's color
+                                .transparentTarget(true)           // Specify whether the target is transparent (displays the content underneath)
+                                .targetRadius(40),                  // Specify the target radius (in dp)
+                        new TapTargetView.Listener() {          // The listener can listen for regular clicks, long clicks or cancels
+                            @Override
+                            public void onTargetClick(TapTargetView view) {
+                                super.onTargetClick(view);
+                                startActivity(new Intent(HomeActivity.this, NotificationsActivity.class));
+                            }
+                        });
+            } catch (NullPointerException e){
+                Log.e(TAG, "Null pointer exception while trying to show tip view");
+            }
+        }
+
+        settings.edit().putInt(getString(R.string.firebase_notification_topics_version), newTopicVersion).apply();
+
+    }
 }

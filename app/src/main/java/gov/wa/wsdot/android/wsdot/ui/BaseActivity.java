@@ -35,8 +35,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     private PublisherAdView mAdView;
 
     /**
-     * Override getTheme to check shardPref for an active event that might
-     * change the theme
+     * Check shardPref for an active event that might change the theme
      */
     @Override
     public Resources.Theme getTheme() {

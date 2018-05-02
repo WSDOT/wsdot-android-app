@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
+package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -45,8 +47,6 @@ import javax.inject.Inject;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-
-// TODO: Dagger DI stuff for this frag
 
 public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment implements Injectable {
 
@@ -102,18 +102,31 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
                     case LOADING:
                         mLoadingSpinner.setVisibility(View.VISIBLE);
                         break;
-                    case SUCCESS:
-                        mLoadingSpinner.setVisibility(View.GONE);
+					case SUCCESS:
+					    if (mAlertFullText == null){
+                            mContent = "<p>Sorry, this bulletin has expired.</p>";
+                            webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
+                        }
                         break;
                     case ERROR:
-                        mLoadingSpinner.setVisibility(View.GONE);
+                        if (mAlertFullText == null) {
+                            mLoadingSpinner.setVisibility(View.GONE);
+                            mContent = "<p>Connection error, failed to load bulletin.</p>";
+                            webview.loadDataWithBaseURL(null, mContent, "text/html", "utf-8", null);
+                        } else {
+                            Toast.makeText(getContext(), "Connection error", Toast.LENGTH_LONG).show();
+                        }
                 }
             }
         });
 
         viewModel.getAlert().observe(this, alert -> {
             if (alert != null) {
+
                 Date date = new Date(Long.parseLong(alert.getPublishDate()));
+
+
+
                 mAlertPublishDate = displayDateFormat.format(date);
                 mAlertDescription = alert.getAlertDescription();
                 mAlertFullText = alert.getAlertFullText();
@@ -182,7 +195,7 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
 		@Override
 		public void onPageFinished(WebView view, String url) {
 			super.onPageFinished(view, url);
-			
+
 			mLoadingSpinner.setVisibility(View.GONE);
 		}
 	}

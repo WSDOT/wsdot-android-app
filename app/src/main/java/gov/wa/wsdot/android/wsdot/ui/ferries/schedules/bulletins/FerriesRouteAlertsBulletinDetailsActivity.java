@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
+package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -37,10 +37,17 @@ public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
 		
 		setContentView(R.layout.activity_ferries_route_alerts_bulletin_details);
 
-		Bundle b = getIntent().getExtras();		
-		String mAlertFullTitle = b.getString("AlertFullTitle");
+		Bundle b = getIntent().getExtras();
 
-		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		String mAlertFullTitle = "Unavailable";
+
+		if (b != null){
+			if (b.getString("AlertFullTitle") != null) {
+				mAlertFullTitle = b.getString("AlertFullTitle");
+			}
+		}
+
+		mToolbar = findViewById(R.id.toolbar);
 		mToolbar.setTitle(mAlertFullTitle);
 		setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){

@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.sailings;
+package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -41,7 +41,7 @@ import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
-import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures.FerriesRouteSchedulesDayDeparturesActivity;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class FerriesRouteSchedulesDaySailingsFragment extends BaseFragment implements Injectable {
@@ -49,7 +49,9 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseFragment imple
 	private static final String TAG = FerriesRouteSchedulesDaySailingsFragment.class.getSimpleName();
 	private static ArrayList<FerriesScheduleDateItem> scheduleDateItems;
 	private static SailingsAdapter mAdapter;
+
 	private static View mLoadingSpinner;
+    private View mEmptyView;
 
 	private static Integer mId;
 	private static String mDates;
@@ -90,6 +92,7 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseFragment imple
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mEmptyView = root.findViewById(R.id.empty_list_view);
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
         viewModel.init(mId);
@@ -111,8 +114,14 @@ public class FerriesRouteSchedulesDaySailingsFragment extends BaseFragment imple
 
         viewModel.getDatesWithSailings().observe(this, dates -> {
             if (dates != null) {
+                mEmptyView.setVisibility(View.GONE);
                 scheduleDateItems = new ArrayList<>(dates);
                 mAdapter.setData(dates.get(0).getFerriesTerminalItem());
+            } else {
+                mAdapter.setData(null);
+                TextView t = (TextView) mEmptyView;
+                t.setText(R.string.no_schedule);
+                mEmptyView.setVisibility(View.VISIBLE);
             }
         });
 

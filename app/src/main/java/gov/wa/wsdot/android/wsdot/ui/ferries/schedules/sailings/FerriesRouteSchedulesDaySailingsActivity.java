@@ -16,11 +16,10 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.sailings;
+package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.ContentResolver;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
@@ -38,9 +37,10 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
-	
+
+	private final String TAG = FerriesRouteSchedulesDaySailingsActivity.class.getSimpleName();
+
 	private boolean mIsStarred;
-	private ContentResolver resolver;
 	private int mId;
 	private Toolbar mToolbar;
     private String mTitle;
@@ -55,8 +55,8 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		AndroidInjection.inject(this);
-		super.onCreate(savedInstanceState);
 
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ferries_route_schedules_day_sailings);
 
 		Bundle args = getIntent().getExtras();
@@ -70,7 +70,11 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
                 mTitle = schedule.getTitle();
                 mIsStarred = schedule.getIsStarred() != 0;
                 mToolbar.setTitle(mTitle);
-            }
+            } else {
+                mId = -1;
+            	mTitle = "Schedule Unavailable";
+            	mToolbar.setTitle(mTitle);
+			}
         });
 
 		mToolbar = findViewById(R.id.toolbar);
@@ -81,20 +85,24 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
         }
 		MyLogger.crashlyticsLog("Ferries", "Screen View", "FerriesRouteSchedulesDaySailingsActivity: Route " + String.valueOf(mId), 1);
         enableAds(getString(R.string.ferries_ad_target));
+
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
-		MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
 
-		if (mIsStarred) {
-			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
-			menu.getItem(MENU_ITEM_STAR).setTitle("Favorite checkbox, checked");
-		} else {
-			menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
-			menu.getItem(MENU_ITEM_STAR).setTitle("Favorite checkbox, not checked");
-		}
+	    if (mId != -1) {
+            MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
+            MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+
+            if (mIsStarred) {
+                menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
+                menu.getItem(MENU_ITEM_STAR).setTitle("Favorite checkbox, checked");
+            } else {
+                menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
+                menu.getItem(MENU_ITEM_STAR).setTitle("Favorite checkbox, not checked");
+            }
+        }
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -115,15 +123,13 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 
 	private void toggleStar(MenuItem item) {
 
-		resolver = getContentResolver();
-
 		Snackbar added_snackbar = Snackbar
 				.make(findViewById(R.id.day_sailings), "Added to favorites", Snackbar.LENGTH_SHORT);
 
 		Snackbar removed_snackbar = Snackbar
 				.make(findViewById(R.id.day_sailings), "Removed from favorites", Snackbar.LENGTH_SHORT);
 
-		added_snackbar.setCallback(new Snackbar.Callback() {
+		added_snackbar.addCallback(new Snackbar.Callback() {
 			@Override
 			public void onShown(Snackbar snackbar) {
 				super.onShown(snackbar);
@@ -132,7 +138,7 @@ public class FerriesRouteSchedulesDaySailingsActivity extends BaseActivity {
 			}
 		});
 
-		removed_snackbar.setCallback(new Snackbar.Callback() {
+		removed_snackbar.addCallback(new Snackbar.Callback() {
 			@Override
 			public void onShown(Snackbar snackbar) {
 				super.onShown(snackbar);
