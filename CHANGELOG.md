@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.3.0] - 2018-05-02
+- Adds FCM push notifications.
+
+## [5.2.6] - 2018-04
+- Adds WSF information agent contact info.
+
 ## [5.2.4] - 2018-03-12
 
 ## Added
