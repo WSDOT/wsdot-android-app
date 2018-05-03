@@ -151,7 +151,6 @@
 
         </activity>
 
-
         <activity
             android:name=".ui.ferries.schedules.FerriesRouteSchedulesActivity"
             android:label="@string/title_ferriesrouteschedules"
