@@ -36,7 +36,7 @@
             android:value="AIzaSyBfeBLDQdt0QV7qwHZrZQBuBMzNmm_LsP0" />
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
-            android:value="true" />
+            android:value="${crashlytics_enabled}" />
         <!--
              Optionally, register AnalyticsReceiver and AnalyticsService to support background
           	 dispatching on non-Google Play devices
