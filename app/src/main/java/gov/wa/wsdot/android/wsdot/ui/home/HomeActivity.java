@@ -77,7 +77,27 @@ public class HomeActivity extends BaseActivity implements Injectable {
         mViewPager = findViewById(R.id.pager);
 
         mToolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
+        mToolbar.setTitle("WSDOT");
+
+        // inflate toolbar for tap view
+        mToolbar.inflateMenu(R.menu.options);
+
+        mToolbar.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.menu_about:
+                    startActivity(new Intent(HomeActivity.this, AboutActivity.class));
+                    break;
+                case R.id.menu_notifications:
+                    startActivity(new Intent(HomeActivity.this, NotificationsActivity.class));
+                    break;
+                case R.id.menu_settings:
+                    startActivity(new Intent(HomeActivity.this, SettingsActivity.class));
+                    break;
+            }
+            return false;
+        });
+
+        //setSupportActionBar(mToolbar);
 
         mAppBar = findViewById(R.id.appbar);
 
@@ -127,32 +147,15 @@ public class HomeActivity extends BaseActivity implements Injectable {
 
         startService(new Intent(this, EventService.class));
 
-        final Handler handler = new Handler();
-        handler.postDelayed(this::displayNotificationTipView, 1500);
+        displayNotificationTipView();
 
     }
 
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.options, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_about:
-            	startActivity(new Intent(this, AboutActivity.class));
-                break;
-            case R.id.menu_notifications:
-                startActivity(new Intent(this, NotificationsActivity.class));
-                break;
-            case R.id.menu_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
-                break;
-        }
-        return super.onOptionsItemSelected(item);
+    public void onDestroy(){
+        super.onDestroy();
+        mToolbar.setNavigationOnClickListener(null);
+        mToolbar.setOnMenuItemClickListener(null);
     }
 
     private void displayNotificationTipView(){
@@ -201,8 +204,6 @@ public class HomeActivity extends BaseActivity implements Injectable {
                 Log.e(TAG, "Null pointer exception while trying to show tip view");
             }
         }
-
         settings.edit().putInt(getString(R.string.firebase_notification_topics_version), newTopicVersion).apply();
-
     }
 }
