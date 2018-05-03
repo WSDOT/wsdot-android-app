@@ -4,10 +4,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.3.1] - 2018-05-03
+
+## Fixed
+- Auto google analytics paths.
+- Timing crash with tap target view.
+
 ## [5.3.0] - 2018-05-02
+
+## Added
 - Adds FCM push notifications.
 
 ## [5.2.6] - 2018-04
+
+## Added
 - Adds WSF information agent contact info.
 
 ## [5.2.4] - 2018-03-12
