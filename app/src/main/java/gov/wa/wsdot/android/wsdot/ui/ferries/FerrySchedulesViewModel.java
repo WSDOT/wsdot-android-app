@@ -53,7 +53,12 @@ public class FerrySchedulesViewModel extends ViewModel {
         if (routeId != null){
             this.schedule = ferryScheduleRepo.loadFerryScheduleFor(routeId, mStatus);
             if (schedule != null){
-                this.datesWithSailings = Transformations.map(this.schedule, scheduleValue -> processDates(scheduleValue.getDate()));
+                this.datesWithSailings = Transformations.map(this.schedule, scheduleValue -> {
+                    if ( scheduleValue != null ) {
+                        return processDates(scheduleValue.getDate());
+                    }
+                    return null;
+                });
             } else {
                 this.datesWithSailings = null;
             }

@@ -10,6 +10,8 @@
     <screenName name="gov.wa.wsdot.android.wsdot.ui.about.AboutActivity">/About</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity">/Highway Alert</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.settings.SettingsActivity">/Settings</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsActivity">/Notification Settings</screenName>
+
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity">/My Route</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity">/My Route/My Route Alerts</screenName>
