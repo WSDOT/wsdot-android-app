@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.3.3] - 2018-05-07
+
+## Fixed
+- Analytics labeling.
+- Null crash in ferries section.
+
 ## [5.3.1] - 2018-05-03
 
 ## Fixed
