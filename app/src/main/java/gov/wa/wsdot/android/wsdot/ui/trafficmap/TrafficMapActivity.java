@@ -364,8 +364,9 @@ public class TrafficMapActivity extends BaseActivity implements
                                 showFABMenu();
                             }
                         });
-            } catch (NullPointerException e) {
-                Log.e(TAG, "Null pointer exception while trying to show tip view");
+            } catch (NullPointerException | IllegalArgumentException e) {
+                Log.e(TAG, "Exception while trying to show tip view");
+                Log.e(TAG, e.getMessage());
             }
         }
 
@@ -806,13 +807,15 @@ public class TrafficMapActivity extends BaseActivity implements
                 refreshOverlays(item);
                 return true;
             case R.id.alerts_in_area:
-                LatLngBounds mBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
-                Intent alertsIntent = new Intent(this, HighwayAlertListActivity.class);
-                alertsIntent.putExtra("nelat", mBounds.northeast.latitude);
-                alertsIntent.putExtra("nelong", mBounds.northeast.longitude);
-                alertsIntent.putExtra("swlat", mBounds.southwest.latitude);
-                alertsIntent.putExtra("swlong", mBounds.southwest.longitude);
-                startActivity(alertsIntent);
+                if (mMap != null) {
+                    LatLngBounds mBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+                    Intent alertsIntent = new Intent(this, HighwayAlertListActivity.class);
+                    alertsIntent.putExtra("nelat", mBounds.northeast.latitude);
+                    alertsIntent.putExtra("nelong", mBounds.northeast.longitude);
+                    alertsIntent.putExtra("swlat", mBounds.southwest.latitude);
+                    alertsIntent.putExtra("swlong", mBounds.southwest.longitude);
+                    startActivity(alertsIntent);
+                }
                 return true;
             case R.id.express_lanes:
                 Intent expressIntent = new Intent(this, SeattleExpressLanesActivity.class);
@@ -1205,9 +1208,11 @@ public class TrafficMapActivity extends BaseActivity implements
     }
 
     public void goToLocation(double latitude, double longitude, int zoomLevel) {
-        LatLng latLng = new LatLng(latitude, longitude);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
+        if (mMap != null) {
+            LatLng latLng = new LatLng(latitude, longitude);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
+        }
     }
 
     /**

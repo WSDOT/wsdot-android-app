@@ -498,7 +498,9 @@ public class NewRouteActivity extends AppCompatActivity implements
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
-                        mMap.setMyLocationEnabled(true);
+                        if (mMap != null) {
+                            mMap.setMyLocationEnabled(true);
+                        }
                     }
                     moveToCurrentLocation();
                 }

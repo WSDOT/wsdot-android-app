@@ -496,11 +496,13 @@ public class VesselWatchMapActivity extends BaseActivity implements
 		editor.commit();
 	}	
 	
-	public void goToLocation(double latitude, double longitude, int zoomLevel) {	
-        LatLng latLng = new LatLng(latitude, longitude);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
-	}	
+	public void goToLocation(double latitude, double longitude, int zoomLevel) {
+	    if (mMap != null) {
+            LatLng latLng = new LatLng(latitude, longitude);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
+        }
+	}
 	
     public class VesselsTimerTask extends TimerTask {
         private Runnable runnable = new Runnable() {

@@ -22,22 +22,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.accessibility.AccessibilityManager;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -147,7 +143,7 @@ public class HomeActivity extends BaseActivity implements Injectable {
 
         startService(new Intent(this, EventService.class));
 
-        displayNotificationTipView();
+        tryDisplayNotificationTipView();
 
     }
 
@@ -158,7 +154,7 @@ public class HomeActivity extends BaseActivity implements Injectable {
         mToolbar.setOnMenuItemClickListener(null);
     }
 
-    private void displayNotificationTipView(){
+    private void tryDisplayNotificationTipView(){
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -200,8 +196,9 @@ public class HomeActivity extends BaseActivity implements Injectable {
                                 startActivity(new Intent(HomeActivity.this, NotificationsActivity.class));
                             }
                         });
-            } catch (NullPointerException e){
-                Log.e(TAG, "Null pointer exception while trying to show tip view");
+            } catch (NullPointerException | IllegalArgumentException e) {
+                Log.e(TAG, "Exception while trying to show tip view");
+                Log.e(TAG, e.getMessage());
             }
         }
         settings.edit().putInt(getString(R.string.firebase_notification_topics_version), newTopicVersion).apply();
