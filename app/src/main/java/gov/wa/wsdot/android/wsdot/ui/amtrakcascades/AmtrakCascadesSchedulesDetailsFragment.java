@@ -231,7 +231,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-            DateFormat dateFormat = new SimpleDateFormat("hh:mm a");
+            DateFormat dateFormat = new SimpleDateFormat("h:mm a");
             dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
             DateFormat updateDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
             updateDateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));

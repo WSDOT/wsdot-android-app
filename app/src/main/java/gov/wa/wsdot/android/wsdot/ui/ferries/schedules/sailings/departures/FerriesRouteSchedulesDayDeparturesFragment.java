@@ -309,7 +309,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-            DateFormat dateFormat = new SimpleDateFormat("hh:mm a");
+            DateFormat dateFormat = new SimpleDateFormat("h:mm a");
             dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
             TimesViewHolder itemHolder;
