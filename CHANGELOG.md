@@ -4,6 +4,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.3.6] - 2018-05-16
+
+## Changed
+- Removes leading zero from departure times.
+
+## Fixed
+- Crash caused by accessing a null Google Map.
+
 ## [5.3.3] - 2018-05-07
 
 ## Fixed
