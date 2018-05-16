@@ -8,8 +8,8 @@ android {
         applicationId "gov.wa.wsdot.android.wsdot"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 14145033
-        versionName "5.3.3"
+        versionCode 14145036
+        versionName "5.3.6"
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -49,6 +49,7 @@ repositories {
     maven { url "http://dl.bintray.com/populov/maven" }
     maven { url "https://maven.google.com" }
     mavenCentral()
+    google()
 }
 
 dependencies {
@@ -102,5 +103,10 @@ dependencies {
     // For instrumentation tests on Android devices and emulators
     androidTestImplementation "org.mockito:mockito-android:$mockito_version"
     androidTestImplementation 'junit:junit:4.12'
+}
+buildscript {
+    repositories {
+        google()
+    }
 }
 apply plugin: 'com.google.gms.google-services'

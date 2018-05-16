@@ -134,7 +134,7 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="HighImpactAlertsStaticItem" parent="style/HighImpactAlertsItemBase">
+    <style name="HighImpactAlertsStaticItem" parent="@style/HighImpactAlertsItemBase">
         <item name="android:textSize">@dimen/text_size_small</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/body_text_1</item>
@@ -142,7 +142,7 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="HighImpactAlertsButtonItem" parent="style/HighImpactAlertsStaticItem">
+    <style name="HighImpactAlertsButtonItem" parent="@style/HighImpactAlertsStaticItem">
         <item name="android:textColor">?attr/colorPrimaryDark</item>
         <item name="android:background">@drawable/high_impact_alerts_button</item>
         <item name="android:paddingRight">@dimen/high_impact_alerts_button_right_padding</item>
