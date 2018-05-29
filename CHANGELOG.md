@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.3.8] - 2018-05-29
+
+## Fixed
+- Blogger feed. Now uses Blogger API v3.0
+
 ## [5.3.6] - 2018-05-16
 
 ## Changed
