@@ -47,7 +47,7 @@ public class BlogRepository extends NetworkResourceRepository {
         List<BlogItem> mItems = new ArrayList<>();
         BlogItem i = null;
 
-        URL url = new URL(APIEndPoints.WSDOT_BLOG + "?alt=json&max-results=10");
+        URL url = new URL(APIEndPoints.WSDOT_BLOG + "?key=" + APIEndPoints.GOOGLE_API_KEY);
         URLConnection urlConn = url.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
         String jsonFile = "";
@@ -58,23 +58,22 @@ public class BlogRepository extends NetworkResourceRepository {
         in.close();
 
         JSONObject obj = new JSONObject(jsonFile);
-        JSONObject data = obj.getJSONObject("feed");
-        JSONArray entries = data.getJSONArray("entry");
+        JSONArray entries = obj.getJSONArray("items");
 
         int numEntries = entries.length();
         for (int j=0; j < numEntries; j++) {
             JSONObject entry = entries.getJSONObject(j);
             i = new BlogItem();
-            i.setTitle(entry.getJSONObject("title").getString("$t"));
+            i.setTitle(entry.getString("title"));
 
             try {
-                i.setPublished(ParserUtils.relativeTime(entry.getJSONObject("published").getString("$t"), "yyyy-MM-dd'T'HH:mm:ss.SSSz", true));
+                i.setPublished(ParserUtils.relativeTime(entry.getString("published"), "yyyy-MM-dd'T'HH:mm:ssz", true));
             } catch (Exception e) {
                 i.setPublished("Unavailable");
                 Log.e(TAG, "Error parsing date", e);
             }
 
-            String content = entry.getJSONObject("content").getString("$t");
+            String content = entry.getString("content");
             i.setContent(content);
 
             Document doc = Jsoup.parse(content);
@@ -107,7 +106,7 @@ public class BlogRepository extends NetworkResourceRepository {
                 i.setDescription("");
             }
 
-            i.setLink(entry.getJSONArray("link").getJSONObject(4).getString("href"));
+            i.setLink(entry.getString("url"));
 
             mItems.add(i);
         }

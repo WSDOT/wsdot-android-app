@@ -52,7 +52,7 @@ public class APIEndPoints {
 
     // Social Media
     public static final String WSDOT_NEWS = "http://data.wsdot.wa.gov/mobile/News.js";
-    public static final String WSDOT_BLOG = "http://wsdotblog.blogspot.com/feeds/posts/default";
+    public static final String WSDOT_BLOG = "https://www.googleapis.com/blogger/v3/blogs/3323104546148939812/posts";
     public static final String WSDOT_FACEBOOK = "http://www.wsdot.wa.gov/news/socialroom/posts/facebook";
     public static final String WSDOT_TWITTER = "http://www.wsdot.wa.gov/news/socialroom/posts/twitter/";
     public static final String YOUTUBE = "https://www.googleapis.com/youtube/v3/playlistItems";
