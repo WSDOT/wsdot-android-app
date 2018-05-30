@@ -224,9 +224,9 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 
 		@Override
 		public int getItemViewType(int position){
-			if (position < 2){
+			if (position < itemList.size()){
 				return 0;
-			}else if (position == 2){
+			}else if (position == itemList.size()){
 				return 1;
 			}else{
 				return 2;
