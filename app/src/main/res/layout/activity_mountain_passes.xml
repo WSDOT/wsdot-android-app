@@ -22,15 +22,14 @@
 
 </android.support.design.widget.CoordinatorLayout>
 
-<com.google.android.gms.ads.doubleclick.PublisherAdView
-android:id="@+id/publisherAdView"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-ads:adSize="SMART_BANNER"
-ads:adUnitId="@+string/banner_ad_unit_id"
-android:contentDescription="@string/adBannerDescription"
-android:accessibilityLiveRegion="none"
-android:layout_gravity="center|bottom"
-android:layout_alignParentBottom="true"/>
+    <com.google.android.gms.ads.doubleclick.PublisherAdView
+        android:id="@+id/publisherAdView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="@string/banner_ad_unit_id"
+        android:contentDescription="@string/adBannerDescription"
+        android:layout_gravity="center|bottom"
+        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>
