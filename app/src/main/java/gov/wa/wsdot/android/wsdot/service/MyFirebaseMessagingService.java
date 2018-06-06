@@ -28,6 +28,8 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -35,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinDetailsActivity;
 import gov.wa.wsdot.android.wsdot.util.Utils;
@@ -66,6 +69,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (data.get("message") != null) {
             message = data.get("message").toString();
         }
+
+        // GA tracker
+        Tracker mTracker = ((WsdotApplication) this.getApplication()).getDefaultTracker();
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Notification")
+                .setAction("Message Received")
+                .setLabel(title)
+                .build());
 
         if (data.get("push_alert_id") != null) {
 

@@ -197,17 +197,17 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                         added_snackbar.show();
                         mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
                         mTracker.send(new HitBuilders.EventBuilder()
-                                .setCategory("Button Tap")
+                                .setCategory("Notifications")
                                 .setAction("Subscribed")
-                                .setLabel("Notifications")
+                                .setLabel(topic.getTitle())
                                 .build());
                     } else {
                         removed_snackbar.show();
                         mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
                         mTracker.send(new HitBuilders.EventBuilder()
-                                .setCategory("Button Tap")
+                                .setCategory("Notifications")
                                 .setAction("Unsubscribed")
-                                .setLabel("Notifications")
+                                .setLabel(topic.getTitle())
                                 .build());
                     }
 
