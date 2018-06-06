@@ -4,6 +4,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.4.0] - 2018-06-07
+
+## Added
+- Push notification event tracking
+
+## Fixed
+- Express lanes logic no longer expects exactly two status. (I-90 closed)
+- Updates analytics event labeling
+
 ## [5.3.9] - 2018-05-30
 
 ## Fixed
