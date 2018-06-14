@@ -453,6 +453,7 @@ public class FavoritesFragment extends BaseFragment implements
                             startActivity(intent);
                         }
                 );
+
             } else if (holder instanceof PassViewHolder){
 
                 PassViewHolder viewHolder = (PassViewHolder) holder;
@@ -569,6 +570,9 @@ public class FavoritesFragment extends BaseFragment implements
                 }
 
                 String created_at = schedule.getUpdated();
+
+                Log.e(TAG, created_at);
+
                 viewHolder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
                 viewHolder.created_at.setTypeface(tf);
 

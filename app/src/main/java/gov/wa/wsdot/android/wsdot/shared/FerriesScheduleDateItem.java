@@ -21,16 +21,17 @@ package gov.wa.wsdot.android.wsdot.shared;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class FerriesScheduleDateItem implements Serializable {
 	private static final long serialVersionUID = -4532721945762916647L;
-	private String date;
+	private Date date;
 	private ArrayList<FerriesTerminalItem> sailings = new ArrayList<FerriesTerminalItem>();
 	
-	public String getDate() {
+	public Date getDate() {
 		return date;
 	}
-	public void setDate(String date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
 	public ArrayList<FerriesTerminalItem> getFerriesTerminalItem() {

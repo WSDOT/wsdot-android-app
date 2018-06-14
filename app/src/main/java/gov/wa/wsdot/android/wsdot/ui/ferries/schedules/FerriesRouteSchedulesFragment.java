@@ -28,6 +28,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,9 @@ import android.widget.Toast;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -139,7 +142,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
             mSchedule = schedules;
             mAdapter.notifyDataSetChanged();
         });
-
         return root;
 	}
 
@@ -214,7 +216,20 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
             }
 
             String created_at = schedule.getUpdated();
-            holder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
+
+            // Try to read the created at field in the old format,
+            // it that fails, assume we are using the new format.
+            try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+                holder.created_at.setText(ParserUtils.relativeTime(
+                    dateFormat.format(new Date(Long.parseLong(created_at.substring(6, 19)))),
+                    "MMMM d, yyyy h:mm a",
+                    false));
+
+            } catch (Exception e) {
+                holder.created_at.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
+            }
+
             holder.created_at.setTypeface(tf);
 
             holder.star_button.setTag(schedule.getFerryScheduleId());

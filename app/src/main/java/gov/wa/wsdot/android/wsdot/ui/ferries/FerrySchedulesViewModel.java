@@ -10,9 +10,13 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -39,6 +43,9 @@ public class FerrySchedulesViewModel extends ViewModel {
 
     private AppExecutors appExecutors;
     private FerryScheduleRepository ferryScheduleRepo;
+
+    DateFormat shortDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd h:mm a");
 
     @Inject
     FerrySchedulesViewModel(FerryScheduleRepository ferryScheduleRepo, AppExecutors appExecutors) {
@@ -109,12 +116,14 @@ public class FerrySchedulesViewModel extends ViewModel {
         FerriesAnnotationIndexesItem indexesItem;
 
         try {
+
             JSONArray dates = new JSONArray(datesJson);
             int numDates = dates.length();
             for (int j = 0; j < numDates; j++) {
                 JSONObject date = dates.getJSONObject(j);
+
                 scheduleDate = new FerriesScheduleDateItem();
-                scheduleDate.setDate(date.getString("Date").substring(6, 19));
+                scheduleDate.setDate(getDateFromString(date.getString("Date"), shortDateFormat));
 
                 JSONArray sailings = date.getJSONArray("Sailings");
                 int numSailings = sailings.length();
@@ -140,13 +149,9 @@ public class FerrySchedulesViewModel extends ViewModel {
                         JSONObject time = times.getJSONObject(m);
 
                         timesItem = new FerriesScheduleTimesItem();
-                        timesItem.setDepartingTime(time.getString("DepartingTime").substring(6, 19));
 
-                        try {
-                            timesItem.setArrivingTime(time.getString("ArrivingTime").substring(6, 19));
-                        } catch (StringIndexOutOfBoundsException e) {
-                            timesItem.setArrivingTime("N/A");
-                        }
+                        timesItem.setDepartingTime(getDateFromString(time.getString("DepartingTime"), dateFormat));
+                        timesItem.setArrivingTime(getDateFromString(time.getString("ArrivingTime"), dateFormat));
 
                         JSONArray annotationIndexes = time.getJSONArray("AnnotationIndexes");
                         int numIndexes = annotationIndexes.length();
@@ -165,5 +170,32 @@ public class FerrySchedulesViewModel extends ViewModel {
             Log.e(TAG, "Error adding schedule date items", e);
         }
         return dateItems;
+    }
+
+    /**
+     *
+     * @param date
+     * @param mDateFormat
+     * @return
+     */
+    private Date getDateFromString(String date, DateFormat mDateFormat) {
+
+        Date day = null;
+
+        try {
+            day = new Date(Long.parseLong(date.substring(6, 19)));
+        } catch (NumberFormatException en) {
+            // Log.e(TAG, "Failed to read date as timestamp");
+        } catch (StringIndexOutOfBoundsException se) {
+            // Log.e(TAG, "Failed to read date as timestamp");
+        }
+
+        try {
+            day = mDateFormat.parse(date);
+        } catch (ParseException e) {
+            //Log.e(TAG, "Failed to read date as yyyy-MM-dd");
+        }
+
+        return day;
     }
 }

@@ -44,6 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.inject.Inject;
@@ -206,7 +207,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                     try {
                         Date now = new Date();
                         for (int i = 0; i < sailingTimes.size(); i++) {
-                            if (now.before(new Date(Long.parseLong(sailingTimes.get(i).getDepartingTime())))) {
+                            if (now.before(sailingTimes.get(i).getDepartingTime())) {
                                 mRecyclerView.stopScroll();
                                 ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(i, 0);
                                 i = sailingTimes.size();
@@ -256,13 +257,14 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         ArrayList<CharSequence> mDaysOfWeek = new ArrayList<>();
 
         DateFormat dateFormat = new SimpleDateFormat("EEEE");
+
+
         dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
         int numDates = mScheduleDateItems.size();
         for (int i = 0; i < numDates; i++) {
             if (!mScheduleDateItems.get(i).getFerriesTerminalItem().isEmpty()) {
-                mDaysOfWeek.add(dateFormat.format(new Date(
-                        Long.parseLong(mScheduleDateItems.get(i).getDate()))));
+                mDaysOfWeek.add(dateFormat.format(mScheduleDateItems.get(i).getDate()));
             }
         }
 
@@ -309,6 +311,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
+            DateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.ENGLISH);
+
             DateFormat dateFormat = new SimpleDateFormat("h:mm a");
             dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
@@ -319,7 +323,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
             itemHolder = (TimesViewHolder) holder;
 
             Date now = new Date();
-            if (now.after(new Date(Long.parseLong(item.getDepartingTime())))) {
+
+            if (now.after(item.getDepartingTime())) {
                 itemHolder.departing.setTextColor(getResources().getColor(R.color.semi_white));
                 itemHolder.arriving.setTextColor(getResources().getColor(R.color.semi_white));
                 itemHolder.annotation.setTextColor(getResources().getColor(R.color.semi_white));
@@ -333,13 +338,13 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
             String annotation = "";
 
-            itemHolder.departing.setText(dateFormat.format(new Date(Long.parseLong(item.getDepartingTime()))));
+            itemHolder.departing.setText(dateFormat.format(item.getDepartingTime()));
             contentDescriptionBuilder.append("departing at ");
             contentDescriptionBuilder.append(itemHolder.departing.getText());
             contentDescriptionBuilder.append(". ");
 
-            if (!item.getArrivingTime().equals("N/A")) {
-                itemHolder.arriving.setText(dateFormat.format(new Date(Long.parseLong(item.getArrivingTime()))));
+            if (item.getArrivingTime() != null) {
+                itemHolder.arriving.setText(dateFormat.format(item.getArrivingTime()));
                 contentDescriptionBuilder.append("arriving at");
                 contentDescriptionBuilder.append(itemHolder.departing.getText());
                 contentDescriptionBuilder.append(". ");

@@ -21,12 +21,13 @@ package gov.wa.wsdot.android.wsdot.shared;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class FerriesScheduleTimesItem implements Serializable {
 
 	private static final long serialVersionUID = -4358683796023869875L;
-	private String departingTime;
-	private String arrivingTime;
+	private Date departingTime;
+	private Date arrivingTime;
 	private ArrayList<FerriesAnnotationIndexesItem> annotationIndexes = new ArrayList<FerriesAnnotationIndexesItem>();
     private int reservableSpaceCount;
     private int driveUpSpaceCount;
@@ -39,16 +40,16 @@ public class FerriesScheduleTimesItem implements Serializable {
         this.maxSpaceCount = -1;
     }
     
-	public String getDepartingTime() {
+	public Date getDepartingTime() {
 		return departingTime;
 	}
-	public void setDepartingTime(String departingTime) {
+	public void setDepartingTime(Date departingTime) {
 		this.departingTime = departingTime;
 	}
-	public String getArrivingTime() {
+	public Date getArrivingTime() {
 		return arrivingTime;
 	}
-	public void setArrivingTime(String arrivingTime) {
+	public void setArrivingTime(Date arrivingTime) {
 		this.arrivingTime = arrivingTime;
 	}
 	public ArrayList<FerriesAnnotationIndexesItem> getAnnotationIndexes() {
@@ -57,18 +58,21 @@ public class FerriesScheduleTimesItem implements Serializable {
 	public void setAnnotationIndexes(FerriesAnnotationIndexesItem annotationIndexes) {
 		this.annotationIndexes.add(annotationIndexes);
 	}
+
     public int getReservableSpaceCount() {
         return reservableSpaceCount;
     }
     public void setReservableSpaceCount(int reservableSpaceCount) {
         this.reservableSpaceCount = reservableSpaceCount;
     }
+
     public int getDriveUpSpaceCount() {
         return driveUpSpaceCount;
     }
     public void setDriveUpSpaceCount(int driveUpSpaceCount) {
         this.driveUpSpaceCount = driveUpSpaceCount;
     }
+
     public int getMaxSpaceCount() {
         return maxSpaceCount;
     }

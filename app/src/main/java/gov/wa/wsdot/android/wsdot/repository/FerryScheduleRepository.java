@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 
 import javax.inject.Inject;
@@ -71,8 +72,6 @@ public class FerryScheduleRepository extends NetworkResourceSyncRepository {
     @Override
     void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
-        DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
-
         List<FerryScheduleEntity> starred;
 
         starred = ferryScheduleDao.getFavoriteFerrySchedules();
@@ -106,8 +105,7 @@ public class FerryScheduleRepository extends NetworkResourceSyncRepository {
             schedule.setCrossingTime(item.getString("CrossingTime"));
             schedule.setDate(item.getString("Date"));
             schedule.setAlert(item.getString("RouteAlert"));
-            schedule.setUpdated(dateFormat.format(new Date(Long.parseLong(item
-                    .getString("CacheDate").substring(6, 19)))));
+            schedule.setUpdated(item.getString("CacheDate"));
 
             for (FerryScheduleEntity starredSchedule : starred) {
                 if (starredSchedule.getFerryScheduleId().equals(schedule.getFerryScheduleId())) {

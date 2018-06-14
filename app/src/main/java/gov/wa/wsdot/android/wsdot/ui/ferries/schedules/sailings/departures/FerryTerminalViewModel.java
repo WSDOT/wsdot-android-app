@@ -11,10 +11,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.inject.Inject;
@@ -164,7 +166,9 @@ public class FerryTerminalViewModel extends ViewModel {
         String departingSpacesString = terminalSpacesValue.getDepartingSpaces();
         String lastUpdated = terminalSpacesValue.getLastUpdated();
 
+        DateFormat dataDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.ENGLISH);
         DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+
         dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
         try {
@@ -186,10 +190,8 @@ public class FerryTerminalViewModel extends ViewModel {
                         int maxSpaceCount = terminals.getInt("MaxSpaceCount");
 
                         for (FerriesScheduleTimesItem time : times) {
-                            Date departingTime = new Date(Long.parseLong(time.getDepartingTime()));
-                            if (dateFormat.format(departingTime).equals(departure)
-                                    && (new Date().before(departingTime))) {
-                                Log.e(TAG, "found a time");
+                            if (dateFormat.format(time.getDepartingTime()).equals(departure)
+                                    && (new Date().before(time.getDepartingTime()))) {
                                 time.setDriveUpSpaceCount(driveUpSpaceCount);
                                 time.setMaxSpaceCount(maxSpaceCount);
                                 time.setLastUpdated(lastUpdated);
@@ -206,9 +208,9 @@ public class FerryTerminalViewModel extends ViewModel {
                             int maxSpaceCount = terminals.getInt("MaxSpaceCount");
 
                             for (FerriesScheduleTimesItem time : times) {
-                                Date departingTime = new Date(Long.parseLong(time.getDepartingTime()));
-                                if (dateFormat.format(departingTime).equals(departure)
-                                        && new Date().before(departingTime)) {
+
+                                if (dateFormat.format(time.getDepartingTime()).equals(departure)
+                                        && new Date().before(time.getDepartingTime())) {
                                     time.setDriveUpSpaceCount(driveUpSpaceCount);
                                     time.setMaxSpaceCount(maxSpaceCount);
                                     time.setLastUpdated(lastUpdated);
@@ -219,7 +221,6 @@ public class FerryTerminalViewModel extends ViewModel {
                     }
                 }
             }
-            Log.e(TAG, "posting new departure times with spaces");
             departureTimes.postValue(times);
 
         } catch (JSONException e) {
