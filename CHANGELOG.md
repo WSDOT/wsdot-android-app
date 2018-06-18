@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## Changed
+- Ferries section updated to handle new date format coming in the future. The current format is a .NET style date string returned from the API. The new format that will be added in the future is "yyyy-MM-dd hh:mm a"
+
+
 ## [5.4.0] - 2018-06-07
 
 ## Added
