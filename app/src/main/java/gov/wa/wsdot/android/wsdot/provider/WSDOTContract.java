@@ -211,9 +211,9 @@ public class WSDOTContract {
 				BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAVEL_TIMES).appendPath(PATH_TRAVEL_TIMES_SEARCH).build();
 		
 	    public static final String CONTENT_TYPE =
-	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/travel_time";
+	    		ContentResolver.CURSOR_DIR_BASE_TYPE + "/trip_view";
 	    public static final String CONTENT_ITEM_TYPE =
-	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/travel_time";
+	    		ContentResolver.CURSOR_ITEM_BASE_TYPE + "/trip_view";
 
 	}
 

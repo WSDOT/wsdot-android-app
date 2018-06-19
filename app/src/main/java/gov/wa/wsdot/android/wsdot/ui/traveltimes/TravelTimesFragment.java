@@ -32,7 +32,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,7 +40,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -303,12 +301,12 @@ public class TravelTimesFragment extends BaseFragment implements
 
         Typeface tfb = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Bold.ttf");
         LayoutInflater li = LayoutInflater.from(context);
-        View cv = li.inflate(R.layout.travel_time, null);
+        View cv = li.inflate(R.layout.trip_view, null);
 
         // set via label
-        ((TextView) cv.findViewById(R.id.via)).setText("Via " + time.getVia());
+        ((TextView) cv.findViewById(R.id.title)).setText("Via " + time.getVia());
 
-        TextView currentTimeTextView = cv.findViewById(R.id.current_time);
+        TextView currentTimeTextView = cv.findViewById(R.id.current_value);
         currentTimeTextView.setTypeface(tfb);
 
         // set updated
@@ -317,7 +315,7 @@ public class TravelTimesFragment extends BaseFragment implements
         if (time.getStatus().toLowerCase().equals("closed")) {
             currentTimeTextView.setText("Closed");
             currentTimeTextView.setTextColor(Color.RED);
-            cv.findViewById(R.id.distance_average_time).setVisibility(View.GONE);
+            cv.findViewById(R.id.subtitle).setVisibility(View.GONE);
         } else {
 
             // set distance and avg time text view
@@ -331,7 +329,7 @@ public class TravelTimesFragment extends BaseFragment implements
                 average_time = average + " min";
             }
 
-            ((TextView) cv.findViewById(R.id.distance_average_time)).setText(distance + " / " + average_time);
+            ((TextView) cv.findViewById(R.id.subtitle)).setText(distance + " / " + average_time);
 
             // set current travel time. Set to closed if status is closed.
             int current = time.getCurrent();

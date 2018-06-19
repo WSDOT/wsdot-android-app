@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Washington State Department of Transportation
+ * Copyright (c) 2018 Washington State Department of Transportation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,105 +18,260 @@
 
 package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
+import gov.wa.wsdot.android.wsdot.shared.I405TollRateSignItem;
+import gov.wa.wsdot.android.wsdot.shared.I405TripItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class I405TollRatesFragment extends BaseFragment {
+public class I405TollRatesFragment extends BaseFragment
+        implements SwipeRefreshLayout.OnRefreshListener, Injectable {
 	
     private static final String TAG = I405TollRatesFragment.class.getSimpleName();
-    private WebView webview;
-	private ViewGroup mRootView;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);	
-	}
-	
-	@SuppressLint("SetJavaScriptEnabled")
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_webview_with_spinner, null);
-		webview = (WebView)mRootView.findViewById(R.id.webview);
-		webview.setVisibility(View.GONE);
-		webview.setWebViewClient(new myWebViewClient());
-		webview.getSettings().setJavaScriptEnabled(true);
-		webview.loadDataWithBaseURL(null, formatText(), "text/html", "utf-8", null);
+    private static I405TollRatesItemAdapter mAdapter;
+    private View mEmptyView;
+    private static SwipeRefreshLayout swipeRefreshLayout;
 
-		disableAds(mRootView);
+    protected RecyclerView mRecyclerView;
+    protected LinearLayoutManager mLayoutManager;
 
-		return mRootView;
-	}
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+	I405TollRatesViewModel viewModel;
 
-	private String formatText()	{
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("<p><strong>I-405 Express Toll Lanes between Bellevue and Lynnwood</strong><br />");
-		sb.append("I-405 express toll lanes let drivers choose to travel faster by paying a toll 5 a.m.-7 p.m. Monday-Friday. ");
-		sb.append("Toll rates will adjust between 75 cents and $10 based on traffic volumes in the express ");
-		sb.append("toll lane. Drivers will pay the rate they see upon entering the lanes, even if they see "); 
-		sb.append("a higher price down the road. Transit, vanpools, carpools and motorcycles can use the ");
-		sb.append("lanes for free with a <em>Good To Go!</em> account and pass. The lanes are open to all ");
-		sb.append("vehicles toll-free Monday-Friday 7 p.m.-5 a.m., on weekends, and on New Years Day, Memorial Day, ");
-		sb.append("Independence Day, Labor Day, Thanksgiving Day, and Christmas Day.</p>");
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
-		sb.append("<p><strong>Access to express toll lanes</strong><br />");
-		sb.append("Drivers who choose to use the lanes, will merge to the far left regular lane and can ");
-		sb.append("enter express toll lanes at designated access points that are marked with dashed lines. ");
-		sb.append("Just remember that failure to use designated access points will result in a $136 ticket ");
-		sb.append("for crossing the double white lines.</p>");
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
-		sb.append("<p>There are two direct access ramps to I-405 express toll lanes that allow you to ");
-		sb.append("directly enter the express toll lanes from the middle of the freeway. These ramps are at ");
-		sb.append("Northeast 6th Street in Bellevue and Northeast 128th Street in Kirkland.</p>");
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
-		sb.append("<p><strong>Using the lanes</strong><br />");
-		sb.append("Any existing <em>Good To Go!</em> pass can be used to pay a toll.</p>");
-		sb.append("<p>If you carpool on the I-405 express toll lanes, you must meet the occupancy requirements ");
-		sb.append("and have a <em>Good To Go!</em> account and Flex Pass set to HOV mode to travel toll-free. Carpool ");
-		sb.append("requirements are three occupants during weekday peak hours (5-9 a.m. and 3-7 p.m.) and two ");
-		sb.append("occupants during off-peak hours (9 a.m.-3 p.m.).</p>");
-		sb.append("<p>If a driver does not have a <em>Good To Go!</em> account, a Pay By Mail toll bill will be mailed ");
-		sb.append("to the vehicle’s registered owner for an additional $2 per toll transaction.</p>");
-	    sb.append("<p>Visit <a href=\"http://www.GoodToGo405.org\">GoodToGo405.org</a> for more information.</p>");
-			
-		return sb.toString();
-	}
-	
-	public class myWebViewClient extends WebViewClient {
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new I405TollRatesItemAdapter(getActivity());
+        mRecyclerView.setAdapter(mAdapter);
 
-		@Override
-		public void onPageStarted(WebView view, String url, Bitmap favicon) {
-			super.onPageStarted(view, url, favicon);
-		}
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
-		@Override
-		public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            if (url.startsWith("http:") || url.startsWith("https:")) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(browserIntent);
-            } else {
-                view.loadUrl(url);
+        mRecyclerView.setPadding(0,0,0,100);
+
+        // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
+        // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
+        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(
+                R.color.holo_blue_bright,
+                R.color.holo_green_light,
+                R.color.holo_orange_light,
+                R.color.holo_red_light);
+
+        mEmptyView = root.findViewById(R.id.empty_list_view);
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(I405TollRatesViewModel.class);
+
+        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
+                }
             }
-            
-            return true;
-		}
-		
-		@Override
-		public void onPageFinished(WebView view, String url) {
-			super.onPageFinished(view, url);
-            webview.setVisibility(View.VISIBLE);
-			//mLoadingSpinner.setVisibility(View.GONE);
-		}
-	}
+        });
+
+        viewModel.getTollRateItems().observe(this, tollRateSignItems -> {
+            if (tollRateSignItems != null) {
+                if (tollRateSignItems.size() == 0) {
+                    TextView t = (TextView) mEmptyView;
+                    t.setText("toll rates unavailable.");
+                    mEmptyView.setVisibility(View.VISIBLE);
+                } else {
+                    mEmptyView.setVisibility(View.GONE);
+                }
+                mAdapter.setData(new ArrayList<>(tollRateSignItems));
+            }
+        });
+
+        viewModel.refresh();
+
+        return root;
+    }
+
+
+    /**
+     * Custom adapter for items in recycler view.
+     *
+     * Binds the custom ViewHolder class to it's data.
+     *
+     * @see android.support.v7.widget.RecyclerView.Adapter
+     */
+    private class I405TollRatesItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
+        private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+        private Context context;
+
+        private ArrayList<I405TollRateSignItem> mData = new ArrayList<>();
+
+        private List<RecyclerView.ViewHolder> mItems = new ArrayList<>();
+
+        public I405TollRatesItemAdapter(Context context) {
+            this.context = context;
+        }
+
+        public void setData(ArrayList<I405TollRateSignItem> data){
+            mData = data;
+            this.notifyDataSetChanged();
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(context).inflate(R.layout.list_item_travel_time_group, null);
+            ViewHolder viewholder = new ViewHolder(view);
+            view.setTag(viewholder);
+            mItems.add(viewholder);
+            return viewholder;
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+
+            ViewHolder viewholder = (ViewHolder) viewHolder;
+
+            I405TollRateSignItem tollRateSignItem = mData.get(position);
+
+            final String title = tollRateSignItem.getStartLocationName().concat(" Entrance");
+            viewholder.title.setText(title);
+            viewholder.title.setTypeface(tfb);
+
+            viewholder.travel_times_layout.removeAllViews();
+
+            for (I405TripItem trip: tollRateSignItem.getTrips()) {
+
+                View tripView = makeTripView(trip, getContext());
+
+                // remove the line from the last trip
+                if (tollRateSignItem.getTrips().indexOf(trip) == tollRateSignItem.getTrips().size() - 1){
+                    tripView.findViewById(R.id.line).setVisibility(View.GONE);
+                }
+
+                viewholder.travel_times_layout.addView(tripView);
+            }
+
+            /* TODO: favorites
+            // Seems when Android recycles the views, the onCheckedChangeListener is still active
+            // and the call to setChecked() causes that code within the listener to run repeatedly.
+            // Assigning null to setOnCheckedChangeListener seems to fix it.
+            viewholder.star_button.setOnCheckedChangeListener(null);
+            viewholder.star_button
+                    .setChecked(travelTimeGroup.trip.getIsStarred() != 0);
+
+            viewholder.star_button.setOnCheckedChangeListener((buttonView, isChecked) -> {
+
+                Snackbar added_snackbar = Snackbar
+                        .make(getView(), R.string.add_favorite, Snackbar.LENGTH_SHORT);
+
+                Snackbar removed_snackbar = Snackbar
+                        .make(getView(), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
+
+                if (isChecked){
+                    added_snackbar.show();
+                }else{
+                    removed_snackbar.show();
+                }
+
+                viewModel.setIsStarredFor(title, isChecked ? 1 : 0);
+            });
+            */
+        }
+
+        @Override
+        public int getItemCount() {
+            return mData.size();
+        }
+
+        private class ViewHolder extends RecyclerView.ViewHolder {
+            public LinearLayout travel_times_layout;
+            public TextView title;
+            public CheckBox star_button;
+
+            public ViewHolder(View view) {
+                super(view);
+                travel_times_layout = view.findViewById(R.id.travel_times_linear_layout);
+                title = view.findViewById(R.id.title);
+                star_button = view.findViewById(R.id.star_button);
+            }
+        }
+    }
+
+    public static View makeTripView(I405TripItem tripItem, Context context) {
+
+        Typeface tfb = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Bold.ttf");
+        LayoutInflater li = LayoutInflater.from(context);
+        View cv = li.inflate(R.layout.trip_view, null);
+
+        // set end location label
+        ((TextView) cv.findViewById(R.id.title)).setText(tripItem.getEndLocationName().concat(" Exit"));
+
+        // set updated label
+        ((TextView) cv.findViewById(R.id.updated)).setText(tripItem.getUpdatedAt());
+
+        // set toll
+        TextView currentTimeTextView = cv.findViewById(R.id.current_value);
+        currentTimeTextView.setTypeface(tfb);
+        currentTimeTextView.setText("$".concat(String.valueOf(tripItem.getToll()/100)));
+
+        // set message if there is one
+        if (tripItem.getMessage().equals("null")){
+            ((TextView) cv.findViewById(R.id.subtitle)).setText("");
+        } else {
+            ((TextView) cv.findViewById(R.id.subtitle)).setText(tripItem.getMessage());
+        }
+
+        return cv;
+    }
+
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+        viewModel.refresh();
+    }
 }

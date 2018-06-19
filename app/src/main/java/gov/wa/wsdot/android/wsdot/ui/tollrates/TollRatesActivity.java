@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui.tollrates;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -56,20 +57,25 @@ public class TollRatesActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_with_tabs);
-        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager = findViewById(R.id.pager);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        Spinner mSpinner = (Spinner) findViewById(R.id.spinner);
+        AppBarLayout.LayoutParams params =
+                (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+        params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
+
+        Spinner mSpinner = findViewById(R.id.spinner);
         mSpinner.setVisibility(View.GONE);
 
-        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        mTabLayout = findViewById(R.id.tab_layout);
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
 
         // Add tab titles and their corresponding fragments to the fragment list.
         tabFragments.add(mTabLayout.getTabCount(), SR520TollRatesFragment.class);
@@ -88,6 +94,7 @@ public class TollRatesActivity extends BaseActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
 
         mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
@@ -98,14 +105,11 @@ public class TollRatesActivity extends BaseActivity {
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabUnselected(TabLayout.Tab tab) {}
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
+            public void onTabReselected(TabLayout.Tab tab) {}
 
-            }
         });
 
         disableAds();
@@ -118,7 +122,6 @@ public class TollRatesActivity extends BaseActivity {
         }
 
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-
     }
 
     @Override

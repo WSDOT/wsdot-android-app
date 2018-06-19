@@ -23,6 +23,7 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteViewModel;
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsViewModel;
+import gov.wa.wsdot.android.wsdot.ui.tollrates.I405TollRatesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.FavoriteMapLocationViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertViewModel;
@@ -176,6 +177,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(NotificationsViewModel.class)
     abstract ViewModel bindNotificationsViewModel(NotificationsViewModel notificationsViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(I405TollRatesViewModel.class)
+    abstract ViewModel bindI405TollRatesViewModel(I405TollRatesViewModel i405TollRatesViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

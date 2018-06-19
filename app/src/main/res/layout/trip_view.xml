@@ -5,7 +5,7 @@
     android:paddingTop="8dp">
 
     <TextView
-        android:id="@+id/current_time"
+        android:id="@+id/current_value"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_marginLeft="7dp"
@@ -18,19 +18,19 @@
         android:layout_alignParentBottom="true"/>
 
     <TextView
-        android:id="@+id/via"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="17sp"
         android:textColor="@color/black" />
 
     <TextView
-        android:id="@+id/distance_average_time"
+        android:id="@+id/subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/text_size_small"
         android:textColor="@color/black"
-        android:layout_below="@id/via"/>
+        android:layout_below="@id/title"/>
 
     <TextView
         android:id="@+id/updated"
@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="8dp"
-        android:layout_below="@id/distance_average_time" />
+        android:layout_below="@id/subtitle" />
 
     <TextView
         android:layout_width="match_parent"
