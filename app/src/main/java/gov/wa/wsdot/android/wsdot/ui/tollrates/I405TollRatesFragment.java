@@ -26,10 +26,12 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,7 +86,21 @@ public class I405TollRatesFragment extends BaseFragment
 
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
-        mRecyclerView.setPadding(0,0,0,100);
+        mRecyclerView.setPadding(0,0,0,120);
+
+        FrameLayout frame = root.findViewById(R.id.frame_layout);
+
+        TextView textView = new TextView(getContext());
+        textView.setText("The tolls reported here may not match what is currently displayed on the road signs.");
+
+        textView.setPadding(15, 20, 15, 15);
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.BOTTOM;
+
+        textView.setLayoutParams(params);
+
+        frame.addView(textView);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -179,7 +195,9 @@ public class I405TollRatesFragment extends BaseFragment
 
             I405TollRateSignItem tollRateSignItem = mData.get(position);
 
-            final String title = tollRateSignItem.getStartLocationName().concat(" Entrance");
+            String direction = tollRateSignItem.getTravelDirection().equals("N") ? " Northbound" : " Southbound";
+
+            final String title = tollRateSignItem.getStartLocationName().concat(direction).concat(" Entrance");
             viewholder.title.setText(title);
             viewholder.title.setTypeface(tfb);
 
