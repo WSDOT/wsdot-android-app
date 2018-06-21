@@ -19,6 +19,7 @@ import gov.wa.wsdot.android.wsdot.database.AppDatabase;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 
+import static gov.wa.wsdot.android.wsdot.database.AppDatabase.MIGRATION_10_11;
 import static gov.wa.wsdot.android.wsdot.database.AppDatabase.MIGRATION_7_8;
 import static gov.wa.wsdot.android.wsdot.database.AppDatabase.MIGRATION_8_9;
 import static gov.wa.wsdot.android.wsdot.database.AppDatabase.MIGRATION_9_10;
@@ -68,7 +69,8 @@ public class MigrationTest {
                 , true,
                 MIGRATION_7_8,
                 MIGRATION_8_9,
-                MIGRATION_9_10);
+                MIGRATION_9_10,
+                MIGRATION_10_11);
 
         // Get the latest, migrated, version of the database
         // Check that the correct data is in the database
@@ -80,7 +82,7 @@ public class MigrationTest {
     private AppDatabase getMigratedRoomDatabase() {
         AppDatabase database = Room.databaseBuilder(InstrumentationRegistry.getTargetContext(),
                 AppDatabase.class, TEST_DB_NAME)
-                .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
+                .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11)
                 .build();
         // close the database and release any stream resources when the test finishes
         mMigrationTestHelper.closeWhenFinished(database);

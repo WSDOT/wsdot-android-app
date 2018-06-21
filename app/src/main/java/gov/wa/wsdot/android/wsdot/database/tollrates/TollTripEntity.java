@@ -26,7 +26,6 @@ public class TollTripEntity {
     private String signId = "";
 
     @ColumnInfo(name = "toll_rate")
-    @NonNull
     private Double tollRate = 0.0;
 
     @ColumnInfo(name = "message")
@@ -50,12 +49,11 @@ public class TollTripEntity {
         this.signId = signId;
     }
 
-    @NonNull
     public Double getTollRate() {
         return tollRate;
     }
 
-    public void setTollRate(@NonNull Double tollRate) {
+    public void setTollRate(Double tollRate) {
         this.tollRate = tollRate;
     }
 

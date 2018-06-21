@@ -58,7 +58,7 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
         NotificationTopicEntity.class,
         TollTripEntity.class,
         TollRateSignEntity.class
-    }, version = 10)
+    }, version = 11)
 
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -98,6 +98,9 @@ public abstract class AppDatabase extends RoomDatabase {
         String MAP_LOCATION = "map_location";
         String MY_ROUTE = "my_route";
         String NOTIFICATION_TOPIC = "notification_topic";
+        String TOLL_RATE_SIGN = "toll_rate_sign";
+        String TOLL_TRIP = "toll_trip";
+
     }
 
     interface CachesColumns {
@@ -228,6 +231,27 @@ public abstract class AppDatabase extends RoomDatabase {
         String NOTIFICATION_REMOVE = "remove";
     }
 
+    interface TollRateSignColumns {
+        String TOLL_RATE_SIGN_ID = "id";
+        String TOLL_RATE_SIGN_LOCATION_NAME = "location_name";
+        String TOLL_RATE_SIGN_IS_STARRED = "is_starred";
+        String TOLL_RATE_SIGN_STATE_ROUTE = "state_route";
+        String TOLL_RATE_SIGN_TRAVEL_DIRECTION = "travel_direction";
+        String TOLL_RATE_SIGN_START_LAT = "start_latitude";
+        String TOLL_RATE_SIGN_START_LONG = "start_longitude";
+    }
+
+    interface TollTripColumns {
+        String TOLL_TRIP_NAME = "trip_name";
+        String TOLL_TRIP_END_LOCATION_NAME = "end_location_name";
+        String TOLL_TRIP_SIGN_ID = "sign_id";
+        String TOLL_TRIP_TOLL_RATE = "toll_rate";
+        String TOLL_TRIP_MESSAGE = "message";
+        String TOLL_TRIP_END_LAT = "end_latitude";
+        String TOLL_TRIP_END_LONG = "end_longitude";
+        String TOLL_TRIP_UPDATED = "updated";
+    }
+
     @VisibleForTesting
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
@@ -325,7 +349,6 @@ public abstract class AppDatabase extends RoomDatabase {
 
             database.execSQL("UPDATE " + Tables.CACHES + " SET " + CachesColumns.CACHE_LAST_UPDATED + " = 0 WHERE "
                     + CachesColumns.CACHE_TABLE_NAME + "='" + Tables.MOUNTAIN_PASSES + "' ");
-
         }
     };
 
@@ -573,6 +596,36 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    @VisibleForTesting
+    public static final Migration MIGRATION_10_11 = new Migration(10, 11) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+
+            database.execSQL("CREATE TABLE " + Tables.TOLL_RATE_SIGN + " ("
+                    + TollRateSignColumns.TOLL_RATE_SIGN_ID + " TEXT PRIMARY KEY NOT NULL,"
+                    + TollRateSignColumns.TOLL_RATE_SIGN_LOCATION_NAME + " TEXT NOT NULL,"
+                    + TollRateSignColumns.TOLL_RATE_SIGN_STATE_ROUTE + " INTEGER NOT NULL default 0,"
+                    + TollRateSignColumns.TOLL_RATE_SIGN_TRAVEL_DIRECTION + " TEXT NOT NULL,"
+                    + TollRateSignColumns.TOLL_RATE_SIGN_IS_STARRED + " INTEGER NOT NULL default 0,"
+                    + TollRateSignColumns.TOLL_RATE_SIGN_START_LAT + " REAL NOT NULL default 0,"
+                    + TollRateSignColumns.TOLL_RATE_SIGN_START_LONG + " REAL NOT NULL default 0);");
+
+            database.execSQL("CREATE TABLE " + Tables.TOLL_TRIP + " ("
+                    + TollTripColumns.TOLL_TRIP_NAME + " TEXT PRIMARY KEY NOT NULL,"
+                    + TollTripColumns.TOLL_TRIP_END_LOCATION_NAME + " TEXT,"
+                    + TollTripColumns.TOLL_TRIP_SIGN_ID + " TEXT NOT NULL,"
+                    + TollTripColumns.TOLL_TRIP_TOLL_RATE + " REAL,"
+                    + TollTripColumns.TOLL_TRIP_MESSAGE + " TEXT,"
+                    + TollTripColumns.TOLL_TRIP_UPDATED + " TEXT,"
+                    + TollTripColumns.TOLL_TRIP_END_LAT + " REAL,"
+                    + TollTripColumns.TOLL_TRIP_END_LONG + " REAL,"
+                    + "FOREIGN KEY(`sign_id`) REFERENCES `toll_rate_sign`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+
+            database.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('toll_trip', 0);");
+
+        }
+    };
+
     public static AppDatabase getInstance(Context context) {
         synchronized (sLock) {
             if (INSTANCE == null) {
@@ -587,7 +640,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                 MIGRATION_6_7,
                                 MIGRATION_7_8,
                                 MIGRATION_8_9,
-                                MIGRATION_9_10)
+                                MIGRATION_9_10,
+                                MIGRATION_10_11)
                         .addCallback(new Callback() {
 
                             @Override
