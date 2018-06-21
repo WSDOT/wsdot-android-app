@@ -13,6 +13,7 @@ import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
@@ -21,6 +22,7 @@ import gov.wa.wsdot.android.wsdot.repository.FerryScheduleRepository;
 import gov.wa.wsdot.android.wsdot.repository.MapLocationRepository;
 import gov.wa.wsdot.android.wsdot.repository.MountainPassRepository;
 import gov.wa.wsdot.android.wsdot.repository.MyRoutesRepository;
+import gov.wa.wsdot.android.wsdot.repository.TollRatesRepository;
 import gov.wa.wsdot.android.wsdot.repository.TravelTimeRepository;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 import gov.wa.wsdot.android.wsdot.util.network.Status;
@@ -45,6 +47,9 @@ public class FavoritesViewModel extends ViewModel {
 
     private MapLocationRepository mapLocationRepo;
 
+    private TollRatesRepository tollRatesRepo;
+    private MutableLiveData<ResourceStatus> mTollRatesStatus;
+
     private MediatorLiveData<Integer> mFavoritesLoadingTasks;
 
     @Inject
@@ -53,12 +58,14 @@ public class FavoritesViewModel extends ViewModel {
                        TravelTimeRepository travelTimeRepo,
                        MountainPassRepository mountainPassRepo,
                        MyRoutesRepository myRoutesRepo,
-                       MapLocationRepository mapLocationRepo) {
+                       MapLocationRepository mapLocationRepo,
+                       TollRatesRepository tollRatesRepo) {
 
         this.mCameraStatus = new MutableLiveData<>();
         this.mFerryStatus = new MutableLiveData<>();
         this.mTravelTimeStatus = new MutableLiveData<>();
         this.mPassStatus = new MutableLiveData<>();
+        this.mTollRatesStatus = new MutableLiveData<>();
 
         this.mFavoritesLoadingTasks = new MediatorLiveData<>();
         this.mFavoritesLoadingTasks.setValue(0);
@@ -99,12 +106,26 @@ public class FavoritesViewModel extends ViewModel {
             }
         });
 
+        this.mFavoritesLoadingTasks.addSource(mTollRatesStatus, status -> {
+            if (status != null && mFavoritesLoadingTasks.getValue() != null) {
+                if (status.status.equals(Status.LOADING)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() + 1);
+                } else if (status.status.equals(Status.ERROR)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() - 1);
+                } else if (status.status.equals(Status.SUCCESS)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() - 1);
+                }
+            }
+        });
+
         this.cameraRepo = cameraRepo;
         this.ferryScheduleRepo = ferryScheduleRepo;
         this.travelTimeRepo = travelTimeRepo;
         this.mountainPassRepo = mountainPassRepo;
         this.myRoutesRepo = myRoutesRepo;
         this.mapLocationRepo = mapLocationRepo;
+        this.tollRatesRepo = tollRatesRepo;
+
     }
 
     LiveData<Integer> getFavoritesLoadingTasksCount() {
@@ -139,6 +160,13 @@ public class FavoritesViewModel extends ViewModel {
         this.mountainPassRepo.setIsStarred(passId, isStarred);
     }
 
+    public LiveData<List<TollRateGroup>> getFavoriteTollRates(){
+        return this.tollRatesRepo.loadFavoriteTolls(mTollRatesStatus);
+    }
+    public void setTollRateIsStarred(String signId, int isStarred){
+        this.tollRatesRepo.setIsStarred(signId, isStarred);
+    }
+
     public LiveData<List<MyRouteEntity>> getFavoriteMyRoutes(){
         return this.myRoutesRepo.loadFavoriteMyRoutes();
     }
@@ -163,6 +191,7 @@ public class FavoritesViewModel extends ViewModel {
         ferryScheduleRepo.refreshData(mFerryStatus, true);
         mountainPassRepo.refreshData(mPassStatus, true);
         travelTimeRepo.refreshData(mTravelTimeStatus, true);
+        tollRatesRepo.refreshData(mTollRatesStatus, true);
     }
 
 }

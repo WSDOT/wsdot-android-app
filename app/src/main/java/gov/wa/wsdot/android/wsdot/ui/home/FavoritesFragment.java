@@ -56,6 +56,8 @@ import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
+import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
@@ -67,6 +69,7 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAle
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
+import gov.wa.wsdot.android.wsdot.ui.tollrates.I405TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesFragment;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
@@ -92,8 +95,9 @@ public class FavoritesFragment extends BaseFragment implements
     public static final int TRAVEL_TIMES_VIEWTYPE = 3;
     public static final int FERRIES_SCHEDULES_VIEWTYPE = 4;
     public static final int LOCATION_VIEWTYPE = 5;
+    public static final int TOLL_RATE_VIEWTYPE = 6;
 
-    private static final int HEADER_VIEWTYPE = 6;
+    private static final int HEADER_VIEWTYPE = 7;
 
     public static LinkedHashMap headers = new LinkedHashMap<Integer, String>(){
         {
@@ -103,10 +107,11 @@ public class FavoritesFragment extends BaseFragment implements
             put(TRAVEL_TIMES_VIEWTYPE, "Travel Times");
             put(FERRIES_SCHEDULES_VIEWTYPE, "Ferries Schedules");
             put(LOCATION_VIEWTYPE, "Locations");
+            put(TOLL_RATE_VIEWTYPE, "Toll Rates");
         }
     };
 
-    private int orderedViewTypes[] = new int[6];
+    private int orderedViewTypes[] = new int[7];
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
@@ -128,7 +133,6 @@ public class FavoritesFragment extends BaseFragment implements
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_favorites, null);
 
-
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
         orderedViewTypes[0] = settings.getInt("KEY_FIRST_FAVORITES_SECTION", MY_ROUTE_VIEWTYPE);
@@ -137,6 +141,7 @@ public class FavoritesFragment extends BaseFragment implements
         orderedViewTypes[3] = settings.getInt("KEY_FOURTH_FAVORITES_SECTION", MOUNTAIN_PASSES_VIEWTYPE);
         orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", TRAVEL_TIMES_VIEWTYPE);
         orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", LOCATION_VIEWTYPE);
+        orderedViewTypes[6] = settings.getInt("KEY_SEVENTH_FAVORITES_SECTION", TOLL_RATE_VIEWTYPE);
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -195,6 +200,10 @@ public class FavoritesFragment extends BaseFragment implements
                     case MY_ROUTE_VIEWTYPE:
                         MyRouteEntity myRoute = (MyRouteEntity) mFavoritesAdapter.getItem(holder.getAdapterPosition());
                         item_id = String.valueOf(myRoute.getMyRouteId());
+                        break;
+                    case TOLL_RATE_VIEWTYPE:
+                        TollRateGroup tollRateGroup = (TollRateGroup) mFavoritesAdapter.getItem((holder.getAdapterPosition()));
+                        item_id = String.valueOf(tollRateGroup.tollRateSign.getId());
                         break;
                     default:
                         item_id = null;
@@ -285,6 +294,15 @@ public class FavoritesFragment extends BaseFragment implements
             }
         });
 
+        viewModel.getFavoriteTollRates().observe(this, tollRateGroups -> {
+            if (tollRateGroups != null){
+                if (tollRateGroups.size() > 0){
+                    mEmptyView.setVisibility(View.GONE);
+                }
+                mFavoritesAdapter.setTollRates(tollRateGroups);
+            }
+        });
+
         viewModel.getFavoritesLoadingTasksCount().observe(this, numTasks -> {
             if (numTasks != null) {
 
@@ -334,6 +352,7 @@ public class FavoritesFragment extends BaseFragment implements
         private List<MountainPassEntity> mPasses;
         private List<MyRouteEntity> mMyRoutes;
         private List<MapLocationEntity> mMapLocations;
+        private List<TollRateGroup> mTollRates;
 
         FavItemAdapter() {
             this.mCameras = new ArrayList<>();
@@ -342,6 +361,7 @@ public class FavoritesFragment extends BaseFragment implements
             this.mPasses = new ArrayList<>();
             this.mMyRoutes = new ArrayList<>();
             this.mMapLocations = new ArrayList<>();
+            this.mTollRates = new ArrayList<>();
         }
 
         void setCameras(List<CameraEntity> cameras){
@@ -374,6 +394,11 @@ public class FavoritesFragment extends BaseFragment implements
             this.notifyDataSetChanged();
         }
 
+        void setTollRates(List<TollRateGroup> tollRates){
+            this.mTollRates = tollRates;
+            this.notifyDataSetChanged();
+        }
+
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -390,7 +415,7 @@ public class FavoritesFragment extends BaseFragment implements
                 case TRAVEL_TIMES_VIEWTYPE:
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_item_travel_time_group, null);
-                    return new TimesViewHolder(itemView);
+                    return new TravelTimeViewHolder(itemView);
                 case FERRIES_SCHEDULES_VIEWTYPE:
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_item_with_star, null);
@@ -403,6 +428,11 @@ public class FavoritesFragment extends BaseFragment implements
                     itemView = LayoutInflater
                             .from(parent.getContext()).inflate(R.layout.list_item_my_route_favorite, null);
                     return new MyRouteViewHolder(itemView);
+
+                case TOLL_RATE_VIEWTYPE:
+                    itemView = LayoutInflater
+                            .from(parent.getContext()).inflate(R.layout.list_item_travel_time_group, null);
+                    return new TollRateViewHolder(itemView);
                 case HEADER_VIEWTYPE:
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_header, parent, false);
@@ -497,9 +527,9 @@ public class FavoritesFragment extends BaseFragment implements
                             startActivity(intent);
                         }
                 );
-            } else if (holder instanceof TimesViewHolder){
+            } else if (holder instanceof TravelTimeViewHolder){
 
-                TimesViewHolder viewholder = (TimesViewHolder) holder;
+                TravelTimeViewHolder viewholder = (TravelTimeViewHolder) holder;
 
                 TravelTimeGroup travelTimeGroup = (TravelTimeGroup) mFavoritesAdapter.getItem(position);
 
@@ -655,8 +685,38 @@ public class FavoritesFragment extends BaseFragment implements
                             return true;
                         }
                 );
+            } else if (holder instanceof TollRateViewHolder) {
 
-            } else if (holder instanceof  MyRouteViewHolder) {
+                TollRateViewHolder viewholder = (TollRateViewHolder) holder;
+
+                TollRateGroup tollRateGroup = (TollRateGroup) mFavoritesAdapter.getItem(position);
+
+                String direction = tollRateGroup.tollRateSign.getTravelDirection().equals("N") ? " Northbound" : " Southbound";
+
+                final String id = tollRateGroup.tollRateSign.getId();
+
+                String title = tollRateGroup.tollRateSign.getLocationName().concat(direction).concat(" Entrance");
+                viewholder.title.setText(title);
+                viewholder.title.setTypeface(tfb);
+
+                viewholder.travel_times_layout.removeAllViews();
+
+                // make a trip view with toll rate for each trip in the group
+                for (TollTripEntity trip: tollRateGroup.trips) {
+
+                    View tripView = I405TollRatesFragment.makeTripView(trip, getContext());
+
+                    // remove the line from the last trip
+                    if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){
+                        tripView.findViewById(R.id.line).setVisibility(View.GONE);
+                    }
+
+                    viewholder.travel_times_layout.addView(tripView);
+                }
+
+                viewholder.star_button.setVisibility(View.GONE);
+
+            } else if (holder instanceof MyRouteViewHolder) {
 
                 MyRouteViewHolder viewholder = (MyRouteViewHolder) holder;
                 MyRouteEntity myRoute = (MyRouteEntity) mFavoritesAdapter.getItem(position);
@@ -757,6 +817,9 @@ public class FavoritesFragment extends BaseFragment implements
                     case MY_ROUTE_VIEWTYPE:
                         size = mMyRoutes.size() + (mMyRoutes.size() > 0 ? 1 : 0);
                         break;
+                    case TOLL_RATE_VIEWTYPE:
+                        size = mTollRates.size() + (mTollRates.size() > 0 ? 1 : 0);
+                        break;
                     default:
                         break;
                 }
@@ -810,6 +873,9 @@ public class FavoritesFragment extends BaseFragment implements
                     case MY_ROUTE_VIEWTYPE:
                         size = mMyRoutes.size() + (mMyRoutes.size() > 0 ? 1 : 0);
                         break;
+                    case TOLL_RATE_VIEWTYPE:
+                        size = mTollRates.size() + (mTollRates.size() > 0 ? 1 : 0);
+                        break;
                     default:
                         break;
                 }
@@ -831,6 +897,8 @@ public class FavoritesFragment extends BaseFragment implements
                             return mMapLocations.get(position - 1);
                         case MY_ROUTE_VIEWTYPE:
                             return mMyRoutes.get(position - 1);
+                        case TOLL_RATE_VIEWTYPE:
+                            return mTollRates.get(position - 1);
                         default:
                             break;
                     }
@@ -853,6 +921,7 @@ public class FavoritesFragment extends BaseFragment implements
             count += mPasses.size() + (mPasses.size() > 0 ? 1 : 0);
             count += mMapLocations.size() + (mMapLocations.size() > 0 ? 1 : 0);
             count += mMyRoutes.size() + (mMyRoutes.size() > 0 ? 1 : 0);
+            count += mTollRates.size() + (mTollRates.size() > 0 ? 1 : 0);
 
             return count;
         }
@@ -875,6 +944,8 @@ public class FavoritesFragment extends BaseFragment implements
                     viewModel.editMapLocationName(Integer.valueOf(item_id), newTitle);
                     break;
                 case MY_ROUTE_VIEWTYPE:
+                    break;
+                case TOLL_RATE_VIEWTYPE:
                     break;
             }
             notifyDataSetChanged();
@@ -907,6 +978,8 @@ public class FavoritesFragment extends BaseFragment implements
                 case MY_ROUTE_VIEWTYPE:
                     viewModel.setMyRouteIsStarred(Integer.valueOf(item_id), 0);
                     break;
+                case TOLL_RATE_VIEWTYPE:
+                    viewModel.setTollRateIsStarred(item_id, 0);
             }
             notifyDataSetChanged();
         }
@@ -949,6 +1022,9 @@ public class FavoritesFragment extends BaseFragment implements
                 case MY_ROUTE_VIEWTYPE:
                     viewModel.setMyRouteIsStarred(Integer.valueOf(item_id), 1);
                     break;
+                case TOLL_RATE_VIEWTYPE:
+                    viewModel.setTollRateIsStarred(item_id, 1);
+                    break;
                 }
             notifyDataSetChanged();
         }
@@ -983,12 +1059,25 @@ public class FavoritesFragment extends BaseFragment implements
         }
     }
 
-    private class TimesViewHolder extends RecyclerView.ViewHolder {
+    private class TravelTimeViewHolder extends RecyclerView.ViewHolder {
         public LinearLayout travel_times_layout;
         public TextView title;
         public CheckBox star_button;
 
-        public TimesViewHolder(View view) {
+        public TravelTimeViewHolder(View view) {
+            super(view);
+            travel_times_layout = view.findViewById(R.id.travel_times_linear_layout);
+            title = view.findViewById(R.id.title);
+            star_button = view.findViewById(R.id.star_button);
+        }
+    }
+
+    private class TollRateViewHolder extends RecyclerView.ViewHolder {
+        public LinearLayout travel_times_layout;
+        public TextView title;
+        public CheckBox star_button;
+
+        public TollRateViewHolder(View view) {
             super(view);
             travel_times_layout = view.findViewById(R.id.travel_times_linear_layout);
             title = view.findViewById(R.id.title);
