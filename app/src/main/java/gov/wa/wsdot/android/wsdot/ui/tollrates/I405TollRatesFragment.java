@@ -23,9 +23,11 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,14 +39,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
+import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
-import gov.wa.wsdot.android.wsdot.shared.I405TollRateSignItem;
-import gov.wa.wsdot.android.wsdot.shared.I405TripItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
@@ -131,20 +136,20 @@ public class I405TollRatesFragment extends BaseFragment
                     case ERROR:
                         swipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
+                        TextView t = (TextView) mEmptyView;
+                        t.setText("toll rates unavailable.");
+                        mEmptyView.setVisibility(View.VISIBLE);
                 }
             }
         });
 
-        viewModel.getTollRateItems().observe(this, tollRateSignItems -> {
-            if (tollRateSignItems != null) {
-                if (tollRateSignItems.size() == 0) {
-                    TextView t = (TextView) mEmptyView;
-                    t.setText("toll rates unavailable.");
-                    mEmptyView.setVisibility(View.VISIBLE);
-                } else {
-                    mEmptyView.setVisibility(View.GONE);
-                }
-                mAdapter.setData(new ArrayList<>(tollRateSignItems));
+        viewModel.getTollRateItems().observe(this, tollRateGroups -> {
+            if (tollRateGroups != null) {
+                mEmptyView.setVisibility(View.GONE);
+                Collections.sort(tollRateGroups, new SortTollGroupByLocation());
+                Collections.sort(tollRateGroups, new SortTollGroupByDirection());
+
+                mAdapter.setData(new ArrayList<>(tollRateGroups));
             }
         });
 
@@ -153,6 +158,27 @@ public class I405TollRatesFragment extends BaseFragment
         return root;
     }
 
+    /**
+     *  Comparator class for sorting toll groups by location name
+     */
+    class SortTollGroupByLocation implements Comparator<TollRateGroup> {
+        public int compare(TollRateGroup a, TollRateGroup b) {
+            if ( a.tollRateSign.getLocationName().compareTo(b.tollRateSign.getLocationName()) < 0) return -1;
+            else if ( a.tollRateSign.getLocationName().compareTo(b.tollRateSign.getLocationName()) > 0) return 0;
+            else return 1;
+        }
+    }
+
+    /**
+     *  Comparator class for sorting toll groups by travel direction
+     */
+    class SortTollGroupByDirection implements Comparator<TollRateGroup> {
+        public int compare(TollRateGroup a, TollRateGroup b) {
+            if ( a.tollRateSign.getTravelDirection().compareTo(b.tollRateSign.getTravelDirection()) < 0) return -1;
+            else if ( a.tollRateSign.getTravelDirection().compareTo(b.tollRateSign.getTravelDirection()) > 0) return 0;
+            else return 1;
+        }
+    }
 
     /**
      * Custom adapter for items in recycler view.
@@ -166,7 +192,7 @@ public class I405TollRatesFragment extends BaseFragment
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
         private Context context;
 
-        private ArrayList<I405TollRateSignItem> mData = new ArrayList<>();
+        private ArrayList<TollRateGroup> mData = new ArrayList<>();
 
         private List<RecyclerView.ViewHolder> mItems = new ArrayList<>();
 
@@ -174,7 +200,7 @@ public class I405TollRatesFragment extends BaseFragment
             this.context = context;
         }
 
-        public void setData(ArrayList<I405TollRateSignItem> data){
+        public void setData(ArrayList<TollRateGroup> data){
             mData = data;
             this.notifyDataSetChanged();
         }
@@ -193,35 +219,37 @@ public class I405TollRatesFragment extends BaseFragment
 
             ViewHolder viewholder = (ViewHolder) viewHolder;
 
-            I405TollRateSignItem tollRateSignItem = mData.get(position);
+            TollRateGroup tollRateGroup = mData.get(position);
 
-            String direction = tollRateSignItem.getTravelDirection().equals("N") ? " Northbound" : " Southbound";
+            String direction = tollRateGroup.tollRateSign.getTravelDirection().equals("N") ? " Northbound" : " Southbound";
 
-            final String title = tollRateSignItem.getStartLocationName().concat(direction).concat(" Entrance");
+            final String id = tollRateGroup.tollRateSign.getId();
+
+            String title = tollRateGroup.tollRateSign.getLocationName().concat(direction).concat(" Entrance");
             viewholder.title.setText(title);
             viewholder.title.setTypeface(tfb);
 
             viewholder.travel_times_layout.removeAllViews();
 
-            for (I405TripItem trip: tollRateSignItem.getTrips()) {
+            // make a trip view with toll rate for each trip in the group
+            for (TollTripEntity trip: tollRateGroup.trips) {
 
                 View tripView = makeTripView(trip, getContext());
 
                 // remove the line from the last trip
-                if (tollRateSignItem.getTrips().indexOf(trip) == tollRateSignItem.getTrips().size() - 1){
+                if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){
                     tripView.findViewById(R.id.line).setVisibility(View.GONE);
                 }
 
                 viewholder.travel_times_layout.addView(tripView);
             }
 
-            /* TODO: favorites
             // Seems when Android recycles the views, the onCheckedChangeListener is still active
             // and the call to setChecked() causes that code within the listener to run repeatedly.
             // Assigning null to setOnCheckedChangeListener seems to fix it.
             viewholder.star_button.setOnCheckedChangeListener(null);
             viewholder.star_button
-                    .setChecked(travelTimeGroup.trip.getIsStarred() != 0);
+                    .setChecked(tollRateGroup.tollRateSign.getIsStarred() != 0);
 
             viewholder.star_button.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
@@ -237,9 +265,8 @@ public class I405TollRatesFragment extends BaseFragment
                     removed_snackbar.show();
                 }
 
-                viewModel.setIsStarredFor(title, isChecked ? 1 : 0);
+                viewModel.setIsStarredFor(id, isChecked ? 1 : 0);
             });
-            */
         }
 
         @Override
@@ -261,7 +288,15 @@ public class I405TollRatesFragment extends BaseFragment
         }
     }
 
-    public static View makeTripView(I405TripItem tripItem, Context context) {
+    /**
+     * Returns a view for the toll trip provided by the tripItem.
+     * A tripItem holds information about the trip destination and toll rate
+     *
+     * @param tripItem
+     * @param context
+     * @return
+     */
+    public static View makeTripView(TollTripEntity tripItem, Context context) {
 
         Typeface tfb = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Bold.ttf");
         LayoutInflater li = LayoutInflater.from(context);
@@ -271,12 +306,13 @@ public class I405TollRatesFragment extends BaseFragment
         ((TextView) cv.findViewById(R.id.title)).setText(tripItem.getEndLocationName().concat(" Exit"));
 
         // set updated label
-        ((TextView) cv.findViewById(R.id.updated)).setText(tripItem.getUpdatedAt());
+        ((TextView) cv.findViewById(R.id.updated)).setText(tripItem.getUpdated());
 
         // set toll
         TextView currentTimeTextView = cv.findViewById(R.id.current_value);
         currentTimeTextView.setTypeface(tfb);
-        currentTimeTextView.setText("$".concat(String.valueOf(tripItem.getToll()/100)));
+        currentTimeTextView.setText(String.format(Locale.US, "$%.2f", tripItem.getTollRate()/100));
+
 
         // set message if there is one
         if (tripItem.getMessage().equals("null")){

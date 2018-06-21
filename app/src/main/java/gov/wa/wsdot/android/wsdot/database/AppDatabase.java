@@ -30,6 +30,11 @@ import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassDao;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroupDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationDao;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeDao;
@@ -50,8 +55,11 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
         MapLocationEntity.class,
         TravelTimeTripEntity.class,
         TravelTimeEntity.class,
-        NotificationTopicEntity.class
+        NotificationTopicEntity.class,
+        TollTripEntity.class,
+        TollRateSignEntity.class
     }, version = 10)
+
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String TAG = AppDatabase.class.getSimpleName();
@@ -71,6 +79,9 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract MapLocationDao mapLocationDao();
     public abstract MyRouteDao myRouteDao();
     public abstract NotificationTopicDao notificationTopicDao();
+    public abstract TollTripDao tollTripDao();
+    public abstract TollRateSignDao tollRateSignDao();
+    public abstract TollRateGroupDao tollRateGroupDao();
 
     private static final Object sLock = new Object();
 
@@ -590,6 +601,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('ferries_terminal_sailing_space', 0);");
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('border_wait', 0);");
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('notification_topic', 0);");
+                                db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('toll_trip', 0);");
 
                                 // Front load the mountain pass cameras
 

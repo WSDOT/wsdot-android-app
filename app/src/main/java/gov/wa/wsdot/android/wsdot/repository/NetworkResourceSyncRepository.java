@@ -46,8 +46,6 @@ public abstract class NetworkResourceSyncRepository {
             long now = System.currentTimeMillis();
             Boolean shouldUpdate = (Math.abs(now - cache.getLastUpdated()) > updateInterval);
 
-            shouldUpdate = true;
-
             if (shouldUpdate || forceRefresh) {
                 try {
                     fetchData(status);
@@ -71,8 +69,7 @@ public abstract class NetworkResourceSyncRepository {
         long now = System.currentTimeMillis();
         Boolean shouldUpdate = (Math.abs(now - cache.getLastUpdated()) > updateInterval);
 
-        if (true) {
-        //if (shouldUpdate || forceRefresh) {
+        if (shouldUpdate || forceRefresh) {
             try {
                 fetchData(status);
                 status.postValue(ResourceStatus.success());

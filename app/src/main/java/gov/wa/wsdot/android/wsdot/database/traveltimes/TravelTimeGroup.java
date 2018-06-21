@@ -5,8 +5,8 @@ import android.arch.persistence.room.Relation;
 
 import java.util.List;
 
-/*
-    POJO used by Room for retrieving a TravelTimeTripEntity with all of it's associated TravelTimeEntities.
+/**
+ *  POJO used by Room for retrieving a TravelTimeTripEntity with all of it's associated TravelTimeEntities.
  */
 public class TravelTimeGroup {
     @Embedded

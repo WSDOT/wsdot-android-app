@@ -8,8 +8,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import gov.wa.wsdot.android.wsdot.repository.I405TollRatesRepository;
-import gov.wa.wsdot.android.wsdot.shared.I405TollRateSignItem;
+import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
+import gov.wa.wsdot.android.wsdot.repository.TollRatesRepository;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 public class I405TollRatesViewModel extends ViewModel {
@@ -18,21 +18,25 @@ public class I405TollRatesViewModel extends ViewModel {
 
     private MutableLiveData<ResourceStatus> mStatus;
 
-    private I405TollRatesRepository tollRepo;
+    private TollRatesRepository tollRepo;
 
     @Inject
-    I405TollRatesViewModel(I405TollRatesRepository tollRepo) {
+    I405TollRatesViewModel(TollRatesRepository tollRepo) {
         this.mStatus = new MutableLiveData<>();
         this.tollRepo = tollRepo;
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
-    public MutableLiveData<List<I405TollRateSignItem>> getTollRateItems(){
-        return tollRepo.getTollRates(mStatus);
+    public LiveData<List<TollRateGroup>> getTollRateItems(){
+        return tollRepo.loadI405TollRateGroups(mStatus);
+    }
+
+    public void setIsStarredFor(String title, Integer isStarred){
+        tollRepo.setIsStarred(title, isStarred);
     }
 
     public void refresh() {
-        tollRepo.refreshData(this.mStatus);
+        tollRepo.refreshData(this.mStatus, true);
     }
 }
