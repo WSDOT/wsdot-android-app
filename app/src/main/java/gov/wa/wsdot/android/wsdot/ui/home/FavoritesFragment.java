@@ -45,7 +45,9 @@ import android.widget.TextView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -601,10 +603,18 @@ public class FavoritesFragment extends BaseFragment implements
 
                 String created_at = schedule.getUpdated();
 
-                Log.e(TAG, created_at);
+                // Try to read the created at field in the old format,
+                // it that fails, assume we are using the new format.
+                try {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+                    viewHolder.created_at.setText(ParserUtils.relativeTime(
+                            dateFormat.format(new Date(Long.parseLong(created_at.substring(6, 19)))),
+                            "MMMM d, yyyy h:mm a",
+                            false));
 
-                viewHolder.created_at.setText(ParserUtils.relativeTime(created_at, "MMMM d, yyyy h:mm a", false));
-                viewHolder.created_at.setTypeface(tf);
+                } catch (Exception e) {
+                    viewHolder.created_at.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", false));
+                }
 
                 viewHolder.star_button.setTag(schedule.getFerryScheduleId());
                 viewHolder.star_button.setVisibility(View.GONE);
