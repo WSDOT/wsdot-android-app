@@ -38,6 +38,8 @@ public class APIEndPoints {
     public static final String EXPRESS_LANES_WEBSITE = "http://www.wsdot.wa.gov/Northwest/King/ExpressLanes";
     public static final String JBLM_IMAGE = "http://images.wsdot.wa.gov/traffic/flowmaps/jblm.png";
 
+    public static final String I405_TOLL_RATES = "http://wsdot.com/traffic/api/api/tolling";
+
     // Ferries
     public static final String FERRY_SCHEDULES = "http://data.wsdot.wa.gov/mobile/WSFRouteSchedules.js.gz";
     public static final String SAILING_SPACES = "http://www.wsdot.wa.gov/ferries/api/terminals/rest/terminalsailingspace";

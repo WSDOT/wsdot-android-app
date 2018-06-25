@@ -21,6 +21,9 @@ public interface TollRateGroupDao {
     @Query("SELECT * FROM toll_rate_sign WHERE state_route = 405")
     List<TollRateGroup> getI405TollRateGroups();
 
+    @Query("SELECT * FROM toll_rate_sign WHERE state_route = 167")
+    LiveData<List<TollRateGroup>> loadSR167TollRateGroups();
+
     @Query("SELECT * FROM toll_rate_sign WHERE is_starred = 1")
     LiveData<List<TollRateGroup>> loadFavoriteTollRateGroups();
 

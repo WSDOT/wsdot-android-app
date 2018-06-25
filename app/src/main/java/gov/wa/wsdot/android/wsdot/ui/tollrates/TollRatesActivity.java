@@ -76,7 +76,6 @@ public class TollRatesActivity extends BaseActivity {
         mTabLayout = findViewById(R.id.tab_layout);
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-
         // Add tab titles and their corresponding fragments to the fragment list.
         tabFragments.add(mTabLayout.getTabCount(), SR520TollRatesFragment.class);
         mTabLayout.addTab(mTabLayout.newTab().setText("SR 520"));
@@ -93,7 +92,7 @@ public class TollRatesActivity extends BaseActivity {
         mViewPager.setAdapter(mTabsAdapter);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
 
-        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
 
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -102,6 +101,8 @@ public class TollRatesActivity extends BaseActivity {
                 mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
                 mTracker.setScreenName("/Toll Rates/" + tab.getText());
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+
             }
 
             @Override

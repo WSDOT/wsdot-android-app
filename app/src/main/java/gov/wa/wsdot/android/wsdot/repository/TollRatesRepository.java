@@ -60,9 +60,9 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
         return tollRateGroupDao.loadI405TollRateGroups();
     }
 
-    public List<TollRateGroup> getI405TollRateGroups(MutableLiveData<ResourceStatus> status) {
-        super.refreshDataOnSameThread(status, false);
-        return tollRateGroupDao.getI405TollRateGroups();
+    public LiveData<List<TollRateGroup>> loadSR167TollRateGroups(MutableLiveData<ResourceStatus> status) {
+        super.refreshData(status, false);
+        return tollRateGroupDao.loadSR167TollRateGroups();
     }
 
     public LiveData<List<TollRateGroup>> loadFavoriteTolls(MutableLiveData<ResourceStatus> status) {

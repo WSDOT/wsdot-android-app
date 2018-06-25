@@ -136,7 +136,6 @@ public class I405TollRatesFragment extends BaseFragment
                 mEmptyView.setVisibility(View.GONE);
                 Collections.sort(tollRateGroups, new SortTollGroupByLocation());
                 Collections.sort(tollRateGroups, new SortTollGroupByDirection());
-
                 mAdapter.setData(new ArrayList<>(tollRateGroups));
             }
         });
@@ -203,7 +202,23 @@ public class I405TollRatesFragment extends BaseFragment
 
             TollRateGroup tollRateGroup = mData.get(position);
 
-            String direction = tollRateGroup.tollRateSign.getTravelDirection().equals("N") ? " Northbound" : " Southbound";
+            String direction;
+            switch (tollRateGroup.tollRateSign.getTravelDirection().toLowerCase()) {
+                case "n":
+                    direction = " Northbound";
+                    break;
+                case "s":
+                    direction = " Southbound";
+                    break;
+                case "e":
+                    direction = " Eastbound";
+                    break;
+                case "w":
+                    direction = " Westbound";
+                    break;
+                default:
+                    direction = "";
+            }
 
             final String id = tollRateGroup.tollRateSign.getId();
 
@@ -294,7 +309,6 @@ public class I405TollRatesFragment extends BaseFragment
         TextView currentTimeTextView = cv.findViewById(R.id.current_value);
         currentTimeTextView.setTypeface(tfb);
         currentTimeTextView.setText(String.format(Locale.US, "$%.2f", tripItem.getTollRate()/100));
-
 
         // set message if there is one
         if (tripItem.getMessage().equals("null")){

@@ -51,6 +51,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -79,6 +80,7 @@ import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByLocation;
+import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByStateRoute;
 
 public class FavoritesFragment extends BaseFragment implements
         SwipeRefreshLayout.OnRefreshListener,
@@ -308,6 +310,7 @@ public class FavoritesFragment extends BaseFragment implements
 
                 Collections.sort(tollRateGroups, new SortTollGroupByLocation());
                 Collections.sort(tollRateGroups, new SortTollGroupByDirection());
+                Collections.sort(tollRateGroups, new SortTollGroupByStateRoute());
 
                 mFavoritesAdapter.setTollRates(tollRateGroups);
             }
@@ -709,11 +712,29 @@ public class FavoritesFragment extends BaseFragment implements
 
                 TollRateGroup tollRateGroup = (TollRateGroup) mFavoritesAdapter.getItem(position);
 
-                String direction = tollRateGroup.tollRateSign.getTravelDirection().equals("N") ? " Northbound" : " Southbound";
+                String direction;
+                switch (tollRateGroup.tollRateSign.getTravelDirection().toLowerCase()) {
+                    case "n":
+                        direction = " Northbound";
+                        break;
+                    case "s":
+                        direction = " Southbound";
+                        break;
+                    case "e":
+                        direction = " Eastbound";
+                        break;
+                    case "w":
+                        direction = " Westbound";
+                        break;
+                    default:
+                        direction = "";
+                }
 
-                final String id = tollRateGroup.tollRateSign.getId();
+                String title = tollRateGroup.tollRateSign.getLocationName()
+                        .concat(direction)
+                        .concat(" Entrance")
+                        .concat(String.format(Locale.US, " - %d", tollRateGroup.tollRateSign.getStateRoute()));
 
-                String title = tollRateGroup.tollRateSign.getLocationName().concat(direction).concat(" Entrance");
                 viewholder.title.setText(title);
                 viewholder.title.setTypeface(tfb);
 
