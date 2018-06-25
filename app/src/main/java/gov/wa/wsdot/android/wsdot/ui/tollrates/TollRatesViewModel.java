@@ -12,24 +12,28 @@ import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.repository.TollRatesRepository;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
-public class I405TollRatesViewModel extends ViewModel {
+public class TollRatesViewModel extends ViewModel {
 
-    private static String TAG = I405TollRatesViewModel.class.getSimpleName();
+    private static String TAG = TollRatesViewModel.class.getSimpleName();
 
     private MutableLiveData<ResourceStatus> mStatus;
 
     private TollRatesRepository tollRepo;
 
     @Inject
-    I405TollRatesViewModel(TollRatesRepository tollRepo) {
+    TollRatesViewModel(TollRatesRepository tollRepo) {
         this.mStatus = new MutableLiveData<>();
         this.tollRepo = tollRepo;
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
-    public LiveData<List<TollRateGroup>> getTollRateItems(){
+    public LiveData<List<TollRateGroup>> getI405TollRateItems(){
         return tollRepo.loadI405TollRateGroups(mStatus);
+    }
+
+    public LiveData<List<TollRateGroup>> getSR167TollRateItems() {
+        return tollRepo.loadSR167TollRateGroups(mStatus);
     }
 
     public void setIsStarredFor(String title, Integer isStarred){

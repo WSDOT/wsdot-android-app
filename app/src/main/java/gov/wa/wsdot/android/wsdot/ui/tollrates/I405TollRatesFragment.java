@@ -27,7 +27,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +39,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,6 +50,8 @@ import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
+import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
+import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByLocation;
 
 public class I405TollRatesFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener, Injectable {
@@ -67,7 +67,7 @@ public class I405TollRatesFragment extends BaseFragment
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	I405TollRatesViewModel viewModel;
+	TollRatesViewModel viewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,19 +93,7 @@ public class I405TollRatesFragment extends BaseFragment
 
         mRecyclerView.setPadding(0,0,0,120);
 
-        FrameLayout frame = root.findViewById(R.id.frame_layout);
-
-        TextView textView = new TextView(getContext());
-        textView.setText("The tolls reported here may not match what is currently displayed on the road signs.");
-
-        textView.setPadding(15, 20, 15, 15);
-
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        params.gravity = Gravity.BOTTOM;
-
-        textView.setLayoutParams(params);
-
-        frame.addView(textView);
+        addDisclaimerView(root);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -122,7 +110,7 @@ public class I405TollRatesFragment extends BaseFragment
 
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(I405TollRatesViewModel.class);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(TollRatesViewModel.class);
 
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -143,7 +131,7 @@ public class I405TollRatesFragment extends BaseFragment
             }
         });
 
-        viewModel.getTollRateItems().observe(this, tollRateGroups -> {
+        viewModel.getI405TollRateItems().observe(this, tollRateGroups -> {
             if (tollRateGroups != null) {
                 mEmptyView.setVisibility(View.GONE);
                 Collections.sort(tollRateGroups, new SortTollGroupByLocation());
@@ -159,25 +147,19 @@ public class I405TollRatesFragment extends BaseFragment
     }
 
     /**
-     *  Comparator class for sorting toll groups by location name
+     * Adds a toll rate accuracy disclaimer to the bottom of the view
+     * @param root
      */
-    class SortTollGroupByLocation implements Comparator<TollRateGroup> {
-        public int compare(TollRateGroup a, TollRateGroup b) {
-            if ( a.tollRateSign.getLocationName().compareTo(b.tollRateSign.getLocationName()) < 0) return -1;
-            else if ( a.tollRateSign.getLocationName().compareTo(b.tollRateSign.getLocationName()) > 0) return 0;
-            else return 1;
-        }
-    }
-
-    /**
-     *  Comparator class for sorting toll groups by travel direction
-     */
-    class SortTollGroupByDirection implements Comparator<TollRateGroup> {
-        public int compare(TollRateGroup a, TollRateGroup b) {
-            if ( a.tollRateSign.getTravelDirection().compareTo(b.tollRateSign.getTravelDirection()) < 0) return -1;
-            else if ( a.tollRateSign.getTravelDirection().compareTo(b.tollRateSign.getTravelDirection()) > 0) return 0;
-            else return 1;
-        }
+    private void addDisclaimerView(ViewGroup root) {
+        FrameLayout frame = root.findViewById(R.id.frame_layout);
+        TextView textView = new TextView(getContext());
+        textView.setBackgroundColor(getResources().getColor(R.color.alerts));
+        textView.setText("The tolls reported here may not match what is currently displayed on the road signs.");
+        textView.setPadding(15, 20, 15, 15);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.BOTTOM;
+        textView.setLayoutParams(params);
+        frame.addView(textView);
     }
 
     /**

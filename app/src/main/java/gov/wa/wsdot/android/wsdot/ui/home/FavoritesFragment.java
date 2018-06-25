@@ -47,6 +47,7 @@ import com.google.android.gms.analytics.Tracker;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -76,6 +77,8 @@ import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesFragment;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
+import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByLocation;
 
 public class FavoritesFragment extends BaseFragment implements
         SwipeRefreshLayout.OnRefreshListener,
@@ -297,10 +300,15 @@ public class FavoritesFragment extends BaseFragment implements
         });
 
         viewModel.getFavoriteTollRates().observe(this, tollRateGroups -> {
-            if (tollRateGroups != null){
+            if (tollRateGroups != null) {
+
                 if (tollRateGroups.size() > 0){
                     mEmptyView.setVisibility(View.GONE);
                 }
+
+                Collections.sort(tollRateGroups, new SortTollGroupByLocation());
+                Collections.sort(tollRateGroups, new SortTollGroupByDirection());
+
                 mFavoritesAdapter.setTollRates(tollRateGroups);
             }
         });
