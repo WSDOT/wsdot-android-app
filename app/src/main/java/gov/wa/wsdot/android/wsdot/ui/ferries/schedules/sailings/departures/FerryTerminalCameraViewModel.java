@@ -8,6 +8,7 @@ import android.arch.lifecycle.ViewModel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -62,8 +63,8 @@ public class FerryTerminalCameraViewModel extends ViewModel {
 
             int distance = getDistanceFromTerminal(terminalId, cameraEntity.getLatitude(), cameraEntity.getLongitude());
 
-            // If less than a mile from terminal, show the camera
-            if (distance < 5280) { // in feet
+            // If less than 3 miles from terminal, and labeled as a ferries camera, show it
+            if (distance < 15840 && cameraEntity.getRoadName().toLowerCase(Locale.US).equals("ferries")) { // in feet
                 CameraItem camera = new CameraItem();
                 camera.setCameraId(cameraEntity.getCameraId());
                 camera.setTitle(cameraEntity.getTitle());
