@@ -730,10 +730,23 @@ public class FavoritesFragment extends BaseFragment implements
                         direction = "";
                 }
 
-                String title = tollRateGroup.tollRateSign.getLocationName()
+                String routeType;
+                switch (tollRateGroup.tollRateSign.getStateRoute()){
+                    case 405:
+                        routeType = "I-";
+                        break;
+                    case 167:
+                        routeType = "SR ";
+                        break;
+                    default:
+                        routeType = "";
+                        break;
+                }
+
+                String title = String.format(Locale.US, "%s%d - ", routeType, tollRateGroup.tollRateSign.getStateRoute())
+                        .concat(tollRateGroup.tollRateSign.getLocationName())
                         .concat(direction)
-                        .concat(" Entrance")
-                        .concat(String.format(Locale.US, " - %d", tollRateGroup.tollRateSign.getStateRoute()));
+                        .concat(" Entrance");
 
                 viewholder.title.setText(title);
                 viewholder.title.setTypeface(tfb);
