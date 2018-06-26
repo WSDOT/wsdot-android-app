@@ -4,9 +4,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.5.0] - 2018-06-26
+
+# Added
+- Analytics for push notification open events
+_ Everett to the go to location menu
+
+# Changed
+- I-405 and SR 167 now display current toll rates. Users can favorite these rates.
+- Increased range for ferry terminal cameras, added logic to ensure only ferry cameras are collected.
+
+## [5.4.1] - 2018-06-18
+
 ## Changed
 - Ferries section updated to handle new date format coming in the future. The current format is a .NET style date string returned from the API. The new format that will be added in the future is "yyyy-MM-dd hh:mm a"
-
 
 ## [5.4.0] - 2018-06-07
 

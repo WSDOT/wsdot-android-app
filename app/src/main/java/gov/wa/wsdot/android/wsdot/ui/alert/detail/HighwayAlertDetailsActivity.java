@@ -26,8 +26,10 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,12 +37,16 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
@@ -55,6 +61,10 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 	private String description;
     private Toolbar mToolbar;
 
+    private Tracker mTracker;
+
+    private boolean fromNotification = false;
+
     HighwayAlertDetailsViewModel viewModel;
 
     @Inject
@@ -66,6 +76,7 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
         AndroidInjection.inject(this);
 		super.onCreate(savedInstanceState);
 
+
         setContentView(R.layout.activity_webview_with_spinner);
 
         title = "Highway Alert";
@@ -74,6 +85,8 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 		Bundle b = getIntent().getExtras();
 		Integer id = b.getInt("id");
 		Boolean force = b.getBoolean("refresh", false);
+
+		fromNotification = b.getBoolean("from_notification");
 
         mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(title);
@@ -132,6 +145,16 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
                 webview.setWebViewClient(new myWebViewClient());
                 webview.getSettings().setJavaScriptEnabled(true);
                 webview.loadDataWithBaseURL(null, buildContent(alertItem), "text/html", "utf-8", null);
+
+                if (fromNotification){
+                    mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Notification")
+                            .setAction("Message Opened")
+                            .setLabel(alertItem.getCategory())
+                            .build());
+                }
+
             }
         });
 

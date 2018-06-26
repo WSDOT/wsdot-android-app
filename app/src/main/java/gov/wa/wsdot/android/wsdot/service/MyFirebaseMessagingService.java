@@ -131,6 +131,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Bundle b1 = new Bundle();
         b1.putInt("id", Integer.valueOf(data.get("alert_id").toString()));
         b1.putBoolean("refresh", true);
+        b1.putBoolean("from_notification", true);
         resultIntent.putExtras(b1);
         resultIntent.setAction("actionstring" + System.currentTimeMillis());
         stackBuilder.addNextIntentWithParentStack(resultIntent);
@@ -199,6 +200,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         b1.putInt("routeId", Integer.valueOf(data.get("route_id").toString()));
         b1.putInt("alertId", Integer.valueOf(data.get("alert_id").toString()));
         b1.putString("AlertFullTitle", title);
+        b1.putBoolean("from_notification", true);
 
         resultIntent.putExtras(b1);
         resultIntent.setAction("actionstring" + System.currentTimeMillis());
