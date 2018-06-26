@@ -27,6 +27,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.TimeUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,8 +40,10 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -49,6 +52,7 @@ import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByLocation;
@@ -303,7 +307,10 @@ public class I405TollRatesFragment extends BaseFragment
         ((TextView) cv.findViewById(R.id.title)).setText(tripItem.getEndLocationName().concat(" Exit"));
 
         // set updated label
-        ((TextView) cv.findViewById(R.id.updated)).setText(tripItem.getUpdated());
+        ((TextView) cv.findViewById(R.id.updated)).setText(ParserUtils.relativeTime(
+                tripItem.getUpdated(),
+                "MMMM d, yyyy h:mm a",
+                false));
 
         // set toll
         TextView currentTimeTextView = cv.findViewById(R.id.current_value);

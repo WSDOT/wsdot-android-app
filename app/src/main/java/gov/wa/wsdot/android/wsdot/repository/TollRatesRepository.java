@@ -123,10 +123,7 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
             trip.setEndLongitude(item.getDouble("EndLongitude"));
 
             try {
-                trip.setUpdated(ParserUtils.relativeTime(
-                        dateFormat.format(new Date(System.currentTimeMillis())),
-                        "MMMM d, yyyy h:mm a",
-                        false));
+                trip.setUpdated(dateFormat.format(new Date(System.currentTimeMillis())));
             } catch (Exception e) {
                 trip.setUpdated("unavailable");
                 Log.e(TAG, "Error parsing date", e);

@@ -49,6 +49,7 @@ import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByLocation;
@@ -316,7 +317,10 @@ public class SR167TollRatesFragment extends BaseFragment
 		((TextView) cv.findViewById(R.id.title)).setText(tripItem.getEndLocationName().concat(" Exit"));
 
 		// set updated label
-		((TextView) cv.findViewById(R.id.updated)).setText(tripItem.getUpdated());
+		((TextView) cv.findViewById(R.id.updated)).setText(ParserUtils.relativeTime(
+				tripItem.getUpdated(),
+				"MMMM d, yyyy h:mm a",
+				false));
 
 		// set toll
 		TextView currentTimeTextView = cv.findViewById(R.id.current_value);
