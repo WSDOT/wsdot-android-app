@@ -848,6 +848,12 @@ public class TrafficMapActivity extends BaseActivity implements
                 goToLocation(46.635529, -122.937698, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
+            case R.id.goto_everett:
+                mTracker.setScreenName("/Traffic Map/Go To Location/Everett");
+                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+                goToLocation(47.967976, -122.197627, 12);
+                UIUtils.refreshActionBarMenu(this);
+                return true;
             case R.id.goto_hoodcanal:
                 mTracker.setScreenName("/Traffic Map/Go To Location/Hood Canal");
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
