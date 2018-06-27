@@ -76,6 +76,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setCategory("Notification")
                 .setAction("Message Received")
                 .setLabel(title)
+                .setNonInteraction(true)
                 .build());
 
         if (data.get("push_alert_id") != null) {
