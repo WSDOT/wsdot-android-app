@@ -1,6 +1,7 @@
 package gov.wa.wsdot.android.wsdot.util;
 
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -45,6 +46,27 @@ public class Utils {
 
         double c = 2 * Math.asin(Math.sqrt(a));
         return (int) Math.round(earthRadius * c);
+
+    }
+
+    public static Location getCenterLocation(double latitudeA, double longitudeA, double latitudeB, double longitudeB) {
+
+        double dLon = Math.toRadians(longitudeB - longitudeA);
+
+        latitudeA = Math.toRadians(latitudeA);
+        latitudeB = Math.toRadians(latitudeB);
+        longitudeA = Math.toRadians(longitudeA);
+
+        double Bx = Math.cos(latitudeB) * Math.cos(dLon);
+        double By = Math.cos(latitudeB) * Math.sin(dLon);
+        double latitudeC = Math.atan2(Math.sin(latitudeA) + Math.sin(latitudeB), Math.sqrt((Math.cos(latitudeA) + Bx) * (Math.cos(latitudeA) + Bx) + By * By));
+        double longitudeC = longitudeA + Math.atan2(By, Math.cos(latitudeA) + Bx);
+
+        Location location = new Location("");
+        location.setLatitude(Math.toDegrees(latitudeC));
+        location.setLongitude(Math.toDegrees(longitudeC));
+
+        return location;
 
     }
 

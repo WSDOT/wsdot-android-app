@@ -756,7 +756,7 @@ public class FavoritesFragment extends BaseFragment implements
                 // make a trip view with toll rate for each trip in the group
                 for (TollTripEntity trip: tollRateGroup.trips) {
 
-                    View tripView = I405TollRatesFragment.makeTripView(trip, getContext());
+                    View tripView = I405TollRatesFragment.makeTripView(trip, tollRateGroup.tollRateSign.getStartLatitude(), tollRateGroup.tollRateSign.getStartLongitude(), getContext());
 
                     // remove the line from the last trip
                     if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){

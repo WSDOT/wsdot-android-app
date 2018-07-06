@@ -236,13 +236,15 @@
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity
-            android:name=".ui.home.EventActivity"/>
+        <activity android:name=".ui.home.EventActivity"/>
         <activity android:name=".ui.camera.CameraViewPagerActivity"/>
 
         <activity
             android:name=".ui.notifications.NotificationsActivity"
             android:label="@string/title_activity_notifications"/>
+
+        <activity android:name=".ui.tollrates.TollRatesRouteActivity"/>
+
     </application>
 
 </manifest>

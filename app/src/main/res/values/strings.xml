@@ -125,4 +125,8 @@
     <string name="firebase_notification_title">firebase_notification_title</string>
 
 
+    <string name="toll_rates_disclaimer_text">toll_rates_disclaimer</string>
+    <string name="description_map_button">show on map</string>
+    <string name="description_about_goodtogo">Learn About Toll Rates</string>
+
 </resources>

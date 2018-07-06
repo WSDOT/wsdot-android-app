@@ -21,8 +21,11 @@ package gov.wa.wsdot.android.wsdot.ui.tollrates;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,18 +35,20 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.inject.Inject;
 
@@ -52,6 +57,7 @@ import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchMapActivity;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
@@ -68,6 +74,9 @@ public class I405TollRatesFragment extends BaseFragment
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
+
+    private Handler handler = new Handler();
+    private Timer timer;
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -144,9 +153,22 @@ public class I405TollRatesFragment extends BaseFragment
             }
         });
 
-        viewModel.refresh();
+        timer = new Timer();
+        timer.schedule(new RatesTimerTask(), 0, 60000); // Schedule rates to update every 60 seconds
 
         return root;
+    }
+
+    public class RatesTimerTask extends TimerTask {
+        private Runnable runnable = new Runnable() {
+            public void run() {
+                viewModel.refresh();
+            }
+        };
+
+        public void run() {
+            handler.post(runnable);
+        }
     }
 
     /**
@@ -209,16 +231,16 @@ public class I405TollRatesFragment extends BaseFragment
             String direction;
             switch (tollRateGroup.tollRateSign.getTravelDirection().toLowerCase()) {
                 case "n":
-                    direction = " Northbound";
+                    direction = " NB";
                     break;
                 case "s":
-                    direction = " Southbound";
+                    direction = " SB";
                     break;
                 case "e":
-                    direction = " Eastbound";
+                    direction = " EB";
                     break;
                 case "w":
-                    direction = " Westbound";
+                    direction = " WB";
                     break;
                 default:
                     direction = "";
@@ -226,7 +248,7 @@ public class I405TollRatesFragment extends BaseFragment
 
             final String id = tollRateGroup.tollRateSign.getId();
 
-            String title = tollRateGroup.tollRateSign.getLocationName().concat(direction).concat(" Entrance");
+            String title = direction.concat(" lane entrance near ").concat(tollRateGroup.tollRateSign.getLocationName());
             viewholder.title.setText(title);
             viewholder.title.setTypeface(tfb);
 
@@ -235,7 +257,7 @@ public class I405TollRatesFragment extends BaseFragment
             // make a trip view with toll rate for each trip in the group
             for (TollTripEntity trip: tollRateGroup.trips) {
 
-                View tripView = makeTripView(trip, getContext());
+                View tripView = makeTripView(trip, tollRateGroup.tollRateSign.getStartLatitude(), tollRateGroup.tollRateSign.getStartLongitude(), getContext());
 
                 // remove the line from the last trip
                 if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){
@@ -243,6 +265,7 @@ public class I405TollRatesFragment extends BaseFragment
                 }
 
                 viewholder.travel_times_layout.addView(tripView);
+
             }
 
             // Seems when Android recycles the views, the onCheckedChangeListener is still active
@@ -297,14 +320,33 @@ public class I405TollRatesFragment extends BaseFragment
      * @param context
      * @return
      */
-    public static View makeTripView(TollTripEntity tripItem, Context context) {
+    public static View makeTripView(TollTripEntity tripItem,Double startLat, Double startLong, Context context) {
 
         Typeface tfb = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Bold.ttf");
         LayoutInflater li = LayoutInflater.from(context);
         View cv = li.inflate(R.layout.trip_view, null);
 
         // set end location label
-        ((TextView) cv.findViewById(R.id.title)).setText(tripItem.getEndLocationName().concat(" Exit"));
+        ((TextView) cv.findViewById(R.id.title)).setText("Exit near ".concat(tripItem.getEndLocationName()));
+
+
+        ((TextView) cv.findViewById(R.id.content)).setText("Show on map");
+        ((TextView) cv.findViewById(R.id.content)).setTextColor(context.getResources().getColor(R.color.primary_default));
+        cv.findViewById(R.id.content).setOnClickListener(v -> {
+            Bundle b = new Bundle();
+
+            b.putDouble("startLat", startLat);
+            b.putDouble("startLong", startLong);
+
+            b.putDouble("endLat", tripItem.getEndLatitude());
+            b.putDouble("endLong", tripItem.getEndLongitude());
+
+            b.putString("text", String.format("Exits near %s", tripItem.getEndLocationName()));
+
+            Intent intent = new Intent(context, TollRatesRouteActivity.class);
+            intent.putExtras(b);
+            context.startActivity(intent);
+        });
 
         // set updated label
         ((TextView) cv.findViewById(R.id.updated)).setText(ParserUtils.relativeTime(
@@ -318,11 +360,15 @@ public class I405TollRatesFragment extends BaseFragment
         currentTimeTextView.setText(String.format(Locale.US, "$%.2f", tripItem.getTollRate()/100));
 
         // set message if there is one
-        if (tripItem.getMessage().equals("null")){
-            ((TextView) cv.findViewById(R.id.subtitle)).setText("");
-        } else {
-            ((TextView) cv.findViewById(R.id.subtitle)).setText(tripItem.getMessage());
+        if (!tripItem.getMessage().equals("null")){
+            currentTimeTextView.setText(tripItem.getMessage());
         }
+
+        ImageButton mapButton = cv.findViewById(R.id.button);
+
+        mapButton.setImageResource(R.drawable.ic_help);
+        mapButton.setContentDescription("Route has active alerts");
+        mapButton.setVisibility(View.GONE);
 
         return cv;
     }
