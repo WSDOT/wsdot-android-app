@@ -136,7 +136,7 @@ public class TravelChartsFragment extends Fragment implements
 
             travelChartData = data;
 
-            routeSpinner = getActivity().findViewById(R.id.spinner);
+            routeSpinner = getActivity().findViewById(R.id.fragment_spinner);
 
             ArrayAdapter<CharSequence> routeArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.support_simple_spinner_dropdown_item, spinnerOptions);;
             routeArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);

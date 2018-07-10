@@ -110,7 +110,7 @@ public class TwitterFragment extends BaseFragment implements
         
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
-        Spinner spinner = root.findViewById(R.id.spinner);
+        Spinner spinner = root.findViewById(R.id.fragment_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.twitter_accounts, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

@@ -21,8 +21,10 @@ package gov.wa.wsdot.android.wsdot.ui.tollrates;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,9 +33,12 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +46,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.inject.Inject;
 
@@ -55,7 +62,9 @@ import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByLocation;
 
 public class SR167TollRatesFragment extends BaseFragment
-		implements SwipeRefreshLayout.OnRefreshListener, Injectable {
+		implements SwipeRefreshLayout.OnRefreshListener,
+        AdapterView.OnItemSelectedListener,
+        Injectable {
 	
     private static final String TAG = SR167TollRatesFragment.class.getSimpleName();
 	private static SR167TollRatesItemAdapter mAdapter;
@@ -65,19 +74,14 @@ public class SR167TollRatesFragment extends BaseFragment
 	protected RecyclerView mRecyclerView;
 	protected LinearLayoutManager mLayoutManager;
 
-	private enum Direction {
-	    N ("n"),
-        S ("s"),
-        E ("e"),
-        W ("w");
+    private Handler handler = new Handler();
+    private Timer timer;
 
-	    private final String direction;
-	    private String direction() { return this.direction; }
+    private Spinner directionSpinner;
+    public static ArrayList<CharSequence> spinnerOptions = new ArrayList<>();
+    private int spinnerIndex = 0;
 
-	    Direction(String direction){
-	        this.direction = direction;
-        }
-    }
+    private ArrayList<TollRateGroup> tollGroups = new ArrayList<>();
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -87,13 +91,16 @@ public class SR167TollRatesFragment extends BaseFragment
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+
+        spinnerOptions.add(0, "Northbound");
+        spinnerOptions.add(1, "Southbound");
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
 
-		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
+		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner_swipe_refresh, null);
 
 		mRecyclerView = root.findViewById(R.id.my_recycler_view);
 		mRecyclerView.setHasFixedSize(true);
@@ -108,6 +115,15 @@ public class SR167TollRatesFragment extends BaseFragment
 		mRecyclerView.setPadding(0,0,0,120);
 
 		addDisclaimerView(root);
+
+        directionSpinner = root.findViewById(R.id.fragment_spinner);
+
+        ArrayAdapter<CharSequence> routeArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.support_simple_spinner_dropdown_item, spinnerOptions);
+        routeArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        directionSpinner.setAdapter(routeArrayAdapter);
+        directionSpinner.setOnItemSelectedListener(this);
+        directionSpinner.setSelection(0, false);
+        directionSpinner.setVisibility(View.VISIBLE);
 
 		// For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
 		// FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -145,12 +161,16 @@ public class SR167TollRatesFragment extends BaseFragment
 			}
 		});
 
+
+
 		viewModel.getSR167TollRateItems().observe(this, tollRateGroups -> {
 			if (tollRateGroups != null) {
 				mEmptyView.setVisibility(View.GONE);
 				Collections.sort(tollRateGroups, new SortTollGroupByLocation());
 				Collections.sort(tollRateGroups, new SortTollGroupByDirection());
-				mAdapter.setData(new ArrayList<>(tollRateGroups));
+                tollGroups = new ArrayList<>(tollRateGroups);
+
+                mAdapter.setData(filterTollsForDirection(String.valueOf(spinnerOptions.get(spinnerIndex).charAt(0))));
 			}
 		});
 
@@ -159,12 +179,46 @@ public class SR167TollRatesFragment extends BaseFragment
 		return root;
 	}
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        spinnerIndex = position;
+        mAdapter.setData(filterTollsForDirection(String.valueOf(spinnerOptions.get(position).charAt(0))));
+        mLayoutManager.scrollToPositionWithOffset(0, 0);
+    }
+
+    private ArrayList<TollRateGroup> filterTollsForDirection(String direction){
+
+        ArrayList<TollRateGroup> filteredTolls = new ArrayList<>();
+
+        for (TollRateGroup group: tollGroups) {
+            if (group.tollRateSign.getTravelDirection().equals(direction)){
+                filteredTolls.add(group);
+            }
+        }
+        return filteredTolls;
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {}
+
+    public class RatesTimerTask extends TimerTask {
+        private Runnable runnable = new Runnable() {
+            public void run() {
+                viewModel.refresh();
+            }
+        };
+
+        public void run() {
+            handler.post(runnable);
+        }
+    }
+
 	/**
 	 * Adds a toll rate accuracy disclaimer to the bottom of the view
 	 * @param root
 	 */
 	private void addDisclaimerView(ViewGroup root) {
-		FrameLayout frame = root.findViewById(R.id.frame_layout);
+		FrameLayout frame = root.findViewById(R.id.list_container);
 		TextView textView = new TextView(getContext());
 		textView.setBackgroundColor(getResources().getColor(R.color.alerts));
 		textView.setText("The tolls reported here may not match what is currently displayed on the road signs.");
@@ -216,27 +270,10 @@ public class SR167TollRatesFragment extends BaseFragment
 
 			TollRateGroup tollRateGroup = mData.get(position);
 
-			String direction;
-			switch (tollRateGroup.tollRateSign.getTravelDirection().toLowerCase()) {
-                case "n":
-                    direction = " Northbound";
-                    break;
-                case "s":
-                    direction = " Southbound";
-                    break;
-                case "e":
-                    direction = " Eastbound";
-                    break;
-                case "w":
-                    direction = " Westbound";
-                    break;
-                default:
-                    direction = "";
-            }
-
 			final String id = tollRateGroup.tollRateSign.getId();
 
-			String title = tollRateGroup.tollRateSign.getLocationName().concat(direction).concat(" Entrance");
+            String title = "Lane entrance near ".concat(tollRateGroup.tollRateSign.getLocationName());
+
 			viewholder.title.setText(title);
 			viewholder.title.setTypeface(tfb);
 
@@ -245,7 +282,7 @@ public class SR167TollRatesFragment extends BaseFragment
 			// make a trip view with toll rate for each trip in the group
 			for (TollTripEntity trip: tollRateGroup.trips) {
 
-				View tripView = makeTripView(trip, getContext());
+				View tripView = makeTripView(trip, tollRateGroup.tollRateSign.getStartLatitude(), tollRateGroup.tollRateSign.getStartLongitude(), getContext());
 
 				// remove the line from the last trip
 				if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){
@@ -307,14 +344,32 @@ public class SR167TollRatesFragment extends BaseFragment
 	 * @param context
 	 * @return
 	 */
-	public static View makeTripView(TollTripEntity tripItem, Context context) {
+	public static View makeTripView(TollTripEntity tripItem,Double startLat, Double startLong, Context context) {
 
 		Typeface tfb = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Bold.ttf");
 		LayoutInflater li = LayoutInflater.from(context);
 		View cv = li.inflate(R.layout.trip_view, null);
 
 		// set end location label
-		((TextView) cv.findViewById(R.id.title)).setText(tripItem.getEndLocationName().concat(" Exit"));
+		((TextView) cv.findViewById(R.id.title)).setText("Exit near ".concat(tripItem.getEndLocationName()));
+
+		((TextView) cv.findViewById(R.id.content)).setText("Show on map");
+		((TextView) cv.findViewById(R.id.content)).setTextColor(context.getResources().getColor(R.color.primary_default));
+		cv.findViewById(R.id.content).setOnClickListener(v -> {
+			Bundle b = new Bundle();
+
+			b.putDouble("startLat", startLat);
+			b.putDouble("startLong", startLong);
+
+			b.putDouble("endLat", tripItem.getEndLatitude());
+			b.putDouble("endLong", tripItem.getEndLongitude());
+
+			b.putString("text", String.format("Exits near %s", tripItem.getEndLocationName()));
+
+			Intent intent = new Intent(context, TollRatesRouteActivity.class);
+			intent.putExtras(b);
+			context.startActivity(intent);
+		});
 
 		// set updated label
 		((TextView) cv.findViewById(R.id.updated)).setText(ParserUtils.relativeTime(
@@ -327,12 +382,9 @@ public class SR167TollRatesFragment extends BaseFragment
 		currentTimeTextView.setTypeface(tfb);
 		currentTimeTextView.setText(String.format(Locale.US, "$%.2f", tripItem.getTollRate()/100));
 
-
 		// set message if there is one
-		if (tripItem.getMessage().equals("null")){
-			((TextView) cv.findViewById(R.id.subtitle)).setText("");
-		} else {
-			((TextView) cv.findViewById(R.id.subtitle)).setText(tripItem.getMessage());
+		if (!tripItem.getMessage().equals("null")){
+			currentTimeTextView.setText(tripItem.getMessage());
 		}
 
 		return cv;
