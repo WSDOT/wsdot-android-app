@@ -74,6 +74,7 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.FerriesRouteSche
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.I405TollRatesFragment;
+import gov.wa.wsdot.android.wsdot.ui.tollrates.SR167TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesFragment;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
@@ -712,24 +713,6 @@ public class FavoritesFragment extends BaseFragment implements
 
                 TollRateGroup tollRateGroup = (TollRateGroup) mFavoritesAdapter.getItem(position);
 
-                String direction;
-                switch (tollRateGroup.tollRateSign.getTravelDirection().toLowerCase()) {
-                    case "n":
-                        direction = " Northbound";
-                        break;
-                    case "s":
-                        direction = " Southbound";
-                        break;
-                    case "e":
-                        direction = " Eastbound";
-                        break;
-                    case "w":
-                        direction = " Westbound";
-                        break;
-                    default:
-                        direction = "";
-                }
-
                 String routeType;
                 switch (tollRateGroup.tollRateSign.getStateRoute()){
                     case 405:
@@ -742,25 +725,40 @@ public class FavoritesFragment extends BaseFragment implements
                         routeType = "";
                         break;
                 }
-
-                String title = String.format(Locale.US, "%s%d - ", routeType, tollRateGroup.tollRateSign.getStateRoute())
-                        .concat(tollRateGroup.tollRateSign.getLocationName())
-                        .concat(direction)
-                        .concat(" Entrance");
+                String title = routeType
+                        .concat(String.valueOf(tollRateGroup.tollRateSign.getStateRoute()))
+                        .concat(" - ")
+                        .concat("Lane entrance near ".concat(tollRateGroup.tollRateSign.getLocationName()));
 
                 viewholder.title.setText(title);
                 viewholder.title.setTypeface(tfb);
+
 
                 viewholder.travel_times_layout.removeAllViews();
 
                 // make a trip view with toll rate for each trip in the group
                 for (TollTripEntity trip: tollRateGroup.trips) {
 
-                    View tripView = I405TollRatesFragment.makeTripView(trip, tollRateGroup.tollRateSign.getStartLatitude(), tollRateGroup.tollRateSign.getStartLongitude(), getContext());
+                    View tripView;
 
-                    // remove the line from the last trip
-                    if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){
-                        tripView.findViewById(R.id.line).setVisibility(View.GONE);
+                    switch (tollRateGroup.tollRateSign.getStateRoute()){
+                        case 405:
+                            tripView = I405TollRatesFragment.makeTripView(trip, tollRateGroup.tollRateSign.getStartLatitude(), tollRateGroup.tollRateSign.getStartLongitude(), getContext());
+                            // remove the line from the last trip
+                            if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){
+                                tripView.findViewById(R.id.line).setVisibility(View.GONE);
+                            }
+                            break;
+                        case 167:
+                            tripView = SR167TollRatesFragment.makeTripView(trip, tollRateGroup.tollRateSign.getStartLatitude(), tollRateGroup.tollRateSign.getStartLongitude(), getContext());
+                            // remove the line from the last trip
+                            if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){
+                                tripView.findViewById(R.id.line).setVisibility(View.GONE);
+                            }
+                            break;
+                        default:
+                            tripView = null;
+                            break;
                     }
 
                     viewholder.travel_times_layout.addView(tripView);

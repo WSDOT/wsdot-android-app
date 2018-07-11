@@ -11,8 +11,7 @@
         android:layout_centerInParent="true"
         android:layout_marginTop="12dp"
         android:textSize="@dimen/text_size_small"
-        android:textColor="@color/black"
-        android:text="Test"/>
+        android:textColor="@color/black"/>
 
     <Spinner
         android:id="@+id/fragment_spinner"
