@@ -23,6 +23,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -42,6 +43,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +60,7 @@ import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
@@ -82,6 +87,8 @@ public class I405TollRatesFragment extends BaseFragment
     public static ArrayList<CharSequence> spinnerOptions = new ArrayList<>();
     private int spinnerIndex = 0;
 
+    private Tracker mTracker;
+
     private ArrayList<TollRateGroup> tollGroups = new ArrayList<>();
 
 	@Inject
@@ -92,7 +99,7 @@ public class I405TollRatesFragment extends BaseFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
+        spinnerOptions.clear();
         spinnerOptions.add(0, "Northbound");
         spinnerOptions.add(1, "Southbound");
     }
@@ -101,7 +108,7 @@ public class I405TollRatesFragment extends BaseFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner_swipe_refresh, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_dynamic_toll_rates, null);
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -141,6 +148,20 @@ public class I405TollRatesFragment extends BaseFragment
 
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
+        TextView header_link = root.findViewById(R.id.header_text);
+        header_link.setText("Learn about tolling on I-405");
+        header_link.setTextColor(getResources().getColor(R.color.primary_default));
+        header_link.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            // GA tracker
+            mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
+            mTracker.setScreenName("/Toll Rates/Learn about I-405");
+            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://www.wsdot.wa.gov/Tolling/405/rates.htm"));
+            startActivity(intent);
+
+        });
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(TollRatesViewModel.class);
 
@@ -226,7 +247,7 @@ public class I405TollRatesFragment extends BaseFragment
         FrameLayout frame = root.findViewById(R.id.list_container);
         TextView textView = new TextView(getContext());
         textView.setBackgroundColor(getResources().getColor(R.color.alerts));
-        textView.setText("The tolls reported here may not match what is currently displayed on the road signs.");
+        textView.setText("Estimated toll rates provided as a courtesy. You’ll always pay the toll you see on actual road signs when you enter.");
         textView.setPadding(15, 20, 15, 15);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.BOTTOM;
@@ -358,9 +379,9 @@ public class I405TollRatesFragment extends BaseFragment
         // set end location label
         ((TextView) cv.findViewById(R.id.title)).setText("Exit near ".concat(tripItem.getEndLocationName()));
 
-        ((TextView) cv.findViewById(R.id.content)).setText("Show on map");
-        ((TextView) cv.findViewById(R.id.content)).setTextColor(context.getResources().getColor(R.color.primary_default));
-        cv.findViewById(R.id.content).setOnClickListener(v -> {
+        ((TextView) cv.findViewById(R.id.subtitle)).setText("Show on map");
+        ((TextView) cv.findViewById(R.id.subtitle)).setTextColor(context.getResources().getColor(R.color.primary_default));
+        cv.findViewById(R.id.subtitle).setOnClickListener(v -> {
             Bundle b = new Bundle();
 
             b.putDouble("startLat", startLat);
@@ -375,6 +396,8 @@ public class I405TollRatesFragment extends BaseFragment
             intent.putExtras(b);
             context.startActivity(intent);
         });
+
+        cv.findViewById(R.id.content).setVisibility(View.GONE);
 
         // set updated label
         ((TextView) cv.findViewById(R.id.updated)).setText(ParserUtils.relativeTime(
