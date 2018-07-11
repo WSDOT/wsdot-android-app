@@ -154,6 +154,10 @@ public class HomeActivity extends BaseActivity implements Injectable {
         mToolbar.setOnMenuItemClickListener(null);
     }
 
+    /**
+     * Attempts to check if there is a new version of the notification list.
+     * Alerts users with a tap target view if there is.
+     */
     private void tryDisplayNotificationTipView(){
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);

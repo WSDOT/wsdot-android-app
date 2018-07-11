@@ -19,18 +19,25 @@
 package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Spinner;
 
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
@@ -86,8 +93,7 @@ public class TollRatesActivity extends BaseActivity {
         tabFragments.add(mTabLayout.getTabCount(), I405TollRatesFragment.class);
         mTabLayout.addTab(mTabLayout.newTab().setText("I-405"));
 
-        mTabsAdapter = new TabsAdapter
-                (this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount());
+        mTabsAdapter = new TabsAdapter(this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount());
 
         mViewPager.setAdapter(mTabsAdapter);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
@@ -101,16 +107,12 @@ public class TollRatesActivity extends BaseActivity {
                 mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
                 mTracker.setScreenName("/Toll Rates/" + tab.getText());
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-
-
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {}
-
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
-
         });
 
         disableAds();
@@ -123,6 +125,20 @@ public class TollRatesActivity extends BaseActivity {
         }
 
         mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean seenTip = settings.getBoolean("KEY_SEEN_TOLL_WARNING", false);
+
+        if (!seenTip) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.WSDOT_popup);
+            builder.setMessage("Remember to never use the WSDOT app while driving.");
+            builder.setPositiveButton("Ok", (dialog, whichButton) -> dialog.dismiss());
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }
+
+        settings.edit().putBoolean("KEY_SEEN_TOLL_WARNING", true).apply();
+
     }
 
     @Override

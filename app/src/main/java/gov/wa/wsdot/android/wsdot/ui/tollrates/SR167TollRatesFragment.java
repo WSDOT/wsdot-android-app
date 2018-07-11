@@ -197,6 +197,9 @@ public class SR167TollRatesFragment extends BaseFragment
 
 		viewModel.refresh();
 
+        timer = new Timer();
+        timer.schedule(new SR167TollRatesFragment.RatesTimerTask(), 0, 60000); // Schedule rates to update every 60 seconds
+
 		return root;
 	}
 
