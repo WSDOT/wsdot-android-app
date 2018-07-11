@@ -1,13 +1,11 @@
 package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
@@ -34,9 +32,6 @@ public class TollRatesRouteActivity extends BaseActivity {
 
         setContentView(R.layout.activity_webview_with_spinner);
 
-        title = "Express Toll Lane";
-        description = "";
-
         Bundle b = getIntent().getExtras();
 
         Double startLat = b.getDouble("startLat");
@@ -45,7 +40,8 @@ public class TollRatesRouteActivity extends BaseActivity {
         Double endLat = b.getDouble("endLat");
         Double endLong = b.getDouble("endLong");
 
-        String text = b.getString("text");
+        title = b.getString("title");
+        description = b.getString("text");
 
         mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(title);
@@ -61,7 +57,7 @@ public class TollRatesRouteActivity extends BaseActivity {
         webview = findViewById(R.id.webview);
         webview.setWebViewClient(new myWebViewClient());
         webview.getSettings().setJavaScriptEnabled(true);
-        webview.loadDataWithBaseURL(null, buildContent(text, startLat, startLong, endLat, endLong), "text/html", "utf-8", null);
+        webview.loadDataWithBaseURL(null, buildContent(description, startLat, startLong, endLat, endLong), "text/html", "utf-8", null);
 
        // disableAds();
     }
@@ -123,7 +119,7 @@ public class TollRatesRouteActivity extends BaseActivity {
             zoom = 10;
         }
 
-       // sb.append("<p>" + text + "</p>");
+        sb.append("<p>" + description + "</p>");
 
         sb.append("<img src='");
         sb.append(APIEndPoints.STATIC_GOOGLE_MAPS);

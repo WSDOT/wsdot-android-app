@@ -57,6 +57,7 @@ import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
+import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignEntity;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
@@ -302,7 +303,7 @@ public class SR167TollRatesFragment extends BaseFragment
 			// make a trip view with toll rate for each trip in the group
 			for (TollTripEntity trip: tollRateGroup.trips) {
 
-				View tripView = makeTripView(trip, tollRateGroup.tollRateSign.getStartLatitude(), tollRateGroup.tollRateSign.getStartLongitude(), getContext());
+				View tripView = makeTripView(trip, tollRateGroup.tollRateSign, getContext());
 
 				// remove the line from the last trip
 				if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){
@@ -364,7 +365,7 @@ public class SR167TollRatesFragment extends BaseFragment
 	 * @param context
 	 * @return
 	 */
-	public static View makeTripView(TollTripEntity tripItem,Double startLat, Double startLong, Context context) {
+	public static View makeTripView(TollTripEntity tripItem, TollRateSignEntity sign, Context context) {
 
 		Typeface tfb = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Bold.ttf");
 		LayoutInflater li = LayoutInflater.from(context);
@@ -377,12 +378,13 @@ public class SR167TollRatesFragment extends BaseFragment
 		cv.findViewById(R.id.subtitle).setOnClickListener(v -> {
 			Bundle b = new Bundle();
 
-			b.putDouble("startLat", startLat);
-			b.putDouble("startLong", startLong);
+			b.putDouble("startLat", sign.getStartLatitude());
+			b.putDouble("startLong", sign.getStartLongitude());
 
 			b.putDouble("endLat", tripItem.getEndLatitude());
 			b.putDouble("endLong", tripItem.getEndLongitude());
 
+			b.putString("title", "Lane entrance near ".concat(sign.getLocationName()));
 			b.putString("text", String.format("Exits near %s", tripItem.getEndLocationName()));
 
 			Intent intent = new Intent(context, TollRatesRouteActivity.class);

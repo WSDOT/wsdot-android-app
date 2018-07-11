@@ -707,6 +707,7 @@ public class FavoritesFragment extends BaseFragment implements
                             return true;
                         }
                 );
+
             } else if (holder instanceof TollRateViewHolder) {
 
                 TollRateViewHolder viewholder = (TollRateViewHolder) holder;
@@ -743,14 +744,14 @@ public class FavoritesFragment extends BaseFragment implements
 
                     switch (tollRateGroup.tollRateSign.getStateRoute()){
                         case 405:
-                            tripView = I405TollRatesFragment.makeTripView(trip, tollRateGroup.tollRateSign.getStartLatitude(), tollRateGroup.tollRateSign.getStartLongitude(), getContext());
+                            tripView = I405TollRatesFragment.makeTripView(trip, tollRateGroup.tollRateSign, getContext());
                             // remove the line from the last trip
                             if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){
                                 tripView.findViewById(R.id.line).setVisibility(View.GONE);
                             }
                             break;
                         case 167:
-                            tripView = SR167TollRatesFragment.makeTripView(trip, tollRateGroup.tollRateSign.getStartLatitude(), tollRateGroup.tollRateSign.getStartLongitude(), getContext());
+                            tripView = SR167TollRatesFragment.makeTripView(trip, tollRateGroup.tollRateSign, getContext());
                             // remove the line from the last trip
                             if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){
                                 tripView.findViewById(R.id.line).setVisibility(View.GONE);
