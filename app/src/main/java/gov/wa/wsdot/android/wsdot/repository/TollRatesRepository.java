@@ -119,6 +119,7 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
             trip.setSignId(item.getString("StartLocationName").concat(item.getString("TravelDirection")));
             trip.setTollRate(item.getDouble("CurrentToll"));
             trip.setMessage(item.getString("CurrentMessage"));
+            trip.setEndMilepost(item.getInt("EndMilepost"));
             trip.setEndLatitude(item.getDouble("EndLatitude"));
             trip.setEndLongitude(item.getDouble("EndLongitude"));
 
@@ -139,6 +140,7 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
 
                 sign.setId(item.getString("StartLocationName").concat(item.getString("TravelDirection")));
                 sign.setLocationName(item.getString("StartLocationName"));
+                sign.setMilepost(item.getInt("StartMilepost"));
                 sign.setStateRoute(item.getInt("StateRoute"));
                 sign.setTravelDirection(item.getString("TravelDirection"));
                 sign.setStartLatitude(item.getDouble("StartLatitude"));

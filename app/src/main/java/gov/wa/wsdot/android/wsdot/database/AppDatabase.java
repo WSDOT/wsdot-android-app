@@ -236,6 +236,7 @@ public abstract class AppDatabase extends RoomDatabase {
         String TOLL_RATE_SIGN_LOCATION_NAME = "location_name";
         String TOLL_RATE_SIGN_IS_STARRED = "is_starred";
         String TOLL_RATE_SIGN_STATE_ROUTE = "state_route";
+        String TOLL_RATE_SIGN_MILEPOST = "milepost";
         String TOLL_RATE_SIGN_TRAVEL_DIRECTION = "travel_direction";
         String TOLL_RATE_SIGN_START_LAT = "start_latitude";
         String TOLL_RATE_SIGN_START_LONG = "start_longitude";
@@ -247,6 +248,7 @@ public abstract class AppDatabase extends RoomDatabase {
         String TOLL_TRIP_SIGN_ID = "sign_id";
         String TOLL_TRIP_TOLL_RATE = "toll_rate";
         String TOLL_TRIP_MESSAGE = "message";
+        String TOLL_TRIP_END_MILEPOST = "end_milepost";
         String TOLL_TRIP_END_LAT = "end_latitude";
         String TOLL_TRIP_END_LONG = "end_longitude";
         String TOLL_TRIP_UPDATED = "updated";
@@ -607,6 +609,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     + TollRateSignColumns.TOLL_RATE_SIGN_STATE_ROUTE + " INTEGER NOT NULL default 0,"
                     + TollRateSignColumns.TOLL_RATE_SIGN_TRAVEL_DIRECTION + " TEXT NOT NULL,"
                     + TollRateSignColumns.TOLL_RATE_SIGN_IS_STARRED + " INTEGER NOT NULL default 0,"
+                    + TollRateSignColumns.TOLL_RATE_SIGN_MILEPOST + " INTEGER NOT NULL default 0,"
                     + TollRateSignColumns.TOLL_RATE_SIGN_START_LAT + " REAL NOT NULL default 0,"
                     + TollRateSignColumns.TOLL_RATE_SIGN_START_LONG + " REAL NOT NULL default 0);");
 
@@ -617,6 +620,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     + TollTripColumns.TOLL_TRIP_TOLL_RATE + " REAL,"
                     + TollTripColumns.TOLL_TRIP_MESSAGE + " TEXT,"
                     + TollTripColumns.TOLL_TRIP_UPDATED + " TEXT,"
+                    + TollTripColumns.TOLL_TRIP_END_MILEPOST + " INTEGER NOT NULL default 0,"
                     + TollTripColumns.TOLL_TRIP_END_LAT + " REAL,"
                     + TollTripColumns.TOLL_TRIP_END_LONG + " REAL,"
                     + "FOREIGN KEY(`sign_id`) REFERENCES `toll_rate_sign`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");

@@ -31,6 +31,9 @@ public class TollTripEntity {
     @ColumnInfo(name = "message")
     private String message;
 
+    @ColumnInfo(name = "end_milepost")
+    private Integer endMilepost;
+
     @ColumnInfo(name = "end_latitude")
     private Double endLatitude;
 
@@ -79,6 +82,14 @@ public class TollTripEntity {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public Integer getEndMilepost() {
+        return endMilepost;
+    }
+
+    public void setEndMilepost(Integer endMilepost) {
+        this.endMilepost = endMilepost;
     }
 
     public Double getEndLatitude() {

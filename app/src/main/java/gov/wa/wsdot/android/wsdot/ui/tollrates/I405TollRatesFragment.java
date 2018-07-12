@@ -66,6 +66,8 @@ import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByLocation;
+import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByMilepost;
+import gov.wa.wsdot.android.wsdot.util.sort.SortTollTripsByMilepost;
 
 public class I405TollRatesFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener,
@@ -219,9 +221,23 @@ public class I405TollRatesFragment extends BaseFragment
 
         for (TollRateGroup group: tollGroups) {
             if (group.tollRateSign.getTravelDirection().equals(direction)){
+
+                if (direction.equals("S")) {
+                    Collections.sort(group.trips, new SortTollTripsByMilepost(SortTollTripsByMilepost.SortOrder.DESCENDING));
+                } else if (direction.equals("N")) {
+                    Collections.sort(group.trips, new SortTollTripsByMilepost(SortTollTripsByMilepost.SortOrder.ASCENDING));
+                }
+
                 filteredTolls.add(group);
             }
         }
+
+        if (direction.equals("S")) {
+            Collections.sort(filteredTolls, new SortTollGroupByMilepost(SortTollGroupByMilepost.SortOrder.DESCENDING));
+        } else if (direction.equals("N")) {
+            Collections.sort(filteredTolls, new SortTollGroupByMilepost(SortTollGroupByMilepost.SortOrder.ASCENDING));
+        }
+
         return filteredTolls;
     }
 

@@ -25,6 +25,10 @@ public class TollRateSignEntity {
     @NonNull
     private Integer stateRoute = 0;
 
+    @ColumnInfo(name = "milepost")
+    @NonNull
+    private Integer milepost = 0;
+
     @ColumnInfo(name = "travel_direction")
     @NonNull
     private String travelDirection = "";
@@ -71,6 +75,15 @@ public class TollRateSignEntity {
 
     public void setStateRoute(@NonNull Integer stateRoute) {
         this.stateRoute = stateRoute;
+    }
+
+    @NonNull
+    public Integer getMilepost() {
+        return milepost;
+    }
+
+    public void setMilepost(@NonNull Integer milepost) {
+        this.milepost = milepost;
     }
 
     @NonNull
