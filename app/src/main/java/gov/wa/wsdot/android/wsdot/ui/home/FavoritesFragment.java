@@ -729,7 +729,7 @@ public class FavoritesFragment extends BaseFragment implements
                 String title = routeType
                         .concat(String.valueOf(tollRateGroup.tollRateSign.getStateRoute()))
                         .concat(" - ")
-                        .concat("Lane entrance near ".concat(tollRateGroup.tollRateSign.getLocationName()));
+                        .concat(tollRateGroup.tollRateSign.getLocationName());
 
                 viewholder.title.setText(title);
                 viewholder.title.setTypeface(tfb);

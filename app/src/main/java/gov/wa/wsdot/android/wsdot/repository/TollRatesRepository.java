@@ -6,6 +6,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -114,41 +115,47 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
 
             TollTripEntity trip = new TollTripEntity();
 
-            trip.setTripName(item.getString("TripName"));
-            trip.setEndLocationName(item.getString("EndLocationName"));
-            trip.setSignId(item.getString("StartLocationName").concat(item.getString("TravelDirection")));
-            trip.setTollRate(item.getDouble("CurrentToll"));
-            trip.setMessage(item.getString("CurrentMessage"));
-            trip.setEndMilepost(item.getInt("EndMilepost"));
-            trip.setEndLatitude(item.getDouble("EndLatitude"));
-            trip.setEndLongitude(item.getDouble("EndLongitude"));
+            if (!shouldSkipTrip(item)) {
 
-            try {
-                trip.setUpdated(dateFormat.format(new Date(System.currentTimeMillis())));
-            } catch (Exception e) {
-                trip.setUpdated("unavailable");
-                Log.e(TAG, "Error parsing date", e);
+                trip.setTripName(item.getString("TripName"));
+                trip.setEndLocationName(item.getString("EndLocationName"));
+                trip.setSignId(item.getString("StartLocationName").concat(item.getString("TravelDirection")));
+                trip.setTollRate(item.getDouble("CurrentToll"));
+                trip.setMessage(item.getString("CurrentMessage"));
+                trip.setEndMilepost(item.getInt("EndMilepost"));
+                trip.setEndLatitude(item.getDouble("EndLatitude"));
+                trip.setEndLongitude(item.getDouble("EndLongitude"));
+
+                try {
+                    trip.setUpdated(dateFormat.format(new Date(System.currentTimeMillis())));
+                } catch (Exception e) {
+                    trip.setUpdated("unavailable");
+                    Log.e(TAG, "Error parsing date", e);
+                }
+
+                mTollTrips.add(trip);
+
+                TollRateSignEntity sign = tollRateSignDao.getTollRateSign(trip.getSignId());
+
+                if (sign == null) {
+
+                    sign = new TollRateSignEntity();
+
+                    sign.setId(item.getString("StartLocationName").concat(item.getString("TravelDirection")));
+
+                    String locationName = filterLocationName(item.getString("StartLocationName"), item.getString("TravelDirection"));
+
+                    sign.setLocationName(locationName);
+                    sign.setMilepost(item.getInt("StartMilepost"));
+                    sign.setStateRoute(item.getInt("StateRoute"));
+                    sign.setTravelDirection(item.getString("TravelDirection"));
+                    sign.setStartLatitude(item.getDouble("StartLatitude"));
+                    sign.setStartLongitude(item.getDouble("StartLongitude"));
+
+                }
+
+                mTollRateItems.add(sign);
             }
-
-            mTollTrips.add(trip);
-
-            TollRateSignEntity sign = tollRateSignDao.getTollRateSign(trip.getSignId());
-
-            if (sign == null){
-
-                sign = new TollRateSignEntity();
-
-                sign.setId(item.getString("StartLocationName").concat(item.getString("TravelDirection")));
-                sign.setLocationName(item.getString("StartLocationName"));
-                sign.setMilepost(item.getInt("StartMilepost"));
-                sign.setStateRoute(item.getInt("StateRoute"));
-                sign.setTravelDirection(item.getString("TravelDirection"));
-                sign.setStartLatitude(item.getDouble("StartLatitude"));
-                sign.setStartLongitude(item.getDouble("StartLongitude"));
-
-            }
-
-            mTollRateItems.add(sign);
         }
 
 
@@ -165,5 +172,67 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
         CacheEntity tollCache = new CacheEntity("toll_trip", System.currentTimeMillis());
         getCacheRepository().setCacheTime(tollCache);
 
+    }
+
+
+    private String filterLocationName(String locationName, String direction){
+
+        // Southbound name changes
+        if (direction.equals("S")) {
+
+            if (locationName.equals("231st SE")) {
+                locationName = "SR 527";
+            }
+
+            if (locationName.equals("NE 53rd")) {
+                locationName = "NE 70th Place";
+            }
+
+        }
+
+        // Northbound name changes
+        if (direction.equals("N")) {
+
+            if (locationName.equals("NE 97th")) {
+                locationName = "NE 85th St";
+            }
+
+            if (locationName.equals("231st SE")) {
+                locationName = "SR 522";
+            }
+
+            if (locationName.equals("216th SE")) {
+                locationName = "SR 527";
+            }
+        }
+
+        if (locationName.equals("SR 524") || locationName.equals("NE 4th")){
+            locationName = (direction.equals("N") ? "Bellevue" : "Lynnwood").concat(" - Start of toll lanes");
+        } else {
+            locationName = "Lane entrance near ".concat(locationName);
+        }
+
+
+        return locationName;
+    }
+
+    private boolean shouldSkipTrip(JSONObject tripJson) throws JSONException {
+
+        if (tripJson.getString("StartLocationName").equals("NE 6th")
+            && tripJson.getString("TravelDirection").equals("N")) {
+            return true;
+        }
+
+        if (tripJson.getString("StartLocationName").equals("216th ST SE")
+                && tripJson.getString("TravelDirection").equals("S")) {
+            return true;
+        }
+
+        if (tripJson.getString("StartLocationName").equals("NE 145th")
+                && tripJson.getString("TravelDirection").equals("S")) {
+            return true;
+        }
+
+        return false;
     }
 }

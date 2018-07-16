@@ -315,7 +315,7 @@ public class I405TollRatesFragment extends BaseFragment
 
             final String id = tollRateGroup.tollRateSign.getId();
 
-            String title = "Lane entrance near ".concat(tollRateGroup.tollRateSign.getLocationName());
+            String title = tollRateGroup.tollRateSign.getLocationName();
             viewholder.title.setText(title);
             viewholder.title.setTypeface(tfb);
 
@@ -394,7 +394,7 @@ public class I405TollRatesFragment extends BaseFragment
         View cv = li.inflate(R.layout.trip_view, null);
 
         // set end location label
-        ((TextView) cv.findViewById(R.id.title)).setText("Exit near ".concat(tripItem.getEndLocationName()));
+        ((TextView) cv.findViewById(R.id.title)).setText("to ".concat(tripItem.getEndLocationName()));
 
         ((TextView) cv.findViewById(R.id.subtitle)).setText("Show on map");
         ((TextView) cv.findViewById(R.id.subtitle)).setTextColor(context.getResources().getColor(R.color.primary_default));
@@ -407,8 +407,8 @@ public class I405TollRatesFragment extends BaseFragment
             b.putDouble("endLat", tripItem.getEndLatitude());
             b.putDouble("endLong", tripItem.getEndLongitude());
 
-            b.putString("title", "Lane entrance near ".concat(sign.getLocationName()));
-            b.putString("text", String.format("Exits near %s", tripItem.getEndLocationName()));
+            b.putString("title", sign.getLocationName());
+            b.putString("text", String.format("Travel as far as %s", tripItem.getEndLocationName()));
 
             Intent intent = new Intent(context, TollRatesRouteActivity.class);
             intent.putExtras(b);
