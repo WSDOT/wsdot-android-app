@@ -321,7 +321,7 @@ public class SR167TollRatesFragment extends BaseFragment
 
 			final String id = tollRateGroup.tollRateSign.getId();
 
-            String title = "Lane entrance near ".concat(tollRateGroup.tollRateSign.getLocationName());
+            String title = tollRateGroup.tollRateSign.getLocationName();
 
 			viewholder.title.setText(title);
 			viewholder.title.setTypeface(tfb);
