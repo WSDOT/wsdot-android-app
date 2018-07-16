@@ -22,10 +22,12 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -132,8 +134,11 @@ public class SR167TollRatesFragment extends BaseFragment
         routeArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         directionSpinner.setAdapter(routeArrayAdapter);
         directionSpinner.setOnItemSelectedListener(this);
-        directionSpinner.setSelection(0, false);
         directionSpinner.setVisibility(View.VISIBLE);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+        int direction = sharedPref.getInt(getString(R.string.toll_rates_167_travel_direction_key), 0);
+        directionSpinner.setSelection(direction, false);
 
 		// For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
 		// FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -210,6 +215,10 @@ public class SR167TollRatesFragment extends BaseFragment
         spinnerIndex = position;
         mAdapter.setData(filterTollsForDirection(String.valueOf(spinnerOptions.get(position).charAt(0))));
         mLayoutManager.scrollToPositionWithOffset(0, 0);
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putInt(getString(R.string.toll_rates_167_travel_direction_key), position);
+		editor.apply();
     }
 
     private ArrayList<TollRateGroup> filterTollsForDirection(String direction){

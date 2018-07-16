@@ -111,6 +111,8 @@
     <string name="event_title_key">event_title_key</string>
     <string name="event_details_key">event_details_key</string>
     <string name="event_theme_key">event_theme_key</string>
+    <string name="toll_rates_405_travel_direction_key">toll_rates_405_travel_direction_key</string>
+    <string name="toll_rates_167_travel_direction_key">toll_rates_167_travel_direction_key</string>
 
     <string name="event_is_active">event_is_active</string>
 
@@ -124,8 +126,8 @@
     <string name="firebase_notification_description">firebase_notification_description</string>
     <string name="firebase_notification_title">firebase_notification_title</string>
 
-
     <string name="toll_rates_disclaimer_text">toll_rates_disclaimer</string>
+
     <string name="description_map_button">show on map</string>
     <string name="description_about_goodtogo">MyGoodToGo.com</string>
 
