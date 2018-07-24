@@ -413,7 +413,7 @@ public class SR167TollRatesFragment extends BaseFragment
 			b.putDouble("endLong", tripItem.getEndLongitude());
 
 			b.putString("title", sign.getLocationName());
-			b.putString("text", String.format("Exits near %s", tripItem.getEndLocationName()));
+			b.putString("text", String.format("Travel as far as %s.", tripItem.getEndLocationName()));
 
 			Intent intent = new Intent(context, TollRatesRouteActivity.class);
 			intent.putExtras(b);
