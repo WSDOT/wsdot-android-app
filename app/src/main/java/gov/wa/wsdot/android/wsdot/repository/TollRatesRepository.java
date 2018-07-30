@@ -218,6 +218,10 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
 
     private boolean shouldSkipTrip(JSONObject tripJson) throws JSONException {
 
+        /*
+         * Removal of these routes since their displays are already shown
+         * by other signs from the API.
+         */
         if (tripJson.getString("StartLocationName").equals("NE 6th")
             && tripJson.getString("TravelDirection").equals("N")) {
             return true;
@@ -229,6 +233,15 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
         }
 
         if (tripJson.getString("StartLocationName").equals("NE 145th")
+                && tripJson.getString("TravelDirection").equals("S")) {
+            return true;
+        }
+
+        /*
+         * Removal suggested by tolling division since it's very similar to another location
+         * and difficult to come up with a label people will recognize.
+         */
+        if (tripJson.getString("StartLocationName").equals("NE 108th")
                 && tripJson.getString("TravelDirection").equals("S")) {
             return true;
         }
