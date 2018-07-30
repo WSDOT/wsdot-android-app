@@ -23,6 +23,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,6 +33,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -42,6 +45,8 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,7 +79,6 @@ import gov.wa.wsdot.android.wsdot.util.sort.SortTollTripsByMilepost;
 
 public class I405TollRatesFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener,
-            AdapterView.OnItemSelectedListener,
             Injectable {
 	
     private static final String TAG = I405TollRatesFragment.class.getSimpleName();
@@ -89,9 +93,7 @@ public class I405TollRatesFragment extends BaseFragment
     private Handler handler = new Handler();
     private Timer timer;
 
-    private Spinner directionSpinner;
-    public static ArrayList<CharSequence> spinnerOptions = new ArrayList<>();
-    private int spinnerIndex = 0;
+    private RadioGroup directionRadioGroup;
 
     private Tracker mTracker;
 
@@ -100,18 +102,6 @@ public class I405TollRatesFragment extends BaseFragment
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 	TollRatesViewModel viewModel;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        spinnerOptions.clear();
-        spinnerOptions.add(0, "Northbound");
-        spinnerOptions.add(1, "Southbound");
-
-
-
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -133,18 +123,35 @@ public class I405TollRatesFragment extends BaseFragment
 
         addDisclaimerView(root);
 
-        directionSpinner = root.findViewById(R.id.fragment_spinner);
-
-        ArrayAdapter<CharSequence> routeArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.support_simple_spinner_dropdown_item, spinnerOptions);
-        routeArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        directionSpinner.setAdapter(routeArrayAdapter);
-        directionSpinner.setOnItemSelectedListener(this);
-        directionSpinner.setSelection(0, false);
-        directionSpinner.setVisibility(View.VISIBLE);
+        directionRadioGroup = root.findViewById(R.id.segment_control);
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
         int direction = sharedPref.getInt(getString(R.string.toll_rates_405_travel_direction_key), 0);
-        directionSpinner.setSelection(direction, false);
+
+        if (direction == 0) {
+            RadioButton leftSegment = root.findViewById(R.id.radio_left);
+            leftSegment.setChecked(true);
+        } else {
+            RadioButton rightSegment = root.findViewById(R.id.radio_right);
+            rightSegment.setChecked(true);
+        }
+
+        directionRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+
+            RadioButton selectedDirection = directionRadioGroup.findViewById(checkedId);
+
+            mAdapter.setData(filterTollsForDirection(String.valueOf(selectedDirection.getText().charAt(0))));
+            mLayoutManager.scrollToPositionWithOffset(0, 0);
+            SharedPreferences sharedPref1 = PreferenceManager.getDefaultSharedPreferences(getContext());
+            SharedPreferences.Editor editor = sharedPref1.edit();
+
+            int index = directionRadioGroup.indexOfChild(selectedDirection);
+
+            editor.putInt(getString(R.string.toll_rates_405_travel_direction_key), index);
+
+            editor.apply();
+
+        });
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -162,7 +169,12 @@ public class I405TollRatesFragment extends BaseFragment
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
         TextView header_link = root.findViewById(R.id.header_text);
-        header_link.setText("Learn about tolling on I-405");
+
+        // create spannable string for underline
+        SpannableString content = new SpannableString(getActivity().getResources().getString(R.string.i405_info_link));
+        content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
+        header_link.setText(content);
+
         header_link.setTextColor(getResources().getColor(R.color.primary_default));
         header_link.setOnClickListener(v -> {
             Intent intent = new Intent();
@@ -173,7 +185,6 @@ public class I405TollRatesFragment extends BaseFragment
             intent.setAction(Intent.ACTION_VIEW);
             intent.setData(Uri.parse("https://www.wsdot.wa.gov/Tolling/405/rates.htm"));
             startActivity(intent);
-
         });
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(TollRatesViewModel.class);
@@ -208,7 +219,10 @@ public class I405TollRatesFragment extends BaseFragment
 
                 tollGroups = new ArrayList<>(tollRateGroups);
 
-                mAdapter.setData(filterTollsForDirection(String.valueOf(spinnerOptions.get(spinnerIndex).charAt(0))));
+                directionRadioGroup.getCheckedRadioButtonId();
+                RadioButton selectedDirection = directionRadioGroup.findViewById(directionRadioGroup.getCheckedRadioButtonId());
+
+                mAdapter.setData(filterTollsForDirection(String.valueOf(selectedDirection.getText().charAt(0))));
             }
         });
 
@@ -216,17 +230,6 @@ public class I405TollRatesFragment extends BaseFragment
         timer.schedule(new RatesTimerTask(), 0, 60000); // Schedule rates to update every 60 seconds
 
         return root;
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        spinnerIndex = position;
-        mAdapter.setData(filterTollsForDirection(String.valueOf(spinnerOptions.get(position).charAt(0))));
-        mLayoutManager.scrollToPositionWithOffset(0, 0);
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt(getString(R.string.toll_rates_405_travel_direction_key), position);
-        editor.apply();
     }
 
     private ArrayList<TollRateGroup> filterTollsForDirection(String direction){
@@ -254,9 +257,6 @@ public class I405TollRatesFragment extends BaseFragment
 
         return filteredTolls;
     }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {}
 
     public class RatesTimerTask extends TimerTask {
         private Runnable runnable = new Runnable() {

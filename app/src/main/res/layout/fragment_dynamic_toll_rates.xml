@@ -5,10 +5,10 @@
 
     <TextView
         android:id="@+id/header_text"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:textAlignment="center"
         android:layout_marginTop="12dp"
         android:paddingRight="8dp"
         android:paddingEnd="8dp"
@@ -17,24 +17,53 @@
         android:textSize="@dimen/text_size_small"
         android:textColor="@color/black"/>
 
-    <Spinner
-        android:id="@+id/fragment_spinner"
-        android:layout_width="wrap_content"
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/segment_control"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
+        android:padding="8dp"
+        android:layout_below="@id/header_text"
         android:gravity="center"
-        android:paddingStart="8dp"
-        android:paddingLeft="8dp"
-        android:paddingEnd="8dp"
-        android:paddingRight="8dp"
-        android:textColor="#000000"/>
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/radio_left"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="4dp"
+            android:paddingStart="4dp"
+            android:paddingRight="0dp"
+            android:paddingEnd="0dp"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:textColor="@color/segment_text_color"
+            android:text="Northbound"
+            android:button="@null"
+            android:background="@drawable/segment_left_button_background"/>
+        <RadioButton
+            android:id="@+id/radio_right"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="0dp"
+            android:paddingStart="0dp"
+            android:paddingRight="4dp"
+            android:paddingEnd="4dp"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:textColor="@color/segment_text_color"
+            android:text="Southbound"
+            android:button="@null"
+            android:background="@drawable/segment_right_button_background"/>
+    </RadioGroup>
 
     <FrameLayout
         android:id="@+id/list_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/fragment_spinner">
+        android:layout_below="@+id/segment_control">
 
         <android.support.v4.widget.SwipeRefreshLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
