@@ -17,12 +17,28 @@
         android:textSize="@dimen/text_size_small"
         android:textColor="@color/black"/>
 
+    <TextView
+        android:id="@+id/travel_time_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_below="@id/header_text"
+        android:textAlignment="center"
+        android:layout_marginTop="12dp"
+        android:paddingRight="8dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingLeft="8dp"
+        android:textSize="@dimen/text_size_small"
+        android:textColor="@color/black"/>
+
+
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/segment_control"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:layout_below="@id/header_text"
+        android:layout_below="@id/travel_time_text"
         android:gravity="center"
         android:orientation="horizontal">
         <RadioButton

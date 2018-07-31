@@ -38,14 +38,11 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -167,6 +164,9 @@ public class SR167TollRatesFragment extends BaseFragment
 
 		TextView header_link = root.findViewById(R.id.header_text);
 
+		// hide travel times view for 167
+		root.findViewById(R.id.travel_time_text).setVisibility(View.GONE);
+
 		// create spannable string for underline
 		SpannableString content = new SpannableString(getActivity().getResources().getString(R.string.sr167_info_link));
 		content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
@@ -199,9 +199,6 @@ public class SR167TollRatesFragment extends BaseFragment
 					case ERROR:
 						swipeRefreshLayout.setRefreshing(false);
 						Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
-						TextView t = (TextView) mEmptyView;
-						t.setText("toll rates unavailable.");
-						mEmptyView.setVisibility(View.VISIBLE);
 				}
 			}
 		});
@@ -229,7 +226,6 @@ public class SR167TollRatesFragment extends BaseFragment
 
 		return root;
 	}
-
 
     private ArrayList<TollRateGroup> filterTollsForDirection(String direction){
 
@@ -263,7 +259,6 @@ public class SR167TollRatesFragment extends BaseFragment
                 viewModel.refresh();
             }
         };
-
         public void run() {
             handler.post(runnable);
         }

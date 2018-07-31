@@ -67,6 +67,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignEntity;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
@@ -94,10 +95,12 @@ public class I405TollRatesFragment extends BaseFragment
     private Timer timer;
 
     private RadioGroup directionRadioGroup;
+    private int radioGroupDirectionIndex = 0;
 
     private Tracker mTracker;
 
     private ArrayList<TollRateGroup> tollGroups = new ArrayList<>();
+    private ArrayList<TravelTimeEntity> travelTimes = new ArrayList<>();
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -126,9 +129,9 @@ public class I405TollRatesFragment extends BaseFragment
         directionRadioGroup = root.findViewById(R.id.segment_control);
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-        int direction = sharedPref.getInt(getString(R.string.toll_rates_405_travel_direction_key), 0);
+        radioGroupDirectionIndex = sharedPref.getInt(getString(R.string.toll_rates_405_travel_direction_key), 0);
 
-        if (direction == 0) {
+        if (radioGroupDirectionIndex == 0) {
             RadioButton leftSegment = root.findViewById(R.id.radio_left);
             leftSegment.setChecked(true);
         } else {
@@ -141,13 +144,18 @@ public class I405TollRatesFragment extends BaseFragment
             RadioButton selectedDirection = directionRadioGroup.findViewById(checkedId);
 
             mAdapter.setData(filterTollsForDirection(String.valueOf(selectedDirection.getText().charAt(0))));
+
             mLayoutManager.scrollToPositionWithOffset(0, 0);
             SharedPreferences sharedPref1 = PreferenceManager.getDefaultSharedPreferences(getContext());
             SharedPreferences.Editor editor = sharedPref1.edit();
 
-            int index = directionRadioGroup.indexOfChild(selectedDirection);
+            radioGroupDirectionIndex = directionRadioGroup.indexOfChild(selectedDirection);
+            Log.e(TAG, String.valueOf(radioGroupDirectionIndex));
 
-            editor.putInt(getString(R.string.toll_rates_405_travel_direction_key), index);
+            TextView travelTimeView = root.findViewById(R.id.travel_time_text);
+            travelTimeView.setText(getTravelTimeStringForDirection(radioGroupDirectionIndex == 0 ? "N" : "S"));
+
+            editor.putInt(getString(R.string.toll_rates_405_travel_direction_key), radioGroupDirectionIndex);
 
             editor.apply();
 
@@ -201,13 +209,23 @@ public class I405TollRatesFragment extends BaseFragment
                     case ERROR:
                         swipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
-                        TextView t = (TextView) mEmptyView;
-                        t.setText("toll rates unavailable.");
-                        mEmptyView.setVisibility(View.VISIBLE);
                 }
             }
         });
 
+        viewModel.getTravelTimesStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        break;
+                    case SUCCESS:
+                        root.findViewById(R.id.travel_time_text).setVisibility(View.VISIBLE);
+                        break;
+                    case ERROR:
+                        root.findViewById(R.id.travel_time_text).setVisibility(View.GONE);
+                }
+            }
+        });
 
         viewModel.getI405TollRateItems().observe(this, tollRateGroups -> {
             if (tollRateGroups != null) {
@@ -223,6 +241,21 @@ public class I405TollRatesFragment extends BaseFragment
                 RadioButton selectedDirection = directionRadioGroup.findViewById(directionRadioGroup.getCheckedRadioButtonId());
 
                 mAdapter.setData(filterTollsForDirection(String.valueOf(selectedDirection.getText().charAt(0))));
+            }
+        });
+
+        viewModel.getTravelTimesForETLFor("405").observe(this, travelTimes -> {
+
+            TextView travelTimeView = root.findViewById(R.id.travel_time_text);
+
+            if (travelTimes.size() > 0) {
+                travelTimeView.setVisibility(View.VISIBLE);
+
+                this.travelTimes = new ArrayList<>(travelTimes);
+
+                travelTimeView.setText(getTravelTimeStringForDirection(radioGroupDirectionIndex == 0 ? "N" : "S"));
+            } else {
+                travelTimeView.setVisibility(View.GONE);
             }
         });
 
@@ -256,6 +289,35 @@ public class I405TollRatesFragment extends BaseFragment
         }
 
         return filteredTolls;
+    }
+
+    private String getTravelTimeStringForDirection(String direction){
+
+        int[] timeIDs = new int[2];
+
+        if (direction.equals("N")) {
+            timeIDs[0] = 35; // GP
+            timeIDs[1] = 36; // HOV/ETL
+        } else if (direction.equals("S")) {
+            timeIDs[0] = 38; // GP
+            timeIDs[1] = 37; // HOV/ETL
+        }
+
+        // array holds indexes for travelTimes in north or southbound direction to build string with
+        int[] timeIndexes = new int[2];
+
+        for (TravelTimeEntity time: travelTimes) {
+            if (time.getTravelTimeId() == timeIDs[0]) {
+                timeIndexes[0] = travelTimes.indexOf(time);
+            } else if (time.getTravelTimeId() == timeIDs[1]) {
+                timeIndexes[1] = travelTimes.indexOf(time);
+            }
+        }
+
+        return String.format("%s: %s min / %s min via ETL",
+                travelTimes.get(timeIndexes[0]).getTripTitle(),
+                travelTimes.get(timeIndexes[0]).getCurrent(),
+                travelTimes.get(timeIndexes[1]).getCurrent());
     }
 
     public class RatesTimerTask extends TimerTask {
@@ -346,7 +408,6 @@ public class I405TollRatesFragment extends BaseFragment
                 }
 
                 viewholder.travel_times_layout.addView(tripView);
-
             }
 
             // Seems when Android recycles the views, the onCheckedChangeListener is still active
@@ -364,9 +425,9 @@ public class I405TollRatesFragment extends BaseFragment
                 Snackbar removed_snackbar = Snackbar
                         .make(getView(), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
 
-                if (isChecked){
+                if (isChecked) {
                     added_snackbar.show();
-                }else{
+                }else {
                     removed_snackbar.show();
                 }
 

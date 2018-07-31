@@ -68,11 +68,19 @@ public class TravelTimeRepository  extends NetworkResourceSyncRepository {
     }
 
     /*
+
     public LiveData<TravelTimeEntity> getTravelTimeFor(Integer id, MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
         return travelTimeDao.loadTravelTimeFor(id);
     }
+
     */
+
+    public LiveData<List<TravelTimeEntity>> getTravelTimesWithIds(List<Integer> ids, MutableLiveData<ResourceStatus> status) {
+
+        super.refreshData(status, false);
+        return travelTimeDao.loadTravelTimesFor(ids);
+    }
 
     public LiveData<List<TravelTimeGroup>> loadFavoriteTravelTimes(MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
