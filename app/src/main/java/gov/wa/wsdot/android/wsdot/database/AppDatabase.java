@@ -620,7 +620,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     + TollTripColumns.TOLL_TRIP_TOLL_RATE + " REAL,"
                     + TollTripColumns.TOLL_TRIP_MESSAGE + " TEXT,"
                     + TollTripColumns.TOLL_TRIP_UPDATED + " TEXT,"
-                    + TollTripColumns.TOLL_TRIP_END_MILEPOST + " INTEGER NOT NULL default 0,"
+                    + TollTripColumns.TOLL_TRIP_END_MILEPOST + " INTEGER,"
                     + TollTripColumns.TOLL_TRIP_END_LAT + " REAL,"
                     + TollTripColumns.TOLL_TRIP_END_LONG + " REAL,"
                     + "FOREIGN KEY(`sign_id`) REFERENCES `toll_rate_sign`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
