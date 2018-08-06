@@ -138,21 +138,24 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
                 TollRateSignEntity sign = tollRateSignDao.getTollRateSign(trip.getSignId());
 
                 if (sign == null) {
-
                     sign = new TollRateSignEntity();
-
-                    sign.setId(item.getString("StartLocationName").concat(item.getString("TravelDirection")));
-
-                    String locationName = filterLocationName(item.getString("StartLocationName"), item.getString("TravelDirection"));
-
-                    sign.setLocationName(locationName);
-                    sign.setMilepost(item.getInt("StartMilepost"));
-                    sign.setStateRoute(item.getInt("StateRoute"));
-                    sign.setTravelDirection(item.getString("TravelDirection"));
-                    sign.setStartLatitude(item.getDouble("StartLatitude"));
-                    sign.setStartLongitude(item.getDouble("StartLongitude"));
-
                 }
+                sign.setId(item.getString("StartLocationName").concat(item.getString("TravelDirection")));
+
+                String locationName = item.getString("StartLocationName");
+
+                if (item.getInt("StateRoute") == 405){
+                    locationName = filter405LocationName(item.getString("StartLocationName"), item.getString("TravelDirection"));
+                } else if (item.getInt("StateRoute") == 167){
+                    locationName = filter167LocationName(item.getString("StartLocationName"), item.getString("TravelDirection"));
+                }
+
+                sign.setLocationName(locationName);
+                sign.setMilepost(item.getInt("StartMilepost"));
+                sign.setStateRoute(item.getInt("StateRoute"));
+                sign.setTravelDirection(item.getString("TravelDirection"));
+                sign.setStartLatitude(item.getDouble("StartLatitude"));
+                sign.setStartLongitude(item.getDouble("StartLongitude"));
 
                 mTollRateItems.add(sign);
             }
@@ -174,10 +177,9 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
 
     }
 
+    private String filter405LocationName(String locationName, String direction){
 
-    private String filterLocationName(String locationName, String direction){
-
-        // Southbound name changes
+        // Southbound name changes suggested by Tolling
         if (direction.equals("S")) {
 
             if (locationName.equals("231st SE")) {
@@ -190,7 +192,7 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
 
         }
 
-        // Northbound name changes
+        // Northbound name changes suggested by Tolling
         if (direction.equals("N")) {
 
             if (locationName.equals("NE 97th")) {
@@ -212,6 +214,49 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
             locationName = "Lane entrance near ".concat(locationName);
         }
 
+        return locationName;
+    }
+
+
+    private String filter167LocationName(String locationName, String direction){
+
+        // Southbound name changes suggested by Tolling
+        if (direction.equals("S")) {
+
+            if (locationName.equals("4th Ave N")) {
+                locationName = "SR 516";
+            }
+
+            if (locationName.equals("S 192nd St")) {
+                locationName = "S 180th St";
+            }
+
+            if (locationName.equals("S 23rd St")) {
+                locationName = "I-405 (Renton)";
+            }
+        }
+
+        // Northbound name changes suggested by Tolling
+        if (direction.equals("N")) {
+
+            if (locationName.equals("15th St SW")) {
+                locationName = "SR 18 (Auburn)";
+            }
+
+            if (locationName.equals("7th St NW")) {
+                locationName = "15th St SW";
+            }
+
+            if (locationName.equals("30th St NW")) {
+                locationName = "S 277th St";
+            }
+
+            if (locationName.equals("S 265th St")) {
+                locationName = "SR 516";
+            }
+        }
+
+        locationName = "Lane entrance near ".concat(locationName);
 
         return locationName;
     }
@@ -242,6 +287,37 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
          * and difficult to come up with a label people will recognize.
          */
         if (tripJson.getString("StartLocationName").equals("NE 108th")
+                && tripJson.getString("TravelDirection").equals("S")) {
+            return true;
+        }
+
+        // SR 167 trips to remove
+        if (tripJson.getString("StartLocationName").equals("James St")
+                && tripJson.getString("TravelDirection").equals("N")) {
+            return true;
+        }
+
+        if (tripJson.getString("StartLocationName").equals("S 204th St")
+                && tripJson.getString("TravelDirection").equals("N")) {
+            return true;
+        }
+
+        if (tripJson.getString("StartLocationName").equals("1st Ave S")
+                && tripJson.getString("TravelDirection").equals("S")) {
+            return true;
+        }
+
+        if (tripJson.getString("StartLocationName").equals("12th St NW")
+                && tripJson.getString("TravelDirection").equals("S")) {
+            return true;
+        }
+
+        if (tripJson.getString("StartLocationName").equals("37th St NW")
+                && tripJson.getString("TravelDirection").equals("S")) {
+            return true;
+        }
+
+        if (tripJson.getString("StartLocationName").equals("Green River")
                 && tripJson.getString("TravelDirection").equals("S")) {
             return true;
         }
