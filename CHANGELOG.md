@@ -4,15 +4,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [5.5.0] - 2018-06-26
+## [5.6.1] - 2018-08-15
 
 # Added
 - Analytics for push notification open events
-_ Everett to the go to location menu
+- Everett to the go to location menu
 
 # Changed
 - I-405 and SR 167 now display current toll rates. Users can favorite these rates.
 - Increased range for ferry terminal cameras, added logic to ensure only ferry cameras are collected.
+
+## [5.5] - unrelased tolling beta
 
 ## [5.4.1] - 2018-06-18
 

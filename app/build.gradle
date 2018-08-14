@@ -8,8 +8,8 @@ android {
         applicationId "gov.wa.wsdot.android.wsdot"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 14145056
-        versionName "5.5.6"
+        versionCode 14145061
+        versionName "5.6.1"
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -17,7 +17,6 @@ android {
                                      "$projectDir/schemas".toString()]
             }
         }
-
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 

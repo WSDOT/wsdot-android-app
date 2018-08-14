@@ -12,13 +12,13 @@
     <screenName name="gov.wa.wsdot.android.wsdot.ui.settings.SettingsActivity">/Settings</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsActivity">/Notification Settings</screenName>
 
-
     <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity">/My Route</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity">/My Route/My Route Alerts</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteActivity">/My Route/New Route</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteMapActivity">/My Route/Map of Route</screenName>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesActivity">/Toll Rates</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesRouteActivity">/Toll Rates/Toll Route Details</screenName>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity">/Traffic Map</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesActivity">/Traffic Map/Seattle/Express Lanes</screenName>
