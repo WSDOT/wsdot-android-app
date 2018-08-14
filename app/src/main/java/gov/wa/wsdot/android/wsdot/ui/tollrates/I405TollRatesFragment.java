@@ -150,7 +150,7 @@ public class I405TollRatesFragment extends BaseFragment
             SharedPreferences.Editor editor = sharedPref1.edit();
 
             radioGroupDirectionIndex = directionRadioGroup.indexOfChild(selectedDirection);
-            Log.e(TAG, String.valueOf(radioGroupDirectionIndex));
+
 
             TextView travelTimeView = root.findViewById(R.id.travel_time_text);
             travelTimeView.setText(getTravelTimeStringForDirection(radioGroupDirectionIndex == 0 ? "N" : "S"));
@@ -297,10 +297,10 @@ public class I405TollRatesFragment extends BaseFragment
 
         if (direction.equals("N")) {
             timeIDs[0] = 35; // GP
-            timeIDs[1] = 36; // HOV/ETL
+            timeIDs[1] = 36; // ETL
         } else if (direction.equals("S")) {
             timeIDs[0] = 38; // GP
-            timeIDs[1] = 37; // HOV/ETL
+            timeIDs[1] = 37; // ETL
         }
 
         // array holds indexes for travelTimes in north or southbound direction to build string with
@@ -314,10 +314,13 @@ public class I405TollRatesFragment extends BaseFragment
             }
         }
 
-        return String.format("%s: %s min / %s min via ETL",
+        return String.format("%s: %s min%s or %s min%s via ETL",
                 travelTimes.get(timeIndexes[0]).getTripTitle(),
                 travelTimes.get(timeIndexes[0]).getCurrent(),
-                travelTimes.get(timeIndexes[1]).getCurrent());
+                (travelTimes.get(timeIndexes[0]).getCurrent() > 1 ? "s" : ""),
+                travelTimes.get(timeIndexes[1]).getCurrent(),
+                (travelTimes.get(timeIndexes[1]).getCurrent() > 1 ? "s" : ""));
+
     }
 
     public class RatesTimerTask extends TimerTask {

@@ -34,6 +34,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.style.UnderlineSpan;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,6 +63,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignEntity;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
+import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
@@ -88,10 +90,12 @@ public class SR167TollRatesFragment extends BaseFragment
     private Timer timer;
 
 	private RadioGroup directionRadioGroup;
+    private int radioGroupDirectionIndex = 0;
 
 	private Tracker mTracker;
 
     private ArrayList<TollRateGroup> tollGroups = new ArrayList<>();
+    private ArrayList<TravelTimeEntity> travelTimes = new ArrayList<>();
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -120,9 +124,9 @@ public class SR167TollRatesFragment extends BaseFragment
 		directionRadioGroup = root.findViewById(R.id.segment_control);
 
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-		int direction = sharedPref.getInt(getString(R.string.toll_rates_167_travel_direction_key), 0);
+        radioGroupDirectionIndex = sharedPref.getInt(getString(R.string.toll_rates_167_travel_direction_key), 0);
 
-		if (direction == 0) {
+		if (radioGroupDirectionIndex == 0) {
 			RadioButton leftSegment = root.findViewById(R.id.radio_left);
 			leftSegment.setChecked(true);
 		} else {
@@ -135,13 +139,17 @@ public class SR167TollRatesFragment extends BaseFragment
 			RadioButton selectedDirection = directionRadioGroup.findViewById(checkedId);
 
 			mAdapter.setData(filterTollsForDirection(String.valueOf(selectedDirection.getText().charAt(0))));
+
 			mLayoutManager.scrollToPositionWithOffset(0, 0);
 			SharedPreferences sharedPref1 = PreferenceManager.getDefaultSharedPreferences(getContext());
 			SharedPreferences.Editor editor = sharedPref1.edit();
 
-			int index = directionRadioGroup.indexOfChild(selectedDirection);
+            radioGroupDirectionIndex = directionRadioGroup.indexOfChild(selectedDirection);
 
-			editor.putInt(getString(R.string.toll_rates_167_travel_direction_key), index);
+            TextView travelTimeView = root.findViewById(R.id.travel_time_text);
+            travelTimeView.setText(getTravelTimeStringForDirection(radioGroupDirectionIndex == 0 ? "N" : "S"));
+
+			editor.putInt(getString(R.string.toll_rates_167_travel_direction_key), radioGroupDirectionIndex);
 
 			editor.apply();
 
@@ -163,9 +171,6 @@ public class SR167TollRatesFragment extends BaseFragment
 		mEmptyView = root.findViewById(R.id.empty_list_view);
 
 		TextView header_link = root.findViewById(R.id.header_text);
-
-		// hide travel times view for 167
-		root.findViewById(R.id.travel_time_text).setVisibility(View.GONE);
 
 		// create spannable string for underline
 		SpannableString content = new SpannableString(getActivity().getResources().getString(R.string.sr167_info_link));
@@ -219,7 +224,24 @@ public class SR167TollRatesFragment extends BaseFragment
 			}
 		});
 
-		viewModel.refresh();
+        viewModel.getTravelTimesForETLFor("167").observe(this, travelTimes -> {
+
+            TextView travelTimeView = root.findViewById(R.id.travel_time_text);
+
+            Log.e(TAG, "got travel times");
+
+            if (travelTimes.size() > 0) {
+                travelTimeView.setVisibility(View.VISIBLE);
+
+                this.travelTimes = new ArrayList<>(travelTimes);
+
+                travelTimeView.setText(getTravelTimeStringForDirection(radioGroupDirectionIndex == 0 ? "N" : "S"));
+            } else {
+                Log.e(TAG, "nothing to show");
+
+                travelTimeView.setVisibility(View.GONE);
+            }
+        });
 
         timer = new Timer();
         timer.schedule(new SR167TollRatesFragment.RatesTimerTask(), 0, 60000); // Schedule rates to update every 60 seconds
@@ -252,6 +274,37 @@ public class SR167TollRatesFragment extends BaseFragment
 
         return filteredTolls;
     }
+
+	private String getTravelTimeStringForDirection(String direction){
+
+		int[] timeIDs = new int[2];
+
+		if (direction.equals("N")) {
+			timeIDs[0] = 67; // GP
+			timeIDs[1] = 68; // HOV
+		} else if (direction.equals("S")) {
+			timeIDs[0] = 70; // GP
+			timeIDs[1] = 69; // HOV
+		}
+
+		// array holds indexes for travelTimes in north or southbound direction to build string with
+		int[] timeIndexes = new int[2];
+
+		for (TravelTimeEntity time: travelTimes) {
+			if (time.getTravelTimeId() == timeIDs[0]) {
+				timeIndexes[0] = travelTimes.indexOf(time);
+			} else if (time.getTravelTimeId() == timeIDs[1]) {
+				timeIndexes[1] = travelTimes.indexOf(time);
+			}
+		}
+
+        return String.format("%s: %s min%s or %s min%s via ETL",
+                travelTimes.get(timeIndexes[0]).getTripTitle(),
+                travelTimes.get(timeIndexes[0]).getCurrent(),
+                (travelTimes.get(timeIndexes[0]).getCurrent() > 1 ? "s" : ""),
+                travelTimes.get(timeIndexes[1]).getCurrent(),
+                (travelTimes.get(timeIndexes[1]).getCurrent() > 1 ? "s" : ""));
+	}
 
     public class RatesTimerTask extends TimerTask {
         private Runnable runnable = new Runnable() {

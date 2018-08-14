@@ -53,12 +53,24 @@ public class TollRatesViewModel extends ViewModel {
 
             // Northbound
             ids.add(35); // GP
-            ids.add(36); // HOV
+            ids.add(36); // ETL
 
             // Southbound
             ids.add(38); // GP
-            ids.add(37); // HOV
+            ids.add(37); // ETL
+
+        } else if (route.equals("167")) {
+
+            // Northbound
+            ids.add(67); // GP
+            ids.add(68); // HOV
+
+            // Southbound
+            ids.add(70); // GP
+            ids.add(69); // HOV
+
         }
+
         return this.travelTimeRepo.getTravelTimesWithIds(ids, mTravelTimeStatus);
     }
 
