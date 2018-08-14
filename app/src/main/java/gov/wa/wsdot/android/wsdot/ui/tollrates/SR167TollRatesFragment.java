@@ -298,7 +298,7 @@ public class SR167TollRatesFragment extends BaseFragment
 			}
 		}
 
-        return String.format("%s: %s min%s or %s min%s via ETL",
+        return String.format("%s: %s min%s or %s min%s via HOT lane",
                 travelTimes.get(timeIndexes[0]).getTripTitle(),
                 travelTimes.get(timeIndexes[0]).getCurrent(),
                 (travelTimes.get(timeIndexes[0]).getCurrent() > 1 ? "s" : ""),
