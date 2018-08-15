@@ -11,6 +11,12 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
 import gov.wa.wsdot.android.wsdot.R;
@@ -19,7 +25,8 @@ import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
-public class RestAreaActivity extends BaseActivity {
+public class RestAreaActivity extends BaseActivity implements
+        OnMapReadyCallback {
 
     private static final String TAG = RestAreaActivity.class.getSimpleName();
     private WebView webview;
@@ -27,12 +34,14 @@ public class RestAreaActivity extends BaseActivity {
     private String title;
     private Toolbar mToolbar;
 
-    @SuppressLint("SetJavaScriptEnabled")
+    private GoogleMap mMap;
+    private LatLng mRestAreaLatLng;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_webview_with_spinner);
+        setContentView(R.layout.activity_with_lite_mapview);
 
         title = "";
 
@@ -47,15 +56,22 @@ public class RestAreaActivity extends BaseActivity {
         webview = findViewById(R.id.webview);
         webview.setVisibility(View.GONE);
         webview.setWebViewClient(new myWebViewClient());
-        webview.getSettings().setJavaScriptEnabled(true);
 
         if (restAreaItem != null){
             title = restAreaItem.getRoute() + " - " + restAreaItem.getLocation() + " Rest Area";
             webview.loadDataWithBaseURL(null, buildContent(restAreaItem), "text/html", "utf-8", null);
+
+            mRestAreaLatLng = new LatLng(restAreaItem.getLatitude(), restAreaItem.getLongitude());
+
+            // Get the map and register for the ready callback
+            MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
+
         } else {
             title = "Rest Area";
             webview.loadDataWithBaseURL(null, "Error loading rest area information.", "text/html", "utf-8", null);
         }
+
         mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(title);
         setSupportActionBar(mToolbar);
@@ -70,6 +86,32 @@ public class RestAreaActivity extends BaseActivity {
 
         mLoadingSpinner = findViewById(R.id.loading_spinner);
         mLoadingSpinner.setVisibility(View.VISIBLE);
+    }
+
+
+    /**
+     * Called when the map is ready to add all markers and objects to the map.
+     */
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        addMarker();
+    }
+
+    private void addMarker() {
+        if (mMap != null){
+
+            mMap.getUiSettings().setMapToolbarEnabled(false);
+
+            if (mRestAreaLatLng != null) {
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(mRestAreaLatLng));
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mRestAreaLatLng, 15));
+
+            }
+        }
     }
 
     @Override
@@ -132,20 +174,6 @@ public class RestAreaActivity extends BaseActivity {
             sb.append(item.getNotes());
             sb.append(" </p>");
         }
-
-        sb.append("<img src='");
-        sb.append(APIEndPoints.STATIC_GOOGLE_MAPS);
-        sb.append("?center=");
-        sb.append(item.getLatitude());
-        sb.append(",");
-        sb.append(item.getLongitude());
-        sb.append("&zoom=15&size=320x320&maptype=roadmap&markers=");
-        sb.append(item.getLatitude());
-        sb.append(",");
-        sb.append(item.getLongitude());
-        sb.append("&key=");
-        sb.append(getString(R.string.google_static_map_key));
-        sb.append("'>");
 
         return sb.toString();
     }

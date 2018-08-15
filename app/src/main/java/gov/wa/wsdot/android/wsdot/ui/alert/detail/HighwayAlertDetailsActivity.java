@@ -39,6 +39,14 @@ import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import javax.inject.Inject;
 
@@ -51,7 +59,8 @@ import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
-public class HighwayAlertDetailsActivity extends BaseActivity {
+public class HighwayAlertDetailsActivity extends BaseActivity implements
+        OnMapReadyCallback {
     
     private static final String TAG = HighwayAlertDetailsActivity.class.getSimpleName();
 
@@ -61,23 +70,26 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 	private String description;
     private Toolbar mToolbar;
 
+    private LatLng mAlertLatLng;
+
     private Tracker mTracker;
 
     private boolean fromNotification = false;
+
+    private GoogleMap mMap;
 
     HighwayAlertDetailsViewModel viewModel;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
-	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
 		super.onCreate(savedInstanceState);
 
 
-        setContentView(R.layout.activity_webview_with_spinner);
+        setContentView(R.layout.activity_with_lite_mapview);
 
         title = "Highway Alert";
         description = "";
@@ -109,7 +121,6 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
                         if (mToolbar.getTitle().toString().equals("Highway Alert")) {
                             webview = findViewById(R.id.webview);
                             webview.setWebViewClient(new myWebViewClient());
-                            webview.getSettings().setJavaScriptEnabled(true);
                             webview.loadDataWithBaseURL(null, "<p>Sorry, this alert has expired.</p>", "text/html", "utf-8", null);
                         }
                         break;
@@ -118,7 +129,6 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
                             mLoadingSpinner.setVisibility(View.GONE);
                             webview = findViewById(R.id.webview);
                             webview.setWebViewClient(new myWebViewClient());
-                            webview.getSettings().setJavaScriptEnabled(true);
                             webview.loadDataWithBaseURL(null, "Connection error, failed to load alert.", "text/html", "utf-8", null);
                         } else {
                             Toast.makeText(this, "Connection error", Toast.LENGTH_LONG).show();
@@ -130,6 +140,9 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 		viewModel.getHighwayAlertFor(id, force).observe(this, alertItem -> {
 
 		    if (alertItem != null) {
+
+                mAlertLatLng = new LatLng(alertItem.getStartLatitude(), alertItem.getStartLongitude());
+
                 title = "Highway Alert - " + alertItem.getCategory();
                 description = alertItem.getHeadline();
 
@@ -143,8 +156,11 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
 
                 webview = findViewById(R.id.webview);
                 webview.setWebViewClient(new myWebViewClient());
-                webview.getSettings().setJavaScriptEnabled(true);
                 webview.loadDataWithBaseURL(null, buildContent(alertItem), "text/html", "utf-8", null);
+
+                // Get the map and register for the ready callback
+                MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+                mapFragment.getMapAsync(this);
 
                 if (fromNotification){
                     mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
@@ -158,9 +174,36 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
             }
         });
 
+
+
         disableAds();
         MyLogger.crashlyticsLog("Highway Alerts", "Screen View", "HighwayAlertDetailsActivity", 1);
 	}
+
+    /**
+     * Called when the map is ready to add all markers and objects to the map.
+     */
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        addMarker();
+    }
+
+    private void addMarker() {
+        if (mMap != null){
+
+            mMap.getUiSettings().setMapToolbarEnabled(false);
+
+            if (mAlertLatLng != null) {
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(mAlertLatLng));
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mAlertLatLng, 15));
+
+            }
+        }
+    }
 
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -229,17 +272,7 @@ public class HighwayAlertDetailsActivity extends BaseActivity {
         sb.append("<p style='color:#7d7d7d;'>"
                 + ParserUtils.relativeTime(item.getLastUpdated(),
                         "MMMM d, yyyy h:mm a", false) + "</p>");
-        
-        if (!item.getCategory().equalsIgnoreCase("error")) {
-            sb.append("<img src='");
-            sb.append(APIEndPoints.STATIC_GOOGLE_MAPS);
-            sb.append("?center=");
-            sb.append(item.getStartLatitude() + "," + item.getStartLongitude());
-            sb.append("&zoom=15&size=320x320&maptype=roadmap&markers=");
-            sb.append(item.getStartLatitude() + "," + item.getStartLongitude());
-            sb.append("&key=" + APIEndPoints.GOOGLE_API_KEY + "'>");
-        }
-        
+
         return sb.toString();
     }
 }

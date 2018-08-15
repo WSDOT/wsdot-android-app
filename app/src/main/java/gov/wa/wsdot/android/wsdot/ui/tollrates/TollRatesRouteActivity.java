@@ -11,12 +11,22 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.Utils;
 
-public class TollRatesRouteActivity extends BaseActivity {
+public class TollRatesRouteActivity extends BaseActivity implements
+        OnMapReadyCallback {
 
     private static final String TAG = TollRatesRouteActivity.class.getSimpleName();
 
@@ -26,11 +36,16 @@ public class TollRatesRouteActivity extends BaseActivity {
     private String description;
     private Toolbar mToolbar;
 
+    private GoogleMap mMap;
+
+    private LatLng mStartPoint;
+    private LatLng mEndPoint;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_webview_with_spinner);
+        setContentView(R.layout.activity_with_lite_mapview);
 
         Bundle b = getIntent().getExtras();
 
@@ -39,6 +54,9 @@ public class TollRatesRouteActivity extends BaseActivity {
 
         Double endLat = b.getDouble("endLat");
         Double endLong = b.getDouble("endLong");
+
+        mStartPoint = new LatLng(startLat, startLong);
+        mEndPoint = new LatLng(endLat, endLong);
 
         title = b.getString("title");
         description = b.getString("text");
@@ -56,10 +74,69 @@ public class TollRatesRouteActivity extends BaseActivity {
 
         webview = findViewById(R.id.webview);
         webview.setWebViewClient(new myWebViewClient());
-        webview.getSettings().setJavaScriptEnabled(true);
-        webview.loadDataWithBaseURL(null, buildContent(description, startLat, startLong, endLat, endLong), "text/html", "utf-8", null);
+        webview.loadDataWithBaseURL(null, buildContent(), "text/html", "utf-8", null);
 
-       // disableAds();
+
+        disableAds();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Get the map and register for the ready callback
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+
+    }
+
+    /**
+     * Called when the map is ready to add all markers and objects to the map.
+     */
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        addMarker();
+    }
+
+    private void addMarker() {
+        if (mMap != null){
+
+            mMap.getUiSettings().setMapToolbarEnabled(false);
+
+            if (mStartPoint != null && mEndPoint != null) {
+
+                mMap.addMarker(new MarkerOptions()
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                        .position(mStartPoint));
+
+                mMap.addMarker(new MarkerOptions()
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                        .position(mEndPoint));
+
+                Location centerLocation = Utils.getCenterLocation(mStartPoint.latitude, mStartPoint.longitude, mEndPoint.latitude, mEndPoint.longitude);
+
+                LatLng center = new LatLng(centerLocation.getLatitude(), centerLocation.getLongitude());
+
+                int distance = Utils.getDistanceFromPoints(mStartPoint.latitude, mStartPoint.longitude, mEndPoint.latitude, mEndPoint.longitude);
+
+                int zoom;
+                if (distance < 3) {
+                    zoom = 14;
+                } else if (distance < 4) {
+                    zoom = 13;
+                } else if (distance < 9) {
+                    zoom = 12;
+                } else {
+                    zoom = 11;
+                }
+
+                // Move camera to show all markers and locations
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, zoom));
+
+            }
+        }
     }
 
     @Override
@@ -97,42 +174,11 @@ public class TollRatesRouteActivity extends BaseActivity {
         }
     }
 
-    private String buildContent(String text, double startLat, double startLon, double endLat, double endLon) {
-
-        Location centerLocation = Utils.getCenterLocation(startLat, startLon, endLat, endLon);
-
-        double centerLat = centerLocation.getLatitude();
-        double centerLon = centerLocation.getLongitude();
+    private String buildContent() {
 
         StringBuilder sb = new StringBuilder();
 
-        int distance = Utils.getDistanceFromPoints(startLat, startLon, endLat, endLon);
-
-        int zoom;
-        if (distance < 3) {
-            zoom = 13;
-        } else if (distance < 4) {
-            zoom = 12;
-        } else if (distance < 9) {
-            zoom = 11;
-        } else {
-            zoom = 10;
-        }
-
         sb.append("<p>" + description + "</p>");
-
-        sb.append("<img src='");
-        sb.append(APIEndPoints.STATIC_GOOGLE_MAPS);
-        sb.append("?center=");
-        sb.append(centerLat + "," + centerLon);
-        sb.append("&zoom=");
-        sb.append(zoom);
-        sb.append("&size=320x320&maptype=roadmap");
-        sb.append("&markers=color:green%7Clabel:S%7C");
-        sb.append(startLat + "," + startLon);
-        sb.append("&markers=color:red%7Clabel:E%7C");
-        sb.append(endLat + "," + endLon);
-        sb.append("&key=" + APIEndPoints.GOOGLE_API_KEY + "'>");
 
         return sb.toString();
     }
