@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.7.0] - 2018-08-15
+
+# Changed
+- Removed Static Map API calls in favor of Maps SDK lite mode. New quota on the static maps API prompted this change. The maps SDK for mobile has unlimited use. 
+
 ## [5.6.1] - 2018-08-15
 
 # Added

@@ -22,9 +22,6 @@ public class APIEndPoints {
     public static final String WSDOT_API_KEY = "";
     public static final String GOOGLE_API_KEY = "";
 
-    // Google Maps
-    public static final String STATIC_GOOGLE_MAPS = "http://maps.googleapis.com/maps/api/staticmap";
-
     // Traffic
     public static final String CAMERAS = "http://data.wsdot.wa.gov/mobile/Cameras.js.gz";
     public static final String CAMERA_VIDEOS = "http://images.wsdot.wa.gov/nwvideo/";
