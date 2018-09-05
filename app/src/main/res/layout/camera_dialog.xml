@@ -14,14 +14,30 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent">    
 
-		    <gov.wa.wsdot.android.wsdot.ui.widget.ResizeableImageView
-		        android:id="@+id/image"
-				android:scaleType="fitCenter"
-				android:adjustViewBounds="true"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        />
-    
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+		        <gov.wa.wsdot.android.wsdot.ui.widget.ResizeableImageView
+		            android:id="@+id/image"
+				    android:scaleType="fitCenter"
+				    android:adjustViewBounds="true"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/direction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/image"/>
+
+                <TextView
+                    android:id="@+id/milepost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/direction"/>
+
+            </RelativeLayout>
         </ScrollView>
         
     </android.support.v4.widget.SwipeRefreshLayout>
