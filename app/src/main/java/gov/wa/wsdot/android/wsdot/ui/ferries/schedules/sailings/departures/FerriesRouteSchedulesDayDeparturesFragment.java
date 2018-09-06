@@ -177,9 +177,17 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
             if (dates != null) {
                 mScheduleDateItems = new ArrayList<>(dates);
 
+                // TODO: remove previous activity. Don't rely on mTerminalIndex,
+                // TODO: get that from a spinner to select the sailing
+
                 terminalItem = mScheduleDateItems.get(terminalViewModel.getSelectedDay()).getFerriesTerminalItem().get(mTerminalIndex);
 
+
+                initRouteSpinner(root, mScheduleDateItems.get(terminalViewModel.getSelectedDay()).getFerriesTerminalItem());
+
                 initDaySpinner(root);
+
+
                 terminalViewModel.loadDepartureTimesForTerminal(terminalItem);
             } else {
                 mEmptyView.setVisibility(View.VISIBLE);
@@ -275,6 +283,25 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         dayOfWeekArrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         daySpinner.setAdapter(dayOfWeekArrayAdapter);
         daySpinner.setOnItemSelectedListener(this);
+    }
+
+    private void initRouteSpinner(View root, ArrayList<FerriesTerminalItem> sailings){
+
+        ArrayList<CharSequence> sailingsStrings = new ArrayList<>();
+
+	    int numSailings = sailings.size();
+	    for (int i = 0; i < numSailings; i++) {
+	        sailingsStrings.add(sailings.get(i).getDepartingTerminalName() + " to " + sailings.get(i).getArrivingTerminalName());
+        }
+
+        // Set up custom spinner
+        Spinner sailingSpinner = root.findViewById(R.id.sailing_spinner);
+
+        ArrayAdapter<CharSequence> sailingsArrayAdapter = new ArrayAdapter<>(
+                getActivity(), R.layout.simple_spinner_item, sailingsStrings);
+        sailingsArrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+        sailingSpinner.setAdapter(sailingsArrayAdapter);
+        sailingSpinner.setOnItemSelectedListener(this);
     }
 
     /**
@@ -471,6 +498,9 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
      * requests the departure times for that day from the view model.
      */
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+        // TODO: daySpinner or routeSpinner?
+
         if (position != terminalViewModel.getSelectedDay()) {
             terminalViewModel.setSelectedDay(position);
             terminalItem = mScheduleDateItems.get(position).getFerriesTerminalItem().get(mTerminalIndex);
