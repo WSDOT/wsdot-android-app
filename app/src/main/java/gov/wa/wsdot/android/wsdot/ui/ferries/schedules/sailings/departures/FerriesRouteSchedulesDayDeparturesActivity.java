@@ -61,7 +61,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity{
 
         mAppBar = findViewById(R.id.appbar);
 
-
         mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(title);
         setSupportActionBar(mToolbar);

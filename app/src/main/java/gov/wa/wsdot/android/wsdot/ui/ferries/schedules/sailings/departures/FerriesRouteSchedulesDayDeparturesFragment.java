@@ -179,7 +179,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
                 terminalItem = mScheduleDateItems.get(terminalViewModel.getSelectedDay()).getFerriesTerminalItem().get(mTerminalIndex);
 
-                initDaySpinner();
+                initDaySpinner(root);
                 terminalViewModel.loadDepartureTimesForTerminal(terminalItem);
             } else {
                 mEmptyView.setVisibility(View.VISIBLE);
@@ -252,12 +252,11 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         }
     };
 
-	private void initDaySpinner(){
+	private void initDaySpinner(View root){
 
         ArrayList<CharSequence> mDaysOfWeek = new ArrayList<>();
 
         DateFormat dateFormat = new SimpleDateFormat("EEEE");
-
 
         dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
@@ -269,11 +268,11 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         }
 
         // Set up custom spinner
-        Spinner daySpinner = getActivity().findViewById(R.id.spinner);
+        Spinner daySpinner = root.findViewById(R.id.day_spinner);
 
         ArrayAdapter<CharSequence> dayOfWeekArrayAdapter = new ArrayAdapter<>(
-                getActivity(), R.layout.simple_spinner_item_white, mDaysOfWeek);;
-        dayOfWeekArrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item_white);
+                getActivity(), R.layout.simple_spinner_item, mDaysOfWeek);
+        dayOfWeekArrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         daySpinner.setAdapter(dayOfWeekArrayAdapter);
         daySpinner.setOnItemSelectedListener(this);
     }

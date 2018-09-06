@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +51,8 @@ import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class VesselWatchFragment extends BaseFragment
     implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback, Injectable {
+
+    final String TAG = VesselWatchFragment.class.getSimpleName();
 
     private int mScheduleId = 0;
 
@@ -118,13 +121,6 @@ public class VesselWatchFragment extends BaseFragment
         return rootView;
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        SupportMapFragment f = (SupportMapFragment) getFragmentManager().findFragmentById(R.id.mapview);
-        if (f != null)
-            getFragmentManager().beginTransaction().remove(f).commit();
-    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -140,15 +136,13 @@ public class VesselWatchFragment extends BaseFragment
         LatLng routeLatLng = getRouteLocation(mScheduleId);
         int zoom = getRouteZoom(mScheduleId);
 
-
         mMap.setOnCameraMoveListener(() -> {
             if (mMap != null) {
-                mapCameraViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
+              mapCameraViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
             }
         });
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(routeLatLng, zoom));
-        mapCameraViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
         vesselViewModel = ViewModelProviders.of(this, viewModelFactory).get(VesselWatchViewModel.class);
 
         vesselViewModel.getResourceStatus().observe(this, resourceStatus -> {
@@ -217,14 +211,10 @@ public class VesselWatchFragment extends BaseFragment
 
         mapCameraViewModel.getDisplayCameras().observe(this, cameraItems -> {
             if (cameraItems != null) {
-                Iterator<Map.Entry<Marker, String>> iter = markers.entrySet().iterator();
-                while (iter.hasNext()) {
-                    Map.Entry<Marker, String> entry = iter.next();
-                    if (entry.getValue().equalsIgnoreCase("camera")) {
-                        entry.getKey().remove();
-                        iter.remove();
-                    }
-                }
+
+                // use tempMarkers to keep icons from disappearing when we quickly remove the old and add the new
+                HashMap<Marker, String> tempMarkers = new HashMap<>();
+
                 cameras.clear();
                 cameras = cameraItems;
 
@@ -238,12 +228,26 @@ public class VesselWatchFragment extends BaseFragment
                                 .icon(BitmapDescriptorFactory.fromResource(cameras.get(i).getCameraIcon()))
                                 .visible(showCameras));
 
-                        markers.put(marker, "camera");
+                        tempMarkers.put(marker, "camera");
                     }
 
                 }
+
+                Iterator<Map.Entry<Marker, String>> iter = markers.entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<Marker, String> entry = iter.next();
+                    if (entry.getValue().equalsIgnoreCase("camera")) {
+                        entry.getKey().remove();
+                        iter.remove();
+                    }
+                }
+
+                markers = tempMarkers;
+
             }
         });
+
+        mapCameraViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
 
         timer = new Timer();
         timer.schedule(new VesselWatchFragment.VesselsTimerTask(), 0, 30000); // Schedule vessels to update every 30 seconds
