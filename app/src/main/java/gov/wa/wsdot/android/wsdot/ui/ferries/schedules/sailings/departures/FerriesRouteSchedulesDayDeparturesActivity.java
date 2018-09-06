@@ -19,8 +19,10 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures;
 
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -42,6 +44,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity{
     private TabLayout mTabLayout;
     private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
     private ViewPager mViewPager;
+    private AppBarLayout mAppBar;
     private gov.wa.wsdot.android.wsdot.util.TabsAdapter mTabsAdapter;
     private Toolbar mToolbar;
     private Tracker mTracker;
@@ -55,6 +58,9 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity{
 
         setContentView(R.layout.activity_with_tabs);
         mViewPager = findViewById(R.id.pager);
+
+        mAppBar = findViewById(R.id.appbar);
+
 
         mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(title);
@@ -73,6 +79,9 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity{
         tabFragments.add(mTabLayout.getTabCount(), FerriesTerminalCameraFragment.class);
         mTabLayout.addTab(mTabLayout.newTab().setText("Cameras"));
 
+        tabFragments.add(mTabLayout.getTabCount(), VesselWatchFragment.class);
+        mTabLayout.addTab(mTabLayout.newTab().setText("Vessel Watch"));
+
         mTabsAdapter = new TabsAdapter
                 (this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount());
 
@@ -88,6 +97,22 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity{
                     mTracker.setScreenName("/Ferries/Schedules/Day Sailings/" + tab.getText());
                     mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                     MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteSchedulesDayDeparturesActivity " + tab.getText(), 1);
+                }
+                if (tab.getText().equals("Vessel Watch")) {
+                    mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
+                    mTracker.setScreenName("/Ferries/Schedules/Day Sailings/" + tab.getText());
+                    mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+                    MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteSchedulesDayDeparturesActivity " + tab.getText(), 1);
+
+                    mAppBar.setExpanded(true, true);
+                    AppBarLayout.LayoutParams params =
+                            (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+                    params.setScrollFlags(0);
+                } else {
+                    AppBarLayout.LayoutParams params =
+                            (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+                    params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+                            | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
                 }
             }
 
