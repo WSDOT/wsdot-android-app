@@ -119,7 +119,6 @@
                 android:value=".ui.home.HomeActivity" />
         </activity>
 
-
         <activity
             android:name=".ui.trafficmap.alertsinarea.HighwayAlertListActivity"
             android:label="@string/title_alerts" />
@@ -140,24 +139,13 @@
             android:label="@string/title_borderwait" />
 
         <activity
-            android:name=".ui.ferries.FerriesActivity"
-            android:label="@string/title_ferries"
+            android:name=".ui.ferries.schedules.FerriesRouteSchedulesActivity"
+            android:label="@string/title_ferriesrouteschedules"
             android:parentActivityName=".ui.home.HomeActivity">
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.ferries.FerriesActivity" />
-
-        </activity>
-
-        <activity
-            android:name=".ui.ferries.schedules.FerriesRouteSchedulesActivity"
-            android:label="@string/title_ferriesrouteschedules"
-            android:parentActivityName=".ui.ferries.FerriesActivity">
-            <!-- Parent activity meta-data to support API level 4+ -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.ferries.FerriesActivity" />
+                android:value=".ui.home.HomeActivity" />
 
         </activity>
 
@@ -196,9 +184,6 @@
                 android:value=".ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinsActivity" />
         </activity>
 
-        <activity
-            android:name=".ui.ferries.vesselwatch.VesselWatchMapActivity"
-            android:label="@string/title_vesselwatch" />
         <activity android:name=".ui.ferries.vesselwatch.VesselWatchDetailsActivity" />
         <activity
             android:name=".ui.tollrates.TollRatesActivity"

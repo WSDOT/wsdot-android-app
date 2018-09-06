@@ -18,17 +18,25 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
+
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class FerriesRouteSchedulesActivity extends BaseActivity {
 
 	private Toolbar mToolbar;
+	private Tracker mTracker;
 
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,15 +55,37 @@ public class FerriesRouteSchedulesActivity extends BaseActivity {
 		enableAds(getString(R.string.ferries_ad_target));
 
 	}
-	
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu_ferries, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-	    case android.R.id.home:
-	    	finish();
-	    	return true;
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				finish();
+				return true;
+			case R.id.menu_reservations_link:
+				Intent intent = new Intent();
+
+				// GA tracker
+				mTracker = ((WsdotApplication) this.getApplication()).getDefaultTracker();
+				mTracker.setScreenName("/Ferries/Vehicle Reservations");
+				mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+				intent.setAction(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse("https://secureapps.wsdot.wa.gov/Ferries/Reservations/Vehicle/Mobile/MobileDefault.aspx"));
+
+				startActivity(intent);
+				return true;
 		}
-		
 		return super.onOptionsItemSelected(item);
 	}
+
+
 }
+
+
