@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures;
+package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
@@ -15,7 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.inject.Inject;

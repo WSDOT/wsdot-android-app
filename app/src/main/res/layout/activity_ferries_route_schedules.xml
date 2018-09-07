@@ -15,7 +15,7 @@
         <include layout="@layout/toolbar_scrolling"/>
 
         <fragment
-            android:name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesFragment"
+            android:name="gov.wa.wsdot.android.wsdot.ui.ferries.FerriesRouteSchedulesFragment"
             android:id="@+id/fragment_ferries_route_schedules"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

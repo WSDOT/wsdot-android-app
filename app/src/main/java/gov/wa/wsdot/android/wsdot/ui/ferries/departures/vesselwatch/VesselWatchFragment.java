@@ -1,15 +1,13 @@
-package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures;
+package gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,8 +43,6 @@ import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
-import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchDetailsActivity;
-import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchViewModel;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class VesselWatchFragment extends BaseFragment

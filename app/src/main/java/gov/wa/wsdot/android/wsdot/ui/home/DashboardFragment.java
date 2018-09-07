@@ -33,7 +33,7 @@ import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
-import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.FerriesRouteSchedulesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesActivity;

@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins;
+package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
@@ -27,7 +27,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;

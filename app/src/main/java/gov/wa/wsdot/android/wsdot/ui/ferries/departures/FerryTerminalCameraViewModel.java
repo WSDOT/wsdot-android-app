@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures;
+package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;

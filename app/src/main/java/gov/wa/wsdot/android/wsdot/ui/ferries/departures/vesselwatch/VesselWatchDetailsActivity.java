@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch;
+package gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
