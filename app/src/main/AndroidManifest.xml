@@ -149,14 +149,6 @@
 
         </activity>
 
-        <activity android:name=".ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsActivity"
-            android:parentActivityName=".ui.ferries.schedules.FerriesRouteSchedulesActivity">
-            <!-- Parent activity meta-data to support API level 4+ -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.ferries.schedules.FerriesRouteSchedulesActivity" />
-        </activity>
-
         <activity
             android:name=".ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinsActivity"
             android:parentActivityName=".ui.ferries.schedules.FerriesRouteSchedulesActivity">
@@ -168,11 +160,11 @@
 
         <activity
             android:name=".ui.ferries.schedules.sailings.departures.FerriesRouteSchedulesDayDeparturesActivity"
-            android:parentActivityName=".ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsActivity">
+            android:parentActivityName=".ui.ferries.schedules.FerriesRouteSchedulesActivity">
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsActivity" />
+                android:value=".ui.ferries.schedules.FerriesRouteSchedulesActivity" />
         </activity>
 
         <activity

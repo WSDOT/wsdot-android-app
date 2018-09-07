@@ -80,6 +80,9 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
     private static FerryTerminalViewModel terminalViewModel;
 
+    // get the schedules view model so we can refresh the whole schedule
+    private static FerrySchedulesViewModel schedulesViewModel;
+
     // private static FerriesTerminalItem mTerminalItem;
     private static ArrayList<FerriesAnnotationsItem> annotations;
 
@@ -121,6 +124,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
+        schedulesViewModel = ViewModelProviders.of(getActivity()).get(FerrySchedulesViewModel.class);
 
         terminalViewModel = ViewModelProviders.of(getActivity()).get(FerryTerminalViewModel.class);
 
@@ -141,6 +145,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         });
 
         terminalViewModel.getDepartureTimes().observe(this, sailingTimes -> {
+
             if (sailingTimes != null ){
                 if (sailingTimes.size() != 0) {
                     mEmptyView.setVisibility(View.GONE);
@@ -186,7 +191,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
     @Override
     public void onResume() {
         super.onResume();
-       // mTerminalItem = spinnerListener.getTerminalItemCallback();
         mHandler.postDelayed(runnable, (DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
     }
 
@@ -229,7 +233,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                         from(parent.getContext()).
                         inflate(R.layout.list_item_departure_times, parent, false);
                 return new TimesViewHolder(itemView);
-            }else{
+            } else {
                 throw new RuntimeException("There is no view type that matches the type: " + viewType);
             }
         }
@@ -388,6 +392,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
     public void onRefresh() {
 		swipeRefreshLayout.setRefreshing(true);
+		schedulesViewModel.forceRefreshFerrySchedules();
         terminalViewModel.forceRefreshTerminalSpaces();
     }
 

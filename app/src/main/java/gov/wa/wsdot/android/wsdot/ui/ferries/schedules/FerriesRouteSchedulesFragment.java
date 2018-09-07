@@ -28,7 +28,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +56,6 @@ import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinsActivity;
-import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures.FerriesRouteSchedulesDayDeparturesActivity;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
@@ -185,30 +183,13 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
             // Set onClickListener for holder's view
             holder.view.setOnClickListener(
                     v -> {
+
                         Bundle b = new Bundle();
                         Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDayDeparturesActivity.class);
                         b.putInt("scheduleId", schedule.getFerryScheduleId());
                         b.putString("title", schedule.getTitle());
                         b.putInt("isStarred", schedule.getIsStarred());
-
-
-
-                        b.putInt("terminalId", 9);
-                        b.putInt("terminalIndex", 0);// TODO: deal with this and the cameras tab
                         intent.putExtras(b);
-
-
-                        /*
-                        Bundle b = new Bundle();
-                        Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDayDeparturesActivity.class);
-                        b.putInt("scheduleId", mId);
-                        b.putInt("terminalId", terminalId);
-                        b.putString("terminalNames", terminalNames);
-                        b.putInt("terminalIndex", pos);
-                        b.putSerializable("scheduleDateItems", scheduleDateItems);
-                        intent.putExtras(b);
-                        startActivity(intent);
-                         */
 
                         // GA tracker
                         mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();

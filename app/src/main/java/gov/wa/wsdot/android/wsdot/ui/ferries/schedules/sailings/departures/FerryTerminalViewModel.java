@@ -158,7 +158,6 @@ public class FerryTerminalViewModel extends ViewModel {
         String departingSpacesString = terminalSpacesValue.getDepartingSpaces();
         String lastUpdated = terminalSpacesValue.getLastUpdated();
 
-        DateFormat dataDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.ENGLISH);
         DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
         dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));

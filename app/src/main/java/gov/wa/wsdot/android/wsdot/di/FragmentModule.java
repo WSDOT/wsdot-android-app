@@ -12,7 +12,6 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAle
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinsFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures.FerriesRouteSchedulesDayDeparturesFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures.FerriesTerminalCameraFragment;
-import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures.VesselWatchFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.DashboardFragment;
@@ -79,9 +78,6 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract FerriesRouteSchedulesFragment contributeFerriesRouteSchedulesFragment();
-
-    @ContributesAndroidInjector
-    abstract FerriesRouteSchedulesDaySailingsFragment contributeFerriesRouteSchedulesDaySailingsFragment();
 
     @ContributesAndroidInjector
     abstract FerriesRouteSchedulesDayDeparturesFragment contributeFerriesRouteSchedulesDayDeparturesFragment();

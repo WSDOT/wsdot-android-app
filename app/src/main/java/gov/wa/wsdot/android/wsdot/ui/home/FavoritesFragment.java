@@ -51,7 +51,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -70,7 +69,7 @@ import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewPagerActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinsActivity;
-import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures.FerriesRouteSchedulesDayDeparturesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.I405TollRatesFragment;
@@ -581,12 +580,10 @@ public class FavoritesFragment extends BaseFragment implements
                 viewHolder.itemView.setOnClickListener(
                         v -> {
 
-                            MyLogger.crashlyticsLog("Home", "Tap", "Favorite Ferry Schedule " + schedule.getTitle(), 1);
                             Bundle b = new Bundle();
-                            Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDaySailingsActivity.class);
-                            b.putInt("id", schedule.getFerryScheduleId());
+                            Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDayDeparturesActivity.class);
+                            b.putInt("scheduleId", schedule.getFerryScheduleId());
                             b.putString("title", schedule.getTitle());
-                            b.putString("date", schedule.getDate());
                             b.putInt("isStarred", schedule.getIsStarred());
                             intent.putExtras(b);
 

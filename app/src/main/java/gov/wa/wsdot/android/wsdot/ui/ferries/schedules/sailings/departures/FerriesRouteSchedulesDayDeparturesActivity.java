@@ -22,14 +22,18 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
@@ -59,8 +63,13 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 
     private final String TAG = FerriesRouteSchedulesDayDeparturesActivity.class.getSimpleName();
 
+    private boolean initLoad = true;
+
     protected static final int DAY_SPINNER_ID = 0;
     protected static final int SAILING_SPINNER_ID = 1;
+
+    static final private int MENU_ITEM_STAR = 0;
+    private boolean mIsStarred = false;
 
     private TabLayout mTabLayout;
     private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
@@ -69,6 +78,9 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     private gov.wa.wsdot.android.wsdot.util.TabsAdapter mTabsAdapter;
     private Toolbar mToolbar;
     private Tracker mTracker;
+
+    private AppCompatSpinner mSailingSpinner;
+    private AppCompatSpinner mDaySpinner;
 
     private static int mScheduleId;
 
@@ -93,6 +105,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         Bundle args = getIntent().getExtras();
         String title = args.getString("title");
         mScheduleId = args.getInt("scheduleId");
+        mIsStarred = args.getInt("isStarred") != 0;
 
         setContentView(R.layout.activity_ferry_sailings);
         mViewPager = findViewById(R.id.pager);
@@ -106,6 +119,16 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
+
+        mSailingSpinner = this.findViewById(R.id.sailing_spinner);
+        mSailingSpinner.setOnItemSelectedListener(this);
+        mSailingSpinner.setId(SAILING_SPINNER_ID);
+
+        mDaySpinner = this.findViewById(R.id.day_spinner);
+        mDaySpinner.setOnItemSelectedListener(this);
+        mDaySpinner.setId(DAY_SPINNER_ID);
+
         mTabLayout = findViewById(R.id.tab_layout);
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
@@ -183,8 +206,18 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         scheduleViewModel.getDatesWithSailings().observe(this, dates -> {
             if (dates != null) {
                 mScheduleDateItems = new ArrayList<>(dates);
+
                 initRouteSpinner(mScheduleDateItems.get(0).getFerriesTerminalItem());
                 initDaySpinner(mScheduleDateItems);
+
+                // TODO: get starting terminalIndex based on users location
+                mTerminalItem = mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem().get(mTerminalIndex);
+
+                if (initLoad) {
+                    initLoad = false;
+                    terminalViewModel.loadDepartureTimesForTerminal(mTerminalItem);
+                    terminalCameraViewModel.loadTerminalCameras(mTerminalItem.getDepartingTerminalID(), "ferries");
+                }
             }
         });
 
@@ -202,7 +235,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         ArrayList<CharSequence> mDaysOfWeek = new ArrayList<>();
 
         DateFormat dateFormat = new SimpleDateFormat("EEEE");
-
         dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
         int numDates = schedule.size();
@@ -212,15 +244,11 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             }
         }
 
-        // Set up custom spinner
-        AppCompatSpinner daySpinner = this.findViewById(R.id.day_spinner);
-
         ArrayAdapter<CharSequence> dayOfWeekArrayAdapter = new ArrayAdapter<>(
                 this, R.layout.simple_spinner_dropdown_item_white, mDaysOfWeek);
         dayOfWeekArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        daySpinner.setAdapter(dayOfWeekArrayAdapter);
-        daySpinner.setOnItemSelectedListener(this);
-        daySpinner.setId(DAY_SPINNER_ID);
+        mDaySpinner.setAdapter(dayOfWeekArrayAdapter);
+
     }
 
     private void initRouteSpinner(ArrayList<FerriesTerminalItem> sailings){
@@ -232,15 +260,11 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             sailingsStrings.add(sailings.get(i).getDepartingTerminalName() + " to " + sailings.get(i).getArrivingTerminalName());
         }
 
-        // Set up custom spinner
-        AppCompatSpinner sailingSpinner = this.findViewById(R.id.sailing_spinner);
-
         ArrayAdapter<CharSequence> sailingsArrayAdapter = new ArrayAdapter<>(
                  this, R.layout.simple_spinner_dropdown_item_white, sailingsStrings);
         sailingsArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sailingSpinner.setAdapter(sailingsArrayAdapter);
-        sailingSpinner.setOnItemSelectedListener(this);
-        sailingSpinner.setId(SAILING_SPINNER_ID);
+        mSailingSpinner.setAdapter(sailingsArrayAdapter);
+
     }
 
 
@@ -250,36 +274,102 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
      */
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
+        Boolean shouldUpdate;
+
         switch(parent.getId()){
             case FerriesRouteSchedulesDayDeparturesActivity.SAILING_SPINNER_ID:
+                shouldUpdate = mTerminalIndex != position;
                 mTerminalIndex = position;
                 break;
             case FerriesRouteSchedulesDayDeparturesActivity.DAY_SPINNER_ID:
+                shouldUpdate = mDayIndex != position;
                 mDayIndex = position;
                 break;
             default:
-                Log.e(TAG, "this shouldn't happen");
+                shouldUpdate = false;
         }
 
-        mTerminalItem = mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem().get(mTerminalIndex);
-        terminalViewModel.setScrollToCurrent(true);
-        terminalViewModel.loadDepartureTimesForTerminal(mTerminalItem);
+        // Don't bother updating the terminal if we didn't select anything new
+        if (shouldUpdate) {
+            mTerminalItem = mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem().get(mTerminalIndex);
+            terminalViewModel.setScrollToCurrent(true);
+            terminalViewModel.loadDepartureTimesForTerminal(mTerminalItem);
 
-        terminalCameraViewModel.loadTerminalCameras(mTerminalItem.getDepartingTerminalID(), "ferries");
-
+            terminalCameraViewModel.loadTerminalCameras(mTerminalItem.getDepartingTerminalID(), "ferries");
+        }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {}
 
     @Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-	    case android.R.id.home:
-	    	finish();
-	    	return true;
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
+        MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
+        if (mIsStarred) {
+            menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
+            menu.getItem(MENU_ITEM_STAR).setTitle("Favorite checkbox, checked");
+        } else {
+            menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
+            menu.getItem(MENU_ITEM_STAR).setTitle("Favorite checkbox, not checked");
+        }
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            case MENU_ITEM_STAR:
+                MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteSchedulesDayDeparturesActivity star", 1);
+                toggleStar(item);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void toggleStar(MenuItem item) {
+        Snackbar added_snackbar = Snackbar
+                .make(findViewById(R.id.activity_ferry_sailings), R.string.add_favorite, Snackbar.LENGTH_SHORT);
+
+        Snackbar removed_snackbar = Snackbar
+                .make(findViewById(R.id.activity_ferry_sailings), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
+
+        added_snackbar.addCallback(new Snackbar.Callback() {
+            @Override
+            public void onShown(Snackbar snackbar) {
+                super.onShown(snackbar);
+                snackbar.getView().setContentDescription("added to favorites");
+                snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+            }
+        });
+
+        removed_snackbar.addCallback(new Snackbar.Callback() {
+            @Override
+            public void onShown(Snackbar snackbar) {
+                super.onShown(snackbar);
+                snackbar.getView().setContentDescription("removed from favorites");
+                snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+            }
+        });
+
+        if (mIsStarred) {
+            item.setIcon(R.drawable.ic_menu_star);
+            item.setTitle("Favorite checkbox, not checked");
+            scheduleViewModel.setIsStarredFor(mScheduleId, 0);
+            removed_snackbar.show();
+            mIsStarred = false;
+        } else {
+            item.setIcon(R.drawable.ic_menu_star_on);
+            item.setTitle("Favorite checkbox, checked");
+            scheduleViewModel.setIsStarredFor(mScheduleId, 1);
+            added_snackbar.show();
+            mIsStarred = true;
+        }
+    }
+
 }
