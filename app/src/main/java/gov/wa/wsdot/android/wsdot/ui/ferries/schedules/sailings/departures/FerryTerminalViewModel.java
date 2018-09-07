@@ -11,7 +11,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,6 +38,7 @@ public class FerryTerminalViewModel extends ViewModel {
 
     private String TAG = FerryTerminalViewModel.class.getSimpleName();
 
+
     private MediatorLiveData<List<FerriesScheduleTimesItem>> departureTimes;
     private MutableLiveData<List<FerriesAnnotationsItem>> departureTimesAnnotations;
 
@@ -47,7 +47,7 @@ public class FerryTerminalViewModel extends ViewModel {
     private MutableLiveData<ResourceStatus> mStatus;
 
     // var used to ensure we only jump to the next sailing on the first load
-    private boolean firstLoad = true;
+    private boolean scrollToCurrent = true;
 
     private FerryTerminalSpaceRepository terminalSpaceRepo;
 
@@ -59,20 +59,12 @@ public class FerryTerminalViewModel extends ViewModel {
         this.departureTimesAnnotations = new MutableLiveData<>();
     }
 
-    Boolean isFirstLoad() {
-        return this.firstLoad;
+    Boolean getShouldScrollToCurrent() {
+        return this.scrollToCurrent;
     }
 
-    void firstLoadComplete() {
-        this.firstLoad = false;
-    }
-
-    void setSelectedDay(int selection){
-        selectedDay = selection;
-    }
-
-    int getSelectedDay() {
-        return this.selectedDay;
+    void setScrollToCurrent(Boolean shouldScroll) {
+        this.scrollToCurrent = shouldScroll;
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
