@@ -238,7 +238,7 @@ public class VesselWatchFragment extends BaseFragment
                     }
                 }
 
-                markers = tempMarkers;
+                markers.putAll(tempMarkers);
 
             }
         });

@@ -152,27 +152,35 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
+
                 if (tab.getText().equals("Cameras")) {
                     mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-                    mTracker.setScreenName("/Ferries/Schedules/Day Sailings/" + tab.getText());
+                    mTracker.setScreenName("/Ferries/Departures/" + tab.getText());
                     mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                     MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteSchedulesDayDeparturesActivity " + tab.getText(), 1);
                 }
+
                 if (tab.getText().equals("Vessel Watch")) {
                     mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-                    mTracker.setScreenName("/Ferries/Schedules/Day Sailings/" + tab.getText());
+                    mTracker.setScreenName("/Ferries/Departures/" + tab.getText());
                     mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                     MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteSchedulesDayDeparturesActivity " + tab.getText(), 1);
 
                     mAppBar.setExpanded(true, true);
+
                     AppBarLayout.LayoutParams params =
                             (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
                     params.setScrollFlags(0);
                 } else {
+
+                    mAppBar.setExpanded(false, true);
+
                     AppBarLayout.LayoutParams params =
                             (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-                    params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-                            | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
+                    params.setScrollFlags(
+                              AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+                            | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+                            | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
                 }
             }
 

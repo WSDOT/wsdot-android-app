@@ -42,7 +42,7 @@
     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.FerriesRouteSchedulesActivity">/Ferries</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity">/Ferries/Alerts</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsActivity">/Ferries/Alerts/Details</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity">/Ferries/Schedules/Departure Times</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity">/Ferries/Departures</screenName>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchMapActivity">/Ferries/Vessel Watch</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchDetailsActivity">/Ferries/Vessel Watch/Vessel Details</screenName>
