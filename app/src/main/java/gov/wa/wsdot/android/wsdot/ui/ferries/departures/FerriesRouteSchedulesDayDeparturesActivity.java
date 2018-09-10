@@ -18,17 +18,25 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 
+import android.Manifest;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,11 +46,19 @@ import android.widget.ArrayAdapter;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.inject.Inject;
@@ -53,13 +69,15 @@ import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
+import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesSchedulesActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchFragment;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
-    implements AdapterView.OnItemSelectedListener {
+    implements AdapterView.OnItemSelectedListener, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private final String TAG = FerriesRouteSchedulesDayDeparturesActivity.class.getSimpleName();
 
@@ -82,10 +100,10 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     private AppCompatSpinner mSailingSpinner;
     private AppCompatSpinner mDaySpinner;
 
-    private static int mScheduleId;
+    private int mScheduleId;
 
-    private static int mTerminalIndex = 0;
-    private static int mDayIndex = 0;
+    private int mTerminalIndex = 0;
+    private int mDayIndex = 0;
 
     private static FerriesTerminalItem mTerminalItem = new FerriesTerminalItem();
 
@@ -93,6 +111,15 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     private static FerrySchedulesViewModel scheduleViewModel;
     private static FerryTerminalViewModel terminalViewModel;
     private static FerryTerminalCameraViewModel terminalCameraViewModel;
+
+    /**
+     * Provides the entry point to Google Play services.
+     */
+    protected GoogleApiClient mGoogleApiClient;
+
+    protected Location mLastLocation;
+
+    private final int REQUEST_ACCESS_FINE_LOCATION = 100;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -219,7 +246,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                 initRouteSpinner(mScheduleDateItems.get(0).getFerriesTerminalItem());
                 initDaySpinner(mScheduleDateItems);
 
-                // TODO: get starting terminalIndex based on users location
                 mTerminalItem = mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem().get(mTerminalIndex);
 
                 if (initLoad) {
@@ -227,17 +253,42 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                     terminalViewModel.loadDepartureTimesForTerminal(mTerminalItem);
                     terminalCameraViewModel.loadTerminalCameras(mTerminalItem.getDepartingTerminalID(), "ferries");
                 }
+
+                // request location to auto select closest terminal.
+                requestLocation();
             }
         });
 
         MyLogger.crashlyticsLog("Ferries", "Screen View", "FerriesRouteSchedulesDayDeparturesActivity " + title, 1);
         enableAds(getString(R.string.ferries_ad_target));
 
+
+        // Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API).build();
+
+
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
             tab.select();
         }
 	}
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
 
     private void initDaySpinner(ArrayList<FerriesScheduleDateItem> schedule){
 
@@ -380,5 +431,122 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             mIsStarred = true;
         }
     }
+
+    private int getTerminalIndexForTerminalClosestTo(double latitude, double longitude) {
+
+        int closestTerminalIndex = 0;
+        int minDistance = Integer.MAX_VALUE;
+
+        int index = 0; // TODO: map TerminalID to TerminalIndex?
+
+        for (FerriesTerminalItem terminalItem: mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem()) {
+
+            int distance = FerryHelper.getDistanceFromTerminal(terminalItem.getDepartingTerminalID(), latitude, longitude);
+            if (distance < minDistance){
+                minDistance = distance;
+                closestTerminalIndex = index;
+            }
+
+            index++;
+        }
+
+        return closestTerminalIndex;
+    }
+
+
+
+    // Location logic
+
+    public void onConnectionFailed(ConnectionResult arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    /**
+     * Runs when a GoogleApiClient object successfully connects.
+     */
+    public void onConnected(Bundle connectionHint) {
+        requestLocation();
+    }
+
+    public void onConnectionSuspended(int arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    /**
+     * Request location updates after checking permissions first.
+     */
+    private void requestLocation() {
+        if (ContextCompat.checkSelfPermission(FerriesRouteSchedulesDayDeparturesActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    FerriesRouteSchedulesDayDeparturesActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show explanation to user explaining why we need the permission
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Allow location services to let WSDOT select the nearest terminal.");
+                builder.setTitle("Nearest Departure Terminal");
+                builder.setPositiveButton("OK", (dialog, which) -> ActivityCompat.requestPermissions(
+                        FerriesRouteSchedulesDayDeparturesActivity.this,
+                        new String[] {
+                                Manifest.permission.ACCESS_FINE_LOCATION },
+                        REQUEST_ACCESS_FINE_LOCATION));
+                builder.setNegativeButton("Cancel", null);
+                builder.show();
+
+            } else {
+                // No explanation needed, we can request the permission
+                ActivityCompat.requestPermissions(FerriesRouteSchedulesDayDeparturesActivity.this,
+                        new String[] {
+                                Manifest.permission.ACCESS_FINE_LOCATION },
+                        REQUEST_ACCESS_FINE_LOCATION);
+            }
+        } else {
+            LocationServices.getFusedLocationProviderClient(this).getLastLocation().addOnSuccessListener(location -> {
+                mLastLocation = location;
+                if (mLastLocation != null) {
+
+                    int newIndex = getTerminalIndexForTerminalClosestTo(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+
+                    if (newIndex != mTerminalIndex) {
+                        mSailingSpinner.setSelection(newIndex);
+                        mTerminalIndex = newIndex;
+                        mTerminalItem = mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem().get(mTerminalIndex);
+                        terminalViewModel.setScrollToCurrent(true);
+                        terminalViewModel.loadDepartureTimesForTerminal(mTerminalItem);
+
+                        terminalCameraViewModel.loadTerminalCameras(mTerminalItem.getDepartingTerminalID(), "ferries");
+                    }
+
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (grantResults.length > 0 || permissions.length > 0) { // Check if request was canceled.
+            switch (requestCode) {
+                case REQUEST_ACCESS_FINE_LOCATION:
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        // Permission granted
+                        Log.i(TAG, "Request permissions granted!!!");
+                        requestLocation();
+                    } else {
+                        // Permission was denied or request was cancelled
+                        Log.i(TAG, "Request permissions denied...");
+                    }
+                    break;
+                default:
+                    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            }
+        }
+    }
+
+    public void onLocationChanged(Location arg0) {
+        // TODO Auto-generated method stub
+    }
+
 
 }
