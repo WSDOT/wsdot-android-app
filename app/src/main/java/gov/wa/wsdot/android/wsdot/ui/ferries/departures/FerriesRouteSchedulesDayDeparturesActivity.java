@@ -173,7 +173,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                     params.setScrollFlags(0);
                 } else {
 
-                    mAppBar.setExpanded(false, true);
+                    mAppBar.setExpanded(true); // set expanded true so scroll flags take effect. Not sure why this works.
 
                     AppBarLayout.LayoutParams params =
                             (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
@@ -181,6 +181,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                               AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
                             | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
                             | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
+
                 }
             }
 
