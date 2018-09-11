@@ -129,6 +129,12 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         AndroidInjection.inject(this);
 		super.onCreate(savedInstanceState);
 
+        if (savedInstanceState != null) {
+            initLoad = savedInstanceState.getBoolean("initLoad", true);
+            mDayIndex = savedInstanceState.getInt("dayIndex", 0);
+            mTerminalIndex = savedInstanceState.getInt("terminalIndex", 0);
+        }
+
         AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
         if (am != null) {
             isAccessibilityEnabled = am.isEnabled();
@@ -171,7 +177,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                 this, R.layout.simple_spinner_dropdown_item_white);
         mDayOfWeekArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mDaySpinner.setAdapter(mDayOfWeekArrayAdapter);
-
 
         // set up tab layout
 
@@ -285,11 +290,15 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             params.setScrollFlags(0);
         }
 
-        if (savedInstanceState != null) {
-            TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
-            tab.select();
-        }
 	}
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putBoolean("initLoad", initLoad);
+        savedInstanceState.putInt("dayIndex", mDayIndex);
+        savedInstanceState.putInt("terminalIndex", mTerminalIndex);
+    }
 
     private void setDaySpinner(ArrayList<FerriesScheduleDateItem> schedule){
 
@@ -305,6 +314,8 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             }
         }
 
+        mDaySpinner.setSelection(mDayIndex);
+
     }
 
     private void setRouteSpinner(ArrayList<FerriesTerminalItem> sailings){
@@ -315,8 +326,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         for (int i = 0; i < numSailings; i++) {
             mSailingsArrayAdapter.add(sailings.get(i).getDepartingTerminalName() + " to " + sailings.get(i).getArrivingTerminalName());
         }
-
-
+        
         mSailingSpinner.setSelection(mTerminalIndex);
     }
 
