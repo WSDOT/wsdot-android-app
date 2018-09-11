@@ -88,6 +88,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     private ViewPager mViewPager;
     private AppBarLayout mAppBar;
     private gov.wa.wsdot.android.wsdot.util.TabsAdapter mTabsAdapter;
+
     private Toolbar mToolbar;
     private Tracker mTracker;
 
@@ -111,11 +112,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 
     boolean isAccessibilityEnabled = false;
     boolean isExploreByTouchEnabled = false;
-
-    /**
-     * Provides the entry point to Google Play services.
-     */
-    protected GoogleApiClient mGoogleApiClient;
 
     protected Location mLastLocation;
 
@@ -300,6 +296,10 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         savedInstanceState.putInt("terminalIndex", mTerminalIndex);
     }
 
+    /**
+     * Updates global array adapter with new day strings from schedule
+     * @param schedule ferry schedule data
+     */
     private void setDaySpinner(ArrayList<FerriesScheduleDateItem> schedule){
 
 	    mDayOfWeekArrayAdapter.clear();
@@ -318,6 +318,10 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 
     }
 
+    /**
+     * Updates global array adapter with new values from sailings
+     * @param sailings A to B terminal sailings
+     */
     private void setRouteSpinner(ArrayList<FerriesTerminalItem> sailings){
 
 	    mSailingsArrayAdapter.clear();
@@ -326,7 +330,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         for (int i = 0; i < numSailings; i++) {
             mSailingsArrayAdapter.add(sailings.get(i).getDepartingTerminalName() + " to " + sailings.get(i).getArrivingTerminalName());
         }
-        
+
         mSailingSpinner.setSelection(mTerminalIndex);
     }
 
@@ -454,7 +458,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         int closestTerminalIndex = 0;
         int minDistance = Integer.MAX_VALUE;
 
-        int index = 0; // TODO: map TerminalID to TerminalIndex?
+        int index = 0;
 
         for (FerriesTerminalItem terminalItem: mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem()) {
 
@@ -471,7 +475,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     }
 
     // Location logic
-
     /**
      * Request location updates after checking permissions first.
      */
@@ -508,7 +511,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                 editor.putBoolean("KEY_SEEN_FERRY_LOCATION_RATIONALE", true);
                 editor.apply();
 
-
             } else {
                 // No explanation needed, we can request the permission
                 ActivityCompat.requestPermissions(FerriesRouteSchedulesDayDeparturesActivity.this,
@@ -520,13 +522,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             LocationServices.getFusedLocationProviderClient(this).getLastLocation().addOnSuccessListener(location -> {
                 mLastLocation = location;
                 if (mLastLocation != null) {
-
-                    int newIndex = getTerminalIndexForTerminalClosestTo(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-
-                    if (newIndex != mTerminalIndex) {
-                        mTerminalIndex = newIndex;
-                    }
-
+                    mTerminalIndex = getTerminalIndexForTerminalClosestTo(mLastLocation.getLatitude(), mLastLocation.getLongitude());
                 }
                 setViewContent();
             });
@@ -543,6 +539,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                         requestLocation();
                     } else {
                         // Permission was denied or request was cancelled
+                        // Just show the first terminal in the list
                         setViewContent();
                     }
                     break;
