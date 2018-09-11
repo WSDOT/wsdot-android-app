@@ -160,6 +160,7 @@
 
         <activity
             android:name=".ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity"
+            android:label="@string/title_ferry_sailings">
             android:parentActivityName=".ui.ferries.FerriesRouteSchedulesActivity">
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data

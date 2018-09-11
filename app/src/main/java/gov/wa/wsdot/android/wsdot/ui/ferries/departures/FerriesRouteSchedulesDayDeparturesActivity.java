@@ -21,10 +21,11 @@ package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 import android.Manifest;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -36,29 +37,24 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 
 import javax.inject.Inject;
@@ -69,15 +65,13 @@ import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
-import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesSchedulesActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchFragment;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
 public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
-    implements AdapterView.OnItemSelectedListener, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener {
+    implements AdapterView.OnItemSelectedListener, LocationListener {
 
     private final String TAG = FerriesRouteSchedulesDayDeparturesActivity.class.getSimpleName();
 
@@ -112,6 +106,12 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     private static FerryTerminalViewModel terminalViewModel;
     private static FerryTerminalCameraViewModel terminalCameraViewModel;
 
+    private ArrayAdapter<CharSequence> mDayOfWeekArrayAdapter;
+    private ArrayAdapter<CharSequence> mSailingsArrayAdapter;
+
+    boolean isAccessibilityEnabled = false;
+    boolean isExploreByTouchEnabled = false;
+
     /**
      * Provides the entry point to Google Play services.
      */
@@ -128,6 +128,12 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 	public void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
 		super.onCreate(savedInstanceState);
+
+        AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+        if (am != null) {
+            isAccessibilityEnabled = am.isEnabled();
+            isExploreByTouchEnabled = am.isTouchExplorationEnabled();
+        }
 
         Bundle args = getIntent().getExtras();
         String title = args.getString("title");
@@ -148,13 +154,26 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         }
 
 
+        // set up the sailings spinner
         mSailingSpinner = this.findViewById(R.id.sailing_spinner);
         mSailingSpinner.setOnItemSelectedListener(this);
         mSailingSpinner.setId(SAILING_SPINNER_ID);
+        mSailingsArrayAdapter = new ArrayAdapter<>(
+                this, R.layout.simple_spinner_dropdown_item_white);
+        mSailingsArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSailingSpinner.setAdapter(mSailingsArrayAdapter);
 
+        // set up the day spinner
         mDaySpinner = this.findViewById(R.id.day_spinner);
         mDaySpinner.setOnItemSelectedListener(this);
         mDaySpinner.setId(DAY_SPINNER_ID);
+        mDayOfWeekArrayAdapter = new ArrayAdapter<>(
+                this, R.layout.simple_spinner_dropdown_item_white);
+        mDayOfWeekArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mDaySpinner.setAdapter(mDayOfWeekArrayAdapter);
+
+
+        // set up tab layout
 
         mTabLayout = findViewById(R.id.tab_layout);
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
@@ -200,14 +219,16 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                     params.setScrollFlags(0);
                 } else {
 
-                    mAppBar.setExpanded(true); // set expanded true so scroll flags take effect. Not sure why this works.
+                    if (!isAccessibilityEnabled && !isExploreByTouchEnabled) {
 
-                    AppBarLayout.LayoutParams params =
-                            (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-                    params.setScrollFlags(
-                              AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-                            | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
-                            | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
+                        mAppBar.setExpanded(true); // set expanded true so scroll flags take effect. Not sure why this works.
+                        AppBarLayout.LayoutParams params =
+                                (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+                        params.setScrollFlags(
+                                AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+                                        | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+                                        | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
+                    }
 
                 }
             }
@@ -218,6 +239,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
         });
+
 
         terminalViewModel = ViewModelProviders.of(this, viewModelFactory).get(FerryTerminalViewModel.class);
 
@@ -243,32 +265,25 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             if (dates != null) {
                 mScheduleDateItems = new ArrayList<>(dates);
 
-                initRouteSpinner(mScheduleDateItems.get(0).getFerriesTerminalItem());
-                initDaySpinner(mScheduleDateItems);
-
-                mTerminalItem = mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem().get(mTerminalIndex);
-
+                // only request location on init load
                 if (initLoad) {
-                    initLoad = false;
-                    terminalViewModel.loadDepartureTimesForTerminal(mTerminalItem);
-                    terminalCameraViewModel.loadTerminalCameras(mTerminalItem.getDepartingTerminalID(), "ferries");
+                    requestLocation();
+                } else {
+                    setViewContent();
                 }
-
-                // request location to auto select closest terminal.
-                requestLocation();
             }
         });
 
         MyLogger.crashlyticsLog("Ferries", "Screen View", "FerriesRouteSchedulesDayDeparturesActivity " + title, 1);
         enableAds(getString(R.string.ferries_ad_target));
 
-
-        // Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API).build();
-
+        // Accessibility
+        if (isAccessibilityEnabled || isExploreByTouchEnabled){
+            mAppBar.setExpanded(true, true);
+            AppBarLayout.LayoutParams params =
+                    (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+            params.setScrollFlags(0);
+        }
 
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
@@ -276,23 +291,9 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         }
 	}
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mGoogleApiClient.connect();
-    }
+    private void setDaySpinner(ArrayList<FerriesScheduleDateItem> schedule){
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
-    }
-
-    private void initDaySpinner(ArrayList<FerriesScheduleDateItem> schedule){
-
-        ArrayList<CharSequence> mDaysOfWeek = new ArrayList<>();
+	    mDayOfWeekArrayAdapter.clear();
 
         DateFormat dateFormat = new SimpleDateFormat("EEEE");
         dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
@@ -300,33 +301,39 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         int numDates = schedule.size();
         for (int i = 0; i < numDates; i++) {
             if (!schedule.get(i).getFerriesTerminalItem().isEmpty()) {
-                mDaysOfWeek.add(dateFormat.format(schedule.get(i).getDate()));
+                mDayOfWeekArrayAdapter.add(dateFormat.format(schedule.get(i).getDate()));
             }
         }
 
-        ArrayAdapter<CharSequence> dayOfWeekArrayAdapter = new ArrayAdapter<>(
-                this, R.layout.simple_spinner_dropdown_item_white, mDaysOfWeek);
-        dayOfWeekArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mDaySpinner.setAdapter(dayOfWeekArrayAdapter);
-
     }
 
-    private void initRouteSpinner(ArrayList<FerriesTerminalItem> sailings){
+    private void setRouteSpinner(ArrayList<FerriesTerminalItem> sailings){
 
-        ArrayList<CharSequence> sailingsStrings = new ArrayList<>();
+	    mSailingsArrayAdapter.clear();
 
         int numSailings = sailings.size();
         for (int i = 0; i < numSailings; i++) {
-            sailingsStrings.add(sailings.get(i).getDepartingTerminalName() + " to " + sailings.get(i).getArrivingTerminalName());
+            mSailingsArrayAdapter.add(sailings.get(i).getDepartingTerminalName() + " to " + sailings.get(i).getArrivingTerminalName());
         }
 
-        ArrayAdapter<CharSequence> sailingsArrayAdapter = new ArrayAdapter<>(
-                 this, R.layout.simple_spinner_dropdown_item_white, sailingsStrings);
-        sailingsArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSailingSpinner.setAdapter(sailingsArrayAdapter);
 
+        mSailingSpinner.setSelection(mTerminalIndex);
     }
 
+
+    private void setViewContent() {
+
+        mTerminalItem = mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem().get(mTerminalIndex);
+
+        setRouteSpinner(mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem());
+        setDaySpinner(mScheduleDateItems);
+
+        if (initLoad) {
+            initLoad = false;
+            terminalViewModel.loadDepartureTimesForTerminal(mTerminalItem);
+            terminalCameraViewModel.loadTerminalCameras(mTerminalItem.getDepartingTerminalID(), "ferries");
+        }
+    }
 
     /**
      * Callback for spinners. Gets the terminal item for the selected day and
@@ -453,24 +460,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         return closestTerminalIndex;
     }
 
-
-
     // Location logic
-
-    public void onConnectionFailed(ConnectionResult arg0) {
-        // TODO Auto-generated method stub
-    }
-
-    /**
-     * Runs when a GoogleApiClient object successfully connects.
-     */
-    public void onConnected(Bundle connectionHint) {
-        requestLocation();
-    }
-
-    public void onConnectionSuspended(int arg0) {
-        // TODO Auto-generated method stub
-    }
 
     /**
      * Request location updates after checking permissions first.
@@ -483,17 +473,31 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             if (ActivityCompat.shouldShowRequestPermissionRationale(
                     FerriesRouteSchedulesDayDeparturesActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                // Show explanation to user explaining why we need the permission
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage("Allow location services to let WSDOT select the nearest terminal.");
-                builder.setTitle("Nearest Departure Terminal");
-                builder.setPositiveButton("OK", (dialog, which) -> ActivityCompat.requestPermissions(
-                        FerriesRouteSchedulesDayDeparturesActivity.this,
-                        new String[] {
-                                Manifest.permission.ACCESS_FINE_LOCATION },
-                        REQUEST_ACCESS_FINE_LOCATION));
-                builder.setNegativeButton("Cancel", null);
-                builder.show();
+                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+                boolean hasSeenRationale = settings.getBoolean("KEY_SEEN_FERRY_LOCATION_RATIONALE", false);
+
+                if (!hasSeenRationale) {
+                    // Show explanation to user explaining why we need the permission
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setMessage("Allow location services to let WSDOT select the nearest terminal.");
+                    builder.setTitle("Find Nearest Departure Terminal?");
+                    builder.setPositiveButton("OK", (dialog, which) -> ActivityCompat.requestPermissions(
+                            FerriesRouteSchedulesDayDeparturesActivity.this,
+                            new String[]{
+                                    Manifest.permission.ACCESS_FINE_LOCATION},
+                            REQUEST_ACCESS_FINE_LOCATION));
+                    builder.setNegativeButton("no thanks", ((dialog, which) -> setViewContent()));
+                    AlertDialog dialog = builder.show();
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.primary_default));
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.primary_default));
+                } else {
+                    setViewContent();
+                }
+
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putBoolean("KEY_SEEN_FERRY_LOCATION_RATIONALE", true);
+                editor.apply();
+
 
             } else {
                 // No explanation needed, we can request the permission
@@ -502,7 +506,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                                 Manifest.permission.ACCESS_FINE_LOCATION },
                         REQUEST_ACCESS_FINE_LOCATION);
             }
-        } else {
+        } else { // We have permission!
             LocationServices.getFusedLocationProviderClient(this).getLastLocation().addOnSuccessListener(location -> {
                 mLastLocation = location;
                 if (mLastLocation != null) {
@@ -510,16 +514,11 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                     int newIndex = getTerminalIndexForTerminalClosestTo(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
                     if (newIndex != mTerminalIndex) {
-                        mSailingSpinner.setSelection(newIndex);
                         mTerminalIndex = newIndex;
-                        mTerminalItem = mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem().get(mTerminalIndex);
-                        terminalViewModel.setScrollToCurrent(true);
-                        terminalViewModel.loadDepartureTimesForTerminal(mTerminalItem);
-
-                        terminalCameraViewModel.loadTerminalCameras(mTerminalItem.getDepartingTerminalID(), "ferries");
                     }
 
                 }
+                setViewContent();
             });
         }
     }
@@ -531,11 +530,10 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                 case REQUEST_ACCESS_FINE_LOCATION:
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         // Permission granted
-                        Log.i(TAG, "Request permissions granted!!!");
                         requestLocation();
                     } else {
                         // Permission was denied or request was cancelled
-                        Log.i(TAG, "Request permissions denied...");
+                        setViewContent();
                     }
                     break;
                 default:
@@ -547,6 +545,5 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     public void onLocationChanged(Location arg0) {
         // TODO Auto-generated method stub
     }
-
 
 }
