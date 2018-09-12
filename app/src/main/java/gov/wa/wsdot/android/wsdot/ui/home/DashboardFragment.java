@@ -26,17 +26,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
-import gov.wa.wsdot.android.wsdot.service.EventService;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
-import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewPagerActivity;
-import gov.wa.wsdot.android.wsdot.ui.ferries.FerriesActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.FerriesRouteSchedulesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesActivity;
@@ -53,7 +50,7 @@ public class DashboardFragment extends BaseFragment implements Injectable {
 
         View root = inflater.inflate(R.layout.fragment_dashboard, null);
         root.findViewById(R.id.home_btn_traffic).setOnClickListener(view -> startActivity(new Intent(getActivity(), TrafficMapActivity.class)));
-        root.findViewById(R.id.home_btn_ferries).setOnClickListener(view -> startActivity(new Intent(getActivity(), FerriesActivity.class)));
+        root.findViewById(R.id.home_btn_ferries).setOnClickListener(view -> startActivity(new Intent(getActivity(), FerriesRouteSchedulesActivity.class)));
         root.findViewById(R.id.home_btn_passes).setOnClickListener(view -> startActivity(new Intent(getActivity(), MountainPassesActivity.class)));
         root.findViewById(R.id.home_btn_tolling).setOnClickListener(view -> startActivity(new Intent(getActivity(), TollRatesActivity.class)));
         root.findViewById(R.id.home_btn_border).setOnClickListener(view -> startActivity(new Intent(getActivity(), BorderWaitActivity.class)));

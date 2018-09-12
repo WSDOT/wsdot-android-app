@@ -39,15 +39,13 @@
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity">/Border Wait</screenName>
 
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.FerriesActivity">/Ferries</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesActivity">/Ferries/Schedules</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinsActivity">/Ferries/Schedules/Alerts</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinDetailsActivity">/Ferries/Schedules/Alerts/Details</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsActivity">/Ferries/Schedules/Day Sailings</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures.FerriesRouteSchedulesDayDeparturesActivity">/Ferries/Schedules/Day Sailings/Departure Times</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.FerriesRouteSchedulesActivity">/Ferries</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity">/Ferries/Alerts</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsActivity">/Ferries/Alerts/Details</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity">/Ferries/Departures</screenName>
 
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchMapActivity">/Ferries/Vessel Watch</screenName>
-    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchDetailsActivity">/Ferries/Vessel Watch/Vessel Details</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchMapActivity">/Ferries/Vessel Watch</screenName>
+    <screenName name="gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchDetailsActivity">/Ferries/Vessel Watch/Vessel Details</screenName>
 
     <screenName name="gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesActivity">/Amtrak Cascades</screenName>
     <screenName name="gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesSchedulesActivity">/Amtrak Cascades/Schedules</screenName>

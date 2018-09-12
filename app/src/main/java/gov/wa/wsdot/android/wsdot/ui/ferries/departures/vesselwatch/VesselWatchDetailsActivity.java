@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch;
+package gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -63,7 +63,7 @@ public class VesselWatchDetailsActivity extends BaseActivity {
         }
 		mLoadingSpinner = findViewById(R.id.loading_spinner);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
-		webview = (WebView)findViewById(R.id.webview);
+		webview = findViewById(R.id.webview);
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
 		

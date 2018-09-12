@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures;
+package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -48,7 +48,6 @@ public class FerriesTerminalCameraFragment extends BaseFragment
 
     final static String TAG = FerriesTerminalCameraFragment.class.getSimpleName();
 
-    private static int mTerminalId;
     private View mEmptyView;
     private static View mLoadingSpinner;
     private static CameraImageAdapter mAdapter;
@@ -62,12 +61,6 @@ public class FerriesTerminalCameraFragment extends BaseFragment
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Bundle args = getActivity().getIntent().getExtras();
-        mTerminalId = args.getInt("terminalId");
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -92,7 +85,7 @@ public class FerriesTerminalCameraFragment extends BaseFragment
         mLoadingSpinner = root.findViewById(R.id.loading_spinner);
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerryTerminalCameraViewModel.class);
+        viewModel = ViewModelProviders.of(getActivity()).get(FerryTerminalCameraViewModel.class);
 
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -118,8 +111,6 @@ public class FerriesTerminalCameraFragment extends BaseFragment
                 mAdapter.setData(cameraItems);
             }
         });
-
-        viewModel.loadTerminalCameras(mTerminalId, "ferries");
 
         return root;
     }

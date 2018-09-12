@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch;
+package gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;

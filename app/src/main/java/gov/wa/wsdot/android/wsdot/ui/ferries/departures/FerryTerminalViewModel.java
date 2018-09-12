@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures;
+package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
@@ -11,12 +11,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.inject.Inject;
@@ -39,6 +37,7 @@ public class FerryTerminalViewModel extends ViewModel {
 
     private String TAG = FerryTerminalViewModel.class.getSimpleName();
 
+
     private MediatorLiveData<List<FerriesScheduleTimesItem>> departureTimes;
     private MutableLiveData<List<FerriesAnnotationsItem>> departureTimesAnnotations;
 
@@ -47,7 +46,7 @@ public class FerryTerminalViewModel extends ViewModel {
     private MutableLiveData<ResourceStatus> mStatus;
 
     // var used to ensure we only jump to the next sailing on the first load
-    private boolean firstLoad = true;
+    private boolean scrollToCurrent = true;
 
     private FerryTerminalSpaceRepository terminalSpaceRepo;
 
@@ -59,20 +58,12 @@ public class FerryTerminalViewModel extends ViewModel {
         this.departureTimesAnnotations = new MutableLiveData<>();
     }
 
-    Boolean isFirstLoad() {
-        return this.firstLoad;
+    Boolean getShouldScrollToCurrent() {
+        return this.scrollToCurrent;
     }
 
-    void firstLoadComplete() {
-        this.firstLoad = false;
-    }
-
-    void setSelectedDay(int selection){
-        selectedDay = selection;
-    }
-
-    int getSelectedDay() {
-        return this.selectedDay;
+    void setScrollToCurrent(Boolean shouldScroll) {
+        this.scrollToCurrent = shouldScroll;
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
@@ -166,7 +157,6 @@ public class FerryTerminalViewModel extends ViewModel {
         String departingSpacesString = terminalSpacesValue.getDepartingSpaces();
         String lastUpdated = terminalSpacesValue.getLastUpdated();
 
-        DateFormat dataDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.ENGLISH);
         DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
         dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));

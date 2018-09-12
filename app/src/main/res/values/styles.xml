@@ -107,15 +107,19 @@
 
     <!-- Custom dropdown in toolbar -->
 
+    <style name="spinnerUnderline" parent="Widget.AppCompat.Spinner.Underlined">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
     <style name="spinnerItemWhite" parent="android:Widget.TextView.SpinnerItem">
         <item name="android:textColor">@color/white</item>
         <item name="android:singleLine">true</item>
     </style>
 
-    <style name="spinnerDropDownItemWhite" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
+    <style name="spinnerDropDownItemWhite" parent="android:TextAppearance.Widget.TextView.SpinnerItem" >
         <item name="android:textColor">@color/white</item>
         <item name="android:singleLine">true</item>
-        <item name="android:padding">10dip</item>
+        <item name="android:padding">11dip</item>
     </style>
 
 

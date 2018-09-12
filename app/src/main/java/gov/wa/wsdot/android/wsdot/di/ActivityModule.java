@@ -23,10 +23,8 @@ import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewPagerActivity;
-import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.departures.FerriesRouteSchedulesDayDeparturesActivity;
-import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsActivity;
-import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.FerriesRouteSchedulesActivity;
-import gov.wa.wsdot.android.wsdot.ui.ferries.vesselwatch.VesselWatchMapActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.FerriesRouteSchedulesActivity;
 import gov.wa.wsdot.android.wsdot.ui.home.HomeActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
@@ -65,13 +63,7 @@ public abstract class ActivityModule {
     abstract FerriesRouteSchedulesActivity contributeFerriesRouteSchedulesActivity();
 
     @ContributesAndroidInjector
-    abstract FerriesRouteSchedulesDaySailingsActivity contributeFerriesRouteSchedulesDaySailingsActivity();
-
-    @ContributesAndroidInjector
     abstract FerriesRouteSchedulesDayDeparturesActivity contributeFerriesRouteSchedulesDayDeparturesActivity();
-
-    @ContributesAndroidInjector
-    abstract VesselWatchMapActivity contributeVesselWatchMapActivity();
 
     @ContributesAndroidInjector
     abstract CameraActivity contributeCameraActivity();

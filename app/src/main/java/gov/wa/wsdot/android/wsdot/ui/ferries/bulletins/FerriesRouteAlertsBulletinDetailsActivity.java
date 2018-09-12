@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins;
+package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;

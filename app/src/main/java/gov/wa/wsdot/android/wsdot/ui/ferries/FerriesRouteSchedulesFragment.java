@@ -16,7 +16,7 @@
  *
  */
 
-package gov.wa.wsdot.android.wsdot.ui.ferries.schedules;
+package gov.wa.wsdot.android.wsdot.ui.ferries;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -28,7 +28,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,9 +54,8 @@ import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
-import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
-import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.bulletins.FerriesRouteAlertsBulletinsActivity;
-import gov.wa.wsdot.android.wsdot.ui.ferries.schedules.sailings.FerriesRouteSchedulesDaySailingsActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
@@ -184,11 +182,11 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
             // Set onClickListener for holder's view
             holder.view.setOnClickListener(
                     v -> {
+
                         Bundle b = new Bundle();
-                        Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDaySailingsActivity.class);
-                        b.putInt("id", schedule.getFerryScheduleId());
+                        Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDayDeparturesActivity.class);
+                        b.putInt("scheduleId", schedule.getFerryScheduleId());
                         b.putString("title", schedule.getTitle());
-                        b.putString("date", schedule.getDate());
                         b.putInt("isStarred", schedule.getIsStarred());
                         intent.putExtras(b);
 

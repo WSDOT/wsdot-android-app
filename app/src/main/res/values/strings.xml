@@ -132,5 +132,7 @@
     <string name="description_about_goodtogo">MyGoodToGo.com</string>
     <string name="i405_info_link">Learn how I-405 tolls work</string>
     <string name="sr167_info_link">Learn how SR 167 tolls work</string>
+    <string name="description_reservations">Reservations</string>
+    <string name="title_ferry_sailings">Sailings</string>
 
 </resources>
