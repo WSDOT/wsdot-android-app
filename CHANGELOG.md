@@ -4,6 +4,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+
+## [5.8.0] - 2018
+
+# Added
+- Location based sailing selection.
+
+# Changed
+- Ferries section navigation hierarchy.
+- Sailing screen has been reduced to a spinner on the departures screen. 
+
+# Removed
+- Ferries home screen.
+
 ## [5.7.0] - 2018-08-15
 
 # Changed
