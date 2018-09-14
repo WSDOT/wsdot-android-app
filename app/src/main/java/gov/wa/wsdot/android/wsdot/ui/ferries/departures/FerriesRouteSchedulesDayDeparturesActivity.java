@@ -291,7 +291,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putBoolean("initLoad", initLoad);
         savedInstanceState.putInt("dayIndex", mDayIndex);
         savedInstanceState.putInt("terminalIndex", mTerminalIndex);
     }
@@ -401,6 +400,8 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+
         switch(item.getItemId()) {
             case android.R.id.home:
                 finish();
@@ -410,7 +411,9 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                 toggleStar(item);
                 return true;
         }
+
         return super.onOptionsItemSelected(item);
+
     }
 
     private void toggleStar(MenuItem item) {
@@ -535,7 +538,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             switch (requestCode) {
                 case REQUEST_ACCESS_FINE_LOCATION:
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        // Permission granted
+                        // Permission granted, try and get location again!
                         requestLocation();
                     } else {
                         // Permission was denied or request was cancelled
