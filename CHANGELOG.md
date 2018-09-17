@@ -4,8 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-
-## [5.8.0] - 2018
+## [5.8.1] - 2018-09-17
 
 # Added
 - Location based sailing selection.
