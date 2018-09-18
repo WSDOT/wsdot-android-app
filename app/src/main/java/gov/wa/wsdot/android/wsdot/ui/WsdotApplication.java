@@ -28,7 +28,6 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import javax.inject.Inject;
 
@@ -89,8 +88,6 @@ public class WsdotApplication extends Application implements HasActivityInjector
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean("KEY_SEEN_DRIVER_ALERT", false);
         editor.apply();
-
-        Log.i(TAG, "Token: " + FirebaseInstanceId.getInstance().getToken());
 
     }
 

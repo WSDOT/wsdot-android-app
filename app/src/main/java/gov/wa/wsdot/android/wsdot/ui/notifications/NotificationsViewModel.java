@@ -4,7 +4,12 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.NonNull;
+import android.util.Log;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
@@ -13,6 +18,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.repository.NotificationTopicsRepository;
 import gov.wa.wsdot.android.wsdot.util.AbsentLiveData;
@@ -43,22 +49,16 @@ public class NotificationsViewModel extends ViewModel {
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
     public LiveData<HashMap<String, List<NotificationTopicEntity>>> getTopics() {
+
         if (this.topicsMap == null){
             return AbsentLiveData.create();
         }
+
         return this.topicsMap;
     }
 
     void updateSubscription(String topic, Boolean subscribe) {
-
-        if (subscribe) {
-            FirebaseMessaging.getInstance().subscribeToTopic(topic);
-        } else {
-            FirebaseMessaging.getInstance().unsubscribeFromTopic(topic);
-        }
-
         topicsRepo.updateSubscription(topic, subscribe);
-
     }
 
     private HashMap<String, List<NotificationTopicEntity>> mapTopics(List<NotificationTopicEntity> topics){

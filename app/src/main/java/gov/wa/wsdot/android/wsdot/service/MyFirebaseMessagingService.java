@@ -48,6 +48,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
 
+    @Override
+    public void onNewToken(String token){
+        Log.e(TAG, String.format("Got token: %s", token));
+    }
+
     /**
      * Called when message is received.
      *
