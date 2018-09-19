@@ -1,12 +1,12 @@
 package gov.wa.wsdot.android.wsdot.ui.notifications;
 
+import android.app.Application;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,13 +16,13 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.HashMap;
 import java.util.List;
@@ -171,10 +171,8 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
 
                     Snackbar added_snackbar = Snackbar
                             .make(getView(), "Subscribed to " + topic.getTitle(), Snackbar.LENGTH_SHORT);
-
                     Snackbar removed_snackbar = Snackbar
                             .make(getView(), "Unsubscribed from " + topic.getTitle(), Snackbar.LENGTH_SHORT);
-
                     added_snackbar.addCallback(new Snackbar.Callback() {
                         @Override
                         public void onShown(Snackbar snackbar) {
@@ -183,7 +181,6 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                             snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
                         }
                     });
-
                     removed_snackbar.addCallback(new Snackbar.Callback() {
                         @Override
                         public void onShown(Snackbar snackbar) {
@@ -194,6 +191,8 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                     });
 
                     if (isChecked) {
+
+                        viewModel.updateSubscription(topic.getTopic(), true);
                         added_snackbar.show();
                         mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
                         mTracker.send(new HitBuilders.EventBuilder()
@@ -201,7 +200,17 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                                 .setAction("Subscribed")
                                 .setLabel(topic.getTitle())
                                 .build());
+                        FirebaseMessaging.getInstance().subscribeToTopic(topic.getTopic())
+                                .addOnCompleteListener(task -> {
+                                    // If the operation fails revert saved sub status
+                                    // let user know
+                                    if (!task.isSuccessful()) {
+                                        viewModel.updateSubscription(topic.getTopic(), false);
+                                    }
+                                });
+
                     } else {
+                        viewModel.updateSubscription(topic.getTopic(), false);
                         removed_snackbar.show();
                         mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
                         mTracker.send(new HitBuilders.EventBuilder()
@@ -209,9 +218,13 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                                 .setAction("Unsubscribed")
                                 .setLabel(topic.getTitle())
                                 .build());
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic(topic.getTopic())
+                                .addOnCompleteListener(task -> {
+                                    if (!task.isSuccessful()) {
+                                        viewModel.updateSubscription(topic.getTopic(), true);
+                                    }
+                                });
                     }
-
-                    viewModel.updateSubscription(topic.getTopic(), isChecked);
                 }
             });
 
@@ -253,7 +266,6 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
             }
 
             HeaderViewHolder headerViewHolder = new HeaderViewHolder(view);
-
             headerViewHolder.title.setText(header);
 
             return view;
