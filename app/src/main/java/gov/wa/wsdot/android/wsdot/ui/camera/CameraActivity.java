@@ -67,10 +67,7 @@ public class CameraActivity extends BaseActivity {
 	    viewModel.getCamera(id).observe(this, camera -> {
 	        if (camera != null) {
 
-
 	            mToolbar.setTitle(camera.getTitle());
-
-
 
                 if (camera.getHasVideo() == 1) {
                     tabFragments.add(mTabLayout.getTabCount(), CameraVideoFragment.class);

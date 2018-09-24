@@ -142,7 +142,7 @@ public class CameraImageFragment extends Fragment implements
                     ((TextView) mRootView.findViewById(R.id.milepost)).setText(String.format("milepost %s", camera.getMilepost()));
                 }
 
-                if (camera.getDirection() != null) {
+                if (!camera.getDirection().equals("null")) {
                     String directionString;
                     switch (camera.getDirection()) {
                         case "N":
@@ -161,8 +161,11 @@ public class CameraImageFragment extends Fragment implements
                             directionString = "This camera could be pointing in a number of directions for operational reasons.";
                             break;
                     }
+					mRootView.findViewById(R.id.direction).setVisibility(View.VISIBLE);
                     ((TextView) mRootView.findViewById(R.id.direction)).setText(directionString);
-                }
+                } else {
+					mRootView.findViewById(R.id.direction).setVisibility(View.GONE);
+				}
             }
         });
 
