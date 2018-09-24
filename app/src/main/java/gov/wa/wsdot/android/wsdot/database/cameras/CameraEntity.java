@@ -28,6 +28,12 @@ public class CameraEntity {
     @ColumnInfo(name = "longitude")
     private Double longitude;
 
+    @ColumnInfo(name = "direction")
+    private String direction;
+
+    @ColumnInfo(name = "milepost")
+    private String milepost;
+
     @ColumnInfo(name = "has_video")
     @NonNull
     private Integer hasVideo = 0;
@@ -77,6 +83,18 @@ public class CameraEntity {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getDirection() { return direction; }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
+    }
+
+    public String getMilepost() { return milepost; }
+
+    public void setMilepost(String milepost){
+        this.milepost = milepost;
     }
 
     @NonNull

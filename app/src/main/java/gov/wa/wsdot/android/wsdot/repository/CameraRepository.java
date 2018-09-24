@@ -107,6 +107,8 @@ public class CameraRepository extends NetworkResourceSyncRepository {
             cameraData.setUrl(item.getString("url"));
             cameraData.setLatitude(item.getDouble("lat"));
             cameraData.setLongitude(item.getDouble("lon"));
+            cameraData.setDirection(item.getString("direction"));
+            cameraData.setMilepost(item.getString("milepost"));
             cameraData.setHasVideo(item.getInt("video"));
             cameraData.setRoadName(item.getString("roadName"));
 

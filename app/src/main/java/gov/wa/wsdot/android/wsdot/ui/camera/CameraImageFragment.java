@@ -47,6 +47,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -136,6 +137,35 @@ public class CameraImageFragment extends Fragment implements
                 mUrl = camera.getUrl();
                 mIsStarred = camera.getIsStarred() != 0;
                 getLoaderManager().initLoader(0, null, this);
+
+                if (camera.getMilepost() != null) {
+                    ((TextView) mRootView.findViewById(R.id.milepost)).setText(String.format("milepost %s", camera.getMilepost()));
+                }
+
+                if (!camera.getDirection().equals("null")) {
+                    String directionString;
+                    switch (camera.getDirection()) {
+                        case "N":
+                            directionString = "This camera faces north";
+                            break;
+                        case "S":
+                            directionString = "This camera faces south";
+                            break;
+                        case "E":
+                            directionString = "This camera faces east";
+                            break;
+                        case "W":
+                            directionString = "This camera faces west";
+                            break;
+                        default:
+                            directionString = "This camera could be pointing in a number of directions for operational reasons.";
+                            break;
+                    }
+					mRootView.findViewById(R.id.direction).setVisibility(View.VISIBLE);
+                    ((TextView) mRootView.findViewById(R.id.direction)).setText(directionString);
+                } else {
+					mRootView.findViewById(R.id.direction).setVisibility(View.GONE);
+				}
             }
         });
 
