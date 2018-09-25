@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,6 +37,7 @@ import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
+import gov.wa.wsdot.android.wsdot.util.sort.SortHighwayAlertItemsByDate;
 
 /**
  * Fragment for displaying a list of alerts.
@@ -135,6 +137,8 @@ public class HighwayAlertListFragment extends BaseFragment
 
             viewModel.getHighwayAlertsInBounds(mBounds).observe(this, alerts -> {
                 if (alerts != null) {
+                    Collections.sort(alerts, new SortHighwayAlertItemsByDate());
+
                     trafficAlertItems = new ArrayList<>(alerts);
                     mAdapter.clear();
                     mAdapter.setData(trafficAlertItems);
