@@ -28,6 +28,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,7 @@ import android.widget.TextView;
 import com.viewpagerindicator.LinePageIndicator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -47,6 +49,8 @@ import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
+import gov.wa.wsdot.android.wsdot.util.sort.SortHighwayAlertEntitiesByDate;
+import gov.wa.wsdot.android.wsdot.util.sort.SortHighwayAlertItemsByDate;
 
 public class HighImpactAlertsFragment extends BaseFragment implements
         Injectable {
@@ -103,6 +107,8 @@ public class HighImpactAlertsFragment extends BaseFragment implements
         viewModel.getHighwayAlerts().observe(this, highwayAlerts -> {
 
             if (highwayAlerts != null) {
+
+                Collections.sort(highwayAlerts, new SortHighwayAlertEntitiesByDate(SortHighwayAlertEntitiesByDate.SortOrder.DESCENDING));
 
                 alertItems.clear();
                 alertItems = highwayAlerts;
