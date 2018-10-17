@@ -333,7 +333,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         mSailingSpinner.setSelection(mTerminalIndex);
     }
 
-
     private void setViewContent() {
 
         mTerminalItem = mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem().get(mTerminalIndex);
@@ -400,7 +399,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
 
         switch(item.getItemId()) {
             case android.R.id.home:
