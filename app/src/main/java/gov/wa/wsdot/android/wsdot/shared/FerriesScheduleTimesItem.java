@@ -28,6 +28,10 @@ public class FerriesScheduleTimesItem implements Serializable {
 	private static final long serialVersionUID = -4358683796023869875L;
 	private Date departingTime;
 	private Date arrivingTime;
+
+	private String eta;
+	private String actualDeparture;
+
 	private ArrayList<FerriesAnnotationIndexesItem> annotationIndexes = new ArrayList<FerriesAnnotationIndexesItem>();
     private int reservableSpaceCount;
     private int driveUpSpaceCount;
@@ -40,12 +44,21 @@ public class FerriesScheduleTimesItem implements Serializable {
         this.maxSpaceCount = -1;
     }
     
-	public Date getDepartingTime() {
-		return departingTime;
-	}
+	public Date getDepartingTime() { return departingTime; }
 	public void setDepartingTime(Date departingTime) {
 		this.departingTime = departingTime;
 	}
+
+	public String getEta() { return this.eta; }
+	public String getActualDeparture() { return this.actualDeparture; }
+
+	public void setEta(String eta){
+        this.eta = eta;
+    }
+	public void setActualDeparture(String actualDeparture) {
+        this.actualDeparture = actualDeparture;
+    }
+
 	public Date getArrivingTime() {
 		return arrivingTime;
 	}

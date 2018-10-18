@@ -82,7 +82,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
-
     @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -139,7 +138,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
         terminalViewModel.getDepartureTimes().observe(this, sailingTimes -> {
 
-            if (sailingTimes != null ){
+            if (sailingTimes != null ) {
                 if (sailingTimes.size() != 0) {
                     mEmptyView.setVisibility(View.GONE);
                 } else {
@@ -178,6 +177,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
             }
         });
 
+        terminalViewModel.forceRefreshVesselStatus();
+
         return root;
 	}
 
@@ -196,7 +197,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
     // Runnable for updating sailing spaces
     private Runnable runnable = new Runnable() {
         public void run() {
-            terminalViewModel.forceRefreshTerminalSpaces();
+            terminalViewModel.forceRefreshTerminalSpacesAndVessel();
             mHandler.postDelayed(runnable, (DateUtils.MINUTE_IN_MILLIS)); // Check every minute.
         }
     };
@@ -280,6 +281,18 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                 }
             }
 
+            if (item.getActualDeparture() != null) {
+                itemHolder.actualDeparture.setText(String.format("Actual departure\n%s", item.getActualDeparture()));
+            } else {
+                itemHolder.actualDeparture.setText("");
+            }
+
+            if (item.getEta() != null ) {
+                itemHolder.eta.setText(String.format("ETA %s", item.getEta()));
+            } else {
+                itemHolder.eta.setText("");
+            }
+
             if (annotation.equals("")) {
                 itemHolder.annotation.setVisibility(View.GONE);
             } else {
@@ -354,6 +367,8 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
     public static class TimesViewHolder extends RecyclerView.ViewHolder {
         protected TextView departing;
         protected TextView arriving;
+        protected TextView actualDeparture;
+        protected TextView eta;
         protected TextView annotation;
         protected RelativeLayout vehicleSpaceGroup;
         protected ProgressBar driveUpProgressBar;
@@ -368,6 +383,10 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
             departing.setTypeface(tfb);
             arriving = itemView.findViewById(R.id.arriving);
             arriving.setTypeface(tfb);
+            actualDeparture = itemView.findViewById(R.id.actualDeparture);
+            actualDeparture.setTypeface(tf);
+            eta = itemView.findViewById(R.id.eta);
+            eta.setTypeface(tf);
             annotation = itemView.findViewById(R.id.annotation);
             annotation.setTypeface(tf);
             vehicleSpaceGroup = itemView.findViewById(R.id.driveUpProgressBarGroup);
@@ -386,7 +405,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
     public void onRefresh() {
 		swipeRefreshLayout.setRefreshing(true);
 		schedulesViewModel.forceRefreshFerrySchedules();
-        terminalViewModel.forceRefreshTerminalSpaces();
+        terminalViewModel.forceRefreshTerminalSpacesAndVessel();
     }
 
 }
