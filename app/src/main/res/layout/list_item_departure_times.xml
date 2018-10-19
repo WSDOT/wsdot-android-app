@@ -10,6 +10,7 @@
         android:textSize="@dimen/text_size_large"
         android:textColor="@color/black"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -20,16 +21,39 @@
         android:textSize="@dimen/text_size_large"
         android:textColor="@color/black"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         />
 
+	<TextView
+		android:id="@+id/actualDeparture"
+		android:textSize="@dimen/text_size_medium"
+		android:textColor="@color/black"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+        android:layout_below="@id/departing"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		/>
+
+	<TextView
+		android:id="@+id/eta"
+		android:textSize="@dimen/text_size_medium"
+		android:textColor="@color/black"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentEnd="true"
+        android:layout_below="@id/arriving"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		/>
+
     <TextView
         android:id="@+id/annotation"
         android:textSize="@dimen/text_size_medium"
         android:textColor="@color/black"
-        android:layout_below="@id/departing"
+        android:layout_below="@id/actualDeparture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />

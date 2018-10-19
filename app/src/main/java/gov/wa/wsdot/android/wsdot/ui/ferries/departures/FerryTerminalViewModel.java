@@ -21,10 +21,12 @@ import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryTerminalSailingSpacesEntity;
 import gov.wa.wsdot.android.wsdot.repository.FerryTerminalSpaceRepository;
+import gov.wa.wsdot.android.wsdot.repository.VesselWatchRepository;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
+import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 /**
@@ -37,7 +39,6 @@ public class FerryTerminalViewModel extends ViewModel {
 
     private String TAG = FerryTerminalViewModel.class.getSimpleName();
 
-
     private MediatorLiveData<List<FerriesScheduleTimesItem>> departureTimes;
     private MutableLiveData<List<FerriesAnnotationsItem>> departureTimesAnnotations;
 
@@ -49,12 +50,14 @@ public class FerryTerminalViewModel extends ViewModel {
     private boolean scrollToCurrent = true;
 
     private FerryTerminalSpaceRepository terminalSpaceRepo;
+    private VesselWatchRepository vesselWatchRepo;
 
     @Inject
-    FerryTerminalViewModel(FerryTerminalSpaceRepository terminalSpaceRepo) {
+    FerryTerminalViewModel(FerryTerminalSpaceRepository terminalSpaceRepo, VesselWatchRepository vesselWatchRepo) {
         this.mStatus = new MutableLiveData<>();
         this.terminalSpaceRepo = terminalSpaceRepo;
-        this.departureTimes = new  MediatorLiveData<>();
+        this.vesselWatchRepo = vesselWatchRepo;
+        this.departureTimes = new MediatorLiveData<>();
         this.departureTimesAnnotations = new MutableLiveData<>();
     }
 
@@ -66,7 +69,9 @@ public class FerryTerminalViewModel extends ViewModel {
         this.scrollToCurrent = shouldScroll;
     }
 
-    public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
+    public LiveData<ResourceStatus> getResourceStatus() {
+        return this.mStatus;
+    }
 
     public MediatorLiveData<List<FerriesScheduleTimesItem>> getDepartureTimes() {
         return this.departureTimes;
@@ -76,8 +81,13 @@ public class FerryTerminalViewModel extends ViewModel {
         return this.departureTimesAnnotations;
     }
 
-    void forceRefreshTerminalSpaces() {
+    void forceRefreshTerminalSpacesAndVessel() {
         terminalSpaceRepo.refreshData(mStatus, true);
+        vesselWatchRepo.refreshData(mStatus);
+    }
+
+    void forceRefreshVesselStatus() {
+        vesselWatchRepo.refreshData(mStatus);
     }
 
     /**
@@ -98,6 +108,21 @@ public class FerryTerminalViewModel extends ViewModel {
                     }
                 }
         );
+
+        // since getVessels() returns the same LiveData each time
+        // remove it as a source to prevent doubling up each time loadDepartures is called.
+        // loadDepartures should only be called again when switching sailings
+        departureTimes.removeSource(vesselWatchRepo.getVessels());
+
+        departureTimes.addSource(
+                vesselWatchRepo.getVessels(),
+                vessels -> {
+                    if (vessels != null) {
+                        addActualDepartureAndETA(terminalItem, vessels);
+                    }
+                }
+        );
+
     }
 
     /**
@@ -147,10 +172,10 @@ public class FerryTerminalViewModel extends ViewModel {
     /**
      * inserts sailing spaces data into departureTimes. Posts update to departureTimes
      *
-     * @param terminalItem Needed for the terminal IDs
+     * @param terminalItem        Needed for the terminal IDs
      * @param terminalSpacesValue Sailing spaces count data
      */
-    private void addSailingSpaces(FerriesTerminalItem terminalItem, FerryTerminalSailingSpacesEntity terminalSpacesValue){
+    private void addSailingSpaces(FerriesTerminalItem terminalItem, FerryTerminalSailingSpacesEntity terminalSpacesValue) {
 
         List<FerriesScheduleTimesItem> times = departureTimes.getValue();
 
@@ -163,18 +188,18 @@ public class FerryTerminalViewModel extends ViewModel {
 
         try {
             JSONArray departingSpaces = new JSONArray(departingSpacesString);
-            for (int i=0; i < departingSpaces.length(); i++) {
+            for (int i = 0; i < departingSpaces.length(); i++) {
                 JSONObject spaces = departingSpaces.getJSONObject(i);
                 String departure = dateFormat.format(new Date(Long.parseLong(spaces.getString("Departure").substring(6, 19))));
                 JSONArray spaceForArrivalTerminals = spaces.getJSONArray("SpaceForArrivalTerminals");
-                for (int j=0; j < spaceForArrivalTerminals.length(); j++) {
+                for (int j = 0; j < spaceForArrivalTerminals.length(); j++) {
 
                     JSONObject terminals = spaceForArrivalTerminals.getJSONObject(j);
 
                     JSONArray arrivalTerminalIDs = terminals.getJSONArray("ArrivalTerminalIDs");
 
                     // Check terminalID field
-                    if (terminals.getInt("TerminalID") == terminalItem.getDepartingTerminalID()){
+                    if (terminals.getInt("TerminalID") == terminalItem.getDepartingTerminalID()) {
 
                         int driveUpSpaceCount = terminals.getInt("DriveUpSpaceCount");
                         int maxSpaceCount = terminals.getInt("MaxSpaceCount");
@@ -190,8 +215,8 @@ public class FerryTerminalViewModel extends ViewModel {
                     }
 
                     // Check terminals in ArrivalTerminalIDs array
-                    for (int k=0; k < arrivalTerminalIDs.length(); k++) {
-                        if (arrivalTerminalIDs.getInt(k)!= terminalItem.getArrivingTerminalID()) {
+                    for (int k = 0; k < arrivalTerminalIDs.length(); k++) {
+                        if (arrivalTerminalIDs.getInt(k) != terminalItem.getArrivingTerminalID()) {
                             continue;
                         } else {
                             int driveUpSpaceCount = terminals.getInt("DriveUpSpaceCount");
@@ -217,5 +242,41 @@ public class FerryTerminalViewModel extends ViewModel {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    /**
+     * inserts sailing spaces data into departureTimes. Posts update to departureTimes
+     *
+     * @param terminalItem Needed for the terminal IDs
+     * @param vessels      list of vessel data
+     */
+    private void addActualDepartureAndETA(FerriesTerminalItem terminalItem, List<VesselWatchItem> vessels) {
+
+        DateFormat dateFormat = new SimpleDateFormat("h:mm a");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+
+        List<FerriesScheduleTimesItem> times = departureTimes.getValue();
+
+        // Search for a vessel on this sailing
+        for (VesselWatchItem vessel: vessels) {
+
+            if (vessel.getDepartedTerminalId().equals(terminalItem.getDepartingTerminalID())
+                && vessel.getArrivingTerminalId().equals(terminalItem.getArrivingTerminalID())){
+
+                // add the vessels actual departure time and ETA to the schedule if available.
+                for (FerriesScheduleTimesItem time: times ) {
+
+                    if (dateFormat.format(time.getDepartingTime()).equals(vessel.getScheduledDeparture())){
+
+                        time.setActualDeparture(vessel.getLeftDock());
+                        time.setEta(vessel.getEta());
+
+                    }
+                }
+            }
+        }
+
+        departureTimes.postValue(times);
+
     }
 }

@@ -25,9 +25,13 @@ public class VesselWatchItem {
 	private String name;
 	private String route;
     private String description;
-	private String lastdock;
+	private String departedTerminal;
+    private Integer departedTerminalId;
+    private String leftDock;
+    private String eta;
 	private String arrivingTerminal;
-	private String nextdep;
+	private Integer arrivingTerminalId;
+	private String scheduledDeparture;
 	private Double lat;
 	private Double lon;
 	private Double speed;
@@ -36,8 +40,7 @@ public class VesselWatchItem {
 	private String datetime;
 	private Integer icon;
 	
-	public VesselWatchItem() {
-	}
+	public VesselWatchItem() {}
 	
     public VesselWatchItem(Double latitude, Double longitude, String name,
             String description, Integer icon) {
@@ -73,10 +76,10 @@ public class VesselWatchItem {
 		this.route = route; 
 	}
 	public String getLastDock() {
-		return lastdock;
+		return departedTerminal;
 	}
 	public void setLastDock(String lastdock) {
-		this.lastdock = lastdock; 
+		this.departedTerminal = lastdock;
 	}
 	public String getArrivingTerminal() {
 		return arrivingTerminal;
@@ -84,12 +87,36 @@ public class VesselWatchItem {
 	public void setArrivingTerminal(String arrivingTerminal) {
 		this.arrivingTerminal = arrivingTerminal;
 	}
-	public String getNextDep() {
-		return nextdep;
+    public Integer getDepartedTerminalId() {
+        return departedTerminalId;
+    }
+    public void setDepartedTerminalId(Integer departedTerminalId) {
+        this.departedTerminalId = departedTerminalId;
+    }
+    public Integer getArrivingTerminalId() {
+        return arrivingTerminalId;
+    }
+    public void setArrivingTerminalId(Integer arrivingTerminalId) {
+        this.arrivingTerminalId = arrivingTerminalId;
+    }
+	public String getScheduledDeparture() {
+		return scheduledDeparture;
 	}
-	public void setNextDep(String nextdep) {
-		this.nextdep = nextdep; 
+	public void setScheduledDeparture(String nextdep) {
+		this.scheduledDeparture = nextdep;
 	}
+    public String getLeftDock() {
+        return leftDock;
+    }
+    public void setLeftDock(String leftDock) {
+        this.leftDock = leftDock;
+    }
+    public String getEta() {
+        return eta;
+    }
+    public void setEta(String eta) {
+        this.eta = eta;
+    }
 	public Double getLat() {
 		return lat;
 	}

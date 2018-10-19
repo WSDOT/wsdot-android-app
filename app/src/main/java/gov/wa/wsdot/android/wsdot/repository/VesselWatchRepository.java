@@ -70,7 +70,7 @@ public class VesselWatchRepository extends NetworkResourceRepository {
         List<VesselWatchItem> vesselWatchItems = new ArrayList<VesselWatchItem>();
 
         URL url = new URL(APIEndPoints.VESSEL_LOCATIONS + "?apiaccesscode=" + APIEndPoints.WSDOT_API_KEY);
-        Log.w(TAG, "URL: " + url.toString());
+
         URLConnection urlConn = url.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
         String jsonFile = "";
@@ -83,7 +83,9 @@ public class VesselWatchRepository extends NetworkResourceRepository {
         int ferryIcon;
 
         for (int j=0; j < items.length(); j++) {
+
             JSONObject item = items.getJSONObject(j);
+
             if (item.getString("InService").equalsIgnoreCase("false")) {
                 continue;
             }
@@ -100,29 +102,52 @@ public class VesselWatchRepository extends NetworkResourceRepository {
             String lastDock = item.getString("DepartingTerminalName");
             String arrivingTerminal = item.getString("ArrivingTerminalName");
             String leftDock = formatTime(item, "LeftDock");
-            String nextDepart = formatTime(item, "ScheduledDeparture");
+            String scheduledDeparture = formatTime(item, "ScheduledDeparture");
             String eta = formatTime(item, "Eta");
 
             if (route.length() == 0) route = "Not available";
             if (lastDock.length() == 0) lastDock = "Not available";
             if (arrivingTerminal.length() == 0) arrivingTerminal = "Not available";
 
-            vesselWatchItems.add(new VesselWatchItem(
+            VesselWatchItem vessel = new VesselWatchItem(
                     item.getDouble("Latitude"),
                     item.getDouble("Longitude"),
                     item.getString("VesselName"),
                     "<b>Route:</b> " + route
                             + "<br><b>Departing:</b> " + lastDock
                             + "<br><b>Arriving:</b> " + arrivingTerminal
-                            + "<br><b>Scheduled Departure:</b> " + nextDepart
-                            + "<br><b>Actual Departure:</b> " + leftDock
-                            + "<br><b>Estimated Arrival:</b> " + eta
+                            + "<br><b>Scheduled Departure:</b> " + scheduledDeparture
+                            + "<br><b>Actual Departure:</b> " + formatTimeForDisplay(item, "LeftDock")
+                            + "<br><b>Estimated Arrival:</b> " + formatTimeForDisplay(item, "Eta")
                             + "<br><b>Heading:</b> "	+ Integer.toString(item.getInt("Heading")) + "\u00b0 "
                             + headingToHeadtxt(item.getInt("Heading"))
                             + "<br><b>Speed:</b> " + Double.toString(item.getDouble("Speed")) + " knots"
                             + "<br><br><a href=\"http://www.wsdot.com/ferries/vesselwatch/VesselDetail.aspx?vessel_id="
                             + item.getInt("VesselID") + "\">" + item.getString("VesselName") + " Web page</a>",
-                    ferryIcon));
+                    ferryIcon);
+
+            vessel.setArrivingTerminal(arrivingTerminal);
+            vessel.setLastDock(lastDock);
+            vessel.setScheduledDeparture(scheduledDeparture);
+
+            if (!item.getString("ArrivingTerminalID").equals("null")) {
+                vessel.setArrivingTerminalId(item.getInt("ArrivingTerminalID"));
+            } else {
+                vessel.setArrivingTerminalId(-1);
+            }
+
+            if (!item.getString("DepartingTerminalID").equals("null")) {
+                vessel.setDepartedTerminalId(item.getInt("DepartingTerminalID"));
+            } else {
+                vessel.setDepartedTerminalId(-1);
+            }
+
+            vessel.setEta(eta);
+            vessel.setLeftDock(leftDock);
+
+            vesselWatchItems.add(vessel);
+
+
         }
         vessels.postValue(vesselWatchItems);
     }
@@ -138,6 +163,25 @@ public class VesselWatchRepository extends NetworkResourceRepository {
         String directions[] = {"N", "NxE", "E", "SxE", "S", "SxW", "W", "NxW", "N"};
         return directions[ (int)Math.round((  ((double)heading % 360) / 45)) ];
     }
+
+    /**
+     * Formats the time field in JSON object
+     *
+     * @param item JSONObject for ferry data
+     * @param time field name for time in item
+     * @return Formatted time string.
+     * @throws JSONException
+     * @throws NumberFormatException
+     */
+    private static String formatTimeForDisplay(JSONObject item, String time) throws NumberFormatException, JSONException{
+        DateFormat dateFormat = new SimpleDateFormat("h:mm a");
+        if (item.isNull(time)) {
+            return "--:--";
+        } else {
+            return dateFormat.format(new Date(Long.parseLong(item.getString(time).substring(6, 19))));
+        }
+    }
+
     /**
      * Formats the time field in JSON object
      *
@@ -150,7 +194,7 @@ public class VesselWatchRepository extends NetworkResourceRepository {
     private static String formatTime(JSONObject item, String time) throws NumberFormatException, JSONException{
         DateFormat dateFormat = new SimpleDateFormat("h:mm a");
         if (item.isNull(time)) {
-            return "--:--";
+            return null;
         } else {
             return dateFormat.format(new Date(Long.parseLong(item.getString(time).substring(6, 19))));
         }
