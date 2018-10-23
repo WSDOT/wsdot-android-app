@@ -4,12 +4,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [5.8.2] - 2018-10
+## [5.8.3] - 2018-10
 
 # Added
 - ETA and actual departure times to ferries schedule.
 - My location button to vessel watch.
 - milepost to cameras.
+
+# Fixes
+- Vessel Watch opens to correct location for San Juan Island routes.
 
 ## [5.8.1] - 2018-09-17
 
