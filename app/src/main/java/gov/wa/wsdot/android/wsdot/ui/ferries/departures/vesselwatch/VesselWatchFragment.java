@@ -374,8 +374,9 @@ public class VesselWatchFragment extends BaseFragment
     }
 
     private LatLng getRouteLocation(int scheduleId) {
-
         switch (scheduleId) {
+            case 272: // Ana-SJ
+                return new LatLng(48.550921, -122.840836);
             case 9: // Ana-SJ
                 return new LatLng(48.550921, -122.840836);
             case 10: // Ana-Sid
@@ -405,6 +406,8 @@ public class VesselWatchFragment extends BaseFragment
 
     private int getRouteZoom(int scheduleId){
         switch (scheduleId) {
+            case 272: // Ana-SJ
+                return 10;
             case 9: // Ana-SJ
                 return 10;
             case 10: // Ana-Sid

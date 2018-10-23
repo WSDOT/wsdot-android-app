@@ -26,7 +26,9 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/WSDOT">
+        android:theme="@style/WSDOT"
+        android:fullBackupContent="@xml/my_backup_rules">>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -36,6 +38,9 @@
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="${crashlytics_enabled}" />
+        <meta-data
+            android:name="com.google.android.gms.ads.AD_MANAGER_APP"
+            android:value="true"/>
         <!--
              Optionally, register AnalyticsReceiver and AnalyticsService to support background
           	 dispatching on non-Google Play devices
