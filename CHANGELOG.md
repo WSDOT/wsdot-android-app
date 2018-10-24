@@ -4,7 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [5.8.3] - 2018-10
+## [5.8.4] - 2018-10-24 
+
+# Fixes
+- Crash when loading map on Android 9.
+
+## [5.8.3] - 2018-10-23 
 
 # Added
 - ETA and actual departure times to ferries schedule.
