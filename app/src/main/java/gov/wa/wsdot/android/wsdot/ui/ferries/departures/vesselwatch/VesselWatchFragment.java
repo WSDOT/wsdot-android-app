@@ -150,7 +150,7 @@ public class VesselWatchFragment extends BaseFragment
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(routeLatLng, zoom));
         vesselViewModel = ViewModelProviders.of(this, viewModelFactory).get(VesselWatchViewModel.class);
 
-        vesselViewModel.getResourceStatus().observe(this, resourceStatus -> {
+        vesselViewModel.getVesselResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -196,7 +196,15 @@ public class VesselWatchFragment extends BaseFragment
             }
         });
 
+        vesselViewModel.getWeatherReports().observe(this, weatherItems -> {
+            Log.e(TAG, "got reports");
+
+
+
+        });
+
         vesselViewModel.refreshVessels();
+        vesselViewModel.refreshWeatherReports();
 
         mapCameraViewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {

@@ -31,6 +31,62 @@ public class WeatherReportEntity {
     private Double longitude;
 
     @ColumnInfo(name = "updated")
-    private long updated;
+    private String updated;
+
+    public String getSource() {
+        return this.source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public Double getTemperature() {
+        return this.temperature;
+    }
+
+    public void setTemperature(Double temperature) {
+        this.temperature = temperature;
+    }
+
+    public Double getWindSpeed() {
+        return this.windSpeed;
+    }
+
+    public void setWindSpeed(Double windSpeed) {
+        this.windSpeed = windSpeed;
+    }
+
+    public Double getWindDirection() {
+        return this.windDirection;
+    }
+
+    public void setWindDirection(Double windDirection) {
+        this.windDirection = windDirection;
+    }
+
+    public Double getLatitude() {
+        return this.latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return this.longitude;
+    }
+
+    public void setLongitude(Double longitude){
+        this.longitude = longitude;
+    }
+
+    public String getUpdated() {
+        return this.updated;
+    }
+
+    public void setUpdated(String updated){
+        this.updated = updated;
+    }
 
 }

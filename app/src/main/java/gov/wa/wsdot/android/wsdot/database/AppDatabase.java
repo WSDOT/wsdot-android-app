@@ -10,6 +10,12 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
+import com.google.firebase.messaging.RemoteMessage;
+
+import gov.wa.wsdot.android.wsdot.database.ferries.WeatherReportDao;
+import gov.wa.wsdot.android.wsdot.database.ferries.WeatherReportEntity;
+import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicDao;
+import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
@@ -55,8 +61,9 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
         TravelTimeEntity.class,
         NotificationTopicEntity.class,
         TollTripEntity.class,
-        TollRateSignEntity.class
-    }, version = 12)
+        TollRateSignEntity.class,
+        WeatherReportEntity.class
+    }, version = 13)
 
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -80,6 +87,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract TollTripDao tollTripDao();
     public abstract TollRateSignDao tollRateSignDao();
     public abstract TollRateGroupDao tollRateGroupDao();
+    public abstract WeatherReportDao weatherReportDao();
 
     private static final Object sLock = new Object();
 
@@ -98,6 +106,7 @@ public abstract class AppDatabase extends RoomDatabase {
         String NOTIFICATION_TOPIC = "notification_topic";
         String TOLL_RATE_SIGN = "toll_rate_sign";
         String TOLL_TRIP = "toll_trip";
+        String WEATHER_REPORT = "weather_report";
 
     }
 
@@ -252,6 +261,16 @@ public abstract class AppDatabase extends RoomDatabase {
         String TOLL_TRIP_END_LAT = "end_latitude";
         String TOLL_TRIP_END_LONG = "end_longitude";
         String TOLL_TRIP_UPDATED = "updated";
+    }
+
+    interface WeatherReportColumns {
+        String WEATHER_REPORT_SOURCE = "source";
+        String WEATHER_REPORT_TEMPERATURE = "temperature";
+        String WEATHER_REPORT_WIND_SPEED = "wind_speed";
+        String WEATHER_REPORT_WIND_DIRECTION = "wind_direction";
+        String WEATHER_REPORT_LAT = "latitude";
+        String WEATHER_REPORT_LONG = "longitude";
+        String WEATHER_REPORT_UPDATED = "updated";
     }
 
     @VisibleForTesting
@@ -681,6 +700,26 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    @VisibleForTesting
+    public static final Migration MIGRATION_12_13 = new Migration(12, 13) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+
+            database.execSQL("CREATE TABLE " + Tables.WEATHER_REPORT + " ("
+                    + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + WeatherReportColumns.WEATHER_REPORT_SOURCE + " TEXT NOT NULL,"
+                    + WeatherReportColumns.WEATHER_REPORT_WIND_SPEED + " INTEGER,"
+                    + WeatherReportColumns.WEATHER_REPORT_WIND_DIRECTION + " INTEGER,"
+                    + WeatherReportColumns.WEATHER_REPORT_TEMPERATURE + " INTEGER,"
+                    + WeatherReportColumns.WEATHER_REPORT_LAT + " INTEGER,"
+                    + WeatherReportColumns.WEATHER_REPORT_LONG + " INTEGER,"
+                    + WeatherReportColumns.WEATHER_REPORT_UPDATED + " TEXT);");
+
+            database.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('weather_report', 0);");
+
+        }
+    };
+
     public static AppDatabase getInstance(Context context) {
         synchronized (sLock) {
             if (INSTANCE == null) {
@@ -697,7 +736,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                 MIGRATION_8_9,
                                 MIGRATION_9_10,
                                 MIGRATION_10_11,
-                                MIGRATION_11_12)
+                                MIGRATION_11_12,
+                                MIGRATION_12_13)
                         .addCallback(new Callback() {
 
                             @Override
@@ -712,6 +752,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('border_wait', 0);");
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('notification_topic', 0);");
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('toll_trip', 0);");
+                                db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('weather_report', 0);");
 
                                 // Front load the mountain pass cameras
 
