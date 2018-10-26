@@ -4,5 +4,6 @@
         <domain includeSubdomains="true">data.wsdot.wa.gov</domain>
         <domain includeSubdomains="true">wsdot.wa.gov</domain>
         <domain includeSubdomains="true">images.wsdot.wa.gov</domain>
+        <domain includeSubdomains="true">wsdot.com</domain>
     </domain-config>
 </network-security-config>

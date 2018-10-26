@@ -228,8 +228,6 @@ public class SR167TollRatesFragment extends BaseFragment
 
             TextView travelTimeView = root.findViewById(R.id.travel_time_text);
 
-            Log.e(TAG, "got travel times");
-
             if (travelTimes.size() > 0) {
                 travelTimeView.setVisibility(View.VISIBLE);
 
@@ -237,7 +235,6 @@ public class SR167TollRatesFragment extends BaseFragment
 
                 travelTimeView.setText(getTravelTimeStringForDirection(radioGroupDirectionIndex == 0 ? "N" : "S"));
             } else {
-                Log.e(TAG, "nothing to show");
 
                 travelTimeView.setVisibility(View.GONE);
             }

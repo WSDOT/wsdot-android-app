@@ -8,8 +8,8 @@ android {
         applicationId "gov.wa.wsdot.android.wsdot"
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 14145085
-        versionName "5.8.5"
+        versionCode 14145086
+        versionName "5.8.6"
 
         javaCompileOptions {
             annotationProcessorOptions {
