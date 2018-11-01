@@ -24,6 +24,9 @@ public class WeatherReportEntity {
     @ColumnInfo(name = "wind_direction")
     private Double windDirection;
 
+    @ColumnInfo(name = "report")
+    private String report;
+
     @ColumnInfo(name = "latitude")
     private Double latitude;
 
@@ -39,6 +42,14 @@ public class WeatherReportEntity {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getReport() {
+        return this.report;
+    }
+
+    public void setReport(String report){
+        this.report = report;
     }
 
     public Double getTemperature() {

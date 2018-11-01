@@ -41,7 +41,7 @@ public class APIEndPoints {
     public static final String FERRY_SCHEDULES = "http://data.wsdot.wa.gov/mobile/WSFRouteSchedules.js.gz";
     public static final String SAILING_SPACES = "http://www.wsdot.wa.gov/ferries/api/terminals/rest/terminalsailingspace";
     public static final String VESSEL_LOCATIONS = "http://www.wsdot.wa.gov/ferries/api/vessels/rest/vessellocations";
-    public static final String WEATHER_REPORTS = "";
+    public static final String WEATHER_REPORTS = "http://data.wsdot.wa.gov/mobile/WeatherReports.js";
 
     // Passes
     public static final String PASS_CONDITIONS = "http://data.wsdot.wa.gov/mobile/MountainPassConditions.js.gz";

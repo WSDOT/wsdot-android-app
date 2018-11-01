@@ -3,9 +3,9 @@ package gov.wa.wsdot.android.wsdot.repository;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,6 +28,7 @@ import gov.wa.wsdot.android.wsdot.database.ferries.WeatherReportDao;
 import gov.wa.wsdot.android.wsdot.database.ferries.WeatherReportEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.Utils;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton
@@ -36,6 +38,7 @@ public class WeatherReportRepository extends NetworkResourceSyncRepository {
 
     private final WeatherReportDao weatherReportDao;
 
+    // Date format from weather report
     private DateFormat dateFormat = new SimpleDateFormat("yyyyMMddhhmm", Locale.US);
 
     @Inject
@@ -47,19 +50,16 @@ public class WeatherReportRepository extends NetworkResourceSyncRepository {
     public LiveData<List<WeatherReportEntity>> getReports(MutableLiveData<ResourceStatus> status){
         super.refreshData(status, false);
         return weatherReportDao.loadWeatherReports();
-
     }
 
     public LiveData<List<WeatherReportEntity>> getReportsInRange(Date startDate, Date endDate, MutableLiveData<ResourceStatus> status){
         super.refreshData(status, false);
-        return weatherReportDao.loadWeatherReportsBetween(startDate, endDate);
+        return weatherReportDao.loadWeatherReportsBetween(dateFormat.format(startDate), dateFormat.format(endDate));
 
     }
 
     @Override
     void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
-
-        DateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd-hh:mm");
 
         String weatherReportUrl =  APIEndPoints.WEATHER_REPORTS;
 
@@ -93,11 +93,10 @@ public class WeatherReportRepository extends NetworkResourceSyncRepository {
             weatherReport.setLongitude(item.getDouble("longitude"));
             weatherReport.setUpdated(item.getString("updated"));
 
-            Log.e(TAG, String.format("Updated: %s", weatherReport.getUpdated()));
-
-            Date date = dateFormat.parse(weatherReport.getUpdated());
-
-            Log.e(TAG, dateFormat2.format(date));
+            weatherReport.setReport(formatTime(weatherReport.getUpdated())
+                    + "<br><br><b>Wind Speed:</b> " + weatherReport.getWindSpeed() + " mph"
+                    + "<br><br><b>Wind Direction:</b> " + Utils.headingToHeadtxt(weatherReport.getWindDirection())
+                    + "<br><br><b>Temperature:</b> " + weatherReport.getTemperature() + "°F");
 
             reports.add(weatherReport);
         }
@@ -111,4 +110,18 @@ public class WeatherReportRepository extends NetworkResourceSyncRepository {
         getCacheRepository().setCacheTime(weatherReportsCache);
 
     }
+
+    /**
+     * Formats the time string
+     *
+     * @param time time string from data
+     * @return Formatted time string.
+     * @throws ParseException
+     */
+    private static String formatTime(String time) throws ParseException {
+        DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
+        DateFormat sourceDateFormat = new SimpleDateFormat("yyyyMMddhhmm");
+        return displayDateFormat.format(sourceDateFormat.parse(time));
+    }
+
 }

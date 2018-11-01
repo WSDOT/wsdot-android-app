@@ -24,7 +24,23 @@
             android:layout_height="match_parent"/>
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
+            android:id="@+id/wind_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_marginLeft="@dimen/fab_margin"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_marginRight="@dimen/fab_margin"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:layout_marginBottom="96dp"
+            android:scaleType="center"
+            android:tint="@color/black"
+            app:backgroundTint="?attr/colorAccent"
+            app:srcCompat="@drawable/ic_menu_wind" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/camera_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
@@ -35,5 +51,4 @@
             app:srcCompat="@drawable/ic_menu_traffic_cam" />
 
     </FrameLayout>
-
 </RelativeLayout>

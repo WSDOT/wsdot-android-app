@@ -48,6 +48,18 @@ public class Utils {
 
     }
 
+    /**
+     * Giving a heading returns a string for the
+     * cardinal direction.
+     *
+     * @param heading
+     * @return direction string
+     */
+    public static String headingToHeadtxt(Double heading){
+        String directions[] = {"N", "NxE", "E", "SxE", "S", "SxW", "W", "NxW", "N"};
+        return directions[ (int)Math.round((  (heading % 360) / 45)) ];
+    }
+
     public static Location getCenterLocation(double latitudeA, double longitudeA, double latitudeB, double longitudeB) {
 
         double dLon = Math.toRadians(longitudeB - longitudeA);

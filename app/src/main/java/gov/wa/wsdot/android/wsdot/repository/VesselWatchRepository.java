@@ -26,6 +26,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.Utils;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton
@@ -119,7 +120,7 @@ public class VesselWatchRepository extends NetworkResourceRepository {
                             + "<br><b>Actual Departure:</b> " + formatTimeForDisplay(item, "LeftDock")
                             + "<br><b>Estimated Arrival:</b> " + formatTimeForDisplay(item, "Eta")
                             + "<br><b>Heading:</b> "	+ Integer.toString(item.getInt("Heading")) + "\u00b0 "
-                            + headingToHeadtxt(item.getInt("Heading"))
+                            + Utils.headingToHeadtxt(item.getDouble("Heading"))
                             + "<br><b>Speed:</b> " + Double.toString(item.getDouble("Speed")) + " knots"
                             + "<br><br><a href=\"http://www.wsdot.com/ferries/vesselwatch/VesselDetail.aspx?vessel_id="
                             + item.getInt("VesselID") + "\">" + item.getString("VesselName") + " Web page</a>",
@@ -151,17 +152,7 @@ public class VesselWatchRepository extends NetworkResourceRepository {
         vessels.postValue(vesselWatchItems);
     }
 
-    /**
-     * Giving vessel heading returns a string for the
-     * cardinal direction.
-     *
-     * @param heading
-     * @return direction string
-     */
-    private static String headingToHeadtxt(int heading){
-        String directions[] = {"N", "NxE", "E", "SxE", "S", "SxW", "W", "NxW", "N"};
-        return directions[ (int)Math.round((  ((double)heading % 360) / 45)) ];
-    }
+
 
     /**
      * Formats the time field in JSON object

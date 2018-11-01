@@ -37,6 +37,7 @@ import java.util.TimerTask;
 import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.ferries.WeatherReportEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
@@ -60,13 +61,17 @@ public class VesselWatchFragment extends BaseFragment
 
     private List<CameraItem> cameras = new ArrayList<>();
     private List<VesselWatchItem> vessels = new ArrayList<>();
+    private List<WeatherReportEntity> weatherReport = new ArrayList<>();
 
     private HashMap<Marker, String> markers = new HashMap<>();
 
     private ProgressBar mProgressBar;
+
     FloatingActionButton fabCameras;
+    FloatingActionButton fabWind;
 
     boolean showCameras;
+    boolean showWind;
 
     private static VesselWatchViewModel vesselViewModel;
     private static MapCameraViewModel mapCameraViewModel;
@@ -85,6 +90,7 @@ public class VesselWatchFragment extends BaseFragment
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
+        showWind = settings.getBoolean("KEY_SHOW_WIND", true);
 
     }
 
@@ -94,7 +100,7 @@ public class VesselWatchFragment extends BaseFragment
 
         mProgressBar = rootView.findViewById(R.id.progress_bar);
 
-        fabCameras = rootView.findViewById(R.id.fab);
+        fabCameras = rootView.findViewById(R.id.camera_fab);
 
         if (showCameras){
             fabCameras.setImageResource(R.drawable.ic_menu_traffic_cam);
@@ -104,6 +110,19 @@ public class VesselWatchFragment extends BaseFragment
 
         fabCameras.setOnClickListener(view -> {
             toggleCameras(fabCameras);
+        });
+
+
+        fabWind = rootView.findViewById(R.id.wind_fab);
+
+        if (showWind){
+            fabWind.setImageResource(R.drawable.ic_menu_wind);
+        } else {
+            fabWind.setImageResource(R.drawable.ic_menu_wind_off);
+        }
+
+        fabWind.setOnClickListener(view -> {
+            toggleWind(fabWind);
         });
 
         mapCameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapCameraViewModel.class);
@@ -197,10 +216,37 @@ public class VesselWatchFragment extends BaseFragment
         });
 
         vesselViewModel.getWeatherReports().observe(this, weatherItems -> {
-            Log.e(TAG, "got reports");
 
+            if (weatherItems != null){
 
+                Iterator<Map.Entry<Marker, String>> iter = markers.entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<Marker, String> entry = iter.next();
+                    if (entry.getValue().equalsIgnoreCase("weather")) {
+                        entry.getKey().remove();
+                        iter.remove();
+                    }
+                }
 
+                weatherReport.clear();
+                weatherReport = weatherItems;
+
+                if (weatherReport.size() != 0) {
+                    for (int i = 0; i < weatherReport.size(); i++) {
+
+                        LatLng latLng = new LatLng(weatherReport.get(i).getLatitude(), weatherReport.get(i).getLongitude());
+                        Marker marker = mMap.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title(weatherReport.get(i).getSource())
+                                .snippet(String.valueOf(weatherReport.get(i).getReport()))
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.wind_0))
+                                .visible(true));
+
+                        markers.put(marker, "weather");
+                    }
+                }
+
+            }
         });
 
         vesselViewModel.refreshVessels();
@@ -286,6 +332,18 @@ public class VesselWatchFragment extends BaseFragment
             b.putInt("id", Integer.parseInt(marker.getSnippet()));
             intent.putExtras(b);
             this.startActivity(intent);
+        } else if (markers.get(marker).equalsIgnoreCase("weather")) {
+            // GA tracker
+            mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
+            mTracker.setScreenName("/Ferries/Vessel Watch/Weather");
+            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+            intent.setClass(getActivity(), VesselWatchDetailsActivity.class);
+            b.putString("title", marker.getTitle());
+            b.putString("description", marker.getSnippet());
+            intent.putExtras(b);
+            this.startActivity(intent);
+
         }
 
         return true;
@@ -319,6 +377,7 @@ public class VesselWatchFragment extends BaseFragment
         editor.commit();
     }
 
+
     /**
      * sets all camera marker visibility to false.
      */
@@ -340,6 +399,72 @@ public class VesselWatchFragment extends BaseFragment
             Marker key = entry.getKey();
             String value = entry.getValue();
             if (value.equalsIgnoreCase("camera")) {
+                key.setVisible(true);
+            }
+        }
+    }
+
+    /**
+     * Toggle wind  & weather icon visibility
+     *
+     * @param fab
+     */
+    private void toggleWind(FloatingActionButton fab) {
+        // GA tracker
+        mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
+
+        if (showWind) {
+
+            hideWindMarkers();
+            fab.setImageResource(R.drawable.ic_menu_wind_off);
+            showWind = false;
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Ferries")
+                    .setAction("Weather")
+                    .setLabel("Hide Wind")
+                    .build());
+        } else {
+
+            showWindMarkers();
+            fab.setImageResource(R.drawable.ic_menu_wind);
+            showWind = true;
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Ferries")
+                    .setAction("Weather")
+                    .setLabel("Show Wind")
+                    .build());
+        }
+
+        // Save camera display preference
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("KEY_SHOW_WIND", showWind);
+        editor.commit();
+    }
+
+    /**
+     * sets all camera marker visibility to false.
+     */
+    private void hideWindMarkers(){
+        for (Map.Entry<Marker, String> entry : markers.entrySet()) {
+            Marker key = entry.getKey();
+            String value = entry.getValue();
+            if (value.equalsIgnoreCase("weather")) {
+                key.setVisible(false);
+            }
+        }
+    }
+
+    /**
+     * sets all camera marker visibility to true.
+     */
+    private void showWindMarkers(){
+        for (Map.Entry<Marker, String> entry : markers.entrySet()) {
+            Marker key = entry.getKey();
+            String value = entry.getValue();
+            if (value.equalsIgnoreCase("weather")) {
                 key.setVisible(true);
             }
         }
