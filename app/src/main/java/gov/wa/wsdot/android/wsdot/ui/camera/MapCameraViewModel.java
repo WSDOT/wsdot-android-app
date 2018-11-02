@@ -28,7 +28,7 @@ public class MapCameraViewModel extends ViewModel {
     private MutableLiveData<ResourceStatus> mStatus;
 
     private MutableLiveData<LatLngBounds> mapBounds;
-    private LiveData<List<CameraItem>> displayableCameraItems;
+    private CameraItemLiveData displayableCameraItems;
     private MediatorLiveData<List<CameraItem>> displayedCameraItems;
 
     private CameraRepository cameraRepo;
@@ -42,9 +42,9 @@ public class MapCameraViewModel extends ViewModel {
     public void init(@Nullable String roadName) {
 
         if (roadName != null){
-            this.displayableCameraItems = Transformations.map(cameraRepo.getCamerasForRoad(roadName, mStatus), cameras -> transformCameras(cameras));
+            this.displayableCameraItems = new CameraItemLiveData(cameraRepo.getCamerasForRoad(roadName, mStatus));
         } else {
-            this.displayableCameraItems = Transformations.map(cameraRepo.loadCameras(mStatus), cameras -> transformCameras(cameras));
+            this.displayableCameraItems = new CameraItemLiveData(cameraRepo.loadCameras(mStatus));
         }
 
         mapBounds = new MutableLiveData<>();
@@ -61,27 +61,6 @@ public class MapCameraViewModel extends ViewModel {
                 displayedCameraItems.postValue(filterDisplayedCamerasFor(mapBounds.getValue(), alertsItems));
             }
         });
-    }
-
-    private ArrayList<CameraItem> transformCameras(List<CameraEntity> cameras){
-        ArrayList<CameraItem> displayableAlertItemValues = new ArrayList<>();
-        if (cameras != null) {
-            for (CameraEntity camera : cameras) {
-
-                int video = camera.getHasVideo();
-                int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
-
-                displayableAlertItemValues.add(new CameraItem(
-                        camera.getLatitude(),
-                        camera.getLongitude(),
-                        camera.getTitle(),
-                        camera.getUrl(),
-                        camera.getCameraId(),
-                        cameraIcon
-                ));
-            }
-        }
-        return displayableAlertItemValues;
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }

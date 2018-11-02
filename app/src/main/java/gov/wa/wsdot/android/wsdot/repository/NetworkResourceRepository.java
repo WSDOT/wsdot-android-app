@@ -31,7 +31,7 @@ public abstract class NetworkResourceRepository {
     // Checks the caches database to see if the last cache time is older than the updateInterval
     public void refreshData(MutableLiveData<ResourceStatus> status){
 
-        appExecutors.diskIO().execute(() -> {
+        appExecutors.networkIO().execute(() -> {
             status.postValue(ResourceStatus.loading());
             try {
                 fetchData(status);

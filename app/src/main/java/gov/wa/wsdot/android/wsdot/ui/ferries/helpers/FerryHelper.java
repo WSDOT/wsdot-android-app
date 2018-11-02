@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
+package gov.wa.wsdot.android.wsdot.ui.ferries.helpers;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -14,7 +14,8 @@ import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesBulletinsViewModel;
-import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalCameraViewModel;
+import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryScheduleViewModel;
+import gov.wa.wsdot.android.wsdot.ui.ferries.departures.cameras.FerryTerminalCameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerryTerminalViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchViewModel;
 import gov.wa.wsdot.android.wsdot.ui.home.FavoritesViewModel;
@@ -61,7 +62,11 @@ abstract class ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(FerrySchedulesViewModel.class)
-    abstract ViewModel bindFerryScheduelsViewModel(FerrySchedulesViewModel ferrySchedulesViewModel);
+    abstract ViewModel bindFerrySchedulesViewModel(FerrySchedulesViewModel ferrySchedulesViewModel);
+    @Binds
+    @IntoMap
+    @ViewModelKey(FerryScheduleViewModel.class)
+    abstract ViewModel bindFerryScheduleViewModel(FerryScheduleViewModel ferryScheduleViewModel);
 
     @Binds
     @IntoMap

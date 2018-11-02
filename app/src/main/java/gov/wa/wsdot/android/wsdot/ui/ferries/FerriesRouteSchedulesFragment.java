@@ -112,7 +112,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
-        viewModel.init(null);
 
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
