@@ -68,6 +68,7 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
         if (args != null) {
             mId = args.getInt("routeId", 0);
         }
+
     }
 
     @Override
@@ -81,14 +82,14 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_list_with_progress_bar, null);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mLoadingSpinner = root.findViewById(R.id.progress_bar);
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerriesBulletinsViewModel.class);

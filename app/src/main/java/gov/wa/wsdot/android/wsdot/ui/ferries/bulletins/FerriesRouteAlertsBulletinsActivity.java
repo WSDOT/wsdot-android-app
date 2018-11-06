@@ -49,6 +49,8 @@ public class FerriesRouteAlertsBulletinsActivity extends BaseActivity {
 
 		MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteAlertsBulletinsActivity " + title, 1);
 
+        enableAds(getString(R.string.ferries_ad_target));
+
 	}
 	
 	@Override

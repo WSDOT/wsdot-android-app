@@ -1,6 +1,5 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.restareas;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -22,7 +21,6 @@ import com.google.gson.Gson;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.RestAreaItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
-import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class RestAreaActivity extends BaseActivity implements
@@ -84,7 +82,7 @@ public class RestAreaActivity extends BaseActivity implements
         MyLogger.crashlyticsLog("Traffic", "Screen View", "RestAreaActivity", 1);
         disableAds();
 
-        mLoadingSpinner = findViewById(R.id.loading_spinner);
+        mLoadingSpinner = findViewById(R.id.progress_bar);
         mLoadingSpinner.setVisibility(View.VISIBLE);
     }
 

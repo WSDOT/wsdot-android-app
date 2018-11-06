@@ -62,9 +62,9 @@ public class CameraListFragment extends BaseFragment implements
         cameraIds = args.getIntArray("cameraIds");
         cameraUrls = args.getStringArray("cameraUrls");
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_progress_bar, null);
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -80,7 +80,7 @@ public class CameraListFragment extends BaseFragment implements
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mLoadingSpinner = root.findViewById(R.id.progress_bar);
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
         return root;

@@ -89,7 +89,7 @@ public class CameraVideoFragment extends Fragment implements
         mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = (ProgressBar) mRootView.findViewById(R.id.loading_spinner);		
+        mLoadingSpinner = (ProgressBar) mRootView.findViewById(R.id.progress_bar);
         mVideoView = (VideoView) mRootView.findViewById(R.id.surface_view);
         
 		return mRootView;

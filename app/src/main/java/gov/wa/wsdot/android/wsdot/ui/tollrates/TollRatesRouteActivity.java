@@ -17,12 +17,10 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
-import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.Utils;
 
 public class TollRatesRouteActivity extends BaseActivity implements
@@ -69,7 +67,7 @@ public class TollRatesRouteActivity extends BaseActivity implements
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        mLoadingSpinner = findViewById(R.id.loading_spinner);
+        mLoadingSpinner = findViewById(R.id.progress_bar);
         mLoadingSpinner.setVisibility(View.VISIBLE);
 
         webview = findViewById(R.id.webview);

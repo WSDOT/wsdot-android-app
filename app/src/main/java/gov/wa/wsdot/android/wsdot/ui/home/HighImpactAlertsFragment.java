@@ -28,7 +28,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +49,6 @@ import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertViewModel;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.sort.SortHighwayAlertEntitiesByDate;
-import gov.wa.wsdot.android.wsdot.util.sort.SortHighwayAlertItemsByDate;
 
 public class HighImpactAlertsFragment extends BaseFragment implements
         Injectable {
@@ -146,7 +144,7 @@ public class HighImpactAlertsFragment extends BaseFragment implements
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_high_impact_alerts, container);
-        mLoadingSpinner = mRootView.findViewById(R.id.loading_spinner);
+        mLoadingSpinner = mRootView.findViewById(R.id.progress_bar);
         mPager = mRootView.findViewById(R.id.pager);
         mIndicator = mRootView.findViewById(R.id.indicator);
 
