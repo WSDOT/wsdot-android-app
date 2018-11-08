@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.alert.map;
+package gov.wa.wsdot.android.wsdot.shared.livedata;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
@@ -147,6 +147,4 @@ public class HighwayAlertsItemLiveData extends LiveData<List<HighwayAlertsItem>>
 
         return defaultAlertImage;
     }
-
-
 }

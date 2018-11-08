@@ -3,27 +3,19 @@ package gov.wa.wsdot.android.wsdot.ui.alert.map;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.repository.HighwayAlertRepository;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
+import gov.wa.wsdot.android.wsdot.shared.livedata.HighwayAlertsItemLiveData;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 public class MapHighwayAlertViewModel extends ViewModel {

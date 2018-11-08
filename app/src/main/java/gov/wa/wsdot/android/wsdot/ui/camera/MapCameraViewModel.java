@@ -3,7 +3,6 @@ package gov.wa.wsdot.android.wsdot.ui.camera;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.Nullable;
 
@@ -15,10 +14,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.repository.CameraRepository;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
+import gov.wa.wsdot.android.wsdot.shared.livedata.CameraItemLiveData;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 public class MapCameraViewModel extends ViewModel {

@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.repository.FerryScheduleRepository;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
+import gov.wa.wsdot.android.wsdot.shared.livedata.FerriesScheduleDateItemLiveData;
 import gov.wa.wsdot.android.wsdot.util.AbsentLiveData;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;

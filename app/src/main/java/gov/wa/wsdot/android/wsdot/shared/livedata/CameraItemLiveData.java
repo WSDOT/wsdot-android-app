@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.camera;
+package gov.wa.wsdot.android.wsdot.shared.livedata;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
