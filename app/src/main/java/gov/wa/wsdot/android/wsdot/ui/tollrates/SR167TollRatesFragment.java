@@ -117,10 +117,6 @@ public class SR167TollRatesFragment extends BaseFragment
 
 		mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
-		mRecyclerView.setPadding(0,0,0,120);
-
-		addDisclaimerView(root);
-
 		directionRadioGroup = root.findViewById(R.id.segment_control);
 
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -313,22 +309,6 @@ public class SR167TollRatesFragment extends BaseFragment
             handler.post(runnable);
         }
     }
-
-	/**
-	 * Adds a toll rate accuracy disclaimer to the bottom of the view
-	 * @param root
-	 */
-	private void addDisclaimerView(ViewGroup root) {
-		FrameLayout frame = root.findViewById(R.id.list_container);
-		TextView textView = new TextView(getContext());
-		textView.setBackgroundColor(getResources().getColor(R.color.alerts));
-		textView.setText("Estimated toll rates provided as a courtesy. You’ll always pay the toll you see on actual road signs when you enter.");
-		textView.setPadding(15, 20, 15, 15);
-		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-		params.gravity = Gravity.BOTTOM;
-		textView.setLayoutParams(params);
-		frame.addView(textView);
-	}
 
 	/**
 	 * Custom adapter for items in recycler view.

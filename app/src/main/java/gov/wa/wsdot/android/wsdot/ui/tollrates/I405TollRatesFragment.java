@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -121,10 +122,6 @@ public class I405TollRatesFragment extends BaseFragment
         mRecyclerView.setAdapter(mAdapter);
 
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
-
-        mRecyclerView.setPadding(0,0,0,120);
-
-        addDisclaimerView(root);
 
         directionRadioGroup = root.findViewById(R.id.segment_control);
 
@@ -333,22 +330,6 @@ public class I405TollRatesFragment extends BaseFragment
         public void run() {
             handler.post(runnable);
         }
-    }
-
-    /**
-     * Adds a toll rate accuracy disclaimer to the bottom of the view
-     * @param root
-     */
-    private void addDisclaimerView(ViewGroup root) {
-        FrameLayout frame = root.findViewById(R.id.list_container);
-        TextView textView = new TextView(getContext());
-        textView.setBackgroundColor(getResources().getColor(R.color.alerts));
-        textView.setText("Estimated toll rates provided as a courtesy. You’ll always pay the toll you see on actual road signs when you enter.");
-        textView.setPadding(15, 20, 15, 15);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        params.gravity = Gravity.BOTTOM;
-        textView.setLayoutParams(params);
-        frame.addView(textView);
     }
 
     /**
