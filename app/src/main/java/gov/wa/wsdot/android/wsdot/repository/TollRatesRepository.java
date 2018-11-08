@@ -31,7 +31,6 @@ import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripDao;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.AppExecutors;
-import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton

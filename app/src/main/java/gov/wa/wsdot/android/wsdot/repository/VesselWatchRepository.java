@@ -2,7 +2,6 @@ package gov.wa.wsdot.android.wsdot.repository;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.MutableLiveData;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;

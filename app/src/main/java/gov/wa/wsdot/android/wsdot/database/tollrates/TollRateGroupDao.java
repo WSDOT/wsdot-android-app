@@ -3,7 +3,6 @@ package gov.wa.wsdot.android.wsdot.database.tollrates;
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Query;
-import android.arch.persistence.room.Relation;
 
 import java.util.List;
 

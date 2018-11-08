@@ -7,7 +7,6 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import gov.wa.wsdot.android.wsdot.database.AppDatabase;
-import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraDao;
@@ -16,6 +15,7 @@ import gov.wa.wsdot.android.wsdot.database.ferries.FerryTerminalSailingSpacesDao
 import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertDao;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassDao;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
+import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicDao;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroupDao;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignDao;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripDao;

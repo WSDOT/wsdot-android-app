@@ -10,10 +10,6 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
-import com.google.firebase.messaging.RemoteMessage;
-
-import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicDao;
-import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
@@ -30,6 +26,8 @@ import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassDao;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
+import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicDao;
+import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroupDao;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignDao;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignEntity;

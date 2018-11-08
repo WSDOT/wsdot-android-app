@@ -1,6 +1,7 @@
 package gov.wa.wsdot.android.wsdot.util.sort;
 
 import java.util.Comparator;
+
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 
 /**

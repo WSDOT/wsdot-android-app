@@ -8,11 +8,11 @@ import gov.wa.wsdot.android.wsdot.ui.amtrakcascades.AmtrakCascadesSchedulesDetai
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitNorthboundFragment;
 import gov.wa.wsdot.android.wsdot.ui.borderwait.BorderWaitSouthboundFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraImageFragment;
+import gov.wa.wsdot.android.wsdot.ui.ferries.FerriesRouteSchedulesFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinsFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.cameras.FerriesTerminalCameraFragment;
-import gov.wa.wsdot.android.wsdot.ui.ferries.FerriesRouteSchedulesFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.DashboardFragment;
 import gov.wa.wsdot.android.wsdot.ui.home.FavoritesFragment;

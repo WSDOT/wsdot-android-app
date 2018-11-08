@@ -3,7 +3,6 @@ package gov.wa.wsdot.android.wsdot.ui.tollrates;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,6 @@ import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
-import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.repository.TollRatesRepository;
 import gov.wa.wsdot.android.wsdot.repository.TravelTimeRepository;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
