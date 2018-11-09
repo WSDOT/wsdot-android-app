@@ -1,15 +1,18 @@
-package gov.wa.wsdot.android.wsdot.util;
-
+package gov.wa.wsdot.android.wsdot.util.threading;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.renderscript.RenderScript;
 import android.support.annotation.NonNull;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import io.fabric.sdk.android.services.concurrency.Priority;
 
 /**
  * Global executor pools for the whole application.
@@ -37,8 +40,9 @@ public class AppExecutors {
 
     @Inject
     public AppExecutors() {
-        this(Executors.newSingleThreadExecutor(), Executors.newFixedThreadPool(3),
-                Executors.newSingleThreadExecutor(),
+        this(Executors.newSingleThreadExecutor(new MyBackgroundThreadFactory()),
+                Executors.newSingleThreadExecutor(new MyBackgroundThreadFactory()),
+                Executors.newSingleThreadExecutor(new MyBackgroundThreadFactory()),
                 new MainThreadExecutor());
     }
 

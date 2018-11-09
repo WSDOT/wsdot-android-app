@@ -24,7 +24,7 @@ import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryTerminalSailingSpacesDao;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryTerminalSailingSpacesEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton

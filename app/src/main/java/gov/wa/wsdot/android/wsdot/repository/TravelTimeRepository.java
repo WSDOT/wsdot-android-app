@@ -25,7 +25,7 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroupDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton
