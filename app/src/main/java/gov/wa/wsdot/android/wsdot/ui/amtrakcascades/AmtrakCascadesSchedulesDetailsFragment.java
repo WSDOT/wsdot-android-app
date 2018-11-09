@@ -439,13 +439,15 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
                 if (trainMessage == null) {
                     itemHolder.trainName.setText(item.getLocation().get(0).get(fromLocation).getTrainName());
+                } else if (trainMessage.equals("")) {
+                    itemHolder.trainName.setText(item.getLocation().get(0).get(fromLocation).getTrainName());
                 } else {
-                    itemHolder.trainName.setText(item.getLocation()
-                            .get(0).get(fromLocation).getTrainName()
-                            + " - "
-                            + item.getLocation().get(0)
-                            .get(fromLocation)
-                            .getTrainMessage());
+                        itemHolder.trainName.setText(item.getLocation()
+                                .get(0).get(fromLocation).getTrainName()
+                                + " - "
+                                + item.getLocation().get(0)
+                                .get(fromLocation)
+                                .getTrainMessage());
                 }
 
                 contentDescriptionBuilder.append("Via the ");
