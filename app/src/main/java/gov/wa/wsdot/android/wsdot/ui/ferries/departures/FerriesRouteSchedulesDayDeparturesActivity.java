@@ -47,7 +47,6 @@ import android.widget.ArrayAdapter;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 
@@ -65,8 +64,10 @@ import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
-import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
+import gov.wa.wsdot.android.wsdot.ui.ferries.departures.cameras.FerriesTerminalCameraFragment;
+import gov.wa.wsdot.android.wsdot.ui.ferries.departures.cameras.FerryTerminalCameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchFragment;
+import gov.wa.wsdot.android.wsdot.ui.ferries.helpers.FerryHelper;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
@@ -103,7 +104,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     private static FerriesTerminalItem mTerminalItem = new FerriesTerminalItem();
 
     private static ArrayList<FerriesScheduleDateItem> mScheduleDateItems;
-    private static FerrySchedulesViewModel scheduleViewModel;
+    private static FerryScheduleViewModel scheduleViewModel;
     private static FerryTerminalViewModel terminalViewModel;
     private static FerryTerminalCameraViewModel terminalCameraViewModel;
 
@@ -246,7 +247,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 
         terminalCameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(FerryTerminalCameraViewModel.class);
 
-        scheduleViewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
+        scheduleViewModel = ViewModelProviders.of(this, viewModelFactory).get(FerryScheduleViewModel.class);
         scheduleViewModel.init(mScheduleId);
 
         scheduleViewModel.getResourceStatus().observe(this, resourceStatus -> {

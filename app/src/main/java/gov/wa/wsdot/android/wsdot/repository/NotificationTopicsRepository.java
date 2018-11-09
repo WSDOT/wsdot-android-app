@@ -3,9 +3,6 @@ package gov.wa.wsdot.android.wsdot.repository;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.text.format.DateUtils;
-import android.util.Log;
-
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,11 +17,11 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicDao;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
-import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton

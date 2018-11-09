@@ -64,7 +64,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 
     private static final String TAG = FerriesRouteSchedulesFragment.class.getSimpleName();
 	private static RouteSchedulesAdapter mAdapter;
-	private View mEmptyView;
+	private TextView mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
 
     protected RecyclerView mRecyclerView;
@@ -112,7 +112,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
-        viewModel.init(null);
 
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -128,9 +127,11 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
                         break;
                     case ERROR:
                         swipeRefreshLayout.setRefreshing(false);
-                        if (mAdapter.getItemCount() > 0){
-                            mEmptyView.setVisibility(View.GONE);
-                        }
+
+                        mEmptyView.setVisibility(View.VISIBLE);
+                        mRecyclerView.setVisibility(View.GONE);
+                        mEmptyView.setText("There was a problem loading the schedule");
+
                         Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -140,6 +141,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
             mSchedule = schedules;
             mAdapter.notifyDataSetChanged();
         });
+
         return root;
 	}
 

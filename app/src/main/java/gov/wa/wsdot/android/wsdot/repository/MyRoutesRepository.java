@@ -26,7 +26,7 @@ import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.Utils;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;

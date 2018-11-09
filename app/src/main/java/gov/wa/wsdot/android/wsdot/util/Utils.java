@@ -2,7 +2,6 @@ package gov.wa.wsdot.android.wsdot.util;
 
 import android.content.SharedPreferences;
 import android.location.Location;
-import android.util.Log;
 import android.util.SparseArray;
 
 import org.json.JSONArray;

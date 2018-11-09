@@ -51,9 +51,13 @@ public class FerriesRouteSchedulesActivity extends BaseActivity {
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
 
+	}
+
+	@Override
+	protected void onResume(){
+        super.onResume();
 		MyLogger.crashlyticsLog("Ferries", "Screen View", "FerriesRouteSchedulesActivity", 1);
 		enableAds(getString(R.string.ferries_ad_target));
-
 	}
 
 	@Override

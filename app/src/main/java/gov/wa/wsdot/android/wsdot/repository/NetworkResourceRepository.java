@@ -3,7 +3,7 @@ package gov.wa.wsdot.android.wsdot.repository;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 /**
@@ -31,7 +31,7 @@ public abstract class NetworkResourceRepository {
     // Checks the caches database to see if the last cache time is older than the updateInterval
     public void refreshData(MutableLiveData<ResourceStatus> status){
 
-        appExecutors.diskIO().execute(() -> {
+        appExecutors.networkIO().execute(() -> {
             status.postValue(ResourceStatus.loading());
             try {
                 fetchData(status);

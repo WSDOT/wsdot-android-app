@@ -80,7 +80,7 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_spinner, null);
+		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_progress_bar, null);
 
         mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -98,7 +98,7 @@ public class MountainPassItemCameraFragment extends BaseFragment implements
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mLoadingSpinner = root.findViewById(R.id.progress_bar);
         mEmptyView = root.findViewById( R.id.empty_list_view );
 
         camerasArray = "[]";

@@ -50,7 +50,6 @@ import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.ferries.FerrySchedulesViewModel;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
@@ -74,7 +73,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
     private static FerryTerminalViewModel terminalViewModel;
 
     // get the schedules view model so we can refresh the whole schedule
-    private static FerrySchedulesViewModel schedulesViewModel;
+    private static FerryScheduleViewModel scheduleViewModel;
 
     // private static FerriesTerminalItem mTerminalItem;
     private static ArrayList<FerriesAnnotationsItem> annotations;
@@ -116,7 +115,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
-        schedulesViewModel = ViewModelProviders.of(getActivity()).get(FerrySchedulesViewModel.class);
+        scheduleViewModel = ViewModelProviders.of(getActivity()).get(FerryScheduleViewModel.class);
 
         terminalViewModel = ViewModelProviders.of(getActivity()).get(FerryTerminalViewModel.class);
 
@@ -404,7 +403,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
     public void onRefresh() {
 		swipeRefreshLayout.setRefreshing(true);
-		schedulesViewModel.forceRefreshFerrySchedules();
+		scheduleViewModel.forceRefreshFerrySchedules();
         terminalViewModel.forceRefreshTerminalSpacesAndVessel();
     }
 

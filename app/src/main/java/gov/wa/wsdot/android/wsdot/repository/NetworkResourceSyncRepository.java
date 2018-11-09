@@ -4,7 +4,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 /**
@@ -41,7 +41,9 @@ public abstract class NetworkResourceSyncRepository {
     // Checks the caches database to see if the last cache time is older than the updateInterval
     public void refreshData(MutableLiveData<ResourceStatus> status, Boolean forceRefresh){
         status.setValue(ResourceStatus.loading());
-        appExecutors.diskIO().execute(() -> {
+
+        appExecutors.networkIO().execute(() -> {
+
             CacheEntity cache = cacheRepository.getCacheTimeFor(this.tableName);
             long now = System.currentTimeMillis();
             Boolean shouldUpdate = (Math.abs(now - cache.getLastUpdated()) > updateInterval);
@@ -51,7 +53,6 @@ public abstract class NetworkResourceSyncRepository {
                     fetchData(status);
                     status.postValue(ResourceStatus.success());
                 } catch (Exception e) {
-                    Log.e(TAG, e.toString());
                     status.postValue(ResourceStatus.error("network error"));
                 }
             } else{

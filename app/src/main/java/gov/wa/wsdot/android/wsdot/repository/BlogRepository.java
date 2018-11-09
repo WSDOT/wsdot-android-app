@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 
 import gov.wa.wsdot.android.wsdot.shared.BlogItem;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 

@@ -12,12 +12,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 
 import javax.inject.Inject;
@@ -27,7 +23,7 @@ import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleDao;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton

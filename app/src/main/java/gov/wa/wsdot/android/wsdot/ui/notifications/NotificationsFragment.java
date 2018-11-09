@@ -1,6 +1,5 @@
 package gov.wa.wsdot.android.wsdot.ui.notifications;
 
-import android.app.Application;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -34,7 +33,6 @@ import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
-import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class NotificationsFragment extends BaseFragment implements Injectable {
 
@@ -72,7 +70,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+        mLoadingSpinner = root.findViewById(R.id.progress_bar);
 
         mEmptyView = root.findViewById( R.id.empty_list_view );
         mEmptyView.setVisibility(View.GONE);

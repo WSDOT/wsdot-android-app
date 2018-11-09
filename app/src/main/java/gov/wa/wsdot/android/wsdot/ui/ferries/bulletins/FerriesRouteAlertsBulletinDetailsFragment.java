@@ -84,7 +84,7 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
 			Bundle savedInstanceState) {
 
 		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_webview_with_spinner, null);
-		mLoadingSpinner = root.findViewById(R.id.loading_spinner);
+		mLoadingSpinner = root.findViewById(R.id.progress_bar);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = root.findViewById(R.id.webview);
 		webview.setWebViewClient(new myWebViewClient());

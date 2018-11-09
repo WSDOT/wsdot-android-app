@@ -7,7 +7,7 @@
     android:baselineAligned="false"
     android:background="@color/alerts">
     
-    <ProgressBar android:id="@+id/loading_spinner"
+    <ProgressBar android:id="@+id/progress_bar"
 	    android:indeterminate="true"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"

@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.repository.TravelTimeRepository;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;

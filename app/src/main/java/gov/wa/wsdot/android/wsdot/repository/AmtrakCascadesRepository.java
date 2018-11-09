@@ -1,7 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
 import android.arch.lifecycle.MutableLiveData;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,7 +23,7 @@ import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesScheduleFeed;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesScheduleItem;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesServiceItem;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton

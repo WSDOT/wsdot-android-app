@@ -69,7 +69,7 @@ public class AboutActivity extends BaseActivity {
 
 		disableAds();
 		
-		mLoadingSpinner = findViewById(R.id.loading_spinner);
+		mLoadingSpinner = findViewById(R.id.progress_bar);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = (WebView)findViewById(R.id.webview);
         webview.setVisibility(View.GONE);

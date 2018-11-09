@@ -108,7 +108,7 @@ public class HighwayAlertDetailsActivity extends BaseActivity implements
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
-                        mLoadingSpinner = findViewById(R.id.loading_spinner);
+                        mLoadingSpinner = findViewById(R.id.progress_bar);
                         mLoadingSpinner.setVisibility(View.VISIBLE);
                         break;
                     case SUCCESS:

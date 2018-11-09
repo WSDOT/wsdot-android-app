@@ -1,18 +1,15 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute.newroute;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -33,7 +30,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;

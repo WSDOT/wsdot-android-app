@@ -46,9 +46,8 @@ public class DashboardFragment extends BaseFragment implements Injectable {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        MyLogger.crashlyticsLog("Home", "Screen View", "DashboardFragment", 1);
-
         View root = inflater.inflate(R.layout.fragment_dashboard, null);
+
         root.findViewById(R.id.home_btn_traffic).setOnClickListener(view -> startActivity(new Intent(getActivity(), TrafficMapActivity.class)));
         root.findViewById(R.id.home_btn_ferries).setOnClickListener(view -> startActivity(new Intent(getActivity(), FerriesRouteSchedulesActivity.class)));
         root.findViewById(R.id.home_btn_passes).setOnClickListener(view -> startActivity(new Intent(getActivity(), MountainPassesActivity.class)));
@@ -73,5 +72,11 @@ public class DashboardFragment extends BaseFragment implements Injectable {
         }
 
         return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MyLogger.crashlyticsLog("Home", "Screen View", "DashboardFragment", 1);
     }
 }

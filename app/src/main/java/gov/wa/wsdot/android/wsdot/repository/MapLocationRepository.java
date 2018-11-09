@@ -9,7 +9,7 @@ import javax.inject.Singleton;
 
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationDao;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 
 @Singleton
 public class MapLocationRepository {

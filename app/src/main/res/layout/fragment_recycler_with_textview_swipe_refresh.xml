@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
         android:id="@+id/title"
@@ -13,37 +13,54 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="7dp"
         android:layout_marginBottom="7dp"
-        android:gravity="center"
-        />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/swipe_container"
+        android:gravity="center" />
 
-    <FrameLayout
-        android:id="@+id/frameLayout"
+    <android.support.v4.widget.SwipeRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipe_container"
+        app:layout_constraintTop_toBottomOf="@id/title"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/my_recycler_view"
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_top"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/title"
-        android:layout_above="@+id/publisherAdView">
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.25" />
 
-        <android.support.v4.widget.SwipeRefreshLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/swipe_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <android.support.constraint.Guideline
+        android:id="@+id/guidelineV_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.25" />
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/my_recycler_view"
-                android:layout_height="match_parent"
-                android:layout_width="wrap_content"/>
+    <android.support.constraint.Guideline
+        android:id="@+id/guidelineV_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.75" />
 
-        </android.support.v4.widget.SwipeRefreshLayout>
+    <TextView
+        android:id="@+id/empty_list_view"
+        android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/black"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintDimensionRatio="H,1:1"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineV_right"
+        app:layout_constraintStart_toEndOf="@+id/guidelineV_left"
+        app:layout_constraintTop_toTopOf="@+id/guideline_top" />
 
-        <TextView
-            android:id="@+id/empty_list_view"
-            android:textSize="@dimen/text_size_medium"
-            android:textColor="@color/black"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
-
-    </FrameLayout>
-
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

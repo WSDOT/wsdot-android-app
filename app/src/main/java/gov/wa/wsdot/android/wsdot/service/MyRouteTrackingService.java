@@ -3,12 +3,10 @@ package gov.wa.wsdot.android.wsdot.service;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
@@ -21,12 +19,10 @@ import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 

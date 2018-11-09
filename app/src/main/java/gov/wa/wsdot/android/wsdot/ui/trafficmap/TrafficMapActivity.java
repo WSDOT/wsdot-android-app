@@ -20,11 +20,9 @@ package gov.wa.wsdot.android.wsdot.ui.trafficmap;
 
 import android.Manifest;
 import android.animation.Animator;
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -44,7 +42,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -66,7 +63,6 @@ import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,7 +78,6 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
@@ -102,8 +97,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.maps.android.clustering.Cluster;
@@ -182,7 +175,6 @@ public class TrafficMapActivity extends BaseActivity implements
     private List<RestAreaItem> restAreas = new ArrayList<>();
     private HashMap<Marker, String> markers = new HashMap<>();
 
-
     boolean clusterCameras;
     boolean showCameras;
     boolean showAlerts;
@@ -204,8 +196,6 @@ public class TrafficMapActivity extends BaseActivity implements
     LinearLayout fabLayoutClusters;
     LinearLayout fabLayoutAlerts;
     LinearLayout fabLayoutRestareas;
-
-    private ProgressBar mProgressBar;
 
     boolean isFABOpen = false;
 
@@ -250,8 +240,6 @@ public class TrafficMapActivity extends BaseActivity implements
         setContentView(R.layout.map);
 
         enableAds(getString(R.string.traffic_ad_target));
-
-        mProgressBar = findViewById(R.id.progress_bar);
 
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -433,8 +421,14 @@ public class TrafficMapActivity extends BaseActivity implements
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
+                        if (mToolbar.getMenu().size() > menu_item_refresh) {
+                            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() == null) {
+                                startRefreshAnimation(mToolbar.getMenu().getItem(menu_item_refresh));
+                            }
+                        }
                         break;
                     case SUCCESS:
+
                         if (mToolbar.getMenu().size() > menu_item_refresh) {
                             if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
                                 mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
@@ -456,6 +450,7 @@ public class TrafficMapActivity extends BaseActivity implements
                     iter.remove();
                 }
             }
+
             alerts.clear();
             alerts = alertItems;
 
@@ -482,8 +477,15 @@ public class TrafficMapActivity extends BaseActivity implements
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
+                        if (mToolbar.getMenu().size() > menu_item_refresh) {
+                            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() == null) {
+                                startRefreshAnimation(mToolbar.getMenu().getItem(menu_item_refresh));
+                            }
+                        }
+
                         break;
                     case SUCCESS:
+
                         if (mToolbar.getMenu().size() > menu_item_refresh) {
                             if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
                                 mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
@@ -491,6 +493,7 @@ public class TrafficMapActivity extends BaseActivity implements
                         }
                         break;
                     case ERROR:
+
                         Toast.makeText(this, "connection error, failed to load cameras", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -966,6 +969,15 @@ public class TrafficMapActivity extends BaseActivity implements
 
     private void refreshOverlays(final MenuItem item) {
 
+        startRefreshAnimation(item);
+
+        if (mMap != null) {
+            mapCameraViewModel.refreshCameras();
+            mapHighwayAlertViewModel.refreshAlerts();
+        }
+    }
+
+    private void startRefreshAnimation(MenuItem item){
         // define the animation for rotation
         Animation animation = new RotateAnimation(360.0f, 0.0f,
                 Animation.RELATIVE_TO_SELF, 0.5f,
@@ -993,11 +1005,6 @@ public class TrafficMapActivity extends BaseActivity implements
         imageView.setPadding(31, imageView.getPaddingTop(), 32, imageView.getPaddingBottom());
         imageView.startAnimation(animation);
         item.setActionView(imageView);
-
-        if (mMap != null) {
-            mapCameraViewModel.refreshCameras();
-            mapHighwayAlertViewModel.refreshAlerts();
-        }
     }
 
     /*

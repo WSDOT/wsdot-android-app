@@ -61,7 +61,7 @@ public class VesselWatchDetailsActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-		mLoadingSpinner = findViewById(R.id.loading_spinner);
+		mLoadingSpinner = findViewById(R.id.progress_bar);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
 		webview = findViewById(R.id.webview);
 		webview.setWebViewClient(new myWebViewClient());

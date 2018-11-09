@@ -3,19 +3,16 @@ package gov.wa.wsdot.android.wsdot.repository;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,7 +25,7 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroupDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
-import gov.wa.wsdot.android.wsdot.util.AppExecutors;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 @Singleton
