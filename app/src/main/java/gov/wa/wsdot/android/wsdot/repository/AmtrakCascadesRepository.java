@@ -1,6 +1,7 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
 import android.arch.lifecycle.MutableLiveData;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -224,7 +225,7 @@ public class AmtrakCascadesRepository extends NetworkResourceRepository {
                         + "&FromLocation=" + fromLocation
                         + "&ToLocation=N/A"
         );
-
+        
         URLConnection urlConn = url.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
         String jsonFile = "";
@@ -272,7 +273,7 @@ public class AmtrakCascadesRepository extends NetworkResourceRepository {
 
             scheduleItem.setStationName(scheduleFeed[i].getStationName());
 
-            if (scheduleFeed[i].getTrainMessage() != "") {
+            if (scheduleFeed[i].getTrainMessage() != null) {
                 scheduleItem.setTrainMessage(scheduleFeed[i].getTrainMessage());
             }
 
