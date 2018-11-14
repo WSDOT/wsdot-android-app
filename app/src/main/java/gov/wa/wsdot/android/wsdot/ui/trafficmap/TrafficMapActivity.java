@@ -31,6 +31,7 @@ import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -63,6 +64,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -181,6 +183,8 @@ public class TrafficMapActivity extends BaseActivity implements
     boolean showCallouts;
     boolean showRestAreas;
 
+    ProgressBar mProgressBar;
+
     FloatingActionButton fabLayers;
     FloatingActionButton fabCameras;
     FloatingActionButton fabClusters;
@@ -243,6 +247,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -310,6 +315,8 @@ public class TrafficMapActivity extends BaseActivity implements
 
         mapCameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapCameraViewModel.class);
         mapCameraViewModel.init(null);
+
+        mProgressBar = findViewById(R.id.data_progress_bar);
 
         setUpFabMenu();
 
@@ -421,14 +428,10 @@ public class TrafficMapActivity extends BaseActivity implements
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
-                        if (mToolbar.getMenu().size() > menu_item_refresh) {
-                            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() == null) {
-                                startRefreshAnimation(mToolbar.getMenu().getItem(menu_item_refresh));
-                            }
-                        }
+                        mProgressBar.setVisibility(View.VISIBLE);
                         break;
                     case SUCCESS:
-
+                        mProgressBar.setVisibility(View.GONE);
                         if (mToolbar.getMenu().size() > menu_item_refresh) {
                             if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
                                 mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
@@ -436,6 +439,7 @@ public class TrafficMapActivity extends BaseActivity implements
                         }
                         break;
                     case ERROR:
+                        mProgressBar.setVisibility(View.GONE);
                         Toast.makeText(this, "connection error, failed to load alerts", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -477,15 +481,10 @@ public class TrafficMapActivity extends BaseActivity implements
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
-                        if (mToolbar.getMenu().size() > menu_item_refresh) {
-                            if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() == null) {
-                                startRefreshAnimation(mToolbar.getMenu().getItem(menu_item_refresh));
-                            }
-                        }
-
+                        mProgressBar.setVisibility(View.VISIBLE);
                         break;
                     case SUCCESS:
-
+                        //mProgressBar.setVisibility(View.GONE);
                         if (mToolbar.getMenu().size() > menu_item_refresh) {
                             if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
                                 mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
@@ -493,7 +492,7 @@ public class TrafficMapActivity extends BaseActivity implements
                         }
                         break;
                     case ERROR:
-
+                       // mProgressBar.setVisibility(View.GONE);
                         Toast.makeText(this, "connection error, failed to load cameras", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -968,44 +967,12 @@ public class TrafficMapActivity extends BaseActivity implements
     }
 
     private void refreshOverlays(final MenuItem item) {
-
-        startRefreshAnimation(item);
-
         if (mMap != null) {
             mapCameraViewModel.refreshCameras();
             mapHighwayAlertViewModel.refreshAlerts();
         }
     }
 
-    private void startRefreshAnimation(MenuItem item){
-        // define the animation for rotation
-        Animation animation = new RotateAnimation(360.0f, 0.0f,
-                Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f);
-        animation.setDuration(1000);
-        animation.setRepeatCount(Animation.INFINITE);
-
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                mToolbar.getMenu().getItem(menu_item_refresh).setActionView(null);
-                mToolbar.getMenu().getItem(menu_item_refresh).setIcon(R.drawable.ic_menu_refresh);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
-        ImageView imageView = new ImageView(this, null, android.R.style.Widget_Material_ActionButton);
-        imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_menu_refresh));
-        imageView.setPadding(31, imageView.getPaddingTop(), 32, imageView.getPaddingBottom());
-        imageView.startAnimation(animation);
-        item.setActionView(imageView);
-    }
 
     /*
      *  Adds or removes cameras from the cluster manager.
