@@ -422,13 +422,14 @@ public class TrafficMapActivity extends BaseActivity implements
             mClusterManager.onCameraIdle();
         });
 
+        mProgressBar.setVisibility(View.VISIBLE);
+
         mapHighwayAlertViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapHighwayAlertViewModel.class);
 
         mapHighwayAlertViewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
-                        mProgressBar.setVisibility(View.VISIBLE);
                         break;
                     case SUCCESS:
                         mProgressBar.setVisibility(View.GONE);
@@ -444,6 +445,8 @@ public class TrafficMapActivity extends BaseActivity implements
                 }
             }
         });
+
+        mapHighwayAlertViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
 
         mapHighwayAlertViewModel.getDisplayAlerts().observe(this, alertItems -> {
             Iterator<Entry<Marker, String>> iter = markers.entrySet().iterator();
@@ -475,8 +478,6 @@ public class TrafficMapActivity extends BaseActivity implements
             }
         });
 
-        mapHighwayAlertViewModel.setMapBounds(mMap.getProjection().getVisibleRegion().latLngBounds);
-
         mapCameraViewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
@@ -484,7 +485,7 @@ public class TrafficMapActivity extends BaseActivity implements
                         mProgressBar.setVisibility(View.VISIBLE);
                         break;
                     case SUCCESS:
-                        //mProgressBar.setVisibility(View.GONE);
+                        mProgressBar.setVisibility(View.GONE);
                         if (mToolbar.getMenu().size() > menu_item_refresh) {
                             if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
                                 mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
@@ -492,7 +493,7 @@ public class TrafficMapActivity extends BaseActivity implements
                         }
                         break;
                     case ERROR:
-                       // mProgressBar.setVisibility(View.GONE);
+                        mProgressBar.setVisibility(View.GONE);
                         Toast.makeText(this, "connection error, failed to load cameras", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -604,7 +605,6 @@ public class TrafficMapActivity extends BaseActivity implements
             toggleRestAreas(fabRestareas);
             closeFABMenu();
         });
-
     }
 
     // Icon Clustering helpers
@@ -806,7 +806,7 @@ public class TrafficMapActivity extends BaseActivity implements
                 alertDialog.show();
                 return true;
             case R.id.refresh:
-                refreshOverlays(item);
+                refreshOverlays();
                 return true;
             case R.id.alerts_in_area:
                 if (mMap != null) {
@@ -966,13 +966,13 @@ public class TrafficMapActivity extends BaseActivity implements
         }
     }
 
-    private void refreshOverlays(final MenuItem item) {
+    private void refreshOverlays() {
+        mProgressBar.setVisibility(View.VISIBLE);
         if (mMap != null) {
             mapCameraViewModel.refreshCameras();
             mapHighwayAlertViewModel.refreshAlerts();
         }
     }
-
 
     /*
      *  Adds or removes cameras from the cluster manager.
