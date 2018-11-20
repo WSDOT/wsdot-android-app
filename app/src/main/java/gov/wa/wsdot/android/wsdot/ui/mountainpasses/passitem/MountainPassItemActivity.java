@@ -51,6 +51,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
+import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
@@ -171,6 +172,10 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
                 mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                     @Override
                     public void onTabSelected(TabLayout.Tab tab) {
+
+                        MountainPassItemActivity.this.setFirebaseAnalyticsScreenName(
+                                String.format("%s%s", "Pass", tab.getText()).replaceAll("\\W", ""));
+
                         mViewPager.setCurrentItem(tab.getPosition());
                         // GA tracker
                         MyLogger.crashlyticsLog("Mountain Passes", "Tap", "MountainPassesActivity " + tab.getText(), 1);
@@ -204,6 +209,12 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
         enableAds(getString(R.string.passes_ad_target));
 
 	}
+
+	@Override
+    public void onResume(){
+	    super.onResume();
+        setFirebaseAnalyticsScreenName("PassReport");
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

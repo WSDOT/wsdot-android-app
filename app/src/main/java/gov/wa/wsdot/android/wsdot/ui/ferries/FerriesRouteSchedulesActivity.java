@@ -44,21 +44,23 @@ public class FerriesRouteSchedulesActivity extends BaseActivity {
 
 		setContentView(R.layout.activity_ferries_route_schedules);
 
-		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		mToolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
 		if(getSupportActionBar() != null){
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
 
+        enableAds(getString(R.string.ferries_ad_target));
+
 	}
 
 	@Override
-	protected void onResume(){
-        super.onResume();
-		MyLogger.crashlyticsLog("Ferries", "Screen View", "FerriesRouteSchedulesActivity", 1);
-		enableAds(getString(R.string.ferries_ad_target));
+	public void onResume() {
+		super.onResume();
+		setFirebaseAnalyticsScreenName("FerrySchedules");
 	}
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

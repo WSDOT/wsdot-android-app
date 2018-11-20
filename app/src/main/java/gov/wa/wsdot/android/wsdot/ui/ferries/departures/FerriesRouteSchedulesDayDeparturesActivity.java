@@ -201,6 +201,9 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
 
+                FerriesRouteSchedulesDayDeparturesActivity.this.setFirebaseAnalyticsScreenName(
+                        String.format("%s%s", "Ferry", tab.getText()).replaceAll("\\W", ""));
+
                 if (tab.getText().equals("Cameras")) {
                     mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
                     mTracker.setScreenName("/Ferries/Departures/" + tab.getText());
@@ -288,6 +291,12 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         }
 
 	}
+
+	@Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("FerryTimes");
+    }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -377,6 +386,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 
             terminalCameraViewModel.loadTerminalCameras(mTerminalItem.getDepartingTerminalID(), "ferries");
         }
+
     }
 
     @Override

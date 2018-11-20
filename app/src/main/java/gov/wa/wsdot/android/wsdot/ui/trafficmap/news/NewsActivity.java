@@ -45,7 +45,13 @@ public class NewsActivity extends BaseActivity {
 		MyLogger.crashlyticsLog("Traffic", "Screen View", "NewsActivity", 1);
 
     }
-	
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		setFirebaseAnalyticsScreenName("News");
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {

@@ -89,6 +89,13 @@ public class MyRouteActivity extends BaseActivity implements RouteOptionsDialogF
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("MyRoutes");
+    }
+
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case android.R.id.home:

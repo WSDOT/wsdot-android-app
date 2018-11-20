@@ -80,12 +80,18 @@ public class RestAreaActivity extends BaseActivity implements
         }
 
         MyLogger.crashlyticsLog("Traffic", "Screen View", "RestAreaActivity", 1);
+
         disableAds();
 
         mLoadingSpinner = findViewById(R.id.progress_bar);
         mLoadingSpinner.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("RestArea");
+    }
 
     /**
      * Called when the map is ready to add all markers and objects to the map.

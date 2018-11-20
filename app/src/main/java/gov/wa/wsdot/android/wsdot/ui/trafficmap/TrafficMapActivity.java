@@ -330,6 +330,8 @@ public class TrafficMapActivity extends BaseActivity implements
     protected void onResume() {
         super.onResume();
 
+        setFirebaseAnalyticsScreenName("TrafficMap");
+
         mGoogleApiClient.connect();
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);

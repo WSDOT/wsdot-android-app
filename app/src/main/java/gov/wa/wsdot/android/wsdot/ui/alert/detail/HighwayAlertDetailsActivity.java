@@ -172,7 +172,15 @@ public class HighwayAlertDetailsActivity extends BaseActivity implements
 
         disableAds();
         MyLogger.crashlyticsLog("Highway Alerts", "Screen View", "HighwayAlertDetailsActivity", 1);
+
+
 	}
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("HighwayAlert");
+    }
 
     /**
      * Called when the map is ready to add all markers and objects to the map.

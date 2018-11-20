@@ -34,6 +34,7 @@ import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,7 @@ public class HomeActivity extends BaseActivity implements Injectable {
     private Toolbar mToolbar;
     private android.support.design.widget.AppBarLayout mAppBar;
     private Tracker mTracker;
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,6 +123,8 @@ public class HomeActivity extends BaseActivity implements Injectable {
                 mViewPager.setCurrentItem(tab.getPosition());
                 AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
 
+                setFirebaseAnalyticsScreenName(String.valueOf(tab.getText()));
+
                 // Disable the collapsing toolbar when on the home dashboard. Enable it when on favorites.
                 if (tab.getText().equals("Favorites")) {
                     // GA tracker. Only track Favorites Tab b/c home activity is auto tracked.
@@ -145,6 +149,13 @@ public class HomeActivity extends BaseActivity implements Injectable {
 
         tryDisplayNotificationTipView();
 
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("Home");
     }
 
     @Override

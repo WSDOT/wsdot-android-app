@@ -72,6 +72,14 @@ public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
         }
 
 		MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteAlertsBulletinDetailsActivity " + mAlertFullTitle, 1);
+
+
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		setFirebaseAnalyticsScreenName("FerryBulletin");
 	}
 
 	@Override

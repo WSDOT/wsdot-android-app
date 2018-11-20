@@ -109,11 +109,18 @@ public class SocialMediaTabActivity extends BaseActivity {
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
+
         });
 
         MyLogger.crashlyticsLog("Traffic", "Screen View", "SocialMediaTabActivity", 1);
 
         enableAds(getString(R.string.traffic_ad_target));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("socialMedia");
     }
 
     @Override

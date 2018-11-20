@@ -43,8 +43,15 @@ public class TravelTimesActivity extends BaseActivity {
 		}
 
 		MyLogger.crashlyticsLog("Travel Times", "Screen View", "TravelTimesActivity", 1);
+
 	}
-	
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		setFirebaseAnalyticsScreenName("TravelTimes");
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {

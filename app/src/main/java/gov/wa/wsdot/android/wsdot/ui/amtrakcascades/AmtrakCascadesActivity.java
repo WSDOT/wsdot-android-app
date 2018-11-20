@@ -57,7 +57,13 @@ public class AmtrakCascadesActivity extends BaseActivity {
         MyLogger.crashlyticsLog("Amtrak Cascades", "Screen View", "AmtrakCascadesActivity", 1);
 
     }
-    
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("AmtrakCascades");
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {

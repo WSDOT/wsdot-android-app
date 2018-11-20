@@ -85,7 +85,7 @@ public class TollRatesRouteActivity extends BaseActivity implements
         // Get the map and register for the ready callback
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        setFirebaseAnalyticsScreenName("TollRoute");
 
     }
 

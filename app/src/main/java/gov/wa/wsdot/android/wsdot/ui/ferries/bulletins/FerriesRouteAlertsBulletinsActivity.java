@@ -52,7 +52,13 @@ public class FerriesRouteAlertsBulletinsActivity extends BaseActivity {
         enableAds(getString(R.string.ferries_ad_target));
 
 	}
-	
+
+	@Override
+	public void onResume() {
+    	super.onResume();
+		setFirebaseAnalyticsScreenName("FerryBulletinsList");
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {

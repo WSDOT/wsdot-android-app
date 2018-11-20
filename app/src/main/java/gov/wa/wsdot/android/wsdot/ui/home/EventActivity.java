@@ -36,6 +36,12 @@ public class EventActivity extends BaseActivity {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("Event");
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case android.R.id.home:

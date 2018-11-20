@@ -43,6 +43,7 @@ import java.util.List;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
+import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 
@@ -103,6 +104,9 @@ public class TollRatesActivity extends BaseActivity {
                 mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
                 mTracker.setScreenName("/Toll Rates/" + tab.getText());
                 mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+                TollRatesActivity.this.setFirebaseAnalyticsScreenName(
+                        String.format("%s%s", "TollRates", tab.getText()).replaceAll("\\W", ""));
             }
 
             @Override
@@ -111,9 +115,6 @@ public class TollRatesActivity extends BaseActivity {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        disableAds();
-
-        MyLogger.crashlyticsLog("Toll Rates", "Screen View", "TollRatesActivity", 1);
 
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
@@ -135,7 +136,19 @@ public class TollRatesActivity extends BaseActivity {
 
         settings.edit().putBoolean("KEY_SEEN_TOLL_WARNING", true).apply();
 
+
+        disableAds();
+
+        MyLogger.crashlyticsLog("Toll Rates", "Screen View", "TollRatesActivity", 1);
+
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("TollRatesSR520");
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

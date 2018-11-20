@@ -73,6 +73,12 @@ public class VesselWatchDetailsActivity extends BaseActivity {
 		MyLogger.crashlyticsLog("Ferries", "Screen View", "VesselWatchDetailsActivity", 1);
 
 	}
+
+	@Override
+	public void onResume(){
+		super.onResume();
+		this.setFirebaseAnalyticsScreenName("VesselDetails");
+	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {

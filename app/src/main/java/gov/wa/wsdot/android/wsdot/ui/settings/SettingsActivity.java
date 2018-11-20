@@ -99,6 +99,12 @@ public class SettingsActivity extends BaseActivity implements OnStartDragListene
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("Settings");
+    }
+
+    @Override
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
         itemTouchHelper.startDrag(viewHolder);
     }

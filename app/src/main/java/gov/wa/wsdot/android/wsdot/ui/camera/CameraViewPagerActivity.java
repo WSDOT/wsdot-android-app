@@ -124,6 +124,13 @@ public class CameraViewPagerActivity extends BaseActivity {
 
         String adTarget = b.getString("advertisingTarget");
         enableAds(adTarget);
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("CameraImagePager");
     }
 
     @Override
