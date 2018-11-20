@@ -39,9 +39,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,8 +68,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
     protected LinearLayoutManager mLayoutManager;
 
     private List<FerryScheduleEntity> mSchedule = new ArrayList<>();
-
-	private Tracker mTracker;
 
 	private static FerrySchedulesViewModel viewModel;
 
@@ -191,14 +186,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
                         b.putString("title", schedule.getTitle());
                         b.putInt("isStarred", schedule.getIsStarred());
                         intent.putExtras(b);
-
-                        // GA tracker
-                        mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-                        mTracker.send(new HitBuilders.EventBuilder()
-                                .setCategory("Ferries")
-                                .setAction("Schedules")
-                                .setLabel(schedule.getTitle())
-                                .build());
 
                         startActivity(intent);
                     }

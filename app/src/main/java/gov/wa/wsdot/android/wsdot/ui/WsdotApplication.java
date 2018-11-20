@@ -26,9 +26,6 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import javax.inject.Inject;
 
@@ -45,8 +42,7 @@ import gov.wa.wsdot.android.wsdot.util.Utils;
 import io.fabric.sdk.android.Fabric;
 
 /**
- * This is a subclass of {@link Application} used to provide shared objects for this app, such as
- * the {@link Tracker}.
+ * This is a subclass of {@link Application} used to provide shared objects for this app
  */
 public class WsdotApplication extends Application implements HasActivityInjector, HasSupportFragmentInjector, HasServiceInjector {
 
@@ -60,8 +56,6 @@ public class WsdotApplication extends Application implements HasActivityInjector
 
     @Inject
     DispatchingAndroidInjector<Service> dispatchingServiceInjector;
-
-    private Tracker mTracker;
 
     @Override
     public void onCreate() {
@@ -92,18 +86,6 @@ public class WsdotApplication extends Application implements HasActivityInjector
 
     }
 
-    /**
-     * Gets the default {@link Tracker} for this {@link Application}.
-     * @return tracker
-     */
-    synchronized public Tracker getDefaultTracker() {
-        if (mTracker == null) {
-            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
-            mTracker = analytics.newTracker(R.xml.global_tracker);
-        }
-        return mTracker;
-    }
 
     @Override
     public DispatchingAndroidInjector<Activity> activityInjector() {

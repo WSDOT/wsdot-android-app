@@ -18,8 +18,6 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -32,13 +30,10 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 
 public class NotificationsFragment extends BaseFragment implements Injectable {
 
     private static final String TAG = NotificationsFragment.class.getSimpleName();
-
-    private Tracker mTracker;
 
     private View mEmptyView;
 
@@ -192,12 +187,8 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
 
                         viewModel.updateSubscription(topic.getTopic(), true);
                         added_snackbar.show();
-                        mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-                        mTracker.send(new HitBuilders.EventBuilder()
-                                .setCategory("Notifications")
-                                .setAction("Subscribed")
-                                .setLabel(topic.getTitle())
-                                .build());
+                        // TODO: firebase event sub
+
                         FirebaseMessaging.getInstance().subscribeToTopic(topic.getTopic())
                                 .addOnCompleteListener(task -> {
                                     // If the operation fails revert saved sub status
@@ -210,12 +201,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                     } else {
                         viewModel.updateSubscription(topic.getTopic(), false);
                         removed_snackbar.show();
-                        mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-                        mTracker.send(new HitBuilders.EventBuilder()
-                                .setCategory("Notifications")
-                                .setAction("Unsubscribed")
-                                .setLabel(topic.getTitle())
-                                .build());
+                        // TODO: firebase event unsub
                         FirebaseMessaging.getInstance().unsubscribeFromTopic(topic.getTopic())
                                 .addOnCompleteListener(task -> {
                                     if (!task.isSuccessful()) {

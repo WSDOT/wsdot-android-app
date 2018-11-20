@@ -38,9 +38,6 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +48,6 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
-import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
@@ -62,7 +58,6 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
 
 	private boolean mIsStarred = false;
 	private int mId;
-	private Tracker mTracker;
 
     private TabLayout mTabLayout;
     private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
@@ -133,11 +128,6 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
                 String forecast = pass.getForecast();
                 mIsStarred = pass.getIsStarred() != 0;
 
-                // GA tracker
-                mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-                mTracker.setScreenName("/Mountain Passes/Details/" + mountainPassName);
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-
                 mToolbar = findViewById(R.id.toolbar);
                 mToolbar.setTitle(mountainPassName);
                 setSupportActionBar(mToolbar);
@@ -177,10 +167,6 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
                                 String.format("%s%s", "Pass", tab.getText()).replaceAll("\\W", ""));
 
                         mViewPager.setCurrentItem(tab.getPosition());
-                        // GA tracker
-                        MyLogger.crashlyticsLog("Mountain Passes", "Tap", "MountainPassesActivity " + tab.getText(), 1);
-                        mTracker.setScreenName("/Mountain Passes/Details/" + tab.getText());
-                        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                     }
 
                     @Override

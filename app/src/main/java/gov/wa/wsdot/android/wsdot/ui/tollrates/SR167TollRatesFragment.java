@@ -46,9 +46,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -90,8 +87,6 @@ public class SR167TollRatesFragment extends BaseFragment
 
 	private RadioGroup directionRadioGroup;
     private int radioGroupDirectionIndex = 0;
-
-	private Tracker mTracker;
 
     private ArrayList<TollRateGroup> tollGroups = new ArrayList<>();
     private ArrayList<TravelTimeEntity> travelTimes = new ArrayList<>();
@@ -175,10 +170,7 @@ public class SR167TollRatesFragment extends BaseFragment
 		header_link.setTextColor(getResources().getColor(R.color.primary_default));
 		header_link.setOnClickListener(v -> {
 			Intent intent = new Intent();
-			// GA tracker
-			mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-			mTracker.setScreenName("/Toll Rates/Learn about SR-167");
-			mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+			// TODO: firebase link event
 			intent.setAction(Intent.ACTION_VIEW);
 			intent.setData(Uri.parse("https://www.wsdot.wa.gov/Tolling/SR167HotLanes/HOTtollrates.htm"));
 			startActivity(intent);

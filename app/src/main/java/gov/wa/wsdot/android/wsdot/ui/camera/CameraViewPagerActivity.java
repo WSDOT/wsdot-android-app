@@ -10,9 +10,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import java.util.List;
 
 import javax.inject.Inject;
@@ -35,8 +32,6 @@ public class CameraViewPagerActivity extends BaseActivity {
     static Snackbar tipSnackbar;
 
     private int selectedPage = -1;
-
-    private Tracker mTracker;
 
     FavoritesViewModel viewModel;
 
@@ -66,8 +61,6 @@ public class CameraViewPagerActivity extends BaseActivity {
             selectedPage =  savedInstanceState.getInt("selected_page", 0);
         }
 
-        mTracker = ((WsdotApplication) this.getApplication()).getDefaultTracker();
-
         mViewPager = findViewById(R.id.pager);
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -79,12 +72,7 @@ public class CameraViewPagerActivity extends BaseActivity {
             public void onPageSelected(int position) {
                 if (position != selectedPage) {
                     tipSnackbar.dismiss();
-
-                    mTracker.send(new HitBuilders.EventBuilder()
-                            .setCategory("Swipe")
-                            .setAction("Change Camera")
-                            .setLabel("Cameras")
-                            .build());
+                    // TODO: firebase camera swipe event
 
                 }
                 selectedPage = position;

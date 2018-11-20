@@ -71,8 +71,6 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -232,7 +230,6 @@ public class TrafficMapActivity extends BaseActivity implements
     private ClusterManager<CameraItem> mClusterManager;
 
     private Toolbar mToolbar;
-    private Tracker mTracker;
 
     private LocationCallback mLocationCallback;
 
@@ -630,10 +627,6 @@ public class TrafficMapActivity extends BaseActivity implements
             mClusterManager.onMarkerClick(marker);
         } else if (markers.get(marker).equalsIgnoreCase("camera")) {
             MyLogger.crashlyticsLog("Traffic", "Tap", "Camera", 1);
-            // GA tracker
-            mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-            mTracker.setScreenName("/Traffic Map/Cameras");
-            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
             intent = new Intent(this, CameraActivity.class);
             b.putInt("id", Integer.parseInt(marker.getSnippet()));
             b.putString("advertisingTarget", getString(R.string.traffic_ad_target));
@@ -656,10 +649,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
     @Override
     public boolean onClusterItemClick(CameraItem cameraItem) {
-        // GA tracker
-        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-        mTracker.setScreenName("/Traffic Map/Camera");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
         Bundle b = new Bundle();
 
         Intent intent = new Intent(this, CameraActivity.class);
@@ -671,11 +661,8 @@ public class TrafficMapActivity extends BaseActivity implements
 
     @Override
     public boolean onClusterClick(Cluster<CameraItem> cluster) {
-        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
         if (isCameraGroup(cluster)) {
-            mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-            mTracker.setScreenName("/Traffic Map/Camera Group");
-            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
             Bundle b = new Bundle();
             Intent intent;
             intent = new Intent(this, CameraListActivity.class);
@@ -697,8 +684,6 @@ public class TrafficMapActivity extends BaseActivity implements
             intent.putExtras(b);
             TrafficMapActivity.this.startActivity(intent);
         } else {
-            mTracker.setScreenName("/Traffic Map/Camera Cluster");
-            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
             LatLngBounds.Builder builder = LatLngBounds.builder();
             for (ClusterItem item : cluster.getItems()) {
                 builder.include(item.getPosition());
@@ -773,8 +758,6 @@ public class TrafficMapActivity extends BaseActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-
         switch (item.getItemId()) {
             case R.id.best_times_to_travel:
                 Intent chartsIntent = new Intent(this, TravelChartsActivity.class);
@@ -841,104 +824,70 @@ public class TrafficMapActivity extends BaseActivity implements
                 startActivity(newsIntent);
                 return true;
             case R.id.goto_bellingham:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Bellingham");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(48.756302, -122.46151, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_chehalis:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Chehalis");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(46.635529, -122.937698, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_everett:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Everett");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(47.967976, -122.197627, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_hoodcanal:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Hood Canal");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(47.85268, -122.628365, 13);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_mtvernon:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Mt. Vernon");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(48.420657, -122.334824, 13);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_stanwood:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Standwood");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(48.22959, -122.34581, 13);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_monroe:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Monroe");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(47.859476, -121.972446, 14);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_sultan:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Sultan");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(47.86034, -121.812286, 13);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_olympia:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Olympia");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(47.021461, -122.899933, 13);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_seattle:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Seattle");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(47.5990, -122.3350, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_spokane:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Spokane");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(47.658566, -117.425995, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_tacoma:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Tacoma");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(47.206275, -122.46254, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_vancouver:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Vancouver");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(45.639968, -122.610512, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_wenatchee:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Wenatchee");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(47.435867, -120.309563, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_snoqualmiepass:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Snoqualmie Pass");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(47.404481, -121.4232569, 12);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_tricities:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Tri-Cities");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(46.2503607, -119.2063781, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
             case R.id.goto_yakima:
-                mTracker.setScreenName("/Traffic Map/Go To Location/Yakima");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                 goToLocation(46.6063273, -120.4886952, 11);
                 UIUtils.refreshActionBarMenu(this);
                 return true;
@@ -982,8 +931,6 @@ public class TrafficMapActivity extends BaseActivity implements
      *  markers are plotted normally.
      */
     private void toggleCluster(FloatingActionButton fab) {
-        // GA tracker
-        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         if (clusterCameras) {
 
@@ -995,12 +942,8 @@ public class TrafficMapActivity extends BaseActivity implements
                 mClusterManager.cluster();
                 addCameraMarkers(cameras);
             }
+            //TODO:  firebase cluster off event
 
-            mTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory("Traffic")
-                    .setAction("Cameras")
-                    .setLabel("Clustering off")
-                    .build());
 
         } else {
 
@@ -1014,12 +957,7 @@ public class TrafficMapActivity extends BaseActivity implements
                 mClusterManager.addItems(cameras);
                 mClusterManager.cluster();
             }
-
-            mTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory("Traffic")
-                    .setAction("Cameras")
-                    .setLabel("Clustering on")
-                    .build());
+            //TODO:  firebase event
         }
 
         // Save camera display preference
@@ -1037,8 +975,6 @@ public class TrafficMapActivity extends BaseActivity implements
      * @param fab
      */
     private void toggleCameras(FloatingActionButton fab) {
-        // GA tracker
-        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         if (showCameras) {
             if (clusterCameras) {
@@ -1052,11 +988,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
             showCameras = false;
 
-            mTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory("Traffic")
-                    .setAction("Cameras")
-                    .setLabel("Hide Cameras")
-                    .build());
+            //TODO:  firebase hide camera event
         } else {
 
             if (clusterCameras) {
@@ -1072,11 +1004,7 @@ public class TrafficMapActivity extends BaseActivity implements
 
             showCameras = true;
 
-            mTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory("Traffic")
-                    .setAction("Cameras")
-                    .setLabel("Show Cameras")
-                    .build());
+            //TODO:  firebase show event
         }
 
         // Save camera display preference
@@ -1092,8 +1020,6 @@ public class TrafficMapActivity extends BaseActivity implements
      * @param fab
      */
     private void toggleRestAreas(FloatingActionButton fab) {
-        // GA tracker
-        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         String label;
 
@@ -1125,11 +1051,7 @@ public class TrafficMapActivity extends BaseActivity implements
             label = "Show Rest Areas";
         }
 
-        mTracker.send(new HitBuilders.EventBuilder()
-                .setCategory("Traffic")
-                .setAction("Rest Areas")
-                .setLabel(label)
-                .build());
+        // TODO: firebase event
 
         // Save rest areas display preference
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -1143,8 +1065,6 @@ public class TrafficMapActivity extends BaseActivity implements
      * @param fab
      */
     private void toggleAlerts(FloatingActionButton fab) {
-        // GA tracker
-        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         String label;
 
@@ -1176,11 +1096,7 @@ public class TrafficMapActivity extends BaseActivity implements
             label = "Show Alerts";
         }
 
-        mTracker.send(new HitBuilders.EventBuilder()
-                .setCategory("Traffic")
-                .setAction("Highway Alerts")
-                .setLabel(label)
-                .build());
+        // TODO: firebase event
 
         // Save rest areas display preference
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);

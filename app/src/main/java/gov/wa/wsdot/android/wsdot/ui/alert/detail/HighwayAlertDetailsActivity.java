@@ -34,8 +34,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -65,8 +63,6 @@ public class HighwayAlertDetailsActivity extends BaseActivity implements
     private Toolbar mToolbar;
 
     private LatLng mAlertLatLng;
-
-    private Tracker mTracker;
 
     private boolean fromNotification = false;
 
@@ -157,12 +153,7 @@ public class HighwayAlertDetailsActivity extends BaseActivity implements
                 mapFragment.getMapAsync(this);
 
                 if (fromNotification){
-                    mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-                    mTracker.send(new HitBuilders.EventBuilder()
-                            .setCategory("Notification")
-                            .setAction("Message Opened")
-                            .setLabel(alertItem.getCategory())
-                            .build());
+                    // TODO: firebase event
                 }
 
             }

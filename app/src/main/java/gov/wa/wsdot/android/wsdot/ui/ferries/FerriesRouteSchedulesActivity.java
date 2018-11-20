@@ -25,18 +25,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
-import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class FerriesRouteSchedulesActivity extends BaseActivity {
 
 	private Toolbar mToolbar;
-	private Tracker mTracker;
 
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,10 +72,7 @@ public class FerriesRouteSchedulesActivity extends BaseActivity {
 			case R.id.menu_reservations_link:
 				Intent intent = new Intent();
 
-				// GA tracker
-				mTracker = ((WsdotApplication) this.getApplication()).getDefaultTracker();
-				mTracker.setScreenName("/Ferries/Vehicle Reservations");
-				mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+				// TODO: firebase link event
 
 				intent.setAction(Intent.ACTION_VIEW);
 				intent.setData(Uri.parse("https://secureapps.wsdot.wa.gov/Ferries/Reservations/Vehicle/Mobile/MobileDefault.aspx"));

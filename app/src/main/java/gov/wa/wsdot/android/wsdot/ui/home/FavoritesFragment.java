@@ -42,9 +42,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +63,6 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewPagerActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
@@ -91,8 +87,6 @@ public class FavoritesFragment extends BaseFragment implements
 	private View mEmptyView;
 
     private FavItemAdapter mFavoritesAdapter;
-
-    private Tracker mTracker;
 
 	private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -587,14 +581,6 @@ public class FavoritesFragment extends BaseFragment implements
                             b.putInt("isStarred", schedule.getIsStarred());
                             intent.putExtras(b);
 
-                            // GA tracker
-                            mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-                            mTracker.send(new HitBuilders.EventBuilder()
-                                    .setCategory("Ferries")
-                                    .setAction("Schedules")
-                                    .setLabel(schedule.getTitle())
-                                    .build());
-
                             startActivity(intent);
                         }
                 );
@@ -786,13 +772,6 @@ public class FavoritesFragment extends BaseFragment implements
 
                     MyLogger.crashlyticsLog("Home", "Tap", "Check MyRoute Alerts", 1);
 
-                    mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-                    mTracker.send(new HitBuilders.EventBuilder()
-                            .setCategory("Button Tap")
-                            .setAction("Check Alerts")
-                            .setLabel("My Routes")
-                            .build());
-
                     Bundle b = new Bundle();
 
                     Intent intent = new Intent(getActivity(), MyRouteAlertsListActivity.class);
@@ -807,12 +786,6 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.map_button.setTag(position);
                 viewholder.map_button.setContentDescription("Check map for route");
                 viewholder.map_button.setOnClickListener(v -> {
-                    mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-                    mTracker.send(new HitBuilders.EventBuilder()
-                            .setCategory("Button Tap")
-                            .setAction("Check Map for Route")
-                            .setLabel("My Routes")
-                            .build());
 
                     Bundle b = new Bundle();
 

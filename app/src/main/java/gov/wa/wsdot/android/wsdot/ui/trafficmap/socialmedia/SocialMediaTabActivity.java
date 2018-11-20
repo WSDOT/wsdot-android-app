@@ -27,15 +27,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Spinner;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
-import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.blog.BlogFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.facebook.FacebookFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.twitter.TwitterFragment;
@@ -46,19 +42,12 @@ public class SocialMediaTabActivity extends BaseActivity {
 
     private final String TAG = SocialMediaTabActivity.class.getSimpleName();
 
-    private Tracker mTracker;
-
     private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
     private ViewPager mViewPager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // GA tracker
-        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-        mTracker.setScreenName("/Traffic Map/Happening Now/Twitter");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         setContentView(R.layout.activity_with_tabs);
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -99,9 +88,6 @@ public class SocialMediaTabActivity extends BaseActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
-                // GA tracker
-                mTracker.setScreenName("/Traffic Map/Happening Now/" + tab.getText());
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
             }
 
             @Override
