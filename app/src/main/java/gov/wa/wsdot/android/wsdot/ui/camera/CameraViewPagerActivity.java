@@ -72,8 +72,7 @@ public class CameraViewPagerActivity extends BaseActivity {
             public void onPageSelected(int position) {
                 if (position != selectedPage) {
                     tipSnackbar.dismiss();
-                    // TODO: firebase camera swipe event
-
+                    setFirebaseAnalyticsEvent("ui_action", "type", "favorite_camera_swipe");
                 }
                 selectedPage = position;
                 mToolbar.setTitle(mCameraCollectionPagerAdapter.getPageTitle(position));

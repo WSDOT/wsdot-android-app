@@ -71,8 +71,7 @@ public class FerriesRouteSchedulesActivity extends BaseActivity {
 				return true;
 			case R.id.menu_reservations_link:
 				Intent intent = new Intent();
-
-				// TODO: firebase link event
+				setFirebaseAnalyticsEvent("open_link", "type", "ferry_reservation");
 
 				intent.setAction(Intent.ACTION_VIEW);
 				intent.setData(Uri.parse("https://secureapps.wsdot.wa.gov/Ferries/Reservations/Vehicle/Mobile/MobileDefault.aspx"));

@@ -100,15 +100,12 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
 
         switch (position){
             case 0: // Delete Route
-                // TODO: firebase event
                 deleteRouteAction(routeName, routeID);
                 break;
             case 1: // Rename route
-                // TODO: firebase event
                 renameRouteAction(routeName, routeID);
                 break;
             case 2: // Show on Map
-                // TODO: firebase event
                 Bundle b = new Bundle();
                 Intent intent = new Intent(getActivity(), MyRouteMapActivity.class);
                 b.putLong("route_id", routeID);
@@ -117,7 +114,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
                 startActivity(intent);
                 break;
             case 3: // Find favorites
-                // TODO: firebase event
                 findFavoritesOnRoute(routeID);
                 break;
             default:
@@ -317,7 +313,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
             itemViewHolder.alert_button.setTag(i);
             itemViewHolder.alert_button.setContentDescription("Check alerts on route");
             itemViewHolder.alert_button.setOnClickListener(v -> {
-                // TODO: firebase event
 
                 Bundle b = new Bundle();
 
@@ -333,7 +328,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
             itemViewHolder.map_button.setTag(i);
             itemViewHolder.map_button.setContentDescription("Check map for route");
             itemViewHolder.map_button.setOnClickListener(v -> {
-                // TODO: firebase event
 
                 Bundle b = new Bundle();
 

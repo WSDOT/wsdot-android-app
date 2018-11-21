@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
@@ -137,8 +138,7 @@ public class AmtrakCascadesFragment extends BaseFragment {
                         if (clz instanceof Class<?>) {
                             intent.setClass(getActivity(), (Class<?>) clz);
                         } else {
-                            // TODO: firebase link event
-
+                            ((BaseActivity) getActivity()).setFirebaseAnalyticsEvent("open_link", "type", "amtrak_cascade_buy_tickets");
                             intent.setAction(Intent.ACTION_VIEW);
                             intent.setData(Uri.parse(url));
                         }

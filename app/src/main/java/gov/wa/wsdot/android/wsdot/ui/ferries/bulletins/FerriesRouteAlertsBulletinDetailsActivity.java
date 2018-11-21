@@ -48,7 +48,7 @@ public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
 			}
 
             if ( b.getBoolean("from_notification")){
-				// TODO: firebase event
+				setFirebaseAnalyticsEvent("notification_received","type", "ferry_bulletin");
             }
 
         }

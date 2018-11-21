@@ -61,6 +61,7 @@ import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignEntity;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
@@ -170,7 +171,7 @@ public class SR167TollRatesFragment extends BaseFragment
 		header_link.setTextColor(getResources().getColor(R.color.primary_default));
 		header_link.setOnClickListener(v -> {
 			Intent intent = new Intent();
-			// TODO: firebase link event
+			((BaseActivity) getActivity()).setFirebaseAnalyticsEvent("open_link", "type", "tolling_hot_lanes");
 			intent.setAction(Intent.ACTION_VIEW);
 			intent.setData(Uri.parse("https://www.wsdot.wa.gov/Tolling/SR167HotLanes/HOTtollrates.htm"));
 			startActivity(intent);

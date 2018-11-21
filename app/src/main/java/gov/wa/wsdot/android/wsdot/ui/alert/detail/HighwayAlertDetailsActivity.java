@@ -153,17 +153,14 @@ public class HighwayAlertDetailsActivity extends BaseActivity implements
                 mapFragment.getMapAsync(this);
 
                 if (fromNotification){
-                    // TODO: firebase event
+                    setFirebaseAnalyticsEvent("notification_received", "type", "highway_alert");
                 }
 
             }
         });
 
-
-
         disableAds();
         MyLogger.crashlyticsLog("Highway Alerts", "Screen View", "HighwayAlertDetailsActivity", 1);
-
 
 	}
 

@@ -153,8 +153,7 @@ public class TollRatesActivity extends BaseActivity {
             case R.id.menu_mygoodtogo_link:
                 Intent intent = new Intent();
 
-                // TODO: firebase link
-
+                setFirebaseAnalyticsEvent("open_link", "type", "tolling_good_to_go");
                 intent.setAction(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse("https://mygoodtogo.com"));
 

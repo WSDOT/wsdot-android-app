@@ -97,19 +97,24 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    protected void setFirebaseAnalyticsScreenName(String name) {
+    public void setFirebaseAnalyticsScreenName(String name) {
+        
+        if (mFirebaseAnalytics == null) {
+            mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+            mFirebaseAnalytics.setAnalyticsCollectionEnabled(true);
+        }
+        
+        mFirebaseAnalytics.setCurrentScreen(this, name, null);
+    }
+
+    public void setFirebaseAnalyticsEvent(String type, String param, String value) {
         if (mFirebaseAnalytics == null){
             mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
             mFirebaseAnalytics.setAnalyticsCollectionEnabled(true);
-
         }
-
-        // Bundle params = new Bundle();
-        // params.putString("screen_name", name);
-        // mFirebaseAnalytics.logEvent("wsdot_screen_view", params);
-
-        mFirebaseAnalytics.setCurrentScreen(this, name, null);
-
+        Bundle params = new Bundle();
+        params.putString(param, value);
+        mFirebaseAnalytics.logEvent(type, params);
     }
 
     /**

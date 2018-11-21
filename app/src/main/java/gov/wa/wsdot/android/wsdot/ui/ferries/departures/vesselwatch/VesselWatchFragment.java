@@ -40,6 +40,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
@@ -292,19 +293,15 @@ public class VesselWatchFragment extends BaseFragment
     private void toggleCameras(FloatingActionButton fab) {
 
         if (showCameras) {
-
             hideCameraMarkers();
             fab.setImageResource(R.drawable.ic_menu_traffic_cam_off);
             showCameras = false;
-
-            // TODO: firebase hide cameras event
+            ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("ui_action", "type", "vessel_cameras_off");
         } else {
-
             showCameraMarkers();
             fab.setImageResource(R.drawable.ic_menu_traffic_cam);
             showCameras = true;
-
-            // TODO: firebase show cameras event
+            ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("ui_action", "type", "vessel_cameras_on");
         }
 
         // Save camera display preference

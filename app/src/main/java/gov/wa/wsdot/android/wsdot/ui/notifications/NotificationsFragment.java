@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 
 public class NotificationsFragment extends BaseFragment implements Injectable {
@@ -184,11 +185,9 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                     });
 
                     if (isChecked) {
-
                         viewModel.updateSubscription(topic.getTopic(), true);
                         added_snackbar.show();
-                        // TODO: firebase event sub
-
+                        ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("notifications","update_subscription","subscribed");
                         FirebaseMessaging.getInstance().subscribeToTopic(topic.getTopic())
                                 .addOnCompleteListener(task -> {
                                     // If the operation fails revert saved sub status
@@ -201,7 +200,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
                     } else {
                         viewModel.updateSubscription(topic.getTopic(), false);
                         removed_snackbar.show();
-                        // TODO: firebase event unsub
+                        ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("notifications","update_subscription","unsubscribed");
                         FirebaseMessaging.getInstance().unsubscribeFromTopic(topic.getTopic())
                                 .addOnCompleteListener(task -> {
                                     if (!task.isSuccessful()) {

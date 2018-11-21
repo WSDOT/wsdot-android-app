@@ -37,7 +37,6 @@ public class MyRouteActivity extends BaseActivity implements RouteOptionsDialogF
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
-            // TODO: firebase new route event
             startActivity(new Intent(MyRouteActivity.this, NewRouteActivity.class));
         });
 
