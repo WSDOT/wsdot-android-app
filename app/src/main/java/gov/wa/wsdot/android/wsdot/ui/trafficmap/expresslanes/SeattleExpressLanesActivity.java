@@ -43,8 +43,16 @@ public class SeattleExpressLanesActivity extends BaseActivity {
 		}
 
 		MyLogger.crashlyticsLog("Traffic", "Screen View", "SeattleExpressLanesActivity", 1);
+
 	}
-	
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		setFirebaseAnalyticsScreenName("ExpressLanes");
+	}
+
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {

@@ -29,13 +29,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
@@ -47,7 +45,6 @@ public class AmtrakCascadesFragment extends BaseFragment {
     private static final String TAG = AmtrakCascadesFragment.class.getSimpleName();
     private ArrayList<ViewItem> listViewItems;
     private ItemAdapter mAdapter;
-    private Tracker mTracker;
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
@@ -131,28 +128,21 @@ public class AmtrakCascadesFragment extends BaseFragment {
             holder.clz = item.getClz();
             holder.url = item.getUrl();
 
-            final int pos = position;
             final Object clz = item.getClz();
             final String url = item.getUrl();
 
             // Set onClickListener for holder's view
             holder.itemView.setOnClickListener(
-                    new View.OnClickListener() {
-                        public void onClick(View v) {
-                            Intent intent = new Intent();
-                            if (clz instanceof Class<?>) {
-                                intent.setClass(getActivity(), (Class<?>) clz);
-                            } else {
-                                // GA tracker
-                                mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-                                mTracker.setScreenName("/Amtrak Cascades/Buy Tickets");
-                                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-
-                                intent.setAction(Intent.ACTION_VIEW);
-                                intent.setData(Uri.parse(url));
-                            }
-                            startActivity(intent);
+                    v -> {
+                        Intent intent = new Intent();
+                        if (clz instanceof Class<?>) {
+                            intent.setClass(getActivity(), (Class<?>) clz);
+                        } else {
+                            ((BaseActivity) getActivity()).setFirebaseAnalyticsEvent("open_link", "type", "amtrak_cascade_buy_tickets");
+                            intent.setAction(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse(url));
                         }
+                        startActivity(intent);
                     }
             );
         }

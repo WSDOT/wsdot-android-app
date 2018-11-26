@@ -37,6 +37,13 @@ public class MyRouteAlertsListActivity extends BaseActivity {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("MyRouteAlerts");
+    }
+
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case android.R.id.home:

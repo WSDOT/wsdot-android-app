@@ -28,9 +28,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +47,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
 
     final String TAG = MyRouteFragment.class.getSimpleName();
 
-    private Tracker mTracker;
     private ProgressDialogFragment progressDialog;
     private LinearLayout mEmptyView;
 
@@ -102,32 +98,14 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
 
     public void onOptionSelected(final long routeID, String routeName, int position){
 
-        // GA tracker
-        mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-
         switch (position){
             case 0: // Delete Route
-                mTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory("Button Tap")
-                        .setAction("Delete Route")
-                        .setLabel("My Routes")
-                        .build());
                 deleteRouteAction(routeName, routeID);
                 break;
             case 1: // Rename route
-                mTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory("Button Tap")
-                        .setAction("Rename Route")
-                        .setLabel("My Routes")
-                        .build());
                 renameRouteAction(routeName, routeID);
                 break;
             case 2: // Show on Map
-                mTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory("Button Tap")
-                        .setAction("Show Route on Map")
-                        .setLabel("My Routes")
-                        .build());
                 Bundle b = new Bundle();
                 Intent intent = new Intent(getActivity(), MyRouteMapActivity.class);
                 b.putLong("route_id", routeID);
@@ -136,11 +114,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
                 startActivity(intent);
                 break;
             case 3: // Find favorites
-                mTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory("Button Tap")
-                        .setAction("Find Favorites")
-                        .setLabel("My Routes")
-                        .build());
                 findFavoritesOnRoute(routeID);
                 break;
             default:
@@ -340,12 +313,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
             itemViewHolder.alert_button.setTag(i);
             itemViewHolder.alert_button.setContentDescription("Check alerts on route");
             itemViewHolder.alert_button.setOnClickListener(v -> {
-                mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-                mTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory("Button Tap")
-                        .setAction("Check Alerts")
-                        .setLabel("My Routes")
-                        .build());
 
                 Bundle b = new Bundle();
 
@@ -361,12 +328,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
             itemViewHolder.map_button.setTag(i);
             itemViewHolder.map_button.setContentDescription("Check map for route");
             itemViewHolder.map_button.setOnClickListener(v -> {
-                mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-                mTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory("Button Tap")
-                        .setAction("Check Map for Route")
-                        .setLabel("My Routes")
-                        .build());
 
                 Bundle b = new Bundle();
 

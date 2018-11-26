@@ -52,7 +52,13 @@ public class MountainPassesActivity extends BaseActivity {
 		enableAds(getString(R.string.passes_ad_target));
 
 	}
-	
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		setFirebaseAnalyticsScreenName("PassReports");
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {

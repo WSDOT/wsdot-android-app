@@ -32,8 +32,6 @@ import android.view.accessibility.AccessibilityManager;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +40,6 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.service.EventService;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
-import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsActivity;
 import gov.wa.wsdot.android.wsdot.ui.settings.SettingsActivity;
@@ -59,15 +56,12 @@ public class HomeActivity extends BaseActivity implements Injectable {
     private TabsAdapter mtabsAdapter;
     private Toolbar mToolbar;
     private android.support.design.widget.AppBarLayout mAppBar;
-    private Tracker mTracker;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Force use of overflow menu on devices with ICS and menu button.
         UIUtils.setHasPermanentMenuKey(this, false);
-
-        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         setContentView(R.layout.activity_home);
         mViewPager = findViewById(R.id.pager);
@@ -121,11 +115,10 @@ public class HomeActivity extends BaseActivity implements Injectable {
                 mViewPager.setCurrentItem(tab.getPosition());
                 AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
 
+                setFirebaseAnalyticsScreenName(String.valueOf(tab.getText()));
+
                 // Disable the collapsing toolbar when on the home dashboard. Enable it when on favorites.
                 if (tab.getText().equals("Favorites")) {
-                    // GA tracker. Only track Favorites Tab b/c home activity is auto tracked.
-                    mTracker.setScreenName("/" + tab.getText());
-                    mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                     params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
                             | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
                 } else {
@@ -145,6 +138,13 @@ public class HomeActivity extends BaseActivity implements Injectable {
 
         tryDisplayNotificationTipView();
 
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("Home");
     }
 
     @Override

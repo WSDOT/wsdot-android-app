@@ -22,9 +22,6 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
@@ -34,8 +31,6 @@ public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
 
     private static final String TAG = FerriesRouteAlertsBulletinDetailsActivity.class.getSimpleName();
     private Toolbar mToolbar;
-
-	private Tracker mTracker;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +48,7 @@ public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
 			}
 
             if ( b.getBoolean("from_notification")){
-                mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-                mTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory("Notification")
-                        .setAction("Message Opened")
-                        .setLabel("ferries")
-                        .build());
+				setFirebaseAnalyticsEvent("notification_received","type", "ferry_bulletin");
             }
 
         }
@@ -72,6 +62,14 @@ public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
         }
 
 		MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteAlertsBulletinDetailsActivity " + mAlertFullTitle, 1);
+
+
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		setFirebaseAnalyticsScreenName("FerryBulletin");
 	}
 
 	@Override

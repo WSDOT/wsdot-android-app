@@ -25,18 +25,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
-import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class FerriesRouteSchedulesActivity extends BaseActivity {
 
 	private Toolbar mToolbar;
-	private Tracker mTracker;
 
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,21 +39,23 @@ public class FerriesRouteSchedulesActivity extends BaseActivity {
 
 		setContentView(R.layout.activity_ferries_route_schedules);
 
-		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		mToolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
 		if(getSupportActionBar() != null){
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
 
+        enableAds(getString(R.string.ferries_ad_target));
+
 	}
 
 	@Override
-	protected void onResume(){
-        super.onResume();
-		MyLogger.crashlyticsLog("Ferries", "Screen View", "FerriesRouteSchedulesActivity", 1);
-		enableAds(getString(R.string.ferries_ad_target));
+	public void onResume() {
+		super.onResume();
+		setFirebaseAnalyticsScreenName("FerrySchedules");
 	}
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -74,11 +71,7 @@ public class FerriesRouteSchedulesActivity extends BaseActivity {
 				return true;
 			case R.id.menu_reservations_link:
 				Intent intent = new Intent();
-
-				// GA tracker
-				mTracker = ((WsdotApplication) this.getApplication()).getDefaultTracker();
-				mTracker.setScreenName("/Ferries/Vehicle Reservations");
-				mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+				setFirebaseAnalyticsEvent("open_link", "type", "ferry_reservation");
 
 				intent.setAction(Intent.ACTION_VIEW);
 				intent.setData(Uri.parse("https://secureapps.wsdot.wa.gov/Ferries/Reservations/Vehicle/Mobile/MobileDefault.aspx"));

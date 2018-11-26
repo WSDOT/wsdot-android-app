@@ -17,6 +17,8 @@
  */
 package gov.wa.wsdot.android.wsdot.ui;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -27,12 +29,15 @@ import android.view.View;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
 import com.google.android.gms.ads.doubleclick.PublisherAdView;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import gov.wa.wsdot.android.wsdot.R;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
     private PublisherAdView mAdView;
+
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     /**
      * Check shardPref for an active event that might change the theme
@@ -65,6 +70,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
     }
 
     @Override
@@ -89,6 +95,26 @@ public abstract class BaseActivity extends AppCompatActivity {
             mAdView.destroy();
         }
         super.onDestroy();
+    }
+
+    public void setFirebaseAnalyticsScreenName(String name) {
+        
+        if (mFirebaseAnalytics == null) {
+            mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+            mFirebaseAnalytics.setAnalyticsCollectionEnabled(true);
+        }
+        
+        mFirebaseAnalytics.setCurrentScreen(this, name, null);
+    }
+
+    public void setFirebaseAnalyticsEvent(String type, String param, String value) {
+        if (mFirebaseAnalytics == null){
+            mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+            mFirebaseAnalytics.setAnalyticsCollectionEnabled(true);
+        }
+        Bundle params = new Bundle();
+        params.putString(param, value);
+        mFirebaseAnalytics.logEvent(type, params);
     }
 
     /**

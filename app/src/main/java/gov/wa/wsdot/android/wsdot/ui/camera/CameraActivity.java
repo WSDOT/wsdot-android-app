@@ -140,7 +140,14 @@ public class CameraActivity extends BaseActivity {
 
         String adTarget = b.getString("advertisingTarget");
         enableAds(adTarget);
+
 	}
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("CameraImage");
+    }
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {

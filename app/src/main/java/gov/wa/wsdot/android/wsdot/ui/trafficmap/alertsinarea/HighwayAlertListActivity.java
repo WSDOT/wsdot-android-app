@@ -46,6 +46,12 @@ public class HighwayAlertListActivity extends BaseActivity {
 
 		enableAds(getString(R.string.default_ad_target));
 	}
+
+	@Override
+	public void onResume() {
+    	super.onResume();
+		setFirebaseAnalyticsScreenName("AlertsInArea");
+	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {

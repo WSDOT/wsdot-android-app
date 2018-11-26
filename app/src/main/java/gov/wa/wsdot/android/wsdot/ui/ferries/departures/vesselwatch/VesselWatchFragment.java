@@ -17,8 +17,6 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -42,6 +40,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
@@ -74,8 +73,6 @@ public class VesselWatchFragment extends BaseFragment
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
-
-    private Tracker mTracker;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -276,10 +273,6 @@ public class VesselWatchFragment extends BaseFragment
             this.startActivity(intent);
         } else if (markers.get(marker).equalsIgnoreCase("camera")) {
             MyLogger.crashlyticsLog("Ferries", "Tap", "Camera " + marker.getSnippet(), 1);
-            // GA tracker
-            mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-            mTracker.setScreenName("/Ferries/Vessel Watch/Cameras");
-            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
             intent.setClass(getActivity(), CameraActivity.class);
             b.putInt("id", Integer.parseInt(marker.getSnippet()));
@@ -298,31 +291,17 @@ public class VesselWatchFragment extends BaseFragment
      * @param fab
      */
     private void toggleCameras(FloatingActionButton fab) {
-        // GA tracker
-        mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
 
         if (showCameras) {
-
             hideCameraMarkers();
             fab.setImageResource(R.drawable.ic_menu_traffic_cam_off);
             showCameras = false;
-
-            mTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory("Ferries")
-                    .setAction("Cameras")
-                    .setLabel("Hide Cameras")
-                    .build());
+            ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("ui_action", "type", "vessel_cameras_off");
         } else {
-
             showCameraMarkers();
             fab.setImageResource(R.drawable.ic_menu_traffic_cam);
             showCameras = true;
-
-            mTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory("Ferries")
-                    .setAction("Cameras")
-                    .setLabel("Show Cameras")
-                    .build());
+            ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("ui_action", "type", "vessel_cameras_on");
         }
 
         // Save camera display preference

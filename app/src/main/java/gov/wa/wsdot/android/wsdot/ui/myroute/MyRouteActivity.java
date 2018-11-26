@@ -13,8 +13,6 @@ import android.view.accessibility.AccessibilityManager;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -24,8 +22,6 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteActivity;
 public class MyRouteActivity extends BaseActivity implements RouteOptionsDialogFragment.Listener {
 
     final String TAG = MyRouteActivity.class.getSimpleName();
-
-    private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,13 +37,6 @@ public class MyRouteActivity extends BaseActivity implements RouteOptionsDialogF
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
-            // GA tracker
-            mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-            mTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory("Button Tap")
-                    .setAction("Create New Route")
-                    .setLabel("My Routes")
-                    .build());
             startActivity(new Intent(MyRouteActivity.this, NewRouteActivity.class));
         });
 
@@ -87,6 +76,13 @@ public class MyRouteActivity extends BaseActivity implements RouteOptionsDialogF
 
         settings.edit().putBoolean("KEY_SEEN_NEW_MY_ROUTE_TIP", true).apply();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("MyRoutes");
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

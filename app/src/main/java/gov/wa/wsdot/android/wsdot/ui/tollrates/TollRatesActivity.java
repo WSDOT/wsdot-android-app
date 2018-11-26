@@ -34,9 +34,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Spinner;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +50,6 @@ public class TollRatesActivity extends BaseActivity {
     private ViewPager mViewPager;
     private TabsAdapter mTabsAdapter;
     private Toolbar mToolbar;
-    private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,10 +95,8 @@ public class TollRatesActivity extends BaseActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
-                // GA tracker
-                mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-                mTracker.setScreenName("/Toll Rates/" + tab.getText());
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+                TollRatesActivity.this.setFirebaseAnalyticsScreenName(
+                        String.format("%s%s", "TollRates", tab.getText()).replaceAll("\\W", ""));
             }
 
             @Override
@@ -111,16 +105,11 @@ public class TollRatesActivity extends BaseActivity {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        disableAds();
-
-        MyLogger.crashlyticsLog("Toll Rates", "Screen View", "TollRatesActivity", 1);
 
         if (savedInstanceState != null) {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
             tab.select();
         }
-
-        mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         boolean seenTip = settings.getBoolean("KEY_SEEN_TOLL_WARNING", false);
@@ -135,7 +124,19 @@ public class TollRatesActivity extends BaseActivity {
 
         settings.edit().putBoolean("KEY_SEEN_TOLL_WARNING", true).apply();
 
+
+        disableAds();
+
+        MyLogger.crashlyticsLog("Toll Rates", "Screen View", "TollRatesActivity", 1);
+
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("TollRatesSR520");
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -152,11 +153,7 @@ public class TollRatesActivity extends BaseActivity {
             case R.id.menu_mygoodtogo_link:
                 Intent intent = new Intent();
 
-                // GA tracker
-                mTracker = ((WsdotApplication) this.getApplication()).getDefaultTracker();
-                mTracker.setScreenName("/Toll Rates/MyGoodToGo.com");
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-
+                setFirebaseAnalyticsEvent("open_link", "type", "tolling_good_to_go");
                 intent.setAction(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse("https://mygoodtogo.com"));
 

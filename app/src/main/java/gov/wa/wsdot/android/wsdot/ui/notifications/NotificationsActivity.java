@@ -28,7 +28,12 @@ public class NotificationsActivity extends BaseActivity {
 
         MyLogger.crashlyticsLog("Notifications", "Screen View", "NotificationsActivity", 1);
 
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("NotificationSettings");
     }
 
     @Override

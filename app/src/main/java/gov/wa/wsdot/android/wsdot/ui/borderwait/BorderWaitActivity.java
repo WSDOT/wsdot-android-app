@@ -77,6 +77,8 @@ public class BorderWaitActivity extends BaseActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
+                BorderWaitActivity.this.setFirebaseAnalyticsScreenName(
+                        String.format("%s%s", "BorderWaits", tab.getText()).replaceAll("\\W", ""));
             }
 
             @Override
@@ -98,6 +100,13 @@ public class BorderWaitActivity extends BaseActivity {
             TabLayout.Tab tab = mTabLayout.getTabAt(savedInstanceState.getInt("tab", 0));
             tab.select();
         }
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("BorderWaitsNorthbound");
     }
     
 	@Override

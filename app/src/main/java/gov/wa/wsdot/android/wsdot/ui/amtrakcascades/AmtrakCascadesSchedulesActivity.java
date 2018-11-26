@@ -34,8 +34,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -73,7 +71,6 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
     private Spinner daySpinner;
     private Spinner originSpinner;
     private Spinner destinationSpinner;
-    private Tracker mTracker;
     
     /**
      * Provides the entry point to Google Play services.
@@ -320,7 +317,6 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
         String destination = destinationSpinner.getSelectedItem().toString();
         String originId = stationsMap.get(origin);
         String destinationId = stationsMap.get(destination);
-        String trackerLabel = (destination.contains("Select") ? origin : origin + " - " + destination);
         
         Bundle b = new Bundle();
         Intent intent = new Intent(this, AmtrakCascadesSchedulesDetailsActivity.class);
@@ -330,14 +326,6 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
             destinationId = originId;
         b.putString("destinationId", destinationId);
         intent.putExtras(b);
-        
-        // GA tracker
-    	mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-    	mTracker.send(new HitBuilders.EventBuilder()
-    		    .setCategory("Amtrak")
-    		    .setAction("Schedules")
-    		    .setLabel(trackerLabel)
-    		    .build());
 
         MyLogger.crashlyticsLog("Amtrak Cascades", "Tap", "AmtrakCascadesActivity: " +dayId+"/"+originId+"/"+destinationId , 1);
         

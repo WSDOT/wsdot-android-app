@@ -47,6 +47,12 @@ public class CameraListActivity extends BaseActivity {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("CameraList");
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case android.R.id.home:

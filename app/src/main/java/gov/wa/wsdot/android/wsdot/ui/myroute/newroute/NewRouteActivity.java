@@ -60,12 +60,13 @@ import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.service.MyRouteTrackingService;
+import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.util.ProgressDialogFragment;
 
 import static android.view.View.GONE;
 import static gov.wa.wsdot.android.wsdot.util.ParserUtils.convertLocationsToJson;
 
-public class NewRouteActivity extends AppCompatActivity implements
+public class NewRouteActivity extends BaseActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback, OnMapReadyCallback,
         TrackingRouteDialogFragment.TrackingRouteDialogListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -176,7 +177,6 @@ public class NewRouteActivity extends AppCompatActivity implements
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
         mapFragment.getMapAsync(this);
-
     }
 
     @Override
@@ -185,6 +185,7 @@ public class NewRouteActivity extends AppCompatActivity implements
         checkLocationPermissionError();
         checkGoogleServiceConnectError();
         mGoogleApiClient.connect();
+        setFirebaseAnalyticsScreenName("NewMyRoute");
     }
 
     @Override

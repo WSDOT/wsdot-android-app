@@ -48,6 +48,12 @@ public class CalloutActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("Callout");
+    }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

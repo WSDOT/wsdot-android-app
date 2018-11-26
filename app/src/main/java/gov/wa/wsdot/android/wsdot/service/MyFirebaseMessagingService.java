@@ -28,8 +28,6 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -75,14 +73,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             message = data.get("message").toString();
         }
 
-        // GA tracker
-        Tracker mTracker = ((WsdotApplication) this.getApplication()).getDefaultTracker();
-        mTracker.send(new HitBuilders.EventBuilder()
-                .setCategory("Notification")
-                .setAction("Message Received")
-                .setLabel(title)
-                .setNonInteraction(true)
-                .build());
+        // TODO: firebase message received event
+
 
         if (data.get("push_alert_id") != null) {
 

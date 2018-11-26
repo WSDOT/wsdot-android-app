@@ -45,8 +45,6 @@ import android.view.accessibility.AccessibilityManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 
@@ -91,7 +89,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     private gov.wa.wsdot.android.wsdot.util.TabsAdapter mTabsAdapter;
 
     private Toolbar mToolbar;
-    private Tracker mTracker;
 
     private AppCompatSpinner mSailingSpinner;
     private AppCompatSpinner mDaySpinner;
@@ -201,18 +198,12 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
 
-                if (tab.getText().equals("Cameras")) {
-                    mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-                    mTracker.setScreenName("/Ferries/Departures/" + tab.getText());
-                    mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                    MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteSchedulesDayDeparturesActivity " + tab.getText(), 1);
-                }
+                FerriesRouteSchedulesDayDeparturesActivity.this.setFirebaseAnalyticsScreenName(
+                        String.format("%s%s", "Ferry", tab.getText()).replaceAll("\\W", ""));
+
+                MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteSchedulesDayDeparturesActivity " + tab.getText(), 1);
 
                 if (tab.getText().equals("Vessel Watch")) {
-                    mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-                    mTracker.setScreenName("/Ferries/Departures/" + tab.getText());
-                    mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-                    MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteSchedulesDayDeparturesActivity " + tab.getText(), 1);
 
                     mAppBar.setExpanded(true, true);
 
@@ -288,6 +279,12 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         }
 
 	}
+
+	@Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("FerryTimes");
+    }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -377,6 +374,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 
             terminalCameraViewModel.loadTerminalCameras(mTerminalItem.getDepartingTerminalID(), "ferries");
         }
+
     }
 
     @Override

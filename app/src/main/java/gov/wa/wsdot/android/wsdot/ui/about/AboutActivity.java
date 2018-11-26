@@ -60,7 +60,7 @@ public class AboutActivity extends BaseActivity {
 		
 		setContentView(R.layout.activity_webview_with_spinner);
 
-		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		mToolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -71,7 +71,7 @@ public class AboutActivity extends BaseActivity {
 		
 		mLoadingSpinner = findViewById(R.id.progress_bar);
 		mLoadingSpinner.setVisibility(View.VISIBLE);
-		webview = (WebView)findViewById(R.id.webview);
+		webview = findViewById(R.id.webview);
         webview.setVisibility(View.GONE);
 		webview.setWebViewClient(new myWebViewClient());
 		webview.getSettings().setJavaScriptEnabled(true);
@@ -79,8 +79,15 @@ public class AboutActivity extends BaseActivity {
 
 		MyLogger.crashlyticsLog("Home", "Screen View", "AboutActivity", 1);
 
+
 	}
-	
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		setFirebaseAnalyticsScreenName("About");
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {

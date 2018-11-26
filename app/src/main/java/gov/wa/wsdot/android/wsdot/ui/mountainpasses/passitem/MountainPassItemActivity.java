@@ -38,9 +38,6 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +58,6 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
 
 	private boolean mIsStarred = false;
 	private int mId;
-	private Tracker mTracker;
 
     private TabLayout mTabLayout;
     private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
@@ -132,11 +128,6 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
                 String forecast = pass.getForecast();
                 mIsStarred = pass.getIsStarred() != 0;
 
-                // GA tracker
-                mTracker = ((WsdotApplication) getApplication()).getDefaultTracker();
-                mTracker.setScreenName("/Mountain Passes/Details/" + mountainPassName);
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-
                 mToolbar = findViewById(R.id.toolbar);
                 mToolbar.setTitle(mountainPassName);
                 setSupportActionBar(mToolbar);
@@ -171,11 +162,11 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
                 mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                     @Override
                     public void onTabSelected(TabLayout.Tab tab) {
+
+                        MountainPassItemActivity.this.setFirebaseAnalyticsScreenName(
+                                String.format("%s%s", "Pass", tab.getText()).replaceAll("\\W", ""));
+
                         mViewPager.setCurrentItem(tab.getPosition());
-                        // GA tracker
-                        MyLogger.crashlyticsLog("Mountain Passes", "Tap", "MountainPassesActivity " + tab.getText(), 1);
-                        mTracker.setScreenName("/Mountain Passes/Details/" + tab.getText());
-                        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
                     }
 
                     @Override
@@ -204,6 +195,12 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
         enableAds(getString(R.string.passes_ad_target));
 
 	}
+
+	@Override
+    public void onResume(){
+	    super.onResume();
+        setFirebaseAnalyticsScreenName("PassReport");
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

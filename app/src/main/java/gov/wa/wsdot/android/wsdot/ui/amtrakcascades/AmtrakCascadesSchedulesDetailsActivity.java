@@ -41,7 +41,13 @@ public class AmtrakCascadesSchedulesDetailsActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
     }
-    
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setFirebaseAnalyticsScreenName("AmtrakScheduleDetails");
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
