@@ -4,6 +4,22 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.9.3]
+
+# Fixes
+- Display error causing ad banner to cover content.
+
+## [5.9.2] - 2018-11-14
+
+# Changes
+- Removes ViewModel processing work done on main thread to workers.
+- Refactored various sections to improve performance.
+
+## [5.8.6] - 2018-10-26
+
+# Fixes
+- Adds network security config for http camera links on Android 9.
+
 ## [5.8.4] - 2018-10-24 
 
 # Fixes
