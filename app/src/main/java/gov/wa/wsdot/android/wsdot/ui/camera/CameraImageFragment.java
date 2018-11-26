@@ -142,7 +142,12 @@ public class CameraImageFragment extends Fragment implements
                     ((TextView) mRootView.findViewById(R.id.milepost)).setText(String.format("milepost %s", camera.getMilepost()));
                 }
 
-                if (!camera.getDirection().equals("null")) {
+                String direction = "null";
+                if (camera.getDirection() != null){
+                	direction = camera.getDirection();
+				}
+
+                if (!direction.equals("null")) {
                     String directionString;
                     switch (camera.getDirection()) {
                         case "N":
