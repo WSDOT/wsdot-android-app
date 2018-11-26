@@ -333,10 +333,7 @@ public class VesselWatchFragment extends BaseFragment
             intent.putExtras(b);
             this.startActivity(intent);
         } else if (markers.get(marker).equalsIgnoreCase("weather")) {
-            // GA tracker
-            mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
-            mTracker.setScreenName("/Ferries/Vessel Watch/Weather");
-            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+            MyLogger.crashlyticsLog("Ferries", "Tap", "Weather " + marker.getTitle(), 1);
 
             intent.setClass(getActivity(), VesselWatchDetailsActivity.class);
             b.putString("title", marker.getTitle());
@@ -410,31 +407,17 @@ public class VesselWatchFragment extends BaseFragment
      * @param fab
      */
     private void toggleWind(FloatingActionButton fab) {
-        // GA tracker
-        mTracker = ((WsdotApplication) getActivity().getApplication()).getDefaultTracker();
 
         if (showWind) {
-
             hideWindMarkers();
             fab.setImageResource(R.drawable.ic_menu_wind_off);
             showWind = false;
-
-            mTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory("Ferries")
-                    .setAction("Weather")
-                    .setLabel("Hide Wind")
-                    .build());
+            ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("ui_action", "type", "vessel_weather_off");
         } else {
-
             showWindMarkers();
             fab.setImageResource(R.drawable.ic_menu_wind);
             showWind = true;
-
-            mTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory("Ferries")
-                    .setAction("Weather")
-                    .setLabel("Show Wind")
-                    .build());
+            ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("ui_action", "type", "vessel_weather_on");
         }
 
         // Save camera display preference
