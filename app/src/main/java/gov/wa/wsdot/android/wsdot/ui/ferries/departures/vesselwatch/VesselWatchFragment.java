@@ -239,7 +239,7 @@ public class VesselWatchFragment extends BaseFragment
                                 .position(latLng)
                                 .title(weatherReport.get(i).getSource())
                                 .snippet(String.valueOf(weatherReport.get(i).getReport()))
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.wind_0))
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.weather_flag))
                                 .visible(true));
 
                         markers.put(marker, "weather");
