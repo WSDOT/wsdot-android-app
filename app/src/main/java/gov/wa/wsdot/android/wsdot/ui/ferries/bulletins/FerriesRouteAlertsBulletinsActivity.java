@@ -56,7 +56,7 @@ public class FerriesRouteAlertsBulletinsActivity extends BaseActivity {
 	@Override
 	public void onResume() {
     	super.onResume();
-		setFirebaseAnalyticsScreenName("FerryBulletinsList");
+		setFirebaseAnalyticsScreenName("FerryBulletins");
 	}
 
 	@Override
