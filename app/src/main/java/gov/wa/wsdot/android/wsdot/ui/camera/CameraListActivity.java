@@ -35,7 +35,9 @@ public class CameraListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_camera_list);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        mToolbar = findViewById(R.id.toolbar);
+        mToolbar.setTitle("Traffic Cameras");
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);

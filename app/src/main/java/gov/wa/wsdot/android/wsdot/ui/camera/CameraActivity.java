@@ -59,10 +59,14 @@ public class CameraActivity extends BaseActivity {
         AndroidInjection.inject(this);
 	    super.onCreate(savedInstanceState);
 
-	    Bundle b = getIntent().getExtras();
-	    int id = b.getInt("id");
+	    int id = -1;
 
-	    viewModel = ViewModelProviders.of(this, viewModelFactory).get(CameraViewModel.class);
+	    Bundle b = getIntent().getExtras();
+	    if (b != null) {
+            id = b.getInt("id");
+        }
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(CameraViewModel.class);
 
 	    viewModel.getCamera(id).observe(this, camera -> {
 	        if (camera != null) {
@@ -73,6 +77,8 @@ public class CameraActivity extends BaseActivity {
                     tabFragments.add(mTabLayout.getTabCount(), CameraVideoFragment.class);
                     mTabLayout.addTab(mTabLayout.newTab().setText("Video"));
                 }
+            } else {
+	            mToolbar.setTitle("Camera Unavailable");
             }
         });
 

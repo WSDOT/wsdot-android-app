@@ -37,7 +37,11 @@ public class FerriesRouteAlertsBulletinsActivity extends BaseActivity {
 		setContentView(R.layout.activity_ferries_route_alerts_bulletins);
 		
 		Bundle args = getIntent().getExtras();
-        String title = getString(R.string.title_ferriesroutealerts) + " - " + args.getString("title");
+
+		String title = getString(R.string.title_ferriesroutealerts);
+		if (args != null) {
+			title = getString(R.string.title_ferriesroutealerts) + " - " + args.getString("title");
+		}
 
 		mToolbar = findViewById(R.id.toolbar);
 		mToolbar.setTitle(title);

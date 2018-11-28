@@ -83,12 +83,16 @@ public class HighwayAlertDetailsActivity extends BaseActivity implements
 
         title = "Highway Alert";
         description = "";
-		
-		Bundle b = getIntent().getExtras();
-		Integer id = b.getInt("id");
-		Boolean force = b.getBoolean("refresh", false);
 
-		fromNotification = b.getBoolean("from_notification");
+        Integer id = -1;
+        boolean force = false;
+
+		Bundle b = getIntent().getExtras();
+		if (b != null) {
+            id = b.getInt("id");
+            force = b.getBoolean("refresh", false);
+            fromNotification = b.getBoolean("from_notification");
+        }
 
         mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(title);

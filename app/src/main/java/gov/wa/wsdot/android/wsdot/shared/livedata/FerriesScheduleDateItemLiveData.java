@@ -49,8 +49,11 @@ public class FerriesScheduleDateItemLiveData extends LiveData<List<FerriesSchedu
     @Override public void onChanged(@Nullable FerryScheduleEntity ferryScheduleEntity) {
 
         AsyncTask.execute(() -> {
-            assert ferryScheduleEntity != null;
-            postValue(processDates(ferryScheduleEntity.getDate()));
+            if (ferryScheduleEntity != null) {
+                postValue(processDates(ferryScheduleEntity.getDate()));
+            } else {
+                postValue(null);
+            }
         });
     }
 

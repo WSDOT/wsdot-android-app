@@ -34,9 +34,11 @@ public class TravelChartsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_travel_chart);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
 
-        mToolbar.setTitle(getIntent().getExtras().getString("title"));
+        if (getIntent().getExtras() != null) {
+            mToolbar.setTitle(getIntent().getExtras().getString("title", "Unavailable"));
+        }
 
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){

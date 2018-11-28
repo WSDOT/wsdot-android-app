@@ -57,7 +57,7 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
     private final String TAG = MountainPassItemActivity.class.getSimpleName();
 
 	private boolean mIsStarred = false;
-	private int mId;
+	private int mId = -1;
 
     private TabLayout mTabLayout;
     private List<Class<? extends Fragment>> tabFragments = new ArrayList<>();
@@ -78,12 +78,12 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
-
 	    super.onCreate(savedInstanceState);
 
 	    Bundle b = getIntent().getExtras();
-
-	    mId = b.getInt("id");
+	    if (b != null) {
+            mId = b.getInt("id");
+        }
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(MountainPassViewModel.class);
 
@@ -181,6 +181,15 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
                 // remove this initial observer and add a new one.
                 viewModel.getPassFor(mId).removeObservers(this);
                 viewModel.getPassFor(mId).observe(this, passItem -> mIsStarred = passItem.getIsStarred() != 0);
+
+            } else {
+                mToolbar = findViewById(R.id.toolbar);
+                mToolbar.setTitle("Report Unavailable");
+                setSupportActionBar(mToolbar);
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    getSupportActionBar().setDisplayShowHomeEnabled(true);
+                }
 
             }
         });

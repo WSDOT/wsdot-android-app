@@ -37,8 +37,8 @@ public class VesselWatchDetailsActivity extends BaseActivity {
 
     private static final String TAG = VesselWatchDetailsActivity.class.getSimpleName();
     private WebView webview;
-	private String mTitle;
-	private String mDescription;
+	private String mTitle = "Vessel Info Unavailable";
+	private String mDescription = "";
 	private String mContent;
 	private View mLoadingSpinner;
 	private Toolbar mToolbar;
@@ -49,8 +49,10 @@ public class VesselWatchDetailsActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		
 		Bundle b = getIntent().getExtras();
-		mTitle = b.getString("title");
-		mDescription = b.getString("description");
+		if (b != null) {
+			mTitle = b.getString("title");
+			mDescription = b.getString("description");
+		}
 
         setContentView(R.layout.activity_webview_with_spinner);
 

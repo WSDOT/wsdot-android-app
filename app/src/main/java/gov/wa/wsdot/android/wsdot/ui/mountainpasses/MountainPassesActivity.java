@@ -37,13 +37,13 @@ public class MountainPassesActivity extends BaseActivity {
 		
 		setContentView(R.layout.activity_mountain_passes);
 
-		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		mToolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
 		if(getSupportActionBar() != null){
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
-		ImageView banner = (ImageView) findViewById(R.id.banner);
+		ImageView banner = findViewById(R.id.banner);
 		banner.setImageResource(R.drawable.pass_banner);
 		banner.setContentDescription("banner image of a mountain pass.");
 

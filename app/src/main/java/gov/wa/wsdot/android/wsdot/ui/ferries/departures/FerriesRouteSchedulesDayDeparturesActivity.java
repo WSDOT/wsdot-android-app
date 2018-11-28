@@ -136,9 +136,13 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         }
 
         Bundle args = getIntent().getExtras();
-        String title = args.getString("title");
-        mScheduleId = args.getInt("scheduleId");
-        mIsStarred = args.getInt("isStarred") != 0;
+
+        String title = "Schedule Unavailable";
+        if (args != null) {
+            title = args.getString("title");
+            mScheduleId = args.getInt("scheduleId");
+            mIsStarred = args.getInt("isStarred") != 0;
+        }
 
         setContentView(R.layout.activity_ferry_sailings);
         mViewPager = findViewById(R.id.pager);

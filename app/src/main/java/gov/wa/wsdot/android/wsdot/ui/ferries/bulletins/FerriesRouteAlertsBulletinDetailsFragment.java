@@ -71,10 +71,13 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Bundle args = getActivity().getIntent().getExtras();
-		if (args != null) {
-		    mRouteId = args.getInt("routeId",0);
-		    mAlertId = args.getInt("alertId", 0);
+
+		if (getActivity() != null) {
+			Bundle args = getActivity().getIntent().getExtras();
+			if (args != null) {
+				mRouteId = args.getInt("routeId", 0);
+				mAlertId = args.getInt("alertId", 0);
+			}
 		}
 	}
 	
@@ -123,8 +126,6 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
             if (alert != null) {
 
                 Date date = new Date(Long.parseLong(alert.getPublishDate()));
-
-
 
                 mAlertPublishDate = displayDateFormat.format(date);
                 mAlertDescription = alert.getAlertDescription();

@@ -58,9 +58,16 @@ public class CameraListFragment extends BaseFragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        Bundle args = getActivity().getIntent().getExtras();
-        cameraIds = args.getIntArray("cameraIds");
-        cameraUrls = args.getStringArray("cameraUrls");
+        if (getActivity() != null) {
+            Bundle args = getActivity().getIntent().getExtras();
+            if (args != null) {
+                cameraIds = args.getIntArray("cameraIds");
+                cameraUrls = args.getStringArray("cameraUrls");
+            } else {
+                cameraIds = new int[0];
+                cameraUrls = new String[0];
+            }
+        }
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_progress_bar, null);
 
