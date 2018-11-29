@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -217,7 +218,11 @@ public class VesselWatchFragment extends BaseFragment
 
         vesselViewModel.getWeatherReports().observe(this, weatherItems -> {
 
+            Log.e(TAG, "got weather reports");
+
             if (weatherItems != null){
+
+                Log.e(TAG, "they ain't null");
 
                 Iterator<Map.Entry<Marker, String>> iter = markers.entrySet().iterator();
                 while (iter.hasNext()) {
@@ -232,6 +237,9 @@ public class VesselWatchFragment extends BaseFragment
                 weatherReport = weatherItems;
 
                 if (weatherReport.size() != 0) {
+
+                    Log.e(TAG, "we have reports too!");
+
                     for (int i = 0; i < weatherReport.size(); i++) {
 
                         LatLng latLng = new LatLng(weatherReport.get(i).getLatitude(), weatherReport.get(i).getLongitude());

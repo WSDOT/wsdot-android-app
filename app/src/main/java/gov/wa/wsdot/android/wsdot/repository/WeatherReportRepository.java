@@ -3,6 +3,7 @@ package gov.wa.wsdot.android.wsdot.repository;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,20 +49,19 @@ public class WeatherReportRepository extends NetworkResourceSyncRepository {
     }
 
     public LiveData<List<WeatherReportEntity>> getReports(MutableLiveData<ResourceStatus> status){
-        super.refreshData(status, false);
+        super.refreshData(status, true);
         return weatherReportDao.loadWeatherReports();
     }
 
     public LiveData<List<WeatherReportEntity>> getReportsInRange(Date startDate, Date endDate, MutableLiveData<ResourceStatus> status){
         super.refreshData(status, false);
         return weatherReportDao.loadWeatherReportsBetween(dateFormat.format(startDate), dateFormat.format(endDate));
-
     }
 
     @Override
     void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
-        String weatherReportUrl =  APIEndPoints.WEATHER_REPORTS;
+        String weatherReportUrl = APIEndPoints.WEATHER_REPORTS;
 
         URL url = new URL(weatherReportUrl);
         URLConnection urlConn = url.openConnection();
@@ -86,17 +86,33 @@ public class WeatherReportRepository extends NetworkResourceSyncRepository {
             WeatherReportEntity weatherReport = new WeatherReportEntity();
 
             weatherReport.setSource(item.getString("source"));
-            weatherReport.setWindSpeed(item.getDouble("windSpeed"));
-            weatherReport.setWindDirection(item.getDouble("windDirection"));
-            weatherReport.setTemperature(item.getDouble("temperature"));
+
+            if (!item.isNull("windSpeed")) {
+                weatherReport.setWindSpeed(item.getDouble("windSpeed"));
+            } else {
+                weatherReport.setWindSpeed(null);
+            }
+
+            if (!item.isNull("windDirection")) {
+                weatherReport.setWindDirection(item.getDouble("windDirection"));
+            } else {
+                weatherReport.setWindDirection(null);
+            }
+
+            if (!item.isNull("temperature")) {
+                weatherReport.setTemperature(item.getDouble("temperature"));
+            } else {
+                weatherReport.setTemperature(null);
+            }
+
             weatherReport.setLatitude(item.getDouble("latitude"));
             weatherReport.setLongitude(item.getDouble("longitude"));
             weatherReport.setUpdated(item.getString("updated"));
 
             weatherReport.setReport(formatTime(weatherReport.getUpdated())
-                    + "<br><br><b>Wind Speed:</b> " + weatherReport.getWindSpeed() + " mph"
-                    + "<br><br><b>Wind Direction:</b> " + Utils.headingToHeadtxt(weatherReport.getWindDirection())
-                    + "<br><br><b>Temperature:</b> " + weatherReport.getTemperature() + "°F");
+                    + (weatherReport.getWindSpeed() != null ? "<br><br><b>Wind Speed:</b> " + weatherReport.getWindSpeed() + " mph" : null)
+                    + (weatherReport.getWindDirection() != null ? "<br><br><b>Wind Direction:</b> " + Utils.headingToHeadtxt(weatherReport.getWindDirection()) : null)
+                    + (weatherReport.getTemperature() != null ? "<br><br><b>Temperature:</b> " + weatherReport.getTemperature() + "°F" : null));
 
             reports.add(weatherReport);
         }
