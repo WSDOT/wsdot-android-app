@@ -110,9 +110,9 @@ public class WeatherReportRepository extends NetworkResourceSyncRepository {
             weatherReport.setUpdated(item.getString("updated"));
 
             weatherReport.setReport(formatTime(weatherReport.getUpdated())
-                    + (weatherReport.getWindSpeed() != null ? "<br><br><b>Wind Speed:</b> " + weatherReport.getWindSpeed() + " mph" : null)
-                    + (weatherReport.getWindDirection() != null ? "<br><br><b>Wind Direction:</b> " + Utils.headingToHeadtxt(weatherReport.getWindDirection()) : null)
-                    + (weatherReport.getTemperature() != null ? "<br><br><b>Temperature:</b> " + weatherReport.getTemperature() + "°F" : null));
+                    + (weatherReport.getWindSpeed() != null ? "<br><br><b>Wind Speed:</b> " + weatherReport.getWindSpeed() + " mph" : "")
+                    + (weatherReport.getWindDirection() != null ? "<br><br><b>Wind Direction:</b> " + Utils.headingToHeadtxt(weatherReport.getWindDirection()) :"")
+                    + (weatherReport.getTemperature() != null ? "<br><br><b>Temperature:</b> " + weatherReport.getTemperature() + "°F" : ""));
 
             reports.add(weatherReport);
         }

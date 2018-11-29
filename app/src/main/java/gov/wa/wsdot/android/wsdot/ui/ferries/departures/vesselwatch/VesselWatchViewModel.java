@@ -13,6 +13,8 @@ import gov.wa.wsdot.android.wsdot.database.ferries.WeatherReportEntity;
 import gov.wa.wsdot.android.wsdot.repository.VesselWatchRepository;
 import gov.wa.wsdot.android.wsdot.repository.WeatherReportRepository;
 import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
+import gov.wa.wsdot.android.wsdot.shared.WeatherItem;
+import gov.wa.wsdot.android.wsdot.shared.livedata.WeatherItemLiveData;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 public class VesselWatchViewModel extends ViewModel {
@@ -25,12 +27,17 @@ public class VesselWatchViewModel extends ViewModel {
     private VesselWatchRepository vesselWatchRepo;
     private WeatherReportRepository weatherReportRepo;
 
+    private WeatherItemLiveData weatherItemLiveData;
+
     @Inject
     VesselWatchViewModel(VesselWatchRepository vesselWatchRepo, WeatherReportRepository weatherReportRepo) {
         this.mVesselStatus = new MutableLiveData<>();
         this.mWeatherStatus = new MutableLiveData<>();
         this.vesselWatchRepo = vesselWatchRepo;
         this.weatherReportRepo = weatherReportRepo;
+
+        weatherItemLiveData = new WeatherItemLiveData(weatherReportRepo.getReports(mWeatherStatus));
+
     }
 
     public LiveData<ResourceStatus> getVesselResourceStatus() { return this.mVesselStatus; }
@@ -40,12 +47,12 @@ public class VesselWatchViewModel extends ViewModel {
         return vesselWatchRepo.getVessels();
     }
 
-    public LiveData<List<WeatherReportEntity>> getWeatherReportsInRange(Date startDate, Date endDate){
-        return weatherReportRepo.getReportsInRange(startDate, endDate, mWeatherStatus);
-    }
+   // public LiveData<List<WeatherItem>> getWeatherReportsInRange(Date startDate, Date endDate){
+   //     return weatherReportRepo.getReportsInRange(startDate, endDate, mWeatherStatus);
+   // }
 
-    public LiveData<List<WeatherReportEntity>> getWeatherReports(){
-        return weatherReportRepo.getReports(mWeatherStatus);
+    public LiveData<List<WeatherItem>> getWeatherReports(){
+        return weatherItemLiveData;
     }
 
     public void refreshVessels() {
