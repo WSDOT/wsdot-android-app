@@ -265,6 +265,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     interface WeatherReportColumns {
         String WEATHER_REPORT_SOURCE = "source";
+        String WEATHER_REPORT_TEXT = "report";
         String WEATHER_REPORT_TEMPERATURE = "temperature";
         String WEATHER_REPORT_WIND_SPEED = "wind_speed";
         String WEATHER_REPORT_WIND_DIRECTION = "wind_direction";
@@ -707,12 +708,13 @@ public abstract class AppDatabase extends RoomDatabase {
 
             database.execSQL("CREATE TABLE " + Tables.WEATHER_REPORT + " ("
                     + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + WeatherReportColumns.WEATHER_REPORT_SOURCE + " TEXT NOT NULL,"
-                    + WeatherReportColumns.WEATHER_REPORT_WIND_SPEED + " INTEGER,"
-                    + WeatherReportColumns.WEATHER_REPORT_WIND_DIRECTION + " INTEGER,"
-                    + WeatherReportColumns.WEATHER_REPORT_TEMPERATURE + " INTEGER,"
-                    + WeatherReportColumns.WEATHER_REPORT_LAT + " INTEGER,"
-                    + WeatherReportColumns.WEATHER_REPORT_LONG + " INTEGER,"
+                    + WeatherReportColumns.WEATHER_REPORT_SOURCE + " TEXT,"
+                    + WeatherReportColumns.WEATHER_REPORT_TEXT + " TEXT,"
+                    + WeatherReportColumns.WEATHER_REPORT_WIND_SPEED + " REAL,"
+                    + WeatherReportColumns.WEATHER_REPORT_WIND_DIRECTION + " REAL,"
+                    + WeatherReportColumns.WEATHER_REPORT_TEMPERATURE + " REAL,"
+                    + WeatherReportColumns.WEATHER_REPORT_LAT + " REAL,"
+                    + WeatherReportColumns.WEATHER_REPORT_LONG + " REAL,"
                     + WeatherReportColumns.WEATHER_REPORT_UPDATED + " TEXT);");
 
             database.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('weather_report', 0);");
