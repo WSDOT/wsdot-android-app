@@ -3,14 +3,21 @@ package gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch;
 import android.Manifest;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +28,18 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
+import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.view.DefaultClusterRenderer;
+import com.google.maps.android.ui.IconGenerator;
+import com.google.maps.android.ui.SquareTextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,15 +55,19 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
+import gov.wa.wsdot.android.wsdot.shared.WeatherItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
 import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
+import gov.wa.wsdot.android.wsdot.util.Utils;
 
 public class VesselWatchFragment extends BaseFragment
-    implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback, Injectable {
+    implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback,
+        ClusterManager.OnClusterItemClickListener<WeatherItem>,
+        ClusterManager.OnClusterClickListener<WeatherItem>,
+        Injectable {
 
     final String TAG = VesselWatchFragment.class.getSimpleName();
 
@@ -60,19 +79,25 @@ public class VesselWatchFragment extends BaseFragment
 
     private List<CameraItem> cameras = new ArrayList<>();
     private List<VesselWatchItem> vessels = new ArrayList<>();
+    private List<WeatherItem> weatherReports = new ArrayList<>();
 
     private HashMap<Marker, String> markers = new HashMap<>();
 
     private ProgressBar mProgressBar;
+
     FloatingActionButton fabCameras;
+    FloatingActionButton fabWind;
 
     boolean showCameras;
+    boolean showWeather;
 
     private static VesselWatchViewModel vesselViewModel;
     private static MapCameraViewModel mapCameraViewModel;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
+
+    private ClusterManager<WeatherItem> mClusterManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,6 +110,7 @@ public class VesselWatchFragment extends BaseFragment
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
+        showWeather = settings.getBoolean("KEY_SHOW_WEATHER", false);
 
     }
 
@@ -94,7 +120,7 @@ public class VesselWatchFragment extends BaseFragment
 
         mProgressBar = rootView.findViewById(R.id.progress_bar);
 
-        fabCameras = rootView.findViewById(R.id.fab);
+        fabCameras = rootView.findViewById(R.id.camera_fab);
 
         if (showCameras){
             fabCameras.setImageResource(R.drawable.ic_menu_traffic_cam);
@@ -104,6 +130,19 @@ public class VesselWatchFragment extends BaseFragment
 
         fabCameras.setOnClickListener(view -> {
             toggleCameras(fabCameras);
+        });
+
+
+        fabWind = rootView.findViewById(R.id.wind_fab);
+
+        if (showWeather){
+            fabWind.setImageResource(R.drawable.ic_menu_wind);
+        } else {
+            fabWind.setImageResource(R.drawable.ic_menu_wind_off);
+        }
+
+        fabWind.setOnClickListener(view -> {
+            toggleWeather(fabWind);
         });
 
         mapCameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapCameraViewModel.class);
@@ -138,6 +177,8 @@ public class VesselWatchFragment extends BaseFragment
             mMap.setMyLocationEnabled(false);
         }
 
+        setUpClusterer();
+
         LatLng routeLatLng = getRouteLocation(mScheduleId);
         int zoom = getRouteZoom(mScheduleId);
 
@@ -147,10 +188,14 @@ public class VesselWatchFragment extends BaseFragment
             }
         });
 
+        mMap.setOnCameraIdleListener(() -> {
+            mClusterManager.onCameraIdle();
+        });
+
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(routeLatLng, zoom));
         vesselViewModel = ViewModelProviders.of(this, viewModelFactory).get(VesselWatchViewModel.class);
 
-        vesselViewModel.getResourceStatus().observe(this, resourceStatus -> {
+        vesselViewModel.getVesselResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -196,7 +241,21 @@ public class VesselWatchFragment extends BaseFragment
             }
         });
 
+        vesselViewModel.getWeatherReports().observe(this, weatherItems -> {
+
+            if (weatherItems != null){
+                weatherReports.clear();
+                weatherReports = weatherItems;
+                mClusterManager.clearItems();
+                if (showWeather) {
+                    mClusterManager.addItems(weatherReports);
+                    mClusterManager.cluster();
+                }
+            }
+        });
+
         vesselViewModel.refreshVessels();
+        vesselViewModel.refreshWeatherReports();
 
         mapCameraViewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
@@ -264,7 +323,9 @@ public class VesselWatchFragment extends BaseFragment
         Bundle b = new Bundle();
         Intent intent = new Intent();
 
-        if (markers.get(marker).equalsIgnoreCase("vessel")) {
+        if (markers.get(marker) == null) { // Not in our markers, must be cluster icon
+            mClusterManager.onMarkerClick(marker);
+        } else if (markers.get(marker).equalsIgnoreCase("vessel")) {
             MyLogger.crashlyticsLog("Ferries", "Tap", "Vessel " + marker.getTitle(), 1);
             intent.setClass(getActivity(), VesselWatchDetailsActivity.class);
             b.putString("title", marker.getTitle());
@@ -278,6 +339,15 @@ public class VesselWatchFragment extends BaseFragment
             b.putInt("id", Integer.parseInt(marker.getSnippet()));
             intent.putExtras(b);
             this.startActivity(intent);
+        } else if (markers.get(marker).equalsIgnoreCase("weather")) {
+            MyLogger.crashlyticsLog("Ferries", "Tap", "Weather " + marker.getTitle(), 1);
+
+            intent.setClass(getActivity(), VesselWatchDetailsActivity.class);
+            b.putString("title", marker.getTitle());
+            b.putString("description", marker.getSnippet());
+            intent.putExtras(b);
+            this.startActivity(intent);
+
         }
 
         return true;
@@ -311,6 +381,7 @@ public class VesselWatchFragment extends BaseFragment
         editor.commit();
     }
 
+
     /**
      * sets all camera marker visibility to false.
      */
@@ -335,6 +406,36 @@ public class VesselWatchFragment extends BaseFragment
                 key.setVisible(true);
             }
         }
+    }
+
+    /**
+     * Toggle wind  & weather icon visibility
+     *
+     * @param fab
+     */
+    private void toggleWeather(FloatingActionButton fab) {
+
+        if (showWeather) {
+            fab.setImageResource(R.drawable.ic_menu_wind_off);
+            mClusterManager.clearItems();
+            mClusterManager.cluster();
+            showWeather = false;
+            ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("ui_action", "type", "vessel_weather_off");
+        } else {
+            fab.setImageResource(R.drawable.ic_menu_wind);
+            if (weatherReports != null) {
+                mClusterManager.addItems(weatherReports);
+                mClusterManager.cluster();
+            }
+            showWeather = true;
+            ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("ui_action", "type", "vessel_weather_on");
+        }
+
+        // Save camera display preference
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("KEY_SHOW_WEATHER", showWeather);
+        editor.commit();
     }
 
     public class VesselsTimerTask extends TimerTask {
@@ -408,6 +509,172 @@ public class VesselWatchFragment extends BaseFragment
                 return 12;
             default:
                 return 11;
+        }
+    }
+
+    // Weather Report Cluster Logic
+
+    /**
+     * Arbitrarily assumes items in same space will have no more than 20 images. This also helps performance.
+     *
+     * @param cluster
+     * @return
+     */
+    private boolean isWeatherGroup(Cluster<WeatherItem> cluster){
+        WeatherItem firstItem = (WeatherItem) cluster.getItems().toArray()[0];
+        for (WeatherItem item: cluster.getItems()) {
+
+            if (Utils.getDistanceFromPoints(firstItem.getLatitude(), firstItem.getLongitude(), item.getLatitude(), item.getLongitude()) > 5){
+                return false;
+            }
+        }
+        return true;
+
+    }
+
+    private void setUpClusterer() {
+
+        // Initialize the manager with the context and the map.
+        // (Activity extends context, so we can pass 'this' in the constructor.)
+        mClusterManager = new ClusterManager<>(VesselWatchFragment.this.getContext(), mMap);
+        mClusterManager.setRenderer(new WeatherRenderer(VesselWatchFragment.this.getContext()));
+
+        mClusterManager.setOnClusterItemClickListener(this);
+        mClusterManager.setOnClusterClickListener(this);
+
+        mClusterManager.cluster();
+    }
+
+    @Override
+    public boolean onClusterItemClick(WeatherItem weatherItem) {
+        MyLogger.crashlyticsLog("Ferries", "Tap", "Weather " + weatherItem.getSource(), 1);
+
+        Bundle b = new Bundle();
+        Intent intent = new Intent();
+        intent.setClass(getActivity(), VesselWatchDetailsActivity.class);
+        b.putString("title", weatherItem.getSource());
+        b.putString("description", weatherItem.getReport());
+        intent.putExtras(b);
+        this.startActivity(intent);
+
+
+        return false;
+    }
+
+    /*
+        If it's a group open the most recent recorded report
+     */
+    @Override
+    public boolean onClusterClick(Cluster<WeatherItem> cluster) {
+        if (isWeatherGroup(cluster)) {
+
+            WeatherItem newestItem = null;
+
+            for (WeatherItem item: cluster.getItems()) {
+                if (newestItem == null) {
+                    newestItem = item;
+                } else {
+                    if (newestItem.getUpdated().compareToIgnoreCase(item.getUpdated()) < 0){
+                        newestItem = item;
+                    }
+                }
+            }
+
+            Bundle b = new Bundle();
+            Intent intent = new Intent();
+            intent.setClass(getActivity(), VesselWatchDetailsActivity.class);
+            b.putString("title", newestItem.getSource());
+            b.putString("description", newestItem.getReport());
+            intent.putExtras(b);
+            this.startActivity(intent);
+
+        } else {
+            LatLngBounds.Builder builder = LatLngBounds.builder();
+            for (ClusterItem item : cluster.getItems()) {
+                builder.include(item.getPosition());
+            }
+            // Get the LatLngBounds
+            final LatLngBounds bounds = builder.build();
+
+            // Animate camera to the bounds
+            try {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * Based on custom renderer demo:
+     * https://github.com/googlemaps/android-maps-utils/blob/master/library/src/com/google/maps/android/clustering/view/DefaultClusterRenderer.java
+     */
+    private class WeatherRenderer extends DefaultClusterRenderer<WeatherItem> {
+        private final IconGenerator mClusterIconGenerator;
+        private final float mDensity;
+        private final Bitmap singleCameraIcon = BitmapFactory.decodeResource(getResources(), R.drawable.weather_flag_blue);
+        private final Bitmap openCameraGroupIcon = BitmapFactory.decodeResource(getResources(), R.drawable.weather_flag_blue);
+        private SparseArray<BitmapDescriptor> mIcons = new SparseArray<>();
+
+        private WeatherRenderer(Context context) {
+            super(context, mMap, mClusterManager);
+            mDensity = context.getResources().getDisplayMetrics().density;
+            mClusterIconGenerator = new IconGenerator(context);
+            mClusterIconGenerator.setContentView(makeSquareTextView(context));
+            mClusterIconGenerator.setTextAppearance(R.style.amu_ClusterIcon_TextAppearance);
+
+        }
+
+        private SquareTextView makeSquareTextView(Context context) {
+            SquareTextView squareTextView = new SquareTextView(context);
+            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            squareTextView.setLayoutParams(layoutParams);
+            squareTextView.setId(R.id.amu_text);
+            squareTextView.setTextColor(getResources().getColor(R.color.holo_red_light));
+            int twelveDpi = (int) (6 * mDensity);
+            squareTextView.setPadding(twelveDpi, twelveDpi, twelveDpi, twelveDpi);
+            return squareTextView;
+        }
+
+        private LayerDrawable makeClusterBackground(Drawable backgroundImage) {
+            return new LayerDrawable(new Drawable[]{backgroundImage});
+        }
+
+        private Drawable getBackgroundImage(int bucket){
+            return ResourcesCompat.getDrawable(getResources(), R.drawable.weather_flag_blue, null);
+        }
+
+        @Override
+        protected void onBeforeClusterItemRendered(WeatherItem item, MarkerOptions markerOptions) {
+            // Draw a single camera
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(singleCameraIcon));
+        }
+
+        @Override
+        protected void onBeforeClusterRendered(Cluster<WeatherItem> cluster, MarkerOptions markerOptions) {
+
+            int bucket = getBucket(cluster);
+
+            if (isWeatherGroup(cluster)) {
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(openCameraGroupIcon));
+            } else {
+                BitmapDescriptor descriptor = mIcons.get(bucket);
+
+                if (descriptor == null) {
+                    String countText = getClusterText(bucket);
+                    mClusterIconGenerator.setBackground(makeClusterBackground(getBackgroundImage(bucket)));
+                    Bitmap icon = mClusterIconGenerator.makeIcon(countText);
+                    descriptor = BitmapDescriptorFactory.fromBitmap(icon);
+                    mIcons.put(bucket, descriptor);
+                }
+                markerOptions.icon(descriptor);
+            }
+        }
+        @Override
+        protected boolean shouldRenderAsCluster(Cluster cluster) {
+            return cluster.getSize() > 1;
         }
     }
 }
