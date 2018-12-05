@@ -6,7 +6,6 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -40,7 +39,7 @@ public class WeatherReportRepository extends NetworkResourceSyncRepository {
     private final WeatherReportDao weatherReportDao;
 
     // Date format from weather report
-    private DateFormat dateFormat = new SimpleDateFormat("yyyyMMddhhmm", Locale.US);
+    private DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm", Locale.US);
 
     @Inject
     WeatherReportRepository(WeatherReportDao weatherReportDao, AppExecutors appExecutors, CacheRepository cacheRepository) {
@@ -55,6 +54,7 @@ public class WeatherReportRepository extends NetworkResourceSyncRepository {
 
     public LiveData<List<WeatherReportEntity>> getReportsInRange(Date startDate, Date endDate, MutableLiveData<ResourceStatus> status){
         super.refreshData(status, false);
+
         return weatherReportDao.loadWeatherReportsBetween(dateFormat.format(startDate), dateFormat.format(endDate));
     }
 
