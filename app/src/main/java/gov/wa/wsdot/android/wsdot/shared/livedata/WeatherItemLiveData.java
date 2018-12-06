@@ -28,37 +28,31 @@ public class WeatherItemLiveData extends LiveData<List<WeatherItem>>
         this.sourceLiveData = sourceLiveData;
     }
 
-    public void setNewSourceLiveData(LiveData<List<WeatherReportEntity>> sourceLiveData){
-       this.sourceLiveData.removeObserver(this);
-       this.sourceLiveData = sourceLiveData;
-    }
+        @Override protected void onActive()   { sourceLiveData.observeForever(this); }
+        @Override protected void onInactive() { sourceLiveData.removeObserver(this); }
 
-    @Override protected void onActive()   { sourceLiveData.observeForever(this); }
-
-    @Override protected void onInactive() { sourceLiveData.removeObserver(this); }
-
-    @Override public void onChanged(@Nullable List<WeatherReportEntity> reports) {
-        AsyncTask.execute(() -> postValue(processDates(reports)));
-    }
-
-    private List<WeatherItem> processDates(List<WeatherReportEntity> reports) {
-
-        ArrayList<WeatherItem> weatherItems = new ArrayList<>();
-
-        if (reports != null) {
-            for (WeatherReportEntity report : reports) {
-
-                weatherItems.add(new WeatherItem(
-                        report.getSource(),
-                        report.getWindSpeed(),
-                        report.getWindDirection(),
-                        report.getReport(),
-                        report.getLatitude(),
-                        report.getLongitude(),
-                        report.getUpdated())
-                );
-            }
+        @Override public void onChanged(@Nullable List<WeatherReportEntity> reports) {
+            AsyncTask.execute(() -> postValue(processDates(reports)));
         }
-        return weatherItems;
+
+        private List<WeatherItem> processDates(List<WeatherReportEntity> reports) {
+
+            ArrayList<WeatherItem> weatherItems = new ArrayList<>();
+
+            if (reports != null) {
+                for (WeatherReportEntity report : reports) {
+
+                    weatherItems.add(new WeatherItem(
+                            report.getSource(),
+                            report.getWindSpeed(),
+                            report.getWindDirection(),
+                            report.getReport(),
+                            report.getLatitude(),
+                            report.getLongitude(),
+                            report.getUpdated())
+                    );
+                }
+            }
+            return weatherItems;
+        }
     }
-}

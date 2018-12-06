@@ -7,11 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
@@ -20,7 +17,6 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.widget.ImageViewCompat;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -126,24 +122,23 @@ public class VesselWatchFragment extends BaseFragment
 
         fabCameras = rootView.findViewById(R.id.camera_fab);
 
-        fabCameras.setImageResource(R.drawable.ic_menu_traffic_cam);
-
-        if (showCameras) {
-            toggleFabOn(fabCameras);
+        if (showCameras){
+            fabCameras.setImageResource(R.drawable.ic_menu_traffic_cam);
         } else {
-            toggleFabOff(fabCameras);
+            fabCameras.setImageResource(R.drawable.ic_menu_traffic_cam_off);
         }
 
         fabCameras.setOnClickListener(view -> {
             toggleCameras(fabCameras);
         });
 
+
         fabWind = rootView.findViewById(R.id.wind_fab);
 
         if (showWeather){
-            toggleFabOn(fabWind);
+            fabWind.setImageResource(R.drawable.ic_menu_wind);
         } else {
-            toggleFabOff(fabWind);
+            fabWind.setImageResource(R.drawable.ic_menu_wind_off);
         }
 
         fabWind.setOnClickListener(view -> {
@@ -358,14 +353,6 @@ public class VesselWatchFragment extends BaseFragment
         return true;
     }
 
-    private void toggleFabOn(FloatingActionButton fab) {
-        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.accent_default)));
-    }
-
-    private void toggleFabOff(FloatingActionButton fab) {
-        fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.semi_white)));
-    }
-
     /**
      * Toggle camera visibility
      * checks clusterCameras to see the current state of the camera markers and hide
@@ -377,12 +364,12 @@ public class VesselWatchFragment extends BaseFragment
 
         if (showCameras) {
             hideCameraMarkers();
-            toggleFabOff(fab);
+            fab.setImageResource(R.drawable.ic_menu_traffic_cam_off);
             showCameras = false;
             ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("ui_action", "type", "vessel_cameras_off");
         } else {
             showCameraMarkers();
-            toggleFabOn(fab);
+            fab.setImageResource(R.drawable.ic_menu_traffic_cam);
             showCameras = true;
             ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("ui_action", "type", "vessel_cameras_on");
         }
@@ -429,13 +416,13 @@ public class VesselWatchFragment extends BaseFragment
     private void toggleWeather(FloatingActionButton fab) {
 
         if (showWeather) {
-            toggleFabOff(fab);
+            fab.setImageResource(R.drawable.ic_menu_wind_off);
             mClusterManager.clearItems();
             mClusterManager.cluster();
             showWeather = false;
             ((BaseActivity)getActivity()).setFirebaseAnalyticsEvent("ui_action", "type", "vessel_weather_off");
         } else {
-            toggleFabOn(fab);
+            fab.setImageResource(R.drawable.ic_menu_wind);
             if (weatherReports != null) {
                 mClusterManager.addItems(weatherReports);
                 mClusterManager.cluster();
@@ -636,6 +623,7 @@ public class VesselWatchFragment extends BaseFragment
             mDensity = context.getResources().getDisplayMetrics().density;
             mClusterIconGenerator = new IconGenerator(context);
             mClusterIconGenerator.setContentView(makeSquareTextView(context));
+            mClusterIconGenerator.setTextAppearance(R.style.amu_ClusterIcon_TextAppearance);
 
         }
 
@@ -643,6 +631,8 @@ public class VesselWatchFragment extends BaseFragment
             SquareTextView squareTextView = new SquareTextView(context);
             ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             squareTextView.setLayoutParams(layoutParams);
+            squareTextView.setId(R.id.amu_text);
+            squareTextView.setTextColor(getResources().getColor(R.color.holo_red_light));
             int twelveDpi = (int) (6 * mDensity);
             squareTextView.setPadding(twelveDpi, twelveDpi, twelveDpi, twelveDpi);
             return squareTextView;

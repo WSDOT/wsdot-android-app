@@ -18,7 +18,7 @@ public abstract class WeatherReportDao {
     @Query("SELECT * FROM weather_report")
     public abstract LiveData<List<WeatherReportEntity>> loadWeatherReports();
 
-    @Query("SELECT * FROM weather_report WHERE updated BETWEEN :endTime AND :startTime")
+    @Query("SELECT * FROM weather_report WHERE updated BETWEEN :startTime AND :endTime")
     public abstract LiveData<List<WeatherReportEntity>> loadWeatherReportsBetween(String startTime, String endTime);
 
     @Query("DELETE FROM weather_report")
