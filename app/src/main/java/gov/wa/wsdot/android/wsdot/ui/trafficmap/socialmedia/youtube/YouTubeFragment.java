@@ -18,18 +18,18 @@
 
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.youtube;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.view.ActionMode;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.ShareActionProvider;
+import androidx.core.view.MenuItemCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.view.ActionMode;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.ShareActionProvider;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -191,7 +191,7 @@ public class YouTubeFragment extends BaseFragment implements
      * Extending RecyclerView adapter this adapter binds the custom ViewHolder
      * class to it's data.
      *
-     * @see android.support.v7.widget.RecyclerView.Adapter
+     * @see RecyclerView.Adapter
      */
     private class VideoItemAdapter extends RecyclerView.Adapter<YouTubeViewHolder> {
 

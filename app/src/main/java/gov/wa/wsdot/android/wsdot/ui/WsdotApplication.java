@@ -22,7 +22,7 @@ import android.app.Service;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -93,7 +93,7 @@ public class WsdotApplication extends Application implements HasActivityInjector
     }
 
     @Override
-    public AndroidInjector<android.support.v4.app.Fragment> supportFragmentInjector() {
+    public AndroidInjector<Fragment> supportFragmentInjector() {
         return dispatchingAndroidFragmentInjector;
     }
 

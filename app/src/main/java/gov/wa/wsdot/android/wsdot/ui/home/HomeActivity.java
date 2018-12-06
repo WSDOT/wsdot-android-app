@@ -23,10 +23,10 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.tabs.TabLayout;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.accessibility.AccessibilityManager;
 
@@ -55,7 +55,7 @@ public class HomeActivity extends BaseActivity implements Injectable {
     private HomePager mViewPager;
     private TabsAdapter mtabsAdapter;
     private Toolbar mToolbar;
-    private android.support.design.widget.AppBarLayout mAppBar;
+    private AppBarLayout mAppBar;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

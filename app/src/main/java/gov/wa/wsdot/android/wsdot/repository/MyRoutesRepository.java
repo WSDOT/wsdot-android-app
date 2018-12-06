@@ -1,8 +1,8 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.support.annotation.VisibleForTesting;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 import android.util.SparseArray;
 

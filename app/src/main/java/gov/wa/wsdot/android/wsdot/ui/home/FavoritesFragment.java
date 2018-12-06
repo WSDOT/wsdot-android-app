@@ -17,19 +17,19 @@
  */
 package gov.wa.wsdot.android.wsdot.ui.home;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -346,7 +346,7 @@ public class FavoritesFragment extends BaseFragment implements
      * Extending RecyclerView adapter this adapter binds the custom ViewHolders
      * class to it's data.
      *
-     * @see android.support.v7.widget.RecyclerView.Adapter
+     * @see RecyclerView.Adapter
      */
     private class FavItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

@@ -6,7 +6,7 @@
 
     <include layout="@layout/toolbar_actionbar"/>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar">
@@ -79,5 +79,5 @@
         android:layout_marginBottom="25dp"/>
 
 </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 </RelativeLayout>

@@ -5,6 +5,6 @@
     <item android:id="@+id/action_share"
         wsdot:showAsAction="always"
         android:title="@string/action_bar_share_with"
-        wsdot:actionProviderClass="android.support.v7.widget.ShareActionProvider" />
+        wsdot:actionProviderClass="androidx.appcompat.widget.ShareActionProvider" />
 
 </menu>

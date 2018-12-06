@@ -1,7 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import android.arch.lifecycle.MutableLiveData;
-import android.util.Log;
+import androidx.lifecycle.MutableLiveData;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

@@ -1,6 +1,6 @@
 package gov.wa.wsdot.android.wsdot.util;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 
 public interface OnStartDragListener {
     /**

@@ -19,15 +19,15 @@
 package gov.wa.wsdot.android.wsdot.ui.borderwait;
 
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.Nullable;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -147,7 +147,7 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 	/**
 	 * Binds the custom ViewHolder class to it's data.
 	 *
-	 * @see android.support.v7.widget.RecyclerView.Adapter
+	 * @see RecyclerView.Adapter
 	 */
 	private class BorderWaitAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

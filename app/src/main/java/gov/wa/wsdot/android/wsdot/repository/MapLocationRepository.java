@@ -1,6 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.LiveData;
 
 import java.util.List;
 

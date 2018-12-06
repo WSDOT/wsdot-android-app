@@ -19,9 +19,9 @@
 package gov.wa.wsdot.android.wsdot.ui.amtrakcascades;
 
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v7.widget.Toolbar;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
@@ -50,7 +50,7 @@ public class AmtrakCascadesActivity extends BaseActivity {
         banner.setContentDescription("Banner image of an Amtrak Cascades train.");
 
         // Disable the collapsing toolbar, lists are too small.
-        CollapsingToolbarLayout mCollapse = (android.support.design.widget.CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        CollapsingToolbarLayout mCollapse = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mCollapse.getLayoutParams();
         params.setScrollFlags(0);
 

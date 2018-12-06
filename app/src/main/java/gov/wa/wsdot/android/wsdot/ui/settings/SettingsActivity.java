@@ -4,11 +4,11 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.view.MotionEventCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import androidx.core.view.MotionEventCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -124,7 +124,7 @@ public class SettingsActivity extends BaseActivity implements OnStartDragListene
      * Binds the custom ViewHolder class to it's data.
      *
      * @see CursorRecyclerAdapter
-     * @see android.support.v7.widget.RecyclerView.Adapter
+     * @see RecyclerView.Adapter
      */
     private class SettingsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");

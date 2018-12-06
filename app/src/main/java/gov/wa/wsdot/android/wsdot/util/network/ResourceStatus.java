@@ -1,7 +1,7 @@
 package gov.wa.wsdot.android.wsdot.util.network;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import gov.wa.wsdot.android.wsdot.repository.NetworkResourceSyncRepository;
 

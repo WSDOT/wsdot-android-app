@@ -1,9 +1,9 @@
 package gov.wa.wsdot.android.wsdot.database.traveltimes;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.PrimaryKey;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.PrimaryKey;
 import android.provider.BaseColumns;
 
 @Entity(tableName = "travel_times",

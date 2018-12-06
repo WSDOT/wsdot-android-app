@@ -19,7 +19,7 @@
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses;
 
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.ImageView;
 

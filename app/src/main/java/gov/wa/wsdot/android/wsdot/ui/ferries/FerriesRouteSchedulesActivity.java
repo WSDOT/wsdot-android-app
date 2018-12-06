@@ -21,13 +21,12 @@ package gov.wa.wsdot.android.wsdot.ui.ferries;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
-import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 
 public class FerriesRouteSchedulesActivity extends BaseActivity {
 
