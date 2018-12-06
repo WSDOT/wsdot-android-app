@@ -110,9 +110,9 @@ public class WeatherReportRepository extends NetworkResourceSyncRepository {
             weatherReport.setUpdated(item.getString("updated"));
 
             weatherReport.setReport(formatTime(weatherReport.getUpdated())
-                    + (weatherReport.getWindSpeed() != null ? "<br><br><b>Wind Speed:</b> " + String.format(Locale.US, "%.2f", weatherReport.getWindSpeed()) + " mph" : "")
+                    + (weatherReport.getWindSpeed() != null ? "<br><br><b>Wind Speed:</b> " + weatherReport.getWindSpeed() + " mph" : "")
                     + (weatherReport.getWindDirection() != null ? "<br><br><b>Wind Direction:</b> " + Utils.headingToHeadtxt(weatherReport.getWindDirection()) :"")
-                    + (weatherReport.getTemperature() != null ? "<br><br><b>Temperature:</b> " + String.format(Locale.US, "%.2f", weatherReport.getTemperature()) + "°F" : ""));
+                    + (weatherReport.getTemperature() != null ? "<br><br><b>Temperature:</b> " + weatherReport.getTemperature() + "°F" : ""));
 
             reports.add(weatherReport);
         }
@@ -136,7 +136,7 @@ public class WeatherReportRepository extends NetworkResourceSyncRepository {
      */
     private static String formatTime(String time) throws ParseException {
         DateFormat displayDateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
-        DateFormat sourceDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+        DateFormat sourceDateFormat = new SimpleDateFormat("yyyyMMddhhmm");
         return displayDateFormat.format(sourceDateFormat.parse(time));
     }
 
