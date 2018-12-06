@@ -33,7 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.viewpagerindicator.LinePageIndicator;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +58,11 @@ public class HighImpactAlertsFragment extends BaseFragment implements
 	private ViewGroup mRootView;
     private ViewPagerAdapter mAdapter;
     private ViewPager mPager;
-    private LinePageIndicator mIndicator;
+
+
+    //private LinePageIndicator mIndicator;
+    private TabLayout mTabLayoutWithPager;
+
 	private View mLoadingSpinner;
 	private List<HighwayAlertEntity> alertItems = new ArrayList<>();
 	private Handler mHandler = new Handler();
@@ -94,10 +98,14 @@ public class HighImpactAlertsFragment extends BaseFragment implements
 
                         mAdapter = new ViewPagerAdapter(alertItems);
                         mPager.setAdapter(mAdapter);
-                        mIndicator.setViewPager(mPager);
+
+
+                        mTabLayoutWithPager.setupWithViewPager(mPager, true);
+
+                      //  mIndicator.setViewPager(mPager);
 
                         mPager.setVisibility(View.VISIBLE);
-                        mIndicator.setVisibility(View.VISIBLE);
+                       // mIndicator.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -119,11 +127,11 @@ public class HighImpactAlertsFragment extends BaseFragment implements
 
                 mAdapter = new ViewPagerAdapter(alertItems);
                 mPager.setAdapter(mAdapter);
-                mIndicator.setViewPager(mPager);
-                mIndicator.setCurrentItem(0);
+                mTabLayoutWithPager.setupWithViewPager(mPager, true);
+
 
                 mPager.setVisibility(View.VISIBLE);
-                mIndicator.setVisibility(View.VISIBLE);
+                mTabLayoutWithPager.setVisibility(View.VISIBLE);
 
             }
         });
@@ -146,8 +154,7 @@ public class HighImpactAlertsFragment extends BaseFragment implements
         mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_high_impact_alerts, container);
         mLoadingSpinner = mRootView.findViewById(R.id.progress_bar);
         mPager = mRootView.findViewById(R.id.pager);
-        mIndicator = mRootView.findViewById(R.id.indicator);
-
+        mTabLayoutWithPager = mRootView.findViewById(R.id.tabDots);
         mLoadingSpinner.setVisibility(View.VISIBLE);
 
         return mRootView;
@@ -201,7 +208,7 @@ public class HighImpactAlertsFragment extends BaseFragment implements
                 title.setText(items.get(position).getHeadline());
             }
 
-            if (getCount() < 2) mIndicator.setVisibility(View.GONE);
+         //   if (getCount() < 2) mIndicator.setVisibility(View.GONE);
 
             container.addView(view, 0);
             return view;

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/high_impact_alerts_height"
-    android:orientation="vertical"
-    android:baselineAligned="false"
-    android:background="@color/alerts">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="@dimen/high_impact_alerts_height"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:orientation="vertical"
+	android:baselineAligned="false"
+	android:background="@color/alerts">
     
     <ProgressBar android:id="@+id/progress_bar"
 	    android:indeterminate="true"
@@ -13,21 +13,22 @@
 	    android:layout_height="wrap_content"
 	    android:paddingTop="7dp"
 	    android:layout_gravity="center"
-	    android:visibility="gone"
-	    />	    
+	    android:visibility="gone" />
     	
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/tabDots"
         />
 
-	<com.viewpagerindicator.LinePageIndicator
-		android:id="@+id/indicator"
-        android:padding="5dip"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        />
+	<com.google.android.material.tabs.TabLayout
+		android:id="@+id/tabDots"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:tabBackground="@drawable/page_selector"
+		app:tabGravity="center"
+        android:layout_alignParentBottom="true"
+		app:tabIndicatorHeight="0dp"/>
 
-</LinearLayout>
+</RelativeLayout>
