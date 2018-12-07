@@ -5,6 +5,7 @@ android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
     defaultConfig {
+
         applicationId "gov.wa.wsdot.android.wsdot"
         minSdkVersion 14
         targetSdkVersion 28
@@ -23,6 +24,10 @@ android {
 
     }
 
+    configurations.all {
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.2'
+    }
+
     sourceSets {
         androidTest.assets.srcDirs +=
                 files("$projectDir/schemas".toString())
@@ -35,17 +40,25 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             zipAlignEnabled true
             manifestPlaceholders = [crashlytics_enabled:"true"]
+            multiDexEnabled true
         }
 
         debug {
             debuggable true
             manifestPlaceholders = [crashlytics_enabled:"false"]
+            multiDexEnabled true
         }
     }
+
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+
+    // Gradle automatically adds 'android.test.runner' as a dependency.
+    useLibrary 'android.test.runner'
+    useLibrary 'android.test.base'
+    useLibrary 'android.test.mock'
 }
 
 repositories {
@@ -98,15 +111,16 @@ dependencies {
     androidTestImplementation 'androidx.room:room-testing:2.0.0'
 
     // AndroidJUnitRunner and JUnit Rules
+    // Core library
+    androidTestImplementation 'androidx.test:core:1.0.0'
+
+    // AndroidJUnitRunner and JUnit Rules
     androidTestImplementation 'androidx.test:runner:1.1.0'
     androidTestImplementation 'androidx.test:rules:1.1.0'
 
-    def mockito_version = 'latest.release'
-    // For local unit tests on your development machine
-    androidTestImplementation "org.mockito:mockito-core:$mockito_version"
-    // For instrumentation tests on Android devices and emulators
-    androidTestImplementation "org.mockito:mockito-android:$mockito_version"
-    androidTestImplementation 'junit:junit:4.12'
+    // Assertions
+    androidTestImplementation 'androidx.test.ext:junit:1.0.0'
+    androidTestImplementation 'androidx.test.ext:truth:1.0.0'
 
 }
 
