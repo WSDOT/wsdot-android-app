@@ -1,7 +1,7 @@
 package gov.wa.wsdot.android.wsdot.database.tollrates;
 
-import android.arch.persistence.room.Embedded;
-import android.arch.persistence.room.Relation;
+import androidx.room.Embedded;
+import androidx.room.Relation;
 
 import java.util.List;
 

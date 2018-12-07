@@ -1,7 +1,7 @@
 package gov.wa.wsdot.android.wsdot.util;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +20,7 @@ import gov.wa.wsdot.android.wsdot.shared.CameraItem;
  * Extending RecyclerView adapter this adapter binds the custom ViewHolder
  * class to it's data.
  *
- * @see android.support.v7.widget.RecyclerView.Adapter
+ * @see RecyclerView.Adapter
  */
 public abstract class CameraImageAdapter extends RecyclerView.Adapter<CameraImageAdapter.CameraViewHolder> {
 

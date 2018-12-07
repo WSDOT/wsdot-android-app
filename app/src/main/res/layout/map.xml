@@ -49,7 +49,7 @@
                 android:elevation="6dp"
                 android:text="Rest Areas"/>
 
-            <android.support.design.widget.FloatingActionButton
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fabRestareas"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
@@ -83,7 +83,7 @@
                 android:elevation="6dp"
                 android:text="Highway Alerts"/>
 
-            <android.support.design.widget.FloatingActionButton
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fabAlerts"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
@@ -115,7 +115,7 @@
                 android:elevation="6dp"
                 android:text="Camera Clustering"/>
 
-            <android.support.design.widget.FloatingActionButton
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fabClusters"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
@@ -147,7 +147,7 @@
                 android:elevation="6dp"
                 android:text="Cameras"/>
 
-            <android.support.design.widget.FloatingActionButton
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fabCameras"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
@@ -160,7 +160,7 @@
                 app:srcCompat="@drawable/ic_on" />
         </LinearLayout>
 
-        <android.support.design.widget.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

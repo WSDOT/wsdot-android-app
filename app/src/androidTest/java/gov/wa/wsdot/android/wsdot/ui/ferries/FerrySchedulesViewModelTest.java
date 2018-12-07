@@ -1,8 +1,8 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries;
 
-import android.arch.core.executor.testing.InstantTaskExecutorRule;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import org.junit.Before;
 import org.junit.Rule;

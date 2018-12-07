@@ -16,7 +16,7 @@ package gov.wa.wsdot.android.wsdot.util;
  */
 
 
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.LiveData;
 
 /**
  * A LiveData class that has {@code null} value.

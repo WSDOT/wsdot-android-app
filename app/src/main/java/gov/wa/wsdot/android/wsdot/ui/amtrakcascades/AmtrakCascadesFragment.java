@@ -22,8 +22,8 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +35,6 @@ import java.util.List;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.ui.widget.CursorRecyclerAdapter;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
@@ -99,7 +98,7 @@ public class AmtrakCascadesFragment extends BaseFragment {
      * Binds the custom ViewHolder class to it's data.
      *
      * @see CursorRecyclerAdapter
-     * @see android.support.v7.widget.RecyclerView.Adapter
+     * @see RecyclerView.Adapter
      */
     private class ItemAdapter extends RecyclerView.Adapter<AmtrakViewHolder> {
 

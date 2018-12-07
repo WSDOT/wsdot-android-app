@@ -1,7 +1,7 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import android.support.annotation.VisibleForTesting;
-import android.support.annotation.WorkerThread;
+import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

@@ -1,6 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import android.arch.lifecycle.MutableLiveData;
+import androidx.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import org.json.JSONArray;

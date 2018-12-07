@@ -18,15 +18,15 @@
 
 package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -207,7 +207,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
      * Extending RecyclerView adapter this adapter binds the custom ViewHolder
      * class to it's data.
      *
-     * @see android.support.v7.widget.RecyclerView.Adapter
+     * @see RecyclerView.Adapter
      */
     private class DepartureTimesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

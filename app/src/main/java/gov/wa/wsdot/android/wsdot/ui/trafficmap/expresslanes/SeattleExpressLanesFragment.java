@@ -19,15 +19,15 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes;
 
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -140,7 +140,7 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 	 * Extending RecyclerView adapter this adapter binds the custom ViewHolder
 	 * class to it's data.
 	 *
-	 * @see android.support.v7.widget.RecyclerView.Adapter
+	 * @see RecyclerView.Adapter
 	 */
 	private class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

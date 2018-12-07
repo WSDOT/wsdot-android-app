@@ -20,8 +20,8 @@ package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,7 +110,7 @@ public class SR16TollRatesFragment extends BaseFragment {
      * Extending RecyclerView adapter this adapter binds the custom ViewHolder
      * class to it's data.
      *
-     * @see android.support.v7.widget.RecyclerView.Adapter
+     * @see RecyclerView.Adapter
      */
     private class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

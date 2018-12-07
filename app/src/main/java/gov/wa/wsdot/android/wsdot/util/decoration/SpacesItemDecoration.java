@@ -1,7 +1,7 @@
 package gov.wa.wsdot.android.wsdot.util.decoration;
 
 import android.graphics.Rect;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 /**

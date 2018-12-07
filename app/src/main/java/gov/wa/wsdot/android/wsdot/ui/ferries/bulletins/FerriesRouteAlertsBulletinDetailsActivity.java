@@ -19,12 +19,11 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
 
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
-import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 
 public class FerriesRouteAlertsBulletinDetailsActivity extends BaseActivity {
