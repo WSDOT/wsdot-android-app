@@ -586,7 +586,7 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
 
-            database.execSQL("CREATE TABLE " + Tables.NOTIFICATION_TOPIC + " ("
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.NOTIFICATION_TOPIC + " ("
                     + NotificationColumns.NOTIFICATION_TOPIC + " TEXT PRIMARY KEY NOT NULL,"
                     + NotificationColumns.NOTIFICATION_TITLE + " TEXT,"
                     + NotificationColumns.NOTIFICATION_CATEGORY + " TEXT,"
@@ -603,7 +603,7 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
 
-            database.execSQL("CREATE TABLE " + Tables.TOLL_RATE_SIGN + " ("
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.TOLL_RATE_SIGN + " ("
                     + TollRateSignColumns.TOLL_RATE_SIGN_ID + " TEXT PRIMARY KEY NOT NULL,"
                     + TollRateSignColumns.TOLL_RATE_SIGN_LOCATION_NAME + " TEXT NOT NULL,"
                     + TollRateSignColumns.TOLL_RATE_SIGN_STATE_ROUTE + " INTEGER NOT NULL default 0,"
@@ -613,7 +613,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     + TollRateSignColumns.TOLL_RATE_SIGN_START_LAT + " REAL NOT NULL default 0,"
                     + TollRateSignColumns.TOLL_RATE_SIGN_START_LONG + " REAL NOT NULL default 0);");
 
-            database.execSQL("CREATE TABLE " + Tables.TOLL_TRIP + " ("
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.TOLL_TRIP + " ("
                     + TollTripColumns.TOLL_TRIP_NAME + " TEXT PRIMARY KEY NOT NULL,"
                     + TollTripColumns.TOLL_TRIP_END_LOCATION_NAME + " TEXT,"
                     + TollTripColumns.TOLL_TRIP_SIGN_ID + " TEXT NOT NULL,"

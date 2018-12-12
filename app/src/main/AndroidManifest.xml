@@ -45,18 +45,6 @@
         <meta-data
             android:name="com.google.android.gms.ads.AD_MANAGER_APP"
             android:value="true"/>
-        <!--
-             Optionally, register AnalyticsReceiver and AnalyticsService to support background
-          	 dispatching on non-Google Play devices
-        -->
-        <receiver
-            android:name="com.google.android.gms.analytics.AnalyticsReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.gms.analytics.ANALYTICS_DISPATCH" />
-            </intent-filter>
-        </receiver>
 
         <service
             android:name=".service.MyFirebaseMessagingService">
@@ -76,17 +64,23 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/primary_default" />
 
-
-        <service
-            android:name="com.google.android.gms.analytics.AnalyticsService"
-            android:enabled="true"
-            android:exported="false" />
-
         <service android:name=".service.MyRouteTrackingService" />
         <service android:name=".service.EventService" />
 
         <uses-library
             android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        !-- You don't need to include android:required="false" if your app's
+        minSdkVersion is 28 or higher. -->
+        <uses-library android:name="android.test.runner"
+            android:required="false" />
+        <!-- For both of these declarations, you don't need to include
+     android:required="false" if your app's minSdkVersion is 28
+     or higher. -->
+        <uses-library android:name="android.test.base"
+            android:required="false" />
+        <uses-library android:name="android.test.mock"
             android:required="false" />
 
         <activity
