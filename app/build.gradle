@@ -7,7 +7,7 @@ android {
     defaultConfig {
 
         applicationId "gov.wa.wsdot.android.wsdot"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 28
         versionCode 14145101
         versionName "5.10.1"

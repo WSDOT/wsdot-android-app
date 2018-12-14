@@ -82,17 +82,6 @@ public class MyRouteActivity extends BaseActivity implements RouteOptionsDialogF
         setFirebaseAnalyticsScreenName("MyRoutes");
     }
 
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     public void onOptionClicked(long routeID, String routeName, int position) {
         MyRouteFragment fragment = (MyRouteFragment) getSupportFragmentManager().findFragmentById(R.id.my_route_fragment);
         fragment.onOptionSelected(routeID, routeName, position);

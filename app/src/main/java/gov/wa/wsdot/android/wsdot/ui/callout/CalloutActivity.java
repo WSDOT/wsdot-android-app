@@ -40,7 +40,7 @@ public class CalloutActivity extends BaseActivity {
         Bundle args = new Bundle();
         args.putString("url", url);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle("JBLM");
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null){
@@ -53,16 +53,6 @@ public class CalloutActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         setFirebaseAnalyticsScreenName("Callout");
-    }
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-        case android.R.id.home:
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
 }
