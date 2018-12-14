@@ -138,7 +138,7 @@ public class SettingsActivity extends BaseActivity implements OnStartDragListene
                 holder.title.setText(title);
                 holder.title.setTypeface(tfb);
 
-                //Remove divider if first element in favorites list
+                //Remove divider if first element in list
                 if (position == 0) {
                     holder.divider.setVisibility(View.GONE);
                 }else{
@@ -152,9 +152,9 @@ public class SettingsActivity extends BaseActivity implements OnStartDragListene
                 holder.title.setTypeface(tfb);
 
                 holder.handle.setOnTouchListener((v, event) -> {
-                    if (MotionEventCompat.getActionMasked(event) ==
-                            MotionEvent.ACTION_DOWN || MotionEventCompat.getActionMasked(event) ==
-                            MotionEvent.ACTION_UP) {
+                    v.performClick();
+                    if ((event.getActionMasked() ==
+                            MotionEvent.ACTION_DOWN) || (event.getActionMasked() == MotionEvent.ACTION_UP)) {
                         mDragStartListener.onStartDrag(holder);
                     }
                     return false;
