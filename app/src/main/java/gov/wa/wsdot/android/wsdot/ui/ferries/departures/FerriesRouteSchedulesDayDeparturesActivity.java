@@ -207,7 +207,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                 MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteSchedulesDayDeparturesActivity " + tab.getText(), 1);
 
                 if (tab.getText().equals("Vessel Watch")) {
-
                     mAppBar.setExpanded(true, true);
 
                     AppBarLayout.LayoutParams params =
@@ -327,8 +326,15 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 	    mSailingsArrayAdapter.clear();
 
         int numSailings = sailings.size();
-        for (int i = 0; i < numSailings; i++) {
-            mSailingsArrayAdapter.add(sailings.get(i).getDepartingTerminalName() + " to " + sailings.get(i).getArrivingTerminalName());
+
+        if (numSailings == 2){
+            for (int i = 0; i < numSailings; i++) {
+                mSailingsArrayAdapter.add("Leave " + sailings.get(i).getDepartingTerminalName());
+            }
+        } else {
+            for (int i = 0; i < numSailings; i++) {
+                mSailingsArrayAdapter.add(sailings.get(i).getDepartingTerminalName() + " to " + sailings.get(i).getArrivingTerminalName());
+            }
         }
 
         mSailingSpinner.setSelection(mTerminalIndex);

@@ -92,7 +92,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new DepartureTimesAdapter(getActivity(), null);
 
