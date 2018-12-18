@@ -95,7 +95,7 @@ dependencies {
     annotationProcessor 'androidx.room:room-compiler:2.0.0'
 
     // Multidex support for android 5.0 and lower
-    implementation 'androidx.multidex:multidex:2.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
 
     implementation 'org.jsoup:jsoup:1.8.3'
     implementation 'com.google.code.gson:gson:2.8.2'

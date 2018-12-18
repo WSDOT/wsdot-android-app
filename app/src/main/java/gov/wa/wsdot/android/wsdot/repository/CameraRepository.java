@@ -2,6 +2,8 @@ package gov.wa.wsdot.android.wsdot.repository;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
+import android.os.Build;
 import android.text.format.DateUtils;
 
 import org.json.JSONArray;
@@ -104,7 +106,14 @@ public class CameraRepository extends NetworkResourceSyncRepository {
 
             cameraData.setCameraId(item.getInt("id"));
             cameraData.setTitle(item.getString("title"));
-            cameraData.setUrl(item.getString("url"));
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                // replace the https for http in mUrl string
+                cameraData.setUrl(item.getString("url").replace("https:", "http:"));
+            } else {
+                cameraData.setUrl(item.getString("url"));
+            }
+
             cameraData.setLatitude(item.getDouble("lat"));
             cameraData.setLongitude(item.getDouble("lon"));
             cameraData.setDirection(item.getString("direction"));

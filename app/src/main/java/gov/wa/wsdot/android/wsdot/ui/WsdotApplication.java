@@ -29,6 +29,7 @@ import com.crashlytics.android.Crashlytics;
 
 import javax.inject.Inject;
 
+import androidx.multidex.MultiDexApplication;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
@@ -44,7 +45,7 @@ import io.fabric.sdk.android.Fabric;
 /**
  * This is a subclass of {@link Application} used to provide shared objects for this app
  */
-public class WsdotApplication extends Application implements HasActivityInjector, HasSupportFragmentInjector, HasServiceInjector {
+public class WsdotApplication extends MultiDexApplication implements HasActivityInjector, HasSupportFragmentInjector, HasServiceInjector {
 
     final String TAG = WsdotApplication.class.getSimpleName();
 
