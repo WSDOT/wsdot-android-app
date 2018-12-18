@@ -2,6 +2,7 @@ package gov.wa.wsdot.android.wsdot.ui.notifications;
 
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
+import android.view.MenuItem;
 
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -35,4 +36,13 @@ public class NotificationsActivity extends BaseActivity {
         setFirebaseAnalyticsScreenName("NotificationSettings");
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

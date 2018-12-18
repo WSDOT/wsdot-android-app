@@ -109,6 +109,16 @@ public class SettingsActivity extends BaseActivity implements OnStartDragListene
         itemTouchHelper.startDrag(viewHolder);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     /**
      * Custom adapter for items in recycler view that need a cursor adapter.
      * Binds the custom ViewHolder class to it's data.

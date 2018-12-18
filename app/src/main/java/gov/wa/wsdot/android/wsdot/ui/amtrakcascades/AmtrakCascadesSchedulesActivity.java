@@ -119,6 +119,17 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
 
         MyLogger.crashlyticsLog("Amtrak Cascades", "Screen View", "AmtrakCascadesSchedulesActivity", 1);
 	}
+	
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+        case android.R.id.home:
+            finish();
+            return true;
+        }
+        
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onResume() {

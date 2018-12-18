@@ -202,6 +202,16 @@ public class NewRouteActivity extends BaseActivity implements
         doUnbindService();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void showAddFavoritesDialog(Long myRouteId) {
 
         new AlertDialog.Builder(NewRouteActivity.this, R.style.AppCompatAlertDialogStyle)

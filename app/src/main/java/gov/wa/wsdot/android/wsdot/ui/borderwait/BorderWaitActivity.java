@@ -109,7 +109,16 @@ public class BorderWaitActivity extends BaseActivity {
         setFirebaseAnalyticsScreenName("BorderWaitsNorthbound");
     }
     
-
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+	    case android.R.id.home:
+	    	finish();
+	    	return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}    
+    
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

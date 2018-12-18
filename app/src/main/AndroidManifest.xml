@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="gov.wa.wsdot.android.wsdot"
     android:installLocation="auto">
 
@@ -32,8 +31,7 @@
         android:label="@string/app_name"
         android:theme="@style/WSDOT"
         android:fullBackupContent="@xml/my_backup_rules"
-        android:networkSecurityConfig="@xml/network_security_config"
-        tools:ignore="GoogleAppIndexingWarning">
+        android:networkSecurityConfig="@xml/network_security_config">
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -102,141 +100,125 @@
         <activity
             android:name=".ui.trafficmap.news.NewsActivity"
             android:label="@string/title_news"
-            android:parentActivityName=".ui.trafficmap.TrafficMapActivity"
             />
         <activity
             android:name=".ui.about.AboutActivity"
-            android:label="@string/title_about"
-            android:parentActivityName=".ui.home.HomeActivity"/>
-
+            android:label="@string/title_about" />
         <activity
             android:name=".ui.mountainpasses.MountainPassesActivity"
-            android:label="@string/title_mountainpasses"
-            android:parentActivityName=".ui.home.HomeActivity" />
-
-        <activity android:name=".ui.mountainpasses.passitem.MountainPassItemActivity"
-            android:parentActivityName=".ui.mountainpasses.MountainPassesActivity"/>
-
+            android:label="@string/title_mountainpasses" />
+        <activity android:name=".ui.mountainpasses.passitem.MountainPassItemActivity" />
         <activity
             android:name=".ui.trafficmap.TrafficMapActivity"
             android:label="@string/title_trafficmap"
             android:parentActivityName=".ui.home.HomeActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.home.HomeActivity" />
         </activity>
 
         <activity
             android:name=".ui.trafficmap.alertsinarea.HighwayAlertListActivity"
             android:label="@string/title_alerts" />
-
         <activity
             android:name=".ui.traveltimes.TravelTimesActivity"
-            android:label="@string/title_traveltimes"
-            android:parentActivityName=".ui.trafficmap.TrafficMapActivity"/>
-
+            android:label="@string/title_traveltimes" />
         <activity
             android:name=".ui.trafficmap.socialmedia.SocialMediaTabActivity"
-            android:label="Happening Now"
-            android:parentActivityName=".ui.trafficmap.TrafficMapActivity"/>
-
+            android:label="Happening Now" />
         <activity
             android:name=".ui.trafficmap.besttimestotravel.TravelChartsActivity"
-            android:label="@string/title_besttimes"
-            android:parentActivityName=".ui.trafficmap.TrafficMapActivity"/>
-
+            android:label="@string/title_besttimes" />
         <activity
             android:name=".ui.trafficmap.expresslanes.SeattleExpressLanesActivity"
-            android:label="@string/title_expresslanes"
-            android:parentActivityName=".ui.trafficmap.TrafficMapActivity"/>
-
+            android:label="@string/title_expresslanes" />
         <activity
             android:name=".ui.borderwait.BorderWaitActivity"
-            android:label="@string/title_borderwait"
-            android:parentActivityName=".ui.home.HomeActivity"/>
+            android:label="@string/title_borderwait" />
 
         <activity
             android:name=".ui.ferries.FerriesRouteSchedulesActivity"
             android:label="@string/title_ferriesrouteschedules"
-            android:parentActivityName=".ui.home.HomeActivity"/>
+            android:parentActivityName=".ui.home.HomeActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.home.HomeActivity" />
+
+        </activity>
 
         <activity
             android:name=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity"
             android:parentActivityName=".ui.ferries.FerriesRouteSchedulesActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ferries.FerriesRouteSchedulesActivity" />
         </activity>
 
         <activity
             android:name=".ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity"
             android:label="@string/title_ferry_sailings">
             android:parentActivityName=".ui.ferries.FerriesRouteSchedulesActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ferries.FerriesRouteSchedulesActivity" />
         </activity>
 
         <activity
             android:name=".ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsActivity"
             android:parentActivityName=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity" />
         </activity>
 
         <activity android:name=".ui.ferries.departures.vesselwatch.VesselWatchDetailsActivity" />
         <activity
             android:name=".ui.tollrates.TollRatesActivity"
-            android:label="@string/title_tollrates"
-            android:parentActivityName=".ui.home.HomeActivity"/>
-
+            android:label="@string/title_tollrates" />
         <activity android:name=".ui.camera.CameraActivity" />
-
         <activity android:name=".ui.camera.CameraListActivity" />
 
         <activity android:name=".ui.alert.detail.HighwayAlertDetailsActivity"
-            android:parentActivityName=".ui.trafficmap.TrafficMapActivity"/>
+            android:parentActivityName=".ui.trafficmap.TrafficMapActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.trafficmap.TrafficMapActivity" />
+        </activity>
 
-        <activity android:name=".ui.trafficmap.restareas.RestAreaActivity"
-            android:parentActivityName=".ui.trafficmap.TrafficMapActivity"/>
-
+        <activity android:name=".ui.trafficmap.restareas.RestAreaActivity" />
         <activity
             android:name=".ui.amtrakcascades.AmtrakCascadesActivity"
-            android:label="@string/title_amtrakcascades"
-            android:parentActivityName=".ui.home.HomeActivity"/>/>
-
+            android:label="@string/title_amtrakcascades" />
         <activity
             android:name=".ui.amtrakcascades.AmtrakCascadesSchedulesActivity"
-            android:label="@string/title_amtrakcascades_schedules"
-            android:parentActivityName=".ui.amtrakcascades.AmtrakCascadesActivity"/>/>
-
+            android:label="@string/title_amtrakcascades_schedules" />
         <activity
             android:name=".ui.amtrakcascades.AmtrakCascadesSchedulesDetailsActivity"
-            android:label="@string/title_amtrakcascades_train_schedules"
-            android:parentActivityName=".ui.amtrakcascades.AmtrakCascadesSchedulesActivity"/>/>
-
-        <activity
-            android:name=".ui.callout.CalloutActivity"
-            android:parentActivityName=".ui.trafficmap.TrafficMapActivity"/>
-
+            android:label="@string/title_amtrakcascades_train_schedules" />
+        <activity android:name=".ui.callout.CalloutActivity" />
         <activity
             android:name=".ui.myroute.MyRouteActivity"
-            android:label="@string/title_activity_my_route"
-            android:parentActivityName=".ui.home.HomeActivity"/>
-
+            android:label="@string/title_activity_my_route" />
         <activity
             android:name=".ui.myroute.newroute.NewRouteActivity"
-            android:label="@string/title_activity_new_route"
-            android:parentActivityName=".ui.myroute.MyRouteActivity"/>
-
+            android:label="@string/title_activity_new_route" />
         <activity android:name=".ui.myroute.myroutealerts.MyRouteAlertsListActivity" />
-
         <activity android:name=".ui.myroute.MyRouteMapActivity" />
-
         <activity
             android:name=".ui.settings.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:parentActivityName=".ui.home.HomeActivity"/>
-
-        <activity
-            android:name=".ui.home.EventActivity"
-            android:parentActivityName=".ui.home.HomeActivity"/>
-
+            android:label="@string/title_activity_settings" />
+        <activity android:name=".ui.home.EventActivity"/>
         <activity android:name=".ui.camera.CameraViewPagerActivity"/>
 
         <activity
             android:name=".ui.notifications.NotificationsActivity"
-            android:label="@string/title_activity_notifications"
-            android:parentActivityName=".ui.home.HomeActivity"/>
+            android:label="@string/title_activity_notifications"/>
 
         <activity android:name=".ui.tollrates.TollRatesRouteActivity"/>
 
