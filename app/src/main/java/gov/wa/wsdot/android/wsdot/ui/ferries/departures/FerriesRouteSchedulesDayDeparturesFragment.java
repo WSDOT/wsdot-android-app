@@ -116,7 +116,6 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
         scheduleViewModel = ViewModelProviders.of(getActivity()).get(FerryScheduleViewModel.class);
-
         terminalViewModel = ViewModelProviders.of(getActivity()).get(FerryTerminalViewModel.class);
 
         terminalViewModel.getResourceStatus().observe(this, resourceStatus -> {
