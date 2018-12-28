@@ -21,6 +21,8 @@ package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 import android.Manifest;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -37,6 +39,8 @@ import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.Toolbar;
+
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +48,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
@@ -58,9 +63,12 @@ import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesBulletinsViewModel;
+import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.cameras.FerriesTerminalCameraFragment;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.cameras.FerryTerminalCameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchFragment;
@@ -78,7 +86,9 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     protected static final int DAY_SPINNER_ID = 0;
     protected static final int SAILING_SPINNER_ID = 1;
 
-    static final private int MENU_ITEM_STAR = 0;
+    static final private int MENU_ITEM_ALERT = 0;
+    static final private int MENU_ITEM_STAR = 1;
+
     private boolean mIsStarred = false;
 
     private TabLayout mTabLayout;
@@ -100,8 +110,11 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     private static FerriesTerminalItem mTerminalItem = new FerriesTerminalItem();
 
     private static ArrayList<FerriesScheduleDateItem> mScheduleDateItems;
+
     private static FerryScheduleViewModel scheduleViewModel;
     private static FerryTerminalViewModel terminalViewModel;
+    private static FerriesBulletinsViewModel bulletinsViewModel;
+
     private static FerryTerminalCameraViewModel terminalCameraViewModel;
 
     private ArrayAdapter<CharSequence> mDayOfWeekArrayAdapter;
@@ -266,8 +279,11 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                 } else {
                     setViewContent();
                 }
+
             }
         });
+
+
 
         MyLogger.crashlyticsLog("Ferries", "Screen View", "FerriesRouteSchedulesDayDeparturesActivity " + title, 1);
         enableAds(getString(R.string.ferries_ad_target));
@@ -392,8 +408,13 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
+        MenuItem menuItem_Alert = menu.add(0, MENU_ITEM_ALERT, menu.size(), R.string.description_alert);
+        menuItem_Alert.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.getItem(MENU_ITEM_ALERT).setIcon(R.drawable.ic_menu_info);
+        menu.getItem(MENU_ITEM_ALERT).setTitle("route bulletins");
+
         MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);
-        MenuItemCompat.setShowAsAction(menuItem_Star, MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
+        menuItem_Star.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         if (mIsStarred) {
             menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star_on);
             menu.getItem(MENU_ITEM_STAR).setTitle("Favorite checkbox, checked");
@@ -401,6 +422,30 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             menu.getItem(MENU_ITEM_STAR).setIcon(R.drawable.ic_menu_star);
             menu.getItem(MENU_ITEM_STAR).setTitle("Favorite checkbox, not checked");
         }
+
+        bulletinsViewModel = ViewModelProviders.of(this, viewModelFactory).get(FerriesBulletinsViewModel.class);
+        bulletinsViewModel.init(mScheduleId, null);
+
+        bulletinsViewModel.getAlerts() .observe(this, mAlerts -> {
+            if (mAlerts != null){
+                if (mAlerts.size() > 0) {
+
+                    String label = String.valueOf(mAlerts.size());
+
+                    menu.getItem(MENU_ITEM_ALERT).setActionView(R.layout.action_bar_alert_notification_icon);
+                    ((TextView)( menu.getItem(MENU_ITEM_ALERT).getActionView().findViewById(R.id.menu_alert))).setText(label);
+                    menu.getItem(MENU_ITEM_ALERT).getActionView().setOnClickListener(v -> {
+                        Bundle b = new Bundle();
+                        Intent intent = new Intent(this, FerriesRouteAlertsBulletinsActivity.class);
+                        b.putInt("routeId", mScheduleId);
+                        b.putString("title", mToolbar.getTitle().toString());
+                        intent.putExtras(b);
+                        startActivity(intent);
+
+                    });
+                }
+            }
+        });
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -411,6 +456,15 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         switch(item.getItemId()) {
             case android.R.id.home:
                 finish();
+                return true;
+            case MENU_ITEM_ALERT:
+                Bundle b = new Bundle();
+                Intent intent = new Intent(this, FerriesRouteAlertsBulletinsActivity.class);
+                b.putInt("routeId", mScheduleId);
+                b.putString("title", mToolbar.getTitle().toString());
+                intent.putExtras(b);
+                startActivity(intent);
+
                 return true;
             case MENU_ITEM_STAR:
                 MyLogger.crashlyticsLog("Ferries", "Tap", "FerriesRouteSchedulesDayDeparturesActivity star", 1);
