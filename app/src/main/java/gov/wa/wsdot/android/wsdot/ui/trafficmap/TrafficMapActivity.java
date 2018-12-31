@@ -1326,9 +1326,9 @@ public class TrafficMapActivity extends BaseActivity implements
 
     private LocationRequest createLocationRequest() {
         LocationRequest mLocationRequest = LocationRequest.create();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(8000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(5 * 60000);
+        mLocationRequest.setFastestInterval(60000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         return mLocationRequest;
     }
 

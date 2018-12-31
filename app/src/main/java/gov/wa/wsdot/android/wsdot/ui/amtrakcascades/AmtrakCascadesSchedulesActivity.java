@@ -115,6 +115,7 @@ public class AmtrakCascadesSchedulesActivity extends BaseActivity
         mLocationRequest = LocationRequest.create()
                 .setInterval(60000 * 15)
                 .setFastestInterval(60000 * 5)
+                .setNumUpdates(1)
                 .setPriority(LocationRequest.PRIORITY_LOW_POWER);
 
         MyLogger.crashlyticsLog("Amtrak Cascades", "Screen View", "AmtrakCascadesSchedulesActivity", 1);
