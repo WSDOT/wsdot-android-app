@@ -169,7 +169,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-
         // set up the sailings spinner
         mSailingSpinner = this.findViewById(R.id.sailing_spinner);
         mSailingSpinner.setOnItemSelectedListener(this);
@@ -410,7 +409,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 
         MenuItem menuItem_Alert = menu.add(0, MENU_ITEM_ALERT, menu.size(), R.string.description_alert);
         menuItem_Alert.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menu.getItem(MENU_ITEM_ALERT).setIcon(R.drawable.ic_menu_info);
+        menu.getItem(MENU_ITEM_ALERT).setIcon(R.drawable.ic_alert_diamond);
         menu.getItem(MENU_ITEM_ALERT).setTitle("route bulletins");
 
         MenuItem menuItem_Star = menu.add(0, MENU_ITEM_STAR, menu.size(), R.string.description_star);

@@ -10,12 +10,12 @@
 
     <ImageView
         android:id="@+id/main_icon"
-        android:src="@drawable/ic_menu_info"
+        android:src="@drawable/ic_alert_diamond"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_margin="0dp"
-        android:contentDescription="best times to travel"
+        android:contentDescription="ferry bulletins"
         />
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -26,13 +26,12 @@
         android:textColor="#ffffffff"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="!"
         android:layout_alignTop="@id/main_icon"
         android:layout_alignRight="@id/main_icon"
         android:layout_alignEnd="@+id/main_icon"
-        android:layout_marginRight="-4dp"
-        android:layout_marginEnd="-4dp"
-        android:layout_marginTop="-6dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginTop="-5dp"
         android:paddingBottom="1dp"
         android:paddingRight="1dp"
         android:paddingLeft="1dp"
