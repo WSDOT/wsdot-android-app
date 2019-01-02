@@ -183,7 +183,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
                         Intent intent = new Intent(getActivity(), FerriesRouteSchedulesDayDeparturesActivity.class);
                         b.putInt("scheduleId", schedule.getFerryScheduleId());
                         b.putString("title", schedule.getTitle());
-                        b.putInt("isStarred", schedule.getIsStarred());
                         intent.putExtras(b);
 
                         startActivity(intent);

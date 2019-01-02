@@ -84,7 +84,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             ArrayList<Integer> receivedAlerts = Utils.loadOrderedIntList("KEY_RECEIVED_ALERTS", settings);
 
             if (receivedAlerts != null) {
-                if (!receivedAlerts.contains(id)) {
+                if (receivedAlerts.contains(id)) {
                     createAlert(id, title, message, data);
                 }  // if we've already seen this alert, do nothing
             } else {
@@ -209,6 +209,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // set extras for the FerriesRouteAlertsBulletinsFragment
         stackBuilder.editIntentAt(stackBuilder.getIntentCount() - 2).putExtras(b2);
+
+        Bundle b3 = new Bundle();
+        b3.putString("title", data.get("route_title").toString());
+        b3.putInt("scheduleId", Integer.valueOf(data.get("route_id").toString()));
+
+        // set extras for the FerriesRouteSchedulesDayDeparturesActivity
+        stackBuilder.editIntentAt(stackBuilder.getIntentCount() - 3).putExtras(b3);
 
         // Get the PendingIntent containing the entire back stack
         PendingIntent resultPendingIntent =

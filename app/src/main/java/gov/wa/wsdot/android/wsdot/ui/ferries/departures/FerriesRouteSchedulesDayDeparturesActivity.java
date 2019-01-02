@@ -150,10 +150,10 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         Bundle args = getIntent().getExtras();
 
         String title = "Schedule Unavailable";
+
         if (args != null) {
             title = args.getString("title");
             mScheduleId = args.getInt("scheduleId");
-            mIsStarred = args.getInt("isStarred") != 0;
         }
 
         setContentView(R.layout.activity_ferry_sailings);
@@ -269,20 +269,26 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         });
 
         scheduleViewModel.getDatesWithSailings().observe(this, dates -> {
+
             if (dates != null) {
                 mScheduleDateItems = new ArrayList<>(dates);
-
                 // only request location on init load
                 if (initLoad) {
                     requestLocation();
                 } else {
                     setViewContent();
                 }
-
             }
         });
 
-
+        scheduleViewModel.getFerrySchedule().observe(this, schedule -> {
+            if (schedule != null){
+                if (schedule.getIsStarred() != 0) {
+                    mIsStarred = true;
+                    this.invalidateOptionsMenu();
+                }
+            }
+        });
 
         MyLogger.crashlyticsLog("Ferries", "Screen View", "FerriesRouteSchedulesDayDeparturesActivity " + title, 1);
         enableAds(getString(R.string.ferries_ad_target));
@@ -294,7 +300,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                     (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
             params.setScrollFlags(0);
         }
-
 	}
 
 	@Override
