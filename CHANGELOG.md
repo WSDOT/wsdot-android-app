@@ -4,7 +4,25 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [5.9.3]
+
+## [5.10.3]
+
+## Changes
+- Migrates support libs to AndroidX
+
+
+## [5.11.1] - 2019-01-02
+
+## Changes
+- Moves ferry alert bulletin button onto the sailings screen app bar.
+
+## [5.10.1] - 2018-12-17
+
+## Changes
+- Migrated to Firebase Analytics.
+- Removes unsupported view pager library in favor of native solution.
+
+## [5.9.3] - 2018-11-26
 
 # Fixes
 - Display error causing ad banner to cover content.
