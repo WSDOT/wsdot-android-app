@@ -28,6 +28,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
@@ -39,6 +41,7 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
+import gov.wa.wsdot.android.wsdot.worker.EventWorker;
 
 public class DashboardFragment extends BaseFragment implements Injectable {
 
@@ -56,19 +59,33 @@ public class DashboardFragment extends BaseFragment implements Injectable {
         root.findViewById(R.id.home_btn_amtrak).setOnClickListener(view -> startActivity(new Intent(getActivity(), AmtrakCascadesActivity.class)));
         root.findViewById(R.id.home_btn_my_routes).setOnClickListener(view -> startActivity(new Intent(getActivity(), MyRouteActivity.class)));
 
+        OneTimeWorkRequest eventWork = new OneTimeWorkRequest.Builder(EventWorker.class).build();
+        WorkManager.getInstance().enqueue(eventWork);
+
+        WorkManager.getInstance().getWorkInfoByIdLiveData(eventWork.getId())
+                .observe(this, eventInfo -> {
+                    if (eventInfo.getState().isFinished()) {
+                        displayBannerIfActive();
+                    }
+                });
+
         return root;
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        displayBannerIfActive();
+        MyLogger.crashlyticsLog("Home", "Screen View", "DashboardFragment", 1);
+    }
 
+    public void displayBannerIfActive() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         Boolean eventActive = prefs.getBoolean(getString(R.string.event_is_active), false);
         LinearLayout banner_view =  getView().findViewById(R.id.event_banner);
         TextView banner_text = getView().findViewById(R.id.event_banner_text);
 
-        if (eventActive) {
+        if (eventActive && banner_view.getVisibility() == View.GONE) {
             banner_view.setVisibility(View.VISIBLE);
             banner_view.setOnClickListener(view -> startActivity(new Intent(getActivity(), EventActivity.class)));
 
@@ -77,7 +94,5 @@ public class DashboardFragment extends BaseFragment implements Injectable {
         } else {
             banner_view.setVisibility(View.GONE);
         }
-
-        MyLogger.crashlyticsLog("Home", "Screen View", "DashboardFragment", 1);
     }
 }
