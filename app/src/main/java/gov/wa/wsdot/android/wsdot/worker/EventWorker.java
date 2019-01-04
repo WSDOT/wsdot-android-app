@@ -19,6 +19,25 @@ import androidx.work.WorkerParameters;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
+
+/**
+ *  A worker that checks the event status URL for information about current/upcoming
+ *  events. Data is saved to Shared Preferences.
+ *
+ *  WSDOTApplication checks shared preferences and sets the event active
+ *  flag to true if there's event data and the date is within the start and end date.
+ *
+ *  Server must respond with a json object of the format:
+ *  {
+ *      "startDate": "yyyy-MM-dd",
+ *      "endDate" : "yyyy-MM-dd",
+ *      "themeId": number, - Id of the theme to use when event is active.
+ *      "bannerText": string - text for the banner
+ *      "title": string - title for Toolbar in EventActivity
+ *      "details": string - information about event to display in EventActivity
+ *  }
+ *
+ */
 public class EventWorker extends Worker {
 
     private final String TAG = EventWorker.class.getSimpleName();

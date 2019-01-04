@@ -19,6 +19,12 @@ import androidx.work.WorkerParameters;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 
+/**
+ *  Worker class that checks if the notification topic version file has been updated.
+ *  When new notification topics are added we update the version number, when the app
+ *  sees this, a tapTargetView will be created to let the user know we've added more topics
+ */
+
 public class TopicWorker extends Worker {
 
     private final String TAG = TopicWorker.class.getSimpleName();
