@@ -56,10 +56,17 @@ public class DashboardFragment extends BaseFragment implements Injectable {
         root.findViewById(R.id.home_btn_amtrak).setOnClickListener(view -> startActivity(new Intent(getActivity(), AmtrakCascadesActivity.class)));
         root.findViewById(R.id.home_btn_my_routes).setOnClickListener(view -> startActivity(new Intent(getActivity(), MyRouteActivity.class)));
 
+        return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         Boolean eventActive = prefs.getBoolean(getString(R.string.event_is_active), false);
-        LinearLayout banner_view = root.findViewById(R.id.event_banner);
-        TextView banner_text = root.findViewById(R.id.event_banner_text);
+        LinearLayout banner_view =  getView().findViewById(R.id.event_banner);
+        TextView banner_text = getView().findViewById(R.id.event_banner_text);
 
         if (eventActive) {
             banner_view.setVisibility(View.VISIBLE);
@@ -71,12 +78,6 @@ public class DashboardFragment extends BaseFragment implements Injectable {
             banner_view.setVisibility(View.GONE);
         }
 
-        return root;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
         MyLogger.crashlyticsLog("Home", "Screen View", "DashboardFragment", 1);
     }
 }

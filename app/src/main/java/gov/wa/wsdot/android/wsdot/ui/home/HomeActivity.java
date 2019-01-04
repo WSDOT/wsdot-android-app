@@ -138,7 +138,6 @@ public class HomeActivity extends BaseActivity implements Injectable {
 
         tryDisplayNotificationTipView();
 
-
     }
 
     @Override
@@ -171,6 +170,7 @@ public class HomeActivity extends BaseActivity implements Injectable {
         AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
 
         Boolean accessibilityEnabled = false;
+
         if (am != null){
             accessibilityEnabled = am.isEnabled();
         }
