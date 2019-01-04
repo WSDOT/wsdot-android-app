@@ -90,9 +90,12 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation "androidx.lifecycle:lifecycle-extensions:2.0.0"
-    implementation "androidx.room:room-runtime:2.0.0"
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+    implementation 'androidx.room:room-runtime:2.0.0'
     annotationProcessor 'androidx.room:room-compiler:2.0.0'
+
+    def work_version = "1.0.0-beta01"
+    implementation "android.arch.work:work-runtime:$work_version"
 
     // Multidex support for android 5.0 and lower
     implementation 'androidx.multidex:multidex:2.0.1'

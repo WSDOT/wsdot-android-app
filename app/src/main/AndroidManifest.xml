@@ -65,7 +65,6 @@
             android:resource="@color/primary_default" />
 
         <service android:name=".service.MyRouteTrackingService" />
-        <service android:name=".service.EventService" />
 
         <uses-library
             android:name="org.apache.http.legacy"

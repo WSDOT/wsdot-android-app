@@ -36,9 +36,10 @@ import com.getkeepsafe.taptargetview.TapTargetView;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
-import gov.wa.wsdot.android.wsdot.service.EventService;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.about.AboutActivity;
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsActivity;
@@ -46,6 +47,7 @@ import gov.wa.wsdot.android.wsdot.ui.settings.SettingsActivity;
 import gov.wa.wsdot.android.wsdot.ui.widget.HomePager;
 import gov.wa.wsdot.android.wsdot.util.TabsAdapter;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
+import gov.wa.wsdot.android.wsdot.worker.TopicWorker;
 
 public class HomeActivity extends BaseActivity implements Injectable {
 
@@ -86,8 +88,6 @@ public class HomeActivity extends BaseActivity implements Injectable {
             }
             return false;
         });
-
-        //setSupportActionBar(mToolbar);
 
         mAppBar = findViewById(R.id.appbar);
 
@@ -132,9 +132,11 @@ public class HomeActivity extends BaseActivity implements Injectable {
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
+
         });
 
-        startService(new Intent(this, EventService.class));
+        OneTimeWorkRequest topicWork = new OneTimeWorkRequest.Builder(TopicWorker.class).build();
+        WorkManager.getInstance().enqueue(topicWork);
 
         tryDisplayNotificationTipView();
 
