@@ -64,7 +64,6 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewPagerActivity;
-import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
@@ -147,7 +146,7 @@ public class FavoritesFragment extends BaseFragment implements
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mFavoritesAdapter = new FavItemAdapter();
 
@@ -616,21 +615,8 @@ public class FavoritesFragment extends BaseFragment implements
 
                 String alerts = schedule.getAlert();
 
-                if (alerts.equals("[]")) {
-                    viewHolder.alert_button.setVisibility(View.GONE);
-                } else {
-                    viewHolder.alert_button.setVisibility(View.VISIBLE);
-                    viewHolder.alert_button.setTag(position);
-                    viewHolder.alert_button.setImageResource(R.drawable.btn_alert_on);
-                    viewHolder.alert_button.setOnClickListener(v -> {
-                        Bundle b = new Bundle();
-                        Intent intent = new Intent(getActivity(), FerriesRouteAlertsBulletinsActivity.class);
-                        b.putInt("routeId", schedule.getFerryScheduleId());
-                        b.putString("title", schedule.getTitle());
-                        intent.putExtras(b);
-                        startActivity(intent);
-                    });
-                }
+                viewHolder.alert_button.setVisibility(View.GONE);
+
 
             } else if (holder instanceof LocationViewHolder) {
                 final LocationViewHolder viewholder = (LocationViewHolder) holder;
