@@ -35,6 +35,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
+import androidx.room.Index;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatSpinner;
@@ -49,6 +50,7 @@ import android.view.accessibility.AccessibilityManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
@@ -362,16 +364,23 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 
     private void setViewContent() {
 
-        mTerminalItem = mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem().get(mTerminalIndex);
+        try {
 
-        setRouteSpinner(mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem());
-        setDaySpinner(mScheduleDateItems);
+            mTerminalItem = mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem().get(mTerminalIndex);
 
-        if (initLoad) {
-            initLoad = false;
-            terminalViewModel.loadDepartureTimesForTerminal(mTerminalItem);
-            terminalCameraViewModel.loadTerminalCameras(mTerminalItem.getDepartingTerminalID(), "ferries");
+            setRouteSpinner(mScheduleDateItems.get(mDayIndex).getFerriesTerminalItem());
+            setDaySpinner(mScheduleDateItems);
+
+            if (initLoad) {
+                initLoad = false;
+                terminalViewModel.loadDepartureTimesForTerminal(mTerminalItem);
+                terminalCameraViewModel.loadTerminalCameras(mTerminalItem.getDepartingTerminalID(), "ferries");
+            }
+
+        } catch (IndexOutOfBoundsException e){
+            Toast.makeText(this, "Error fetching schedule", Toast.LENGTH_LONG).show();
         }
+
     }
 
     /**
