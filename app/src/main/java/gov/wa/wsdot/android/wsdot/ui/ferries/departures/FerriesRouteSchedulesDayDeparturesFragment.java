@@ -279,13 +279,14 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                 }
             }
 
-            if (item.getActualDeparture() != null) {
+            // only show actualDeapture if viewing today's sailings
+            if (item.getActualDeparture() != null && DateUtils.isToday(item.getDepartingTime().getTime())) {
                 itemHolder.actualDeparture.setText(String.format("Actual departure\n%s", item.getActualDeparture()));
             } else {
                 itemHolder.actualDeparture.setText("");
             }
 
-            if (item.getEta() != null ) {
+            if (item.getEta() != null && DateUtils.isToday(item.getDepartingTime().getTime())) {
                 itemHolder.eta.setText(String.format("ETA %s", item.getEta()));
             } else {
                 itemHolder.eta.setText("");
