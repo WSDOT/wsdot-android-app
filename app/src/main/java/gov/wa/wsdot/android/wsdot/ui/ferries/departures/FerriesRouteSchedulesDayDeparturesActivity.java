@@ -325,7 +325,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
 
 	    mDayOfWeekArrayAdapter.clear();
 
-        DateFormat dateFormat = new SimpleDateFormat("EEEE");
+        DateFormat dateFormat = new SimpleDateFormat("EE - MM/dd");
         dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
         int numDates = schedule.size();
