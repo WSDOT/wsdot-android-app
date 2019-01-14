@@ -19,6 +19,7 @@
 package gov.wa.wsdot.android.wsdot.shared;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class FerriesRouteAlertItem implements Serializable {
 	/**
@@ -26,7 +27,7 @@ public class FerriesRouteAlertItem implements Serializable {
 	 */
 	private static final long serialVersionUID = 5570654741856182708L;
 	private Integer bulletinID;
-	private String publishDate;
+	private Date publishDate;
 	private String alertDescription;
 	private String alertFullTitle;
 	private String alertFullText;
@@ -38,10 +39,10 @@ public class FerriesRouteAlertItem implements Serializable {
 		this.bulletinID = bulletinID;
 	}
 	
-	public String getPublishDate() {
+	public Date getPublishDate() {
 		return publishDate;
 	}
-	public void setPublishDate(String publishDate) {
+	public void setPublishDate(Date publishDate) {
 		this.publishDate = publishDate;
 	}
 	

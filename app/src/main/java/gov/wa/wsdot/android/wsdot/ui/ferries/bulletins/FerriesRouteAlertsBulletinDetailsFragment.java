@@ -125,9 +125,7 @@ public class FerriesRouteAlertsBulletinDetailsFragment extends BaseFragment impl
         viewModel.getAlert().observe(this, alert -> {
             if (alert != null) {
 
-                Date date = new Date(Long.parseLong(alert.getPublishDate()));
-
-                mAlertPublishDate = displayDateFormat.format(date);
+                mAlertPublishDate = displayDateFormat.format( alert.getPublishDate());
                 mAlertDescription = alert.getAlertDescription();
                 mAlertFullText = alert.getAlertFullText();
                 mAlertFullTitle = alert.getAlertFullTitle();

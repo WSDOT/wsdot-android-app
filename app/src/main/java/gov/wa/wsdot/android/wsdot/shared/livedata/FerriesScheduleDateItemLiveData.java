@@ -24,6 +24,8 @@ import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleTimesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 
+import static gov.wa.wsdot.android.wsdot.util.Utils.getDateFromString;
+
 /**
  *  LiveData class that transforms db entity Live data into a displayable
  *  object on a thread.
@@ -128,31 +130,4 @@ public class FerriesScheduleDateItemLiveData extends LiveData<List<FerriesSchedu
     }
 
 
-
-    /**
-     *
-     * @param date
-     * @param mDateFormat
-     * @return
-     */
-    private Date getDateFromString(String date, DateFormat mDateFormat) {
-
-        Date day = null;
-
-        try {
-            day = new Date(Long.parseLong(date.substring(6, 19)));
-        } catch (NumberFormatException en) {
-            // Log.e(TAG, "Failed to read date as timestamp");
-        } catch (StringIndexOutOfBoundsException se) {
-            // Log.e(TAG, "Failed to read date as timestamp");
-        }
-
-        try {
-            day = mDateFormat.parse(date);
-        } catch (ParseException e) {
-            //Log.e(TAG, "Failed to read date as yyyy-MM-dd");
-        }
-
-        return day;
-    }
 }

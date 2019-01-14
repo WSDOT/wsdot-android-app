@@ -10,6 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +21,8 @@ import gov.wa.wsdot.android.wsdot.repository.FerryScheduleRepository;
 import gov.wa.wsdot.android.wsdot.shared.FerriesRouteAlertItem;
 import gov.wa.wsdot.android.wsdot.util.AbsentLiveData;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
+
+import static gov.wa.wsdot.android.wsdot.util.Utils.getDateFromString;
 
 public class FerriesBulletinsViewModel extends ViewModel {
 
@@ -80,6 +84,9 @@ public class FerriesBulletinsViewModel extends ViewModel {
     }
 
     private ArrayList<FerriesRouteAlertItem> processAlerts(String alertsJson){
+
+        DateFormat shortDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
         ArrayList<FerriesRouteAlertItem> routeAlertItems = new ArrayList<>();
 
         try {
@@ -89,7 +96,7 @@ public class FerriesBulletinsViewModel extends ViewModel {
                 JSONObject alert = alerts.getJSONObject(j);
                 FerriesRouteAlertItem i = new FerriesRouteAlertItem();
                 i.setAlertFullTitle(alert.getString("AlertFullTitle"));
-                i.setPublishDate(alert.getString("PublishDate").substring(6, 19));
+                i.setPublishDate(getDateFromString(alert.getString("PublishDate"), shortDateFormat));
                 i.setAlertDescription(alert.getString("AlertDescription"));
                 i.setAlertFullText(alert.getString("AlertFullText"));
                 i.setBulletinID(alert.getInt("BulletinID"));

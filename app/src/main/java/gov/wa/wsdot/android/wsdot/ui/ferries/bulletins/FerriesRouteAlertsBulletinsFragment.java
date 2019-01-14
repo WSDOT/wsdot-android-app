@@ -183,8 +183,7 @@ public class FerriesRouteAlertsBulletinsFragment extends BaseListFragment implem
         	holder.title.setText(item.getAlertFullTitle());
             
         	try {
-        		Date date = new Date(Long.parseLong(item.getPublishDate()));
-        		holder.description.setText(ParserUtils.relativeTime(date));
+        		holder.description.setText(ParserUtils.relativeTime(item.getPublishDate()));
         	} catch (Exception e) {
         		Log.e(TAG, "Error parsing date", e);
         	}	            	

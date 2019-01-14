@@ -48,6 +48,33 @@ public class Utils {
 
     }
 
+    /**
+     *
+     * @param date
+     * @param mDateFormat
+     * @return
+     */
+    public static Date getDateFromString(String date, DateFormat mDateFormat) {
+
+        Date day = null;
+
+        try {
+            day = new Date(Long.parseLong(date.substring(6, 19)));
+        } catch (NumberFormatException en) {
+            // Log.e(TAG, "Failed to read date as timestamp");
+        } catch (StringIndexOutOfBoundsException se) {
+            // Log.e(TAG, "Failed to read date as timestamp");
+        }
+
+        try {
+            day = mDateFormat.parse(date);
+        } catch (ParseException e) {
+            //Log.e(TAG, "Failed to read date as yyyy-MM-dd");
+        }
+
+        return day;
+    }
+
     public static Location getCenterLocation(double latitudeA, double longitudeA, double latitudeB, double longitudeB) {
 
         double dLon = Math.toRadians(longitudeB - longitudeA);
