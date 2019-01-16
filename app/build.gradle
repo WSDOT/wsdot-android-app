@@ -76,6 +76,7 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-core:16.0.6'
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
+    implementation 'com.google.firebase:firebase-perf:16.2.3'
 
     implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
@@ -130,7 +131,14 @@ dependencies {
 buildscript {
     repositories {
         google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.google.firebase:firebase-plugins:1.1.5'
+
     }
 }
 
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.firebase-perf'
