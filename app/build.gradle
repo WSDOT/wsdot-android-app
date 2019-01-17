@@ -95,7 +95,7 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.0.0'
     annotationProcessor 'androidx.room:room-compiler:2.0.0'
 
-    def work_version = "1.0.0-beta01"
+    def work_version = "1.0.0-beta02"
     implementation "android.arch.work:work-runtime:$work_version"
 
     // Multidex support for android 5.0 and lower
