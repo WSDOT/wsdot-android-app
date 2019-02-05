@@ -45,7 +45,9 @@
         <meta-data
             android:name="com.google.android.gms.ads.AD_MANAGER_APP"
             android:value="true"/>
-
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="ALERTS" />
         <service
             android:name=".service.MyFirebaseMessagingService">
             <intent-filter>
@@ -70,7 +72,7 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
 
-        !-- You don't need to include android:required="false" if your app's
+        <!-- You don't need to include android:required="false" if your app's
         minSdkVersion is 28 or higher. -->
         <uses-library android:name="android.test.runner"
             android:required="false" />
@@ -158,7 +160,7 @@
 
         <activity
             android:name=".ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity"
-            android:label="@string/title_ferry_sailings">
+            android:label="@string/title_ferry_sailings"
             android:parentActivityName=".ui.ferries.FerriesRouteSchedulesActivity">
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data

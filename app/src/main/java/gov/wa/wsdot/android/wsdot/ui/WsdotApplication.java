@@ -85,6 +85,7 @@ public class WsdotApplication extends MultiDexApplication implements HasActivity
         editor.putBoolean("KEY_SEEN_DRIVER_ALERT", false);
         editor.apply();
 
+
     }
 
 

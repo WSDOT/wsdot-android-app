@@ -72,9 +72,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             message = data.get("message").toString();
         }
 
-        // TODO: firebase message received event
-
-
         if (data.get("push_alert_id") != null) {
 
             int id = Integer.valueOf(data.get("push_alert_id").toString());
@@ -84,7 +81,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             ArrayList<Integer> receivedAlerts = Utils.loadOrderedIntList("KEY_RECEIVED_ALERTS", settings);
 
             if (receivedAlerts != null) {
-                if (receivedAlerts.contains(id)) {
+                if (!receivedAlerts.contains(id)) {
                     createAlert(id, title, message, data);
                 }  // if we've already seen this alert, do nothing
             } else {
@@ -151,6 +148,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Get the PendingIntent containing the entire back stack
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_list_wsdot)
