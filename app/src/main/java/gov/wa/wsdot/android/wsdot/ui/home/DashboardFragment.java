@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +42,7 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteActivity;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
+import gov.wa.wsdot.android.wsdot.util.Utils;
 import gov.wa.wsdot.android.wsdot.worker.EventWorker;
 
 public class DashboardFragment extends BaseFragment implements Injectable {
@@ -75,17 +77,23 @@ public class DashboardFragment extends BaseFragment implements Injectable {
     @Override
     public void onResume() {
         super.onResume();
+
         displayBannerIfActive();
+
         MyLogger.crashlyticsLog("Home", "Screen View", "DashboardFragment", 1);
     }
 
     public void displayBannerIfActive() {
+
+        checkForEvent();
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         Boolean eventActive = prefs.getBoolean(getString(R.string.event_is_active), false);
         LinearLayout banner_view =  getView().findViewById(R.id.event_banner);
         TextView banner_text = getView().findViewById(R.id.event_banner_text);
 
-        if (eventActive && banner_view.getVisibility() == View.GONE) {
+
+        if (eventActive) {
             banner_view.setVisibility(View.VISIBLE);
             banner_view.setOnClickListener(view -> startActivity(new Intent(getActivity(), EventActivity.class)));
 
@@ -93,6 +101,30 @@ public class DashboardFragment extends BaseFragment implements Injectable {
 
         } else {
             banner_view.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * checks if we have an active event. If we are in the event date range set event_is_active
+     * to true and update theme if necessary.
+     */
+    private void checkForEvent(){
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+
+        String startDateString = sharedPref.getString(getString(R.string.event_start_date), "1997-01-01");
+        String endDateString = sharedPref.getString(getString(R.string.event_end_date), "1997-01-01");
+        String dateFormat = "yyyy-MM-dd";
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        if (Utils.currentDateInRange(startDateString, endDateString, dateFormat)) {
+            int event_theme_id = sharedPref.getInt(getString(R.string.event_theme_key), 0);
+            editor.putInt(getString(R.string.event_theme_key), event_theme_id);
+            editor.putBoolean(getString(R.string.event_is_active), true);
+            editor.commit();
+        } else {
+            editor.putBoolean(getString(R.string.event_is_active), false);
+            editor.commit();
         }
     }
 }

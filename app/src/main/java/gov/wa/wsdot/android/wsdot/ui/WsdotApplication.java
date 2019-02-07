@@ -63,8 +63,6 @@ public class WsdotApplication extends MultiDexApplication implements HasActivity
         super.onCreate();
         AppInjector.init(this);
 
-        checkForEvent();
-
         if (BuildConfig.DEBUG) {
             Log.d(WsdotApplication.class.getSimpleName(), "init crashlytics in debug mode");
             final Fabric fabric = new Fabric.Builder(this)
@@ -104,27 +102,5 @@ public class WsdotApplication extends MultiDexApplication implements HasActivity
         return dispatchingServiceInjector;
     }
 
-    /**
-     * checks if we have an active event. If we are in the event date range set event_is_active
-     * to true and update theme if necessary.
-     */
-    private void checkForEvent(){
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        String startDateString = sharedPref.getString(getString(R.string.event_start_date), "1997-01-01");
-        String endDateString = sharedPref.getString(getString(R.string.event_end_date), "1997-01-01");
-        String dateFormat = "yyyy-MM-dd";
-
-        SharedPreferences.Editor editor = sharedPref.edit();
-
-        if (Utils.currentDateInRange(startDateString, endDateString, dateFormat)) {
-          int event_theme_id = sharedPref.getInt(getString(R.string.event_theme_key), 0);
-          editor.putInt(getString(R.string.event_theme_key), event_theme_id);
-          editor.putBoolean(getString(R.string.event_is_active), true);
-          editor.commit();
-        } else {
-          editor.putBoolean(getString(R.string.event_is_active), false);
-          editor.commit();
-        }
-    }
 }
