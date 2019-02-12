@@ -4,6 +4,15 @@
     android:layout_height="wrap_content"
     android:padding="14dip">
 
+    <CheckBox
+        android:id="@+id/star_button"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/description_star"
+        style="@style/StarButton"
+        />
+
     <ImageView
         android:id="@+id/icon"
         android:layout_width="wrap_content"
@@ -37,8 +46,8 @@
         android:textColor="@color/black"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/icon"
-        android:layout_alignRight="@+id/toptext"
-        android:layout_alignTop="@+id/toptext" />
+        android:layout_below="@+id/star_button"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/toptext"/>
 
 </RelativeLayout>

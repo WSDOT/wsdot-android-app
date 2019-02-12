@@ -2,6 +2,8 @@ package gov.wa.wsdot.android.wsdot.repository;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
+import android.provider.BaseColumns;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -47,6 +49,12 @@ public class BorderWaitRepository extends NetworkResourceSyncRepository {
         return borderWaitDao.loadBorderWaitsFor(direction);
     }
 
+    public void setIsStarred(Integer id, Integer isStarred) {
+        getExecutor().diskIO().execute(() -> {
+            borderWaitDao.updateIsStarred(id, isStarred);
+        });
+    }
+
     @Override
     void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
@@ -66,6 +74,8 @@ public class BorderWaitRepository extends NetworkResourceSyncRepository {
         JSONObject result = obj.getJSONObject("waittimes");
         JSONArray items = result.getJSONArray("items");
 
+        List<BorderWaitEntity> starred = borderWaitDao.getFavoriteBorderWaits();
+
         List<BorderWaitEntity> waits = new ArrayList<>();
 
         int numItems = items.length();
@@ -83,7 +93,13 @@ public class BorderWaitRepository extends NetworkResourceSyncRepository {
             wait.setWait(item.getInt("wait"));
             wait.setUpdated(item.getString("updated"));
             wait.setIsStarred(0);
-            Log.e(TAG, "checking waits");
+
+            for (BorderWaitEntity starredWait : starred) {
+                if (starredWait.getBorderWaitId().equals(wait.getBorderWaitId())) {
+                    wait.setIsStarred(1);
+                }
+            }
+
             waits.add(wait);
         }
 
@@ -96,4 +112,7 @@ public class BorderWaitRepository extends NetworkResourceSyncRepository {
         getCacheRepository().setCacheTime(borderCache);
 
     }
+
+
+
 }

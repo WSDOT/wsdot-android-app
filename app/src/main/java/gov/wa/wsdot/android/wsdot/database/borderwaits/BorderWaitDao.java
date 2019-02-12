@@ -18,6 +18,12 @@ public abstract class BorderWaitDao {
     @Query("SELECT * FROM border_wait WHERE direction LIKE :direction")
     public abstract LiveData<List<BorderWaitEntity>> loadBorderWaitsFor(String direction);
 
+    @Query("UPDATE border_wait SET is_starred = :isStarred WHERE id = :id")
+    public abstract void updateIsStarred(Integer id, Integer isStarred);
+
+    @Query("SELECT * FROM border_wait WHERE is_starred = 1")
+    public abstract List<BorderWaitEntity> getFavoriteBorderWaits();
+
     @Query("DELETE FROM border_wait")
     public abstract void deleteAll();
 

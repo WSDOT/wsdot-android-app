@@ -39,7 +39,7 @@ public class BorderWaitEntity {
     private Integer isStarred = 0;
 
     public Integer getBorderWaitId() {
-        return borderWaitId;
+        return this.borderWaitId;
     }
 
     public void setBorderWaitId(int borderWaitId) {
