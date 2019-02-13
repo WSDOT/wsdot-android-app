@@ -368,6 +368,19 @@ public class FavoritesFragment extends BaseFragment implements
 	public void onResume() {
 		super.onResume();
         mFavoritesAdapter.notifyDataSetChanged();
+
+        // Check preferences and set defaults if none set
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
+        orderedViewTypes[0] = settings.getInt("KEY_FIRST_FAVORITES_SECTION", MY_ROUTE_VIEWTYPE);
+        orderedViewTypes[1] = settings.getInt("KEY_SECOND_FAVORITES_SECTION", CAMERAS_VIEWTYPE);
+        orderedViewTypes[2] = settings.getInt("KEY_THIRD_FAVORITES_SECTION", FERRIES_SCHEDULES_VIEWTYPE);
+        orderedViewTypes[3] = settings.getInt("KEY_FOURTH_FAVORITES_SECTION", MOUNTAIN_PASSES_VIEWTYPE);
+        orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", TRAVEL_TIMES_VIEWTYPE);
+        orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", LOCATION_VIEWTYPE);
+        orderedViewTypes[6] = settings.getInt("KEY_SEVENTH_FAVORITES_SECTION", TOLL_RATE_VIEWTYPE);
+        orderedViewTypes[7] = settings.getInt("KEY_EIGHTH_FAVORITES_SECTION", BORDER_WAIT_VIEWTYPE);
+
+
 	}
 
     /**
