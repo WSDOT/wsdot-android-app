@@ -28,12 +28,19 @@ import androidx.annotation.Nullable;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +61,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
     private static final String TAG = BorderWaitNorthboundFragment.class.getSimpleName();
 	
 	@SuppressLint("UseSparseArrays")
-	private static HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
+	private static HashMap<Integer, Integer> routeImage = new HashMap<>();
 
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
@@ -91,7 +98,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mAdapter = new BorderWaitNorthboundFragment.BorderWaitAdapter(getActivity());
@@ -135,6 +142,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
         });
 
         viewModel.getBorderWaits().observe(this, borderWaits -> {
+
             if (borderWaits.size() > 0) {
                 mBorderWaits.clear();
                 mBorderWaits = borderWaits;
@@ -179,17 +187,19 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
 
             BorderWaitVH borderVH = (BorderWaitVH) viewHolder;
 
-            String title = mBorderWaits.get(i).getTitle();
-            String lane = mBorderWaits.get(i).getLane();
+            BorderWaitEntity waitItem = mBorderWaits.get(i);
+
+            String title = waitItem.getTitle();
+            String lane = waitItem.getLane();
 
             borderVH.tt.setText(title + " (" + lane + ")");
             borderVH.tt.setTypeface(tfb);
 
-            String created_at = mBorderWaits.get(i).getUpdated();
+            String created_at = waitItem.getUpdated();
             borderVH.bt.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", true));
             borderVH.bt.setTypeface(tf);
 
-            int wait = mBorderWaits.get(i).getWait();
+            int wait = waitItem.getWait();
             if (wait == -1) {
                 borderVH.rt.setText("N/A");
             } else if (wait < 5) {
@@ -200,6 +210,53 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
             borderVH.rt.setTypeface(tfb);
 
             borderVH.iv.setImageResource(routeImage.get(mBorderWaits.get(i).getRoute()));
+
+            borderVH.star.setTag(waitItem.getBorderWaitId());
+            // Seems when Android recycles the views, the onCheckedChangeListener is still active
+            // and the call to setChecked() causes that code within the listener to run repeatedly.
+            // Assigning null to setOnCheckedChangeListener seems to fix it.
+            borderVH.star.setOnCheckedChangeListener(null);
+            borderVH.star.setContentDescription("favorite");
+            borderVH.star.setChecked(waitItem.getIsStarred() != 0);
+
+            borderVH.star.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
+                    int waitId = (Integer) buttonView.getTag();
+
+                    Snackbar added_snackbar = Snackbar
+                            .make(getView(), R.string.add_favorite, Snackbar.LENGTH_SHORT);
+
+                    Snackbar removed_snackbar = Snackbar
+                            .make(getView(), R.string.remove_favorite, Snackbar.LENGTH_SHORT);
+
+                    added_snackbar.addCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onShown(Snackbar snackbar) {
+                            super.onShown(snackbar);
+                            snackbar.getView().setContentDescription("added to favorites");
+                            snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+                        }
+                    });
+
+                    removed_snackbar.addCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onShown(Snackbar snackbar) {
+                            super.onShown(snackbar);
+                            snackbar.getView().setContentDescription("removed from favorites");
+                            snackbar.getView().sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT);
+                        }
+                    });
+
+                    if (isChecked){
+                        added_snackbar.show();
+                    }else{
+                        removed_snackbar.show();
+                    }
+
+                    viewModel.setIsStarredFor(waitId, isChecked ? 1 : 0);
+                }
+            });
+
         }
 
         @Override
@@ -213,6 +270,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
             TextView bt;
             TextView rt;
             ImageView iv;
+            CheckBox star;
 
 			public BorderWaitVH(View view) {
 				super(view);
@@ -220,6 +278,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
                 bt = view.findViewById(R.id.bottomtext);
                 rt = view.findViewById(R.id.righttext);
                 iv = view.findViewById(R.id.icon);
+                star = view.findViewById(R.id.star_button);
 			}
 		}
 	}

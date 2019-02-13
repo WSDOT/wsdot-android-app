@@ -19,6 +19,8 @@ package gov.wa.wsdot.android.wsdot.ui.home;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
@@ -46,12 +48,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
@@ -62,6 +66,7 @@ import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewPagerActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
@@ -89,15 +94,17 @@ public class FavoritesFragment extends BaseFragment implements
 
 	private SwipeRefreshLayout swipeRefreshLayout;
 
-    public static final int MY_ROUTE_VIEWTYPE = 0;
-    public static final int CAMERAS_VIEWTYPE = 1;
-    public static final int MOUNTAIN_PASSES_VIEWTYPE = 2;
-    public static final int TRAVEL_TIMES_VIEWTYPE = 3;
-    public static final int FERRIES_SCHEDULES_VIEWTYPE = 4;
-    public static final int LOCATION_VIEWTYPE = 5;
-    public static final int TOLL_RATE_VIEWTYPE = 6;
+    private static final int HEADER_VIEWTYPE = 0;
 
-    private static final int HEADER_VIEWTYPE = 7;
+    public static final int MY_ROUTE_VIEWTYPE = 1;
+    public static final int CAMERAS_VIEWTYPE = 2;
+    public static final int MOUNTAIN_PASSES_VIEWTYPE = 3;
+    public static final int TRAVEL_TIMES_VIEWTYPE = 4;
+    public static final int FERRIES_SCHEDULES_VIEWTYPE = 5;
+    public static final int LOCATION_VIEWTYPE = 6;
+    public static final int TOLL_RATE_VIEWTYPE = 7;
+    public static final int BORDER_WAIT_VIEWTYPE = 9;
+
 
     public static LinkedHashMap headers = new LinkedHashMap<Integer, String>(){
         {
@@ -108,10 +115,15 @@ public class FavoritesFragment extends BaseFragment implements
             put(FERRIES_SCHEDULES_VIEWTYPE, "Ferries Schedules");
             put(LOCATION_VIEWTYPE, "Locations");
             put(TOLL_RATE_VIEWTYPE, "Toll Rates");
+            put(BORDER_WAIT_VIEWTYPE, "Border Waits");
         }
     };
 
-    private int orderedViewTypes[] = new int[7];
+    // used for border waits
+    @SuppressLint("UseSparseArrays")
+    private static HashMap<Integer, Integer> routeImage = new HashMap<>();
+
+    private int orderedViewTypes[] = new int[8];
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
@@ -125,6 +137,12 @@ public class FavoritesFragment extends BaseFragment implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+
+        routeImage.put(5, R.drawable.ic_list_i5);
+        routeImage.put(9, R.drawable.ic_list_sr9);
+        routeImage.put(539, R.drawable.ic_list_sr539);
+        routeImage.put(543, R.drawable.ic_list_sr543);
+        routeImage.put(97, R.drawable.ic_list_us97);
 	}
 	
 	@Override
@@ -142,6 +160,7 @@ public class FavoritesFragment extends BaseFragment implements
         orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", TRAVEL_TIMES_VIEWTYPE);
         orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", LOCATION_VIEWTYPE);
         orderedViewTypes[6] = settings.getInt("KEY_SEVENTH_FAVORITES_SECTION", TOLL_RATE_VIEWTYPE);
+        orderedViewTypes[7] = settings.getInt("KEY_EIGHTH_FAVORITES_SECTION", BORDER_WAIT_VIEWTYPE);
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -204,6 +223,10 @@ public class FavoritesFragment extends BaseFragment implements
                     case TOLL_RATE_VIEWTYPE:
                         TollRateGroup tollRateGroup = (TollRateGroup) mFavoritesAdapter.getItem((holder.getAdapterPosition()));
                         item_id = String.valueOf(tollRateGroup.tollRateSign.getId());
+                        break;
+                    case BORDER_WAIT_VIEWTYPE:
+                        BorderWaitEntity borderWait = (BorderWaitEntity) mFavoritesAdapter.getItem((holder.getAdapterPosition()));
+                        item_id = String.valueOf(borderWait.getBorderWaitId());
                         break;
                     default:
                         item_id = null;
@@ -309,6 +332,15 @@ public class FavoritesFragment extends BaseFragment implements
             }
         });
 
+        viewModel.getFavoriteBorderWaits().observe(this, borderWaits -> {
+            if (borderWaits != null){
+                if (borderWaits.size() > 0) {
+                    mEmptyView.setVisibility(View.GONE);
+                }
+                mFavoritesAdapter.setBorderWaits(borderWaits);
+            }
+        });
+
         viewModel.getFavoritesLoadingTasksCount().observe(this, numTasks -> {
             if (numTasks != null) {
 
@@ -336,6 +368,19 @@ public class FavoritesFragment extends BaseFragment implements
 	public void onResume() {
 		super.onResume();
         mFavoritesAdapter.notifyDataSetChanged();
+
+        // Check preferences and set defaults if none set
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
+        orderedViewTypes[0] = settings.getInt("KEY_FIRST_FAVORITES_SECTION", MY_ROUTE_VIEWTYPE);
+        orderedViewTypes[1] = settings.getInt("KEY_SECOND_FAVORITES_SECTION", CAMERAS_VIEWTYPE);
+        orderedViewTypes[2] = settings.getInt("KEY_THIRD_FAVORITES_SECTION", FERRIES_SCHEDULES_VIEWTYPE);
+        orderedViewTypes[3] = settings.getInt("KEY_FOURTH_FAVORITES_SECTION", MOUNTAIN_PASSES_VIEWTYPE);
+        orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", TRAVEL_TIMES_VIEWTYPE);
+        orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", LOCATION_VIEWTYPE);
+        orderedViewTypes[6] = settings.getInt("KEY_SEVENTH_FAVORITES_SECTION", TOLL_RATE_VIEWTYPE);
+        orderedViewTypes[7] = settings.getInt("KEY_EIGHTH_FAVORITES_SECTION", BORDER_WAIT_VIEWTYPE);
+
+
 	}
 
     /**
@@ -359,6 +404,7 @@ public class FavoritesFragment extends BaseFragment implements
         private List<MyRouteEntity> mMyRoutes;
         private List<MapLocationEntity> mMapLocations;
         private List<TollRateGroup> mTollRates;
+        private List<BorderWaitEntity> mBorderWaits;
 
         FavItemAdapter() {
             this.mCameras = new ArrayList<>();
@@ -368,6 +414,7 @@ public class FavoritesFragment extends BaseFragment implements
             this.mMyRoutes = new ArrayList<>();
             this.mMapLocations = new ArrayList<>();
             this.mTollRates = new ArrayList<>();
+            this.mBorderWaits = new ArrayList<>();
         }
 
         void setCameras(List<CameraEntity> cameras){
@@ -387,6 +434,11 @@ public class FavoritesFragment extends BaseFragment implements
 
         void setPasses(List<MountainPassEntity> passes){
             this.mPasses = passes;
+            this.notifyDataSetChanged();
+        }
+
+        void setBorderWaits(List<BorderWaitEntity> borderWaits) {
+            this.mBorderWaits = borderWaits;
             this.notifyDataSetChanged();
         }
 
@@ -434,11 +486,14 @@ public class FavoritesFragment extends BaseFragment implements
                     itemView = LayoutInflater
                             .from(parent.getContext()).inflate(R.layout.list_item_my_route_favorite, null);
                     return new MyRouteViewHolder(itemView);
-
                 case TOLL_RATE_VIEWTYPE:
                     itemView = LayoutInflater
                             .from(parent.getContext()).inflate(R.layout.list_item_travel_time_group, null);
                     return new TollRateViewHolder(itemView);
+                case BORDER_WAIT_VIEWTYPE:
+                    itemView = LayoutInflater
+                            .from(parent.getContext()).inflate(R.layout.borderwait_row, null);
+                    return new BorderWaitViewHolder(itemView);
                 case HEADER_VIEWTYPE:
                     itemView = LayoutInflater.
                             from(parent.getContext()).inflate(R.layout.list_header, parent, false);
@@ -684,7 +739,7 @@ public class FavoritesFragment extends BaseFragment implements
                 TollRateGroup tollRateGroup = (TollRateGroup) mFavoritesAdapter.getItem(position);
 
                 String routeType;
-                switch (tollRateGroup.tollRateSign.getStateRoute()){
+                switch (tollRateGroup.tollRateSign.getStateRoute()) {
                     case 405:
                         routeType = "I-";
                         break;
@@ -707,22 +762,22 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.travel_times_layout.removeAllViews();
 
                 // make a trip view with toll rate for each trip in the group
-                for (TollTripEntity trip: tollRateGroup.trips) {
+                for (TollTripEntity trip : tollRateGroup.trips) {
 
                     View tripView;
 
-                    switch (tollRateGroup.tollRateSign.getStateRoute()){
+                    switch (tollRateGroup.tollRateSign.getStateRoute()) {
                         case 405:
                             tripView = I405TollRatesFragment.makeTripView(trip, tollRateGroup.tollRateSign, getContext());
                             // remove the line from the last trip
-                            if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){
+                            if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1) {
                                 tripView.findViewById(R.id.line).setVisibility(View.GONE);
                             }
                             break;
                         case 167:
                             tripView = SR167TollRatesFragment.makeTripView(trip, tollRateGroup.tollRateSign, getContext());
                             // remove the line from the last trip
-                            if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1){
+                            if (tollRateGroup.trips.indexOf(trip) == tollRateGroup.trips.size() - 1) {
                                 tripView.findViewById(R.id.line).setVisibility(View.GONE);
                             }
                             break;
@@ -735,6 +790,37 @@ public class FavoritesFragment extends BaseFragment implements
                 }
 
                 viewholder.star_button.setVisibility(View.GONE);
+
+            } else if (holder instanceof BorderWaitViewHolder) {
+
+                BorderWaitViewHolder viewHolder = (BorderWaitViewHolder) holder;
+
+                BorderWaitEntity waitItem = (BorderWaitEntity) mFavoritesAdapter.getItem(position);
+
+                String title = waitItem.getTitle();
+                String lane = waitItem.getLane();
+
+                viewHolder.tt.setText(title + " (" + lane + ")");
+                viewHolder.tt.setTypeface(tfb);
+
+                String created_at = waitItem.getUpdated();
+                viewHolder.bt.setText(ParserUtils.relativeTime(created_at, "yyyy-MM-dd h:mm a", true));
+                viewHolder.bt.setTypeface(tf);
+
+                int wait = waitItem.getWait();
+                if (wait == -1) {
+                    viewHolder.rt.setText("N/A");
+                } else if (wait < 5) {
+                    viewHolder.rt.setText("< 5 min");
+                } else {
+                    viewHolder.rt.setText(wait + " min");
+                }
+
+                viewHolder.rt.setTypeface(tfb);
+
+                viewHolder.iv.setImageResource(routeImage.get(waitItem.getRoute()));
+
+                viewHolder.star.setVisibility(View.GONE);
 
             } else if (holder instanceof MyRouteViewHolder) {
 
@@ -827,6 +913,9 @@ public class FavoritesFragment extends BaseFragment implements
                     case TOLL_RATE_VIEWTYPE:
                         size = mTollRates.size() + (mTollRates.size() > 0 ? 1 : 0);
                         break;
+                    case BORDER_WAIT_VIEWTYPE:
+                        size = mBorderWaits.size() + (mBorderWaits.size() > 0 ? 1 : 0);
+                        break;
                     default:
                         break;
                 }
@@ -883,6 +972,9 @@ public class FavoritesFragment extends BaseFragment implements
                     case TOLL_RATE_VIEWTYPE:
                         size = mTollRates.size() + (mTollRates.size() > 0 ? 1 : 0);
                         break;
+                    case BORDER_WAIT_VIEWTYPE:
+                        size = mBorderWaits.size() + (mBorderWaits.size() > 0 ? 1 : 0);
+                        break;
                     default:
                         break;
                 }
@@ -906,6 +998,8 @@ public class FavoritesFragment extends BaseFragment implements
                             return mMyRoutes.get(position - 1);
                         case TOLL_RATE_VIEWTYPE:
                             return mTollRates.get(position - 1);
+                        case BORDER_WAIT_VIEWTYPE:
+                            return mBorderWaits.get(position - 1);
                         default:
                             break;
                     }
@@ -929,6 +1023,7 @@ public class FavoritesFragment extends BaseFragment implements
             count += mMapLocations.size() + (mMapLocations.size() > 0 ? 1 : 0);
             count += mMyRoutes.size() + (mMyRoutes.size() > 0 ? 1 : 0);
             count += mTollRates.size() + (mTollRates.size() > 0 ? 1 : 0);
+            count += mBorderWaits.size() + (mBorderWaits.size() > 0 ? 1 : 0);
 
             return count;
         }
@@ -953,6 +1048,8 @@ public class FavoritesFragment extends BaseFragment implements
                 case MY_ROUTE_VIEWTYPE:
                     break;
                 case TOLL_RATE_VIEWTYPE:
+                    break;
+                case BORDER_WAIT_VIEWTYPE:
                     break;
             }
             notifyDataSetChanged();
@@ -987,6 +1084,8 @@ public class FavoritesFragment extends BaseFragment implements
                     break;
                 case TOLL_RATE_VIEWTYPE:
                     viewModel.setTollRateIsStarred(item_id, 0);
+                case BORDER_WAIT_VIEWTYPE:
+                    viewModel.setBorderWaitIsStarred(Integer.valueOf(item_id), 0);
             }
             notifyDataSetChanged();
         }
@@ -1008,6 +1107,9 @@ public class FavoritesFragment extends BaseFragment implements
                     break;
                 case TRAVEL_TIMES_VIEWTYPE:
                     viewModel.setTravelTimeIsStarred(item_id, 1);
+                    break;
+                case BORDER_WAIT_VIEWTYPE:
+                    viewModel.setBorderWaitIsStarred(Integer.valueOf(item_id), 1);
                     break;
                 case FERRIES_SCHEDULES_VIEWTYPE:
                     viewModel.setFerryScheduleIsStarred(Integer.valueOf(item_id), 1);
@@ -1120,6 +1222,24 @@ public class FavoritesFragment extends BaseFragment implements
             super(view);
             title = view.findViewById(R.id.title);
             latlong = view.findViewById(R.id.content);
+        }
+    }
+
+    // View Holder for list items.
+    private class BorderWaitViewHolder extends RecyclerView.ViewHolder {
+        TextView tt;
+        TextView bt;
+        TextView rt;
+        ImageView iv;
+        CheckBox star;
+
+        public BorderWaitViewHolder(View view) {
+            super(view);
+            tt = view.findViewById(R.id.toptext);
+            bt = view.findViewById(R.id.bottomtext);
+            rt = view.findViewById(R.id.righttext);
+            iv = view.findViewById(R.id.icon);
+            star = view.findViewById(R.id.star_button);
         }
     }
 

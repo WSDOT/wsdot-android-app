@@ -35,7 +35,7 @@ public class SettingsActivity extends BaseActivity implements OnStartDragListene
     private static final int HEADER_VIEWTYPE = 0;
     private static final int FAVORITES_SECTION_VIEWTYPE = 1;
 
-    private int orderedViewTypes[] = new int[7];
+    private int orderedViewTypes[] = new int[8];
 
     private SettingsAdapter mSettingsAdapter;
     protected RecyclerView mRecyclerView;
@@ -64,8 +64,9 @@ public class SettingsActivity extends BaseActivity implements OnStartDragListene
         orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", FavoritesFragment.TRAVEL_TIMES_VIEWTYPE);
         orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", FavoritesFragment.LOCATION_VIEWTYPE);
         orderedViewTypes[6] = settings.getInt("KEY_SEVENTH_FAVORITES_SECTION", FavoritesFragment.TOLL_RATE_VIEWTYPE);
+        orderedViewTypes[7] = settings.getInt("KEY_EIGHTH_FAVORITES_SECTION", FavoritesFragment.BORDER_WAIT_VIEWTYPE);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        mRecyclerView = findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -223,6 +224,7 @@ public class SettingsActivity extends BaseActivity implements OnStartDragListene
             editor.putInt("KEY_FIFTH_FAVORITES_SECTION", orderedViewTypes[4]);
             editor.putInt("KEY_SIXTH_FAVORITES_SECTION", orderedViewTypes[5]);
             editor.putInt("KEY_SEVENTH_FAVORITES_SECTION", orderedViewTypes[6]);
+            editor.putInt("KEY_EIGHTH_FAVORITES_SECTION", orderedViewTypes[7]);
             editor.apply();
 
             Collections.swap(mItems, fromPosition-1, toPosition-1);

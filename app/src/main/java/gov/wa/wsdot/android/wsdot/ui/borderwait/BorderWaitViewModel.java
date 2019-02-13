@@ -77,4 +77,8 @@ public class BorderWaitViewModel extends ViewModel {
             borderWaitRepo.refreshData(mStatus, true);
         }
     }
+
+    public void setIsStarredFor(Integer waitId, Integer isStarred) {
+        borderWaitRepo.setIsStarred(waitId, isStarred);
+    }
 }
