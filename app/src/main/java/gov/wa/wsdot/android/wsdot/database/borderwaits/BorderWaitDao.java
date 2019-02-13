@@ -22,6 +22,9 @@ public abstract class BorderWaitDao {
     public abstract void updateIsStarred(Integer id, Integer isStarred);
 
     @Query("SELECT * FROM border_wait WHERE is_starred = 1")
+    public abstract LiveData<List<BorderWaitEntity>> loadFavoriteBorderWaits();
+
+    @Query("SELECT * FROM border_wait WHERE is_starred = 1")
     public abstract List<BorderWaitEntity> getFavoriteBorderWaits();
 
     @Query("DELETE FROM border_wait")

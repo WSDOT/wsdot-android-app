@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
@@ -16,6 +17,8 @@ import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
+import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
+import gov.wa.wsdot.android.wsdot.repository.BorderWaitRepository;
 import gov.wa.wsdot.android.wsdot.repository.CameraRepository;
 import gov.wa.wsdot.android.wsdot.repository.FerryScheduleRepository;
 import gov.wa.wsdot.android.wsdot.repository.MapLocationRepository;
@@ -42,6 +45,9 @@ public class FavoritesViewModel extends ViewModel {
     private MountainPassRepository mountainPassRepo;
     private MutableLiveData<ResourceStatus> mPassStatus;
 
+    private BorderWaitRepository borderWaitRepo;
+    private MutableLiveData<ResourceStatus> mBorderWaitStatus;
+
     private MyRoutesRepository myRoutesRepo;
 
     private MapLocationRepository mapLocationRepo;
@@ -58,13 +64,15 @@ public class FavoritesViewModel extends ViewModel {
                        MountainPassRepository mountainPassRepo,
                        MyRoutesRepository myRoutesRepo,
                        MapLocationRepository mapLocationRepo,
-                       TollRatesRepository tollRatesRepo) {
+                       TollRatesRepository tollRatesRepo,
+                       BorderWaitRepository borderWaitRepo) {
 
         this.mCameraStatus = new MutableLiveData<>();
         this.mFerryStatus = new MutableLiveData<>();
         this.mTravelTimeStatus = new MutableLiveData<>();
         this.mPassStatus = new MutableLiveData<>();
         this.mTollRatesStatus = new MutableLiveData<>();
+        this.mBorderWaitStatus = new MutableLiveData<>();
 
         this.mFavoritesLoadingTasks = new MediatorLiveData<>();
         this.mFavoritesLoadingTasks.setValue(0);
@@ -82,6 +90,18 @@ public class FavoritesViewModel extends ViewModel {
         });
 
         this.mFavoritesLoadingTasks.addSource(mTravelTimeStatus, status -> {
+            if (status != null && mFavoritesLoadingTasks.getValue() != null) {
+                if (status.status.equals(Status.LOADING)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() + 1);
+                } else if (status.status.equals(Status.ERROR)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() - 1);
+                } else if (status.status.equals(Status.SUCCESS)) {
+                    mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() - 1);
+                }
+            }
+        });
+
+        this.mFavoritesLoadingTasks.addSource(mBorderWaitStatus, status -> {
             if (status != null && mFavoritesLoadingTasks.getValue() != null) {
                 if (status.status.equals(Status.LOADING)) {
                     mFavoritesLoadingTasks.setValue(mFavoritesLoadingTasks.getValue() + 1);
@@ -124,6 +144,7 @@ public class FavoritesViewModel extends ViewModel {
         this.myRoutesRepo = myRoutesRepo;
         this.mapLocationRepo = mapLocationRepo;
         this.tollRatesRepo = tollRatesRepo;
+        this.borderWaitRepo = borderWaitRepo;
 
     }
 
@@ -166,6 +187,13 @@ public class FavoritesViewModel extends ViewModel {
         this.tollRatesRepo.setIsStarred(signId, isStarred);
     }
 
+    public LiveData<List<BorderWaitEntity>> getFavoriteBorderWaits() {
+        return this.borderWaitRepo.loadFavoriteBorderWaits(mBorderWaitStatus);
+    }
+    public void setBorderWaitIsStarred(int waitId, int isStarred){
+        this.borderWaitRepo.setIsStarred(waitId, isStarred);
+    }
+
     public LiveData<List<MyRouteEntity>> getFavoriteMyRoutes(){
         return this.myRoutesRepo.loadFavoriteMyRoutes();
     }
@@ -191,6 +219,7 @@ public class FavoritesViewModel extends ViewModel {
         mountainPassRepo.refreshData(mPassStatus, true);
         travelTimeRepo.refreshData(mTravelTimeStatus, true);
         tollRatesRepo.refreshData(mTollRatesStatus, true);
+        borderWaitRepo.refreshData(mBorderWaitStatus, true);
     }
 
 }

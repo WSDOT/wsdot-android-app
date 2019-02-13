@@ -49,6 +49,11 @@ public class BorderWaitRepository extends NetworkResourceSyncRepository {
         return borderWaitDao.loadBorderWaitsFor(direction);
     }
 
+    public LiveData<List<BorderWaitEntity>> loadFavoriteBorderWaits(MutableLiveData<ResourceStatus> status) {
+        super.refreshData(status, false);
+        return borderWaitDao.loadFavoriteBorderWaits();
+    }
+
     public void setIsStarred(Integer id, Integer isStarred) {
         getExecutor().diskIO().execute(() -> {
             borderWaitDao.updateIsStarred(id, isStarred);

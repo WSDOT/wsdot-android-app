@@ -89,6 +89,8 @@ public class FavoritesFragment extends BaseFragment implements
 
 	private SwipeRefreshLayout swipeRefreshLayout;
 
+	
+
     public static final int MY_ROUTE_VIEWTYPE = 0;
     public static final int CAMERAS_VIEWTYPE = 1;
     public static final int MOUNTAIN_PASSES_VIEWTYPE = 2;
