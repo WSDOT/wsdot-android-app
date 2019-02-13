@@ -61,7 +61,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
     private static final String TAG = BorderWaitNorthboundFragment.class.getSimpleName();
 	
 	@SuppressLint("UseSparseArrays")
-	private static HashMap<Integer, Integer> routeImage = new HashMap<Integer, Integer>();
+	private static HashMap<Integer, Integer> routeImage = new HashMap<>();
 
 	private View mEmptyView;
 	private static SwipeRefreshLayout swipeRefreshLayout;
