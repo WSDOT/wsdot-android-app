@@ -30,6 +30,7 @@ import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteMapActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteActivity;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.MyRouteReportActivity;
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 
@@ -79,6 +80,9 @@ public abstract class ActivityModule {
 
     @ContributesAndroidInjector
     abstract MyRouteMapActivity contributeMyRouteMapActivity();
+
+    @ContributesAndroidInjector
+    abstract MyRouteReportActivity contrubuteMyRouteReportActivity();
 
     @ContributesAndroidInjector
     abstract CameraViewPagerActivity contributeCameraViewPagerActivity();

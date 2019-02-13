@@ -38,6 +38,7 @@ import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.MyRouteReportActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ProgressDialogFragment;
@@ -68,7 +69,7 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mAdapter = new MyRouteAdapter(getActivity());
@@ -105,12 +106,24 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
                 renameRouteAction(routeName, routeID);
                 break;
             case 2: // Show on Map
+
+                /*
                 Bundle b = new Bundle();
                 Intent intent = new Intent(getActivity(), MyRouteMapActivity.class);
                 b.putLong("route_id", routeID);
                 b.putString("route_name", routeName);
                 intent.putExtras(b);
                 startActivity(intent);
+                */
+
+                // TODO:
+                Bundle b = new Bundle();
+                b.putLong("route_id", routeID);
+                b.putString("route_name", routeName);
+
+                Intent intent = new Intent(getActivity(), MyRouteReportActivity.class);
+                startActivity(intent);
+
                 break;
             case 3: // Find favorites
                 findFavoritesOnRoute(routeID);

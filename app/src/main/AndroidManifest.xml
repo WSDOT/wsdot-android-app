@@ -206,6 +206,11 @@
         <activity
             android:name=".ui.myroute.MyRouteActivity"
             android:label="@string/title_activity_my_route" />
+
+        <activity
+            android:name=".ui.myroute.report.MyRouteReportActivity"
+            android:label="Route Report"/>
+
         <activity
             android:name=".ui.myroute.newroute.NewRouteActivity"
             android:label="@string/title_activity_new_route" />
