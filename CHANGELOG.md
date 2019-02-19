@@ -5,11 +5,36 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
-## [5.10.3]
+## [5.12.1] - 2019-02-19
+
+
+
+## [5.11.6] - 2019-02-07
+
+## Fixes
+- event banner display issues
+
+
+## [5.11.5] - 2019-02-05
+
+## Fixes
+- notification issue
+
+## [5.11.4] - 2019-01-17
+
+## Adds
+- performace monitoring lib
+
+## Changes
+- updates worker lib
+
+## Fixes
+- issue with new ferry schedule date format
+
+## [5.11.3]
 
 ## Changes
 - Migrates support libs to AndroidX
-
 
 ## [5.11.1] - 2019-01-02
 
