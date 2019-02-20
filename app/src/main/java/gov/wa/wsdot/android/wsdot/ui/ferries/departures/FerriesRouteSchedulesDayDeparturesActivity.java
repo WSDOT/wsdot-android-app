@@ -166,6 +166,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(title);
         setSupportActionBar(mToolbar);
+
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -238,7 +239,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                                         | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
                                         | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
                     }
-
                 }
             }
 

@@ -23,6 +23,7 @@ import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemFor
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemReportFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListFragment;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.MyRouteReportFragment;
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.I405TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.SR167TollRatesFragment;
@@ -141,5 +142,8 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract VesselWatchFragment contributeVesselWatchFragment();
+
+    @ContributesAndroidInjector
+    abstract MyRouteReportFragment contributeMyRouteReportFragment();
 
 }

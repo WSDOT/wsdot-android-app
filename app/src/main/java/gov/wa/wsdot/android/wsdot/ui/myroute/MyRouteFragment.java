@@ -106,24 +106,12 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
                 renameRouteAction(routeName, routeID);
                 break;
             case 2: // Show on Map
-
-                /*
                 Bundle b = new Bundle();
                 Intent intent = new Intent(getActivity(), MyRouteMapActivity.class);
                 b.putLong("route_id", routeID);
                 b.putString("route_name", routeName);
                 intent.putExtras(b);
                 startActivity(intent);
-                */
-
-                // TODO:
-                Bundle b = new Bundle();
-                b.putLong("route_id", routeID);
-                b.putString("route_name", routeName);
-
-                Intent intent = new Intent(getActivity(), MyRouteReportActivity.class);
-                startActivity(intent);
-
                 break;
             case 3: // Find favorites
                 findFavoritesOnRoute(routeID);
@@ -341,16 +329,21 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
             itemViewHolder.map_button.setContentDescription("Check map for route");
             itemViewHolder.map_button.setOnClickListener(v -> {
 
+                // TODO:
                 Bundle b = new Bundle();
+                b.putLong("route_id", myRoute.getMyRouteId());
+                b.putString("route_name", myRoute.getTitle());
+                b.putString("route", myRoute.getRouteLocations());
 
-                Intent intent = new Intent(getActivity(), TrafficMapActivity.class);
 
-                b.putDouble("lat", myRoute.getLatitude());
-                b.putDouble("long", myRoute.getLongitude());
-                b.putInt("zoom", myRoute.getZoom());
 
+
+
+                Intent intent = new Intent(getActivity(), MyRouteReportActivity.class);
                 intent.putExtras(b);
                 startActivity(intent);
+
+
             });
 
             itemViewHolder.settings_button.setTag(i);

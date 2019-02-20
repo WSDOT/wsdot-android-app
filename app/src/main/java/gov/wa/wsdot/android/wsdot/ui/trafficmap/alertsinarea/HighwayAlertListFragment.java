@@ -48,7 +48,7 @@ public class HighwayAlertListFragment extends BaseFragment
 
     private static final String TAG = HighwayAlertListFragment.class.getSimpleName();
     private static ArrayList<HighwayAlertsItem> trafficAlertItems = new ArrayList<>();
-    private static HighwayAlertListFragment.Adapter mAdapter;
+    private static HighwayAlertsListAdapter mAdapter;
     private static SwipeRefreshLayout swipeRefreshLayout;
 
     private Typeface tf;
@@ -80,9 +80,9 @@ public class HighwayAlertListFragment extends BaseFragment
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new HighwayAlertListFragment.Adapter();
+        mAdapter = new HighwayAlertsListAdapter();
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -98,7 +98,6 @@ public class HighwayAlertListFragment extends BaseFragment
                 R.color.holo_green_light,
                 R.color.holo_orange_light,
                 R.color.holo_red_light);
-
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(HighwayAlertListViewModel.class);
 
@@ -145,10 +144,6 @@ public class HighwayAlertListFragment extends BaseFragment
                 }
             });
 
-        } else {
-
-
-
         }
 
         return root;
@@ -162,7 +157,7 @@ public class HighwayAlertListFragment extends BaseFragment
      *
      * @see RecyclerView.Adapter
      */
-    private class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private class HighwayAlertsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private static final int TYPE_ITEM = 0;
         private static final int TYPE_SEPARATOR = 1;

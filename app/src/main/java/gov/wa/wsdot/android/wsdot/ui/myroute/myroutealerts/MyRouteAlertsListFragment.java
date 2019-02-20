@@ -8,6 +8,8 @@ import android.os.Bundle;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,7 +78,7 @@ public class MyRouteAlertsListFragment extends BaseFragment
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new MyRouteAlertsListFragment.Adapter();
 
@@ -117,6 +119,8 @@ public class MyRouteAlertsListFragment extends BaseFragment
         Intent intent = getActivity().getIntent();
 
         String routeString = intent.getStringExtra("route");
+
+        Log.e(TAG, routeString);
 
         viewModel.getHighwayAlertsInBounds(routeString).observe(this, alerts -> {
             if (alerts != null) {

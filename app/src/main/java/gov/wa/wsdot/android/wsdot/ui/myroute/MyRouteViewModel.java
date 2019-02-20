@@ -25,14 +25,14 @@ public class MyRouteViewModel extends ViewModel {
         foundFavorites = new MutableLiveData<>();
     }
 
-    LiveData<List<MyRouteEntity>> loadMyRoutes() {
+    public LiveData<List<MyRouteEntity>> loadMyRoutes() {
         if (myRoutes == null){
             this.myRoutes = myRoutesRepo.loadMyRoutes();
         }
         return this.myRoutes;
     }
 
-    LiveData<MyRouteEntity> loadMyRoute(long routeId){
+    public LiveData<MyRouteEntity> loadMyRoute(long routeId){
         return myRoutesRepo.loadMyRoute(routeId);
     }
 
@@ -63,5 +63,7 @@ public class MyRouteViewModel extends ViewModel {
     void deleteRoute(long routeId){
         this.myRoutesRepo.deleteMyRoute(routeId);
     }
+
+
 }
 

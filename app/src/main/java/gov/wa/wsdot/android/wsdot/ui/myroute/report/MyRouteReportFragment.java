@@ -1,28 +1,43 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute.report;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraListFragment;
+import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListFragment;
 import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesFragment;
 
-public class MyRouteReportFragment extends BaseFragment {
+public class MyRouteReportFragment extends BaseFragment implements Injectable {
+
+    private String TAG = MyRouteReportFragment.class.getSimpleName();
+
+    private long mRouteId = -1;
+
+    private MyRouteViewModel viewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,6 +52,28 @@ public class MyRouteReportFragment extends BaseFragment {
         TabLayout tabs = root.findViewById(R.id.tab_layout);
         tabs.setupWithViewPager(viewPager);
 
+        Bundle args = getActivity().getIntent().getExtras();
+
+        if (args != null) {
+            mRouteId = args.getLong("route_id");
+        }
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
+
+        Log.e(TAG, String.valueOf(mRouteId));
+
+        viewModel.loadMyRoute(mRouteId).observe(this, myRoute -> {
+            if (myRoute != null){
+                Log.e(TAG, myRoute.getTitle());
+
+
+
+
+
+
+            }
+        });
+
 
         return root;
     }
@@ -45,7 +82,7 @@ public class MyRouteReportFragment extends BaseFragment {
     private void setupViewPager(ViewPager viewPager) {
 
         Adapter adapter = new Adapter(getChildFragmentManager());
-        adapter.addFragment(new HighwayAlertListFragment(), "Alerts");
+        adapter.addFragment(new MyRouteAlertsListFragment(), "Alerts");
         adapter.addFragment(new TravelTimesFragment(), "Travel Times");
         adapter.addFragment(new CameraListFragment(), "Cameras");
         viewPager.setAdapter(adapter);

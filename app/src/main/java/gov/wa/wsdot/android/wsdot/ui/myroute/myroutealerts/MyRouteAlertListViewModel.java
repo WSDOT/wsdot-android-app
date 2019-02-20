@@ -17,12 +17,15 @@ import javax.inject.Inject;
 import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.repository.HighwayAlertRepository;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
+import gov.wa.wsdot.android.wsdot.shared.livedata.HighwayAlertsItemLiveData;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.Utils;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 public class MyRouteAlertListViewModel extends ViewModel {
 
     private LiveData<List<HighwayAlertsItem>> highwayAlerts;
+
     private MutableLiveData<ResourceStatus> mStatus;
     private HighwayAlertRepository highwayAlertRepo;
 
@@ -69,6 +72,11 @@ public class MyRouteAlertListViewModel extends ViewModel {
                                 alertItem.setEndLongitude(alert.getStartLongitude());
                                 alertItem.setPriority(alert.getPriority());
                                 alertItem.setLastUpdatedTime(alert.getLastUpdated());
+                                alertItem.setCategoryIcon(
+                                        UIUtils.getCategoryIcon(
+                                                alert.getCategory(),
+                                                alert.getPriority()
+                                        ));
 
                                 alertsOnRoute.add(alertItem);
                                 break;

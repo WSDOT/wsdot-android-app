@@ -59,7 +59,6 @@ public class MyRouteMapActivity extends BaseActivity implements OnMapReadyCallba
         String route_name = args.getString("route_name");
         route_id = args.getLong("route_id");
 
-        Log.e("test", String.valueOf(route_id));
 
         Toolbar mToolbar = findViewById(R.id.toolbar);
 

@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
+import gov.wa.wsdot.android.wsdot.util.UIUtils;
 
 /**
  *  LiveData class that transforms db entity Live data into a displayable
@@ -43,10 +44,10 @@ public class HighwayAlertsItemLiveData extends LiveData<List<HighwayAlertsItem>>
     @Override protected void onInactive() { sourceLiveData.removeObserver(this); }
 
     @Override public void onChanged(@Nullable List<HighwayAlertEntity> alerts) {
-        AsyncTask.execute(() -> postValue(processDates(alerts)));
+        AsyncTask.execute(() -> postValue(processAlerts(alerts)));
     }
 
-    private List<HighwayAlertsItem> processDates(List<HighwayAlertEntity> alerts){
+    private List<HighwayAlertsItem> processAlerts(List<HighwayAlertEntity> alerts){
 
         ArrayList<HighwayAlertsItem> displayableAlertItemValues = new ArrayList<>();
 
@@ -62,7 +63,7 @@ public class HighwayAlertsItemLiveData extends LiveData<List<HighwayAlertsItem>>
                         alert.getHeadline(),
                         alert.getLastUpdated(),
                         alert.getPriority(),
-                        getCategoryIcon(
+                        UIUtils.getCategoryIcon(
                                 alert.getCategory(),
                                 alert.getPriority()
                         )
@@ -70,88 +71,5 @@ public class HighwayAlertsItemLiveData extends LiveData<List<HighwayAlertsItem>>
             }
         }
         return displayableAlertItemValues;
-    }
-
-
-    /**
-     * Get the correct icon given the priority and category of alert.
-     *
-     * @param category
-     * @param priority
-     * @return
-     */
-    private int getCategoryIcon(String category, String priority) {
-
-        int alertClosed = R.drawable.closed;
-        int alertHighest = R.drawable.alert_highest;
-        int alertHigh = R.drawable.alert_high;
-        int alertMedium = R.drawable.alert_moderate;
-        int alertLow = R.drawable.alert_low;
-        int constructionHighest = R.drawable.construction_highest;
-        int constructionHigh = R.drawable.construction_high;
-        int constructionMedium = R.drawable.construction_moderate;
-        int constructionLow = R.drawable.construction_low;
-        int weather = R.drawable.weather;
-
-        // Types of categories which result in one icon or another being displayed.
-        String[] event_closure = {"closed", "closure"};
-        String[] event_construction = {"construction", "maintenance", "lane closure"};
-
-        HashMap<String, String[]> eventCategories = new HashMap<>();
-
-        eventCategories.put("closure", event_closure);
-        eventCategories.put("construction", event_construction);
-
-
-        Set<Map.Entry<String, String[]>> set = eventCategories.entrySet();
-        Iterator<Map.Entry<String, String[]>> i = set.iterator();
-
-        if (category.equals("")) return alertMedium;
-
-        while(i.hasNext()) {
-            Map.Entry<String, String[]> me = i.next();
-            for (String phrase: me.getValue()) {
-                String patternStr = phrase;
-                Pattern pattern = Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE);
-                Matcher matcher = pattern.matcher(category);
-                boolean matchFound = matcher.find();
-
-                if (matchFound) {
-                    String keyWord = me.getKey();
-
-                    if (keyWord.equalsIgnoreCase("closure")) {
-                        return alertClosed;
-                    } else if (keyWord.equalsIgnoreCase("construction")) {
-
-                        if (priority.equalsIgnoreCase("highest")) {
-                            return constructionHighest;
-                        } else if (priority.equalsIgnoreCase("high")) {
-                            return constructionHigh;
-                        } else if (priority.equalsIgnoreCase("medium")) {
-                            return constructionMedium;
-                        } else if (priority.equalsIgnoreCase("low")
-                                || priority.equalsIgnoreCase("lowest")) {
-                            return constructionLow;
-                        }
-                    } else if (keyWord.equalsIgnoreCase("road report")) {
-                        return weather;
-                    }
-                }
-            }
-        }
-
-        // If we arrive here, it must be an accident or alert item.
-        if (priority.equalsIgnoreCase("highest")) {
-            return alertHighest;
-        } else if (priority.equalsIgnoreCase("high")) {
-            return alertHigh;
-        } else if (priority.equalsIgnoreCase("medium")) {
-            return alertMedium;
-        } else if (priority.equalsIgnoreCase("low")
-                || priority.equalsIgnoreCase("lowest")) {
-            return alertLow;
-        }
-
-        return alertMedium;
     }
 }
