@@ -1,5 +1,7 @@
 package gov.wa.wsdot.android.wsdot.ui.camera;
 
+import java.util.List;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -28,6 +30,10 @@ public class CameraViewModel extends ViewModel {
 
     public LiveData<CameraEntity> getCamera(Integer id) {
         return this.cameraRepo.getCamera(id, mStatus);
+    }
+
+    public LiveData<List<CameraEntity>> loadCamerasForIds(int[] ids) {
+        return this.cameraRepo.loadCamerasForIds(ids, mStatus);
     }
 
     public void setIsStarredFor(Integer cameraId, Integer isStarred){

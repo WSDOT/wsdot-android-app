@@ -37,9 +37,7 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.report.MyRouteReportActivity;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ProgressDialogFragment;
 
@@ -106,12 +104,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
                 renameRouteAction(routeName, routeID);
                 break;
             case 2: // Show on Map
-                Bundle b = new Bundle();
-                Intent intent = new Intent(getActivity(), MyRouteMapActivity.class);
-                b.putLong("route_id", routeID);
-                b.putString("route_name", routeName);
-                intent.putExtras(b);
-                startActivity(intent);
                 break;
             case 3: // Find favorites
                 findFavoritesOnRoute(routeID);
@@ -310,20 +302,7 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
                 }
             });
 
-            itemViewHolder.alert_button.setTag(i);
-            itemViewHolder.alert_button.setContentDescription("Check alerts on route");
-            itemViewHolder.alert_button.setOnClickListener(v -> {
-
-                Bundle b = new Bundle();
-
-                Intent intent = new Intent(getActivity(), MyRouteAlertsListActivity.class);
-
-                b.putString("title", "Alerts on Route: " + myRoute.getTitle());
-                b.putString("route", myRoute.getRouteLocations());
-
-                intent.putExtras(b);
-                startActivity(intent);
-            });
+            itemViewHolder.alert_button.setVisibility(View.GONE);
 
             itemViewHolder.map_button.setTag(i);
             itemViewHolder.map_button.setContentDescription("Check map for route");
@@ -334,8 +313,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
                 b.putLong("route_id", myRoute.getMyRouteId());
                 b.putString("route_name", myRoute.getTitle());
                 b.putString("route", myRoute.getRouteLocations());
-
-
 
 
 

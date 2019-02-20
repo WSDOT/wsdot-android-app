@@ -24,14 +24,13 @@ import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraListFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
-import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListFragment;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListFragment;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts.MyRouteAlertsListFragment;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.cameras.MyRouteCamerasListFragment;
 import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesFragment;
 
 public class MyRouteReportFragment extends BaseFragment implements Injectable {
 
     private String TAG = MyRouteReportFragment.class.getSimpleName();
-
     private long mRouteId = -1;
 
     private MyRouteViewModel viewModel;
@@ -60,7 +59,6 @@ public class MyRouteReportFragment extends BaseFragment implements Injectable {
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
 
-        Log.e(TAG, String.valueOf(mRouteId));
 
         viewModel.loadMyRoute(mRouteId).observe(this, myRoute -> {
             if (myRoute != null){
@@ -74,7 +72,6 @@ public class MyRouteReportFragment extends BaseFragment implements Injectable {
             }
         });
 
-
         return root;
     }
 
@@ -84,7 +81,7 @@ public class MyRouteReportFragment extends BaseFragment implements Injectable {
         Adapter adapter = new Adapter(getChildFragmentManager());
         adapter.addFragment(new MyRouteAlertsListFragment(), "Alerts");
         adapter.addFragment(new TravelTimesFragment(), "Travel Times");
-        adapter.addFragment(new CameraListFragment(), "Cameras");
+        adapter.addFragment(new MyRouteCamerasListFragment(), "Cameras");
         viewPager.setAdapter(adapter);
 
     }
@@ -117,5 +114,4 @@ public class MyRouteReportFragment extends BaseFragment implements Injectable {
             return mFragmentTitleList.get(position);
         }
     }
-
 }

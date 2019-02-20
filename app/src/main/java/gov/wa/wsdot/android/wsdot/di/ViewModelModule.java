@@ -21,7 +21,7 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchV
 import gov.wa.wsdot.android.wsdot.ui.home.FavoritesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
-import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertListViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts.MyRouteAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteViewModel;
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesViewModel;

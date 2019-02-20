@@ -71,7 +71,6 @@ import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewPagerActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
-import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.I405TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.SR167TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
@@ -837,22 +836,7 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.lat = myRoute.getLongitude();
                 viewholder.zoom = myRoute.getZoom();
 
-                viewholder.alerts_button.setTag(position);
-                viewholder.alerts_button.setContentDescription("Check alerts on route");
-                viewholder.alerts_button.setOnClickListener(v -> {
-
-                    MyLogger.crashlyticsLog("Home", "Tap", "Check MyRoute Alerts", 1);
-
-                    Bundle b = new Bundle();
-
-                    Intent intent = new Intent(getActivity(), MyRouteAlertsListActivity.class);
-
-                    b.putString("title", "Alerts on Route: " + myRoute.getTitle());
-                    b.putString("route", myRoute.getRouteLocations());
-
-                    intent.putExtras(b);
-                    startActivity(intent);
-                });
+                viewholder.alerts_button.setVisibility(View.GONE);
 
                 viewholder.map_button.setTag(position);
                 viewholder.map_button.setContentDescription("Check map for route");

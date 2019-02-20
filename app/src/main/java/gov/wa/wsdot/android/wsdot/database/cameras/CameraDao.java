@@ -23,6 +23,9 @@ public abstract class CameraDao {
     @Query("SELECT * FROM cameras WHERE id LIKE :cameraId")
     public abstract LiveData<CameraEntity> loadCamera(Integer cameraId);
 
+    @Query("SELECT * FROM cameras WHERE id IN(:cameraIds)")
+    public abstract LiveData<List<CameraEntity>> loadCamerasForIds(int[] cameraIds);
+
     @Query("SELECT * FROM cameras WHERE road_name LIKE :roadName")
     public abstract LiveData<List<CameraEntity>> loadCamerasForRoad(String roadName);
 

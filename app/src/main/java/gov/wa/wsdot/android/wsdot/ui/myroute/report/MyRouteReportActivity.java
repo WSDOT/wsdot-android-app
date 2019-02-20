@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -37,7 +38,7 @@ import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
-import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertListViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts.MyRouteAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 
@@ -73,6 +74,11 @@ public class MyRouteReportActivity extends BaseActivity implements
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
         Bundle args = getIntent().getExtras();
 
         if (args != null) {
@@ -91,6 +97,15 @@ public class MyRouteReportActivity extends BaseActivity implements
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -104,7 +119,7 @@ public class MyRouteReportActivity extends BaseActivity implements
         mMap.setTrafficEnabled(true);
         mMap.setOnMarkerClickListener(this);
 
-        alertListViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteAlertListViewModel .class);
+        alertListViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteAlertListViewModel.class);
 
         Log.e("MyRouteReport", String.valueOf(mRouteId));
 
@@ -174,7 +189,7 @@ public class MyRouteReportActivity extends BaseActivity implements
      * @param myRouteLocations
      */
     private void drawRouteOnMap(ArrayList<LatLng> myRouteLocations) {
-        PolylineOptions polylineOptions = new PolylineOptions().width(10).color(Color.BLUE).addAll(myRouteLocations);
+        PolylineOptions polylineOptions = new PolylineOptions().width(10).color(Color.argb(0.8f, 0.1f, 0.1f, 0.9f)).addAll(myRouteLocations);
         Polyline polyLine = mMap.addPolyline(polylineOptions);
         polyLine.setPoints(myRouteLocations);
     }

@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -57,6 +58,11 @@ public class CameraRepository extends NetworkResourceSyncRepository {
     public LiveData<CameraEntity> getCamera(Integer cameraId, MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
         return cameraDao.loadCamera(cameraId);
+    }
+
+    public LiveData<List<CameraEntity>> loadCamerasForIds(int[] cameraId, MutableLiveData<ResourceStatus> status) {
+        super.refreshData(status, false);
+        return cameraDao.loadCamerasForIds(cameraId);
     }
 
     public LiveData<List<CameraEntity>> getCamerasForRoad(String roadName, MutableLiveData<ResourceStatus> status) {

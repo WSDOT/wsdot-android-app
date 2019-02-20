@@ -1,31 +1,9 @@
-/*
- * Copyright (c) 2017 Washington State Department of Transportation
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- */
-
-package gov.wa.wsdot.android.wsdot.ui.camera;
+package gov.wa.wsdot.android.wsdot.ui.myroute.report.cameras;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.AsyncTaskLoader;
-import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,27 +11,48 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.AsyncTaskLoader;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.camera.CameraActivity;
+import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
 import gov.wa.wsdot.android.wsdot.util.CameraImageAdapter;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class CameraListFragment extends BaseFragment implements
-        LoaderManager.LoaderCallbacks<ArrayList<CameraItem>> {
+public class MyRouteCamerasListFragment extends BaseFragment implements
+        LoaderManager.LoaderCallbacks<ArrayList<CameraItem>>, Injectable {
 
-    private static final String TAG = CameraListFragment.class.getSimpleName();
+    private static final String TAG = MyRouteCamerasListFragment.class.getSimpleName();
     private static ArrayList<CameraItem> bitmapImages;
     private View mEmptyView;
 
-    private static int[] cameraIds;
-    private static String[] cameraUrls;
+    private long mRouteId = -1;
 
-    private static CameraGroupImageAdapter mAdapter;
+    private static MyRouteCamerasListFragment.CameraGroupImageAdapter mAdapter;
     private static View mLoadingSpinner;
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
+
+    private CameraViewModel cameraViewModel;
+    private MyRouteViewModel myRouteViewModel;
+
+    private static ArrayList<CameraEntity> cameras = new ArrayList<>();
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -61,11 +60,7 @@ public class CameraListFragment extends BaseFragment implements
         if (getActivity() != null) {
             Bundle args = getActivity().getIntent().getExtras();
             if (args != null) {
-                cameraIds = args.getIntArray("cameraIds");
-                cameraUrls = args.getStringArray("cameraUrls");
-            } else {
-                cameraIds = new int[0];
-                cameraUrls = new String[0];
+                mRouteId = args.getLong("route_id");
             }
         }
 
@@ -89,6 +84,26 @@ public class CameraListFragment extends BaseFragment implements
 
         mLoadingSpinner = root.findViewById(R.id.progress_bar);
         mEmptyView = root.findViewById(R.id.empty_list_view);
+
+        myRouteViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
+        cameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(CameraViewModel.class);
+
+        myRouteViewModel.loadMyRoute(mRouteId).observe(this, myRoute -> {
+            if (myRoute != null){
+
+                // TODO: if foundCamerasOnRoute?
+                // myRoute.getCamerasIds();
+
+                int[] cameraIds = new int[0];
+
+                cameraViewModel.loadCamerasForIds(cameraIds).observe(this, cameras -> {
+
+
+
+
+                });
+            }
+        });
 
         return root;
     }
@@ -140,14 +155,16 @@ public class CameraListFragment extends BaseFragment implements
             bitmapImages = new ArrayList<>();
             CameraItem c;
 
-            int numCameras = cameraIds.length;
+            int numCameras = cameras.size();
             for (int k = 0; k < numCameras; k++) {
                 c = new CameraItem();
-                c.setImageUrl(cameraUrls[k]);
-                c.setCameraId(cameraIds[k]);
+                c.setImageUrl(cameras.get(k).getUrl());
+                c.setCameraId(cameras.get(k).getCameraId());
                 bitmapImages.add(c);
             }
+
             return bitmapImages;
+
         }
 
         /**

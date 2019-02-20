@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts;
+package gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
