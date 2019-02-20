@@ -31,9 +31,13 @@ public class MyRouteEntity {
     @ColumnInfo(name = "zoom")
     private Integer zoom;
 
-    @ColumnInfo(name = "found_favorites")
+    @ColumnInfo(name = "found_cameras")
     @NonNull
-    private Integer foundFavorites = 0;
+    private Integer foundCameras = 0;
+
+    @ColumnInfo(name = "found_travel_times")
+    @NonNull
+    private Integer foundTravelTimes = 0;
 
     @ColumnInfo(name = "is_starred")
     @NonNull
@@ -88,12 +92,21 @@ public class MyRouteEntity {
     }
 
     @NonNull
-    public Integer getFoundFavorites() {
-        return foundFavorites;
+    public Integer getFoundCameras() {
+        return foundCameras;
     }
 
-    public void setFoundFavorites(@NonNull Integer foundFavorites) {
-        this.foundFavorites = foundFavorites;
+    public void setFoundCameras(@NonNull Integer foundCameras) {
+        this.foundCameras = foundCameras;
+    }
+
+    @NonNull
+    public Integer getFoundTravelTimes() {
+        return foundTravelTimes;
+    }
+
+    public void setFoundTravelTimes(@NonNull Integer foundTravelTimes) {
+        this.foundTravelTimes = foundTravelTimes;
     }
 
     @NonNull
