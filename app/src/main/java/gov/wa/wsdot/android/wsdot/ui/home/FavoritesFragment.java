@@ -94,17 +94,16 @@ public class FavoritesFragment extends BaseFragment implements
 
 	private SwipeRefreshLayout swipeRefreshLayout;
 
-    private static final int HEADER_VIEWTYPE = 0;
+    public static final int MY_ROUTE_VIEWTYPE = 0;
+    public static final int CAMERAS_VIEWTYPE = 1;
+    public static final int MOUNTAIN_PASSES_VIEWTYPE = 2;
+    public static final int TRAVEL_TIMES_VIEWTYPE = 3;
+    public static final int FERRIES_SCHEDULES_VIEWTYPE = 4;
+    public static final int LOCATION_VIEWTYPE = 5;
+    public static final int TOLL_RATE_VIEWTYPE = 6;
+    public static final int BORDER_WAIT_VIEWTYPE = 7;
 
-    public static final int MY_ROUTE_VIEWTYPE = 1;
-    public static final int CAMERAS_VIEWTYPE = 2;
-    public static final int MOUNTAIN_PASSES_VIEWTYPE = 3;
-    public static final int TRAVEL_TIMES_VIEWTYPE = 4;
-    public static final int FERRIES_SCHEDULES_VIEWTYPE = 5;
-    public static final int LOCATION_VIEWTYPE = 6;
-    public static final int TOLL_RATE_VIEWTYPE = 7;
-    public static final int BORDER_WAIT_VIEWTYPE = 9;
-
+    private static final int HEADER_VIEWTYPE = 999;
 
     public static LinkedHashMap headers = new LinkedHashMap<Integer, String>(){
         {
@@ -153,14 +152,14 @@ public class FavoritesFragment extends BaseFragment implements
 
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
-        orderedViewTypes[0] = settings.getInt("KEY_FIRST_FAVORITES_SECTION", MY_ROUTE_VIEWTYPE);
-        orderedViewTypes[1] = settings.getInt("KEY_SECOND_FAVORITES_SECTION", CAMERAS_VIEWTYPE);
-        orderedViewTypes[2] = settings.getInt("KEY_THIRD_FAVORITES_SECTION", FERRIES_SCHEDULES_VIEWTYPE);
-        orderedViewTypes[3] = settings.getInt("KEY_FOURTH_FAVORITES_SECTION", MOUNTAIN_PASSES_VIEWTYPE);
-        orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", TRAVEL_TIMES_VIEWTYPE);
-        orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", LOCATION_VIEWTYPE);
-        orderedViewTypes[6] = settings.getInt("KEY_SEVENTH_FAVORITES_SECTION", TOLL_RATE_VIEWTYPE);
-        orderedViewTypes[7] = settings.getInt("KEY_EIGHTH_FAVORITES_SECTION", BORDER_WAIT_VIEWTYPE);
+        orderedViewTypes[0] = settings.getInt(getResources().getString(R.string.favorites_one), MY_ROUTE_VIEWTYPE);
+        orderedViewTypes[1] = settings.getInt(getResources().getString(R.string.favorites_two), CAMERAS_VIEWTYPE);
+        orderedViewTypes[2] = settings.getInt(getResources().getString(R.string.favorites_three), FERRIES_SCHEDULES_VIEWTYPE);
+        orderedViewTypes[3] = settings.getInt(getResources().getString(R.string.favorites_four), MOUNTAIN_PASSES_VIEWTYPE);
+        orderedViewTypes[4] = settings.getInt(getResources().getString(R.string.favorites_five), TRAVEL_TIMES_VIEWTYPE);
+        orderedViewTypes[5] = settings.getInt(getResources().getString(R.string.favorites_six), LOCATION_VIEWTYPE);
+        orderedViewTypes[6] = settings.getInt(getResources().getString(R.string.favorites_seven), TOLL_RATE_VIEWTYPE);
+        orderedViewTypes[7] = settings.getInt(getResources().getString(R.string.favorites_eight), BORDER_WAIT_VIEWTYPE);
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -371,14 +370,14 @@ public class FavoritesFragment extends BaseFragment implements
 
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
-        orderedViewTypes[0] = settings.getInt("KEY_FIRST_FAVORITES_SECTION", MY_ROUTE_VIEWTYPE);
-        orderedViewTypes[1] = settings.getInt("KEY_SECOND_FAVORITES_SECTION", CAMERAS_VIEWTYPE);
-        orderedViewTypes[2] = settings.getInt("KEY_THIRD_FAVORITES_SECTION", FERRIES_SCHEDULES_VIEWTYPE);
-        orderedViewTypes[3] = settings.getInt("KEY_FOURTH_FAVORITES_SECTION", MOUNTAIN_PASSES_VIEWTYPE);
-        orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", TRAVEL_TIMES_VIEWTYPE);
-        orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", LOCATION_VIEWTYPE);
-        orderedViewTypes[6] = settings.getInt("KEY_SEVENTH_FAVORITES_SECTION", TOLL_RATE_VIEWTYPE);
-        orderedViewTypes[7] = settings.getInt("KEY_EIGHTH_FAVORITES_SECTION", BORDER_WAIT_VIEWTYPE);
+        orderedViewTypes[0] = settings.getInt(getResources().getString(R.string.favorites_one), MY_ROUTE_VIEWTYPE);
+        orderedViewTypes[1] = settings.getInt(getResources().getString(R.string.favorites_two), CAMERAS_VIEWTYPE);
+        orderedViewTypes[2] = settings.getInt(getResources().getString(R.string.favorites_three), FERRIES_SCHEDULES_VIEWTYPE);
+        orderedViewTypes[3] = settings.getInt(getResources().getString(R.string.favorites_four), MOUNTAIN_PASSES_VIEWTYPE);
+        orderedViewTypes[4] = settings.getInt(getResources().getString(R.string.favorites_five), TRAVEL_TIMES_VIEWTYPE);
+        orderedViewTypes[5] = settings.getInt(getResources().getString(R.string.favorites_six), LOCATION_VIEWTYPE);
+        orderedViewTypes[6] = settings.getInt(getResources().getString(R.string.favorites_seven), TOLL_RATE_VIEWTYPE);
+        orderedViewTypes[7] = settings.getInt(getResources().getString(R.string.favorites_eight), BORDER_WAIT_VIEWTYPE);
 
 
 	}

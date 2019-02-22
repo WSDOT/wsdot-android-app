@@ -135,4 +135,13 @@
     <string name="description_reservations">Reservations</string>
     <string name="title_ferry_sailings">Sailings</string>
 
+    <string name="favorites_one">KEY_FIRST_FAVORITES_SECTION_v1</string>
+    <string name="favorites_two">KEY_SECOND_FAVORITES_SECTION_v1</string>
+    <string name="favorites_three">KEY_THIRD_FAVORITES_SECTION_v1</string>
+    <string name="favorites_four">KEY_FOURTH_FAVORITES_SECTION_v1</string>
+    <string name="favorites_five">KEY_FIFTH_FAVORITES_SECTION_v1</string>
+    <string name="favorites_six">KEY_SIXTH_FAVORITES_SECTION_v1</string>
+    <string name="favorites_seven">KEY_SEVENTH_FAVORITES_SECTION_v1</string>
+    <string name="favorites_eight">KEY_EIGHTH_FAVORITES_SECTION_v1</string>
+
 </resources>

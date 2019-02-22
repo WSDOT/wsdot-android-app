@@ -57,14 +57,14 @@ public class SettingsActivity extends BaseActivity implements OnStartDragListene
 
         // Check preferences and set defaults if none set
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        orderedViewTypes[0] = settings.getInt("KEY_FIRST_FAVORITES_SECTION", FavoritesFragment.MY_ROUTE_VIEWTYPE);
-        orderedViewTypes[1] = settings.getInt("KEY_SECOND_FAVORITES_SECTION", FavoritesFragment.CAMERAS_VIEWTYPE);
-        orderedViewTypes[2] = settings.getInt("KEY_THIRD_FAVORITES_SECTION", FavoritesFragment.FERRIES_SCHEDULES_VIEWTYPE);
-        orderedViewTypes[3] = settings.getInt("KEY_FOURTH_FAVORITES_SECTION", FavoritesFragment.MOUNTAIN_PASSES_VIEWTYPE);
-        orderedViewTypes[4] = settings.getInt("KEY_FIFTH_FAVORITES_SECTION", FavoritesFragment.TRAVEL_TIMES_VIEWTYPE);
-        orderedViewTypes[5] = settings.getInt("KEY_SIXTH_FAVORITES_SECTION", FavoritesFragment.LOCATION_VIEWTYPE);
-        orderedViewTypes[6] = settings.getInt("KEY_SEVENTH_FAVORITES_SECTION", FavoritesFragment.TOLL_RATE_VIEWTYPE);
-        orderedViewTypes[7] = settings.getInt("KEY_EIGHTH_FAVORITES_SECTION", FavoritesFragment.BORDER_WAIT_VIEWTYPE);
+        orderedViewTypes[0] = settings.getInt(getResources().getString(R.string.favorites_one), FavoritesFragment.MY_ROUTE_VIEWTYPE);
+        orderedViewTypes[1] = settings.getInt(getResources().getString(R.string.favorites_two), FavoritesFragment.CAMERAS_VIEWTYPE);
+        orderedViewTypes[2] = settings.getInt(getResources().getString(R.string.favorites_three), FavoritesFragment.FERRIES_SCHEDULES_VIEWTYPE);
+        orderedViewTypes[3] = settings.getInt(getResources().getString(R.string.favorites_four), FavoritesFragment.MOUNTAIN_PASSES_VIEWTYPE);
+        orderedViewTypes[4] = settings.getInt(getResources().getString(R.string.favorites_five), FavoritesFragment.TRAVEL_TIMES_VIEWTYPE);
+        orderedViewTypes[5] = settings.getInt(getResources().getString(R.string.favorites_six), FavoritesFragment.LOCATION_VIEWTYPE);
+        orderedViewTypes[6] = settings.getInt(getResources().getString(R.string.favorites_seven), FavoritesFragment.TOLL_RATE_VIEWTYPE);
+        orderedViewTypes[7] = settings.getInt(getResources().getString(R.string.favorites_eight), FavoritesFragment.BORDER_WAIT_VIEWTYPE);
 
         mRecyclerView = findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -217,14 +217,14 @@ public class SettingsActivity extends BaseActivity implements OnStartDragListene
 
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(SettingsActivity.this);
             SharedPreferences.Editor editor = settings.edit();
-            editor.putInt("KEY_FIRST_FAVORITES_SECTION", orderedViewTypes[0]);
-            editor.putInt("KEY_SECOND_FAVORITES_SECTION", orderedViewTypes[1]);
-            editor.putInt("KEY_THIRD_FAVORITES_SECTION", orderedViewTypes[2]);
-            editor.putInt("KEY_FOURTH_FAVORITES_SECTION", orderedViewTypes[3]);
-            editor.putInt("KEY_FIFTH_FAVORITES_SECTION", orderedViewTypes[4]);
-            editor.putInt("KEY_SIXTH_FAVORITES_SECTION", orderedViewTypes[5]);
-            editor.putInt("KEY_SEVENTH_FAVORITES_SECTION", orderedViewTypes[6]);
-            editor.putInt("KEY_EIGHTH_FAVORITES_SECTION", orderedViewTypes[7]);
+            editor.putInt(getResources().getString(R.string.favorites_one), orderedViewTypes[0]);
+            editor.putInt(getResources().getString(R.string.favorites_two), orderedViewTypes[1]);
+            editor.putInt(getResources().getString(R.string.favorites_three), orderedViewTypes[2]);
+            editor.putInt(getResources().getString(R.string.favorites_four), orderedViewTypes[3]);
+            editor.putInt(getResources().getString(R.string.favorites_five), orderedViewTypes[4]);
+            editor.putInt(getResources().getString(R.string.favorites_six), orderedViewTypes[5]);
+            editor.putInt(getResources().getString(R.string.favorites_seven), orderedViewTypes[6]);
+            editor.putInt(getResources().getString(R.string.favorites_eight), orderedViewTypes[7]);
             editor.apply();
 
             Collections.swap(mItems, fromPosition-1, toPosition-1);
