@@ -110,8 +110,6 @@ public class MyRouteReportActivity extends BaseActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        Log.e("MyRouteReport", "map ready");
-
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setCompassEnabled(true);

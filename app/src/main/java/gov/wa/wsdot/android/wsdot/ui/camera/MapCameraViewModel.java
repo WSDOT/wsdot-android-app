@@ -54,9 +54,9 @@ public class MapCameraViewModel extends ViewModel {
             }
         });
 
-        displayedCameraItems.addSource(displayableCameraItems, alertsItems -> {
+        displayedCameraItems.addSource(displayableCameraItems, cameraItems -> {
             if (mapBounds.getValue() != null) {
-                displayedCameraItems.postValue(filterDisplayedCamerasFor(mapBounds.getValue(), alertsItems));
+                displayedCameraItems.postValue(filterDisplayedCamerasFor(mapBounds.getValue(), cameraItems));
             }
         });
     }

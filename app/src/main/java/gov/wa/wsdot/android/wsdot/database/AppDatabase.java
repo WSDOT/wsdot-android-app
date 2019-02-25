@@ -223,6 +223,8 @@ public abstract class AppDatabase extends RoomDatabase {
         String MY_ROUTE_IS_STARRED = "is_starred";
         String MY_ROUTE_FOUND_CAMERAS = "found_cameras";
         String MY_ROUTE_FOUND_TRAVEL_TIMES = "found_travel_times";
+        String MY_ROUTE_TRAVEL_TIME_IDS = "travel_time_ids_json";
+        String MY_ROUTE_CAMERA_IDS = "camera_ids_json";
     }
 
     interface NotificationColumns {
@@ -700,6 +702,8 @@ public abstract class AppDatabase extends RoomDatabase {
                     + MyRouteColumns.MY_ROUTE_DISPLAY_ZOOM + " INTEGER,"
                     + MyRouteColumns.MY_ROUTE_FOUND_CAMERAS + " INTEGER NOT NULL default 0,"
                     + MyRouteColumns.MY_ROUTE_FOUND_TRAVEL_TIMES + " INTEGER NOT NULL default 0,"
+                    + MyRouteColumns.MY_ROUTE_TRAVEL_TIME_IDS + " TEXT NOT NULL default '[]',"
+                    + MyRouteColumns.MY_ROUTE_CAMERA_IDS + " TEXT NOT NULL default '[]',"
                     + MyRouteColumns.MY_ROUTE_IS_STARRED + " INTEGER NOT NULL default 0);");
 
 

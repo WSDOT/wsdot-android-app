@@ -4,6 +4,12 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import android.provider.BaseColumns;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+
 import androidx.annotation.NonNull;
 
 @Entity(tableName = "my_route")
@@ -38,6 +44,14 @@ public class MyRouteEntity {
     @ColumnInfo(name = "found_travel_times")
     @NonNull
     private Integer foundTravelTimes = 0;
+
+    @ColumnInfo(name = "camera_ids_json")
+    @NonNull
+    private String cameraIdsJSON = "[]";
+
+    @ColumnInfo(name = "travel_time_ids_json")
+    @NonNull
+    private String travelTimeIdsJSON = "[]";
 
     @ColumnInfo(name = "is_starred")
     @NonNull
@@ -100,6 +114,16 @@ public class MyRouteEntity {
         this.foundCameras = foundCameras;
     }
 
+
+    @NonNull
+    public String getCameraIdsJSON() {
+        return cameraIdsJSON;
+    }
+
+    public void setCameraIdsJSON(String cameraIdsJSON){
+        this.cameraIdsJSON = cameraIdsJSON;
+    }
+
     @NonNull
     public Integer getFoundTravelTimes() {
         return foundTravelTimes;
@@ -107,6 +131,33 @@ public class MyRouteEntity {
 
     public void setFoundTravelTimes(@NonNull Integer foundTravelTimes) {
         this.foundTravelTimes = foundTravelTimes;
+    }
+
+            /*
+        try {
+
+            ArrayList<Integer> travelTimeIds = new ArrayList<>();
+            JSONArray idsJSON = new JSONArray(this.travelTimeIdsJSON);
+
+            for (int i=0;i<idsJSON.length();i++){
+                travelTimeIds.add(idsJSON.getInt(i));
+            }
+
+            return travelTimeIds;
+
+        } catch (JSONException e) {
+            return new ArrayList<>();
+        }
+        */
+
+    @NonNull
+    public String getTravelTimeIdsJSON() {
+        return this.travelTimeIdsJSON;
+    }
+
+    // JSONArray idsJSON = new JSONArray(travelTimeIds);
+    public void setTravelTimeIdsJSON(String travelTimeIds){
+        this.travelTimeIdsJSON = travelTimeIds;
     }
 
     @NonNull

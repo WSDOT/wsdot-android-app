@@ -105,9 +105,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
                 break;
             case 2: // Show on Map
                 break;
-            case 3: // Find favorites
-                findFavoritesOnRoute(routeID);
-                break;
             default:
                 break;
         }
@@ -183,37 +180,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
         builder.show();
-    }
-
-    public void findFavoritesOnRoute(final long routeID){
-
-        new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setTitle("Add Favorites?")
-                .setMessage("Traffic cameras, travel times, pass reports, and other content will " +
-                            "be added to your favorites if they are on this route. ")
-
-                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-
-                    progressDialog = new ProgressDialogFragment();
-                    Bundle args = new Bundle();
-                    args.putString("message", "Finding Favorites...");
-                    progressDialog.setArguments(args);
-                    progressDialog.show(getActivity().getSupportFragmentManager(), "progress_dialog");
-
-                    viewModel.getFoundFavorites().observe(this, foundFav -> {
-                        if (foundFav != null){
-                            if (foundFav){
-                                progressDialog.dismiss();
-                                viewModel.getFoundFavorites().removeObservers(this);
-                                viewModel.resetFindFavorites(); // reset the value back to false for reuse
-                            }
-                        }
-                    });
-
-                    viewModel.findFavoritesOnRoute(routeID);
-
-                }).setNegativeButton(android.R.string.no, (dialog, which) -> {})
-                .show();
     }
 
     /**

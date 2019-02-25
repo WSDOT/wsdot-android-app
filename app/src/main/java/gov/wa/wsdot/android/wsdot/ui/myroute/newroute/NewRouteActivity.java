@@ -212,48 +212,6 @@ public class NewRouteActivity extends BaseActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    private void showAddFavoritesDialog(Long myRouteId) {
-
-        new AlertDialog.Builder(NewRouteActivity.this, R.style.AppCompatAlertDialogStyle)
-                .setTitle("Add Favorites?")
-                .setMessage("Traffic cameras, travel times, pass reports, and other content will " +
-                        "be added to your favorites if they are on this route. " +
-                        "\n\n You can do this later by tapping the settings button next to your route.")
-                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-
-                    progressDialog = new ProgressDialogFragment();
-                    Bundle args = new Bundle();
-                    args.putString("message", "Finding Favorites...");
-                    progressDialog.setArguments(args);
-                    progressDialog.show(getSupportFragmentManager(), "progress_dialog");
-
-                    viewModel.getFoundFavorites().observe(this, foundFavorites -> {
-                        if (foundFavorites != null){
-                            if (foundFavorites) {
-                                progressDialog.dismiss();
-                                showStartView();
-                                mMap.clear();
-                                moveToCurrentLocation();
-                                Snackbar.make(findViewById(android.R.id.content), "Route Successfully Saved", Snackbar.LENGTH_LONG)
-                                        .show();
-                            }
-                        }
-                    });
-
-                    viewModel.findFavoritesOnRoute(myRouteId);
-
-                })
-
-                .setNegativeButton("NOT NOW", (dialog, which) -> {
-                    showStartView();
-                    mMap.clear();
-                    moveToCurrentLocation();
-                    Snackbar.make(findViewById(android.R.id.content), "Route Successfully Saved", Snackbar.LENGTH_LONG)
-                            .show();
-                })
-                .show();
-    }
-
     private void initStartButton(){
         Button startButton = findViewById(R.id.start_button);
 
@@ -352,7 +310,9 @@ public class NewRouteActivity extends BaseActivity implements
 
                 viewModel.addMyRoute(myRoute);
 
-                showAddFavoritesDialog(myRoute.getMyRouteId());
+                showStartView();
+                mMap.clear();
+                moveToCurrentLocation();
             });
             builder.show();
         });

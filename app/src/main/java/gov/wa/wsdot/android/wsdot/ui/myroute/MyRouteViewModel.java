@@ -16,13 +16,13 @@ public class MyRouteViewModel extends ViewModel {
 
     private MyRoutesRepository myRoutesRepo;
 
-    private MutableLiveData<Boolean> foundFavorites;
+    private MutableLiveData<Boolean> foundCameras;
     private LiveData<List<MyRouteEntity>> myRoutes;
 
     @Inject
     MyRouteViewModel(MyRoutesRepository myRoutesRepo) {
         this.myRoutesRepo = myRoutesRepo;
-        foundFavorites = new MutableLiveData<>();
+        foundCameras = new MutableLiveData<>();
     }
 
     public LiveData<List<MyRouteEntity>> loadMyRoutes() {
@@ -40,9 +40,6 @@ public class MyRouteViewModel extends ViewModel {
         return myRoutesRepo.getMyRoute(routeId);
     }
 
-    LiveData<Boolean> getFoundFavorites() {
-        return this.foundFavorites;
-    }
 
     void updateRouteTitle(long routeId, String newTitle){
         this.myRoutesRepo.updateTitle(routeId, newTitle);
@@ -52,18 +49,15 @@ public class MyRouteViewModel extends ViewModel {
         this.myRoutesRepo.setIsStarred(routeId, isStarred);
     }
 
-    void findFavoritesOnRoute(Long myRouteId) {
-        myRoutesRepo.findFavoritesOnRoute(foundFavorites, myRouteId);
+    public void findCamerasOnRoute(Long myRouteId) {
+        myRoutesRepo.findCamerasOnRoute(foundCameras, myRouteId);
     }
 
-    void resetFindFavorites(){
-        foundFavorites.setValue(false);
-    }
+    void resetFindCameras() { foundCameras.setValue(false); }
 
     void deleteRoute(long routeId){
         this.myRoutesRepo.deleteMyRoute(routeId);
     }
-
 
 }
 

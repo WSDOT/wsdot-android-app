@@ -45,11 +45,6 @@ public class MyRoutesRepository {
     private final TravelTimeRepository travelTimeRepo;
     private MutableLiveData<ResourceStatus> mTravelTimeStatus;
 
-    private final MountainPassRepository mountainPassRepo;
-    private MutableLiveData<ResourceStatus> mPassStatus;
-
-    private final FerryScheduleRepository ferryScheduleRepo;
-    private MutableLiveData<ResourceStatus> mFerryStatus;
 
     private static final Double MAX_ITEM_DISTANCE = 0.248548;
 
@@ -58,8 +53,6 @@ public class MyRoutesRepository {
     public MyRoutesRepository(MyRouteDao myRouteDao,
                               TravelTimeRepository travelTimeRepo,
                               CameraRepository cameraRepo,
-                              MountainPassRepository mountainPassRepo,
-                              FerryScheduleRepository ferryScheduleRepo,
                               AppExecutors appExecutors) {
 
         this.myRouteDao = myRouteDao;
@@ -67,13 +60,9 @@ public class MyRoutesRepository {
 
         this.mTravelTimeStatus = new MutableLiveData<>();
         this.mCameraStatus = new MutableLiveData<>();
-        this.mPassStatus = new MutableLiveData<>();
-        this.mFerryStatus = new MutableLiveData<>();
 
         this.travelTimeRepo = travelTimeRepo;
         this.cameraRepo = cameraRepo;
-        this.mountainPassRepo = mountainPassRepo;
-        this.ferryScheduleRepo = ferryScheduleRepo;
     }
 
     public LiveData<List<MyRouteEntity>> loadMyRoutes() {
@@ -108,113 +97,75 @@ public class MyRoutesRepository {
         appExecutors.diskIO().execute(() -> myRouteDao.updateIsStarred(id, isStarred));
     }
 
-    public void findFavoritesOnRoute(MutableLiveData<Boolean> foundFavorites, Long myRouteId){
+
+
+    public void findCamerasOnRoute(MutableLiveData<Boolean> foundCameras, Long myRouteId){
+
         appExecutors.diskIO().execute(() -> {
+
+            List<CameraEntity> cameras = cameraRepo.getCameras(mCameraStatus);
 
             MyRouteEntity route = myRouteDao.getMyRouteForId(myRouteId);
 
-            List<CameraEntity> cameras = cameraRepo.getCameras(mCameraStatus);
-            List<TravelTimeGroup> travelTimeGroups = travelTimeRepo.getTravelTimeGroups(mTravelTimeStatus);
-            List<FerryScheduleEntity> ferrySchedules = ferryScheduleRepo.getFerrySchedules(mFerryStatus);
-            List<MountainPassEntity> mountainPasses = mountainPassRepo.getMountainPasses(mPassStatus);
+            ArrayList<Integer> camerasOnRouteIds = new ArrayList<>();
 
-            findCamerasOnRoute(route, cameras);
-            findTravelTimesOnRoute(route, travelTimeGroups);
-            findFerriesOnRoute(route, ferrySchedules);
-            findPassesOnRoute(route, mountainPasses);
+            try {
+                for (CameraEntity camera : cameras) {
+                    for (LatLng location : ParserUtils.getRouteArrayList(new JSONArray(route.getRouteLocations()))) {
+                        if (Utils.getDistanceFromPoints(location.latitude, location.longitude,
+                                camera.getLatitude(), camera.getLongitude()) <= MAX_ITEM_DISTANCE) {
 
-            foundFavorites.postValue(true);
+                            camerasOnRouteIds.add(camera.getCameraId());
+
+                        }
+                    }
+                }
+            } catch (JSONException e) {
+                Log.e(TAG, "failed to read route json");
+            }
+
+            myRouteDao.deleteMyRoute(route.getMyRouteId());
+            JSONArray idsJSON = new JSONArray(camerasOnRouteIds);
+            route.setCameraIdsJSON(idsJSON.toString());
+            route.setFoundCameras(1);
+            myRouteDao.insertMyRoute(route);
+
+            foundCameras.postValue(true);
 
         });
     }
 
-    private void findCamerasOnRoute(MyRouteEntity route, List<CameraEntity> cameras){
-        try {
-            for (CameraEntity camera: cameras){
-                for (LatLng location: ParserUtils.getRouteArrayList(new JSONArray(route.getRouteLocations()))) {
-                    if (Utils.getDistanceFromPoints(location.latitude, location.longitude,
-                        camera.getLatitude(), camera.getLongitude()) <= MAX_ITEM_DISTANCE) {
-                        cameraRepo.setIsStarred(camera.getCameraId(), 1);
-                    }
-                }
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "failed to read route json");
-        }
-    }
+    private void findTravelTimesOnRoute(MutableLiveData<Boolean> foundTravelTimes, Long myRouteId){
 
-    private void findTravelTimesOnRoute(MyRouteEntity route, List<TravelTimeGroup> groups){
-        try {
-            for (TravelTimeGroup group: groups) {
-                for (TravelTimeEntity time : group.travelTimes) {
-                    for (LatLng location : ParserUtils.getRouteArrayList(new JSONArray(route.getRouteLocations()))) {
-                        if ((Utils.getDistanceFromPoints(location.latitude, location.longitude,
-                                time.getStartLatitude(), time.getStartLongitude()) <= MAX_ITEM_DISTANCE)
-                                && (Utils.getDistanceFromPoints(location.latitude, location.longitude,
-                                time.getEndLatitude(), time.getEndLongitude()) <= MAX_ITEM_DISTANCE)) {
+        appExecutors.diskIO().execute(() -> {
 
-                            travelTimeRepo.setIsStarred(group.trip.getTitle(), 1);
+            List<TravelTimeGroup> groups = travelTimeRepo.getTravelTimeGroups(mTravelTimeStatus);
+
+            MyRouteEntity route = myRouteDao.getMyRouteForId(myRouteId);
+
+            try {
+                for (TravelTimeGroup group : groups) {
+                    for (TravelTimeEntity time : group.travelTimes) {
+                        for (LatLng location : ParserUtils.getRouteArrayList(new JSONArray(route.getRouteLocations()))) {
+                            if ((Utils.getDistanceFromPoints(location.latitude, location.longitude,
+                                    time.getStartLatitude(), time.getStartLongitude()) <= MAX_ITEM_DISTANCE)
+                                    && (Utils.getDistanceFromPoints(location.latitude, location.longitude,
+                                    time.getEndLatitude(), time.getEndLongitude()) <= MAX_ITEM_DISTANCE)) {
+
+                                travelTimeRepo.setIsStarred(group.trip.getTitle(), 1);
+                            }
                         }
                     }
                 }
+            } catch (JSONException e) {
+                Log.e(TAG, "failed to read route json");
             }
-        } catch (JSONException e) {
-            Log.e(TAG, "failed to read route json");
-        }
+
+            foundTravelTimes.postValue(true);
+
+        });
     }
 
-    private void findFerriesOnRoute(MyRouteEntity route, List<FerryScheduleEntity> ferries) {
-        try {
-            SparseArray<FerriesTerminalItem> terminalLocations = Utils.getTerminalLocations();
-
-            for (FerryScheduleEntity ferrySchedule: ferries) {
-
-                ArrayList<FerriesTerminalItem> terminalItems = getTerminals(ferrySchedule.getDate());
-                for (FerriesTerminalItem terminal: terminalItems){
-
-                    Boolean nearStartTerminal = false;
-                    Boolean nearEndTerminal = false;
-
-                    for (LatLng location: ParserUtils.getRouteArrayList(new JSONArray(route.getRouteLocations()))) {
-
-                        if (Utils.getDistanceFromPoints(location.latitude, location.longitude,
-                                terminalLocations.get(terminal.getArrivingTerminalID()).getLatitude(),
-                                terminalLocations.get(terminal.getArrivingTerminalID()).getLongitude()) <= MAX_ITEM_DISTANCE){
-                            nearStartTerminal = true;
-                        }
-
-                        if (Utils.getDistanceFromPoints(location.latitude, location.longitude,
-                                terminalLocations.get(terminal.getDepartingTerminalID()).getLatitude(),
-                                terminalLocations.get(terminal.getDepartingTerminalID()).getLongitude()) <= MAX_ITEM_DISTANCE) {
-                            nearEndTerminal = true;
-                        }
-
-                        if (nearStartTerminal && nearEndTerminal){
-                            ferryScheduleRepo.setIsStarred(ferrySchedule.getFerryScheduleId(), 1);
-                            break;
-                        }
-                    }
-                }
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "failed to read route json");
-        }
-    }
-
-    private void findPassesOnRoute(MyRouteEntity route, List<MountainPassEntity> passes){
-        try {
-            for (MountainPassEntity pass: passes){
-                for (LatLng location: ParserUtils.getRouteArrayList(new JSONArray(route.getRouteLocations()))) {
-                    if (Utils.getDistanceFromPoints(location.latitude, location.longitude,
-                            pass.getLatitude(), pass.getLongitude()) <= MAX_ITEM_DISTANCE) {
-                        mountainPassRepo.setIsStarred(pass.getPassId(), 1);
-                    }
-                }
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "failed to read route json");
-        }
-    }
 
     private ArrayList<FerriesTerminalItem> getTerminals(String datesString) {
         ArrayList<FerriesTerminalItem> terminalItems = new ArrayList<>();

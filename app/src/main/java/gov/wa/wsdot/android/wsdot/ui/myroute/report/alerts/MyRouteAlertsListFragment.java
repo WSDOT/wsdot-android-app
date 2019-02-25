@@ -63,6 +63,8 @@ public class MyRouteAlertsListFragment extends BaseFragment
 
     private static MyRouteAlertListViewModel viewModel;
 
+    private String routeString = "";
+
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
@@ -97,6 +99,9 @@ public class MyRouteAlertsListFragment extends BaseFragment
                 R.color.holo_orange_light,
                 R.color.holo_red_light);
 
+        Intent intent = getActivity().getIntent();
+        routeString = intent.getStringExtra("route");
+
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteAlertListViewModel.class);
 
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
@@ -115,13 +120,6 @@ public class MyRouteAlertsListFragment extends BaseFragment
             }
         });
 
-        //Retrieve the bounds from the intent. Defaults to 0
-        Intent intent = getActivity().getIntent();
-
-        String routeString = intent.getStringExtra("route");
-
-        Log.e(TAG, routeString);
-
         viewModel.getHighwayAlertsInBounds(routeString).observe(this, alerts -> {
             if (alerts != null) {
                 trafficAlertItems = new ArrayList<>(alerts);
@@ -131,6 +129,12 @@ public class MyRouteAlertsListFragment extends BaseFragment
         });
 
         return root;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        viewModel.forceRefreshHighwayAlerts();
     }
 
     /**
@@ -297,8 +301,9 @@ public class MyRouteAlertsListFragment extends BaseFragment
 
         @Override
         public int getItemCount() {
-                return mData.size();
-            }
+            return mData.size();
+        }
+
     }
 
     /**

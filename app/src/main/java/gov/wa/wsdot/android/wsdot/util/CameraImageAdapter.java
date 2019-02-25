@@ -67,7 +67,7 @@ public abstract class CameraImageAdapter extends RecyclerView.Adapter<CameraImag
 
         public CameraViewHolder(View itemView) {
             super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.image);
+            image = itemView.findViewById(R.id.image);
         }
 
         public void setImageTag (String tag){
