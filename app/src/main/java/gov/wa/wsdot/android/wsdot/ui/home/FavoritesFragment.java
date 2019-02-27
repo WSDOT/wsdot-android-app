@@ -71,6 +71,7 @@ import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewPagerActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.MyRouteReportActivity;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.I405TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.SR167TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
@@ -832,27 +833,20 @@ public class FavoritesFragment extends BaseFragment implements
 
                 viewholder.title.setTag(myRoute.getMyRouteId());
 
-                viewholder.lng = myRoute.getLatitude();
-                viewholder.lat = myRoute.getLongitude();
-                viewholder.zoom = myRoute.getZoom();
+                // Set onClickListener for holder's view
+                viewholder.view.setOnClickListener(
+                        v -> {
+                            Bundle b = new Bundle();
+                            b.putLong("route_id", myRoute.getMyRouteId());
+                            b.putString("route_name", myRoute.getTitle());
+                            b.putString("route", myRoute.getRouteLocations());
+                            Intent intent = new Intent(getActivity(), MyRouteReportActivity.class);
+                            intent.putExtras(b);
+                            startActivity(intent);
+                        }
+                );
 
-                viewholder.alerts_button.setVisibility(View.GONE);
 
-                viewholder.map_button.setTag(position);
-                viewholder.map_button.setContentDescription("Check map for route");
-                viewholder.map_button.setOnClickListener(v -> {
-
-                    Bundle b = new Bundle();
-
-                    Intent intent = new Intent(getActivity(), TrafficMapActivity.class);
-
-                    b.putDouble("lat", myRoute.getLatitude());
-                    b.putDouble("long", myRoute.getLongitude());
-                    b.putInt("zoom", myRoute.getZoom());
-
-                    intent.putExtras(b);
-                    startActivity(intent);
-                });
             } else {
                 MyLogger.crashlyticsLog("Home", "Error", "FavoritesFragment: No view holder for type: " + holder.getClass().getName(), 1);
                 Log.i(TAG, "No view holder for type: " + holder.getClass().getName()); //TODO
@@ -1228,17 +1222,12 @@ public class FavoritesFragment extends BaseFragment implements
 
     private class MyRouteViewHolder extends  RecyclerView.ViewHolder {
         TextView title;
-        ImageButton alerts_button;
-        ImageButton map_button;
-        int zoom;
-        double lat;
-        double lng;
+        public View view;
 
-        public MyRouteViewHolder(View view){
-            super(view);
-            title = view.findViewById(R.id.title);
-            alerts_button = view.findViewById(R.id.alert_button);
-            map_button = view.findViewById(R.id.map_button);
+        public MyRouteViewHolder(View itemView){
+            super(itemView);
+            view = itemView;
+            title = itemView.findViewById(R.id.title);
         }
     }
 

@@ -221,6 +221,19 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
 
             itemViewHolder.title.setText(myRoute.getTitle());
 
+            // Set onClickListener for holder's view
+            itemViewHolder.view.setOnClickListener(
+                    v -> {
+                        Bundle b = new Bundle();
+                        b.putLong("route_id", myRoute.getMyRouteId());
+                        b.putString("route_name", myRoute.getTitle());
+                        b.putString("route", myRoute.getRouteLocations());
+                        Intent intent = new Intent(getActivity(), MyRouteReportActivity.class);
+                        intent.putExtras(b);
+                        startActivity(intent);
+                    }
+            );
+
             itemViewHolder.star_button.setTag(myRoute.getMyRouteId());
 
             // Seems when Android recycles the views, the onCheckedChangeListener is still active
@@ -268,27 +281,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
                 }
             });
 
-            itemViewHolder.alert_button.setVisibility(View.GONE);
-
-            itemViewHolder.map_button.setTag(i);
-            itemViewHolder.map_button.setContentDescription("Check map for route");
-            itemViewHolder.map_button.setOnClickListener(v -> {
-
-                // TODO:
-                Bundle b = new Bundle();
-                b.putLong("route_id", myRoute.getMyRouteId());
-                b.putString("route_name", myRoute.getTitle());
-                b.putString("route", myRoute.getRouteLocations());
-
-
-
-                Intent intent = new Intent(getActivity(), MyRouteReportActivity.class);
-                intent.putExtras(b);
-                startActivity(intent);
-
-
-            });
-
             itemViewHolder.settings_button.setTag(i);
             itemViewHolder.settings_button.setContentDescription("Route Settings");
             itemViewHolder.settings_button.setOnClickListener(v -> {
@@ -315,16 +307,14 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
 
         protected TextView title;
         protected CheckBox star_button;
-        protected ImageButton alert_button;
-        protected ImageButton map_button;
         protected ImageButton settings_button;
+        public View view;
 
         public MyRouteVH(View itemView) {
             super(itemView);
+            view = itemView;
             title = itemView.findViewById(R.id.title);
             star_button = itemView.findViewById(R.id.star_button);
-            alert_button = itemView.findViewById(R.id.alert_button);
-            map_button = itemView.findViewById(R.id.map_button);
             settings_button = itemView.findViewById(R.id.settings_button);
         }
     }
