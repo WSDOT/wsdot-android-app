@@ -116,11 +116,10 @@ public class MyRoutesRepository {
                 Log.e(TAG, "failed to read route json");
             }
 
-            myRouteDao.deleteMyRoute(route.getMyRouteId());
+
             JSONArray idsJSON = new JSONArray(camerasOnRouteIds);
-            route.setCameraIdsJSON(idsJSON.toString());
-            route.setFoundCameras(1);
-            myRouteDao.insertMyRoute(route);
+            myRouteDao.updateCameraIdsJson(route.getMyRouteId(), idsJSON.toString());
+            myRouteDao.updateFoundCameras(route.getMyRouteId(), 1);
 
             foundCameras.postValue(true);
 
@@ -132,11 +131,8 @@ public class MyRoutesRepository {
         appExecutors.diskIO().execute(() -> {
 
             List<TravelTimeGroup> groups = travelTimeRepo.getTravelTimeGroups(mTravelTimeStatus);
-
             MyRouteEntity route = myRouteDao.getMyRouteForId(myRouteId);
-
             ArrayList<String> travelTimesOnRouteTitles = new ArrayList<>();
-
 
             try {
                 for (TravelTimeGroup group : groups) {
@@ -158,33 +154,22 @@ public class MyRoutesRepository {
                                 routeAtEnd = true;
                             }
                         }
-
                     }
 
                     if (routeAtStart && routeAtEnd) {
-                        Log.e(TAG, "found one");
-                        Log.e(TAG, group.trip.getTitle());
-
                         travelTimesOnRouteTitles.add(group.trip.getTitle());
                     }
-
                 }
 
             } catch (JSONException e) {
                 Log.e(TAG, "failed to read route json");
             }
 
-
             JSONArray titlesJSON = new JSONArray(travelTimesOnRouteTitles);
 
-            Log.e(TAG, titlesJSON.toString());
+            myRouteDao.updateTravelTimesTitlesJson(route.getMyRouteId(), titlesJSON.toString());
+            myRouteDao.updateFoundTravelTimes(route.getMyRouteId(), 1);
 
-            route.setTravelTimeTitlesJSON(titlesJSON.toString());
-            route.setFoundTravelTimes(1);
-
-            myRouteDao.insertMyRoute(route);
-
-            Log.e(TAG, "found travel times");
             foundTravelTimes.postValue(true);
 
         });

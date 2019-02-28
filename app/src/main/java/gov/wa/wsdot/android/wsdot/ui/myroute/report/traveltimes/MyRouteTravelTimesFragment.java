@@ -128,6 +128,7 @@ public class MyRouteTravelTimesFragment extends BaseFragment implements
             if (myRoute != null){
 
                 if (myRoute.getFoundTravelTimes() == 0) {
+                    swipeRefreshLayout.setRefreshing(true);
                     myRouteViewModel.findTravelTimesOnRoute(mRouteId);
                 } else {
                     try {
@@ -137,7 +138,6 @@ public class MyRouteTravelTimesFragment extends BaseFragment implements
 
                         for (int i=0; i < titlesJSON.length(); i++){
                             travelTimeTitles[i] = titlesJSON.getString(i);
-                            Log.e(TAG, travelTimeTitles[i]);
                         }
 
                         travelTimesViewModel.loadTravelTimesForTitles(travelTimeTitles).observe(this, travelTimes -> {
@@ -161,6 +161,7 @@ public class MyRouteTravelTimesFragment extends BaseFragment implements
                         mEmptyView.setVisibility(View.VISIBLE);
 
                     }
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
         });

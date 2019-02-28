@@ -18,6 +18,8 @@ import javax.inject.Singleton;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
+import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
+import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
@@ -37,16 +39,20 @@ public class TravelTimeRepository  extends NetworkResourceSyncRepository {
     private final TravelTimeTripDao travelTimeTripDao;
     private final TravelTimeGroupDao travelTimeGroupDao;
 
+    private final MyRouteDao myRouteDao;
+
     @Inject
     public TravelTimeRepository(TravelTimeDao travelTimeDao,
                                 TravelTimeTripDao travelTimeTripDao,
                                 TravelTimeGroupDao travelTimeGroupDao,
+                                MyRouteDao myRouteDao,
                                 AppExecutors appExecutors, CacheRepository cacheRepository) {
 
         super(appExecutors, cacheRepository, (15 * DateUtils.MINUTE_IN_MILLIS), "travel_times");
         this.travelTimeDao = travelTimeDao;
         this.travelTimeTripDao = travelTimeTripDao;
         this.travelTimeGroupDao = travelTimeGroupDao;
+        this.myRouteDao = myRouteDao;
     }
 
     public LiveData<List<TravelTimeGroup>> loadTravelTimeGroups(MutableLiveData<ResourceStatus> status) {
@@ -149,5 +155,14 @@ public class TravelTimeRepository  extends NetworkResourceSyncRepository {
         CacheEntity travelCache = new CacheEntity("travel_times", System.currentTimeMillis());
         getCacheRepository().setCacheTime(travelCache);
 
+        resetMyRouteTravelTimes();
+
+    }
+
+    private void resetMyRouteTravelTimes() {
+        List<MyRouteEntity> routes = myRouteDao.getMyRoutes();
+        for (MyRouteEntity route: routes){
+            myRouteDao.updateFoundTravelTimes(route.getMyRouteId(), 0);
+        }
     }
 }

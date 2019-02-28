@@ -10,11 +10,13 @@ import java.util.List;
 import javax.inject.Inject;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.repository.HighwayAlertRepository;
+import gov.wa.wsdot.android.wsdot.repository.MyRoutesRepository;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.Utils;
@@ -22,23 +24,49 @@ import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 public class MyRouteAlertListViewModel extends ViewModel {
 
+    final String TAG = "test";
+
+    private MediatorLiveData<List<HighwayAlertsItem>> alertsOnMap;
     private LiveData<List<HighwayAlertsItem>> highwayAlerts;
 
     private MutableLiveData<ResourceStatus> mStatus;
     private HighwayAlertRepository highwayAlertRepo;
 
+    private MyRoutesRepository myRoutesRepo;
+
     private final Double MAX_ALERT_DISTANCE = 0.248548;
 
     @Inject
-    MyRouteAlertListViewModel(HighwayAlertRepository highwayAlertRepo) {
+    MyRouteAlertListViewModel(HighwayAlertRepository highwayAlertRepo, MyRoutesRepository myRoutesRepo) {
         this.highwayAlertRepo = highwayAlertRepo;
+        this.myRoutesRepo = myRoutesRepo;
         this.mStatus = new MutableLiveData<>();
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
-    public LiveData<List<HighwayAlertsItem>> getHighwayAlertsInBounds(String routeString){
-        if (highwayAlerts == null) {
+    public MediatorLiveData<List<HighwayAlertsItem>> getAlertsOnMap(long routeId) {
+        if (alertsOnMap == null){
+            this.alertsOnMap = new MediatorLiveData<>();
+            alertsOnMap.addSource(
+                    myRoutesRepo.loadMyRoute(routeId),
+                    myRoute -> {
+                        if (myRoute != null){
+                            alertsOnMap.removeSource(highwayAlerts);
+                            alertsOnMap.addSource(getHighwayAlertsInBounds(myRoute.getRouteLocations()), alerts -> {
+                                if (alerts != null) {
+                                    alertsOnMap.postValue(alerts);
+                                }
+                            });
+                        }
+                    }
+            );
+        }
+        return this.alertsOnMap;
+    }
+
+
+    LiveData<List<HighwayAlertsItem>> getHighwayAlertsInBounds(String routeString){
 
             this.highwayAlerts = Transformations.map(highwayAlertRepo.getHighwayAlerts(mStatus), alerts -> {
 
@@ -86,7 +114,7 @@ public class MyRouteAlertListViewModel extends ViewModel {
                 }
                 return alertsOnRoute;
             });
-        }
+
         return this.highwayAlerts;
     }
 

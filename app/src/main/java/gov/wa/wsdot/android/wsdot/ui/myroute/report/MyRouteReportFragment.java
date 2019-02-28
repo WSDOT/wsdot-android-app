@@ -56,20 +56,6 @@ public class MyRouteReportFragment extends BaseFragment implements Injectable {
             mRouteId = args.getLong("route_id");
         }
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
-
-        viewModel.loadMyRoute(mRouteId).observe(this, myRoute -> {
-            if (myRoute != null){
-                Log.e(TAG, myRoute.getTitle());
-
-
-
-
-
-
-            }
-        });
-
         return root;
     }
 

@@ -102,7 +102,7 @@ public class MyRouteAlertsListFragment extends BaseFragment
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteAlertListViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -118,7 +118,7 @@ public class MyRouteAlertsListFragment extends BaseFragment
             }
         });
 
-        viewModel.getHighwayAlertsInBounds(routeString).observe(this, alerts -> {
+        viewModel.getHighwayAlertsInBounds(routeString).observe(getViewLifecycleOwner(), alerts -> {
             if (alerts != null) {
                 trafficAlertItems = new ArrayList<>(alerts);
                 mAdapter.clear();

@@ -88,6 +88,7 @@ public class MyRouteReportActivity extends BaseActivity implements
         }
 
         myRoutesViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
+        alertListViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteAlertListViewModel.class);
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
         mapFragment.getMapAsync(this);
@@ -116,13 +117,43 @@ public class MyRouteReportActivity extends BaseActivity implements
         mMap.setTrafficEnabled(true);
         mMap.setOnMarkerClickListener(this);
 
-        alertListViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteAlertListViewModel.class);
+        alertListViewModel.getAlertsOnMap(mRouteId).observe(this, alertItems -> {
 
-        Log.e("MyRouteReport", String.valueOf(mRouteId));
+            if (alerts != null) {
+
+                Iterator<Map.Entry<Marker, String>> iter = markers.entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<Marker, String> entry = iter.next();
+                    if (entry.getValue().equalsIgnoreCase("alert")) {
+                        entry.getKey().remove();
+                        iter.remove();
+                    }
+                }
+
+                alerts.clear();
+                alerts = alertItems;
+
+                if (alerts != null) {
+                    if (alerts.size() != 0) {
+                        for (int i = 0; i < alerts.size(); i++) {
+
+                            LatLng latLng = new LatLng(alerts.get(i).getStartLatitude(), alerts.get(i).getStartLongitude());
+                            Marker marker = mMap.addMarker(new MarkerOptions()
+                                    .position(latLng)
+                                    .title(alerts.get(i).getEventCategory())
+                                    .snippet(alerts.get(i).getAlertId())
+                                    .icon(BitmapDescriptorFactory.fromResource(alerts.get(i).getCategoryIcon()))
+                                    .visible(true));
+
+                            markers.put(marker, "alert");
+                        }
+                    }
+                }
+            }
+        });
 
         myRoutesViewModel.loadMyRoute(mRouteId).observe(this, myRoute -> {
             if (myRoute != null) {
-
                 // Focus on route and add it to the map
                 try {
                     routeJSON = new JSONArray(myRoute.getRouteLocations());
@@ -137,44 +168,6 @@ public class MyRouteReportActivity extends BaseActivity implements
                 LatLng viewlatLng = new LatLng(displayLat, displayLong);
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(viewlatLng, displayZoom));
 
-                // Get highway alerts on route and display icons on map
-                alertListViewModel.getHighwayAlertsInBounds(myRoute.getRouteLocations()).observe(this, alertItems -> {
-                    if (alerts != null) {
-
-                        Iterator<Map.Entry<Marker, String>> iter = markers.entrySet().iterator();
-                        while (iter.hasNext()) {
-                            Map.Entry<Marker, String> entry = iter.next();
-                            if (entry.getValue().equalsIgnoreCase("alert")) {
-                                entry.getKey().remove();
-                                iter.remove();
-                            }
-                        }
-
-                        alerts.clear();
-                        alerts = alertItems;
-
-                        if (alerts != null) {
-                            if (alerts.size() != 0) {
-                                for (int i = 0; i < alerts.size(); i++) {
-
-                                    Log.e(TAG, String.valueOf(alerts.get(i).getCategoryIcon()));
-
-                                    LatLng latLng = new LatLng(alerts.get(i).getStartLatitude(), alerts.get(i).getStartLongitude());
-                                    Marker marker = mMap.addMarker(new MarkerOptions()
-                                            .position(latLng)
-                                            .title(alerts.get(i).getEventCategory())
-                                            .snippet(alerts.get(i).getAlertId())
-                                            .icon(BitmapDescriptorFactory.fromResource(alerts.get(i).getCategoryIcon()))
-                                            .visible(true));
-
-                                    markers.put(marker, "alert");
-                                }
-                            }
-                        }
-                    }
-                });
-            } else {
-                Log.e("MyRouteReport", "im null..");
             }
         });
 

@@ -32,11 +32,11 @@ public class CameraItemLiveData extends LiveData<List<CameraItem>>
     @Override protected void onActive()   { sourceLiveData.observeForever(this); }
     @Override protected void onInactive() { sourceLiveData.removeObserver(this); }
 
-    @Override public void onChanged(@Nullable List<CameraEntity> alerts) {
-        AsyncTask.execute(() -> postValue(processDates(alerts)));
+    @Override public void onChanged(@Nullable List<CameraEntity> cameras) {
+        AsyncTask.execute(() -> postValue(processCameras(cameras)));
     }
 
-    private List<CameraItem> processDates(List<CameraEntity> cameras) {
+    private List<CameraItem> processCameras(List<CameraEntity> cameras) {
 
         ArrayList<CameraItem> displayableAlertItemValues = new ArrayList<>();
         if (cameras != null) {
@@ -45,7 +45,7 @@ public class CameraItemLiveData extends LiveData<List<CameraItem>>
                 int video = camera.getHasVideo();
                 int cameraIcon = (video == 0) ? R.drawable.camera : R.drawable.camera_video;
 
-                displayableAlertItemValues.add(new CameraItem(
+                displayableAlertItemValues.add(new CameraItem(+
                         camera.getLatitude(),
                         camera.getLongitude(),
                         camera.getTitle(),

@@ -6,8 +6,10 @@ import java.util.List;
 import javax.inject.Inject;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.repository.MyRoutesRepository;
 
@@ -38,11 +40,6 @@ public class MyRouteViewModel extends ViewModel {
         return myRoutesRepo.loadMyRoute(routeId);
     }
 
-    MyRouteEntity getMyRoute(long routeId) {
-        return myRoutesRepo.getMyRoute(routeId);
-    }
-
-
     void updateRouteTitle(long routeId, String newTitle){
         this.myRoutesRepo.updateTitle(routeId, newTitle);
     }
@@ -58,8 +55,6 @@ public class MyRouteViewModel extends ViewModel {
     public void findTravelTimesOnRoute(Long myRouteId) {
         myRoutesRepo.findTravelTimesOnRoute(foundTravelTimes, myRouteId);
     }
-
-    void resetFindCameras() { foundCameras.setValue(false); }
 
     void deleteRoute(long routeId){
         this.myRoutesRepo.deleteMyRoute(routeId);

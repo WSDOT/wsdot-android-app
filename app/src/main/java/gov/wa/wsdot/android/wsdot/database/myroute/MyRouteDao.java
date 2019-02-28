@@ -12,10 +12,16 @@ import androidx.room.Query;
 public interface MyRouteDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public abstract void insertMyRoutes(MyRouteEntity... myRoutes);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void insertMyRoute(MyRouteEntity myRoute);
 
     @Query("SELECT * FROM my_route")
     public abstract LiveData<List<MyRouteEntity>> loadMyRoutes();
+
+    @Query("SELECT * FROM my_route")
+    public abstract List<MyRouteEntity> getMyRoutes();
 
     @Query("SELECT * FROM my_route WHERE is_starred = 1")
     public abstract LiveData<List<MyRouteEntity>> loadFavoriteMyRoutes();
@@ -25,6 +31,18 @@ public interface MyRouteDao {
 
     @Query("SELECT * FROM my_route WHERE id = :id LIMIT 1")
     public abstract MyRouteEntity getMyRouteForId(Long id);
+
+    @Query("UPDATE my_route SET found_cameras = :foundCameras WHERE id = :id")
+    public abstract void updateFoundCameras(Long id, int foundCameras);
+
+    @Query("UPDATE my_route SET camera_ids_json = :idsString WHERE id = :id")
+    public abstract void updateCameraIdsJson(Long id, String idsString);
+
+    @Query("UPDATE my_route SET found_travel_times = :foundTravelTimes WHERE id = :id")
+    public abstract void updateFoundTravelTimes(Long id, int foundTravelTimes);
+
+    @Query("UPDATE my_route SET travel_time_titles_json = :titlesString WHERE id = :id")
+    public abstract void updateTravelTimesTitlesJson(Long id, String titlesString);
 
     @Query("UPDATE my_route SET title = :title WHERE id = :id")
     public abstract void updateTitle(Long id, String title);

@@ -192,7 +192,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
 
         public void setData(List<MyRouteEntity> data){
             this.mData = data;
-            Log.e(TAG, String.valueOf(data.size()));
             this.notifyDataSetChanged();
         }
 

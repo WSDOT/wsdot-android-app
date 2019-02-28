@@ -20,9 +20,12 @@ import javax.inject.Singleton;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.sqlite.db.SimpleSQLiteQuery;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraDao;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
+import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
+import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
@@ -31,11 +34,13 @@ import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 public class CameraRepository extends NetworkResourceSyncRepository {
 
     private CameraDao cameraDao;
+    private MyRouteDao myRouteDao;
 
     @Inject
-    CameraRepository(CameraDao cameraDao, AppExecutors appExecutors, CacheRepository cacheRepository) {
+    CameraRepository(CameraDao cameraDao, MyRouteDao myRouteDao, AppExecutors appExecutors, CacheRepository cacheRepository) {
         super(appExecutors, cacheRepository, (7 * DateUtils.DAY_IN_MILLIS), "cameras");
         this.cameraDao = cameraDao;
+        this.myRouteDao = myRouteDao;
     }
 
     public LiveData<List<CameraEntity>> loadCameras(MutableLiveData<ResourceStatus> status) {
@@ -58,9 +63,26 @@ public class CameraRepository extends NetworkResourceSyncRepository {
         return cameraDao.loadCamera(cameraId);
     }
 
-    public LiveData<List<CameraEntity>> loadCamerasForIds(int[] cameraId, MutableLiveData<ResourceStatus> status) {
+    // Need to build the query ourselves since Room and SQL can't handle possible 999 or more parameters in a query
+    public LiveData<List<CameraEntity>> loadCamerasForIds(int[] cameraIds, MutableLiveData<ResourceStatus> status) {
         super.refreshData(status, false);
-        return cameraDao.loadCamerasForIds(cameraId);
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("SELECT * FROM cameras WHERE id IN ");
+
+        sb.append("(");
+        for (int i = 0; i < cameraIds.length; i++) {
+            sb.append(String.valueOf(cameraIds[i]));
+            if (i != cameraIds.length - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append(");");
+
+        SimpleSQLiteQuery query = new SimpleSQLiteQuery(sb.toString());
+
+        return cameraDao.loadCamerasForIds(query);
     }
 
     public LiveData<List<CameraEntity>> getCamerasForRoad(String roadName, MutableLiveData<ResourceStatus> status) {
@@ -137,8 +159,17 @@ public class CameraRepository extends NetworkResourceSyncRepository {
 
         cameraDao.deleteAndInsertTransaction(camerasArray);
 
-        CacheEntity passCache = new CacheEntity("cameras", System.currentTimeMillis());
-        getCacheRepository().setCacheTime(passCache);
+        CacheEntity camerasCache = new CacheEntity("cameras", System.currentTimeMillis());
+        getCacheRepository().setCacheTime(camerasCache);
 
+        resetMyRouteCameras();
+
+    }
+
+    private void resetMyRouteCameras() {
+        List<MyRouteEntity> routes = myRouteDao.getMyRoutes();
+        for (MyRouteEntity route: routes){
+            myRouteDao.updateFoundCameras(route.getMyRouteId(), 0);
+        }
     }
 }

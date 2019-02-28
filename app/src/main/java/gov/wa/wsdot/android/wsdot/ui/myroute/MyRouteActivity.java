@@ -82,7 +82,6 @@ public class MyRouteActivity extends BaseActivity implements RouteOptionsDialogF
         setFirebaseAnalyticsScreenName("MyRoutes");
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {

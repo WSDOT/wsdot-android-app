@@ -92,9 +92,10 @@ public class MyRouteCamerasListFragment extends BaseFragment implements
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
         myRouteViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
+
         cameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteCamerasViewModel.class);
 
-        cameraViewModel.getResourceStatus().observe(this, resourceStatus -> {
+        cameraViewModel.getResourceStatus().observe(this.getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -110,10 +111,11 @@ public class MyRouteCamerasListFragment extends BaseFragment implements
             }
         });
 
-        myRouteViewModel.loadMyRoute(mRouteId).observe(this, myRoute -> {
+        myRouteViewModel.loadMyRoute(mRouteId).observe(this.getViewLifecycleOwner(), myRoute -> {
             if (myRoute != null){
 
                 if (myRoute.getFoundCameras() == 0){
+                    swipeRefreshLayout.setRefreshing(true);
                     myRouteViewModel.findCamerasOnRoute(mRouteId);
                 } else {
                     try {
@@ -147,6 +149,7 @@ public class MyRouteCamerasListFragment extends BaseFragment implements
                         mEmptyView.setVisibility(View.VISIBLE);
 
                     }
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
         });
