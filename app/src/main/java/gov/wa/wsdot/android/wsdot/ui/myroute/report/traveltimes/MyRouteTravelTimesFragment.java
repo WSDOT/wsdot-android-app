@@ -1,22 +1,4 @@
-/*
- * Copyright (c) 2017 Washington State Department of Transportation
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- */
-
-package gov.wa.wsdot.android.wsdot.ui.traveltimes;
+package gov.wa.wsdot.android.wsdot.ui.myroute.report.traveltimes;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
@@ -25,23 +7,21 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import com.google.android.material.snackbar.Snackbar;
-import androidx.core.view.MenuItemCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.SearchView.OnQueryTextListener;
-import android.text.TextUtils;
+
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,43 +32,51 @@ import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
-import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-
-public class TravelTimesFragment extends BaseFragment implements
-        OnQueryTextListener,
+public class MyRouteTravelTimesFragment extends BaseFragment implements
         SwipeRefreshLayout.OnRefreshListener,
-		Injectable {
+        Injectable {
 
-    private static final String TAG = TravelTimesFragment.class.getSimpleName();
-	private static TravelTimesAdapter mAdapter;
+    private static final String TAG = MyRouteTravelTimesFragment.class.getSimpleName();
+    private static TravelTimesAdapter mAdapter;
 
-	private View mEmptyView;
+    private View mEmptyView;
 
-	private static SwipeRefreshLayout swipeRefreshLayout;
+    private static SwipeRefreshLayout swipeRefreshLayout;
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
-	private static TravelTimesViewModel viewModel;
+    private MyRouteTravelTimesViewModel travelTimesViewModel;
+    private MyRouteViewModel myRouteViewModel;
 
-	@Inject
-	ViewModelProvider.Factory viewModelFactory;
+    private long mRouteId = -1;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
-	}	
-	
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-        
-		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        if (getActivity() != null) {
+            Bundle args = getActivity().getIntent().getExtras();
+            if (args != null) {
+                mRouteId = args.getLong("route_id");
+            }
+        }
+
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -98,7 +86,7 @@ public class TravelTimesFragment extends BaseFragment implements
         mAdapter = new TravelTimesAdapter(getActivity());
         mRecyclerView.setAdapter(mAdapter);
 
-		mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -108,16 +96,18 @@ public class TravelTimesFragment extends BaseFragment implements
         swipeRefreshLayout = root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
-				R.color.holo_blue_bright,
-				R.color.holo_green_light,
-				R.color.holo_orange_light,
-				R.color.holo_red_light);
+                R.color.holo_blue_bright,
+                R.color.holo_green_light,
+                R.color.holo_orange_light,
+                R.color.holo_red_light);
 
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(TravelTimesViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        myRouteViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
+        travelTimesViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteTravelTimesViewModel.class);
+
+        travelTimesViewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -133,67 +123,50 @@ public class TravelTimesFragment extends BaseFragment implements
             }
         });
 
-        viewModel.getQueryTravelTimes().observe(this, travelTimes -> {
-            if (travelTimes != null) {
-                if (travelTimes.size() == 0) {
-                    TextView t = (TextView) mEmptyView;
-                    if (!viewModel.getQueryTermValue().equals("")) {
-                        t.setText(R.string.no_matching_travel_times);
-                    } else {
-                        t.setText("travel times unavailable.");
-                    }
-                    mEmptyView.setVisibility(View.VISIBLE);
+        myRouteViewModel.loadMyRoute(mRouteId).observe(this, myRoute -> {
+
+            if (myRoute != null){
+
+                if (myRoute.getFoundTravelTimes() == 0) {
+                    myRouteViewModel.findTravelTimesOnRoute(mRouteId);
                 } else {
-                    mEmptyView.setVisibility(View.GONE);
+                    try {
+
+                        JSONArray titlesJSON = new JSONArray(myRoute.getTravelTimeTitlesJSON());
+                        String[] travelTimeTitles = new String[titlesJSON.length()];
+
+                        for (int i=0; i < titlesJSON.length(); i++){
+                            travelTimeTitles[i] = titlesJSON.getString(i);
+                            Log.e(TAG, travelTimeTitles[i]);
+                        }
+
+                        travelTimesViewModel.loadTravelTimesForTitles(travelTimeTitles).observe(this, travelTimes -> {
+
+                            if (travelTimes.size() > 0) {
+                                mRecyclerView.setVisibility(View.VISIBLE);
+                                mEmptyView.setVisibility(View.GONE);
+                                mAdapter.setData(new ArrayList<>(travelTimes));
+                            } else {
+                                mRecyclerView.setVisibility(View.GONE);
+                                TextView t = (TextView) mEmptyView;
+                                t.setText("No travel times on route");
+                                mEmptyView.setVisibility(View.VISIBLE);
+                            }
+                        });
+
+                    } catch (JSONException e) {
+                        mRecyclerView.setVisibility(View.GONE);
+                        TextView t = (TextView) mEmptyView;
+                        t.setText("error loading travel times");
+                        mEmptyView.setVisibility(View.VISIBLE);
+
+                    }
                 }
-                mAdapter.setData(new ArrayList<>(travelTimes));
             }
         });
 
-        viewModel.setQueryTerm("");
-
         return root;
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	super.onCreateOptionsMenu(menu, inflater);
-		
-        //Create the search view
-        SearchView searchView = new SearchView(
-                ((BaseActivity) getActivity()).getSupportActionBar().getThemedContext());
-        searchView.setQueryHint("Search Travel Times");
-
-        searchView.setOnQueryTextListener(this);
-		
-        MenuItem menuItem_Search = menu.add(R.string.search_title).setIcon(R.drawable.ic_menu_search);
-        MenuItemCompat.setActionView(menuItem_Search, searchView);
-        MenuItemCompat.setShowAsAction(menuItem_Search,
-                MenuItemCompat.SHOW_AS_ACTION_IF_ROOM
-                        | MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-        
-        MenuItemCompat.setOnActionExpandListener(menuItem_Search, new MenuItemCompat.OnActionExpandListener() {
-			public boolean onMenuItemActionCollapse(MenuItem item) {
-				viewModel.setQueryTerm("");
-				return true;
-			}
-
-			public boolean onMenuItemActionExpand(MenuItem item) {
-				return true;
-			}
-		});
-	}
-
-	public boolean onQueryTextChange(String newText) {
-        String query = !TextUtils.isEmpty(newText) ? newText : "";
-        viewModel.setQueryTerm(query);
-        return true;
-	}
-
-	public boolean onQueryTextSubmit(String query) {
-		viewModel.setQueryTerm(query);
-		return false;
-	}
+    }
 
     /**
      * Custom adapter for items in recycler view.
@@ -212,7 +185,7 @@ public class TravelTimesFragment extends BaseFragment implements
         private List<RecyclerView.ViewHolder> mItems = new ArrayList<>();
 
         public TravelTimesAdapter(Context context) {
-            this.context = context;
+                this.context = context;
         }
 
         public void setData(ArrayList<TravelTimeGroup> data){
@@ -270,11 +243,11 @@ public class TravelTimesFragment extends BaseFragment implements
 
                 if (isChecked){
                     added_snackbar.show();
-                }else{
+                } else {
                     removed_snackbar.show();
                 }
 
-                viewModel.setIsStarredFor(title, isChecked ? 1 : 0);
+                travelTimesViewModel.setIsStarredFor(title, isChecked ? 1 : 0);
             });
         }
 
@@ -313,9 +286,11 @@ public class TravelTimesFragment extends BaseFragment implements
         ((TextView) cv.findViewById(R.id.updated)).setText(ParserUtils.relativeTime(time.getUpdated(), "yyyy-MM-dd HH:mm a", false));
 
         if (time.getStatus().toLowerCase().equals("closed")) {
+
             currentTimeTextView.setText("Closed");
             currentTimeTextView.setTextColor(Color.RED);
             cv.findViewById(R.id.subtitle).setVisibility(View.GONE);
+
         } else {
 
             // set distance and avg time text view
@@ -346,11 +321,10 @@ public class TravelTimesFragment extends BaseFragment implements
 
         }
         return cv;
-
     }
 
     public void onRefresh() {
-		swipeRefreshLayout.setRefreshing(true);
-		viewModel.forceRefreshTravelTimes();
+        swipeRefreshLayout.setRefreshing(true);
+        travelTimesViewModel.forceRefreshTravelTimes();
     }
 }

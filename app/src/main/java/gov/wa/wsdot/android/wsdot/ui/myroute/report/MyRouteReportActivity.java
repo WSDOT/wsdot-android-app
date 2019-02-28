@@ -138,7 +138,6 @@ public class MyRouteReportActivity extends BaseActivity implements
                 LatLng viewlatLng = new LatLng(displayLat, displayLong);
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(viewlatLng, displayZoom));
 
-
                 // Get highway alerts on route and display icons on map
                 alertListViewModel.getHighwayAlertsInBounds(myRoute.getRouteLocations()).observe(this, alertItems -> {
                     if (alerts != null) {

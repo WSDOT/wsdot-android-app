@@ -49,9 +49,9 @@ public class MyRouteEntity {
     @NonNull
     private String cameraIdsJSON = "[]";
 
-    @ColumnInfo(name = "travel_time_ids_json")
+    @ColumnInfo(name = "travel_time_titles_json")
     @NonNull
-    private String travelTimeIdsJSON = "[]";
+    private String travelTimeTitlesJSON = "[]";
 
     @ColumnInfo(name = "is_starred")
     @NonNull
@@ -114,7 +114,6 @@ public class MyRouteEntity {
         this.foundCameras = foundCameras;
     }
 
-
     @NonNull
     public String getCameraIdsJSON() {
         return cameraIdsJSON;
@@ -133,31 +132,13 @@ public class MyRouteEntity {
         this.foundTravelTimes = foundTravelTimes;
     }
 
-            /*
-        try {
-
-            ArrayList<Integer> travelTimeIds = new ArrayList<>();
-            JSONArray idsJSON = new JSONArray(this.travelTimeIdsJSON);
-
-            for (int i=0;i<idsJSON.length();i++){
-                travelTimeIds.add(idsJSON.getInt(i));
-            }
-
-            return travelTimeIds;
-
-        } catch (JSONException e) {
-            return new ArrayList<>();
-        }
-        */
-
     @NonNull
-    public String getTravelTimeIdsJSON() {
-        return this.travelTimeIdsJSON;
+    public String getTravelTimeTitlesJSON() {
+        return this.travelTimeTitlesJSON;
     }
 
-    // JSONArray idsJSON = new JSONArray(travelTimeIds);
-    public void setTravelTimeIdsJSON(String travelTimeIds){
-        this.travelTimeIdsJSON = travelTimeIds;
+    public void setTravelTimeTitlesJSON(String travelTimeTitles){
+        this.travelTimeTitlesJSON = travelTimeTitles;
     }
 
     @NonNull

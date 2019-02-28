@@ -15,25 +15,25 @@ import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 
 public class MyRouteCamerasViewModel extends ViewModel {
 
-        private static String TAG = MyRouteCamerasViewModel.class.getSimpleName();
+    private static String TAG = MyRouteCamerasViewModel.class.getSimpleName();
 
-        private MutableLiveData<ResourceStatus> mStatus;
-        private CameraRepository cameraRepo;
+    private MutableLiveData<ResourceStatus> mStatus;
+    private CameraRepository cameraRepo;
 
-        @Inject
-        MyRouteCamerasViewModel(CameraRepository cameraRepo) {
-            this.mStatus = new MutableLiveData<>();
-            this.cameraRepo = cameraRepo;
-        }
-
-        public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
-
-        public void refreshCameras(){
-            cameraRepo.refreshData(mStatus, true);
-        }
-
-        public LiveData<List<CameraItem>> loadCamerasForIds(int[] ids) {
-            return new CameraItemLiveData(cameraRepo.loadCamerasForIds(ids, mStatus));
-        }
-
+    @Inject
+    MyRouteCamerasViewModel(CameraRepository cameraRepo) {
+        this.mStatus = new MutableLiveData<>();
+        this.cameraRepo = cameraRepo;
     }
+
+    public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
+
+    public LiveData<List<CameraItem>> loadCamerasForIds(int[] ids) {
+        return new CameraItemLiveData(cameraRepo.loadCamerasForIds(ids, mStatus));
+    }
+
+    public void forceRefreshCameras() {
+        cameraRepo.refreshData(mStatus, true);
+    }
+
+}

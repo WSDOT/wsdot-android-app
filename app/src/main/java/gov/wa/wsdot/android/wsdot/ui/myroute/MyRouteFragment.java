@@ -103,8 +103,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
             case 1: // Rename route
                 renameRouteAction(routeName, routeID);
                 break;
-            case 2: // Show on Map
-                break;
             default:
                 break;
         }
@@ -115,23 +113,15 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
                 new AlertDialog.Builder(getContext(), R.style.AppCompatAlertDialogStyle);
         builder.setTitle("Delete Route: " + routeName + "?");
         builder.setMessage("This cannot be undone.");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        builder.setPositiveButton("OK", (dialog, which) -> {
 
-                viewModel.deleteRoute(routeID);
+            viewModel.deleteRoute(routeID);
 
-                mAdapter.notifyDataSetChanged();
-                dialog.dismiss();
-                Snackbar.make(getView().findViewById(R.id.my_route_fragment), "Route Deleted", Snackbar.LENGTH_LONG).show();
-            }
+            mAdapter.notifyDataSetChanged();
+            dialog.dismiss();
+            Snackbar.make(getView().findViewById(R.id.my_route_fragment), "Route Deleted", Snackbar.LENGTH_LONG).show();
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
         builder.show();
     }
 
@@ -285,11 +275,9 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
             itemViewHolder.settings_button.setContentDescription("Route Settings");
             itemViewHolder.settings_button.setOnClickListener(v -> {
 
-                int[] menu_icons = {R.drawable.ic_action_delete_forever, R.drawable.ic_action_edit, R.drawable.ic_action_route, R.drawable.ic_action_favorite};
+                int[] menu_icons = {R.drawable.ic_action_delete_forever, R.drawable.ic_action_edit, R.drawable.ic_action_route};
                 long routeID = myRoute.getMyRouteId();
                 String routeName = myRoute.getTitle();
-
-                Log.e(TAG, String.valueOf(myRoute.getMyRouteId()));
 
                 RouteOptionsDialogFragment.newInstance(routeID, routeName, getResources().getStringArray(R.array.my_route_options), menu_icons).show(getActivity().getSupportFragmentManager(), "dialog");
             });

@@ -21,4 +21,7 @@ public interface TravelTimeGroupDao {
     @Query("SELECT * FROM travel_time_trips WHERE title LIKE :query")
     LiveData<List<TravelTimeGroup>> queryTravelTimeGroups(String query);
 
+    @Query("SELECT * FROM travel_time_trips WHERE title IN(:titles)")
+    LiveData<List<TravelTimeGroup>> loadTravelTimeGroupsForTitles(String[] titles);
+
 }

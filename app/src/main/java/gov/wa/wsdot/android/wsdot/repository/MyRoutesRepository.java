@@ -45,7 +45,6 @@ public class MyRoutesRepository {
     private final TravelTimeRepository travelTimeRepo;
     private MutableLiveData<ResourceStatus> mTravelTimeStatus;
 
-
     private static final Double MAX_ITEM_DISTANCE = 0.248548;
 
     @Inject
@@ -97,8 +96,6 @@ public class MyRoutesRepository {
         appExecutors.diskIO().execute(() -> myRouteDao.updateIsStarred(id, isStarred));
     }
 
-
-
     public void findCamerasOnRoute(MutableLiveData<Boolean> foundCameras, Long myRouteId){
 
         appExecutors.diskIO().execute(() -> {
@@ -135,7 +132,7 @@ public class MyRoutesRepository {
         });
     }
 
-    private void findTravelTimesOnRoute(MutableLiveData<Boolean> foundTravelTimes, Long myRouteId){
+    public void findTravelTimesOnRoute(MutableLiveData<Boolean> foundTravelTimes, Long myRouteId){
 
         appExecutors.diskIO().execute(() -> {
 
@@ -143,56 +140,59 @@ public class MyRoutesRepository {
 
             MyRouteEntity route = myRouteDao.getMyRouteForId(myRouteId);
 
+            ArrayList<String> travelTimesOnRouteTitles = new ArrayList<>();
+
+
             try {
                 for (TravelTimeGroup group : groups) {
-                    for (TravelTimeEntity time : group.travelTimes) {
-                        for (LatLng location : ParserUtils.getRouteArrayList(new JSONArray(route.getRouteLocations()))) {
-                            if ((Utils.getDistanceFromPoints(location.latitude, location.longitude,
-                                    time.getStartLatitude(), time.getStartLongitude()) <= MAX_ITEM_DISTANCE)
-                                    && (Utils.getDistanceFromPoints(location.latitude, location.longitude,
-                                    time.getEndLatitude(), time.getEndLongitude()) <= MAX_ITEM_DISTANCE)) {
 
-                                travelTimeRepo.setIsStarred(group.trip.getTitle(), 1);
+                    Boolean routeAtStart = false;
+                    Boolean routeAtEnd = false;
+
+                    for (TravelTimeEntity time : group.travelTimes) {
+
+                        for (LatLng location : ParserUtils.getRouteArrayList(new JSONArray(route.getRouteLocations()))) {
+
+                            if (Utils.getDistanceFromPoints(location.latitude, location.longitude,
+                                    time.getStartLatitude(), time.getStartLongitude()) <= MAX_ITEM_DISTANCE) {
+                                routeAtStart = true;
+                            }
+
+                            if (Utils.getDistanceFromPoints(location.latitude, location.longitude,
+                                    time.getEndLatitude(), time.getEndLongitude()) <= MAX_ITEM_DISTANCE) {
+                                routeAtEnd = true;
                             }
                         }
+
                     }
+
+                    if (routeAtStart && routeAtEnd) {
+                        Log.e(TAG, "found one");
+                        Log.e(TAG, group.trip.getTitle());
+
+                        travelTimesOnRouteTitles.add(group.trip.getTitle());
+                    }
+
                 }
+
             } catch (JSONException e) {
                 Log.e(TAG, "failed to read route json");
             }
 
+
+            JSONArray titlesJSON = new JSONArray(travelTimesOnRouteTitles);
+
+            Log.e(TAG, titlesJSON.toString());
+
+            route.setTravelTimeTitlesJSON(titlesJSON.toString());
+            route.setFoundTravelTimes(1);
+
+            myRouteDao.insertMyRoute(route);
+
+            Log.e(TAG, "found travel times");
             foundTravelTimes.postValue(true);
 
         });
     }
 
-
-    private ArrayList<FerriesTerminalItem> getTerminals(String datesString) {
-        ArrayList<FerriesTerminalItem> terminalItems = new ArrayList<>();
-        FerriesTerminalItem terminal;
-
-        try {
-            JSONArray dates = new JSONArray(datesString);
-            int numDates = dates.length();
-            for (int j = 0; j < numDates; j++) {
-                JSONObject date = dates.getJSONObject(j);
-
-                JSONArray sailings = date.getJSONArray("Sailings");
-                int numSailings = sailings.length();
-                for (int k=0; k < numSailings; k++) {
-                    JSONObject sailing = sailings.getJSONObject(k);
-                    terminal = new FerriesTerminalItem();
-                    terminal.setArrivingTerminalID(sailing.getInt("ArrivingTerminalID"));
-                    terminal.setArrivingTerminalName(sailing.getString("ArrivingTerminalName"));
-                    terminal.setDepartingTerminalID(sailing.getInt("DepartingTerminalID"));
-                    terminal.setDepartingTerminalName(sailing.getString("DepartingTerminalName"));
-
-                    terminalItems.add(terminal);
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error adding schedule date items", e);
-        }
-        return terminalItems;
-    }
 }

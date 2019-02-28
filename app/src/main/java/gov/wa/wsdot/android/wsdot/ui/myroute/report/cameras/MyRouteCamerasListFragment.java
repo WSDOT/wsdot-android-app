@@ -3,11 +3,11 @@ package gov.wa.wsdot.android.wsdot.ui.myroute.report.cameras;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
@@ -29,10 +30,13 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
 import gov.wa.wsdot.android.wsdot.util.CameraImageAdapter;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class MyRouteCamerasListFragment extends BaseFragment implements Injectable {
+public class MyRouteCamerasListFragment extends BaseFragment implements
+        Injectable,
+        SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = MyRouteCamerasListFragment.class.getSimpleName();
 
+    private static SwipeRefreshLayout swipeRefreshLayout;
     private View mEmptyView;
 
     private long mRouteId = -1;
@@ -59,7 +63,7 @@ public class MyRouteCamerasListFragment extends BaseFragment implements Injectab
             }
         }
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_progress_bar, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -77,10 +81,34 @@ public class MyRouteCamerasListFragment extends BaseFragment implements Injectab
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(
+                R.color.holo_blue_bright,
+                R.color.holo_green_light,
+                R.color.holo_orange_light,
+                R.color.holo_red_light);
+
         mEmptyView = root.findViewById(R.id.empty_list_view);
 
         myRouteViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
         cameraViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteCamerasViewModel.class);
+
+        cameraViewModel.getResourceStatus().observe(this, resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
         myRouteViewModel.loadMyRoute(mRouteId).observe(this, myRoute -> {
             if (myRoute != null){
@@ -150,5 +178,10 @@ public class MyRouteCamerasListFragment extends BaseFragment implements Injectab
                     }
             );
         }
+    }
+
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+        cameraViewModel.forceRefreshCameras();
     }
 }

@@ -25,6 +25,7 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts.MyRouteAlertsListFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.report.MyRouteReportFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.report.cameras.MyRouteCamerasListFragment;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.traveltimes.MyRouteTravelTimesFragment;
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.I405TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.SR167TollRatesFragment;
@@ -148,5 +149,8 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract MyRouteCamerasListFragment contributeMyRouteCamerasListFragment();
+
+    @ContributesAndroidInjector
+    abstract MyRouteTravelTimesFragment contributeMyRouteTravelTimesFragment();
 
 }

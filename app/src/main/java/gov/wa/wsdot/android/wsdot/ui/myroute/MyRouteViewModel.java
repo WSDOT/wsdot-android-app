@@ -17,12 +17,15 @@ public class MyRouteViewModel extends ViewModel {
     private MyRoutesRepository myRoutesRepo;
 
     private MutableLiveData<Boolean> foundCameras;
+    private MutableLiveData<Boolean> foundTravelTimes;
+
     private LiveData<List<MyRouteEntity>> myRoutes;
 
     @Inject
     MyRouteViewModel(MyRoutesRepository myRoutesRepo) {
         this.myRoutesRepo = myRoutesRepo;
         foundCameras = new MutableLiveData<>();
+        foundTravelTimes = new MutableLiveData<>();
     }
 
     public LiveData<List<MyRouteEntity>> loadMyRoutes() {
@@ -51,6 +54,10 @@ public class MyRouteViewModel extends ViewModel {
 
     public void findCamerasOnRoute(Long myRouteId) {
         myRoutesRepo.findCamerasOnRoute(foundCameras, myRouteId);
+    }
+
+    public void findTravelTimesOnRoute(Long myRouteId) {
+        myRoutesRepo.findTravelTimesOnRoute(foundTravelTimes, myRouteId);
     }
 
     void resetFindCameras() { foundCameras.setValue(false); }

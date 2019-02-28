@@ -214,7 +214,7 @@
         <activity
             android:name=".ui.myroute.newroute.NewRouteActivity"
             android:label="@string/title_activity_new_route" />
-        <activity android:name=".ui.myroute.myroutealerts.MyRouteAlertsListActivity" />
+
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings" />
