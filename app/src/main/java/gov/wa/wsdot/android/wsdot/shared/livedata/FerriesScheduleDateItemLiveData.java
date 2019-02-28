@@ -1,22 +1,20 @@
 package gov.wa.wsdot.android.wsdot.shared.livedata;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import android.os.AsyncTask;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationIndexesItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesAnnotationsItem;

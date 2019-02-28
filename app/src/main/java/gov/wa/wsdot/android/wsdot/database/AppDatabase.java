@@ -1,15 +1,15 @@
 package gov.wa.wsdot.android.wsdot.database;
 
-import androidx.sqlite.db.SupportSQLiteDatabase;
+import android.content.Context;
+import android.provider.BaseColumns;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
-import android.content.Context;
-import android.provider.BaseColumns;
-import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
-
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;

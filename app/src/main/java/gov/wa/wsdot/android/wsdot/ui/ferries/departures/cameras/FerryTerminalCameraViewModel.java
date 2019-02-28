@@ -1,23 +1,22 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.departures.cameras;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.repository.CameraRepository;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.ui.camera.MapCameraViewModel;
 import gov.wa.wsdot.android.wsdot.ui.ferries.helpers.FerryHelper;
-import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 
 public class FerryTerminalCameraViewModel extends ViewModel {
 

@@ -1,13 +1,12 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-
 import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.repository.HighwayAlertRepository;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;

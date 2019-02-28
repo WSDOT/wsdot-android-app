@@ -22,8 +22,8 @@ import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemCam
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemForecastFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemReportFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteFragment;
-import gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts.MyRouteAlertsListFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.report.MyRouteReportFragment;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts.MyRouteAlertsListFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.report.cameras.MyRouteCamerasListFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.report.traveltimes.MyRouteTravelTimesFragment;
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsFragment;

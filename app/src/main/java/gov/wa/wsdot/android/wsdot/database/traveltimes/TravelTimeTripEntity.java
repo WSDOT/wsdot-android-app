@@ -1,9 +1,9 @@
 package gov.wa.wsdot.android.wsdot.database.traveltimes;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import androidx.annotation.NonNull;
 
 @Entity(tableName = "travel_time_trips")
 public class TravelTimeTripEntity {

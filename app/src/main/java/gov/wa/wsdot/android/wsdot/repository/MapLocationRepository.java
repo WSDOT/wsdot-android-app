@@ -1,12 +1,11 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import androidx.lifecycle.LiveData;
-
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import androidx.lifecycle.LiveData;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationDao;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;

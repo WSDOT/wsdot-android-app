@@ -1,14 +1,13 @@
 package gov.wa.wsdot.android.wsdot.ui.home;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-
 import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
@@ -17,7 +16,6 @@ import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.repository.BorderWaitRepository;
 import gov.wa.wsdot.android.wsdot.repository.CameraRepository;
 import gov.wa.wsdot.android.wsdot.repository.FerryScheduleRepository;

@@ -1,9 +1,5 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -19,6 +15,10 @@ import java.util.TimeZone;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryTerminalSailingSpacesEntity;
 import gov.wa.wsdot.android.wsdot.repository.FerryTerminalSpaceRepository;
 import gov.wa.wsdot.android.wsdot.repository.VesselWatchRepository;

@@ -1,9 +1,8 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute.newroute;
 
-import androidx.lifecycle.ViewModel;
-
 import javax.inject.Inject;
 
+import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.repository.MyRoutesRepository;
 

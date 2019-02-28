@@ -1,9 +1,10 @@
 package gov.wa.wsdot.android.wsdot.database.highwayalerts;
 
+import android.provider.BaseColumns;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import android.provider.BaseColumns;
 
 @Entity(tableName = "highway_alerts")
 public class HighwayAlertEntity {

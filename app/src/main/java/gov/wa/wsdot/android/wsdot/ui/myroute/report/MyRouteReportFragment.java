@@ -26,7 +26,6 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts.MyRouteAlertsListFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.report.cameras.MyRouteCamerasListFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.report.traveltimes.MyRouteTravelTimesFragment;
-import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesFragment;
 
 public class MyRouteReportFragment extends BaseFragment implements Injectable {
 

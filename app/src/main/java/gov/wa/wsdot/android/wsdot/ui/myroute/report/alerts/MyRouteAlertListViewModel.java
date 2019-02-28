@@ -1,10 +1,5 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
-import androidx.lifecycle.ViewModel;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,10 +9,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
+import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.repository.HighwayAlertRepository;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
-import gov.wa.wsdot.android.wsdot.shared.livedata.HighwayAlertsItemLiveData;
 import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.Utils;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;

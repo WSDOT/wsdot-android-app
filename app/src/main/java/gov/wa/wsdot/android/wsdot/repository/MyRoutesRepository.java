@@ -1,16 +1,11 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.annotation.VisibleForTesting;
 import android.util.Log;
-import android.util.SparseArray;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,18 +13,18 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import androidx.annotation.VisibleForTesting;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
-import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
-import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
-import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
-import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.Utils;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 
 @Singleton
 public class MyRoutesRepository {

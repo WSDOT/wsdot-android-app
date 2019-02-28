@@ -1,10 +1,11 @@
 package gov.wa.wsdot.android.wsdot.ui.widget;
 
 import android.content.Context;
-import androidx.viewpager.widget.ViewPager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 /**
  * Created by simsl on 2/16/16.

@@ -1,16 +1,11 @@
 package gov.wa.wsdot.android.wsdot.database.myroute;
 
+import android.provider.BaseColumns;
+
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import android.provider.BaseColumns;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
 
 @Entity(tableName = "my_route")
 public class MyRouteEntity {

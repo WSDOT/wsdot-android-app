@@ -1,8 +1,9 @@
 package gov.wa.wsdot.android.wsdot.util.decoration;
 
 import android.graphics.Rect;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Class for adding padding betweeen items in a gridlayout.

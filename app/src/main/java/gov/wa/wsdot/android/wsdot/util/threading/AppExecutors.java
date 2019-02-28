@@ -3,13 +3,13 @@ package gov.wa.wsdot.android.wsdot.util.threading;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import androidx.annotation.NonNull;
 
 /**
  * Global executor pools for the whole application.

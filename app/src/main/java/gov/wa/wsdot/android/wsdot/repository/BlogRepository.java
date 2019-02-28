@@ -1,6 +1,5 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import androidx.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -19,11 +18,12 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import androidx.lifecycle.MutableLiveData;
 import gov.wa.wsdot.android.wsdot.shared.BlogItem;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
-import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.ParserUtils;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 
 @Singleton
 public class BlogRepository extends NetworkResourceRepository {

@@ -24,10 +24,6 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
-import androidx.loader.content.AsyncTaskLoader;
-import androidx.loader.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +40,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.loader.content.AsyncTaskLoader;
+import androidx.loader.content.Loader;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 

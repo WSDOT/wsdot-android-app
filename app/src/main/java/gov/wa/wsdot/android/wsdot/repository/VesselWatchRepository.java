@@ -1,7 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
 import android.annotation.SuppressLint;
-import androidx.lifecycle.MutableLiveData;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,11 +21,12 @@ import java.util.Locale;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import androidx.lifecycle.MutableLiveData;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.VesselWatchItem;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
-import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 
 @Singleton
 public class VesselWatchRepository extends NetworkResourceRepository {

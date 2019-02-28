@@ -1,9 +1,9 @@
 package gov.wa.wsdot.android.wsdot.database.traveltimes;
 
+import java.util.List;
+
 import androidx.room.Embedded;
 import androidx.room.Relation;
-
-import java.util.List;
 
 /**
  *  POJO used by Room for retrieving a TravelTimeTripEntity with all of it's associated TravelTimeEntities.

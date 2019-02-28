@@ -21,7 +21,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 
 import com.google.android.gms.ads.AdListener;
@@ -29,6 +28,7 @@ import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
 import com.google.android.gms.ads.doubleclick.PublisherAdView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import androidx.appcompat.app.AppCompatActivity;
 import gov.wa.wsdot.android.wsdot.R;
 
 public abstract class BaseActivity extends AppCompatActivity {

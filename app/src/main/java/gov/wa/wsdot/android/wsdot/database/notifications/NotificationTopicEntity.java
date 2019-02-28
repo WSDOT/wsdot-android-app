@@ -1,9 +1,9 @@
 package gov.wa.wsdot.android.wsdot.database.notifications;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import androidx.annotation.NonNull;
 
 @Entity(tableName = "notification_topic")
 public class NotificationTopicEntity {

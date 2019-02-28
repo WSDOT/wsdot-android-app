@@ -1,9 +1,8 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap;
 
-import androidx.lifecycle.ViewModel;
-
 import javax.inject.Inject;
 
+import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.repository.MapLocationRepository;
 

@@ -1,14 +1,14 @@
 package gov.wa.wsdot.android.wsdot.shared.livedata;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import android.os.AsyncTask;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;

@@ -1,9 +1,10 @@
 package gov.wa.wsdot.android.wsdot.database.caches;
 
+import android.provider.BaseColumns;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import android.provider.BaseColumns;
 
 @Entity(tableName = "caches")
 public class CacheEntity {

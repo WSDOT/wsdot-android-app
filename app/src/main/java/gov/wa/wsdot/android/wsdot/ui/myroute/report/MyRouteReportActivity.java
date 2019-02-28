@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 
-import androidx.appcompat.widget.Toolbar;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -30,6 +28,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import dagger.android.AndroidInjection;

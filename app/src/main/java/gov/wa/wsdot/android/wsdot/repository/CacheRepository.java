@@ -1,11 +1,10 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import androidx.annotation.VisibleForTesting;
-import androidx.annotation.WorkerThread;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 

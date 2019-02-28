@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.util;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+
 import androidx.fragment.app.DialogFragment;
 
 public class ProgressDialogFragment extends DialogFragment {

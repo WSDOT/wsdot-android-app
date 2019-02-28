@@ -1,18 +1,17 @@
 package gov.wa.wsdot.android.wsdot.migration;
 
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
-import androidx.room.Room;
-import androidx.room.testing.MigrationTestHelper;
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.platform.app.InstrumentationRegistry;
-
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
 
+import androidx.room.Room;
+import androidx.room.testing.MigrationTestHelper;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.platform.app.InstrumentationRegistry;
 import gov.wa.wsdot.android.wsdot.database.AppDatabase;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;

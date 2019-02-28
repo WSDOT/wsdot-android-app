@@ -2,7 +2,6 @@ package gov.wa.wsdot.android.wsdot.di;
 
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
@@ -21,8 +20,8 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchV
 import gov.wa.wsdot.android.wsdot.ui.home.FavoritesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
-import gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts.MyRouteAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts.MyRouteAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.report.cameras.MyRouteCamerasViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.report.traveltimes.MyRouteTravelTimesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsViewModel;

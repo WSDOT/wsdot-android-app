@@ -1,10 +1,11 @@
 package gov.wa.wsdot.android.wsdot.database.cameras;
 
+import android.provider.BaseColumns;
+
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import android.provider.BaseColumns;
-import androidx.annotation.NonNull;
 
 @Entity(tableName = "cameras")
 public class CameraEntity {
