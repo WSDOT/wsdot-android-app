@@ -102,7 +102,6 @@ public class HighwayAlertRepository extends NetworkResourceSyncRepository {
             alert.setRoadName(startRoadwayLocation.getString("RoadName"));
             alert.setLastUpdated(dateFormat.format(new Date(Long.parseLong(item
                     .getString("LastUpdatedTime").substring(6, 19)))));
-
             highwayAlerts.add(alert);
         }
 

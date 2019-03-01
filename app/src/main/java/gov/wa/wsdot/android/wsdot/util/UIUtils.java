@@ -46,10 +46,6 @@ public class UIUtils {
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
                 >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
-
-    public static boolean isHoneycombTablet(Context context) {
-        return isHoneycomb() && isTablet(context);
-    }
     
 	/*
 	 * On Android 2.3.x and lower, the system calls onPrepareOptionsMenu() each
@@ -118,17 +114,6 @@ public class UIUtils {
 				// Simply ignore. This is a hack anyways.
 			}
 		}
-	}
-	
-	public static boolean isNetworkAvailable(Context context) {
-	    ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-	    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-
-	    if (networkInfo != null && networkInfo.isConnected()) {
-	        return true;
-	    }
-
-	    return false;
 	}
 	
 }
