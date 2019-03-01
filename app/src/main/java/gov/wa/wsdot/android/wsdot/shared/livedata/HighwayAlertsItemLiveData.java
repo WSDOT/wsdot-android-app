@@ -3,6 +3,8 @@ package gov.wa.wsdot.android.wsdot.shared.livedata;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import android.os.AsyncTask;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -27,6 +29,8 @@ import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
  */
 public class HighwayAlertsItemLiveData extends LiveData<List<HighwayAlertsItem>>
         implements Observer<List<HighwayAlertEntity>> {
+
+    final private String TAG = HighwayAlertsItemLiveData.class.getSimpleName();
 
     @NonNull
     private LiveData<List<HighwayAlertEntity>> sourceLiveData;
@@ -87,7 +91,7 @@ public class HighwayAlertsItemLiveData extends LiveData<List<HighwayAlertsItem>>
         int constructionHigh = R.drawable.construction_high;
         int constructionMedium = R.drawable.construction_moderate;
         int constructionLow = R.drawable.construction_low;
-        int defaultAlertImage = alertHighest;
+        int weather = R.drawable.weather;
 
         // Types of categories which result in one icon or another being displayed.
         String[] event_closure = {"closed", "closure"};
@@ -102,7 +106,7 @@ public class HighwayAlertsItemLiveData extends LiveData<List<HighwayAlertsItem>>
         Set<Map.Entry<String, String[]>> set = eventCategories.entrySet();
         Iterator<Map.Entry<String, String[]>> i = set.iterator();
 
-        if (category.equals("")) return defaultAlertImage;
+        if (category.equals("")) return alertMedium;
 
         while(i.hasNext()) {
             Map.Entry<String, String[]> me = i.next();
@@ -118,6 +122,7 @@ public class HighwayAlertsItemLiveData extends LiveData<List<HighwayAlertsItem>>
                     if (keyWord.equalsIgnoreCase("closure")) {
                         return alertClosed;
                     } else if (keyWord.equalsIgnoreCase("construction")) {
+
                         if (priority.equalsIgnoreCase("highest")) {
                             return constructionHighest;
                         } else if (priority.equalsIgnoreCase("high")) {
@@ -128,6 +133,8 @@ public class HighwayAlertsItemLiveData extends LiveData<List<HighwayAlertsItem>>
                                 || priority.equalsIgnoreCase("lowest")) {
                             return constructionLow;
                         }
+                    } else if (keyWord.equalsIgnoreCase("road report")) {
+                        return weather;
                     }
                 }
             }
@@ -145,6 +152,6 @@ public class HighwayAlertsItemLiveData extends LiveData<List<HighwayAlertsItem>>
             return alertLow;
         }
 
-        return defaultAlertImage;
+        return alertMedium;
     }
 }

@@ -52,7 +52,6 @@ public class MapHighwayAlertViewModel extends ViewModel {
                 displayedAlertItems.postValue(filterDisplayedAlertsFor(mapBounds.getValue(), alertsItems));
             }
         });
-
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
@@ -81,5 +80,4 @@ public class MapHighwayAlertViewModel extends ViewModel {
         }
         return displayedAlertItems;
     }
-
 }
