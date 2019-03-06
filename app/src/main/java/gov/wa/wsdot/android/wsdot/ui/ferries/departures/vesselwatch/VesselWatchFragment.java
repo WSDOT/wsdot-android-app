@@ -1,16 +1,12 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch;
 
 import android.Manifest;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +21,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +33,9 @@ import java.util.TimerTask;
 
 import javax.inject.Inject;
 
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;

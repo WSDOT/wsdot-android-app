@@ -1,10 +1,11 @@
 package gov.wa.wsdot.android.wsdot.database.traveltimes;
 
+import android.provider.BaseColumns;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
-import android.provider.BaseColumns;
 
 @Entity(tableName = "travel_times",
         foreignKeys = @ForeignKey(entity = TravelTimeTripEntity.class,

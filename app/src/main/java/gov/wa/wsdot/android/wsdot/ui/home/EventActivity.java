@@ -3,10 +3,10 @@ package gov.wa.wsdot.android.wsdot.ui.home;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 

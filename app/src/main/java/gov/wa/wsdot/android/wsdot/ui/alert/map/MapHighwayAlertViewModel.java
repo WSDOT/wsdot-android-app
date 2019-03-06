@@ -1,10 +1,5 @@
 package gov.wa.wsdot.android.wsdot.ui.alert.map;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -13,6 +8,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.repository.HighwayAlertRepository;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
 import gov.wa.wsdot.android.wsdot.shared.livedata.HighwayAlertsItemLiveData;

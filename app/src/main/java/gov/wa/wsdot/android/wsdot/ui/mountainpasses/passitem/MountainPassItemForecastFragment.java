@@ -18,12 +18,8 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +34,10 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.ForecastItem;

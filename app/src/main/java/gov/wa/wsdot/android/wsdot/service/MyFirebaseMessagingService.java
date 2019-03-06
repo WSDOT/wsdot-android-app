@@ -22,10 +22,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.core.app.TaskStackBuilder;
-import androidx.core.content.ContextCompat;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -34,6 +30,10 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.ArrayList;
 import java.util.Map;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.TaskStackBuilder;
+import androidx.core.content.ContextCompat;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.alert.detail.HighwayAlertDetailsActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.bulletins.FerriesRouteAlertsBulletinDetailsActivity;

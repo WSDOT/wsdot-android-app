@@ -2,7 +2,6 @@ package gov.wa.wsdot.android.wsdot.util.network;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import gov.wa.wsdot.android.wsdot.repository.NetworkResourceSyncRepository;
 
 import static gov.wa.wsdot.android.wsdot.util.network.Status.ERROR;

@@ -1,8 +1,6 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute.newroute;
 
 import android.Manifest;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -19,15 +17,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.view.MenuItem;
@@ -38,6 +27,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -47,6 +37,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 
@@ -56,6 +47,15 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
@@ -64,6 +64,7 @@ import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.util.ProgressDialogFragment;
 
 import static android.view.View.GONE;
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 import static gov.wa.wsdot.android.wsdot.util.ParserUtils.convertLocationsToJson;
 
 public class NewRouteActivity extends BaseActivity implements
@@ -212,48 +213,6 @@ public class NewRouteActivity extends BaseActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    private void showAddFavoritesDialog(Long myRouteId) {
-
-        new AlertDialog.Builder(NewRouteActivity.this, R.style.AppCompatAlertDialogStyle)
-                .setTitle("Add Favorites?")
-                .setMessage("Traffic cameras, travel times, pass reports, and other content will " +
-                        "be added to your favorites if they are on this route. " +
-                        "\n\n You can do this later by tapping the settings button next to your route.")
-                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-
-                    progressDialog = new ProgressDialogFragment();
-                    Bundle args = new Bundle();
-                    args.putString("message", "Finding Favorites...");
-                    progressDialog.setArguments(args);
-                    progressDialog.show(getSupportFragmentManager(), "progress_dialog");
-
-                    viewModel.getFoundFavorites().observe(this, foundFavorites -> {
-                        if (foundFavorites != null){
-                            if (foundFavorites) {
-                                progressDialog.dismiss();
-                                showStartView();
-                                mMap.clear();
-                                moveToCurrentLocation();
-                                Snackbar.make(findViewById(android.R.id.content), "Route Successfully Saved", Snackbar.LENGTH_LONG)
-                                        .show();
-                            }
-                        }
-                    });
-
-                    viewModel.findFavoritesOnRoute(myRouteId);
-
-                })
-
-                .setNegativeButton("NOT NOW", (dialog, which) -> {
-                    showStartView();
-                    mMap.clear();
-                    moveToCurrentLocation();
-                    Snackbar.make(findViewById(android.R.id.content), "Route Successfully Saved", Snackbar.LENGTH_LONG)
-                            .show();
-                })
-                .show();
-    }
-
     private void initStartButton(){
         Button startButton = findViewById(R.id.start_button);
 
@@ -352,7 +311,12 @@ public class NewRouteActivity extends BaseActivity implements
 
                 viewModel.addMyRoute(myRoute);
 
-                showAddFavoritesDialog(myRoute.getMyRouteId());
+                Snackbar.make(findViewById(android.R.id.content), "Route Successfully Saved", Snackbar.LENGTH_LONG)
+                        .show();
+
+                showStartView();
+                mMap.clear();
+                moveToCurrentLocation();
             });
             builder.show();
         });
@@ -443,6 +407,8 @@ public class NewRouteActivity extends BaseActivity implements
 
         LatLng latLng = new LatLng(47.5990, -122.3350);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+
+        moveToCurrentLocation();
 
         requestLocationPermission();
     }
@@ -561,17 +527,22 @@ public class NewRouteActivity extends BaseActivity implements
     }
 
     private void moveToCurrentLocation() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            Location location = LocationServices.FusedLocationApi
-                    .getLastLocation(mGoogleApiClient);
-            if (location != null) {
-                Log.d(TAG, location.toString());
-                double currentLatitude = location.getLatitude();
-                double currentLongitude = location.getLongitude();
-                LatLng latLng = new LatLng(currentLatitude, currentLongitude);
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
-            }
+        if (ContextCompat.checkSelfPermission(NewRouteActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            // Get last known recent location using new Google Play Services SDK (v11+)
+            FusedLocationProviderClient locationClient = getFusedLocationProviderClient(this);
+            locationClient.getLastLocation()
+                    .addOnSuccessListener(location -> {
+                        if (location != null) {
+                            double currentLatitude = location.getLatitude();
+                            double currentLongitude = location.getLongitude();
+                            LatLng latLng = new LatLng(currentLatitude, currentLongitude);
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.d(TAG, "Error trying to get last GPS location");
+                        e.printStackTrace();
+                    });
         }
     }
 

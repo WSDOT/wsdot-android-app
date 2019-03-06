@@ -18,15 +18,10 @@
 
 package gov.wa.wsdot.android.wsdot.ui.home;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.Nullable;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +36,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;

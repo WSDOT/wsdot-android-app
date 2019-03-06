@@ -1,19 +1,20 @@
 package gov.wa.wsdot.android.wsdot.ui.camera;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.viewpager.widget.ViewPager;
 import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;

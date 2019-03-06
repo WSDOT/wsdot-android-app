@@ -18,8 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,10 +26,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
@@ -44,6 +38,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,6 +49,11 @@ import java.util.TimerTask;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignEntity;

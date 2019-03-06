@@ -1,12 +1,8 @@
 package gov.wa.wsdot.android.wsdot.ui.notifications;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +14,7 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -26,6 +23,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.RecyclerView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;

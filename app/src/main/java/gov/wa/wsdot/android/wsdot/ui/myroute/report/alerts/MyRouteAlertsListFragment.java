@@ -1,13 +1,8 @@
-package gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts;
+package gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +22,11 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.shared.HighwayAlertsItem;
@@ -61,6 +61,8 @@ public class MyRouteAlertsListFragment extends BaseFragment
 
     private static MyRouteAlertListViewModel viewModel;
 
+    private String routeString = "";
+
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
@@ -76,7 +78,7 @@ public class MyRouteAlertsListFragment extends BaseFragment
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new MyRouteAlertsListFragment.Adapter();
 
@@ -95,9 +97,12 @@ public class MyRouteAlertsListFragment extends BaseFragment
                 R.color.holo_orange_light,
                 R.color.holo_red_light);
 
+        Intent intent = getActivity().getIntent();
+        routeString = intent.getStringExtra("route");
+
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteAlertListViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -113,12 +118,7 @@ public class MyRouteAlertsListFragment extends BaseFragment
             }
         });
 
-        //Retrieve the bounds from the intent. Defaults to 0
-        Intent intent = getActivity().getIntent();
-
-        String routeString = intent.getStringExtra("route");
-
-        viewModel.getHighwayAlertsInBounds(routeString).observe(this, alerts -> {
+        viewModel.getHighwayAlertsInBounds(routeString).observe(getViewLifecycleOwner(), alerts -> {
             if (alerts != null) {
                 trafficAlertItems = new ArrayList<>(alerts);
                 mAdapter.clear();
@@ -127,6 +127,12 @@ public class MyRouteAlertsListFragment extends BaseFragment
         });
 
         return root;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        viewModel.forceRefreshHighwayAlerts();
     }
 
     /**
@@ -293,8 +299,9 @@ public class MyRouteAlertsListFragment extends BaseFragment
 
         @Override
         public int getItemCount() {
-                return mData.size();
-            }
+            return mData.size();
+        }
+
     }
 
     /**

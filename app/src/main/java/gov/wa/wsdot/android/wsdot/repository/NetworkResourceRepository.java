@@ -1,10 +1,10 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import androidx.lifecycle.MutableLiveData;
 import android.util.Log;
 
-import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
+import androidx.lifecycle.MutableLiveData;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 
 /**
  *  Abstract class for repos that require network data.

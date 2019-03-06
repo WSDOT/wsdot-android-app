@@ -27,10 +27,11 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.os.Handler;
-import androidx.recyclerview.widget.RecyclerView;
 import android.widget.Filter;
 import android.widget.FilterQueryProvider;
 import android.widget.Filterable;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Provide a {@link RecyclerView.Adapter} implementation with cursor

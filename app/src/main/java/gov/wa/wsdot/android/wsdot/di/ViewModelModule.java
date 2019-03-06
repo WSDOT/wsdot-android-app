@@ -2,7 +2,6 @@ package gov.wa.wsdot.android.wsdot.di;
 
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
@@ -21,8 +20,10 @@ import gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchV
 import gov.wa.wsdot.android.wsdot.ui.home.FavoritesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.MountainPassViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteViewModel;
-import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertListViewModel;
 import gov.wa.wsdot.android.wsdot.ui.myroute.newroute.NewRouteViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts.MyRouteAlertListViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.cameras.MyRouteCamerasViewModel;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.traveltimes.MyRouteTravelTimesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsViewModel;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.TollRatesViewModel;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.FavoriteMapLocationViewModel;
@@ -162,6 +163,16 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(MyRouteViewModel.class)
     abstract ViewModel bindMyRouteViewModel(MyRouteViewModel myRouteViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MyRouteCamerasViewModel.class)
+    abstract ViewModel bindMyRouteCamerasViewModel(MyRouteCamerasViewModel myRouteCamerasViewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MyRouteTravelTimesViewModel.class)
+    abstract ViewModel bindMyRouteTravelTimesViewModel(MyRouteTravelTimesViewModel myRouteTravelTimesViewModel);
 
     @Binds
     @IntoMap

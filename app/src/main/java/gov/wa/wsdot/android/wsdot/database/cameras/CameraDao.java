@@ -1,16 +1,19 @@
 package gov.wa.wsdot.android.wsdot.database.cameras;
 
+import java.util.List;
+
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.RawQuery;
 import androidx.room.Transaction;
-
-import java.util.List;
+import androidx.sqlite.db.SupportSQLiteQuery;
 
 @Dao
 public abstract class CameraDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void insertCameras(CameraEntity... cameras);
 
@@ -22,6 +25,10 @@ public abstract class CameraDao {
 
     @Query("SELECT * FROM cameras WHERE id LIKE :cameraId")
     public abstract LiveData<CameraEntity> loadCamera(Integer cameraId);
+
+    // Need to build our own query
+    @RawQuery(observedEntities = CameraEntity.class)
+    public abstract LiveData<List<CameraEntity>> loadCamerasForIds(SupportSQLiteQuery query);
 
     @Query("SELECT * FROM cameras WHERE road_name LIKE :roadName")
     public abstract LiveData<List<CameraEntity>> loadCamerasForRoad(String roadName);
@@ -37,6 +44,7 @@ public abstract class CameraDao {
 
     @Query("DELETE FROM cameras")
     public abstract void deleteAll();
+
 
     @Transaction
     public void deleteAndInsertTransaction(CameraEntity... cameras) {

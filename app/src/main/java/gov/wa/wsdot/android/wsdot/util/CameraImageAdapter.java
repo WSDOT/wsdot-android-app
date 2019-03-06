@@ -1,7 +1,6 @@
 package gov.wa.wsdot.android.wsdot.util;
 
 import android.content.Context;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +9,7 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 
+import androidx.recyclerview.widget.RecyclerView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 
@@ -67,7 +67,7 @@ public abstract class CameraImageAdapter extends RecyclerView.Adapter<CameraImag
 
         public CameraViewHolder(View itemView) {
             super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.image);
+            image = itemView.findViewById(R.id.image);
         }
 
         public void setImageTag (String tag){

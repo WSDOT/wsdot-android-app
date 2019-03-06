@@ -1,11 +1,5 @@
 package gov.wa.wsdot.android.wsdot.ui.camera;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-import androidx.annotation.Nullable;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -14,6 +8,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.repository.CameraRepository;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.shared.livedata.CameraItemLiveData;
@@ -54,9 +53,9 @@ public class MapCameraViewModel extends ViewModel {
             }
         });
 
-        displayedCameraItems.addSource(displayableCameraItems, alertsItems -> {
+        displayedCameraItems.addSource(displayableCameraItems, cameraItems -> {
             if (mapBounds.getValue() != null) {
-                displayedCameraItems.postValue(filterDisplayedCamerasFor(mapBounds.getValue(), alertsItems));
+                displayedCameraItems.postValue(filterDisplayedCamerasFor(mapBounds.getValue(), cameraItems));
             }
         });
     }

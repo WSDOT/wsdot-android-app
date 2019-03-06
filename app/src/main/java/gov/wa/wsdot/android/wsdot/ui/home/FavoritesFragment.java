@@ -17,21 +17,12 @@
  */
 package gov.wa.wsdot.android.wsdot.ui.home;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,6 +35,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +47,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
@@ -66,12 +66,11 @@ import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
-import gov.wa.wsdot.android.wsdot.provider.WSDOTContract;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.ui.camera.CameraViewPagerActivity;
 import gov.wa.wsdot.android.wsdot.ui.ferries.departures.FerriesRouteSchedulesDayDeparturesActivity;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemActivity;
-import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.MyRouteReportActivity;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.I405TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.SR167TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
@@ -833,42 +832,20 @@ public class FavoritesFragment extends BaseFragment implements
 
                 viewholder.title.setTag(myRoute.getMyRouteId());
 
-                viewholder.lng = myRoute.getLatitude();
-                viewholder.lat = myRoute.getLongitude();
-                viewholder.zoom = myRoute.getZoom();
+                // Set onClickListener for holder's view
+                viewholder.view.setOnClickListener(
+                        v -> {
+                            Bundle b = new Bundle();
+                            b.putLong("route_id", myRoute.getMyRouteId());
+                            b.putString("route_name", myRoute.getTitle());
+                            b.putString("route", myRoute.getRouteLocations());
+                            Intent intent = new Intent(getActivity(), MyRouteReportActivity.class);
+                            intent.putExtras(b);
+                            startActivity(intent);
+                        }
+                );
 
-                viewholder.alerts_button.setTag(position);
-                viewholder.alerts_button.setContentDescription("Check alerts on route");
-                viewholder.alerts_button.setOnClickListener(v -> {
 
-                    MyLogger.crashlyticsLog("Home", "Tap", "Check MyRoute Alerts", 1);
-
-                    Bundle b = new Bundle();
-
-                    Intent intent = new Intent(getActivity(), MyRouteAlertsListActivity.class);
-
-                    b.putString("title", "Alerts on Route: " + myRoute.getTitle());
-                    b.putString("route", myRoute.getRouteLocations());
-
-                    intent.putExtras(b);
-                    startActivity(intent);
-                });
-
-                viewholder.map_button.setTag(position);
-                viewholder.map_button.setContentDescription("Check map for route");
-                viewholder.map_button.setOnClickListener(v -> {
-
-                    Bundle b = new Bundle();
-
-                    Intent intent = new Intent(getActivity(), TrafficMapActivity.class);
-
-                    b.putDouble("lat", myRoute.getLatitude());
-                    b.putDouble("long", myRoute.getLongitude());
-                    b.putInt("zoom", myRoute.getZoom());
-
-                    intent.putExtras(b);
-                    startActivity(intent);
-                });
             } else {
                 MyLogger.crashlyticsLog("Home", "Error", "FavoritesFragment: No view holder for type: " + holder.getClass().getName(), 1);
                 Log.i(TAG, "No view holder for type: " + holder.getClass().getName()); //TODO
@@ -1244,17 +1221,12 @@ public class FavoritesFragment extends BaseFragment implements
 
     private class MyRouteViewHolder extends  RecyclerView.ViewHolder {
         TextView title;
-        ImageButton alerts_button;
-        ImageButton map_button;
-        int zoom;
-        double lat;
-        double lng;
+        public View view;
 
-        public MyRouteViewHolder(View view){
-            super(view);
-            title = view.findViewById(R.id.title);
-            alerts_button = view.findViewById(R.id.alert_button);
-            map_button = view.findViewById(R.id.map_button);
+        public MyRouteViewHolder(View itemView){
+            super(itemView);
+            view = itemView;
+            title = itemView.findViewById(R.id.title);
         }
     }
 

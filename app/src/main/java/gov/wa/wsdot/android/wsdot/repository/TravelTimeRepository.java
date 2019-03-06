@@ -1,7 +1,5 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import android.text.format.DateUtils;
 
 import org.json.JSONArray;
@@ -17,7 +15,11 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
+import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
+import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
@@ -25,8 +27,8 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroupDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
-import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 
 @Singleton
 public class TravelTimeRepository  extends NetworkResourceSyncRepository {
@@ -37,16 +39,20 @@ public class TravelTimeRepository  extends NetworkResourceSyncRepository {
     private final TravelTimeTripDao travelTimeTripDao;
     private final TravelTimeGroupDao travelTimeGroupDao;
 
+    private final MyRouteDao myRouteDao;
+
     @Inject
     public TravelTimeRepository(TravelTimeDao travelTimeDao,
                                 TravelTimeTripDao travelTimeTripDao,
                                 TravelTimeGroupDao travelTimeGroupDao,
+                                MyRouteDao myRouteDao,
                                 AppExecutors appExecutors, CacheRepository cacheRepository) {
 
         super(appExecutors, cacheRepository, (15 * DateUtils.MINUTE_IN_MILLIS), "travel_times");
         this.travelTimeDao = travelTimeDao;
         this.travelTimeTripDao = travelTimeTripDao;
         this.travelTimeGroupDao = travelTimeGroupDao;
+        this.myRouteDao = myRouteDao;
     }
 
     public LiveData<List<TravelTimeGroup>> loadTravelTimeGroups(MutableLiveData<ResourceStatus> status) {
@@ -64,19 +70,14 @@ public class TravelTimeRepository  extends NetworkResourceSyncRepository {
         return travelTimeGroupDao.queryTravelTimeGroups(query);
     }
 
-    /*
-
-    public LiveData<TravelTimeEntity> getTravelTimeFor(Integer id, MutableLiveData<ResourceStatus> status) {
-        super.refreshData(status, false);
-        return travelTimeDao.loadTravelTimeFor(id);
-    }
-
-    */
-
     public LiveData<List<TravelTimeEntity>> getTravelTimesWithIds(List<Integer> ids, MutableLiveData<ResourceStatus> status) {
-
         super.refreshData(status, false);
         return travelTimeDao.loadTravelTimesFor(ids);
+    }
+
+    public LiveData<List<TravelTimeGroup>> getTravelTimesWithTitles(String[] titles, MutableLiveData<ResourceStatus> status) {
+        super.refreshData(status, false);
+        return travelTimeGroupDao.loadTravelTimeGroupsForTitles(titles);
     }
 
     public LiveData<List<TravelTimeGroup>> loadFavoriteTravelTimes(MutableLiveData<ResourceStatus> status) {
@@ -154,5 +155,14 @@ public class TravelTimeRepository  extends NetworkResourceSyncRepository {
         CacheEntity travelCache = new CacheEntity("travel_times", System.currentTimeMillis());
         getCacheRepository().setCacheTime(travelCache);
 
+        resetMyRouteTravelTimes();
+
+    }
+
+    private void resetMyRouteTravelTimes() {
+        List<MyRouteEntity> routes = myRouteDao.getMyRoutes();
+        for (MyRouteEntity route: routes){
+            myRouteDao.updateFoundTravelTimes(route.getMyRouteId(), 0);
+        }
     }
 }

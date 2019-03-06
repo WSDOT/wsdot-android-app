@@ -19,29 +19,12 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 
 import android.Manifest;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.tabs.TabLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.MenuItemCompat;
-import androidx.room.Index;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatSpinner;
-import androidx.appcompat.widget.Toolbar;
-
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,6 +37,9 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -63,9 +49,17 @@ import java.util.TimeZone;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatSpinner;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.viewpager.widget.ViewPager;
 import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.shared.FerriesScheduleDateItem;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -166,6 +160,7 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(title);
         setSupportActionBar(mToolbar);
+
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -238,7 +233,6 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
                                         | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
                                         | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
                     }
-
                 }
             }
 

@@ -1,13 +1,13 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute.newroute;
 
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import gov.wa.wsdot.android.wsdot.R;
 
 public class TrackingRouteDialogFragment extends DialogFragment implements View.OnClickListener {

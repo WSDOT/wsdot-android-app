@@ -3,10 +3,10 @@ package gov.wa.wsdot.android.wsdot.util.decoration;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import gov.wa.wsdot.android.wsdot.R;
 
 /**

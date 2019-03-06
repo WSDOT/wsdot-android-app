@@ -22,7 +22,10 @@ import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemCam
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemForecastFragment;
 import gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem.MountainPassItemReportFragment;
 import gov.wa.wsdot.android.wsdot.ui.myroute.MyRouteFragment;
-import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListFragment;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.MyRouteReportFragment;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.alerts.MyRouteAlertsListFragment;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.cameras.MyRouteCamerasListFragment;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.traveltimes.MyRouteTravelTimesFragment;
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.I405TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.SR167TollRatesFragment;
@@ -42,7 +45,6 @@ import gov.wa.wsdot.android.wsdot.ui.traveltimes.TravelTimesFragment;
  *  ContributesAndroidInjector lets dagger 2 build a basic injector
  *  for each class.
  */
-
 @Module
 public abstract class FragmentModule {
 
@@ -141,5 +143,14 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract VesselWatchFragment contributeVesselWatchFragment();
+
+    @ContributesAndroidInjector
+    abstract MyRouteReportFragment contributeMyRouteReportFragment();
+
+    @ContributesAndroidInjector
+    abstract MyRouteCamerasListFragment contributeMyRouteCamerasListFragment();
+
+    @ContributesAndroidInjector
+    abstract MyRouteTravelTimesFragment contributeMyRouteTravelTimesFragment();
 
 }

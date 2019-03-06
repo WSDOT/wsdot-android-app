@@ -19,17 +19,18 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia;
 
 import android.os.Bundle;
-import com.google.android.material.tabs.TabLayout;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Spinner;
 
+import com.google.android.material.tabs.TabLayout;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.socialmedia.blog.BlogFragment;

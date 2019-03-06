@@ -20,8 +20,6 @@ package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +29,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;

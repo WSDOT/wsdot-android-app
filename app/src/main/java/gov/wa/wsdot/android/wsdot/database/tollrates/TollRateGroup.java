@@ -1,9 +1,9 @@
 package gov.wa.wsdot.android.wsdot.database.tollrates;
 
+import java.util.List;
+
 import androidx.room.Embedded;
 import androidx.room.Relation;
-
-import java.util.List;
 
 /**
  *  POJO used by Room for retrieving a TollRateSignEntity with all of it's associated TollTripEntity.

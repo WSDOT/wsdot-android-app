@@ -1,13 +1,12 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-
 import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.repository.ExpressLanesRepository;
 import gov.wa.wsdot.android.wsdot.shared.ExpressLaneItem;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;

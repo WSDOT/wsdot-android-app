@@ -18,19 +18,10 @@
 
 package gov.wa.wsdot.android.wsdot.ui.traveltimes;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.view.MenuItemCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,11 +34,21 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.SearchView.OnQueryTextListener;
+import androidx.core.view.MenuItemCompat;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
@@ -93,7 +94,7 @@ public class TravelTimesFragment extends BaseFragment implements
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new TravelTimesAdapter(getActivity());
         mRecyclerView.setAdapter(mAdapter);

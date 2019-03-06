@@ -36,9 +36,6 @@
         android:layout_toRightOf="@+id/star_button"
         android:layout_toEndOf="@+id/star_button"
 
-        android:layout_toLeftOf="@+id/alert_button"
-        android:layout_toStartOf="@+id/alert_button"
-
         android:layout_marginLeft="12dp"
         android:layout_marginStart="12dp"
         android:layout_marginRight="12dp"
@@ -48,46 +45,7 @@
 
         android:textSize="@dimen/text_size_large"
         android:textColor="@color/black"
-
         />
-
-    <ImageButton
-        android:id="@+id/alert_button"
-        android:contentDescription="@string/description_alert"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-
-        android:layout_toStartOf="@+id/map_button"
-        android:layout_toLeftOf="@+id/map_button"
-
-        android:layout_marginLeft="12dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginRight="12dp"
-        android:layout_marginEnd="12dp"
-
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
-
-        android:background="@drawable/ic_route_alert"/>
-
-    <ImageButton
-        android:id="@+id/map_button"
-        android:contentDescription="@string/description_map"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-
-        android:layout_toLeftOf="@+id/settings_button"
-        android:layout_toStartOf="@+id/settings_button"
-
-        android:layout_marginLeft="12dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginRight="12dp"
-        android:layout_marginEnd="12dp"
-
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
-
-        android:background="@drawable/ic_map"/>
 
     <ImageButton
         android:id="@+id/settings_button"

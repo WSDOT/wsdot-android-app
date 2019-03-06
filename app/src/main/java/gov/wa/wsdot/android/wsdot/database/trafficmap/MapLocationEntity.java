@@ -1,9 +1,10 @@
 package gov.wa.wsdot.android.wsdot.database.trafficmap;
 
+import android.provider.BaseColumns;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import android.provider.BaseColumns;
 
 @Entity(tableName = "map_location")
 public class MapLocationEntity {

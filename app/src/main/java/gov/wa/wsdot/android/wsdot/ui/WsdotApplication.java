@@ -22,13 +22,13 @@ import android.app.Service;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import androidx.fragment.app.Fragment;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
 import javax.inject.Inject;
 
+import androidx.fragment.app.Fragment;
 import androidx.multidex.MultiDexApplication;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
@@ -36,10 +36,8 @@ import dagger.android.HasActivityInjector;
 import dagger.android.HasServiceInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import gov.wa.wsdot.android.wsdot.BuildConfig;
-import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.AppInjector;
 import gov.wa.wsdot.android.wsdot.util.MyNotificationManager;
-import gov.wa.wsdot.android.wsdot.util.Utils;
 import io.fabric.sdk.android.Fabric;
 
 /**

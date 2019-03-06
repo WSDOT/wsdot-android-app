@@ -1,7 +1,5 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import androidx.lifecycle.MutableLiveData;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -19,12 +17,13 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import androidx.lifecycle.MutableLiveData;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesScheduleFeed;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesScheduleItem;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesServiceItem;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
-import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 
 @Singleton
 public class AmtrakCascadesRepository extends NetworkResourceRepository {

@@ -18,15 +18,10 @@
 
 package gov.wa.wsdot.android.wsdot.ui.alert.detail;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.widget.ShareActionProvider;
-import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,6 +38,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.widget.ShareActionProvider;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.MenuItemCompat;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import dagger.android.AndroidInjection;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;

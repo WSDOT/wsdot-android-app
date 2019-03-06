@@ -11,9 +11,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -26,6 +23,9 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.util.MyNotificationManager;
 

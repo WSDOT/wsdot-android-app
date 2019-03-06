@@ -1,15 +1,15 @@
 package gov.wa.wsdot.android.wsdot.database;
 
-import androidx.sqlite.db.SupportSQLiteDatabase;
+import android.content.Context;
+import android.provider.BaseColumns;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
-import android.content.Context;
-import android.provider.BaseColumns;
-import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
-
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitEntity;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheDao;
@@ -56,7 +56,7 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
         NotificationTopicEntity.class,
         TollTripEntity.class,
         TollRateSignEntity.class
-    }, version = 12)
+    }, version = 13)
 
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -221,6 +221,10 @@ public abstract class AppDatabase extends RoomDatabase {
         String MY_ROUTE_DISPLAY_ZOOM = "zoom";
         String MY_ROUTE_FOUND_FAVORITES = "found_favorites";
         String MY_ROUTE_IS_STARRED = "is_starred";
+        String MY_ROUTE_FOUND_CAMERAS = "found_cameras";
+        String MY_ROUTE_FOUND_TRAVEL_TIMES = "found_travel_times";
+        String MY_ROUTE_TRAVEL_TIME_TITLES  = "travel_time_titles_json";
+        String MY_ROUTE_CAMERA_IDS = "camera_ids_json";
     }
 
     interface NotificationColumns {
@@ -681,6 +685,55 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    // Adds found cameras and travel times column. Removes the found favorites col.
+    @VisibleForTesting
+    public static final Migration MIGRATION_12_13 = new Migration(12, 13) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+
+            // Updates lat/long in my routes
+            database.execSQL("CREATE TABLE IF NOT EXISTS my_route_temp ("
+                    + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + MyRouteColumns.MY_ROUTE_ID + " INTEGER,"
+                    + MyRouteColumns.MY_ROUTE_TITLE + " TEXT,"
+                    + MyRouteColumns.MY_ROUTE_LOCATIONS + " TEXT,"
+                    + MyRouteColumns.MY_ROUTE_DISPLAY_LAT + " REAL,"
+                    + MyRouteColumns.MY_ROUTE_DISPLAY_LONG + " REAL,"
+                    + MyRouteColumns.MY_ROUTE_DISPLAY_ZOOM + " INTEGER,"
+                    + MyRouteColumns.MY_ROUTE_FOUND_CAMERAS + " INTEGER NOT NULL default 0,"
+                    + MyRouteColumns.MY_ROUTE_FOUND_TRAVEL_TIMES + " INTEGER NOT NULL default 0,"
+                    + MyRouteColumns.MY_ROUTE_TRAVEL_TIME_TITLES + " TEXT NOT NULL default '[]',"
+                    + MyRouteColumns.MY_ROUTE_CAMERA_IDS + " TEXT NOT NULL default '[]',"
+                    + MyRouteColumns.MY_ROUTE_IS_STARRED + " INTEGER NOT NULL default 0);");
+
+
+            database.execSQL(" INSERT INTO my_route_temp ( "
+                    + BaseColumns._ID + ", "
+                    + MyRouteColumns.MY_ROUTE_ID + ", "
+                    + MyRouteColumns.MY_ROUTE_TITLE + ", "
+                    + MyRouteColumns.MY_ROUTE_LOCATIONS + ", "
+                    + MyRouteColumns.MY_ROUTE_DISPLAY_LAT  + ", "
+                    + MyRouteColumns.MY_ROUTE_DISPLAY_LONG + ", "
+                    + MyRouteColumns.MY_ROUTE_DISPLAY_ZOOM + ", "
+                    + MyRouteColumns.MY_ROUTE_IS_STARRED+ ") "
+                    + "SELECT "
+                    + BaseColumns._ID + ", "
+                    + MyRouteColumns.MY_ROUTE_ID + ", "
+                    + MyRouteColumns.MY_ROUTE_TITLE + ", "
+                    + MyRouteColumns.MY_ROUTE_LOCATIONS + ", "
+                    + MyRouteColumns.MY_ROUTE_DISPLAY_LAT + ", "
+                    + MyRouteColumns.MY_ROUTE_DISPLAY_LONG + ", "
+                    + MyRouteColumns.MY_ROUTE_DISPLAY_ZOOM + ", "
+                    + MyRouteColumns.MY_ROUTE_IS_STARRED
+                    + " FROM " + Tables.MY_ROUTE + "; ");
+
+            database.execSQL("DROP TABLE " + Tables.MY_ROUTE + "; ");
+
+            database.execSQL("ALTER TABLE my_route_temp RENAME TO " + Tables.MY_ROUTE+ "; ");
+
+        }
+    };
+
     public static AppDatabase getInstance(Context context) {
         synchronized (sLock) {
             if (INSTANCE == null) {
@@ -697,7 +750,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                 MIGRATION_8_9,
                                 MIGRATION_9_10,
                                 MIGRATION_10_11,
-                                MIGRATION_11_12)
+                                MIGRATION_11_12,
+                                MIGRATION_12_13)
                         .addCallback(new Callback() {
 
                             @Override

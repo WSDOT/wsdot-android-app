@@ -18,8 +18,6 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -29,6 +27,8 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;

@@ -1,13 +1,12 @@
 package gov.wa.wsdot.android.wsdot.ui.amtrakcascades;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-
 import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.repository.AmtrakCascadesRepository;
 import gov.wa.wsdot.android.wsdot.shared.AmtrakCascadesServiceItem;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;

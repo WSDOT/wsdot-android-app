@@ -1,10 +1,11 @@
 package gov.wa.wsdot.android.wsdot.database.myroute;
 
+import android.provider.BaseColumns;
+
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import android.provider.BaseColumns;
-import androidx.annotation.NonNull;
 
 @Entity(tableName = "my_route")
 public class MyRouteEntity {
@@ -31,9 +32,21 @@ public class MyRouteEntity {
     @ColumnInfo(name = "zoom")
     private Integer zoom;
 
-    @ColumnInfo(name = "found_favorites")
+    @ColumnInfo(name = "found_cameras")
     @NonNull
-    private Integer foundFavorites = 0;
+    private Integer foundCameras = 0;
+
+    @ColumnInfo(name = "found_travel_times")
+    @NonNull
+    private Integer foundTravelTimes = 0;
+
+    @ColumnInfo(name = "camera_ids_json")
+    @NonNull
+    private String cameraIdsJSON = "[]";
+
+    @ColumnInfo(name = "travel_time_titles_json")
+    @NonNull
+    private String travelTimeTitlesJSON = "[]";
 
     @ColumnInfo(name = "is_starred")
     @NonNull
@@ -88,12 +101,39 @@ public class MyRouteEntity {
     }
 
     @NonNull
-    public Integer getFoundFavorites() {
-        return foundFavorites;
+    public Integer getFoundCameras() {
+        return foundCameras;
     }
 
-    public void setFoundFavorites(@NonNull Integer foundFavorites) {
-        this.foundFavorites = foundFavorites;
+    public void setFoundCameras(@NonNull Integer foundCameras) {
+        this.foundCameras = foundCameras;
+    }
+
+    @NonNull
+    public String getCameraIdsJSON() {
+        return cameraIdsJSON;
+    }
+
+    public void setCameraIdsJSON(String cameraIdsJSON){
+        this.cameraIdsJSON = cameraIdsJSON;
+    }
+
+    @NonNull
+    public Integer getFoundTravelTimes() {
+        return foundTravelTimes;
+    }
+
+    public void setFoundTravelTimes(@NonNull Integer foundTravelTimes) {
+        this.foundTravelTimes = foundTravelTimes;
+    }
+
+    @NonNull
+    public String getTravelTimeTitlesJSON() {
+        return this.travelTimeTitlesJSON;
+    }
+
+    public void setTravelTimeTitlesJSON(String travelTimeTitles){
+        this.travelTimeTitlesJSON = travelTimeTitles;
     }
 
     @NonNull

@@ -1,11 +1,5 @@
 package gov.wa.wsdot.android.wsdot.ui.ferries.bulletins;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
-import androidx.lifecycle.ViewModel;
-import androidx.annotation.Nullable;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +11,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
+import androidx.lifecycle.ViewModel;
 import gov.wa.wsdot.android.wsdot.repository.FerryScheduleRepository;
 import gov.wa.wsdot.android.wsdot.shared.FerriesRouteAlertItem;
 import gov.wa.wsdot.android.wsdot.util.AbsentLiveData;

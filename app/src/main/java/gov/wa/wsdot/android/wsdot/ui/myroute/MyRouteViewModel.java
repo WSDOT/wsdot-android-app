@@ -1,14 +1,15 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute;
 
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-
 import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.repository.MyRoutesRepository;
 
@@ -16,32 +17,27 @@ public class MyRouteViewModel extends ViewModel {
 
     private MyRoutesRepository myRoutesRepo;
 
-    private MutableLiveData<Boolean> foundFavorites;
+    private MutableLiveData<Boolean> foundCameras;
+    private MutableLiveData<Boolean> foundTravelTimes;
+
     private LiveData<List<MyRouteEntity>> myRoutes;
 
     @Inject
     MyRouteViewModel(MyRoutesRepository myRoutesRepo) {
         this.myRoutesRepo = myRoutesRepo;
-        foundFavorites = new MutableLiveData<>();
+        foundCameras = new MutableLiveData<>();
+        foundTravelTimes = new MutableLiveData<>();
     }
 
-    LiveData<List<MyRouteEntity>> loadMyRoutes() {
+    public LiveData<List<MyRouteEntity>> loadMyRoutes() {
         if (myRoutes == null){
             this.myRoutes = myRoutesRepo.loadMyRoutes();
         }
         return this.myRoutes;
     }
 
-    LiveData<MyRouteEntity> loadMyRoute(long routeId){
+    public LiveData<MyRouteEntity> loadMyRoute(long routeId){
         return myRoutesRepo.loadMyRoute(routeId);
-    }
-
-    MyRouteEntity getMyRoute(long routeId) {
-        return myRoutesRepo.getMyRoute(routeId);
-    }
-
-    LiveData<Boolean> getFoundFavorites() {
-        return this.foundFavorites;
     }
 
     void updateRouteTitle(long routeId, String newTitle){
@@ -52,16 +48,17 @@ public class MyRouteViewModel extends ViewModel {
         this.myRoutesRepo.setIsStarred(routeId, isStarred);
     }
 
-    void findFavoritesOnRoute(Long myRouteId) {
-        myRoutesRepo.findFavoritesOnRoute(foundFavorites, myRouteId);
+    public void findCamerasOnRoute(Long myRouteId) {
+        myRoutesRepo.findCamerasOnRoute(foundCameras, myRouteId);
     }
 
-    void resetFindFavorites(){
-        foundFavorites.setValue(false);
+    public void findTravelTimesOnRoute(Long myRouteId) {
+        myRoutesRepo.findTravelTimesOnRoute(foundTravelTimes, myRouteId);
     }
 
     void deleteRoute(long routeId){
         this.myRoutesRepo.deleteMyRoute(routeId);
     }
+
 }
 

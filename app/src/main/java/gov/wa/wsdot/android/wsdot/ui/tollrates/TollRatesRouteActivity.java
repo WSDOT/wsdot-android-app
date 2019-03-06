@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
@@ -19,6 +18,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import androidx.appcompat.widget.Toolbar;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.util.Utils;

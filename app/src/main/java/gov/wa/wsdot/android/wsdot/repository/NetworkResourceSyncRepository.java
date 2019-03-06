@@ -1,11 +1,11 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
-import androidx.lifecycle.MutableLiveData;
 import android.util.Log;
 
+import androidx.lifecycle.MutableLiveData;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
-import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
+import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
 
 /**
  *  Abstract class for repos that require network data.
@@ -53,6 +53,7 @@ public abstract class NetworkResourceSyncRepository {
                     fetchData(status);
                     status.postValue(ResourceStatus.success());
                 } catch (Exception e) {
+                    Log.e(TAG, e.getLocalizedMessage());
                     status.postValue(ResourceStatus.error("network error"));
                 }
             } else{

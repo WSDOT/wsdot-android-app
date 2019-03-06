@@ -1,9 +1,6 @@
 package gov.wa.wsdot.android.wsdot.ui.myroute;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
@@ -11,10 +8,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,17 +21,23 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.ui.myroute.myroutealerts.MyRouteAlertsListActivity;
-import gov.wa.wsdot.android.wsdot.ui.trafficmap.TrafficMapActivity;
+import gov.wa.wsdot.android.wsdot.ui.myroute.report.MyRouteReportActivity;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
 import gov.wa.wsdot.android.wsdot.util.ProgressDialogFragment;
 
@@ -68,7 +67,7 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mAdapter = new MyRouteAdapter(getActivity());
@@ -104,17 +103,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
             case 1: // Rename route
                 renameRouteAction(routeName, routeID);
                 break;
-            case 2: // Show on Map
-                Bundle b = new Bundle();
-                Intent intent = new Intent(getActivity(), MyRouteMapActivity.class);
-                b.putLong("route_id", routeID);
-                b.putString("route_name", routeName);
-                intent.putExtras(b);
-                startActivity(intent);
-                break;
-            case 3: // Find favorites
-                findFavoritesOnRoute(routeID);
-                break;
             default:
                 break;
         }
@@ -125,23 +113,15 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
                 new AlertDialog.Builder(getContext(), R.style.AppCompatAlertDialogStyle);
         builder.setTitle("Delete Route: " + routeName + "?");
         builder.setMessage("This cannot be undone.");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        builder.setPositiveButton("OK", (dialog, which) -> {
 
-                viewModel.deleteRoute(routeID);
+            viewModel.deleteRoute(routeID);
 
-                mAdapter.notifyDataSetChanged();
-                dialog.dismiss();
-                Snackbar.make(getView().findViewById(R.id.my_route_fragment), "Route Deleted", Snackbar.LENGTH_LONG).show();
-            }
+            mAdapter.notifyDataSetChanged();
+            dialog.dismiss();
+            Snackbar.make(getView().findViewById(R.id.my_route_fragment), "Route Deleted", Snackbar.LENGTH_LONG).show();
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
         builder.show();
     }
 
@@ -192,37 +172,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
         builder.show();
     }
 
-    public void findFavoritesOnRoute(final long routeID){
-
-        new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setTitle("Add Favorites?")
-                .setMessage("Traffic cameras, travel times, pass reports, and other content will " +
-                            "be added to your favorites if they are on this route. ")
-
-                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-
-                    progressDialog = new ProgressDialogFragment();
-                    Bundle args = new Bundle();
-                    args.putString("message", "Finding Favorites...");
-                    progressDialog.setArguments(args);
-                    progressDialog.show(getActivity().getSupportFragmentManager(), "progress_dialog");
-
-                    viewModel.getFoundFavorites().observe(this, foundFav -> {
-                        if (foundFav != null){
-                            if (foundFav){
-                                progressDialog.dismiss();
-                                viewModel.getFoundFavorites().removeObservers(this);
-                                viewModel.resetFindFavorites(); // reset the value back to false for reuse
-                            }
-                        }
-                    });
-
-                    viewModel.findFavoritesOnRoute(routeID);
-
-                }).setNegativeButton(android.R.string.no, (dialog, which) -> {})
-                .show();
-    }
-
     /**
      * Custom adapter for items in recycler view.
      *
@@ -243,7 +192,6 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
 
         public void setData(List<MyRouteEntity> data){
             this.mData = data;
-            Log.e(TAG, String.valueOf(data.size()));
             this.notifyDataSetChanged();
         }
 
@@ -261,6 +209,19 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
             MyRouteVH itemViewHolder = (MyRouteVH) viewHolder;
 
             itemViewHolder.title.setText(myRoute.getTitle());
+
+            // Set onClickListener for holder's view
+            itemViewHolder.view.setOnClickListener(
+                    v -> {
+                        Bundle b = new Bundle();
+                        b.putLong("route_id", myRoute.getMyRouteId());
+                        b.putString("route_name", myRoute.getTitle());
+                        b.putString("route", myRoute.getRouteLocations());
+                        Intent intent = new Intent(getActivity(), MyRouteReportActivity.class);
+                        intent.putExtras(b);
+                        startActivity(intent);
+                    }
+            );
 
             itemViewHolder.star_button.setTag(myRoute.getMyRouteId());
 
@@ -309,46 +270,13 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
                 }
             });
 
-            itemViewHolder.alert_button.setTag(i);
-            itemViewHolder.alert_button.setContentDescription("Check alerts on route");
-            itemViewHolder.alert_button.setOnClickListener(v -> {
-
-                Bundle b = new Bundle();
-
-                Intent intent = new Intent(getActivity(), MyRouteAlertsListActivity.class);
-
-                b.putString("title", "Alerts on Route: " + myRoute.getTitle());
-                b.putString("route", myRoute.getRouteLocations());
-
-                intent.putExtras(b);
-                startActivity(intent);
-            });
-
-            itemViewHolder.map_button.setTag(i);
-            itemViewHolder.map_button.setContentDescription("Check map for route");
-            itemViewHolder.map_button.setOnClickListener(v -> {
-
-                Bundle b = new Bundle();
-
-                Intent intent = new Intent(getActivity(), TrafficMapActivity.class);
-
-                b.putDouble("lat", myRoute.getLatitude());
-                b.putDouble("long", myRoute.getLongitude());
-                b.putInt("zoom", myRoute.getZoom());
-
-                intent.putExtras(b);
-                startActivity(intent);
-            });
-
             itemViewHolder.settings_button.setTag(i);
             itemViewHolder.settings_button.setContentDescription("Route Settings");
             itemViewHolder.settings_button.setOnClickListener(v -> {
 
-                int[] menu_icons = {R.drawable.ic_action_delete_forever, R.drawable.ic_action_edit, R.drawable.ic_action_route, R.drawable.ic_action_favorite};
+                int[] menu_icons = {R.drawable.ic_action_delete_forever, R.drawable.ic_action_edit, R.drawable.ic_action_route};
                 long routeID = myRoute.getMyRouteId();
                 String routeName = myRoute.getTitle();
-
-                Log.e(TAG, String.valueOf(myRoute.getMyRouteId()));
 
                 RouteOptionsDialogFragment.newInstance(routeID, routeName, getResources().getStringArray(R.array.my_route_options), menu_icons).show(getActivity().getSupportFragmentManager(), "dialog");
             });
@@ -366,16 +294,14 @@ public class MyRouteFragment extends BaseFragment implements Injectable {
 
         protected TextView title;
         protected CheckBox star_button;
-        protected ImageButton alert_button;
-        protected ImageButton map_button;
         protected ImageButton settings_button;
+        public View view;
 
         public MyRouteVH(View itemView) {
             super(itemView);
+            view = itemView;
             title = itemView.findViewById(R.id.title);
             star_button = itemView.findViewById(R.id.star_button);
-            alert_button = itemView.findViewById(R.id.alert_button);
-            map_button = itemView.findViewById(R.id.map_button);
             settings_button = itemView.findViewById(R.id.settings_button);
         }
     }

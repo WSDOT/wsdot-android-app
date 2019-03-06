@@ -21,11 +21,6 @@ package gov.wa.wsdot.android.wsdot.ui.camera;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.AsyncTaskLoader;
-import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +28,11 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.AsyncTaskLoader;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.CameraItem;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
@@ -74,7 +74,7 @@ public class CameraListFragment extends BaseFragment implements
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new CameraGroupImageAdapter(getActivity(), null);
 
@@ -105,7 +105,7 @@ public class CameraListFragment extends BaseFragment implements
     public Loader<ArrayList<CameraItem>> onCreateLoader(int id, Bundle args) {
         // This is called when a new Loader needs to be created. There
         // is only one Loader with no arguments, so it is simple.
-        return new gov.wa.wsdot.android.wsdot.ui.camera.CameraListFragment.CameraImagesLoader(getActivity());
+        return new CameraImagesLoader(getActivity());
     }
 
     public void onLoadFinished(Loader<ArrayList<CameraItem>> loader, ArrayList<CameraItem> data) {

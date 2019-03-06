@@ -1,6 +1,5 @@
 package gov.wa.wsdot.android.wsdot.ui.trafficmap.besttimestotravel;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +7,7 @@ import android.widget.ImageView;
 
 import java.util.List;
 
+import androidx.recyclerview.widget.RecyclerView;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.shared.TravelChartItem;
 

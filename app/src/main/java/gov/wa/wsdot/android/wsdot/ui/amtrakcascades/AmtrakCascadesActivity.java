@@ -19,12 +19,13 @@
 package gov.wa.wsdot.android.wsdot.ui.amtrakcascades;
 
 import android.os.Bundle;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+
+import androidx.appcompat.widget.Toolbar;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.util.MyLogger;
