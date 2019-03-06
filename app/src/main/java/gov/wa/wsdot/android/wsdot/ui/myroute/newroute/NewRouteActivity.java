@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 
@@ -307,6 +308,9 @@ public class NewRouteActivity extends BaseActivity implements
                 myRoute.setIsStarred(1);
 
                 viewModel.addMyRoute(myRoute);
+
+                Snackbar.make(findViewById(android.R.id.content), "Route Successfully Saved", Snackbar.LENGTH_LONG)
+                        .show();
 
                 showStartView();
                 mMap.clear();
