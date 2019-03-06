@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -63,6 +64,7 @@ import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
 import gov.wa.wsdot.android.wsdot.util.ProgressDialogFragment;
 
 import static android.view.View.GONE;
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 import static gov.wa.wsdot.android.wsdot.util.ParserUtils.convertLocationsToJson;
 
 public class NewRouteActivity extends BaseActivity implements
@@ -406,6 +408,8 @@ public class NewRouteActivity extends BaseActivity implements
         LatLng latLng = new LatLng(47.5990, -122.3350);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
 
+        moveToCurrentLocation();
+
         requestLocationPermission();
     }
 
@@ -523,17 +527,22 @@ public class NewRouteActivity extends BaseActivity implements
     }
 
     private void moveToCurrentLocation() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            Location location = LocationServices.FusedLocationApi
-                    .getLastLocation(mGoogleApiClient);
-            if (location != null) {
-                Log.d(TAG, location.toString());
-                double currentLatitude = location.getLatitude();
-                double currentLongitude = location.getLongitude();
-                LatLng latLng = new LatLng(currentLatitude, currentLongitude);
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
-            }
+        if (ContextCompat.checkSelfPermission(NewRouteActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            // Get last known recent location using new Google Play Services SDK (v11+)
+            FusedLocationProviderClient locationClient = getFusedLocationProviderClient(this);
+            locationClient.getLastLocation()
+                    .addOnSuccessListener(location -> {
+                        if (location != null) {
+                            double currentLatitude = location.getLatitude();
+                            double currentLongitude = location.getLongitude();
+                            LatLng latLng = new LatLng(currentLatitude, currentLongitude);
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.d(TAG, "Error trying to get last GPS location");
+                        e.printStackTrace();
+                    });
         }
     }
 
