@@ -57,22 +57,23 @@ public class UIUtils {
 		int constructionHigh = R.drawable.construction_high;
 		int constructionMedium = R.drawable.construction_moderate;
 		int constructionLow = R.drawable.construction_low;
-		int defaultAlertImage = alertHighest;
+		int weather = R.drawable.weather;
 
 		// Types of categories which result in one icon or another being displayed.
 		String[] event_closure = {"closed", "closure"};
 		String[] event_construction = {"construction", "maintenance", "lane closure"};
+		String[] event_road_report = {"road report"};
 
 		HashMap<String, String[]> eventCategories = new HashMap<>();
 
 		eventCategories.put("closure", event_closure);
 		eventCategories.put("construction", event_construction);
-
+		eventCategories.put("road report", event_road_report);
 
 		Set<Map.Entry<String, String[]>> set = eventCategories.entrySet();
 		Iterator<Map.Entry<String, String[]>> i = set.iterator();
 
-		if (category.equals("")) return defaultAlertImage;
+		if (category.equals("")) return alertMedium;
 
 		while(i.hasNext()) {
 			Map.Entry<String, String[]> me = i.next();
@@ -98,6 +99,8 @@ public class UIUtils {
 								|| priority.equalsIgnoreCase("lowest")) {
 							return constructionLow;
 						}
+					} else if (keyWord.equalsIgnoreCase("road report")) {
+						return weather;
 					}
 				}
 			}
@@ -115,7 +118,7 @@ public class UIUtils {
 			return alertLow;
 		}
 
-		return defaultAlertImage;
+		return alertMedium;
 	}
 
     public static boolean isHoneycomb() {
