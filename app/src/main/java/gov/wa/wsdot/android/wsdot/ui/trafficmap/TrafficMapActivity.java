@@ -260,7 +260,7 @@ public class TrafficMapActivity extends BaseActivity implements
         showCameras = settings.getBoolean("KEY_SHOW_CAMERAS", true);
         showAlerts = settings.getBoolean("KEY_SHOW_ALERTS", true);
         showCallouts = settings.getBoolean("KEY_SHOW_CALLOUTS", true);
-        showRestAreas = settings.getBoolean("KEY_SHOW_REST_AREAS", false);
+        showRestAreas = settings.getBoolean("KEY_SHOW_REST_AREAS", true);
         latitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LAT", "47.5990"));
         longitude = Double.parseDouble(settings.getString("KEY_TRAFFICMAP_LON", "-122.3350"));
         zoom = settings.getInt("KEY_TRAFFICMAP_ZOOM", 12);
