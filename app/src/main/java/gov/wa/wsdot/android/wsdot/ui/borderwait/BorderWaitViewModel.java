@@ -1,5 +1,7 @@
 package gov.wa.wsdot.android.wsdot.ui.borderwait;
 
+import android.util.Log;
+
 import java.util.List;
 
 import javax.inject.Inject;
@@ -47,6 +49,7 @@ public class BorderWaitViewModel extends ViewModel {
                     case NORTHBOUND:
                         return borderWaitRepo.getBorderWaitsFor("northbound", mStatus);
                     case SOUTHBOUND:
+                        Log.e("test", "getting sb waits");
                         return borderWaitRepo.getBorderWaitsFor("southbound", mStatus);
                 }
             }

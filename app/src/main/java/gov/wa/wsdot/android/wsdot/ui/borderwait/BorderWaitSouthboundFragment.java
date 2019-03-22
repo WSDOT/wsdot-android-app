@@ -22,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,11 +80,10 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		routeImage.put(5, R.drawable.ic_list_i5);
-		routeImage.put(9, R.drawable.ic_list_sr9);
-		routeImage.put(539, R.drawable.ic_list_sr539);
-		routeImage.put(543, R.drawable.ic_list_sr543);
-		routeImage.put(97, R.drawable.ic_list_us97);
+		routeImage.put(5, R.drawable.ic_list_bc99);
+		routeImage.put(9, R.drawable.ic_list_bc11);
+		routeImage.put(539, R.drawable.ic_list_bc13);
+		routeImage.put(543, R.drawable.ic_list_bc15);
 	}
 
 	@Override
