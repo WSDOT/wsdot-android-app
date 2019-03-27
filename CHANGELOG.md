@@ -2,18 +2,32 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
 
+## [5.13.3] - 2019-03-27
+
+## Fixes
+- Border wait signs for southbound.
+
+## [5.13.1] - 2019-03-20
+
+## Changes
+- My routes update. Now shows a route report with alerts, travel times, and cameras.
+- removes adding favorites on route.
+
+## [5.12.2] - 2019-02-25
+
+## Fixes
+- crash when changing favorite border waits order
 
 ## [5.12.1] - 2019-02-19
 
-
+## Adds
+- Border waits to favorites list
 
 ## [5.11.6] - 2019-02-07
 
 ## Fixes
 - event banner display issues
-
 
 ## [5.11.5] - 2019-02-05
 
