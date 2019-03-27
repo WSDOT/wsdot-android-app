@@ -178,7 +178,13 @@ public class MyRouteReportActivity extends BaseActivity implements
      * @param myRouteLocations
      */
     private void drawRouteOnMap(ArrayList<LatLng> myRouteLocations) {
-        PolylineOptions polylineOptions = new PolylineOptions().width(10).color(Color.argb(0.8f, 0.1f, 0.1f, 0.9f)).addAll(myRouteLocations);
+
+        int alpha = (int) (0.8f * 255);
+        int red = (int) (0.1f * 255);
+        int green = (int) (0.1f * 255);
+        int blue = (int) (0.9f * 255);
+
+        PolylineOptions polylineOptions = new PolylineOptions().width(10).color(Color.argb(alpha, red, green, blue)).addAll(myRouteLocations);
         Polyline polyLine = mMap.addPolyline(polylineOptions);
         polyLine.setPoints(myRouteLocations);
     }
