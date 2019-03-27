@@ -119,7 +119,8 @@ public class FavoritesFragment extends BaseFragment implements
 
     // used for border waits
     @SuppressLint("UseSparseArrays")
-    private static HashMap<Integer, Integer> routeImage = new HashMap<>();
+    private static HashMap<Integer, Integer> northboundRouteImage = new HashMap<>();
+    private static HashMap<Integer, Integer> southboundRouteImage = new HashMap<>();
 
     private int orderedViewTypes[] = new int[8];
 
@@ -136,11 +137,17 @@ public class FavoritesFragment extends BaseFragment implements
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 
-        routeImage.put(5, R.drawable.ic_list_i5);
-        routeImage.put(9, R.drawable.ic_list_sr9);
-        routeImage.put(539, R.drawable.ic_list_sr539);
-        routeImage.put(543, R.drawable.ic_list_sr543);
-        routeImage.put(97, R.drawable.ic_list_us97);
+        northboundRouteImage.put(5, R.drawable.ic_list_i5);
+        northboundRouteImage.put(9, R.drawable.ic_list_sr9);
+        northboundRouteImage.put(539, R.drawable.ic_list_sr539);
+        northboundRouteImage.put(543, R.drawable.ic_list_sr543);
+        northboundRouteImage.put(97, R.drawable.ic_list_us97);
+
+        southboundRouteImage.put(5, R.drawable.ic_list_bc99);
+        southboundRouteImage.put(9, R.drawable.ic_list_bc11);
+        southboundRouteImage.put(539, R.drawable.ic_list_bc13);
+        southboundRouteImage.put(543, R.drawable.ic_list_bc15);
+
 	}
 	
 	@Override
@@ -816,7 +823,11 @@ public class FavoritesFragment extends BaseFragment implements
 
                 viewHolder.rt.setTypeface(tfb);
 
-                viewHolder.iv.setImageResource(routeImage.get(waitItem.getRoute()));
+                if (waitItem.getDirection().equals("northbound")) {
+                    viewHolder.iv.setImageResource(northboundRouteImage.get(waitItem.getRoute()));
+                } else if (waitItem.getDirection().equals("southbound")) {
+                    viewHolder.iv.setImageResource(southboundRouteImage.get(waitItem.getRoute()));
+                }
 
                 viewHolder.star.setVisibility(View.GONE);
 
