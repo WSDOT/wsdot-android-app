@@ -2,62 +2,66 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.13.4] - 2019-03-28
+
+# Changes
+- updates worker manager to 2.0.0
 
 ## [5.13.3] - 2019-03-27
 
-## Fixes
+# Fixes
 - Border wait signs for southbound.
 
 ## [5.13.1] - 2019-03-20
 
-## Changes
+# Changes
 - My routes update. Now shows a route report with alerts, travel times, and cameras.
 - removes adding favorites on route.
 
 ## [5.12.2] - 2019-02-25
 
-## Fixes
+# Fixes
 - crash when changing favorite border waits order
 
 ## [5.12.1] - 2019-02-19
 
-## Adds
+# Adds
 - Border waits to favorites list
 
 ## [5.11.6] - 2019-02-07
 
-## Fixes
+# Fixes
 - event banner display issues
 
 ## [5.11.5] - 2019-02-05
 
-## Fixes
+# Fixes
 - notification issue
 
 ## [5.11.4] - 2019-01-17
 
-## Adds
+# Adds
 - performace monitoring lib
 
-## Changes
+# Changes
 - updates worker lib
 
-## Fixes
+# Fixes
 - issue with new ferry schedule date format
 
 ## [5.11.3]
 
-## Changes
+# Changes
 - Migrates support libs to AndroidX
 
 ## [5.11.1] - 2019-01-02
 
-## Changes
+# Changes
 - Moves ferry alert bulletin button onto the sailings screen app bar.
 
 ## [5.10.1] - 2018-12-17
 
-## Changes
+# Changes
 - Migrated to Firebase Analytics.
 - Removes unsupported view pager library in favor of native solution.
 
