@@ -101,7 +101,7 @@ public class HighwayAlertListFragment extends BaseFragment
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(HighwayAlertListViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -134,7 +134,7 @@ public class HighwayAlertListFragment extends BaseFragment
 
             LatLngBounds mBounds = new LatLngBounds(southWest, northEast);
 
-            viewModel.getHighwayAlertsInBounds(mBounds).observe(this, alerts -> {
+            viewModel.getHighwayAlertsInBounds(mBounds).observe(getViewLifecycleOwner(), alerts -> {
                 if (alerts != null) {
                     Collections.sort(alerts, new SortHighwayAlertItemsByDate());
 

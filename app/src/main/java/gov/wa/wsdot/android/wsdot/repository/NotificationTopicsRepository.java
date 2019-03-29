@@ -31,16 +31,13 @@ public class NotificationTopicsRepository extends NetworkResourceSyncRepository 
 
     private final NotificationTopicDao notificationTopicDao;
 
-    private String iid;
-
     @Inject
     public NotificationTopicsRepository(AppExecutors appExecutors, NotificationTopicDao notificationTopicDao, CacheRepository cacheRepository) {
         super(appExecutors, cacheRepository, (5 * DateUtils.MINUTE_IN_MILLIS), "notification_topic"); //(5 * DateUtils.MINUTE_IN_MILLIS), "notification_topic");
         this.notificationTopicDao = notificationTopicDao;
     }
 
-    public LiveData<List<NotificationTopicEntity>> loadTopics(String idd, MutableLiveData<ResourceStatus> status) {
-        this.iid = idd;
+    public LiveData<List<NotificationTopicEntity>> loadTopics(MutableLiveData<ResourceStatus> status) {
         this.refreshData(status, false);
         return notificationTopicDao.loadNotificationTopics();
     }

@@ -107,7 +107,7 @@ public class MyRouteTravelTimesFragment extends BaseFragment implements
         myRouteViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteViewModel.class);
         travelTimesViewModel = ViewModelProviders.of(this, viewModelFactory).get(MyRouteTravelTimesViewModel.class);
 
-        travelTimesViewModel.getResourceStatus().observe(this, resourceStatus -> {
+        travelTimesViewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -123,7 +123,7 @@ public class MyRouteTravelTimesFragment extends BaseFragment implements
             }
         });
 
-        myRouteViewModel.loadMyRoute(mRouteId).observe(this, myRoute -> {
+        myRouteViewModel.loadMyRoute(mRouteId).observe(getViewLifecycleOwner(), myRoute -> {
 
             if (myRoute != null){
 

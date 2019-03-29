@@ -89,8 +89,8 @@ public class CameraVideoFragment extends Fragment implements
         mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mLoadingSpinner = (ProgressBar) mRootView.findViewById(R.id.progress_bar);
-        mVideoView = (VideoView) mRootView.findViewById(R.id.surface_view);
+        mLoadingSpinner = mRootView.findViewById(R.id.progress_bar);
+        mVideoView = mRootView.findViewById(R.id.surface_view);
         
 		return mRootView;
 	}	
@@ -118,19 +118,15 @@ public class CameraVideoFragment extends Fragment implements
 			mVideoView.setVideoURI(Uri.fromFile(f));
 			mVideoView.requestFocus();
 			
-	        mVideoView.setOnPreparedListener(new OnPreparedListener() {
-				public void onPrepared(MediaPlayer arg0) {
-					mLoadingSpinner.setVisibility(View.GONE);
-					mVideoView.start();
-				}
-	        });
+	        mVideoView.setOnPreparedListener(arg0 -> {
+				mLoadingSpinner.setVisibility(View.GONE);
+				mVideoView.start();
+			});
 	        
-	        mVideoView.setOnErrorListener(new OnErrorListener() {
-	        	public boolean onError(MediaPlayer mp, int what, int extra) {
-	        		Toast.makeText(getActivity(), "Error occured", Toast.LENGTH_SHORT).show();
-	 				return false;
-	 			}
-	 		});
+	        mVideoView.setOnErrorListener((mp, what, extra) -> {
+				Toast.makeText(getActivity(), "Error occured", Toast.LENGTH_SHORT).show();
+				 return false;
+			 });
 		}		
 	}
 

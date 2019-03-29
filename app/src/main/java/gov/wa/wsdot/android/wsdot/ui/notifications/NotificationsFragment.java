@@ -76,7 +76,7 @@ public class NotificationsFragment extends BaseFragment implements Injectable {
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(NotificationsViewModel.class);
 
-        viewModel.init(FirebaseInstanceId.getInstance().getToken());
+        viewModel.init();
 
         viewModel.getResourceStatus().observe(this, resourceStatus -> {
             if (resourceStatus != null) {

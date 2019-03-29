@@ -84,7 +84,7 @@ public class CalloutFragment extends Fragment implements
         mRootView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        swipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swipe_container);
+        swipeRefreshLayout = mRootView.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.holo_blue_bright,
@@ -92,7 +92,7 @@ public class CalloutFragment extends Fragment implements
                 R.color.holo_orange_light,
                 R.color.holo_red_light);
         
-        mImage = (ImageView) mRootView.findViewById(R.id.image);
+        mImage = mRootView.findViewById(R.id.image);
         
         return mRootView;
     }
@@ -116,11 +116,7 @@ public class CalloutFragment extends Fragment implements
     }
 
     public void onLoaderReset(Loader<Drawable> loader) {
-		swipeRefreshLayout.post(new Runnable() {
-			public void run() {
-				swipeRefreshLayout.setRefreshing(true);
-			}
-		});
+		swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(true));
     }
 
     public static class CalloutImageLoader extends AsyncTaskLoader<Drawable> {

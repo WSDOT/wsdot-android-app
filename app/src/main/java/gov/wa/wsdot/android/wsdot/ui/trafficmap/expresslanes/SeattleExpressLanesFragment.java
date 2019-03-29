@@ -75,7 +75,7 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 		mRecyclerView = root.findViewById(R.id.my_recycler_view);
 		mRecyclerView.setHasFixedSize(true);
 		mLayoutManager = new LinearLayoutManager(getActivity());
-		mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+		mLayoutManager.setOrientation(RecyclerView.VERTICAL);
 		mRecyclerView.setLayoutManager(mLayoutManager);
 		mAdapter = new ItemAdapter(null);
 
@@ -103,7 +103,7 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 
 		viewModel = ViewModelProviders.of(this, viewModelFactory).get(ExpressLanesViewModel.class);
 
-		viewModel.getResourceStatus().observe(this, resourceStatus -> {
+		viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
 			if (resourceStatus != null) {
 				switch (resourceStatus.status) {
 					case LOADING:
@@ -122,7 +122,7 @@ public class SeattleExpressLanesFragment extends BaseFragment implements
 			}
 		});
 
-		viewModel.getExpressLanesStatus().observe(this, expressLaneItems -> {
+		viewModel.getExpressLanesStatus().observe(getViewLifecycleOwner(), expressLaneItems -> {
 			if (expressLaneItems != null) {
 				mEmptyView.setVisibility(View.GONE);
 				mAdapter.setData(expressLaneItems);

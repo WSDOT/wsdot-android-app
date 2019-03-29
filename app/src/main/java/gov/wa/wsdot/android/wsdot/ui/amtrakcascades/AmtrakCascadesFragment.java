@@ -68,10 +68,10 @@ public class AmtrakCascadesFragment extends BaseFragment {
         listViewItems.add(new ViewItem("Buy Tickets", APIEndPoints.AMTRAK_WEBSITE));
         listViewItems.add(new ViewItem("Check Schedules and Status", AmtrakCascadesSchedulesActivity.class));
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new ItemAdapter(listViewItems);
 

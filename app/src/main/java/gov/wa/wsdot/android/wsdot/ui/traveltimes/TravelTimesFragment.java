@@ -118,7 +118,7 @@ public class TravelTimesFragment extends BaseFragment implements
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(TravelTimesViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -134,7 +134,7 @@ public class TravelTimesFragment extends BaseFragment implements
             }
         });
 
-        viewModel.getQueryTravelTimes().observe(this, travelTimes -> {
+        viewModel.getQueryTravelTimes().observe(getViewLifecycleOwner(), travelTimes -> {
             if (travelTimes != null) {
                 if (travelTimes.size() == 0) {
                     TextView t = (TextView) mEmptyView;

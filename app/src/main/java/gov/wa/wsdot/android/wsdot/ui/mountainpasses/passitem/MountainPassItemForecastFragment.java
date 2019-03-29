@@ -74,10 +74,10 @@ public class MountainPassItemForecastFragment extends BaseFragment implements In
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_with_progress_bar, null);
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         this.mAdapter = new MountainPassItemForecastAdapter(getActivity(), forecastItems);
 
@@ -92,7 +92,7 @@ public class MountainPassItemForecastFragment extends BaseFragment implements In
 
 		viewModel = ViewModelProviders.of(this, viewModelFactory).get(MountainPassViewModel.class);
 
-		viewModel.getPassFor(mPassId).observe(this, pass -> {
+		viewModel.getPassFor(mPassId).observe(getViewLifecycleOwner(), pass -> {
 			if (pass != null){
 				forecastsArray = pass.getForecast();
 				forecastItems.clear();

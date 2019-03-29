@@ -118,7 +118,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
         scheduleViewModel = ViewModelProviders.of(getActivity()).get(FerryScheduleViewModel.class);
         terminalViewModel = ViewModelProviders.of(getActivity()).get(FerryTerminalViewModel.class);
 
-        terminalViewModel.getResourceStatus().observe(this, resourceStatus -> {
+        terminalViewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -134,7 +134,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
             }
         });
 
-        terminalViewModel.getDepartureTimes().observe(this, sailingTimes -> {
+        terminalViewModel.getDepartureTimes().observe(getViewLifecycleOwner(), sailingTimes -> {
 
             if (sailingTimes != null ) {
                 if (sailingTimes.size() != 0) {
@@ -166,7 +166,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
             }
         });
 
-        terminalViewModel.getDepartureTimesAnnotations().observe(this, sailingAnnotations -> {
+        terminalViewModel.getDepartureTimesAnnotations().observe(getViewLifecycleOwner(), sailingAnnotations -> {
             if (sailingAnnotations != null) {
                 annotations = new ArrayList<>(sailingAnnotations);
                 mAdapter.notifyDataSetChanged();

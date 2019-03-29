@@ -122,7 +122,7 @@ public class BorderWaitSouthboundFragment extends BaseFragment implements
 
 		viewModel.init(BorderWaitViewModel.BorderDirection.SOUTHBOUND);
 
-		viewModel.getResourceStatus().observe(this, resourceStatus -> {
+		viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
 			if (resourceStatus != null) {
 				switch (resourceStatus.status) {
 					case LOADING:

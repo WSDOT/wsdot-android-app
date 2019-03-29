@@ -23,9 +23,6 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -37,8 +34,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import androidx.appcompat.view.ActionMode;
-import androidx.appcompat.widget.ShareActionProvider;
-import androidx.core.view.MenuItemCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -80,7 +75,7 @@ public class YouTubeFragment extends BaseFragment implements
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new VideoItemAdapter(null);
 
@@ -103,7 +98,7 @@ public class YouTubeFragment extends BaseFragment implements
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(YouTubeViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -122,7 +117,7 @@ public class YouTubeFragment extends BaseFragment implements
             }
         });
 
-        viewModel.getYouTubePosts().observe(this, youTubeItems -> {
+        viewModel.getYouTubePosts().observe(getViewLifecycleOwner(), youTubeItems -> {
             if (youTubeItems != null) {
                 mEmptyView.setVisibility(View.GONE);
                 if (!youTubeItems.isEmpty()) {
@@ -138,51 +133,6 @@ public class YouTubeFragment extends BaseFragment implements
         viewModel.refresh();
 
         return root;
-    }
-
-    private final class ActionModeCallback implements ActionMode.Callback {
-        private String mText;
-
-        public ActionModeCallback(String text) {
-            this.mText = text;
-        }
-
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            MenuInflater inflater = mode.getMenuInflater();
-            inflater.inflate(R.menu.share_action_provider, menu);
-            // Set file with share history to the provider and set the share intent.
-            MenuItem menuItem_Share = menu.findItem(R.id.action_share);
-            ShareActionProvider shareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem_Share);
-            shareAction.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
-            // Note that you can set/change the intent any time,
-            // say when the user has selected an image.
-            shareAction.setShareIntent(createShareIntent(mText));
-
-            return true;
-        }
-
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            mode.finish();
-            return true;
-        }
-
-        public void onDestroyActionMode(ActionMode mode) {
-            mActionMode = null;
-        }
-
-    }
-
-    private Intent createShareIntent(String mText) {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mText);
-
-        return shareIntent;
     }
 
     /**

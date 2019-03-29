@@ -12,7 +12,6 @@ import gov.wa.wsdot.android.wsdot.R;
 
 public class TrackingRouteDialogFragment extends DialogFragment implements View.OnClickListener {
 
-
     public interface TrackingRouteDialogListener {
         void onFinishTrackingDialog();
     }
@@ -42,7 +41,6 @@ public class TrackingRouteDialogFragment extends DialogFragment implements View.
         super.onViewCreated(view, savedInstanceState);
 
         addOnClickListeners();
-
         // Fetch arguments from bundle and set title
         String title = getArguments().getString("title", "Enter Name");
         getDialog().setTitle(title);
