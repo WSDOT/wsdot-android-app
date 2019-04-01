@@ -75,7 +75,7 @@ public class BlogFragment extends BaseFragment implements
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new BlogItemAdapter(null);
 
@@ -99,7 +99,7 @@ public class BlogFragment extends BaseFragment implements
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(BlogViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -118,7 +118,7 @@ public class BlogFragment extends BaseFragment implements
             }
         });
 
-        viewModel.getBlogPosts().observe(this, blogItems -> {
+        viewModel.getBlogPosts().observe(getViewLifecycleOwner(), blogItems -> {
             if (blogItems != null) {
                 mEmptyView.setVisibility(View.GONE);
                 if (!blogItems.isEmpty()) {

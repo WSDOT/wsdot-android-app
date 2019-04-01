@@ -103,7 +103,7 @@ public class SR167TollRatesFragment extends BaseFragment
 		mRecyclerView = root.findViewById(R.id.my_recycler_view);
 		mRecyclerView.setHasFixedSize(true);
 		mLayoutManager = new LinearLayoutManager(getActivity());
-		mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+		mLayoutManager.setOrientation(RecyclerView.VERTICAL);
 		mRecyclerView.setLayoutManager(mLayoutManager);
 		mAdapter = new SR167TollRatesItemAdapter(getActivity());
 		mRecyclerView.setAdapter(mAdapter);
@@ -178,7 +178,7 @@ public class SR167TollRatesFragment extends BaseFragment
 
 		viewModel = ViewModelProviders.of(this, viewModelFactory).get(TollRatesViewModel.class);
 
-		viewModel.getResourceStatus().observe(this, resourceStatus -> {
+		viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
 			if (resourceStatus != null) {
 				switch (resourceStatus.status) {
 					case LOADING:
@@ -194,7 +194,7 @@ public class SR167TollRatesFragment extends BaseFragment
 			}
 		});
 
-		viewModel.getSR167TollRateItems().observe(this, tollRateGroups -> {
+		viewModel.getSR167TollRateItems().observe(getViewLifecycleOwner(), tollRateGroups -> {
 			if (tollRateGroups != null) {
 				mEmptyView.setVisibility(View.GONE);
 
@@ -210,7 +210,7 @@ public class SR167TollRatesFragment extends BaseFragment
 			}
 		});
 
-        viewModel.getTravelTimesForETLFor("167").observe(this, travelTimes -> {
+        viewModel.getTravelTimesForETLFor("167").observe(getViewLifecycleOwner(), travelTimes -> {
 
             TextView travelTimeView = root.findViewById(R.id.travel_time_text);
 

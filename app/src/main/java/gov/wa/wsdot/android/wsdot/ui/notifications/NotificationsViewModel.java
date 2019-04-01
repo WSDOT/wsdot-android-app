@@ -32,8 +32,8 @@ public class NotificationsViewModel extends ViewModel {
         this.topicsRepo = topicsRepo;
     }
 
-    public void init(String iid) {
-        this.topics = topicsRepo.loadTopics(iid, mStatus);
+    public void init() {
+        this.topics = topicsRepo.loadTopics(mStatus);
         this.topicsMap = Transformations.map(this.topics, this::mapTopics);
     }
 

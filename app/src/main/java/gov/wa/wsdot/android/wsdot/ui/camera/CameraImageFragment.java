@@ -116,7 +116,7 @@ public class CameraImageFragment extends Fragment implements
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(CameraViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus ->{
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus ->{
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -132,7 +132,7 @@ public class CameraImageFragment extends Fragment implements
             }
         });
 
-        viewModel.getCamera(mId).observe(this, camera -> {
+        viewModel.getCamera(mId).observe(getViewLifecycleOwner(), camera -> {
             if (camera != null) {
                 mTitle = camera.getTitle();
                 mUrl = camera.getUrl();

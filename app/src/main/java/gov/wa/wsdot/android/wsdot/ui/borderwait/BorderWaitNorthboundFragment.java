@@ -109,7 +109,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.holo_blue_bright,
@@ -123,7 +123,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
 
         viewModel.init(BorderWaitViewModel.BorderDirection.NORTHBOUND);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -139,8 +139,7 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
             }
         });
 
-        viewModel.getBorderWaits().observe(this, borderWaits -> {
-
+        viewModel.getBorderWaits().observe(getViewLifecycleOwner(), borderWaits -> {
             if (borderWaits.size() > 0) {
                 mBorderWaits.clear();
                 mBorderWaits = borderWaits;
@@ -149,7 +148,6 @@ public class BorderWaitNorthboundFragment extends BaseFragment implements
         });
 
         mEmptyView = root.findViewById( R.id.empty_list_view );
-
         return root;
     }
 

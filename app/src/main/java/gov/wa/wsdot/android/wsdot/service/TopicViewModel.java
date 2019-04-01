@@ -27,13 +27,13 @@ public class TopicViewModel extends ViewModel {
         this.topicsRepo = topicsRepo;
     }
 
-    public void init(String iid) {
-        this.topics = topicsRepo.loadTopics(iid, mStatus);
+    public void init() {
+        this.topics = topicsRepo.loadTopics(mStatus);
     }
 
     public LiveData<ResourceStatus> getResourceStatus() { return this.mStatus; }
 
-    public LiveData<List<NotificationTopicEntity>> getTopics(String iid) {
+    public LiveData<List<NotificationTopicEntity>> getTopics() {
         return topics;
     }
 

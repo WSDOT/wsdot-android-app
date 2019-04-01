@@ -107,7 +107,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FerrySchedulesViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -131,7 +131,7 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
             }
         });
 
-        viewModel.getFerrySchedules().observe(this, schedules -> {
+        viewModel.getFerrySchedules().observe(getViewLifecycleOwner(), schedules -> {
             mSchedule = schedules;
             mAdapter.notifyDataSetChanged();
         });

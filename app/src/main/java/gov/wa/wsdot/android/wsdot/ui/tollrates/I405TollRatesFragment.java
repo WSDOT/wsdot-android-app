@@ -103,7 +103,7 @@ public class I405TollRatesFragment extends BaseFragment
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new I405TollRatesItemAdapter(getActivity());
         mRecyclerView.setAdapter(mAdapter);
@@ -135,12 +135,10 @@ public class I405TollRatesFragment extends BaseFragment
 
             radioGroupDirectionIndex = directionRadioGroup.indexOfChild(selectedDirection);
 
-
             TextView travelTimeView = root.findViewById(R.id.travel_time_text);
             travelTimeView.setText(getTravelTimeStringForDirection(radioGroupDirectionIndex == 0 ? "N" : "S"));
 
             editor.putInt(getString(R.string.toll_rates_405_travel_direction_key), radioGroupDirectionIndex);
-
             editor.apply();
 
         });
@@ -177,7 +175,7 @@ public class I405TollRatesFragment extends BaseFragment
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(TollRatesViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -193,7 +191,7 @@ public class I405TollRatesFragment extends BaseFragment
             }
         });
 
-        viewModel.getTravelTimesStatus().observe(this, resourceStatus -> {
+        viewModel.getTravelTimesStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -207,7 +205,7 @@ public class I405TollRatesFragment extends BaseFragment
             }
         });
 
-        viewModel.getI405TollRateItems().observe(this, tollRateGroups -> {
+        viewModel.getI405TollRateItems().observe(getViewLifecycleOwner(), tollRateGroups -> {
             if (tollRateGroups != null) {
 
                 mEmptyView.setVisibility(View.GONE);
@@ -224,7 +222,7 @@ public class I405TollRatesFragment extends BaseFragment
             }
         });
 
-        viewModel.getTravelTimesForETLFor("405").observe(this, travelTimes -> {
+        viewModel.getTravelTimesForETLFor("405").observe(getViewLifecycleOwner(), travelTimes -> {
 
             TextView travelTimeView = root.findViewById(R.id.travel_time_text);
 

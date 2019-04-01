@@ -54,10 +54,10 @@ public class SR520TollRatesFragment extends BaseFragment {
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list, null);
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new Adapter();
 

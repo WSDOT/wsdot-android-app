@@ -149,7 +149,7 @@ public class VesselWatchFragment extends BaseFragment
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(routeLatLng, zoom));
         vesselViewModel = ViewModelProviders.of(this, viewModelFactory).get(VesselWatchViewModel.class);
 
-        vesselViewModel.getResourceStatus().observe(this, resourceStatus -> {
+        vesselViewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -165,7 +165,7 @@ public class VesselWatchFragment extends BaseFragment
             }
         });
 
-        vesselViewModel.getVessels().observe(this, vesselItems -> {
+        vesselViewModel.getVessels().observe(getViewLifecycleOwner(), vesselItems -> {
             if (vesselItems != null){
 
                 Iterator<Map.Entry<Marker, String>> iter = markers.entrySet().iterator();
@@ -197,7 +197,7 @@ public class VesselWatchFragment extends BaseFragment
 
         vesselViewModel.refreshVessels();
 
-        mapCameraViewModel.getResourceStatus().observe(this, resourceStatus -> {
+        mapCameraViewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -213,7 +213,7 @@ public class VesselWatchFragment extends BaseFragment
             }
         });
 
-        mapCameraViewModel.getDisplayCameras().observe(this, cameraItems -> {
+        mapCameraViewModel.getDisplayCameras().observe(getViewLifecycleOwner(), cameraItems -> {
             if (cameraItems != null) {
 
                 // use tempMarkers to keep icons from disappearing when we quickly remove the old and add the new

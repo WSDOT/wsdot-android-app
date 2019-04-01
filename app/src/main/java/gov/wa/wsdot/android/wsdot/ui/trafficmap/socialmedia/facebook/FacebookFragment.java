@@ -69,7 +69,7 @@ public class FacebookFragment extends BaseFragment implements
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new FacebookItemAdapter(null);
 
@@ -94,7 +94,7 @@ public class FacebookFragment extends BaseFragment implements
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FacebookViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -113,7 +113,7 @@ public class FacebookFragment extends BaseFragment implements
             }
         });
 
-        viewModel.getFacebookPosts().observe(this, facebookItems -> {
+        viewModel.getFacebookPosts().observe(getViewLifecycleOwner(), facebookItems -> {
             if (facebookItems != null) {
                 mEmptyView.setVisibility(View.GONE);
                 if (!facebookItems.isEmpty()) {

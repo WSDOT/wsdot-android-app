@@ -68,7 +68,7 @@ public class NewsFragment extends BaseFragment implements
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new NewsItemAdapter(null);
 
@@ -93,7 +93,7 @@ public class NewsFragment extends BaseFragment implements
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(NewsViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -112,7 +112,7 @@ public class NewsFragment extends BaseFragment implements
             }
         });
 
-        viewModel.getNewsItems().observe(this, newsItemValues -> {
+        viewModel.getNewsItems().observe(getViewLifecycleOwner(), newsItemValues -> {
             if (newsItemValues != null) {
                 mEmptyView.setVisibility(View.GONE);
                 mAdapter.setData(newsItemValues);

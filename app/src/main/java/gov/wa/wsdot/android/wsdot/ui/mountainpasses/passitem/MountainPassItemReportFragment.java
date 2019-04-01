@@ -67,7 +67,7 @@ public class MountainPassItemReportFragment extends BaseFragment implements Inje
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(MountainPassViewModel.class);
 
-        viewModel.getPassFor(mPassId).observe(this, pass -> {
+        viewModel.getPassFor(mPassId).observe(getViewLifecycleOwner(), pass -> {
             if (pass != null){
 
                 mWeatherCondition = pass.getWeatherCondition();

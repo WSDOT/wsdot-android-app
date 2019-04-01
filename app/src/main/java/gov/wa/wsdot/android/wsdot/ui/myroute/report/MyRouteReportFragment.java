@@ -30,9 +30,6 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.report.traveltimes.MyRouteTravelTim
 public class MyRouteReportFragment extends BaseFragment implements Injectable {
 
     private String TAG = MyRouteReportFragment.class.getSimpleName();
-    private long mRouteId = -1;
-
-    private MyRouteViewModel viewModel;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -49,12 +46,6 @@ public class MyRouteReportFragment extends BaseFragment implements Injectable {
         // Set Tabs inside Toolbar
         TabLayout tabs = root.findViewById(R.id.tab_layout);
         tabs.setupWithViewPager(viewPager);
-
-        Bundle args = getActivity().getIntent().getExtras();
-
-        if (args != null) {
-            mRouteId = args.getLong("route_id");
-        }
 
         return root;
     }

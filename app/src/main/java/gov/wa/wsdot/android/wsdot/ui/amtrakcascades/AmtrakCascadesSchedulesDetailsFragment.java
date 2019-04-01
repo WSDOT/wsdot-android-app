@@ -106,7 +106,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new ScheduleAdapter(null);
 
@@ -132,7 +132,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(AmtrakCascadesSchedulesDetailsViewModel.class);
 
-        viewModel.getResourceStatus().observe(this, resourceStatus -> {
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
@@ -151,7 +151,7 @@ public class AmtrakCascadesSchedulesDetailsFragment extends BaseFragment
             }
         });
 
-        viewModel.getSchedule(statusDate, fromLocation, toLocation).observe(this, serviceItems -> {
+        viewModel.getSchedule(statusDate, fromLocation, toLocation).observe(getViewLifecycleOwner(), serviceItems -> {
             if (serviceItems != null) {
                 mEmptyView.setVisibility(View.GONE);
                 if (!serviceItems.isEmpty()) {
