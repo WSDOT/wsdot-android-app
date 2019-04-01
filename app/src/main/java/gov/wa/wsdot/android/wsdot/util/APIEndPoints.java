@@ -25,7 +25,7 @@ public class APIEndPoints {
     // Traffic
     public static final String CAMERAS = "http://data.wsdot.wa.gov/mobile/Cameras.js.gz";
     public static final String CAMERA_VIDEOS = "http://images.wsdot.wa.gov/nwvideo/";
-    public static final String HIGHWAY_ALERTS = "http://data.wsdot.wa.gov/mobile/HighwayAlertsTEST.js";
+    public static final String HIGHWAY_ALERTS = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js";
 
     public static final String TRAVEL_TIMES = "http://data.wsdot.wa.gov/mobile/TravelTimesv2.js";
 
