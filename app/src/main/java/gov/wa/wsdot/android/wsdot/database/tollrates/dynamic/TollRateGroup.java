@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.database.tollrates;
+package gov.wa.wsdot.android.wsdot.database.tollrates.dynamic;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ public class TollRateGroup {
 
     @Embedded
     public TollRateSignEntity tollRateSign;
-    @Relation(parentColumn = "id", entityColumn = "sign_id", entity = TollTripEntity.class)
-    public List<TollTripEntity> trips;
+    @Relation(parentColumn = "id", entityColumn = "sign_id", entity = TollRateGroupDao.TollTripEntity.class)
+    public List<TollRateGroupDao.TollTripEntity> trips;
 
 }

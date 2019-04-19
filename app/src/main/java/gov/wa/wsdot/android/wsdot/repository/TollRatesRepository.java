@@ -23,12 +23,11 @@ import javax.inject.Singleton;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroupDao;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignDao;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignEntity;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripDao;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroup;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroupDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateSignDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateSignEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollTripDao;
 import gov.wa.wsdot.android.wsdot.util.APIEndPoints;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 import gov.wa.wsdot.android.wsdot.util.threading.AppExecutors;
@@ -90,7 +89,7 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
         DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a");
 
         List<TollRateSignEntity> mTollRateItems = new ArrayList<>();
-        List<TollTripEntity> mTollTrips = new ArrayList<>();
+        List<TollRateGroupDao.TollTripEntity> mTollTrips = new ArrayList<>();
 
         URL url;
 
@@ -112,7 +111,7 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
 
             JSONObject item = items.getJSONObject(j);
 
-            TollTripEntity trip = new TollTripEntity();
+            TollRateGroupDao.TollTripEntity trip = new TollRateGroupDao.TollTripEntity();
 
             if (!shouldSkipTrip(item)) {
 
@@ -166,7 +165,7 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
 
         tollRateSignDao.deleteAndInsertTransaction(tollRateSignsArray);
 
-        TollTripEntity[] tollTripsArray = new TollTripEntity[mTollTrips.size()];
+        TollRateGroupDao.TollTripEntity[] tollTripsArray = new TollRateGroupDao.TollTripEntity[mTollTrips.size()];
         tollTripsArray = mTollTrips.toArray(tollTripsArray);
 
         tollTripDao.deleteAndInsertTransaction(tollTripsArray);

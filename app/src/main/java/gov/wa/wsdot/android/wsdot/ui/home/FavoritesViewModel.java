@@ -13,7 +13,7 @@ import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
 import gov.wa.wsdot.android.wsdot.repository.BorderWaitRepository;

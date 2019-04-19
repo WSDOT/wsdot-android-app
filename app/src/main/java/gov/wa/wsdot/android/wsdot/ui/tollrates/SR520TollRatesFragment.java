@@ -111,7 +111,7 @@ public class SR520TollRatesFragment extends BaseFragment {
         
         BuildAdapterData(weekdayData);
         
-        map = new HashMap<String, String>();
+        map = new HashMap<>();
         map.put("hours", "Weekends and Holidays");
         map.put("goodtogo_pass", "Good To Go! Pass");
         map.put("pay_by_mail", "Pay By Mail");
@@ -124,7 +124,7 @@ public class SR520TollRatesFragment extends BaseFragment {
     	HashMap<String, String> map = null;
     	
         for (int i = 0; i < data.length; i++) {
-        	map = new HashMap<String, String>();
+        	map = new HashMap<>();
         	map.put("hours", data[i][0]);
             map.put("goodtogo_pass", data[i][1]);
             map.put("pay_by_mail", data[i][2]);
@@ -160,12 +160,12 @@ public class SR520TollRatesFragment extends BaseFragment {
                 case TYPE_ITEM:
                     itemView = LayoutInflater.
                             from(parent.getContext()).
-                            inflate(R.layout.tollrates_sr520_row, parent, false);
+                            inflate(R.layout.tollrates_three_col_row, parent, false);
                     return new ItemViewHolder(itemView);
                 case TYPE_SEPARATOR:
                     itemView = LayoutInflater.
                             from(parent.getContext()).
-                            inflate(R.layout.tollrates_sr520_header, parent, false);
+                            inflate(R.layout.tollrates_three_col_header, parent, false);
                     return new TitleViewHolder(itemView);
             }
             return null;
@@ -228,11 +228,12 @@ public class SR520TollRatesFragment extends BaseFragment {
 
         public ItemViewHolder(View itemView) {
             super(itemView);
-            hours = (TextView) itemView.findViewById(R.id.hours);
-            goodToGoPass = (TextView) itemView.findViewById(R.id.goodtogo_pass);
-            payByMail = (TextView) itemView.findViewById(R.id.pay_by_mail);
+            hours = itemView.findViewById(R.id.hours);
+            goodToGoPass = itemView.findViewById(R.id.goodtogo_pass);
+            payByMail = itemView.findViewById(R.id.pay_by_mail);
         }
     }
+
     public static class TitleViewHolder extends RecyclerView.ViewHolder {
         protected TextView hours;
         protected TextView goodToGoPass;
@@ -240,9 +241,9 @@ public class SR520TollRatesFragment extends BaseFragment {
 
         public TitleViewHolder(View itemView) {
             super(itemView);
-            hours = (TextView) itemView.findViewById(R.id.hours_title);
-            goodToGoPass = (TextView) itemView.findViewById(R.id.goodtogo_pass_title);
-            payByMail = (TextView) itemView.findViewById(R.id.pay_by_mail_title);
+            hours = itemView.findViewById(R.id.hours_title);
+            goodToGoPass = itemView.findViewById(R.id.goodtogo_pass_title);
+            payByMail = itemView.findViewById(R.id.pay_by_mail_title);
         }
     }
 }

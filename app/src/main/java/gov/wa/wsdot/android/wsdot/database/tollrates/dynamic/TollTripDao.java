@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.database.tollrates;
+package gov.wa.wsdot.android.wsdot.database.tollrates.dynamic;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -10,14 +10,15 @@ import androidx.room.Transaction;
 public abstract class TollTripDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void insertTravelTimes(TollTripEntity... tollTrips);
+    public abstract void insertTravelTimes(TollRateGroupDao.TollTripEntity... tollTrips);
 
     @Query("DELETE FROM toll_trip")
     public abstract void deleteAll();
 
     @Transaction
-    public void deleteAndInsertTransaction(TollTripEntity... tollTrips) {
+    public void deleteAndInsertTransaction(TollRateGroupDao.TollTripEntity... tollTrips) {
         deleteAll();
         insertTravelTimes(tollTrips);
     }
+
 }

@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingTranslation">
 
-    <string name="wsdot_api_access_code"></string>
-    <string name="google_static_map_key"></string>
-    <string name="banner_ad_unit_id"></string>
+    <string name="wsdot_api_access_code">test</string>
+    <string name="google_static_map_key">test</string>
+    <string name="banner_ad_unit_id">test</string>
 
     <string name="default_ad_target">other</string>
     <string name="traffic_ad_target">traffic</string>

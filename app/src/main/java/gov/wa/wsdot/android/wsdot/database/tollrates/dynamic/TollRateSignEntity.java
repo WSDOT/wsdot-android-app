@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.database.tollrates;
+package gov.wa.wsdot.android.wsdot.database.tollrates.dynamic;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;

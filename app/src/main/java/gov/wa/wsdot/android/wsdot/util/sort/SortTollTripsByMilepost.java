@@ -2,9 +2,9 @@ package gov.wa.wsdot.android.wsdot.util.sort;
 
 import java.util.Comparator;
 
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroupDao;
 
-public class SortTollTripsByMilepost implements Comparator<TollTripEntity> {
+public class SortTollTripsByMilepost implements Comparator<TollRateGroupDao.TollTripEntity> {
 
     public enum SortOrder {
         ASCENDING, DESCENDING
@@ -16,7 +16,7 @@ public class SortTollTripsByMilepost implements Comparator<TollTripEntity> {
         this.order = order;
     }
 
-    public int compare(TollTripEntity a, TollTripEntity b) {
+    public int compare(TollRateGroupDao.TollTripEntity a, TollRateGroupDao.TollTripEntity b) {
         switch (this.order) {
             case ASCENDING:
                 return a.getEndMilepost().compareTo(b.getEndMilepost());

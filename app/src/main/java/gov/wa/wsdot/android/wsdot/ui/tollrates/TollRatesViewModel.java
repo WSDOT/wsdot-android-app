@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroup;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.repository.TollRatesRepository;
 import gov.wa.wsdot.android.wsdot.repository.TravelTimeRepository;
