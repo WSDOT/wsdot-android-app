@@ -61,7 +61,7 @@ import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroup;
-import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroupDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.tolltrips.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
@@ -767,7 +767,7 @@ public class FavoritesFragment extends BaseFragment implements
                 viewholder.travel_times_layout.removeAllViews();
 
                 // make a trip view with toll rate for each trip in the group
-                for (TollRateGroupDao.TollTripEntity trip : tollRateGroup.trips) {
+                for (TollTripEntity trip : tollRateGroup.trips) {
 
                     View tripView;
 

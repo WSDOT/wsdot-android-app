@@ -22,7 +22,7 @@ import gov.wa.wsdot.android.wsdot.repository.FerryScheduleRepository;
 import gov.wa.wsdot.android.wsdot.repository.MapLocationRepository;
 import gov.wa.wsdot.android.wsdot.repository.MountainPassRepository;
 import gov.wa.wsdot.android.wsdot.repository.MyRoutesRepository;
-import gov.wa.wsdot.android.wsdot.repository.TollRatesRepository;
+import gov.wa.wsdot.android.wsdot.repository.TollRateSignRepository;
 import gov.wa.wsdot.android.wsdot.repository.TravelTimeRepository;
 import gov.wa.wsdot.android.wsdot.util.network.ResourceStatus;
 import gov.wa.wsdot.android.wsdot.util.network.Status;
@@ -50,7 +50,7 @@ public class FavoritesViewModel extends ViewModel {
 
     private MapLocationRepository mapLocationRepo;
 
-    private TollRatesRepository tollRatesRepo;
+    private TollRateSignRepository tollRatesRepo;
     private MutableLiveData<ResourceStatus> mTollRatesStatus;
 
     private MediatorLiveData<Integer> mFavoritesLoadingTasks;
@@ -62,7 +62,7 @@ public class FavoritesViewModel extends ViewModel {
                        MountainPassRepository mountainPassRepo,
                        MyRoutesRepository myRoutesRepo,
                        MapLocationRepository mapLocationRepo,
-                       TollRatesRepository tollRatesRepo,
+                       TollRateSignRepository tollRatesRepo,
                        BorderWaitRepository borderWaitRepo) {
 
         this.mCameraStatus = new MutableLiveData<>();

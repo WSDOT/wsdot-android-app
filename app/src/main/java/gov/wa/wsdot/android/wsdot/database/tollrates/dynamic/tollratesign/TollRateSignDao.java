@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.database.tollrates.dynamic;
+package gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign;
 
 import androidx.room.Dao;
 import androidx.room.Insert;

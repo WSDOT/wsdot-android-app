@@ -8,6 +8,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
@@ -29,9 +30,10 @@ import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicDao;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
 import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroupDao;
-import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateSignDao;
-import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateSignEntity;
-import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollTripDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.TollRateSignDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.TollRateSignEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.tolltrips.TollTripDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.tolltrips.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationDao;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeDao;
@@ -53,10 +55,9 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
         TravelTimeTripEntity.class,
         TravelTimeEntity.class,
         NotificationTopicEntity.class,
-        TollRateGroupDao.TollTripEntity.class,
+        TollTripEntity.class,
         TollRateSignEntity.class
     }, version = 13)
-
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String TAG = AppDatabase.class.getSimpleName();

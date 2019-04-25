@@ -56,8 +56,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroup;
-import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroupDao;
-import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateSignEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.tolltrips.TollTripEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.TollRateSignEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -92,7 +92,7 @@ public class SR167TollRatesFragment extends BaseFragment
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	TollRatesViewModel viewModel;
+	TollRateSignsViewModel viewModel;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -176,7 +176,7 @@ public class SR167TollRatesFragment extends BaseFragment
 
 		});
 
-		viewModel = ViewModelProviders.of(this, viewModelFactory).get(TollRatesViewModel.class);
+		viewModel = ViewModelProviders.of(this, viewModelFactory).get(TollRateSignsViewModel.class);
 
 		viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
 			if (resourceStatus != null) {
@@ -351,7 +351,7 @@ public class SR167TollRatesFragment extends BaseFragment
 			viewholder.travel_times_layout.removeAllViews();
 
 			// make a trip view with toll rate for each trip in the group
-			for (TollRateGroupDao.TollTripEntity trip: tollRateGroup.trips) {
+			for (TollTripEntity trip: tollRateGroup.trips) {
 
 				View tripView = makeTripView(trip, tollRateGroup.tollRateSign, getContext());
 
@@ -415,7 +415,7 @@ public class SR167TollRatesFragment extends BaseFragment
 	 * @param context
 	 * @return
 	 */
-	public static View makeTripView(TollRateGroupDao.TollTripEntity tripItem, TollRateSignEntity sign, Context context) {
+	public static View makeTripView(TollTripEntity tripItem, TollRateSignEntity sign, Context context) {
 
 		Typeface tfb = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Bold.ttf");
 		LayoutInflater li = LayoutInflater.from(context);

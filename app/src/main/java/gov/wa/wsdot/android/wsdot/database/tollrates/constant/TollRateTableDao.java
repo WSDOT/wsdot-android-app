@@ -1,27 +1,18 @@
 package gov.wa.wsdot.android.wsdot.database.tollrates.constant;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-import androidx.room.Transaction;
+
+import java.util.List;
 
 @Dao
-public abstract class TollRateTableDao {
+public interface TollRateTableDao {
 
-    @Query("SELECT * FROM toll_rate_table WHERE route = :route")
-    public abstract TollRateTableEntity getTollRateTable(String route);
+    @Query("SELECT * FROM toll_rate_sign")
+    LiveData<List<TollRateTable>> loadTollRates();
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void insertTollRateTable(TollRateTableEntity... tollRateTable);
-
-    @Query("DELETE FROM toll_rate_table")
-    public abstract void deleteAll();
-
-    @Transaction
-    public void deleteAndInsertTransaction(TollRateTableEntity... tollRateTable) {
-        deleteAll();
-        insertTollRateTable(tollRateTable);
-    }
+    @Query("SELECT * FROM toll_rate_sign WHERE state_route = :route")
+    LiveData<TollRateTable> loadTollRatesFor(int route);
 
 }
