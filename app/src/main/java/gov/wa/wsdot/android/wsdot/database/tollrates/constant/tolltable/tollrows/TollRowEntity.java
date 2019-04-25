@@ -2,13 +2,14 @@ package gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrow
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
+import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
 import gov.wa.wsdot.android.wsdot.database.Converters;
 
-
 @TypeConverters({Converters.class})
+@Entity(tableName = "toll_rate_table_row")
 public class TollRowEntity {
 
     @PrimaryKey()

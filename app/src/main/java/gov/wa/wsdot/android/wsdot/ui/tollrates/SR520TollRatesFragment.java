@@ -23,17 +23,29 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.TollRateTable;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowEntity;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
+import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
+import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByLocation;
 
 public class SR520TollRatesFragment extends BaseFragment {
 	
@@ -43,11 +55,11 @@ public class SR520TollRatesFragment extends BaseFragment {
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
-	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);        
-    }
-    
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
+    TollRatesViewModel viewModel;
+
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -69,65 +81,87 @@ public class SR520TollRatesFragment extends BaseFragment {
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(TollRatesViewModel.class);
+
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                       // swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case SUCCESS:
+                       // swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                       // swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        viewModel.getTollRatesFor(520).observe(getViewLifecycleOwner(), tollRateTable -> {
+            if (tollRateTable != null) {
+
+                // mEmptyView.setVisibility(View.GONE);
+
+                HashMap<Integer, String> map = null;
+
+                ArrayList<String[]> weekdays = new ArrayList<>();
+                ArrayList<String[]> weekends = new ArrayList<>();
+
+                for (TollRowEntity row: tollRateTable.rows) {
+
+                    if (row.getHeader()) {
+
+                        map = new HashMap<>();
+
+                        for (int i = 0; i < row.getRowValues().length; i++) {
+                            map.put(i, row.getRowValues()[i]);
+                        }
+
+                        mAdapter.addSeparatorItem(map);
+
+                    } else {
+                        if (row.getWeekday()) {
+                            weekdays.add(row.getRowValues());
+                        } else {
+                            weekends.add(row.getRowValues());
+                        }
+                    }
+                }
+
+                String[][] weekdayData = new String[weekdays.size()][];
+
+                for (int i = 0; i < weekdays.size(); i++){
+                    weekdayData[i] = weekdays.get(i);
+                }
+
+                String[][] weekendData = new String[weekends.size()][];
+
+                for (int i = 0; i < weekends.size(); i++){
+                    weekendData[i] = weekends.get(i);
+                }
+
+                BuildAdapterData(weekdayData, tollRateTable.tollRateTableData.getNumCol());
+                BuildAdapterData(weekendData, tollRateTable.tollRateTableData.getNumCol());
+
+            }
+        });
+
         return root;
     }	
-    
-    @Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-        HashMap<String, String> map = null;
-        String[][] weekdayData = {
-        		{"Midnight to 5 AM", "$1.25", "$3.25"},
-        		{"5 AM to 6 AM", "$2.00", "$4.00"},
-        		{"6 AM to 7 AM", "$3.40", "$5.40"},
-        		{"7 AM to 9 AM", "$4.30", "$6.30"},
-        		{"9 AM to 10 AM", "$3.40", "$5.40"},
-        		{"10 AM to 2 PM", " $2.70", "$4.70"},
-        		{"2 PM to 3 PM", "$3.40", "$5.40"},
-        		{"3 PM to 6 PM", "$4.30", "$6.30"},
-        		{"6 PM to 7 PM", "$3.40", "$5.40"},
-        		{"7 PM to 9 PM", "$2.70", "$4.70"},
-        		{"9 PM to 11 PM", "$2.00", "$4.00"},
-        		{"11 PM to 11:59 PM", "$1.25", "$3.25"}
-        		};
 
-        String[][] weekendData = {
-        		{"Midnight to 5 AM", "$1.25", "$3.25"},
-        		{"5 AM to 8 AM", "$1.40", "$3.40"},
-        		{"8 AM to 11 AM", "$2.05", "$4.05"},
-        		{"11 AM to 6 PM", "$2.65", "$4.65"},
-        		{"6 PM to 9 PM", "$2.05", "$4.05"},
-        		{"9 PM to 11 PM", " $1.40", "$3.40"},
-        		{"11 PM to 11:59 PM", "$1.25", "$3.25"}
-        		};
-        
-        map = new HashMap<String, String>();
-        map.put("hours", "Monday to Friday");
-        map.put("goodtogo_pass", "Good To Go! Pass");
-        map.put("pay_by_mail", "Pay By Mail");
-        mAdapter.addSeparatorItem(map);
-        
-        BuildAdapterData(weekdayData);
-        
-        map = new HashMap<>();
-        map.put("hours", "Weekends and Holidays");
-        map.put("goodtogo_pass", "Good To Go! Pass");
-        map.put("pay_by_mail", "Pay By Mail");
-        mAdapter.addSeparatorItem(map);
-        
-        BuildAdapterData(weekendData);		
-	}
+	private void BuildAdapterData(String[][] data, int numCol) {
+    	HashMap<Integer, String> map = null;
 
-	private void BuildAdapterData(String[][] data) {
-    	HashMap<String, String> map = null;
-    	
         for (int i = 0; i < data.length; i++) {
-        	map = new HashMap<>();
-        	map.put("hours", data[i][0]);
-            map.put("goodtogo_pass", data[i][1]);
-            map.put("pay_by_mail", data[i][2]);
+
+            map = new HashMap<>();
+            for (int j = 0; j < numCol; j++) {
+                map.put(j, data[i][j]);
+            }
+
             mAdapter.addItem(map);
         }
     }
@@ -149,7 +183,7 @@ public class SR520TollRatesFragment extends BaseFragment {
         private static final int TYPE_SEPARATOR = 1;
 
         private TreeSet<Integer> mSeparatorsSet = new TreeSet<>();
-        private ArrayList<HashMap<String, String>> mData = new ArrayList<>();
+        private ArrayList<HashMap<Integer, String>> mData = new ArrayList<>();
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -177,7 +211,7 @@ public class SR520TollRatesFragment extends BaseFragment {
             ItemViewHolder itemholder;
             TitleViewHolder titleholder;
 
-            HashMap<String, String> map = mData.get(position);
+            HashMap<Integer, String> map = mData.get(position);
 
             if (getItemViewType(position) == TYPE_ITEM){
                 itemholder = (ItemViewHolder) viewholder;
@@ -203,12 +237,12 @@ public class SR520TollRatesFragment extends BaseFragment {
             return mSeparatorsSet.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
         }
 
-        public void addItem(final HashMap<String, String> map) {
+        public void addItem(final HashMap<Integer, String> map) {
             mData.add(map);
             notifyDataSetChanged();
         }
 
-        public void addSeparatorItem(final HashMap<String, String> item) {
+        public void addSeparatorItem(final HashMap<Integer, String> item) {
             mData.add(item);
             // save separator position
             mSeparatorsSet.add(mData.size() - 1);

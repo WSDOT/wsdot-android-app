@@ -29,6 +29,7 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.report.traveltimes.MyRouteTravelTim
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.I405TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.SR167TollRatesFragment;
+import gov.wa.wsdot.android.wsdot.ui.tollrates.SR520TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsFragment;
@@ -152,5 +153,8 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract MyRouteTravelTimesFragment contributeMyRouteTravelTimesFragment();
+
+    @ContributesAndroidInjector
+    abstract SR520TollRatesFragment contributeSR520TollRatesFragment();
 
 }

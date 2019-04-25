@@ -29,6 +29,11 @@ import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicDao;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.TollRateTableDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.TollRateTableDataDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.TollRateTableDataEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowEntity;
 import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroupDao;
 import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.TollRateSignDao;
 import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.TollRateSignEntity;
@@ -56,7 +61,9 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
         TravelTimeEntity.class,
         NotificationTopicEntity.class,
         TollTripEntity.class,
-        TollRateSignEntity.class
+        TollRateSignEntity.class,
+        TollRowEntity.class,
+        TollRateTableDataEntity.class
     }, version = 13)
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -77,9 +84,14 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract MapLocationDao mapLocationDao();
     public abstract MyRouteDao myRouteDao();
     public abstract NotificationTopicDao notificationTopicDao();
+
     public abstract TollTripDao tollTripDao();
     public abstract TollRateSignDao tollRateSignDao();
     public abstract TollRateGroupDao tollRateGroupDao();
+
+    public abstract TollRateTableDao tollRateTableDao();
+    public abstract TollRateTableDataDao tollRateTableDataDao();
+    public abstract TollRowDao tollRowDao();
 
     private static final Object sLock = new Object();
 

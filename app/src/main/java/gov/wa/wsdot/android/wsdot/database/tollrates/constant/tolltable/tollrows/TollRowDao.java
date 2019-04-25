@@ -16,7 +16,7 @@ public abstract class TollRowDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void insertTravelTimes(TollRowEntity... tollRow);
 
-    @Query("DELETE FROM toll_trip")
+    @Query("DELETE FROM toll_rate_table_row")
     public abstract void deleteAll();
 
     @Transaction

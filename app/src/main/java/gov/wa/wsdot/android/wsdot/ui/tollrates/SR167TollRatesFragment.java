@@ -92,7 +92,7 @@ public class SR167TollRatesFragment extends BaseFragment
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	TollRateSignsViewModel viewModel;
+	private TollRateSignsViewModel viewModel;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -139,7 +139,6 @@ public class SR167TollRatesFragment extends BaseFragment
             travelTimeView.setText(getTravelTimeStringForDirection(radioGroupDirectionIndex == 0 ? "N" : "S"));
 
 			editor.putInt(getString(R.string.toll_rates_167_travel_direction_key), radioGroupDirectionIndex);
-
 			editor.apply();
 
 		});

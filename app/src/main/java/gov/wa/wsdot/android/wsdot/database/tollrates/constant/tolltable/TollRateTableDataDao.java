@@ -9,13 +9,13 @@ import androidx.room.Transaction;
 @Dao
 public abstract class TollRateTableDataDao {
 
-    @Query("SELECT * FROM TollRateTableDataEntity WHERE route = :route")
+    @Query("SELECT * FROM toll_rate_table WHERE route = :route")
     public abstract TollRateTableDataEntity getTollRateTable(String route);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void insertTollRateTable(TollRateTableDataEntity... tollRateTable);
 
-    @Query("DELETE FROM TollRateTableDataEntity")
+    @Query("DELETE FROM toll_rate_table")
     public abstract void deleteAll();
 
     @Transaction
