@@ -20,9 +20,5 @@ public class TollRateTable {
     @Relation(parentColumn = "route", entityColumn = "route", entity = TollRowEntity.class)
     public List<TollRowEntity> rows;
 
-    public TollRateTableDataEntity getTollRateTableData() {
-        return tollRateTableData;
-    }
-
 }
 

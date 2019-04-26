@@ -4,11 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import androidx.room.TypeConverters;
 
-import gov.wa.wsdot.android.wsdot.database.Converters;
+import gov.wa.wsdot.android.wsdot.util.Converters;
 
-@TypeConverters({Converters.class})
 @Entity(tableName = "toll_rate_table_row")
 public class TollRowEntity {
 
@@ -32,7 +30,7 @@ public class TollRowEntity {
     private String endTime = "0:00";
 
     @ColumnInfo(name = "rows")
-    private String[] rowValues;
+    private String rowValues;
 
     public int getRoute() {
         return route;
@@ -77,11 +75,11 @@ public class TollRowEntity {
         this.endTime = endTime;
     }
 
-    public String[] getRowValues() {
+    public String getRowValues() {
         return rowValues;
     }
 
-    public void setRowValues(String[] rowValues) {
+    public void setRowValues(String rowValues) {
         this.rowValues = rowValues;
     }
 }

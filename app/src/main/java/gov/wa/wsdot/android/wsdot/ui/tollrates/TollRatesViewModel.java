@@ -29,4 +29,8 @@ public class TollRatesViewModel extends ViewModel {
         return this.tollRepo.loadTollRatesFor(route, mStatus);
     }
 
+    public void refresh() {
+        tollRepo.refreshData(this.mStatus, true);
+    }
+
 }

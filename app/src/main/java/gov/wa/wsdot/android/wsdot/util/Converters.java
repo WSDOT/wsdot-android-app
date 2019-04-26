@@ -1,15 +1,11 @@
-package gov.wa.wsdot.android.wsdot.database;
-
-import androidx.room.TypeConverter;
+package gov.wa.wsdot.android.wsdot.util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 public class Converters {
 
-
-    // Converts json array to java arra
-    @TypeConverter
+    // Converts json array to java array
     public static String[] fromJsonString(String value) {
 
         try {
@@ -29,7 +25,6 @@ public class Converters {
     }
 
     // Converts an array of strings into a json array
-    @TypeConverter
     public static String stringArrayToJsonString(String[] values) {
 
         StringBuilder sb = new StringBuilder();

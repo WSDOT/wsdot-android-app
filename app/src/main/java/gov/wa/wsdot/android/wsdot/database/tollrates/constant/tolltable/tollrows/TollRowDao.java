@@ -7,10 +7,9 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.TypeConverters;
 
-import gov.wa.wsdot.android.wsdot.database.Converters;
+import gov.wa.wsdot.android.wsdot.util.Converters;
 
 @Dao
-@TypeConverters({Converters.class})
 public abstract class TollRowDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

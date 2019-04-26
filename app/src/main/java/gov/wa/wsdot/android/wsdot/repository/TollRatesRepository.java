@@ -1,6 +1,7 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -18,7 +19,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import gov.wa.wsdot.android.wsdot.database.Converters;
+import gov.wa.wsdot.android.wsdot.util.Converters;
 import gov.wa.wsdot.android.wsdot.database.caches.CacheEntity;
 import gov.wa.wsdot.android.wsdot.database.tollrates.constant.TollRateTable;
 import gov.wa.wsdot.android.wsdot.database.tollrates.constant.TollRateTableDao;
@@ -84,7 +85,7 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
             jsonFile += line;
         in.close();
 
-        JSONArray items = new JSONArray(jsonFile);
+        JSONArray items = new JSONObject(jsonFile).getJSONArray("TollRates");
 
         int numItems = items.length();
 
@@ -106,13 +107,34 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
                 TollRowEntity row = new TollRowEntity();
                 JSONObject rowJson = rows.getJSONObject(j);
 
+                row.setRoute(table.getRoute());
+
                 row.setHeader(rowJson.getBoolean("header"));
-                row.setWeekday(rowJson.getBoolean("true"));
 
-                row.setStartTime(rowJson.getString("start_time"));
-                row.setEndTime(rowJson.getString("end_time"));
+                if (rowJson.has("weekday")) {
+                    row.setWeekday(rowJson.getBoolean("weekday"));
+                } else {
+                    row.setWeekday(true);
+                }
 
-                row.setRowValues(Converters.fromJsonString(rowJson.getString("rows")));
+                if (rowJson.has("start_time")) {
+                    row.setStartTime(rowJson.getString("start_time"));
+                }
+
+                if (rowJson.has("end_time")) {
+                    row.setEndTime(rowJson.getString("end_time"));
+                }
+
+                // TODO: Rows aren't being stored/retrieved correctly
+                Log.e(TAG, "####");
+
+                Log.e(TAG, rowJson.getString("rows"));
+
+                row.setRowValues(rowJson.getString("rows"));
+
+                Log.e(TAG, String.valueOf(row.getRowValues()));
+
+                Log.e(TAG, "++++");
 
                 mTollRows.add(row);
 
@@ -132,6 +154,8 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
 
         CacheEntity tollCache = new CacheEntity("toll_table", System.currentTimeMillis());
         getCacheRepository().setCacheTime(tollCache);
+
+        Log.e(TAG, "fetched");
 
     }
 }

@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,12 +43,14 @@ import javax.inject.Inject;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.database.tollrates.constant.TollRateTable;
 import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowEntity;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.Converters;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByLocation;
 
-public class SR520TollRatesFragment extends BaseFragment {
+public class SR520TollRatesFragment extends BaseFragment implements Injectable {
 	
     private static final String TAG = SR520TollRatesFragment.class.getSimpleName();
     private Adapter mAdapter;
@@ -101,7 +104,11 @@ public class SR520TollRatesFragment extends BaseFragment {
         });
 
         viewModel.getTollRatesFor(520).observe(getViewLifecycleOwner(), tollRateTable -> {
+
+
             if (tollRateTable != null) {
+
+                Log.e(TAG, "its not null");
 
                 // mEmptyView.setVisibility(View.GONE);
 
@@ -112,21 +119,28 @@ public class SR520TollRatesFragment extends BaseFragment {
 
                 for (TollRowEntity row: tollRateTable.rows) {
 
+                    Log.e(TAG, String.valueOf(row.getHeader()));
+                    Log.e(TAG, row.getStartTime());
+
+                    String[] rowValues = Converters.fromJsonString(row.getRowValues());
+
+                    Log.e(TAG, String.valueOf(rowValues.length));
+
                     if (row.getHeader()) {
 
+                        Log.e(TAG, String.valueOf(row.getHeader()));
+
                         map = new HashMap<>();
-
-                        for (int i = 0; i < row.getRowValues().length; i++) {
-                            map.put(i, row.getRowValues()[i]);
+                        for (int i = 0; i < rowValues.length; i++) {
+                            map.put(i, rowValues[i]);
                         }
-
                         mAdapter.addSeparatorItem(map);
-
                     } else {
                         if (row.getWeekday()) {
-                            weekdays.add(row.getRowValues());
+                            Log.e(TAG, String.valueOf(row.getWeekday()));
+                            weekdays.add(rowValues);
                         } else {
-                            weekends.add(row.getRowValues());
+                            weekends.add(rowValues);
                         }
                     }
                 }
@@ -146,14 +160,24 @@ public class SR520TollRatesFragment extends BaseFragment {
                 BuildAdapterData(weekdayData, tollRateTable.tollRateTableData.getNumCol());
                 BuildAdapterData(weekendData, tollRateTable.tollRateTableData.getNumCol());
 
+            } else {
+
+                Log.e(TAG, "its null");
+
             }
         });
+
+        viewModel.refresh();
 
         return root;
     }	
 
 	private void BuildAdapterData(String[][] data, int numCol) {
     	HashMap<Integer, String> map = null;
+
+    	Log.e(TAG, String.valueOf(data));
+    	Log.e(TAG, String.valueOf(data[0][0].length()));
+    	Log.e(TAG, String.valueOf(data[0].length));
 
         for (int i = 0; i < data.length; i++) {
 
@@ -221,7 +245,7 @@ public class SR520TollRatesFragment extends BaseFragment {
                 itemholder.goodToGoPass.setTypeface(tf);
                 itemholder.payByMail.setText(map.get("pay_by_mail"));
                 itemholder.payByMail.setTypeface(tf);
-            }else{
+            } else {
                 titleholder = (TitleViewHolder) viewholder;
                 titleholder.hours.setText(map.get("hours"));
                 titleholder.hours.setTypeface(tfb);
