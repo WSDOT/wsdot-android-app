@@ -5,12 +5,14 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import gov.wa.wsdot.android.wsdot.util.Converters;
-
 @Entity(tableName = "toll_rate_table_row")
 public class TollRowEntity {
 
     @PrimaryKey()
+    @ColumnInfo(name = "id")
+    @NonNull
+    private String id = "000_0";
+
     @ColumnInfo(name = "route")
     private int route = -1;
 
@@ -31,6 +33,14 @@ public class TollRowEntity {
 
     @ColumnInfo(name = "rows")
     private String rowValues;
+
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(String id){
+        this.id = id;
+    }
 
     public int getRoute() {
         return route;

@@ -37,6 +37,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import javax.inject.Inject;
 
@@ -50,13 +51,17 @@ import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
 import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByLocation;
 
-public class SR520TollRatesFragment extends BaseFragment implements Injectable {
+public class SR520TollRatesFragment extends BaseFragment implements
+        SwipeRefreshLayout.OnRefreshListener, Injectable {
 	
     private static final String TAG = SR520TollRatesFragment.class.getSimpleName();
     private Adapter mAdapter;
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
+
+    private View mEmptyView;
+    private static SwipeRefreshLayout swipeRefreshLayout;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -67,7 +72,7 @@ public class SR520TollRatesFragment extends BaseFragment implements Injectable {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -80,6 +85,16 @@ public class SR520TollRatesFragment extends BaseFragment implements Injectable {
 
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(
+                R.color.holo_blue_bright,
+                R.color.holo_green_light,
+                R.color.holo_orange_light,
+                R.color.holo_red_light);
+
+        mEmptyView = root.findViewById(R.id.empty_list_view);
+
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -91,13 +106,13 @@ public class SR520TollRatesFragment extends BaseFragment implements Injectable {
             if (resourceStatus != null) {
                 switch (resourceStatus.status) {
                     case LOADING:
-                       // swipeRefreshLayout.setRefreshing(true);
+                        swipeRefreshLayout.setRefreshing(true);
                         break;
                     case SUCCESS:
-                       // swipeRefreshLayout.setRefreshing(false);
+                        swipeRefreshLayout.setRefreshing(false);
                         break;
                     case ERROR:
-                       // swipeRefreshLayout.setRefreshing(false);
+                        swipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
                 }
             }
@@ -105,39 +120,36 @@ public class SR520TollRatesFragment extends BaseFragment implements Injectable {
 
         viewModel.getTollRatesFor(520).observe(getViewLifecycleOwner(), tollRateTable -> {
 
-
             if (tollRateTable != null) {
 
-                Log.e(TAG, "its not null");
+                mAdapter.mData.clear();
 
-                // mEmptyView.setVisibility(View.GONE);
+                mEmptyView.setVisibility(View.GONE);
 
-                HashMap<Integer, String> map = null;
+                HashMap<Integer, String> weekdayHeaderMap = null;
+                HashMap<Integer, String> weekendHeaderMap = null;
 
                 ArrayList<String[]> weekdays = new ArrayList<>();
                 ArrayList<String[]> weekends = new ArrayList<>();
 
                 for (TollRowEntity row: tollRateTable.rows) {
 
-                    Log.e(TAG, String.valueOf(row.getHeader()));
-                    Log.e(TAG, row.getStartTime());
-
                     String[] rowValues = Converters.fromJsonString(row.getRowValues());
 
-                    Log.e(TAG, String.valueOf(rowValues.length));
-
                     if (row.getHeader()) {
-
-                        Log.e(TAG, String.valueOf(row.getHeader()));
-
-                        map = new HashMap<>();
-                        for (int i = 0; i < rowValues.length; i++) {
-                            map.put(i, rowValues[i]);
+                        if (row.getWeekday()) {
+                            weekdayHeaderMap = new HashMap<>();
+                            for (int i = 0; i < rowValues.length; i++) {
+                                weekdayHeaderMap.put(i, rowValues[i]);
+                            }
+                        } else {
+                            weekendHeaderMap = new HashMap<>();
+                            for (int i = 0; i < rowValues.length; i++) {
+                                weekendHeaderMap.put(i, rowValues[i]);
+                            }
                         }
-                        mAdapter.addSeparatorItem(map);
                     } else {
                         if (row.getWeekday()) {
-                            Log.e(TAG, String.valueOf(row.getWeekday()));
                             weekdays.add(rowValues);
                         } else {
                             weekends.add(rowValues);
@@ -157,13 +169,13 @@ public class SR520TollRatesFragment extends BaseFragment implements Injectable {
                     weekendData[i] = weekends.get(i);
                 }
 
+                mAdapter.addSeparatorItem(weekdayHeaderMap);
                 BuildAdapterData(weekdayData, tollRateTable.tollRateTableData.getNumCol());
+                mAdapter.addSeparatorItem(weekendHeaderMap);
                 BuildAdapterData(weekendData, tollRateTable.tollRateTableData.getNumCol());
 
             } else {
-
                 Log.e(TAG, "its null");
-
             }
         });
 
@@ -174,10 +186,6 @@ public class SR520TollRatesFragment extends BaseFragment implements Injectable {
 
 	private void BuildAdapterData(String[][] data, int numCol) {
     	HashMap<Integer, String> map = null;
-
-    	Log.e(TAG, String.valueOf(data));
-    	Log.e(TAG, String.valueOf(data[0][0].length()));
-    	Log.e(TAG, String.valueOf(data[0].length));
 
         for (int i = 0; i < data.length; i++) {
 
@@ -237,22 +245,27 @@ public class SR520TollRatesFragment extends BaseFragment implements Injectable {
 
             HashMap<Integer, String> map = mData.get(position);
 
-            if (getItemViewType(position) == TYPE_ITEM){
-                itemholder = (ItemViewHolder) viewholder;
-                itemholder.hours.setText(map.get("hours"));
-                itemholder.hours.setTypeface(tf);
-                itemholder.goodToGoPass.setText(map.get("goodtogo_pass"));
-                itemholder.goodToGoPass.setTypeface(tf);
-                itemholder.payByMail.setText(map.get("pay_by_mail"));
-                itemholder.payByMail.setTypeface(tf);
-            } else {
-                titleholder = (TitleViewHolder) viewholder;
-                titleholder.hours.setText(map.get("hours"));
-                titleholder.hours.setTypeface(tfb);
-                titleholder.goodToGoPass.setText(map.get("goodtogo_pass"));
-                titleholder.goodToGoPass.setTypeface(tfb);
-                titleholder.payByMail.setText(map.get("pay_by_mail"));
-                titleholder.payByMail.setTypeface(tfb);
+            try {
+                if (getItemViewType(position) == TYPE_ITEM) {
+                    itemholder = (ItemViewHolder) viewholder;
+                    itemholder.hours.setText(map.get(0));
+                    itemholder.hours.setTypeface(tf);
+                    itemholder.goodToGoPass.setText(map.get(1));
+                    itemholder.goodToGoPass.setTypeface(tf);
+                    itemholder.payByMail.setText(map.get(2));
+                    itemholder.payByMail.setTypeface(tf);
+                } else {
+                    titleholder = (TitleViewHolder) viewholder;
+                    titleholder.hours.setText(map.get(0));
+                    titleholder.hours.setTypeface(tfb);
+                    titleholder.goodToGoPass.setText(map.get(1));
+                    titleholder.goodToGoPass.setTypeface(tfb);
+                    titleholder.payByMail.setText(map.get(2));
+                    titleholder.payByMail.setTypeface(tfb);
+                }
+            } catch (NullPointerException e) {
+                Log.e(TAG, "map values null at:");
+                Log.e(TAG, String.valueOf(position));
             }
         }
 
@@ -261,8 +274,8 @@ public class SR520TollRatesFragment extends BaseFragment implements Injectable {
             return mSeparatorsSet.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
         }
 
-        public void addItem(final HashMap<Integer, String> map) {
-            mData.add(map);
+        public void addItem(final HashMap<Integer, String> item) {
+            mData.add(item);
             notifyDataSetChanged();
         }
 
@@ -303,5 +316,10 @@ public class SR520TollRatesFragment extends BaseFragment implements Injectable {
             goodToGoPass = itemView.findViewById(R.id.goodtogo_pass_title);
             payByMail = itemView.findViewById(R.id.pay_by_mail_title);
         }
+    }
+
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+        viewModel.refresh();
     }
 }

@@ -13,20 +13,8 @@ import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroup;
 public interface TollRateGroupDao {
 
     @Transaction
-    @Query("SELECT * FROM toll_rate_sign")
-    LiveData<List<TollRateGroup>> loadTollRateGroups();
-
-    @Transaction
-    @Query("SELECT * FROM toll_rate_sign")
-    List<TollRateGroup> getTollRateGroups();
-
-    @Transaction
     @Query("SELECT * FROM toll_rate_sign WHERE state_route = 405")
     LiveData<List<TollRateGroup>> loadI405TollRateGroups();
-
-    @Transaction
-    @Query("SELECT * FROM toll_rate_sign WHERE state_route = 405")
-    List<TollRateGroup> getI405TollRateGroups();
 
     @Transaction
     @Query("SELECT * FROM toll_rate_sign WHERE state_route = 167")
@@ -35,6 +23,5 @@ public interface TollRateGroupDao {
     @Transaction
     @Query("SELECT * FROM toll_rate_sign WHERE is_starred = 1")
     LiveData<List<TollRateGroup>> loadFavoriteTollRateGroups();
-
 
 }

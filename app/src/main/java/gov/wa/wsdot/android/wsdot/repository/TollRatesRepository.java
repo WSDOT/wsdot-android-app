@@ -15,6 +15,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -71,6 +72,7 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
     void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
         List<TollRateTableDataEntity> mTollTables = new ArrayList<>();
+
         List<TollRowEntity> mTollRows = new ArrayList<>();
 
         URL url;
@@ -107,8 +109,8 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
                 TollRowEntity row = new TollRowEntity();
                 JSONObject rowJson = rows.getJSONObject(j);
 
+                row.setId(String.format(Locale.ENGLISH,"%d_%d", table.getRoute(), j));
                 row.setRoute(table.getRoute());
-
                 row.setHeader(rowJson.getBoolean("header"));
 
                 if (rowJson.has("weekday")) {
@@ -125,16 +127,7 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
                     row.setEndTime(rowJson.getString("end_time"));
                 }
 
-                // TODO: Rows aren't being stored/retrieved correctly
-                Log.e(TAG, "####");
-
-                Log.e(TAG, rowJson.getString("rows"));
-
                 row.setRowValues(rowJson.getString("rows"));
-
-                Log.e(TAG, String.valueOf(row.getRowValues()));
-
-                Log.e(TAG, "++++");
 
                 mTollRows.add(row);
 
@@ -154,8 +147,6 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
 
         CacheEntity tollCache = new CacheEntity("toll_table", System.currentTimeMillis());
         getCacheRepository().setCacheTime(tollCache);
-
-        Log.e(TAG, "fetched");
 
     }
 }
