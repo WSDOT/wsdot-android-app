@@ -20,39 +20,54 @@ package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import javax.inject.Inject;
+
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowEntity;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.Converters;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class SR16TollRatesFragment extends BaseFragment {
-	
+public class SR16TollRatesFragment extends BaseFragment implements
+    SwipeRefreshLayout.OnRefreshListener, Injectable {
+
     private static final String TAG = SR16TollRatesFragment.class.getSimpleName();
     private Adapter mAdapter;
 
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
-	
-	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);       
-    }
 
-	@Override
+    private View mEmptyView;
+    private static SwipeRefreshLayout swipeRefreshLayout;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
+    TollRatesViewModel viewModel;
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -65,44 +80,99 @@ public class SR16TollRatesFragment extends BaseFragment {
 
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(
+                R.color.holo_blue_bright,
+                R.color.holo_green_light,
+                R.color.holo_orange_light,
+                R.color.holo_red_light);
+
+        mEmptyView = root.findViewById(R.id.empty_list_view);
+
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(TollRatesViewModel.class);
+
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        viewModel.getTollRatesFor(16).observe(getViewLifecycleOwner(), tollRateTable -> {
+
+            if (tollRateTable != null) {
+
+                mAdapter.mData.clear();
+
+                mEmptyView.setVisibility(View.GONE);
+
+                HashMap<Integer, String> headerMap = null;
+
+                ArrayList<String[]> rowData = new ArrayList<>();
+
+                for (TollRowEntity row: tollRateTable.rows) {
+
+                    String[] rowValues = Converters.fromJsonString(row.getRowValues());
+
+                    if (row.getHeader()) {
+
+                        headerMap = new HashMap<>();
+                        for (int i = 0; i < rowValues.length; i++) {
+                            headerMap.put(i, rowValues[i]);
+                        }
+
+                    } else {
+                        rowData.add(rowValues);
+                    }
+                }
+
+                String[][] tableData = new String[rowData.size()][];
+
+                for (int i = 0; i < rowData.size(); i++){
+                    tableData[i] = rowData.get(i);
+                }
+
+                mAdapter.addSeparatorItem(headerMap);
+                BuildAdapterData(tableData, tollRateTable.tollRateTableData.getNumCol());
+
+            } else {
+                Log.e(TAG, "its null");
+            }
+        });
+
+        viewModel.refresh();
+
         return root;
     }
-	
-    @Override
-	public void onActivityCreated(Bundle savedInstanceState) {
 
-		super.onActivityCreated(savedInstanceState);
-		
-        HashMap<String, String> map = null;
-        String[][] vehicleTypeData = {
-           		{"Two (includes motorcycle)", "$5.00", "$6.00", "$7.00"},
-        		{"Three", "$7.50", "$9.00", "$10.50"},
-        		{"Four", "$10.00", "$12.00", "$14.00"},
-        		{"Five", "$12.50", "$15.00", "$17.50"},
-        		{"Six or more", "$15.00", "$18.00", "$21.00"}
-        		};
-        
-        map = new HashMap<String, String>();
-        map.put("number_axles", "Number of Axles");
-        map.put("goodtogo_pass", "Good To Go! Pass");
-        map.put("pay_by_cash", "Cash");
-        map.put("pay_by_mail", "Pay By Mail");
-        mAdapter.addSeparatorItem(map);
-        
-        for (int i = 0; i < vehicleTypeData.length; i++) {
-        	map = new HashMap<String, String>();
-            map.put("number_axles", vehicleTypeData[i][0]);
-        	map.put("goodtogo_pass", vehicleTypeData[i][1]);
-            map.put("pay_by_cash", vehicleTypeData[i][2]);
-            map.put("pay_by_mail", vehicleTypeData[i][3]);
+    private void BuildAdapterData(String[][] data, int numCol) {
+        HashMap<Integer, String> map = null;
+
+        for (int i = 0; i < data.length; i++) {
+
+            map = new HashMap<>();
+            for (int j = 0; j < numCol; j++) {
+                map.put(j, data[i][j]);
+            }
+
             mAdapter.addItem(map);
-        }		
-	}
+        }
+    }
 
     /**
      * Custom adapter for items in recycler view.
@@ -116,8 +186,8 @@ public class SR16TollRatesFragment extends BaseFragment {
 
         private static final int TYPE_ITEM = 0;
         private static final int TYPE_SEPARATOR = 1;
-        ArrayList<HashMap<String, String>> mData = new ArrayList<HashMap<String, String>>();
-        private TreeSet<Integer> mSeparatorsSet = new TreeSet<Integer>();
+        ArrayList<HashMap<Integer, String>> mData = new ArrayList<>();
+        private TreeSet<Integer> mSeparatorsSet = new TreeSet<>();
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
 
@@ -147,28 +217,28 @@ public class SR16TollRatesFragment extends BaseFragment {
             ItemViewHolder itemholder;
             TitleViewHolder titleholder;
 
-            HashMap<String, String> map = mData.get(position);
+            HashMap<Integer, String> map = mData.get(position);
 
             if (getItemViewType(position) == TYPE_ITEM){
                 itemholder = (ItemViewHolder) viewholder;
-                itemholder.numberAxles.setText(map.get("number_axles"));
+                itemholder.numberAxles.setText(map.get(0));
                 itemholder.numberAxles.setTypeface(tf);
-                itemholder.goodToGoPass.setText(map.get("goodtogo_pass"));
+                itemholder.goodToGoPass.setText(map.get(1));
                 itemholder.goodToGoPass.setTypeface(tf);
-                itemholder.payByCash.setText(map.get("pay_by_cash"));
+                itemholder.payByCash.setText(map.get(2));
                 itemholder.payByCash.setTypeface(tf);
 
-                itemholder.payByMail.setText(map.get("pay_by_mail"));
+                itemholder.payByMail.setText(map.get(3));
                 itemholder.payByMail.setTypeface(tf);
-            }else{
+            } else {
                 titleholder = (TitleViewHolder) viewholder;
-                titleholder.numberAxles.setText(map.get("number_axles"));
+                titleholder.numberAxles.setText(map.get(0));
                 titleholder.numberAxles.setTypeface(tfb);
-                titleholder.goodToGoPass.setText(map.get("goodtogo_pass"));
+                titleholder.goodToGoPass.setText(map.get(1));
                 titleholder.goodToGoPass.setTypeface(tfb);
-                titleholder.payByCash.setText(map.get("pay_by_cash"));
+                titleholder.payByCash.setText(map.get(2));
                 titleholder.payByCash.setTypeface(tfb);
-                titleholder.payByMail.setText(map.get("pay_by_mail"));
+                titleholder.payByMail.setText(map.get(3));
                 titleholder.payByMail.setTypeface(tfb);
             }
         }
@@ -178,12 +248,12 @@ public class SR16TollRatesFragment extends BaseFragment {
             return mSeparatorsSet.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
         }
 
-        public void addItem(final HashMap<String, String> map) {
+        public void addItem(final HashMap<Integer, String> map) {
             mData.add(map);
             notifyDataSetChanged();
         }
 
-        public void addSeparatorItem(final HashMap<String, String> item) {
+        public void addSeparatorItem(final HashMap<Integer, String> item) {
             mData.add(item);
             // save separator position
             mSeparatorsSet.add(mData.size() - 1);
@@ -192,8 +262,8 @@ public class SR16TollRatesFragment extends BaseFragment {
 
         @Override
         public int getItemCount() {
-            return mData.size();
-        }
+                return mData.size();
+            }
     }
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -204,10 +274,10 @@ public class SR16TollRatesFragment extends BaseFragment {
 
         public ItemViewHolder(View itemView) {
             super(itemView);
-            numberAxles = (TextView) itemView.findViewById(R.id.number_axles);
-            goodToGoPass = (TextView) itemView.findViewById(R.id.goodtogo_pass);
-            payByCash = (TextView) itemView.findViewById(R.id.pay_by_cash);
-            payByMail = (TextView) itemView.findViewById(R.id.pay_by_mail);
+            numberAxles = itemView.findViewById(R.id.number_axles);
+            goodToGoPass = itemView.findViewById(R.id.goodtogo_pass);
+            payByCash = itemView.findViewById(R.id.pay_by_cash);
+            payByMail = itemView.findViewById(R.id.pay_by_mail);
         }
     }
     public static class TitleViewHolder extends RecyclerView.ViewHolder {
@@ -218,10 +288,16 @@ public class SR16TollRatesFragment extends BaseFragment {
 
         public TitleViewHolder(View itemView) {
             super(itemView);
-            numberAxles = (TextView) itemView.findViewById(R.id.number_axles_title);
-            goodToGoPass = (TextView) itemView.findViewById(R.id.goodtogo_pass_title);
-            payByCash = (TextView) itemView.findViewById(R.id.pay_by_cash_title);
-            payByMail = (TextView) itemView.findViewById(R.id.pay_by_mail_title);
+            numberAxles = itemView.findViewById(R.id.number_axles_title);
+            goodToGoPass = itemView.findViewById(R.id.goodtogo_pass_title);
+            payByCash = itemView.findViewById(R.id.pay_by_cash_title);
+            payByMail = itemView.findViewById(R.id.pay_by_mail_title);
         }
     }
+
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+        viewModel.refresh();
+    }
 }
+

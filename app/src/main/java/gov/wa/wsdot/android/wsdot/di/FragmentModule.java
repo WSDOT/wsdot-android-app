@@ -29,7 +29,9 @@ import gov.wa.wsdot.android.wsdot.ui.myroute.report.traveltimes.MyRouteTravelTim
 import gov.wa.wsdot.android.wsdot.ui.notifications.NotificationsFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.I405TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.SR167TollRatesFragment;
+import gov.wa.wsdot.android.wsdot.ui.tollrates.SR16TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.tollrates.SR520TollRatesFragment;
+import gov.wa.wsdot.android.wsdot.ui.tollrates.SR99TollRatesFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.alertsinarea.HighwayAlertListFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.expresslanes.SeattleExpressLanesFragment;
 import gov.wa.wsdot.android.wsdot.ui.trafficmap.news.NewsFragment;
@@ -137,6 +139,15 @@ public abstract class FragmentModule {
     abstract NotificationsFragment contributeNotificationsFragment();
 
     @ContributesAndroidInjector
+    abstract SR520TollRatesFragment contributeSR520TollRatesFragment();
+
+    @ContributesAndroidInjector
+    abstract SR16TollRatesFragment contributeSR16TollRatesFragment();
+
+    @ContributesAndroidInjector
+    abstract SR99TollRatesFragment contributeSR99TollRatesFragment();
+
+    @ContributesAndroidInjector
     abstract I405TollRatesFragment contributeI405TollRatesFragmentFragment();
 
     @ContributesAndroidInjector
@@ -153,8 +164,5 @@ public abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract MyRouteTravelTimesFragment contributeMyRouteTravelTimesFragment();
-
-    @ContributesAndroidInjector
-    abstract SR520TollRatesFragment contributeSR520TollRatesFragment();
 
 }
