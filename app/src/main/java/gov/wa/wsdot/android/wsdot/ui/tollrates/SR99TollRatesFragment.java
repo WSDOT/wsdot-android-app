@@ -156,7 +156,7 @@ public class SR99TollRatesFragment extends BaseFragment implements
             }
         });
 
-        viewModel.refresh();
+        viewModel.refresh(false);
 
         return root;
     }
@@ -297,6 +297,6 @@ public class SR99TollRatesFragment extends BaseFragment implements
 
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
-        viewModel.refresh();
+        viewModel.refresh(true);
     }
 }
