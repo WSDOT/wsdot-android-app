@@ -195,6 +195,7 @@ public class SR167TollRatesFragment extends BaseFragment
 
 		viewModel.getSR167TollRateItems().observe(getViewLifecycleOwner(), tollRateGroups -> {
 			if (tollRateGroups != null) {
+
 				mEmptyView.setVisibility(View.GONE);
 
 				Collections.sort(tollRateGroups, new SortTollGroupByLocation());

@@ -61,6 +61,7 @@ public class SR520TollRatesFragment extends BaseFragment implements
     protected LinearLayoutManager mLayoutManager;
 
     private View mEmptyView;
+    private View mMessageView;
     private static SwipeRefreshLayout swipeRefreshLayout;
 
     @Inject
@@ -94,6 +95,7 @@ public class SR520TollRatesFragment extends BaseFragment implements
                 R.color.holo_red_light);
 
         mEmptyView = root.findViewById(R.id.empty_list_view);
+        mMessageView = root.findViewById(R.id.message_text);
 
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
@@ -125,6 +127,11 @@ public class SR520TollRatesFragment extends BaseFragment implements
                 mAdapter.mData.clear();
 
                 mEmptyView.setVisibility(View.GONE);
+
+                if (!tollRateTable.tollRateTableData.getMessage().equals("")) {
+                    mMessageView.setVisibility(View.VISIBLE);
+                    ((TextView) mMessageView).setText(tollRateTable.tollRateTableData.getMessage());
+                }
 
                 HashMap<Integer, String> weekdayHeaderMap = null;
                 HashMap<Integer, String> weekendHeaderMap = null;

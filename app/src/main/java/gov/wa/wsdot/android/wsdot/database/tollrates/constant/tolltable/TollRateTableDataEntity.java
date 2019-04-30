@@ -14,7 +14,8 @@ public class TollRateTableDataEntity {
     private int route = -1;
 
     @ColumnInfo(name = "message")
-    private String message;
+    @NonNull
+    private String message = "";
 
     @NonNull
     @ColumnInfo(name = "num_col")

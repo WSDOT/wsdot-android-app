@@ -99,6 +99,7 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
 
             table.setRoute(item.getInt("route"));
             table.setMessage(item.getString("message"));
+            Log.e(TAG, table.getMessage());
             table.setNumCol(item.getInt("numCol"));
 
             JSONArray rows = new JSONArray(item.getString("tollTable"));
