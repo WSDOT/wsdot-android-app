@@ -3,9 +3,16 @@ package gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrow
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "toll_rate_table_row")
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.TollRateTableDataEntity;
+
+@Entity(tableName = "toll_rate_table_row",
+        foreignKeys = @ForeignKey(entity = TollRateTableDataEntity.class,
+            parentColumns = "route",
+            childColumns = "route",
+            onDelete = ForeignKey.CASCADE))
 public class TollRowEntity {
 
     @PrimaryKey()
@@ -28,10 +35,11 @@ public class TollRowEntity {
     @ColumnInfo(name = "start_time")
     private String startTime = "0:00";
 
+    @NonNull
     @ColumnInfo(name = "end_time")
     private String endTime = "0:00";
 
-    @ColumnInfo(name = "rows")
+    @ColumnInfo(name = "row_values")
     private String rowValues;
 
     public String getId() {
