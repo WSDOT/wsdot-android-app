@@ -46,7 +46,7 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
                                TollRateTableDataDao tollRateTableDataDao,
                                TollRowDao tollRowDao,
                                AppExecutors appExecutors, CacheRepository cacheRepository) {
-        super(appExecutors, cacheRepository, DateUtils.MINUTE_IN_MILLIS, "toll_trip");
+        super(appExecutors, cacheRepository, DateUtils.MINUTE_IN_MILLIS, "toll_table");
 
         this.tollRateTableDao = tollRateTableDao;
         this.tollRateTableDataDao = tollRateTableDataDao;
