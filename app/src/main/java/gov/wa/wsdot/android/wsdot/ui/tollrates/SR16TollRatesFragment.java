@@ -40,6 +40,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowDao;
 import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
@@ -129,34 +130,15 @@ public class SR16TollRatesFragment extends BaseFragment implements
                     ((TextView) mMessageView).setText(tollRateTable.tollRateTableData.getMessage());
                 }
 
-                HashMap<Integer, String> headerMap = null;
-
-                ArrayList<String[]> rowData = new ArrayList<>();
-
                 for (TollRowEntity row: tollRateTable.rows) {
 
-                    String[] rowValues = Converters.fromJsonString(row.getRowValues());
-
                     if (row.getHeader()) {
-
-                        headerMap = new HashMap<>();
-                        for (int i = 0; i < rowValues.length; i++) {
-                            headerMap.put(i, rowValues[i]);
-                        }
-
+                        mAdapter.addSeparatorItem(row);
                     } else {
-                        rowData.add(rowValues);
+                        mAdapter.addItem(row);
                     }
                 }
 
-                String[][] tableData = new String[rowData.size()][];
-
-                for (int i = 0; i < rowData.size(); i++){
-                    tableData[i] = rowData.get(i);
-                }
-
-                mAdapter.addSeparatorItem(headerMap);
-                BuildAdapterData(tableData, tollRateTable.tollRateTableData.getNumCol());
 
             } else {
                 Log.e(TAG, "its null");
@@ -168,19 +150,6 @@ public class SR16TollRatesFragment extends BaseFragment implements
         return root;
     }
 
-    private void BuildAdapterData(String[][] data, int numCol) {
-        HashMap<Integer, String> map = null;
-
-        for (int i = 0; i < data.length; i++) {
-
-            map = new HashMap<>();
-            for (int j = 0; j < numCol; j++) {
-                map.put(j, data[i][j]);
-            }
-
-            mAdapter.addItem(map);
-        }
-    }
 
     /**
      * Custom adapter for items in recycler view.
@@ -194,7 +163,7 @@ public class SR16TollRatesFragment extends BaseFragment implements
 
         private static final int TYPE_ITEM = 0;
         private static final int TYPE_SEPARATOR = 1;
-        ArrayList<HashMap<Integer, String>> mData = new ArrayList<>();
+        ArrayList<TollRowEntity> mData = new ArrayList<>();
         private TreeSet<Integer> mSeparatorsSet = new TreeSet<>();
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
@@ -217,6 +186,7 @@ public class SR16TollRatesFragment extends BaseFragment implements
                     return new TitleViewHolder(itemView);
             }
             return null;
+
         }
 
         @Override
@@ -225,28 +195,28 @@ public class SR16TollRatesFragment extends BaseFragment implements
             ItemViewHolder itemholder;
             TitleViewHolder titleholder;
 
-            HashMap<Integer, String> map = mData.get(position);
+            TollRowEntity row = mData.get(position);
+            String[] rowArray =Converters.fromJsonString(row.getRowValues());
 
             if (getItemViewType(position) == TYPE_ITEM){
                 itemholder = (ItemViewHolder) viewholder;
-                itemholder.numberAxles.setText(map.get(0));
+                itemholder.numberAxles.setText(rowArray[0]);
                 itemholder.numberAxles.setTypeface(tf);
-                itemholder.goodToGoPass.setText(map.get(1));
+                itemholder.goodToGoPass.setText(rowArray[1]);
                 itemholder.goodToGoPass.setTypeface(tf);
-                itemholder.payByCash.setText(map.get(2));
+                itemholder.payByCash.setText(rowArray[2]);
                 itemholder.payByCash.setTypeface(tf);
-
-                itemholder.payByMail.setText(map.get(3));
+                itemholder.payByMail.setText(rowArray[3]);
                 itemholder.payByMail.setTypeface(tf);
             } else {
                 titleholder = (TitleViewHolder) viewholder;
-                titleholder.numberAxles.setText(map.get(0));
+                titleholder.numberAxles.setText(rowArray[0]);
                 titleholder.numberAxles.setTypeface(tfb);
-                titleholder.goodToGoPass.setText(map.get(1));
+                titleholder.goodToGoPass.setText(rowArray[1]);
                 titleholder.goodToGoPass.setTypeface(tfb);
-                titleholder.payByCash.setText(map.get(2));
+                titleholder.payByCash.setText(rowArray[2]);
                 titleholder.payByCash.setTypeface(tfb);
-                titleholder.payByMail.setText(map.get(3));
+                titleholder.payByMail.setText(rowArray[3]);
                 titleholder.payByMail.setTypeface(tfb);
             }
         }
@@ -256,12 +226,12 @@ public class SR16TollRatesFragment extends BaseFragment implements
             return mSeparatorsSet.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
         }
 
-        public void addItem(final HashMap<Integer, String> map) {
-            mData.add(map);
+        public void addItem(final TollRowEntity item) {
+            mData.add(item);
             notifyDataSetChanged();
         }
 
-        public void addSeparatorItem(final HashMap<Integer, String> item) {
+        public void addSeparatorItem(final TollRowEntity item) {
             mData.add(item);
             // save separator position
             mSeparatorsSet.add(mData.size() - 1);

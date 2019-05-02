@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -26,6 +27,7 @@ import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.Converters;
+import gov.wa.wsdot.android.wsdot.util.Utils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
 public class SR99TollRatesFragment extends BaseFragment implements
@@ -110,53 +112,13 @@ public class SR99TollRatesFragment extends BaseFragment implements
                     ((TextView) mMessageView).setText(tollRateTable.tollRateTableData.getMessage());
                 }
 
-                HashMap<Integer, String> weekdayHeaderMap = null;
-                HashMap<Integer, String> weekendHeaderMap = null;
-
-                ArrayList<String[]> weekdays = new ArrayList<>();
-                ArrayList<String[]> weekends = new ArrayList<>();
-
                 for (TollRowEntity row: tollRateTable.rows) {
-
-                    String[] rowValues = Converters.fromJsonString(row.getRowValues());
-
                     if (row.getHeader()) {
-                        if (row.getWeekday()) {
-                            weekdayHeaderMap = new HashMap<>();
-                            for (int i = 0; i < rowValues.length; i++) {
-                                weekdayHeaderMap.put(i, rowValues[i]);
-                            }
-                        } else {
-                            weekendHeaderMap = new HashMap<>();
-                            for (int i = 0; i < rowValues.length; i++) {
-                                weekendHeaderMap.put(i, rowValues[i]);
-                            }
-                        }
+                        mAdapter.addSeparatorItem(row);
                     } else {
-                        if (row.getWeekday()) {
-                            weekdays.add(rowValues);
-                        } else {
-                            weekends.add(rowValues);
-                        }
+                        mAdapter.addItem(row);
                     }
                 }
-
-                String[][] weekdayData = new String[weekdays.size()][];
-
-                for (int i = 0; i < weekdays.size(); i++){
-                    weekdayData[i] = weekdays.get(i);
-                }
-
-                String[][] weekendData = new String[weekends.size()][];
-
-                for (int i = 0; i < weekends.size(); i++){
-                    weekendData[i] = weekends.get(i);
-                }
-
-                mAdapter.addSeparatorItem(weekdayHeaderMap);
-                BuildAdapterData(weekdayData, tollRateTable.tollRateTableData.getNumCol());
-                mAdapter.addSeparatorItem(weekendHeaderMap);
-                BuildAdapterData(weekendData, tollRateTable.tollRateTableData.getNumCol());
 
             } else {
                 Log.e(TAG, "its null");
@@ -168,19 +130,6 @@ public class SR99TollRatesFragment extends BaseFragment implements
         return root;
     }
 
-    private void BuildAdapterData(String[][] data, int numCol) {
-        HashMap<Integer, String> map = null;
-
-        for (int i = 0; i < data.length; i++) {
-
-            map = new HashMap<>();
-            for (int j = 0; j < numCol; j++) {
-                map.put(j, data[i][j]);
-            }
-
-            mAdapter.addItem(map);
-        }
-    }
 
     /**
      * Custom adapter for items in recycler view.
@@ -199,7 +148,7 @@ public class SR99TollRatesFragment extends BaseFragment implements
         private static final int TYPE_SEPARATOR = 1;
 
         private TreeSet<Integer> mSeparatorsSet = new TreeSet<>();
-        private ArrayList<HashMap<Integer, String>> mData = new ArrayList<>();
+        private ArrayList<TollRowEntity> mData = new ArrayList<>();
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -227,24 +176,34 @@ public class SR99TollRatesFragment extends BaseFragment implements
             ItemViewHolder itemholder;
             TitleViewHolder titleholder;
 
-            HashMap<Integer, String> map = mData.get(position);
+            TollRowEntity row = mData.get(position);
+            String[] rowArray = Converters.fromJsonString(row.getRowValues());
 
             try {
                 if (getItemViewType(position) == TYPE_ITEM) {
                     itemholder = (ItemViewHolder) viewholder;
-                    itemholder.hours.setText(map.get(0));
+                    itemholder.hours.setText(rowArray[0]);
                     itemholder.hours.setTypeface(tf);
-                    itemholder.goodToGoPass.setText(map.get(1));
+                    itemholder.goodToGoPass.setText(rowArray[1]);
                     itemholder.goodToGoPass.setTypeface(tf);
-                    itemholder.payByMail.setText(map.get(2));
+                    itemholder.payByMail.setText(rowArray[2]);
                     itemholder.payByMail.setTypeface(tf);
+
+                    if (Utils.isCurrentHour(row.getStartTime(), row.getEndTime(), Calendar.getInstance())){
+                        if ((row.getWeekday() && !Utils.isWeekendOrWAC_468_270_071Holiday(Calendar.getInstance()))
+                                || (!row.getWeekday() && Utils.isWeekendOrWAC_468_270_071Holiday(Calendar.getInstance()))) {
+
+                            itemholder.itemView.setBackgroundColor(getResources().getColor(R.color.primary_default));
+                        }
+                    }
+
                 } else {
                     titleholder = (TitleViewHolder) viewholder;
-                    titleholder.hours.setText(map.get(0));
+                    titleholder.hours.setText(rowArray[0]);
                     titleholder.hours.setTypeface(tfb);
-                    titleholder.goodToGoPass.setText(map.get(1));
+                    titleholder.goodToGoPass.setText(rowArray[1]);
                     titleholder.goodToGoPass.setTypeface(tfb);
-                    titleholder.payByMail.setText(map.get(2));
+                    titleholder.payByMail.setText(rowArray[2]);
                     titleholder.payByMail.setTypeface(tfb);
                 }
             } catch (NullPointerException e) {
@@ -258,12 +217,12 @@ public class SR99TollRatesFragment extends BaseFragment implements
             return mSeparatorsSet.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
         }
 
-        public void addItem(final HashMap<Integer, String> item) {
+        public void addItem(final TollRowEntity item) {
             mData.add(item);
             notifyDataSetChanged();
         }
 
-        public void addSeparatorItem(final HashMap<Integer, String> item) {
+        public void addSeparatorItem(final TollRowEntity item) {
             mData.add(item);
             // save separator position
             mSeparatorsSet.add(mData.size() - 1);
@@ -306,4 +265,5 @@ public class SR99TollRatesFragment extends BaseFragment implements
         swipeRefreshLayout.setRefreshing(true);
         viewModel.refresh(true);
     }
+
 }
