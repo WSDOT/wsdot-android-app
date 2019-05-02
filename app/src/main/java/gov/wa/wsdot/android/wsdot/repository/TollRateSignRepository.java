@@ -95,6 +95,7 @@ public class TollRateSignRepository extends NetworkResourceSyncRepository {
         URL url;
 
         url = new URL(APIEndPoints.I405_TOLL_RATES + "?accesscode=" + APIEndPoints.WSDOT_API_KEY);
+
         URLConnection urlConn = url.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
         String jsonFile = "";
@@ -107,6 +108,7 @@ public class TollRateSignRepository extends NetworkResourceSyncRepository {
         JSONArray items = new JSONArray(jsonFile);
 
         int numItems = items.length();
+
 
         for (int j=0; j < numItems; j++) {
 
@@ -126,11 +128,15 @@ public class TollRateSignRepository extends NetworkResourceSyncRepository {
                 trip.setEndLongitude(item.getDouble("EndLongitude"));
 
                 try {
+
                     trip.setUpdated(dateFormat.format(new Date(System.currentTimeMillis())));
+
                 } catch (Exception e) {
+
                     trip.setUpdated("unavailable");
                     Log.e(TAG, "Error parsing date", e);
-                }
+
+                                                                                                                                                                                                                                   }
 
                 mTollTrips.add(trip);
 

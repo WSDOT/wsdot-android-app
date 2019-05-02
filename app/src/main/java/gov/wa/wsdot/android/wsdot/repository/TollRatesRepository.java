@@ -99,7 +99,6 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
 
             table.setRoute(item.getInt("route"));
             table.setMessage(item.getString("message"));
-            Log.e(TAG, table.getMessage());
             table.setNumCol(item.getInt("numCol"));
 
             JSONArray rows = new JSONArray(item.getString("tollTable"));
@@ -133,8 +132,11 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
                 mTollRows.add(row);
 
             }
+
             mTollTables.add(table);
         }
+
+
 
         TollRateTableDataEntity[] tollTableArray = new TollRateTableDataEntity[mTollTables.size()];
         tollTableArray = mTollTables.toArray(tollTableArray);
@@ -148,6 +150,8 @@ public class TollRatesRepository extends NetworkResourceSyncRepository {
 
         CacheEntity tollCache = new CacheEntity("toll_table", System.currentTimeMillis());
         getCacheRepository().setCacheTime(tollCache);
+
+
 
     }
 }
