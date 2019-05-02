@@ -1,21 +1,3 @@
-/*
- * Copyright (c) 2017 Washington State Department of Transportation
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- */
-
 package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
 import android.graphics.Typeface;
@@ -28,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -40,17 +23,17 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import javax.inject.Inject;
 
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowDao;
 import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
 import gov.wa.wsdot.android.wsdot.util.Converters;
+import gov.wa.wsdot.android.wsdot.util.Utils;
 import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
 
-public class SR16TollRatesFragment extends BaseFragment implements
-    SwipeRefreshLayout.OnRefreshListener, Injectable {
+public class SR99TollRatesFragment extends BaseFragment implements
+        SwipeRefreshLayout.OnRefreshListener, Injectable {
 
-    private static final String TAG = SR16TollRatesFragment.class.getSimpleName();
+    private static final String TAG = SR520TollRatesFragment.class.getSimpleName();
     private Adapter mAdapter;
 
     protected RecyclerView mRecyclerView;
@@ -68,7 +51,7 @@ public class SR16TollRatesFragment extends BaseFragment implements
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
 
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
@@ -117,28 +100,25 @@ public class SR16TollRatesFragment extends BaseFragment implements
             }
         });
 
-        viewModel.getTollRatesFor(16).observe(getViewLifecycleOwner(), tollRateTable -> {
+        viewModel.getTollRatesFor(99).observe(getViewLifecycleOwner(), tollRateTable -> {
 
             if (tollRateTable != null) {
 
                 mAdapter.mData.clear();
 
                 mEmptyView.setVisibility(View.GONE);
-
                 if (!tollRateTable.tollRateTableData.getMessage().equals("")) {
                     mMessageView.setVisibility(View.VISIBLE);
                     ((TextView) mMessageView).setText(tollRateTable.tollRateTableData.getMessage());
                 }
 
                 for (TollRowEntity row: tollRateTable.rows) {
-
                     if (row.getHeader()) {
                         mAdapter.addSeparatorItem(row);
                     } else {
                         mAdapter.addItem(row);
                     }
                 }
-
 
             } else {
                 Log.e(TAG, "its null");
@@ -161,12 +141,14 @@ public class SR16TollRatesFragment extends BaseFragment implements
      */
     private class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        private static final int TYPE_ITEM = 0;
-        private static final int TYPE_SEPARATOR = 1;
-        ArrayList<TollRowEntity> mData = new ArrayList<>();
-        private TreeSet<Integer> mSeparatorsSet = new TreeSet<>();
         private Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Regular.ttf");
         private Typeface tfb = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Bold.ttf");
+
+        private static final int TYPE_ITEM = 0;
+        private static final int TYPE_SEPARATOR = 1;
+
+        private TreeSet<Integer> mSeparatorsSet = new TreeSet<>();
+        private ArrayList<TollRowEntity> mData = new ArrayList<>();
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -177,16 +159,15 @@ public class SR16TollRatesFragment extends BaseFragment implements
                 case TYPE_ITEM:
                     itemView = LayoutInflater.
                             from(parent.getContext()).
-                            inflate(R.layout.tollrates_four_col_row, parent, false);
+                            inflate(R.layout.tollrates_three_col_row, parent, false);
                     return new ItemViewHolder(itemView);
                 case TYPE_SEPARATOR:
                     itemView = LayoutInflater.
                             from(parent.getContext()).
-                            inflate(R.layout.tollrates_four_col_header, parent, false);
+                            inflate(R.layout.tollrates_three_col_header, parent, false);
                     return new TitleViewHolder(itemView);
             }
             return null;
-
         }
 
         @Override
@@ -196,28 +177,38 @@ public class SR16TollRatesFragment extends BaseFragment implements
             TitleViewHolder titleholder;
 
             TollRowEntity row = mData.get(position);
-            String[] rowArray =Converters.fromJsonString(row.getRowValues());
+            String[] rowArray = Converters.fromJsonString(row.getRowValues());
 
-            if (getItemViewType(position) == TYPE_ITEM){
-                itemholder = (ItemViewHolder) viewholder;
-                itemholder.numberAxles.setText(rowArray[0]);
-                itemholder.numberAxles.setTypeface(tf);
-                itemholder.goodToGoPass.setText(rowArray[1]);
-                itemholder.goodToGoPass.setTypeface(tf);
-                itemholder.payByCash.setText(rowArray[2]);
-                itemholder.payByCash.setTypeface(tf);
-                itemholder.payByMail.setText(rowArray[3]);
-                itemholder.payByMail.setTypeface(tf);
-            } else {
-                titleholder = (TitleViewHolder) viewholder;
-                titleholder.numberAxles.setText(rowArray[0]);
-                titleholder.numberAxles.setTypeface(tfb);
-                titleholder.goodToGoPass.setText(rowArray[1]);
-                titleholder.goodToGoPass.setTypeface(tfb);
-                titleholder.payByCash.setText(rowArray[2]);
-                titleholder.payByCash.setTypeface(tfb);
-                titleholder.payByMail.setText(rowArray[3]);
-                titleholder.payByMail.setTypeface(tfb);
+            try {
+                if (getItemViewType(position) == TYPE_ITEM) {
+                    itemholder = (ItemViewHolder) viewholder;
+                    itemholder.hours.setText(rowArray[0]);
+                    itemholder.hours.setTypeface(tf);
+                    itemholder.goodToGoPass.setText(rowArray[1]);
+                    itemholder.goodToGoPass.setTypeface(tf);
+                    itemholder.payByMail.setText(rowArray[2]);
+                    itemholder.payByMail.setTypeface(tf);
+
+                    if (Utils.isCurrentHour(row.getStartTime(), row.getEndTime(), Calendar.getInstance())){
+                        if ((row.getWeekday() && !Utils.isWeekendOrWAC_468_270_071Holiday(Calendar.getInstance()))
+                                || (!row.getWeekday() && Utils.isWeekendOrWAC_468_270_071Holiday(Calendar.getInstance()))) {
+
+                            itemholder.itemView.setBackgroundColor(getResources().getColor(R.color.primary_default));
+                        }
+                    }
+
+                } else {
+                    titleholder = (TitleViewHolder) viewholder;
+                    titleholder.hours.setText(rowArray[0]);
+                    titleholder.hours.setTypeface(tfb);
+                    titleholder.goodToGoPass.setText(rowArray[1]);
+                    titleholder.goodToGoPass.setTypeface(tfb);
+                    titleholder.payByMail.setText(rowArray[2]);
+                    titleholder.payByMail.setTypeface(tfb);
+                }
+            } catch (NullPointerException e) {
+                Log.e(TAG, "map values null at:");
+                Log.e(TAG, String.valueOf(position));
             }
         }
 
@@ -240,35 +231,32 @@ public class SR16TollRatesFragment extends BaseFragment implements
 
         @Override
         public int getItemCount() {
-                return mData.size();
-            }
+            return mData.size();
+        }
     }
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
-        protected TextView numberAxles;
+        protected TextView hours;
         protected TextView goodToGoPass;
-        protected TextView payByCash;
         protected TextView payByMail;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
-            numberAxles = itemView.findViewById(R.id.number_axles);
+            hours = itemView.findViewById(R.id.hours);
             goodToGoPass = itemView.findViewById(R.id.goodtogo_pass);
-            payByCash = itemView.findViewById(R.id.pay_by_cash);
             payByMail = itemView.findViewById(R.id.pay_by_mail);
         }
     }
+
     public static class TitleViewHolder extends RecyclerView.ViewHolder {
-        protected TextView numberAxles;
+        protected TextView hours;
         protected TextView goodToGoPass;
-        protected TextView payByCash;
         protected TextView payByMail;
 
         public TitleViewHolder(View itemView) {
             super(itemView);
-            numberAxles = itemView.findViewById(R.id.number_axles_title);
+            hours = itemView.findViewById(R.id.hours_title);
             goodToGoPass = itemView.findViewById(R.id.goodtogo_pass_title);
-            payByCash = itemView.findViewById(R.id.pay_by_cash_title);
             payByMail = itemView.findViewById(R.id.pay_by_mail_title);
         }
     }
@@ -277,5 +265,5 @@ public class SR16TollRatesFragment extends BaseFragment implements
         swipeRefreshLayout.setRefreshing(true);
         viewModel.refresh(true);
     }
-}
 
+}

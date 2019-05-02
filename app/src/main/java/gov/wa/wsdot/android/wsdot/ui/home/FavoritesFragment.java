@@ -60,8 +60,8 @@ import gov.wa.wsdot.android.wsdot.database.cameras.CameraEntity;
 import gov.wa.wsdot.android.wsdot.database.ferries.FerryScheduleEntity;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassEntity;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroup;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.tolltrips.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroup;
@@ -227,7 +227,7 @@ public class FavoritesFragment extends BaseFragment implements
                         break;
                     case TOLL_RATE_VIEWTYPE:
                         TollRateGroup tollRateGroup = (TollRateGroup) mFavoritesAdapter.getItem((holder.getAdapterPosition()));
-                        item_id = String.valueOf(tollRateGroup.tollRateSign.getId());
+                        item_id = tollRateGroup.tollRateSign.getId();
                         break;
                     case BORDER_WAIT_VIEWTYPE:
                         BorderWaitEntity borderWait = (BorderWaitEntity) mFavoritesAdapter.getItem((holder.getAdapterPosition()));
@@ -1071,6 +1071,7 @@ public class FavoritesFragment extends BaseFragment implements
                     break;
                 case TOLL_RATE_VIEWTYPE:
                     viewModel.setTollRateIsStarred(item_id, 0);
+                    break;
                 case BORDER_WAIT_VIEWTYPE:
                     viewModel.setBorderWaitIsStarred(Integer.valueOf(item_id), 0);
             }

@@ -80,6 +80,8 @@ public class TollRatesActivity extends BaseActivity {
         mTabLayout.addTab(mTabLayout.newTab().setText("SR 520"));
         tabFragments.add(mTabLayout.getTabCount(), SR16TollRatesFragment.class);
         mTabLayout.addTab(mTabLayout.newTab().setText("SR 16"));
+        tabFragments.add(mTabLayout.getTabCount(), SR99TollRatesFragment.class);
+        mTabLayout.addTab(mTabLayout.newTab().setText("SR 99"));
         tabFragments.add(mTabLayout.getTabCount(), SR167TollRatesFragment.class);
         mTabLayout.addTab(mTabLayout.newTab().setText("SR 167"));
         tabFragments.add(mTabLayout.getTabCount(), I405TollRatesFragment.class);
@@ -124,11 +126,8 @@ public class TollRatesActivity extends BaseActivity {
 
         settings.edit().putBoolean("KEY_SEEN_TOLL_WARNING", true).apply();
 
-
         disableAds();
-
         MyLogger.crashlyticsLog("Toll Rates", "Screen View", "TollRatesActivity", 1);
-
     }
 
     @Override
@@ -136,7 +135,6 @@ public class TollRatesActivity extends BaseActivity {
         super.onResume();
         setFirebaseAnalyticsScreenName("TollRatesSR520");
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

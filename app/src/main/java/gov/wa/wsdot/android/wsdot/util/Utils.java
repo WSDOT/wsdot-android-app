@@ -2,6 +2,7 @@ package gov.wa.wsdot.android.wsdot.util;
 
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.util.Log;
 import android.util.SparseArray;
 
 import org.json.JSONArray;
@@ -19,7 +20,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
+import dagger.multibindings.IntoMap;
 import gov.wa.wsdot.android.wsdot.shared.FerriesTerminalItem;
+import gov.wa.wsdot.android.wsdot.ui.callout.CalloutActivity;
 
 public class Utils {
 
@@ -183,4 +186,67 @@ public class Utils {
             return arrayList;
         }
     }
+
+    public static Boolean isCurrentHour(String startHourStr, String endHourStr, Calendar cal) {
+
+        Calendar startTime = Calendar.getInstance();
+
+        startTime.set(Calendar.HOUR_OF_DAY, Integer.valueOf(startHourStr.split(":")[0]));
+        startTime.set(Calendar.MINUTE, Integer.valueOf(startHourStr.split(":")[1]));
+
+        Calendar endTime = Calendar.getInstance();
+
+        endTime.set(Calendar.HOUR_OF_DAY, Integer.valueOf(endHourStr.split(":")[0]));
+        endTime.set(Calendar.MINUTE, Integer.valueOf(endHourStr.split(":")[1]));
+
+        Date currentTime = cal.getTime();
+
+        return (currentTime.after(startTime.getTime()) && currentTime.before(endTime.getTime()));
+
+    }
+
+    public static Boolean isWeekendOrWAC_468_270_071Holiday(Calendar cal) {
+        // check if weekend
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            return true;
+        }
+
+        // check if New Year's Day
+        if (cal.get(Calendar.MONTH) == Calendar.JANUARY
+                && cal.get(Calendar.DAY_OF_MONTH) == 1) {
+            return true;
+        }
+
+        // check if Christmas
+        if (cal.get(Calendar.MONTH) == Calendar.DECEMBER
+                && cal.get(Calendar.DAY_OF_MONTH) == 25) {
+            return true;
+        }
+
+        // check if 4th of July
+        if (cal.get(Calendar.MONTH) == Calendar.JULY
+                && cal.get(Calendar.DAY_OF_MONTH) == 4) {
+            return true;
+        }
+
+        // check Thanksgiving (4th Thursday of November)
+        if (cal.get(Calendar.MONTH) == Calendar.NOVEMBER
+                && cal.get(Calendar.DAY_OF_WEEK_IN_MONTH) == 4
+                && cal.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY) {
+            return true;
+        }
+
+        // check Memorial Day (last Monday of May)
+        if (cal.get(Calendar.MONTH) == Calendar.MAY
+                && cal.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY
+                && cal.get(Calendar.DAY_OF_MONTH) > (31 - 7)) {
+            return true;
+        }
+
+        // check Labor Day (1st Monday of September)
+        return (cal.get(Calendar.MONTH) == Calendar.SEPTEMBER
+                && cal.get(Calendar.DAY_OF_WEEK_IN_MONTH) == 1
+                && cal.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY);
+    }
+
 }

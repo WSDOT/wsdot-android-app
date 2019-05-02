@@ -8,6 +8,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import gov.wa.wsdot.android.wsdot.database.borderwaits.BorderWaitDao;
@@ -28,11 +29,17 @@ import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteEntity;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicDao;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicEntity;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroupDao;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignDao;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignEntity;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripDao;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.TollRateTable;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.TollRateTableDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.TollRateTableDataDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.TollRateTableDataEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroupDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.TollRateSignDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.TollRateSignEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.tolltrips.TollTripDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.tolltrips.TollTripEntity;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationDao;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeDao;
@@ -55,9 +62,10 @@ import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeTripEntity;
         TravelTimeEntity.class,
         NotificationTopicEntity.class,
         TollTripEntity.class,
-        TollRateSignEntity.class
-    }, version = 13)
-
+        TollRateSignEntity.class,
+        TollRowEntity.class,
+        TollRateTableDataEntity.class
+    }, version = 14)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String TAG = AppDatabase.class.getSimpleName();
@@ -77,9 +85,14 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract MapLocationDao mapLocationDao();
     public abstract MyRouteDao myRouteDao();
     public abstract NotificationTopicDao notificationTopicDao();
+
     public abstract TollTripDao tollTripDao();
     public abstract TollRateSignDao tollRateSignDao();
     public abstract TollRateGroupDao tollRateGroupDao();
+
+    public abstract TollRateTableDao tollRateTableDao();
+    public abstract TollRateTableDataDao tollRateTableDataDao();
+    public abstract TollRowDao tollRowDao();
 
     private static final Object sLock = new Object();
 
@@ -98,6 +111,8 @@ public abstract class AppDatabase extends RoomDatabase {
         String NOTIFICATION_TOPIC = "notification_topic";
         String TOLL_RATE_SIGN = "toll_rate_sign";
         String TOLL_TRIP = "toll_trip";
+        String TOLL_RATE_TABLE = "toll_rate_table";
+        String TOLL_TATE_TABLE_ROW = "toll_rate_table_row";
 
     }
 
@@ -256,6 +271,22 @@ public abstract class AppDatabase extends RoomDatabase {
         String TOLL_TRIP_END_LAT = "end_latitude";
         String TOLL_TRIP_END_LONG = "end_longitude";
         String TOLL_TRIP_UPDATED = "updated";
+    }
+
+    interface  TollRateTableColumns {
+        String TOLL_TABLE_ROUTE = "route";
+        String TOLL_TABLE_MESSAGE = "message";
+        String TOLL_TABLE_NUM_COL = "num_col";
+    }
+
+    interface  TollRateTableRowColumns {
+        String TOLL_TABLE_ROW_ID = "id";
+        String TOLL_TABLE_ROW_ROUTE = "route";
+        String TOLL_TABLE_ROW_IS_HEADER = "is_header";
+        String TOLL_TABLE_ROW_IS_WEEKDAY = "is_weekday";
+        String TOLL_TABLE_ROW_START_TIME = "start_time";
+        String TOLL_TABLE_ROW_END_TIME = "end_time";
+        String TOLL_TABLE_ROW_ROW_VALUES = "row_values";
     }
 
     @VisibleForTesting
@@ -734,6 +765,35 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    // Adds toll table tables
+    @VisibleForTesting
+    public static final Migration MIGRATION_13_14 = new Migration(13, 14) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+
+
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.TOLL_RATE_TABLE + " ("
+                    + TollRateTableColumns.TOLL_TABLE_ROUTE + " INTEGER PRIMARY KEY NOT NULL default -1,"
+                    + TollRateTableColumns.TOLL_TABLE_MESSAGE + " TEXT NOT NULL,"
+                    + TollRateTableColumns.TOLL_TABLE_NUM_COL + " INTEGER NOT NULL default 0);");
+
+
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.TOLL_TATE_TABLE_ROW + " ("
+                    + TollRateTableRowColumns.TOLL_TABLE_ROW_ID + " TEXT PRIMARY KEY NOT NULL default '000_0',"
+                    + TollRateTableRowColumns.TOLL_TABLE_ROW_IS_HEADER + " INTEGER NOT NULL default 0,"
+                    + TollRateTableRowColumns.TOLL_TABLE_ROW_IS_WEEKDAY + " INTEGER NOT NULL default 0,"
+                    + TollRateTableRowColumns.TOLL_TABLE_ROW_START_TIME + " TEXT NOT NULL default '0:00',"
+                    + TollRateTableRowColumns.TOLL_TABLE_ROW_END_TIME + " TEXT NOT NULL default '0:00',"
+                    + TollRateTableRowColumns.TOLL_TABLE_ROW_ROW_VALUES + " TEXT,"
+                    + TollRateTableColumns.TOLL_TABLE_ROUTE + " INTEGER NOT NULL default -1,"
+                    + String.format(" FOREIGN KEY(`%s`) REFERENCES `%s`(`%s`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+                    TollRateTableRowColumns.TOLL_TABLE_ROW_ROUTE, Tables.TOLL_RATE_TABLE, TollRateTableColumns.TOLL_TABLE_ROUTE));
+
+            database.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('toll_table', 0);");
+
+        }
+    };
+
     public static AppDatabase getInstance(Context context) {
         synchronized (sLock) {
             if (INSTANCE == null) {
@@ -751,7 +811,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                 MIGRATION_9_10,
                                 MIGRATION_10_11,
                                 MIGRATION_11_12,
-                                MIGRATION_12_13)
+                                MIGRATION_12_13,
+                                MIGRATION_13_14)
                         .addCallback(new Callback() {
 
                             @Override

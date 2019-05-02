@@ -2,7 +2,7 @@ package gov.wa.wsdot.android.wsdot.util.sort;
 
 import java.util.Comparator;
 
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroup;
 
 public class SortTollGroupByMilepost implements Comparator<TollRateGroup> {
 

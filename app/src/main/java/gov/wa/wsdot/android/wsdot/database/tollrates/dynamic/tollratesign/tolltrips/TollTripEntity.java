@@ -1,10 +1,12 @@
-package gov.wa.wsdot.android.wsdot.database.tollrates;
+package gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.tolltrips;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
+
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.TollRateSignEntity;
 
 @Entity(tableName = "toll_trip",
         foreignKeys = @ForeignKey(entity = TollRateSignEntity.class,

@@ -1,4 +1,4 @@
-package gov.wa.wsdot.android.wsdot.database.tollrates;
+package gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.tolltrips;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -20,4 +20,5 @@ public abstract class TollTripDao {
         deleteAll();
         insertTravelTimes(tollTrips);
     }
+
 }

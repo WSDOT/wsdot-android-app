@@ -2,7 +2,7 @@ package gov.wa.wsdot.android.wsdot.util.sort;
 
 import java.util.Comparator;
 
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroup;
 
 /**
  *  Comparator class for sorting toll groups by location name

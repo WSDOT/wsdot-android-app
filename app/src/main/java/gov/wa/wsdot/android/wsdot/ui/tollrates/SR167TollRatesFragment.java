@@ -55,9 +55,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroup;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignEntity;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroup;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.tolltrips.TollTripEntity;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.TollRateSignEntity;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeEntity;
 import gov.wa.wsdot.android.wsdot.di.Injectable;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
@@ -92,7 +92,7 @@ public class SR167TollRatesFragment extends BaseFragment
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	TollRatesViewModel viewModel;
+	private TollRateSignsViewModel viewModel;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -139,7 +139,6 @@ public class SR167TollRatesFragment extends BaseFragment
             travelTimeView.setText(getTravelTimeStringForDirection(radioGroupDirectionIndex == 0 ? "N" : "S"));
 
 			editor.putInt(getString(R.string.toll_rates_167_travel_direction_key), radioGroupDirectionIndex);
-
 			editor.apply();
 
 		});
@@ -176,7 +175,7 @@ public class SR167TollRatesFragment extends BaseFragment
 
 		});
 
-		viewModel = ViewModelProviders.of(this, viewModelFactory).get(TollRatesViewModel.class);
+		viewModel = ViewModelProviders.of(this, viewModelFactory).get(TollRateSignsViewModel.class);
 
 		viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
 			if (resourceStatus != null) {
@@ -196,6 +195,7 @@ public class SR167TollRatesFragment extends BaseFragment
 
 		viewModel.getSR167TollRateItems().observe(getViewLifecycleOwner(), tollRateGroups -> {
 			if (tollRateGroups != null) {
+
 				mEmptyView.setVisibility(View.GONE);
 
 				Collections.sort(tollRateGroups, new SortTollGroupByLocation());

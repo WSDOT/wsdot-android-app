@@ -16,9 +16,12 @@ import gov.wa.wsdot.android.wsdot.database.highwayalerts.HighwayAlertDao;
 import gov.wa.wsdot.android.wsdot.database.mountainpasses.MountainPassDao;
 import gov.wa.wsdot.android.wsdot.database.myroute.MyRouteDao;
 import gov.wa.wsdot.android.wsdot.database.notifications.NotificationTopicDao;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateGroupDao;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollRateSignDao;
-import gov.wa.wsdot.android.wsdot.database.tollrates.TollTripDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.TollRateTableDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.TollRateTableDataDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.TollRateGroupDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.TollRateSignDao;
+import gov.wa.wsdot.android.wsdot.database.tollrates.dynamic.tollratesign.tolltrips.TollTripDao;
 import gov.wa.wsdot.android.wsdot.database.trafficmap.MapLocationDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeDao;
 import gov.wa.wsdot.android.wsdot.database.traveltimes.TravelTimeGroupDao;
@@ -114,6 +117,21 @@ class AppModule {
     @Singleton @Provides
     TollRateGroupDao provideTollRateGroupDao(AppDatabase db) {
         return db.tollRateGroupDao();
+    }
+
+    @Singleton @Provides
+    TollRateTableDao provideTollRateTableDao(AppDatabase db) {
+        return db.tollRateTableDao();
+    }
+
+    @Singleton @Provides
+    TollRateTableDataDao provideTollRateTableDataDao(AppDatabase db) {
+        return db.tollRateTableDataDao();
+    }
+
+    @Singleton @Provides
+    TollRowDao provideTollRowDao(AppDatabase db) {
+        return db.tollRowDao();
     }
 
 }

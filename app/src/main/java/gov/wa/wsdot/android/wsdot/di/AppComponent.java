@@ -21,7 +21,6 @@ import gov.wa.wsdot.android.wsdot.ui.WsdotApplication;
         FragmentModule.class,
         ServiceModule.class
 })
-
 public interface AppComponent {
     @Component.Builder
     interface Builder {

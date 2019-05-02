@@ -20,22 +20,42 @@ package gov.wa.wsdot.android.wsdot.ui.tollrates;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import gov.wa.wsdot.android.wsdot.R;
-import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
-import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-public class SR520TollRatesFragment extends BaseFragment {
+import javax.inject.Inject;
+
+import gov.wa.wsdot.android.wsdot.R;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.TollRateTable;
+import gov.wa.wsdot.android.wsdot.database.tollrates.constant.tolltable.tollrows.TollRowEntity;
+import gov.wa.wsdot.android.wsdot.di.Injectable;
+import gov.wa.wsdot.android.wsdot.ui.BaseFragment;
+import gov.wa.wsdot.android.wsdot.util.Converters;
+import gov.wa.wsdot.android.wsdot.util.Utils;
+import gov.wa.wsdot.android.wsdot.util.decoration.SimpleDividerItemDecoration;
+import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByDirection;
+import gov.wa.wsdot.android.wsdot.util.sort.SortTollGroupByLocation;
+
+public class SR520TollRatesFragment extends BaseFragment implements
+        SwipeRefreshLayout.OnRefreshListener, Injectable {
 	
     private static final String TAG = SR520TollRatesFragment.class.getSimpleName();
     private Adapter mAdapter;
@@ -43,16 +63,20 @@ public class SR520TollRatesFragment extends BaseFragment {
     protected RecyclerView mRecyclerView;
     protected LinearLayoutManager mLayoutManager;
 
-	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);        
-    }
-    
+    private View mEmptyView;
+    private View mMessageView;
+    private static SwipeRefreshLayout swipeRefreshLayout;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
+    TollRatesViewModel viewModel;
+
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list, null);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_recycler_list_with_swipe_refresh, null);
 
         mRecyclerView = root.findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -65,72 +89,72 @@ public class SR520TollRatesFragment extends BaseFragment {
 
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
+        swipeRefreshLayout = root.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(
+                R.color.holo_blue_bright,
+                R.color.holo_green_light,
+                R.color.holo_orange_light,
+                R.color.holo_red_light);
+
+        mEmptyView = root.findViewById(R.id.empty_list_view);
+        mMessageView = root.findViewById(R.id.message_text);
+
         // For some reason, if we omit this, NoSaveStateFrameLayout thinks we are
         // FILL_PARENT / WRAP_CONTENT, making the progress bar stick to the top of the activity.
         root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(TollRatesViewModel.class);
+
+        viewModel.getResourceStatus().observe(getViewLifecycleOwner(), resourceStatus -> {
+            if (resourceStatus != null) {
+                switch (resourceStatus.status) {
+                    case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        viewModel.getTollRatesFor(520).observe(getViewLifecycleOwner(), tollRateTable -> {
+
+            if (tollRateTable != null) {
+
+                mAdapter.mData.clear();
+
+                mEmptyView.setVisibility(View.GONE);
+
+                if (!tollRateTable.tollRateTableData.getMessage().equals("")) {
+                    mMessageView.setVisibility(View.VISIBLE);
+                    ((TextView) mMessageView).setText(tollRateTable.tollRateTableData.getMessage());
+                }
+
+
+                for (TollRowEntity row: tollRateTable.rows) {
+
+                    if (row.getHeader()) {
+                        mAdapter.addSeparatorItem(row);
+                    } else {
+                        mAdapter.addItem(row);
+                    }
+                }
+
+            } else {
+                Log.e(TAG, "its null");
+            }
+        });
+
+        viewModel.refresh(false);
+
         return root;
     }	
-    
-    @Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-        HashMap<String, String> map = null;
-        String[][] weekdayData = {
-        		{"Midnight to 5 AM", "$1.25", "$3.25"},
-        		{"5 AM to 6 AM", "$2.00", "$4.00"},
-        		{"6 AM to 7 AM", "$3.40", "$5.40"},
-        		{"7 AM to 9 AM", "$4.30", "$6.30"},
-        		{"9 AM to 10 AM", "$3.40", "$5.40"},
-        		{"10 AM to 2 PM", " $2.70", "$4.70"},
-        		{"2 PM to 3 PM", "$3.40", "$5.40"},
-        		{"3 PM to 6 PM", "$4.30", "$6.30"},
-        		{"6 PM to 7 PM", "$3.40", "$5.40"},
-        		{"7 PM to 9 PM", "$2.70", "$4.70"},
-        		{"9 PM to 11 PM", "$2.00", "$4.00"},
-        		{"11 PM to 11:59 PM", "$1.25", "$3.25"}
-        		};
-
-        String[][] weekendData = {
-        		{"Midnight to 5 AM", "$1.25", "$3.25"},
-        		{"5 AM to 8 AM", "$1.40", "$3.40"},
-        		{"8 AM to 11 AM", "$2.05", "$4.05"},
-        		{"11 AM to 6 PM", "$2.65", "$4.65"},
-        		{"6 PM to 9 PM", "$2.05", "$4.05"},
-        		{"9 PM to 11 PM", " $1.40", "$3.40"},
-        		{"11 PM to 11:59 PM", "$1.25", "$3.25"}
-        		};
-        
-        map = new HashMap<String, String>();
-        map.put("hours", "Monday to Friday");
-        map.put("goodtogo_pass", "Good To Go! Pass");
-        map.put("pay_by_mail", "Pay By Mail");
-        mAdapter.addSeparatorItem(map);
-        
-        BuildAdapterData(weekdayData);
-        
-        map = new HashMap<String, String>();
-        map.put("hours", "Weekends and Holidays");
-        map.put("goodtogo_pass", "Good To Go! Pass");
-        map.put("pay_by_mail", "Pay By Mail");
-        mAdapter.addSeparatorItem(map);
-        
-        BuildAdapterData(weekendData);		
-	}
-
-	private void BuildAdapterData(String[][] data) {
-    	HashMap<String, String> map = null;
-    	
-        for (int i = 0; i < data.length; i++) {
-        	map = new HashMap<String, String>();
-        	map.put("hours", data[i][0]);
-            map.put("goodtogo_pass", data[i][1]);
-            map.put("pay_by_mail", data[i][2]);
-            mAdapter.addItem(map);
-        }
-    }
 
     /**
      * Custom adapter for items in recycler view.
@@ -149,7 +173,7 @@ public class SR520TollRatesFragment extends BaseFragment {
         private static final int TYPE_SEPARATOR = 1;
 
         private TreeSet<Integer> mSeparatorsSet = new TreeSet<>();
-        private ArrayList<HashMap<String, String>> mData = new ArrayList<>();
+        private ArrayList<TollRowEntity> mData = new ArrayList<>();
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -160,12 +184,12 @@ public class SR520TollRatesFragment extends BaseFragment {
                 case TYPE_ITEM:
                     itemView = LayoutInflater.
                             from(parent.getContext()).
-                            inflate(R.layout.tollrates_sr520_row, parent, false);
+                            inflate(R.layout.tollrates_three_col_row, parent, false);
                     return new ItemViewHolder(itemView);
                 case TYPE_SEPARATOR:
                     itemView = LayoutInflater.
                             from(parent.getContext()).
-                            inflate(R.layout.tollrates_sr520_header, parent, false);
+                            inflate(R.layout.tollrates_three_col_header, parent, false);
                     return new TitleViewHolder(itemView);
             }
             return null;
@@ -177,24 +201,53 @@ public class SR520TollRatesFragment extends BaseFragment {
             ItemViewHolder itemholder;
             TitleViewHolder titleholder;
 
-            HashMap<String, String> map = mData.get(position);
+            TollRowEntity row = mData.get(position);
 
-            if (getItemViewType(position) == TYPE_ITEM){
-                itemholder = (ItemViewHolder) viewholder;
-                itemholder.hours.setText(map.get("hours"));
-                itemholder.hours.setTypeface(tf);
-                itemholder.goodToGoPass.setText(map.get("goodtogo_pass"));
-                itemholder.goodToGoPass.setTypeface(tf);
-                itemholder.payByMail.setText(map.get("pay_by_mail"));
-                itemholder.payByMail.setTypeface(tf);
-            }else{
-                titleholder = (TitleViewHolder) viewholder;
-                titleholder.hours.setText(map.get("hours"));
-                titleholder.hours.setTypeface(tfb);
-                titleholder.goodToGoPass.setText(map.get("goodtogo_pass"));
-                titleholder.goodToGoPass.setTypeface(tfb);
-                titleholder.payByMail.setText(map.get("pay_by_mail"));
-                titleholder.payByMail.setTypeface(tfb);
+            String[] rowArray = Converters.fromJsonString(row.getRowValues());
+
+            try {
+                if (getItemViewType(position) == TYPE_ITEM) {
+                    itemholder = (ItemViewHolder) viewholder;
+                    itemholder.hours.setText(rowArray[0]);
+                    itemholder.hours.setTypeface(tf);
+                    itemholder.goodToGoPass.setText(rowArray[1]);
+                    itemholder.goodToGoPass.setTypeface(tf);
+                    itemholder.payByMail.setText(rowArray[2]);
+                    itemholder.payByMail.setTypeface(tf);
+
+                    int bgColor = getResources().getColor(R.color.primary_default);
+                    int white = getResources().getColor(R.color.white);
+                    int black = getResources().getColor(R.color.body_text_1);
+
+                    itemholder.itemView.setBackgroundColor(white);
+                    itemholder.hours.setTextColor(black);
+                    itemholder.goodToGoPass.setTextColor(black);
+                    itemholder.payByMail.setTextColor(black);
+
+                    if (Utils.isCurrentHour(row.getStartTime(), row.getEndTime(), Calendar.getInstance())){
+                        if ((row.getWeekday() && !Utils.isWeekendOrWAC_468_270_071Holiday(Calendar.getInstance()))
+                                || (!row.getWeekday() && Utils.isWeekendOrWAC_468_270_071Holiday(Calendar.getInstance()))) {
+
+                            itemholder.itemView.setBackgroundColor(bgColor);
+                            itemholder.hours.setTextColor(white);
+                            itemholder.goodToGoPass.setTextColor(white);
+                            itemholder.payByMail.setTextColor(white);
+                        }
+                    }
+
+
+                } else {
+                    titleholder = (TitleViewHolder) viewholder;
+                    titleholder.hours.setText(rowArray[0]);
+                    titleholder.hours.setTypeface(tfb);
+                    titleholder.goodToGoPass.setText(rowArray[1]);
+                    titleholder.goodToGoPass.setTypeface(tfb);
+                    titleholder.payByMail.setText(rowArray[2]);
+                    titleholder.payByMail.setTypeface(tfb);
+                }
+            } catch (NullPointerException e) {
+                Log.e(TAG, "map values null at:");
+                Log.e(TAG, String.valueOf(position));
             }
         }
 
@@ -203,12 +256,12 @@ public class SR520TollRatesFragment extends BaseFragment {
             return mSeparatorsSet.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
         }
 
-        public void addItem(final HashMap<String, String> map) {
-            mData.add(map);
+        public void addItem(final TollRowEntity  item) {
+            mData.add(item);
             notifyDataSetChanged();
         }
 
-        public void addSeparatorItem(final HashMap<String, String> item) {
+        public void addSeparatorItem(final TollRowEntity  item) {
             mData.add(item);
             // save separator position
             mSeparatorsSet.add(mData.size() - 1);
@@ -228,11 +281,12 @@ public class SR520TollRatesFragment extends BaseFragment {
 
         public ItemViewHolder(View itemView) {
             super(itemView);
-            hours = (TextView) itemView.findViewById(R.id.hours);
-            goodToGoPass = (TextView) itemView.findViewById(R.id.goodtogo_pass);
-            payByMail = (TextView) itemView.findViewById(R.id.pay_by_mail);
+            hours = itemView.findViewById(R.id.hours);
+            goodToGoPass = itemView.findViewById(R.id.goodtogo_pass);
+            payByMail = itemView.findViewById(R.id.pay_by_mail);
         }
     }
+
     public static class TitleViewHolder extends RecyclerView.ViewHolder {
         protected TextView hours;
         protected TextView goodToGoPass;
@@ -240,9 +294,14 @@ public class SR520TollRatesFragment extends BaseFragment {
 
         public TitleViewHolder(View itemView) {
             super(itemView);
-            hours = (TextView) itemView.findViewById(R.id.hours_title);
-            goodToGoPass = (TextView) itemView.findViewById(R.id.goodtogo_pass_title);
-            payByMail = (TextView) itemView.findViewById(R.id.pay_by_mail_title);
+            hours = itemView.findViewById(R.id.hours_title);
+            goodToGoPass = itemView.findViewById(R.id.goodtogo_pass_title);
+            payByMail = itemView.findViewById(R.id.pay_by_mail_title);
         }
+    }
+
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+        viewModel.refresh(true);
     }
 }
