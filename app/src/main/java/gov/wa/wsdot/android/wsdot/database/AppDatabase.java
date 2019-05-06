@@ -827,6 +827,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('border_wait', 0);");
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('notification_topic', 0);");
                                 db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('toll_trip', 0);");
+                                db.execSQL("insert into caches (cache_table_name, cache_last_updated) values ('toll_table', 0);");
 
                                 // Front load the mountain pass cameras
 
