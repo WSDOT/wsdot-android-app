@@ -26,6 +26,11 @@ allprojects {
         jcenter()
         google()
     }
+    configurations.all {
+        resolutionStrategy {
+            force("com.google.auto.value:auto-value-annotations:1.6.3")
+        }
+    }
 }
 
 task clean(type: Delete) {
