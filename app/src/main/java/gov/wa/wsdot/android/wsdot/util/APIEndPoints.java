@@ -23,46 +23,46 @@ public class APIEndPoints {
     public static final String GOOGLE_API_KEY = "";
 
     // Traffic
-    public static final String CAMERAS = "http://data.wsdot.wa.gov/mobile/Cameras.js.gz";
-    public static final String CAMERA_VIDEOS = "http://images.wsdot.wa.gov/nwvideo/";
-    public static final String HIGHWAY_ALERTS = "http://data.wsdot.wa.gov/mobile/HighwayAlerts.js";
+    public static final String CAMERAS = "https://data.wsdot.wa.gov/mobile/Cameras.js.gz";
+    public static final String CAMERA_VIDEOS = "https://images.wsdot.wa.gov/nwvideo/";
+    public static final String HIGHWAY_ALERTS = "https://data.wsdot.wa.gov/mobile/HighwayAlerts.js";
 
-    public static final String TRAVEL_TIMES = "http://data.wsdot.wa.gov/mobile/TravelTimesv2.js";
+    public static final String TRAVEL_TIMES = "https://data.wsdot.wa.gov/mobile/TravelTimesv2.js";
 
-    public static final String BORDER_WAITS = "http://data.wsdot.wa.gov/mobile/BorderCrossings.js";
-    public static final String TRAVEL_CHARTS = "http://data.wsdot.wa.gov/mobile/travelChartsAndroidv1.js.gz";
-    public static final String EXPRESS_LANES = "http://data.wsdot.wa.gov/mobile/ExpressLanes.js";
-    public static final String EXPRESS_LANES_WEBSITE = "http://www.wsdot.wa.gov/Northwest/King/ExpressLanes";
-    public static final String JBLM_IMAGE = "http://images.wsdot.wa.gov/traffic/flowmaps/jblm.png";
+    public static final String BORDER_WAITS = "https://data.wsdot.wa.gov/mobile/BorderCrossings.js";
+    public static final String TRAVEL_CHARTS = "https://data.wsdot.wa.gov/mobile/travelChartsAndroidv1.js.gz";
+    public static final String EXPRESS_LANES = "https://data.wsdot.wa.gov/mobile/ExpressLanes.js";
+    public static final String EXPRESS_LANES_WEBSITE = "https://www.wsdot.wa.gov/Northwest/King/ExpressLanes";
+    public static final String JBLM_IMAGE = "https://images.wsdot.wa.gov/traffic/flowmaps/jblm.png";
 
     // Tolling
-    public static final String TOLL_RATES = "http://data.wsdot.wa.gov/mobile/StaticTollRates.js";
-    public static final String I405_TOLL_RATES = "http://wsdot.com/traffic/api/api/tolling";
+    public static final String TOLL_RATES = "https://data.wsdot.wa.gov/mobile/StaticTollRates.js";
+    public static final String I405_TOLL_RATES = "https://wsdot.com/traffic/api/api/tolling";
 
     // Ferries
-    public static final String FERRY_SCHEDULES = "http://data.wsdot.wa.gov/mobile/WSFRouteSchedules.js.gz";
-    public static final String SAILING_SPACES = "http://www.wsdot.wa.gov/ferries/api/terminals/rest/terminalsailingspace";
-    public static final String VESSEL_LOCATIONS = "http://www.wsdot.wa.gov/ferries/api/vessels/rest/vessellocations";
+    public static final String FERRY_SCHEDULES = "https://data.wsdot.wa.gov/mobile/WSFRouteSchedules.js.gz";
+    public static final String SAILING_SPACES = "https://www.wsdot.wa.gov/ferries/api/terminals/rest/terminalsailingspace";
+    public static final String VESSEL_LOCATIONS = "https://www.wsdot.wa.gov/ferries/api/vessels/rest/vessellocations";
 
     // Passes
-    public static final String PASS_CONDITIONS = "http://data.wsdot.wa.gov/mobile/MountainPassConditions.js.gz";
+    public static final String PASS_CONDITIONS = "https://data.wsdot.wa.gov/mobile/MountainPassConditions.js.gz";
 
     // Amtrak
-    public static final String AMTRAK_SCHEDULE = "http://www.wsdot.wa.gov/traffic/api/amtrak/Schedulerest.svc/GetScheduleAsJson";
-    public static final String AMTRAK_WEBSITE = "http://m.amtrak.com";
+    public static final String AMTRAK_SCHEDULE = "https://www.wsdot.wa.gov/traffic/api/amtrak/Schedulerest.svc/GetScheduleAsJson";
+    public static final String AMTRAK_WEBSITE = "https://m.amtrak.com";
 
     // Social Media
-    public static final String WSDOT_NEWS = "http://data.wsdot.wa.gov/mobile/News.js";
+    public static final String WSDOT_NEWS = "https://data.wsdot.wa.gov/mobile/News.js";
     public static final String WSDOT_BLOG = "https://www.googleapis.com/blogger/v3/blogs/3323104546148939812/posts";
-    public static final String WSDOT_FACEBOOK = "http://www.wsdot.wa.gov/news/socialroom/posts/facebook";
-    public static final String WSDOT_TWITTER = "http://www.wsdot.wa.gov/news/socialroom/posts/twitter/";
+    public static final String WSDOT_FACEBOOK = "https://www.wsdot.wa.gov/news/socialroom/posts/facebook";
+    public static final String WSDOT_TWITTER = "https://www.wsdot.wa.gov/news/socialroom/posts/twitter/";
     public static final String YOUTUBE = "https://www.googleapis.com/youtube/v3/playlistItems";
-    public static final String YOUTUBE_WATCH = "http://www.youtube.com/watch";
+    public static final String YOUTUBE_WATCH = "https://www.youtube.com/watch";
 
     // Banner Events
-    public static final String EVENT = "http://data.wsdot.wa.gov/mobile/EventStatus.js";
+    public static final String EVENT = "https://data.wsdot.wa.gov/mobile/EventStatus.js";
 
     // Notification Topics
-    public static final String FIREBASE_TOPICS =  "http://data.wsdot.wa.gov/mobile/NotificationTopics.js";
-    public static final String FIREBASE_TOPICS_VERSION = "http://data.wsdot.wa.gov/mobile/NotificationTopicsVersion.js";
+    public static final String FIREBASE_TOPICS =  "https://data.wsdot.wa.gov/mobile/NotificationTopics.js";
+    public static final String FIREBASE_TOPICS_VERSION = "https://data.wsdot.wa.gov/mobile/NotificationTopicsVersion.js";
 }
