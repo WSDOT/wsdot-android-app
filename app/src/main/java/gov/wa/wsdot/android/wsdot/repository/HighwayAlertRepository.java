@@ -1,5 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
+import android.os.Build;
 import android.text.format.DateUtils;
 
 import org.json.JSONArray;
@@ -62,7 +63,13 @@ public class HighwayAlertRepository extends NetworkResourceSyncRepository {
 
     void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
-        URL url = new URL(APIEndPoints.HIGHWAY_ALERTS);
+        String urlString = APIEndPoints.HIGHWAY_ALERTS;
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            urlString = urlString.replace("https:", "http:");
+        }
+
+        URL url = new URL(urlString);
         URLConnection urlConn = url.openConnection();
 
         DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy h:mm a", Locale.US);

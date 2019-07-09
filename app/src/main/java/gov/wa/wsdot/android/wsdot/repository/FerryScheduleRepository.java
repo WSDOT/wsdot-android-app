@@ -1,5 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
+import android.os.Build;
 import android.text.format.DateUtils;
 
 import org.json.JSONArray;
@@ -72,7 +73,13 @@ public class FerryScheduleRepository extends NetworkResourceSyncRepository {
 
         starred = ferryScheduleDao.getFavoriteFerrySchedules();
 
-        URL url = new URL(APIEndPoints.FERRY_SCHEDULES);
+        String urlString = APIEndPoints.FERRY_SCHEDULES;
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            urlString = urlString.replace("https:", "http:");
+        }
+
+        URL url = new URL(urlString);
 
         URLConnection urlConn = url.openConnection();
 

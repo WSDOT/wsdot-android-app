@@ -36,6 +36,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -147,6 +148,7 @@ import gov.wa.wsdot.android.wsdot.util.UIUtils;
 import gov.wa.wsdot.android.wsdot.util.map.RestAreasOverlay;
 
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static android.view.View.GONE;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 public class TrafficMapActivity extends BaseActivity implements
@@ -426,7 +428,7 @@ public class TrafficMapActivity extends BaseActivity implements
                     case LOADING:
                         break;
                     case SUCCESS:
-                        mProgressBar.setVisibility(View.GONE);
+                        mProgressBar.setVisibility(GONE);
                         if (mToolbar.getMenu().size() > menu_item_refresh) {
                             if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
                                 mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
@@ -434,7 +436,7 @@ public class TrafficMapActivity extends BaseActivity implements
                         }
                         break;
                     case ERROR:
-                        mProgressBar.setVisibility(View.GONE);
+                        mProgressBar.setVisibility(GONE);
                         Toast.makeText(this, "connection error, failed to load alerts", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -479,7 +481,7 @@ public class TrafficMapActivity extends BaseActivity implements
                         mProgressBar.setVisibility(View.VISIBLE);
                         break;
                     case SUCCESS:
-                        mProgressBar.setVisibility(View.GONE);
+                        mProgressBar.setVisibility(GONE);
                         if (mToolbar.getMenu().size() > menu_item_refresh) {
                             if (mToolbar.getMenu().getItem(menu_item_refresh).getActionView() != null) {
                                 mToolbar.getMenu().getItem(menu_item_refresh).getActionView().getAnimation().setRepeatCount(0);
@@ -487,8 +489,10 @@ public class TrafficMapActivity extends BaseActivity implements
                         }
                         break;
                     case ERROR:
-                        mProgressBar.setVisibility(View.GONE);
-                        Toast.makeText(this, "connection error, failed to load cameras", Toast.LENGTH_SHORT).show();
+                        mProgressBar.setVisibility(GONE);
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                            Toast.makeText(this, "connection error, failed to load cameras", Toast.LENGTH_SHORT).show();
+                        }
                 }
             }
         });
@@ -580,15 +584,17 @@ public class TrafficMapActivity extends BaseActivity implements
             }
         });
 
-        fabCameras.setOnClickListener(v -> {
-            toggleCameras(fabCameras);
-            closeFABMenu();
-        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            fabCameras.setOnClickListener(v -> {
+                toggleCameras(fabCameras);
+                closeFABMenu();
+            });
 
-        fabClusters.setOnClickListener(v -> {
-            toggleCluster(fabClusters);
-            closeFABMenu();
-        });
+            fabClusters.setOnClickListener(v -> {
+                toggleCluster(fabClusters);
+                closeFABMenu();
+            });
+        }
 
         fabAlerts.setOnClickListener(v -> {
             toggleAlerts(fabAlerts);
@@ -599,6 +605,16 @@ public class TrafficMapActivity extends BaseActivity implements
             toggleRestAreas(fabRestareas);
             closeFABMenu();
         });
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            toggleFabOff(fabClusters);
+            toggleFabOff(fabCameras);
+            fabLabelCameras.setText("Cameras Unavailable");
+            fabLabelClusters.setText("Unavailable");
+
+        }
+
+
     }
 
     // Icon Clustering helpers
@@ -1173,10 +1189,10 @@ public class TrafficMapActivity extends BaseActivity implements
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        fabLayoutCameras.setVisibility(View.GONE);
-                        fabLayoutClusters.setVisibility(View.GONE);
-                        fabLayoutAlerts.setVisibility(View.GONE);
-                        fabLayoutRestareas.setVisibility(View.GONE);
+                        fabLayoutCameras.setVisibility(GONE);
+                        fabLayoutClusters.setVisibility(GONE);
+                        fabLayoutAlerts.setVisibility(GONE);
+                        fabLayoutRestareas.setVisibility(GONE);
                         fabLayoutRestareas.animate().setListener(null);
                     }
 
@@ -1201,10 +1217,10 @@ public class TrafficMapActivity extends BaseActivity implements
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        fabLayoutCameras.setVisibility(View.GONE);
-                        fabLayoutClusters.setVisibility(View.GONE);
-                        fabLayoutAlerts.setVisibility(View.GONE);
-                        fabLayoutRestareas.setVisibility(View.GONE);
+                        fabLayoutCameras.setVisibility(GONE);
+                        fabLayoutClusters.setVisibility(GONE);
+                        fabLayoutAlerts.setVisibility(GONE);
+                        fabLayoutRestareas.setVisibility(GONE);
                         fabLayoutRestareas.animate().setListener(null);
                     }
 

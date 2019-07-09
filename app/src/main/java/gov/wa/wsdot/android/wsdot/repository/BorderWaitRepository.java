@@ -1,5 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
+import android.os.Build;
 import android.text.format.DateUtils;
 
 import org.json.JSONArray;
@@ -60,7 +61,14 @@ public class BorderWaitRepository extends NetworkResourceSyncRepository {
     @Override
     void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
-        URL url = new URL(APIEndPoints.BORDER_WAITS);
+
+        String urlString = APIEndPoints.BORDER_WAITS;
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            urlString = urlString.replace("https:", "http:");
+        }
+
+        URL url = new URL(urlString);
         URLConnection urlConn = url.openConnection();
 
         BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));

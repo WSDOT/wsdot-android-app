@@ -99,6 +99,11 @@ public class CameraRepository extends NetworkResourceSyncRepository {
     @Override
     void fetchData(MutableLiveData<ResourceStatus> status) throws Exception {
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            CameraEntity[] camerasArray = new CameraEntity[0];
+            cameraDao.deleteAndInsertTransaction(camerasArray);
+        }
+
         List<CameraEntity> starredCameras = cameraDao.getFavoriteCameras();
         List<Integer> starredCameraIds = new ArrayList<>();
         for (CameraEntity camera : starredCameras){
@@ -132,14 +137,7 @@ public class CameraRepository extends NetworkResourceSyncRepository {
 
             cameraData.setCameraId(item.getInt("id"));
             cameraData.setTitle(item.getString("title"));
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                // replace the https for http in mUrl string
-                cameraData.setUrl(item.getString("url").replace("https:", "http:"));
-            } else {
-                cameraData.setUrl(item.getString("url"));
-            }
-
+            cameraData.setUrl(item.getString("url"));
             cameraData.setLatitude(item.getDouble("lat"));
             cameraData.setLongitude(item.getDouble("lon"));
             cameraData.setDirection(item.getString("direction"));

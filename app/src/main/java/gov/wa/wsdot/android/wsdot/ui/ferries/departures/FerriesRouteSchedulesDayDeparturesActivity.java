@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -193,11 +194,15 @@ public class FerriesRouteSchedulesDayDeparturesActivity extends BaseActivity
         tabFragments.add(mTabLayout.getTabCount(), FerriesRouteSchedulesDayDeparturesFragment.class);
         mTabLayout.addTab(mTabLayout.newTab().setText("Times"));
 
-        tabFragments.add(mTabLayout.getTabCount(), FerriesTerminalCameraFragment.class);
-        mTabLayout.addTab(mTabLayout.newTab().setText("Cameras"));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
-        tabFragments.add(mTabLayout.getTabCount(), VesselWatchFragment.class);
-        mTabLayout.addTab(mTabLayout.newTab().setText("Vessel Watch"));
+            tabFragments.add(mTabLayout.getTabCount(), FerriesTerminalCameraFragment.class);
+            mTabLayout.addTab(mTabLayout.newTab().setText("Cameras"));
+
+            tabFragments.add(mTabLayout.getTabCount(), VesselWatchFragment.class);
+            mTabLayout.addTab(mTabLayout.newTab().setText("Vessel Watch"));
+
+        }
 
         mTabsAdapter = new TabsAdapter
                 (this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount());

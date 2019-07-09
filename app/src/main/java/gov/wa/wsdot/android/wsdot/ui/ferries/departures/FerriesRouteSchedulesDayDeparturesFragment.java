@@ -20,6 +20,7 @@ package gov.wa.wsdot.android.wsdot.ui.ferries.departures;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.DateUtils;
@@ -129,7 +130,9 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                         break;
                     case ERROR:
                         swipeRefreshLayout.setRefreshing(false);
-                        Toast.makeText(this.getContext(), "connection error, can't update spaces", Toast.LENGTH_SHORT).show();
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            Toast.makeText(this.getContext(), "connection error, can't update spaces", Toast.LENGTH_SHORT).show();
+                        }
                 }
             }
         });

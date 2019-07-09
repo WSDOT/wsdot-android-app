@@ -21,6 +21,7 @@ package gov.wa.wsdot.android.wsdot.ui.tollrates;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -82,10 +83,15 @@ public class TollRatesActivity extends BaseActivity {
         mTabLayout.addTab(mTabLayout.newTab().setText("SR 16"));
         tabFragments.add(mTabLayout.getTabCount(), SR99TollRatesFragment.class);
         mTabLayout.addTab(mTabLayout.newTab().setText("SR 99"));
-        tabFragments.add(mTabLayout.getTabCount(), SR167TollRatesFragment.class);
-        mTabLayout.addTab(mTabLayout.newTab().setText("SR 167"));
-        tabFragments.add(mTabLayout.getTabCount(), I405TollRatesFragment.class);
-        mTabLayout.addTab(mTabLayout.newTab().setText("I-405"));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+            tabFragments.add(mTabLayout.getTabCount(), SR167TollRatesFragment.class);
+            mTabLayout.addTab(mTabLayout.newTab().setText("SR 167"));
+            tabFragments.add(mTabLayout.getTabCount(), I405TollRatesFragment.class);
+            mTabLayout.addTab(mTabLayout.newTab().setText("I-405"));
+        }
+
 
         mTabsAdapter = new TabsAdapter(this, tabFragments, getSupportFragmentManager(), mTabLayout.getTabCount());
 

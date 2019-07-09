@@ -18,6 +18,7 @@
 
 package gov.wa.wsdot.android.wsdot.ui.mountainpasses.passitem;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -143,7 +144,7 @@ public class MountainPassItemActivity extends BaseActivity implements Injectable
                 tabFragments.add(mTabLayout.getTabCount(), MountainPassItemReportFragment.class);
                 mTabLayout.addTab(mTabLayout.newTab().setText("Report"));
 
-                if (!cameras.equals("[]")) {
+                if (!cameras.equals("[]") && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
                     tabFragments.add(mTabLayout.getTabCount(), MountainPassItemCameraFragment.class);
                     mTabLayout.addTab(mTabLayout.newTab().setText("Cameras"));
                 }

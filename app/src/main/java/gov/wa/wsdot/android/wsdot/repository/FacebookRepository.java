@@ -1,5 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
+import android.os.Build;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -47,9 +48,13 @@ public class FacebookRepository extends NetworkResourceRepository {
 
         List<FacebookItem> mFacebookItems = new ArrayList<>();
 
-        URL url;
+        String urlString = APIEndPoints.WSDOT_FACEBOOK;
 
-        url = new URL(APIEndPoints.WSDOT_FACEBOOK);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            urlString = urlString.replace("https:", "http:");
+        }
+
+        URL url = new URL(urlString);
         URLConnection urlConn = url.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
         String jsonFile = "";

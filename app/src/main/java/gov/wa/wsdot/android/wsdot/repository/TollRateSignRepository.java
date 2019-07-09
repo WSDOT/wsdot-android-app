@@ -1,5 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
+import android.os.Build;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -92,9 +93,7 @@ public class TollRateSignRepository extends NetworkResourceSyncRepository {
         List<TollRateSignEntity> mTollRateItems = new ArrayList<>();
         List<TollTripEntity> mTollTrips = new ArrayList<>();
 
-        URL url;
-
-        url = new URL(APIEndPoints.I405_TOLL_RATES + "?accesscode=" + APIEndPoints.WSDOT_API_KEY);
+        URL url = new URL( APIEndPoints.I405_TOLL_RATES+ "?accesscode=" + APIEndPoints.WSDOT_API_KEY);
 
         URLConnection urlConn = url.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));

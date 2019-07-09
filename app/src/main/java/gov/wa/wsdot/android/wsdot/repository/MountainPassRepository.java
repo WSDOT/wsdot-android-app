@@ -1,5 +1,6 @@
 package gov.wa.wsdot.android.wsdot.repository;
 
+import android.os.Build;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -90,7 +91,13 @@ public class MountainPassRepository extends NetworkResourceSyncRepository {
 
         starred = mountainPassDao.getFavoriteMountainPasses();
 
-        URL url = new URL(APIEndPoints.PASS_CONDITIONS);
+        String urlString = APIEndPoints.PASS_CONDITIONS;
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            urlString = urlString.replace("https:", "http:");
+        }
+
+        URL url = new URL(urlString);
         URLConnection urlConn = url.openConnection();
 
         BufferedInputStream bis = new BufferedInputStream(urlConn.getInputStream());
