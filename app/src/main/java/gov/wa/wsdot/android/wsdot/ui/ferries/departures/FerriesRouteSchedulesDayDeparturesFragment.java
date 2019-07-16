@@ -247,24 +247,31 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
             Date now = new Date();
 
-            if (now.after(item.getDepartingTime())) {
-                itemHolder.departing.setTextColor(getResources().getColor(R.color.semi_white));
-                itemHolder.arriving.setTextColor(getResources().getColor(R.color.semi_white));
-                itemHolder.annotation.setTextColor(getResources().getColor(R.color.semi_white));
-            } else {
-                itemHolder.departing.setTextColor(getResources().getColor(R.color.body_text_1));
-                itemHolder.arriving.setTextColor(getResources().getColor(R.color.body_text_1));
-                itemHolder.annotation.setTextColor(getResources().getColor(R.color.body_text_1));
+            if (item.getDepartingTime() != null) {
+                if (now.after(item.getDepartingTime())) {
+                    itemHolder.departing.setTextColor(getResources().getColor(R.color.semi_white));
+                    itemHolder.arriving.setTextColor(getResources().getColor(R.color.semi_white));
+                    itemHolder.annotation.setTextColor(getResources().getColor(R.color.semi_white));
+
+                } else {
+                    itemHolder.departing.setTextColor(getResources().getColor(R.color.body_text_1));
+                    itemHolder.arriving.setTextColor(getResources().getColor(R.color.body_text_1));
+                    itemHolder.annotation.setTextColor(getResources().getColor(R.color.body_text_1));
+                }
             }
 
             StringBuilder contentDescriptionBuilder = new StringBuilder();
 
             String annotation = "";
 
-            itemHolder.departing.setText(dateFormat.format(item.getDepartingTime()));
-            contentDescriptionBuilder.append("departing at ");
-            contentDescriptionBuilder.append(itemHolder.departing.getText());
-            contentDescriptionBuilder.append(". ");
+            if (item.getDepartingTime() != null) {
+                itemHolder.departing.setText(dateFormat.format(item.getDepartingTime()));
+                contentDescriptionBuilder.append("departing at ");
+                contentDescriptionBuilder.append(itemHolder.departing.getText());
+                contentDescriptionBuilder.append(". ");
+            } else {
+                itemHolder.departing.setText("Unavailable");
+            }
 
             if (item.getArrivingTime() != null) {
                 itemHolder.arriving.setText(dateFormat.format(item.getArrivingTime()));

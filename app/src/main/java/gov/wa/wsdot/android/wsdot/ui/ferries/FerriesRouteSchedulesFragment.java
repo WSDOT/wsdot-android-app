@@ -121,11 +121,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
                         break;
                     case ERROR:
                         swipeRefreshLayout.setRefreshing(false);
-
-                        mEmptyView.setVisibility(View.VISIBLE);
-                        mRecyclerView.setVisibility(View.GONE);
-                        mEmptyView.setText("There was a problem loading the schedule");
-
                         Toast.makeText(this.getContext(), "connection error", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -134,6 +129,14 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
         viewModel.getFerrySchedules().observe(getViewLifecycleOwner(), schedules -> {
             mSchedule = schedules;
             mAdapter.notifyDataSetChanged();
+            if (mSchedule.size() == 0) {
+                mEmptyView.setVisibility(View.VISIBLE);
+                mRecyclerView.setVisibility(View.GONE);
+                mEmptyView.setText("Schedules Unavailable");
+            } else {
+                mEmptyView.setVisibility(View.GONE);
+                mRecyclerView.setVisibility(View.VISIBLE);
+            }
         });
 
         return root;

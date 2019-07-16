@@ -224,11 +224,13 @@ public class FerryTerminalViewModel extends ViewModel {
 
                             for (FerriesScheduleTimesItem time : times) {
 
-                                if (dateFormat.format(time.getDepartingTime()).equals(departure)
-                                        && new Date().before(time.getDepartingTime())) {
-                                    time.setDriveUpSpaceCount(driveUpSpaceCount);
-                                    time.setMaxSpaceCount(maxSpaceCount);
-                                    time.setLastUpdated(lastUpdated);
+                                if (time.getDepartingTime() != null) {
+                                    if (dateFormat.format(time.getDepartingTime()).equals(departure)
+                                            && new Date().before(time.getDepartingTime())) {
+                                        time.setDriveUpSpaceCount(driveUpSpaceCount);
+                                        time.setMaxSpaceCount(maxSpaceCount);
+                                        time.setLastUpdated(lastUpdated);
+                                    }
                                 }
                             }
                             k = arrivalTerminalIDs.length();
@@ -266,11 +268,11 @@ public class FerryTerminalViewModel extends ViewModel {
                 // add the vessels actual departure time and ETA to the schedule if available.
                 for (FerriesScheduleTimesItem time: times ) {
 
-                    if (dateFormat.format(time.getDepartingTime()).equals(vessel.getScheduledDeparture())){
-
-                        time.setActualDeparture(vessel.getLeftDock());
-                        time.setEta(vessel.getEta());
-
+                    if (time.getDepartingTime() != null) {
+                        if (dateFormat.format(time.getDepartingTime()).equals(vessel.getScheduledDeparture())) {
+                            time.setActualDeparture(vessel.getLeftDock());
+                            time.setEta(vessel.getEta());
+                        }
                     }
                 }
             }

@@ -9,8 +9,8 @@ android {
         applicationId "gov.wa.wsdot.android.wsdot"
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 14145160
-        versionName "5.16.0"
+        versionCode 14145161
+        versionName "5.16.1"
         multiDexEnabled true
 
         javaCompileOptions {
