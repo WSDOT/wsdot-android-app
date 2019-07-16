@@ -84,7 +84,7 @@ public class FerriesBulletinsViewModel extends ViewModel {
 
     private ArrayList<FerriesRouteAlertItem> processAlerts(String alertsJson){
 
-        DateFormat shortDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat shortDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
 
         ArrayList<FerriesRouteAlertItem> routeAlertItems = new ArrayList<>();
 
