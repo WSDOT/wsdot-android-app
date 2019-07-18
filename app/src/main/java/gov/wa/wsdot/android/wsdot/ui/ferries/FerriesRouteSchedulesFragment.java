@@ -132,7 +132,6 @@ public class FerriesRouteSchedulesFragment extends BaseFragment implements
             if (mSchedule.size() == 0) {
                 mEmptyView.setVisibility(View.VISIBLE);
                 mRecyclerView.setVisibility(View.GONE);
-                mEmptyView.setText("Schedules Unavailable");
             } else {
                 mEmptyView.setVisibility(View.GONE);
                 mRecyclerView.setVisibility(View.VISIBLE);

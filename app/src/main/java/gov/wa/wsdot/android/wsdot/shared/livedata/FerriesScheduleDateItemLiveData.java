@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,11 +58,13 @@ public class FerriesScheduleDateItemLiveData extends LiveData<List<FerriesSchedu
         });
     }
 
-
     private List<FerriesScheduleDateItem> processDates(String datesJson){
 
         DateFormat shortDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd h:mm a");
+
+        dateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        shortDateFormat.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
 
         ArrayList<FerriesScheduleDateItem> dateItems = new ArrayList<>();
         FerriesScheduleDateItem scheduleDate;
