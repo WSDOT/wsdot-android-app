@@ -289,7 +289,7 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
                 }
             }
 
-            // only show actualDeapture if viewing today's sailings
+            // only show actualDeparture if viewing today's sailings
             if (item.getActualDeparture() != null && DateUtils.isToday(item.getDepartingTime().getTime())) {
                 itemHolder.actualDeparture.setText(String.format("Actual departure\n%s", item.getActualDeparture()));
             } else {
@@ -312,22 +312,27 @@ public class FerriesRouteSchedulesDayDeparturesFragment extends BaseFragment
 
             itemHolder.annotation.setText(android.text.Html.fromHtml(annotation));
 
+
             if (item.getDriveUpSpaceCount() != -1) {
-                itemHolder.vehicleSpaceGroup.setVisibility(View.VISIBLE);
-                itemHolder.driveUpProgressBar.setMax(item.getMaxSpaceCount());
-                itemHolder.driveUpProgressBar.setProgress(item.getMaxSpaceCount() - item.getDriveUpSpaceCount());
-                itemHolder.driveUpProgressBar.setSecondaryProgress(item.getMaxSpaceCount());
-                itemHolder.driveUpSpaceCount.setVisibility(View.VISIBLE);
-                itemHolder.driveUpSpaceCount.setText(Integer.toString(item.getDriveUpSpaceCount()));
-                itemHolder.driveUpSpaces.setVisibility(View.VISIBLE);
-                itemHolder.driveUpSpacesDisclaimer.setVisibility(View.VISIBLE);
-                itemHolder.updated.setVisibility(View.VISIBLE);
-                itemHolder.updated.setText(ParserUtils.relativeTime(item.getLastUpdated(), "MMMM d, yyyy h:mm a", false));
-                contentDescriptionBuilder.append(itemHolder.driveUpSpaceCount.getText());
-                contentDescriptionBuilder.append(" drive-up spaces. ");
-                contentDescriptionBuilder.append(itemHolder.driveUpSpacesDisclaimer.getText());
-                contentDescriptionBuilder.append(". Drive-up spaces updated ");
-                contentDescriptionBuilder.append(itemHolder.updated.getText());
+                if (item.getDepartingTime() != null) {
+                    if (now.before(item.getDepartingTime())) {
+                        itemHolder.vehicleSpaceGroup.setVisibility(View.VISIBLE);
+                        itemHolder.driveUpProgressBar.setMax(item.getMaxSpaceCount());
+                        itemHolder.driveUpProgressBar.setProgress(item.getMaxSpaceCount() - item.getDriveUpSpaceCount());
+                        itemHolder.driveUpProgressBar.setSecondaryProgress(item.getMaxSpaceCount());
+                        itemHolder.driveUpSpaceCount.setVisibility(View.VISIBLE);
+                        itemHolder.driveUpSpaceCount.setText(Integer.toString(item.getDriveUpSpaceCount()));
+                        itemHolder.driveUpSpaces.setVisibility(View.VISIBLE);
+                        itemHolder.driveUpSpacesDisclaimer.setVisibility(View.VISIBLE);
+                        itemHolder.updated.setVisibility(View.VISIBLE);
+                        itemHolder.updated.setText(ParserUtils.relativeTime(item.getLastUpdated(), "MMMM d, yyyy h:mm a", false));
+                        contentDescriptionBuilder.append(itemHolder.driveUpSpaceCount.getText());
+                        contentDescriptionBuilder.append(" drive-up spaces. ");
+                        contentDescriptionBuilder.append(itemHolder.driveUpSpacesDisclaimer.getText());
+                        contentDescriptionBuilder.append(". Drive-up spaces updated ");
+                        contentDescriptionBuilder.append(itemHolder.updated.getText());
+                    }
+                }
             } else {
                 itemHolder.vehicleSpaceGroup.setVisibility(View.GONE);
                 itemHolder.driveUpSpaceCount.setVisibility(View.GONE);
