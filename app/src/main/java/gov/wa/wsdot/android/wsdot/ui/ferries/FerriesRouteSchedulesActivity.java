@@ -23,10 +23,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-
 import androidx.appcompat.widget.Toolbar;
 import gov.wa.wsdot.android.wsdot.R;
 import gov.wa.wsdot.android.wsdot.ui.BaseActivity;
+import gov.wa.wsdot.android.wsdot.ui.ferries.departures.vesselwatch.VesselWatchActivity;
 
 public class FerriesRouteSchedulesActivity extends BaseActivity {
 
@@ -40,21 +40,36 @@ public class FerriesRouteSchedulesActivity extends BaseActivity {
 
 		mToolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
-		if(getSupportActionBar() != null){
+		if(getSupportActionBar() != null) {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
 
-        enableAds(getString(R.string.ferries_ad_target));
+		findViewById(R.id.tickets_button_link).setOnClickListener(v -> {
+			Intent intent = new Intent();
+			setFirebaseAnalyticsEvent("open_link", "type", "ferry_tickets");
+			intent.setAction(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse("https://wave2go.wsdot.com/Webstore/Content.aspx?Kind=LandingPage&CG=21&C=10"));
+			startActivity(intent);
+		});
 
-	}
+		findViewById(R.id.reservations_button_link).setOnClickListener(v -> {
+			Intent intent = new Intent();
+			setFirebaseAnalyticsEvent("open_link", "type", "ferry_reservation");
+			intent.setAction(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse("https://secureapps.wsdot.wa.gov/Ferries/Reservations/Vehicle/Mobile/MobileDefault.aspx"));
+			startActivity(intent);
+		});
+
+		enableAds(getString(R.string.ferries_ad_target));
+
+    }
 
 	@Override
 	public void onResume() {
 		super.onResume();
 		setFirebaseAnalyticsScreenName("FerrySchedules");
 	}
-
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -68,20 +83,13 @@ public class FerriesRouteSchedulesActivity extends BaseActivity {
 			case android.R.id.home:
 				finish();
 				return true;
-			case R.id.menu_reservations_link:
-				Intent intent = new Intent();
-				setFirebaseAnalyticsEvent("open_link", "type", "ferry_reservation");
-
-				intent.setAction(Intent.ACTION_VIEW);
-				intent.setData(Uri.parse("https://secureapps.wsdot.wa.gov/Ferries/Reservations/Vehicle/Mobile/MobileDefault.aspx"));
-
+			case R.id.menu_vessel_watch:
+				Intent intent = new Intent(this, VesselWatchActivity.class);
 				startActivity(intent);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
-
 }
 
 

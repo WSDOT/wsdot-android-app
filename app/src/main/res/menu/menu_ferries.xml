@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:wsdot="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_reservations_link"
-        android:title="@string/description_reservations"
-        android:contentDescription="@string/description_reservations"
+        android:id="@+id/menu_vessel_watch"
+        android:title="@string/description_vessel_watch"
+        android:contentDescription="@string/description_vessel_watch"
         android:orderInCategory="1"
         wsdot:showAsAction="always"/>
 </menu>
