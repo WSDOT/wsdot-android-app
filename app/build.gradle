@@ -140,18 +140,20 @@ dependencies {
 
     // Android arch
     androidTestImplementation 'androidx.room:room-testing:2.0.0'
-
 }
 
 buildscript {
+
     repositories {
         google()
         jcenter()
     }
+
     dependencies {
         classpath 'com.google.firebase:firebase-plugins:1.2.0'
 
     }
+
 }
 
 apply plugin: 'com.google.gms.google-services'

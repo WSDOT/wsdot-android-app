@@ -118,5 +118,4 @@ public class VesselWatchDetailsActivity extends BaseActivity {
 			mLoadingSpinner.setVisibility(View.GONE);
 		}
 	}
-	
 }

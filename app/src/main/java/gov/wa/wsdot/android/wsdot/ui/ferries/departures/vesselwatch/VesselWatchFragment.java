@@ -79,7 +79,9 @@ public class VesselWatchFragment extends BaseFragment
 
         Bundle args = getActivity().getIntent().getExtras();
 
-        mScheduleId = args.getInt("scheduleId");
+        if (args != null) {
+            mScheduleId = args.getInt("scheduleId", -1);
+        }
 
         // Check preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -115,7 +117,6 @@ public class VesselWatchFragment extends BaseFragment
 
         return rootView;
     }
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -234,7 +235,6 @@ public class VesselWatchFragment extends BaseFragment
 
                         tempMarkers.put(marker, "camera");
                     }
-
                 }
 
                 Iterator<Map.Entry<Marker, String>> iter = markers.entrySet().iterator();
@@ -280,6 +280,7 @@ public class VesselWatchFragment extends BaseFragment
         }
 
         return true;
+
     }
 
     /**

@@ -177,6 +177,15 @@
                 android:value=".ui.ferries.bulletins.FerriesRouteAlertsBulletinsActivity" />
         </activity>
 
+        <activity android:name=".ui.ferries.departures.vesselwatch.VesselWatchActivity"
+            android:label="@string/title_vesselwatch"
+            android:parentActivityName=".ui.ferries.FerriesRouteSchedulesActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ferries.FerriesRouteSchedulesActivity" />
+        </activity>
+
         <activity android:name=".ui.ferries.departures.vesselwatch.VesselWatchDetailsActivity" />
         <activity
             android:name=".ui.tollrates.TollRatesActivity"
