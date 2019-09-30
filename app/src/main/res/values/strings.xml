@@ -59,6 +59,7 @@
 
     <string name="search_title">Search</string>
 
+    <string name="description_vessel_watch">VESSEL WATCH</string>
     <string name="drive_up_spaces">Drive-up spaces</string>
     <string name="drive_up_spaces_disclaimer">Vehicles in line for tollbooth are not included in this estimate</string>
 
@@ -143,5 +144,6 @@
     <string name="favorites_six">KEY_SIXTH_FAVORITES_SECTION_v1</string>
     <string name="favorites_seven">KEY_SEVENTH_FAVORITES_SECTION_v1</string>
     <string name="favorites_eight">KEY_EIGHTH_FAVORITES_SECTION_v1</string>
+
 
 </resources>
