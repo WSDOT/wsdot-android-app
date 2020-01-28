@@ -1,3 +1,8 @@
+
+### ⚠️ This repo is no longer maintained ###
+
+Check out the new [WSDOT Android App Repo.](https://github.com/WSDOT/wsdot-kotlin-app)
+
 # WSDOT Android App #
 
 Washington State Traveler information provide by The Washington State Department of Transportation.
